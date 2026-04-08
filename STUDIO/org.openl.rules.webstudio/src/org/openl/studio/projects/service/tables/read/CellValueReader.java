@@ -17,21 +17,22 @@ public class CellValueReader implements Function<ICell, Object> {
         this.metaInfoReader = metaInfoReader;
     }
 
+    @Override
     public Object apply(ICell cell) {
         var value = cell.getObjectValue();
-        if (value instanceof String) {
+        if (value instanceof String string) {
             var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
             var formatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo, false);
             if (formatter != null) {
-                var parsedValue = formatter.parse((String) value);
+                var parsedValue = formatter.parse(string);
                 if (parsedValue != null) {
                     value = parsedValue;
                 }
             }
         }
-        if (value instanceof Date) {
+        if (value instanceof Date date) {
             // If the time is not set, then return LocalDate, otherwise LocalDateTime
-            var zonedDateTime = ((Date) value).toInstant().atZone(ZoneId.systemDefault());
+            var zonedDateTime = date.toInstant().atZone(ZoneId.systemDefault());
             if (zonedDateTime.toLocalTime().isAfter(LocalTime.MIN)) {
                 value = zonedDateTime.toLocalDateTime();
             } else {

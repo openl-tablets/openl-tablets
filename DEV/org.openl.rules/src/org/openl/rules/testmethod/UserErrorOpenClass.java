@@ -25,6 +25,7 @@ public class UserErrorOpenClass extends ADynamicClass {
         return new Entry();
     }
 
+    @Override
     public IOpenField getField(String name, boolean strictMatch) {
         IOpenField field = super.getField(name, strictMatch);
         if (field != null) {
@@ -78,10 +79,10 @@ public class UserErrorOpenClass extends ADynamicClass {
         public Object get(Object target, IRuntimeEnv env) {
             if (target == null) {
                 return null;
-            } else if (target instanceof Entry) {
-                Object o = ((Map<?, ?>) ((Entry) target).value).get(getName());
-                if (o instanceof Entry && ((Entry) o).value instanceof String) {
-                    return ((Entry) o).value;
+            } else if (target instanceof Entry entry1) {
+                Object o = ((Map<?, ?>) entry1.value).get(getName());
+                if (o instanceof Entry entry && ((Entry) o).value instanceof String) {
+                    return entry.value;
                 }
                 return o;
             } else if (ThisField.THIS.equals(getName())) {

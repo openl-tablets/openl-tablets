@@ -8,18 +8,17 @@ import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.Model;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class DefaultValueCellWriter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultValueCellWriter.class);
 
     protected DefaultValueCellWriter() {
     }
@@ -35,7 +34,7 @@ public class DefaultValueCellWriter {
             try {
                 setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
-                LOGGER
+                log
                         .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
             }
         }
@@ -48,51 +47,38 @@ public class DefaultValueCellWriter {
         Object defaultValue = model.getDefaultValue();
         String valueAsString = defaultValue.toString();
         switch (model.getType()) {
-            case "Integer":
-            case "BigInteger":
+            case "Integer",
+                 "BigInteger" -> {
                 Number casted = NumberFormat.getInstance().parse(valueAsString);
                 if (casted.longValue() <= Integer.MAX_VALUE) {
                     valueCell.setCellValue(Integer.parseInt(valueAsString));
                 } else {
                     valueCell.setCellValue(Long.parseLong(valueAsString));
                 }
-                break;
-            case "Long":
-                valueCell.setCellValue(Long.parseLong(valueAsString));
-                break;
-            case "Double":
-                valueCell.setCellValue(Double.parseDouble(valueAsString));
-                break;
-            case "Float":
-                valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
-                break;
-            case "BigDecimal":
-                valueCell.setCellValue(valueAsString);
-                break;
-            case "String":
+            }
+            case "Long" -> valueCell.setCellValue(Long.parseLong(valueAsString));
+            case "Double" -> valueCell.setCellValue(Double.parseDouble(valueAsString));
+            case "Float" -> valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
+            case "BigDecimal" -> valueCell.setCellValue(valueAsString);
+            case "String" -> {
                 if (StringUtils.isBlank(valueAsString)) {
                     valueCell.setCellValue(DEFAULT_STRING_VALUE);
                 } else {
                     valueCell.setCellValue(valueAsString);
                 }
-                break;
-            case "Boolean":
-                valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
-                break;
-            case "Date":
-                if (defaultValue instanceof Date) {
-                    Date dateValue = (Date) defaultValue;
+            }
+            case "Boolean" -> valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
+            case "Date" -> {
+                if (defaultValue instanceof Date dateValue) {
                     valueCell.setCellValue(dateValue);
                     valueCell.setCellStyle(dateStyle);
                 } else {
                     OffsetDateTime dateValue = (OffsetDateTime) defaultValue;
-                    valueCell.setCellValue(new Date((dateValue).toInstant().toEpochMilli()));
+                    valueCell.setCellValue(new Date(dateValue.toInstant().toEpochMilli()));
                     valueCell.setCellStyle(dateTimeStyle);
                 }
-                break;
-            default:
-                valueCell.setCellValue("");
-                break;
+            }
+            default -> valueCell.setCellValue("");
         }
     }
 }

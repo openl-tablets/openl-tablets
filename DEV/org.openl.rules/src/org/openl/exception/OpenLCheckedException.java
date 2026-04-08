@@ -1,5 +1,7 @@
 package org.openl.exception;
 
+import java.io.Serial;
+
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
@@ -9,6 +11,7 @@ import org.openl.util.text.ILocation;
  */
 public class OpenLCheckedException extends Exception implements OpenLException {
 
+    @Serial
     private static final long serialVersionUID = -4044064134031015107L;
 
     private ILocation location;

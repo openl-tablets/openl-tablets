@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -39,11 +38,11 @@ import org.openl.xls.RulesCompileContext;
  *
  * @author PUdalau, Marat Kamalov
  */
+@Slf4j
 public class RulesEngineFactory<T> {
 
 
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
-    private final Logger log = LoggerFactory.getLogger(RulesEngineFactory.class);
     private final IOpenSourceCodeModule sourceCode;
 
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();
@@ -267,7 +266,7 @@ public class RulesEngineFactory<T> {
                 // If openClass does not have appropriate method or field then
                 // throw runtime exception.
                 //
-                String message = String.format("There is no implementation in rules for interface method '%s'",
+                String message = "There is no implementation in rules for interface method '%s'".formatted(
                         interfaceMethod);
 
                 throw new OpenlNotCheckedException(message);
@@ -291,7 +290,7 @@ public class RulesEngineFactory<T> {
         Class<?> interfaceReturnType = interfaceMethod.getReturnType();
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
-            String message = String.format(INCORRECT_RET_TYPE_MSG,
+            String message = INCORRECT_RET_TYPE_MSG.formatted(
                     openClassReturnType.getName(),
                     interfaceMethod.getName(),
                     interfaceReturnType.getName());

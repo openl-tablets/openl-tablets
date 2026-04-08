@@ -72,6 +72,7 @@ public class AProjectArtefact implements IProjectArtefact {
         return getFileData().getName().substring(projectPath.length() + 1);
     }
 
+    @Override
     public String getName() {
         String name = getFileData().getName();
         return name.substring(name.lastIndexOf('/') + 1);

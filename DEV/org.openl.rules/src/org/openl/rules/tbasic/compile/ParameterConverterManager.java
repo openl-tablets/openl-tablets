@@ -49,11 +49,11 @@ public class ParameterConverterManager {
         ParameterConverter converter = parameterConverters.get(clazz);
 
         if (converter == null) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+            IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
-            BindHelper.processError(String.format("Compilation failure. Cannot convert parameter %s to type %s",
+            BindHelper.processError("Compilation failure. Cannot convert parameter %s to type %s".formatted(
                     operationParam,
                     clazz.toString()), errorSource, bindingContext);
         }
@@ -110,8 +110,8 @@ public class ParameterConverterManager {
 
             AlgorithmTreeNode executionNode = AlgorithmCompilerTool
                     .extractOperationNode(nodesToCompile, operationParam, bindingContext);
-            String methodName = String
-                    .format("%s_row_%s", operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
+            String methodName = "%s_row_%s"
+                    .formatted(operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
 
             IOpenSourceCodeModule src = cellContent.getMetaInfo().getSource();
             // return statements for the whole Algorithm(TBasic) should be casted to the return type of

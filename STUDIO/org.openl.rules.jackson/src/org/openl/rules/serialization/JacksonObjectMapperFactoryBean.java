@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.Builder;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -31,10 +30,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import groovy.lang.GroovyObject;
+import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -45,13 +43,13 @@ import org.openl.rules.serialization.jackson.SubtypeMixin;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
+@Slf4j
 public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
     private static final AtomicLong incrementer = new AtomicLong();
 
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
-    private final Logger log = LoggerFactory.getLogger(JacksonObjectMapperFactoryBean.class);
 
     private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 
@@ -122,6 +120,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
     }
 
+    @Override
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTimeZone(TimeZone.getDefault());
@@ -154,7 +153,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         mapper.setAnnotationIntrospector(introspector);
 
-        Builder basicPolymorphicTypeValidatorBuilder = null;
+        BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder = null;
         final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
         if (polymorphicTypeValidation) {
             basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
@@ -184,24 +183,15 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-            ObjectMapper.DefaultTyping defaultTyping = null;
-            switch (getDefaultTypingMode()) {
-                case NON_FINAL:
-                    defaultTyping = ObjectMapper.DefaultTyping.NON_FINAL;
-                    break;
-                case OBJECT_AND_NON_CONCRETE:
-                    defaultTyping = ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
-                    break;
-                case NON_CONCRETE_AND_ARRAYS:
-                    defaultTyping = ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS;
-                    break;
-                case JAVA_LANG_OBJECT:
-                    defaultTyping = ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
-                    break;
-                case EVERYTHING:
-                    defaultTyping = ObjectMapper.DefaultTyping.EVERYTHING;
-                    break;
-            }
+            ObjectMapper.DefaultTyping defaultTyping = switch (getDefaultTypingMode()) {
+                case NON_FINAL -> ObjectMapper.DefaultTyping.NON_FINAL;
+                case NON_FINAL_AND_ENUMS -> ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS;
+                case OBJECT_AND_NON_CONCRETE -> ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
+                case NON_CONCRETE_AND_ARRAYS -> ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS;
+                case JAVA_LANG_OBJECT -> ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
+                case EVERYTHING -> ObjectMapper.DefaultTyping.EVERYTHING;
+                default -> null;
+            };
             mapper.activateDefaultTypingAsProperty(
                     polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
                             : LaissezFaireSubTypeValidator.instance,
@@ -239,7 +229,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         return mapper;
     }
 
-    private Set<Class<?>> extractOverrideClasses(Builder basicPolymorphicTypeValidatorBuilder,
+    private Set<Class<?>> extractOverrideClasses(BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder,
                                                  boolean polymorphicTypeValidation) throws ClassNotFoundException {
         Set<Class<?>> classes = new HashSet<>();
         if (getOverrideTypes() != null) {
@@ -276,7 +266,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         return configurationClasses;
     }
 
-    private void registerOverrideClass(Builder basicPolymorphicTypeValidatorBuilder,
+    private void registerOverrideClass(BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder,
                                        boolean polymorphicTypeValidation,
                                        Set<Class<?>> classes,
                                        Class<?> clazz) {

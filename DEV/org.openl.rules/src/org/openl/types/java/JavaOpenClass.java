@@ -108,7 +108,7 @@ public class JavaOpenClass extends AOpenClass {
             return type.getConstructor(Class.class).newInstance(c);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                  | InvocationTargetException e) {
-            throw new IllegalStateException(String.format("Failed to instantiate '%s' class to support @%s annotation",
+            throw new IllegalStateException("Failed to instantiate '%s' class to support @%s annotation".formatted(
                     type.getTypeName(),
                     CustomJavaOpenClass.class.getSimpleName()), e);
         }

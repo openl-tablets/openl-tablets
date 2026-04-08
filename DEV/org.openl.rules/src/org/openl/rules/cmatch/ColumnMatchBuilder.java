@@ -94,7 +94,7 @@ public class ColumnMatchBuilder {
             // 0-th row
             grid = colTable.getSource();
             SubValue[] values = createSV(column, grid, 0, subColumns);
-            rows.get(0).add(column.getId(), values);
+            rows.getFirst().add(column.getId(), values);
         }
 
         return rows;

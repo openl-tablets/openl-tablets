@@ -5,8 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -18,9 +17,9 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
  *
  * @author Eugene Biruk
  */
+@Slf4j
 public class Oauth2LogoutSuccessHandler extends SecurityContextLogoutHandler implements LogoutHandler {
 
-    private final Logger log = LoggerFactory.getLogger(Oauth2LogoutSuccessHandler.class);
 
     private final OidcClientInitiatedLogoutSuccessHandler logoutHandler;
 

@@ -49,7 +49,7 @@ public class TBasicVM {
             goToLabelInMainContext(label);
         }
         throw new RuntimeException(
-                String.format("Unexpected error while execution of TBasic component: unknown label '%s'", label));
+                "Unexpected error while execution of TBasic component: unknown label '%s'".formatted(label));
     }
 
     /**

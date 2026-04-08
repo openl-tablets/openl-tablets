@@ -46,6 +46,7 @@ public final class Page extends Pageable {
      *
      * @return true or false
      */
+    @Override
     public boolean isUnpaged() {
         return false;
     }
@@ -73,13 +74,12 @@ public final class Page extends Pageable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Page)) {
+        if (!(o instanceof Page page1)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-        Page page1 = (Page) o;
         return page == page1.page;
     }
 

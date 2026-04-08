@@ -28,8 +28,7 @@ import jakarta.xml.bind.JAXBException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -94,6 +93,7 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 
 @Service
 @RequestScope
+@Slf4j
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     public static final String CANNOT_BE_EMPTY_MESSAGE = "Cannot be empty";
@@ -106,7 +106,6 @@ public class ProjectBean {
 
     private final WebStudio studio = WebStudioUtils.getWebStudio();
 
-    private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
@@ -247,7 +246,7 @@ public class ProjectBean {
 
         if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
             WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
-            WebStudioUtils.validate(!NameChecker.isReservedName(name), String.format("'%s' is a reserved word.", name));
+            WebStudioUtils.validate(!NameChecker.isReservedName(name), "'%s' is a reserved word.".formatted(name));
             WebStudioUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
         }
     }
@@ -294,7 +293,10 @@ public class ProjectBean {
         }
     }
 
-    // TODO Move messages to ValidationMessages.properties
+    /**
+     * @deprecated Use {@code ProjectModulesService.addModule()} or {@code editModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModuleName(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
         String oldName = WebStudioUtils.getRequestParameter("moduleNameOld");
@@ -318,6 +320,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModuleNameForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
         String oldName = WebStudioUtils.getRequestParameter("copyModuleForm:moduleNameOld");
@@ -341,7 +347,10 @@ public class ProjectBean {
         }
     }
 
-    // TODO Move messages to ValidationMessages.properties
+    /**
+     * @deprecated Use {@code ProjectModulesService.addModule()} or {@code editModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         final String path = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
@@ -373,6 +382,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
@@ -381,7 +394,7 @@ public class ProjectBean {
         try {
             NameChecker.validatePath(path);
         } catch (IOException e) {
-            WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
+            WebStudioUtils.throwValidationError("Invalid path \"%s\". %s".formatted(path, e.getMessage()));
         }
         Path moduleFile = studio.getCurrentProjectDescriptor().getProjectFolder().resolve(path);
         WebStudioUtils.validate(!Files.exists(moduleFile), "File with such name already exists");
@@ -416,7 +429,7 @@ public class ProjectBean {
         try {
             NameChecker.validatePath(path);
         } catch (IOException e) {
-            WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
+            WebStudioUtils.throwValidationError("Invalid path \"%s\". %s".formatted(path, e.getMessage()));
         }
         String fileName = FileUtils.getBaseName(path);
         WebStudioUtils.validate(NameChecker.checkName(fileName),
@@ -528,6 +541,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.addModule()} or {@code editModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void editModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -616,6 +633,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void copyModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -648,7 +669,7 @@ public class ProjectBean {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
             if (!designRepositoryAclService.hasAcl(newProjectResource) && !designRepositoryAclService
                     .createAcl(newProjectResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                String message = String.format("Granting permissions to a new file '%s' is failed.",
+                String message = "Granting permissions to a new file '%s' is failed.".formatted(
                         ProjectArtifactUtils.extractResourceName(newProjectResource));
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -681,6 +702,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void removeModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -746,7 +771,7 @@ public class ProjectBean {
         try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
-                throw new Message(String.format("There is no permission for deleting '%s' file.",
+                throw new Message("There is no permission for deleting '%s' file.".formatted(
                         ProjectArtifactUtils.extractResourceName(projectArtefact)));
             }
         } catch (ProjectException ignored) {
@@ -758,10 +783,14 @@ public class ProjectBean {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             projectArtefact.delete();
         } catch (ProjectException e) {
-            throw new Message(String.format("Cannot delete '%s' module.", module.getName()), e);
+            throw new Message("Cannot delete '%s' module.".formatted(module.getName()), e);
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService} and REST API permission checks instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public boolean canCopyModule(Module module) {
         if (studio.getModel().isEditableProject()) {
             RulesProject currentProject = studio.getCurrentProject();
@@ -788,6 +817,10 @@ public class ProjectBean {
         return false;
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public boolean canDeleteModule(Module module) {
         if (studio.getModel().isEditableProject()) {
             RulesProject currentProject = studio.getCurrentProject();
@@ -807,6 +840,10 @@ public class ProjectBean {
         return false;
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public boolean isOnlySafeModuleRemove(Module module) {
         if (module == null) {
             return true;
@@ -962,7 +999,7 @@ public class ProjectBean {
         studio.init(currentProject.getDesignRepository().getId(),
                 currentProject.getBranch(),
                 currentProject.getName(),
-                modules.iterator().next().getName());
+                modules.getFirst().getName());
         org.openl.rules.ui.ProjectModel projectModel = studio.getModel();
         while (!isCompilationCompleted(projectModel)) {
             try {
@@ -976,15 +1013,14 @@ public class ProjectBean {
         final boolean update = existedOpenAPIFilePath != null;
         CompiledOpenClass compiledOpenClass = projectModel.getCompiledOpenClass();
         final boolean hasCompilationErrors;
-        if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
-            ValidatedCompiledOpenClass validated = (ValidatedCompiledOpenClass) compiledOpenClass;
+        if (compiledOpenClass instanceof ValidatedCompiledOpenClass validated) {
             hasCompilationErrors = validated.hasErrors() && !validated.hasOnlyValidationErrors();
         } else {
             hasCompilationErrors = compiledOpenClass.hasErrors();
         }
         if (hasCompilationErrors) {
             throw new Message(
-                    String.format("Cannot %s OpenAPI file. Project has compilation error.", update ? "update" : "create"));
+                    "Cannot %s OpenAPI file. Project has compilation error.".formatted(update ? "update" : "create"));
         }
 
         tryLockProject();
@@ -1007,7 +1043,7 @@ public class ProjectBean {
                     AProjectArtefact projectArtefact = currentProject.getArtefact(openAPIType.getDefaultFileName());
                     if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                             .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                        String message = String.format("Granting permissions to a new file '%s' is failed.",
+                        String message = "Granting permissions to a new file '%s' is failed.".formatted(
                                 ProjectArtifactUtils.extractResourceName(projectArtefact));
                         WebStudioUtils.addErrorMessage(message);
                     }
@@ -1032,7 +1068,7 @@ public class ProjectBean {
             throw e;
         } catch (Exception e) {
             throw new Message(
-                    String.format("Failed to %s OpenAPI file. Check compilation.", update ? "update" : "create"),
+                    "Failed to %s OpenAPI file. Check compilation.".formatted(update ? "update" : "create"),
                     e);
         } finally {
             if (!currentProject.isModified()) {
@@ -1217,7 +1253,7 @@ public class ProjectBean {
 
     private void validatePermissionForEditing(AProjectArtefact artefact) {
         if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
-            throw new Message(String.format("There is no permission for modifying '%s' file.",
+            throw new Message("There is no permission for modifying '%s' file.".formatted(
                     ProjectArtifactUtils.extractResourceName(artefact)));
         }
     }
@@ -1226,7 +1262,7 @@ public class ProjectBean {
         String p = designRepositoryAclService.getPath(currentProject);
         if (!designRepositoryAclService
                 .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(BasePermission.CREATE))) {
-            throw new Message(String.format("There is no permission for creating '%s/%s' file.",
+            throw new Message("There is no permission for creating '%s/%s' file.".formatted(
                     ProjectArtifactUtils.extractResourceName(currentProject),
                     path));
         }
@@ -1263,7 +1299,7 @@ public class ProjectBean {
                             "/"));
         } catch (ProjectException e) {
             throw new Message(
-                    String.format("Failed to remove previously generated file for project %s.", currentProject.getName()));
+                    "Failed to remove previously generated file for project %s.".formatted(currentProject.getName()));
         }
     }
 
@@ -1359,7 +1395,7 @@ public class ProjectBean {
         }
         if (artefact != null) {
             if (!designRepositoryAclService.isGranted(artefact, true, BasePermission.DELETE)) {
-                throw new Message(String.format("There is no permission for deleting '%s' file.",
+                throw new Message("There is no permission for deleting '%s' file.".formatted(
                         ProjectArtifactUtils.extractResourceName(artefact)));
             }
             try {
@@ -1455,7 +1491,7 @@ public class ProjectBean {
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                         .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                    String message = String.format("Granting permissions to a new file '%s' is failed.",
+                    String message = "Granting permissions to a new file '%s' is failed.".formatted(
                             ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);
                 }
@@ -1671,6 +1707,10 @@ public class ProjectBean {
         this.currentPathPattern = currentPathPattern;
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API with pattern validation instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public Boolean getFileNameMatched() {
         if (newFileName == null) {
             return null;

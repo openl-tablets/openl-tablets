@@ -77,13 +77,11 @@ public class TypeInfo {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof TypeInfo typeInfo)) {
             return false;
         }
-        TypeInfo typeInfo = (TypeInfo) o;
-        return type == typeInfo.type && Objects.equals(javaName, typeInfo.javaName) && Objects
-                .equals(simpleName, typeInfo.simpleName) && Objects.equals(dimension, typeInfo.dimension) && Objects
-                .equals(reference, typeInfo.reference);
+        return type == typeInfo.type && dimension == typeInfo.dimension && reference == typeInfo.reference
+                && Objects.equals(javaName, typeInfo.javaName) && Objects.equals(simpleName, typeInfo.simpleName);
     }
 
     @Override

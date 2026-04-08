@@ -53,21 +53,20 @@ public class TypeBindingContext extends BindingContextDelegator {
         try {
             return type.getConstructor(IOpenField.class, int.class).newInstance(localVar, maxDepthLevel);
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException(String.format(
-                    "Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s",
+            throw new IllegalStateException("Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s".formatted(
                     type.getTypeName()), e);
         } catch (InstantiationException e) {
             throw new IllegalStateException(
-                    String.format("Error while creating a custom VariableInContextFinder of type '%s'", type.getTypeName()),
+                    "Error while creating a custom VariableInContextFinder of type '%s'".formatted(type.getTypeName()),
                     e);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(
-                    String.format("Constructor of a custom VariableInContextFinder of type '%s' is inaccessible",
+                    "Constructor of a custom VariableInContextFinder of type '%s' is inaccessible".formatted(
                             type.getTypeName()),
                     e);
         } catch (InvocationTargetException e) {
             throw new IllegalStateException(
-                    String.format("Constructor of a class '%s' threw and exception", type.getTypeName()),
+                    "Constructor of a class '%s' threw and exception".formatted(type.getTypeName()),
                     e);
         }
 

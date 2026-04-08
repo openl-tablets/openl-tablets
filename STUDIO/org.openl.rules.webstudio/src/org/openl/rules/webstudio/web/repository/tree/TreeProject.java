@@ -3,17 +3,16 @@ package org.openl.rules.webstudio.web.repository.tree;
 import java.util.Date;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.web.repository.IFilter;
+import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 /**
@@ -21,11 +20,11 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  *
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
 
-    private final Logger log = LoggerFactory.getLogger(TreeProject.class);
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
     private String logicalName;
 
@@ -172,6 +171,7 @@ public class TreeProject extends TreeFolder {
         }
     }
 
+    @Override
     public String getShortVersion() {
         String version = getVersion();
         if (UNVERSIONED.equals(version)) {

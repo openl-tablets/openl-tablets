@@ -76,7 +76,7 @@ public class JavaKeywordUtils {
                 }
             }
             s = sb.toString();
-            if (isJavaKeyword(s) || !s.isEmpty() && !Character.isJavaIdentifierStart(s.charAt(0))) {
+            if (isJavaKeyword(s) || (!s.isEmpty() && !Character.isJavaIdentifierStart(s.charAt(0)))) {
                 s = "_" + s;
             }
         }

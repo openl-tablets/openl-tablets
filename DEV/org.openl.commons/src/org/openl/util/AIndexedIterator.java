@@ -31,11 +31,6 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
             this.ary = ary;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.util.AIndexedIterator#indexedElement(int)
-         */
         @Override
         protected Object indexedElement(int i) {
             return Array.get(ary, i);

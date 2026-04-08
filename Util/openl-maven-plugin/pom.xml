@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
@@ -17,7 +17,8 @@
     </organization>
     <properties>
         <!-- 512MB Should be enough to don't fall in OutOfMemoryError -->
-        <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m -DnoPerf=true</invoker.mavenOpts>
+        <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m</invoker.mavenOpts>
+        <invoker.noPerf>true</invoker.noPerf>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <dependencies>
@@ -78,33 +79,6 @@
             <artifactId>openl-yaml</artifactId>
         </dependency>
     </dependencies>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <!-- generate MOJOs documents -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <configuration>
-                    <requirements>
-                        <maven>3.6</maven>
-                        <jdk>21</jdk>
-                        <memory>64m</memory>
-                    </requirements>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- Do not generate project reports -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <reportSets>
-                    <reportSet>
-                        <reports />
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
     <build>
         <plugins>
             <plugin>
@@ -121,14 +95,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-invoker-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>install</goal>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <projectsDirectory>it</projectsDirectory>
                     <pomIncludes>
@@ -153,10 +119,48 @@
                     </properties>
                     <showErrors>true</showErrors>
                     <mavenOpts>-ea ${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
+                    <scriptVariables>
+                        <noPerf>${invoker.noPerf}</noPerf>
+                    </scriptVariables>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <!-- generate MOJOs documents -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <configuration>
+                    <requirements>
+                        <maven>3.6</maven>
+                        <jdk>21</jdk>
+                        <memory>64m</memory>
+                    </requirements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Do not generate project reports -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports/>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
     <profiles>
         <profile>
             <id>perf</id>
@@ -168,6 +172,19 @@
             <properties>
                 <!-- Fine tuned settings to detects memory and performance issues -->
                 <invoker.mavenOpts>-Xms16m -Xmx64m -XX:MaxMetaspaceSize=192m</invoker.mavenOpts>
+                <invoker.noPerf>false</invoker.noPerf>
+            </properties>
+        </profile>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <property>
+                    <name>sonar</name>
+                </property>
+            </activation>
+            <properties>
+                <invoker.mavenOpts/>
+                <invoker.noPerf>true</invoker.noPerf>
             </properties>
         </profile>
     </profiles>

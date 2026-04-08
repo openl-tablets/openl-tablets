@@ -374,8 +374,8 @@ public final class ClassUtils {
             setter.invoke(target, value);
         } catch (InvocationTargetException ex) {
             var exception = ex.getTargetException();
-            if (exception instanceof Exception) {
-                throw (Exception) exception;
+            if (exception instanceof Exception exception1) {
+                throw exception1;
             }
             throw ex;
         }
@@ -400,8 +400,8 @@ public final class ClassUtils {
             return getter.invoke(target);
         } catch (InvocationTargetException ex) {
             var exception = ex.getTargetException();
-            if (exception instanceof Exception) {
-                throw (Exception) exception;
+            if (exception instanceof Exception exception1) {
+                throw exception1;
             }
             throw ex;
         }

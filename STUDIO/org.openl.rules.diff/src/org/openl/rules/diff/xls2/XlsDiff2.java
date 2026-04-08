@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class XlsDiff2 {
     }
 
     private void add(String guess, DiffPair r) {
-        List<DiffPair> list = diffGuess.computeIfAbsent(guess, e -> new LinkedList<>());
+        List<DiffPair> list = diffGuess.computeIfAbsent(guess, e -> new ArrayList<>());
         list.add(r);
     }
 
@@ -329,20 +328,20 @@ public class XlsDiff2 {
         private int rowIndex;
         private List<ICell> diff = new ArrayList<>();
 
-        public int getRowIndex() {
+        private int getRowIndex() {
             return rowIndex;
         }
 
-        public List<ICell> getDiff() {
+        private List<ICell> getDiff() {
             return diff;
         }
 
-        public RowDiff setRowIndex(int rowIndex) {
+        private RowDiff setRowIndex(int rowIndex) {
             this.rowIndex = rowIndex;
             return this;
         }
 
-        public RowDiff setDiff(List<ICell> diff) {
+        private RowDiff setDiff(List<ICell> diff) {
             this.diff = diff;
             return this;
         }

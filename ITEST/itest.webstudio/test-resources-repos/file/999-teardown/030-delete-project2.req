@@ -1,0 +1,6 @@
+DELETE /rest/user-workspace/design-file/projects/Project2%3A2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae/delete HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/x-www-form-urlencoded
+
+comment=Cleanup

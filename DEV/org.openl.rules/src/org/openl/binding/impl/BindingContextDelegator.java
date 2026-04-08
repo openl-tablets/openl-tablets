@@ -174,8 +174,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
             return;
         }
 
-        if (this.delegate instanceof IBindingContextDelegator) {
-            ((IBindingContextDelegator) this.delegate).setTopDelegate(delegate);
+        if (this.delegate instanceof IBindingContextDelegator delegator) {
+            delegator.setTopDelegate(delegate);
         }
     }
 

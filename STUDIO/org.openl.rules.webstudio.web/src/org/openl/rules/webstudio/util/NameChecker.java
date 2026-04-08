@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.util;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,7 +10,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 
-/*
+/**
  * Checks whether specified string can be used to name project artefact.
  *
  * @author Aleh Bykhavets
@@ -50,7 +50,7 @@ public final class NameChecker {
     private NameChecker() {
     }
 
-    protected static boolean checkForbiddenChars(String artefactName) {
+    static boolean checkForbiddenChars(String artefactName) {
         // check for forbidden chars
         for (char c : FORBIDDEN_CHARS) {
             if (artefactName.indexOf(c) >= 0) {
@@ -103,25 +103,23 @@ public final class NameChecker {
         var end = path.length() - 1;
         for (int i=0; i <= end; i++) {
             switch (path.charAt(i)) {
-                case '/', '\\':
-                    if (i < end && (path.charAt(i + 1) == '/' || path.charAt(i + 1) == '\\' )) {
+                case '/', '\\' -> {
+                    if (i < end && (path.charAt(i + 1) == '/' || path.charAt(i + 1) == '\\')) {
                         throw new IOException(BAD_NAME_MSG);
                     }
-                    break;
-                case ';', '<', '>', '?', '*', '%', '\'', '"', '|', '[', ']':
-                    throw new IOException(BAD_NAME_MSG);
-                default:
-                    break;
+                }
+                case ';', '<', '>', '?', '*', '%', '\'', '"', '|', '[', ']' -> throw new IOException(BAD_NAME_MSG);
+                default -> { /* OK */ }
             }
         }
-        for (var p : Paths.get(path)) {
+        for (var p : Path.of(path)) {
             var name = p.toString();
             if (!checkName(name)) {
                 throw new IOException(BAD_NAME_MSG);
             }
 
             if (isReservedName(name)) {
-                throw new IOException(String.format("'%s' is a reserved word.", name));
+                throw new IOException("'%s' is a reserved word.".formatted(name));
             }
         }
     }
@@ -130,7 +128,7 @@ public final class NameChecker {
         return RESERVED_WORDS.contains(name);
     }
 
-    protected static boolean checkSpecialChars(String artefactName) {
+    static boolean checkSpecialChars(String artefactName) {
         // check for special chars
         for (int i = 0; i < artefactName.length(); i++) {
             if (artefactName.charAt(i) < 32) {

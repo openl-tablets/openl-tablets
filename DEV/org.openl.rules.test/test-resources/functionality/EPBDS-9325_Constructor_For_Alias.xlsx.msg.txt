@@ -1,1 +1,1 @@
-ERROR: Constructor 'SimpleDatatype(java.lang.String)' is not found. 
+ERROR: Constructor 'SimpleDatatype(java.lang.String)' is not found.

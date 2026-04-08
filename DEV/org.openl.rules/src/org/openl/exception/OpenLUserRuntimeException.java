@@ -1,11 +1,13 @@
 package org.openl.exception;
 
+import java.io.Serial;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.util.print.NicePrinter;
 
 public class OpenLUserRuntimeException extends OpenLRuntimeException {
 
+    @Serial
     private static final long serialVersionUID = -6327856390127472929L;
     protected final Object body;
 
@@ -61,7 +63,7 @@ public class OpenLUserRuntimeException extends OpenLRuntimeException {
 
         @Override
         public String toString() {
-            return String.format("%s: %s", code, message);
+            return "%s: %s".formatted(code, message);
         }
     }
 }

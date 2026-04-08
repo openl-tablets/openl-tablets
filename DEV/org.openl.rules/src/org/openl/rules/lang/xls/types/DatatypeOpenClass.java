@@ -16,8 +16,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
@@ -45,9 +44,9 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author snshor
  */
+@Slf4j
 public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleOpenClass, WrapModuleSpecificTypes {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DatatypeOpenClass.class);
 
     private IOpenClass superClass;
 
@@ -202,7 +201,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         try {
             instance = getInstanceClass().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            LOG.error("{}", this, e);
+            log.error("{}", this, e);
         }
         return instance;
     }
@@ -218,12 +217,10 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     }
 
     private IOpenMethod wrapDatatypeOpenMethod(IOpenMethod method) {
-        if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+        if (method instanceof JavaOpenMethod javaOpenMethod) {
             Method javaMethod = javaOpenMethod.getJavaMethod();
             for (IOpenField field : fieldMap().values()) {
-                if (field instanceof DatatypeOpenField) {
-                    DatatypeOpenField datatypeOpenField = (DatatypeOpenField) field;
+                if (field instanceof DatatypeOpenField datatypeOpenField) {
                     if (Objects.equals(datatypeOpenField.getGetter(), javaMethod)) {
                         return new DatatypeOpenMethod(javaOpenMethod,
                                 this,
@@ -272,8 +269,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     }
 
     private IOpenMethod wrapDatatypeOpenConstructor(MethodKey mk, IOpenMethod method) {
-        if (method instanceof JavaOpenConstructor) {
-            JavaOpenConstructor javaOpenConstructor = (JavaOpenConstructor) method;
+        if (method instanceof JavaOpenConstructor javaOpenConstructor) {
             if (javaOpenConstructor.getNumberOfParameters() == 0) {
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {

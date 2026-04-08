@@ -15,7 +15,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,12 +31,12 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
 public class ProjectDescriptorManagerTest {
 
-    private static final Path DESCRIPTOR_PATH = Paths.get("test-resources/descriptor.zip");
+    private static final Path DESCRIPTOR_PATH = Path.of("test-resources/descriptor.zip");
 
     @Test
     public void testRelativeUri() {
         ProjectDescriptor pd = new ProjectDescriptor();
-        pd.setProjectFolder(Paths.get("test/rules/test xls"));
+        pd.setProjectFolder(Path.of("test/rules/test xls"));
         assertEquals("test%20xls", pd.getRelativeUri());
     }
 
@@ -46,8 +45,8 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test-resources/descriptor/rules1.xml");
         assertReadDescriptor1(descriptor);
-        final Path rootFolder = Paths.get("test-resources/descriptor").toAbsolutePath();
-        Module module1 = descriptor.getModules().get(0);
+        final Path rootFolder = Path.of("test-resources/descriptor").toAbsolutePath();
+        Module module1 = descriptor.getModules().getFirst();
         assertTrue(module1.getRulesPath().startsWith(rootFolder));
         Module module2 = descriptor.getModules().get(1);
         assertTrue(module2.getRulesPath().startsWith(rootFolder));
@@ -59,7 +58,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals(2, descriptor.getModules().size());
         assertArrayEquals(new String[]{"%lob%"}, descriptor.getPropertiesFileNamePatterns());
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
-        Module module1 = descriptor.getModules().get(0);
+        Module module1 = descriptor.getModules().getFirst();
         assertEquals("MyModule1", module1.getName());
         assertEquals("MyModule1.xls",
                 module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
@@ -75,7 +74,7 @@ public class ProjectDescriptorManagerTest {
 
         assertEquals(2, descriptor.getClasspath().size());
 
-        PathEntry classpathEntry1 = descriptor.getClasspath().get(0);
+        PathEntry classpathEntry1 = descriptor.getClasspath().getFirst();
         assertEquals("path1", classpathEntry1.getPath());
 
         PathEntry classpathEntry2 = descriptor.getClasspath().get(1);
@@ -83,7 +82,7 @@ public class ProjectDescriptorManagerTest {
 
         assertNotNull(descriptor.getModules());
         assertEquals(2, descriptor.getModules().size());
-        Module module = descriptor.getModules().get(0);
+        Module module = descriptor.getModules().getFirst();
         if (!"MyModule2".equals(module.getName())) {
             module = descriptor.getModules().get(1);
         }
@@ -97,7 +96,7 @@ public class ProjectDescriptorManagerTest {
 
         assertNotNull(descriptor.getDependencies());
         assertEquals(1, descriptor.getDependencies().size());
-        ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().iterator().next();
+        ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().getFirst();
         assertEquals("someProjectName", projectDependencyDescriptor.getName());
         assertFalse(projectDependencyDescriptor.isAutoIncluded());
     }
@@ -108,7 +107,7 @@ public class ProjectDescriptorManagerTest {
             final Path rootFolder = fs.getPath("/");
             ProjectDescriptor descriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules1.xml"));
             assertReadDescriptor1(descriptor);
-            Module module1 = descriptor.getModules().get(0);
+            Module module1 = descriptor.getModules().getFirst();
             assertTrue(module1.getRulesPath().startsWith(rootFolder));
             Module module2 = descriptor.getModules().get(1);
             assertTrue(module2.getRulesPath().startsWith(rootFolder));
@@ -225,36 +224,37 @@ public class ProjectDescriptorManagerTest {
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
 
-        String expected = "<project>\n" +
-                "    <name>name1</name>\n" +
-                "    <comment>comment1</comment>\n" +
-                "    <modules>\n" +
-                "        <module>\n" +
-                "            <name>name1</name>\n" +
-                "            <rules-root path=\"path1\"/>\n" +
-                "            <method-filter>\n" +
-                "                <includes>\n" +
-                "                    <value>*</value>\n" +
-                "                </includes>\n" +
-                "                <excludes>\n" +
-                "                    <value>*</value>\n" +
-                "                </excludes>\n" +
-                "            </method-filter>\n" +
-                "        </module>\n" +
-                "    </modules>\n" +
-                "    <classpath>\n" +
-                "        <entry path=\"path1\"/>\n" +
-                "        <entry path=\"path2\"/>\n" +
-                "    </classpath>\n" +
-                "    <dependencies>\n" +
-                "        <dependency>\n" +
-                "            <name>someProjectName</name>\n" +
-                "            <autoIncluded>false</autoIncluded>\n" +
-                "        </dependency>\n" +
-                "    </dependencies>\n" +
-                "    <properties-file-name-pattern>{lob}</properties-file-name-pattern>\n" +
-                "    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>\n" +
-                "</project>";
+        String expected = """
+                <project>
+                    <name>name1</name>
+                    <comment>comment1</comment>
+                    <modules>
+                        <module>
+                            <name>name1</name>
+                            <rules-root path="path1"/>
+                            <method-filter>
+                                <includes>
+                                    <value>*</value>
+                                </includes>
+                                <excludes>
+                                    <value>*</value>
+                                </excludes>
+                            </method-filter>
+                        </module>
+                    </modules>
+                    <classpath>
+                        <entry path="path1"/>
+                        <entry path="path2"/>
+                    </classpath>
+                    <dependencies>
+                        <dependency>
+                            <name>someProjectName</name>
+                            <autoIncluded>false</autoIncluded>
+                        </dependency>
+                    </dependencies>
+                    <properties-file-name-pattern>{lob}</properties-file-name-pattern>
+                    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
+                </project>""";
         assertEquals(expected, dest.toString());
     }
 
@@ -285,7 +285,7 @@ public class ProjectDescriptorManagerTest {
 
     @Test
     public void zipArchive_testModulePathPatterns() throws Exception {
-        try (FileSystem fs = openZipFile(Paths.get("test-resources/test-resources.zip"))) {
+        try (FileSystem fs = openZipFile(Path.of("test-resources/test-resources.zip"))) {
             ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
             // test ?
             assertEquals(6, projectDescriptorManager.readDescriptor(fs.getPath("/rules1.xml")).getModules().size());

@@ -17,7 +17,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,7 +182,7 @@ class HttpData {
             Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
                 // Binary encoding
-                for (String encoding : contentEncoding.split(",")) {
+                for (String encoding : contentEncoding.split(",", -1)) {
                     if ("gzip".equals(encoding) || "x-gzip".equals(encoding)) {
                         // decode gzip bytes
                         decoder = decoder.andThen(HttpData::decodeGzipBytes);
@@ -197,31 +196,26 @@ class HttpData {
                 contentType = contentType.substring(0, sep);
             }
             switch (contentType) {
-                case "text/css":
-                case "text/javascript":
-                case "text/html":
-                case "text/plain":
-                case "image/svg+xml":
-                    Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
-                    break;
-                case "application/xml":
-                case "text/xml":
-                    Comparators.xml("Difference", decoder.apply(expected.body), decoder.apply(this.body));
-                    break;
-                case "application/json":
-                    JsonNode actualNode;
-                    actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
+                case "text/css",
+                     "text/javascript",
+                     "text/html",
+                     "text/plain",
+                     "image/svg+xml" ->
+                        Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
+                case "application/xml",
+                     "text/xml" ->
+                        Comparators.xml("Difference", decoder.apply(expected.body), decoder.apply(this.body));
+                case "application/json" -> {
+                    JsonNode actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
                     JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expected.body));
                     Comparators.compareJsonObjects(expectedNode, actualNode, "");
-                    break;
-                case "application/zip":
-                    Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
-                    break;
-                default:
+                }
+                case "application/zip" -> Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
+                default -> {
                     var expectedBody = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
                     if (!expectedBody.trim().equals("***")) {
                         if (isFileRef(expectedBody)) {
-                            String fileRes = resolveFileRef(Paths.get(expected.pathToResource).getParent(), expectedBody);
+                            String fileRes = resolveFileRef(Path.of(expected.pathToResource).getParent(), expectedBody);
                             try (InputStream fileStream = getStream(fileRes)) {
                                 if (fileStream == null) {
                                     throw new FileNotFoundException(fileRes);
@@ -233,6 +227,7 @@ class HttpData {
                             assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
                         }
                     }
+                }
             }
         } catch (Exception | AssertionError ex) {
             throw ex;
@@ -268,7 +263,7 @@ class HttpData {
             System.err.println("\n--------------------");
 
             String path = System.getProperty("server.responses") + resourceName + ".body";
-            Path responsePath = Paths.get(path);
+            Path responsePath = Path.of(path);
             Files.createDirectories(responsePath.getParent());
             Files.write(responsePath, body);
         } catch (IOException ignored) {
@@ -311,12 +306,12 @@ class HttpData {
             String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
             String boundaryEnd = "--" + boundary + "--";
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            try (PrintWriter writer = new PrintWriter(os)) {
+            try (PrintWriter writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {
                 while (true) {
                     String line = readLine(input);
                     if (isFileRef(line)) {
                         writer.flush();
-                        String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
+                        String fileRes = resolveFileRef(Path.of(resource).getParent(), line);
                         try (InputStream fileStream = getStream(fileRes)) {
                             if (fileStream == null) {
                                 throw new FileNotFoundException(fileRes);
@@ -339,7 +334,7 @@ class HttpData {
         } else if (BLOB_TYPES.contains(ct) || ce != null) {
             String line = readLine(input);
             if (isFileRef(line)) {
-                String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
+                String fileRes = resolveFileRef(Path.of(resource).getParent(), line);
                 try (InputStream fileStream = getStream(fileRes)) {
                     if (fileStream == null) {
                         throw new FileNotFoundException(fileRes);
@@ -369,7 +364,7 @@ class HttpData {
 
     private static InputStream getStream(String fileRes) {
         try {
-            return Files.newInputStream(Paths.get(fileRes));
+            return Files.newInputStream(Path.of(fileRes));
         } catch (IOException e) {
             return HttpData.class.getResourceAsStream(fileRes);
         }

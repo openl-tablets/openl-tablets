@@ -53,7 +53,7 @@ class FullClassnameSupport {
         } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try {
                 List<ISyntaxNode> identifierChain = getIdentifierChain(syntaxNode);
-                String variableName = identifierChain.get(0).getText();
+                String variableName = identifierChain.getFirst().getText();
                 String variableType = localVariables.get(variableName);
                 int varTypeLength = 0;
                 if (variableType != null) {
@@ -98,7 +98,7 @@ class FullClassnameSupport {
                                 originalFullClassName.append(".");
                             }
                             originalFullClassName.append(
-                                    syntaxNode1 instanceof IdentifierNode ? ((IdentifierNode) syntaxNode1).getOriginalText()
+                                    syntaxNode1 instanceof IdentifierNode in ? in.getOriginalText()
                                             : syntaxNode1.getText());
                         }
                         updateSyntaxNode(syntaxNode, identifierChain, originalFullClassName.toString(), j);
@@ -161,12 +161,10 @@ class FullClassnameSupport {
                 nodeToChange.getChild(0).getSourceLocation(),
                 fullClassName,
                 nodeToChange.getChild(0).getModule());
-        if (nodeToChange instanceof BinaryNode) {
-            ((BinaryNode) nodeToChange).left = newIdentifierNode;
-        } else if (nodeToChange instanceof UnaryNode) {
-            ((UnaryNode) nodeToChange).left = newIdentifierNode;
-        } else {
-            throw new IllegalStateException();
+        switch (nodeToChange) {
+            case BinaryNode node1 -> node1.left = newIdentifierNode;
+            case UnaryNode node -> node.left = newIdentifierNode;
+            case null, default -> throw new IllegalStateException();
         }
     }
 

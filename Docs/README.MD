@@ -16,16 +16,15 @@ Welcome to the OpenL Tablets documentation! This comprehensive guide serves both
 
 ### User Guides
 Comprehensive guides for using OpenL Tablets:
-- **[Installation Guide](user-guides/installation/)** - System requirements, installation procedures, and configuration
+- **[Installation Guide](user-guides/installation-guide/)** - System requirements, installation procedures, and configuration
 - **[Demo Package Guide](user-guides/demo-package/)** - Quick start with demo examples and tutorials
-- **[Reference Guide](user-guides/reference/)** - Complete language reference, table types, and syntax
-- **[OpenL Studio User Guide](user-guides/openlstudio/)** - Using OpenL Studio for rule authoring and management
+- **[Reference Guide](user-guides/reference-guide/)** - Complete language reference, table types, and syntax
+- **[OpenL Studio User Guide](user-guides/openl-studio/)** - Using OpenL Studio for rule authoring and management
 - **[Rule Services Guide](user-guides/rule-services/)** - Deploying and configuring OpenL Tablets Rule Services
 
 ### Integration Guides
 Integration patterns with popular frameworks:
 - **[REST API Guide](API_GUIDE.md)** - 📌 **NEW!** Comprehensive REST API documentation, examples, and integration patterns
-- **[Activiti Integration](integration-guides/activiti.md)** - Business process management integration
 - **[Spring Framework](integration-guides/spring.md)** - Spring Boot and Spring integration
 - **[OpenAPI/REST](integration-guides/openapi.md)** - REST API generation and OpenAPI support
 - **[Apache CXF](integration-guides/cxf.md)** - REST web services and CXF customization

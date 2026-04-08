@@ -21,12 +21,12 @@ public class VersionedTreeNode extends ProjectTreeNode {
     private TableSyntaxNode linkedChild;
 
     VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
-        super(displayName, String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(), null);
+        super(displayName, "%s.%s".formatted(IProjectTypes.PT_TABLE, table.getType()).intern(), null);
     }
 
     @Override
     public String getType() {
-        return String.format("%s.%s", IProjectTypes.PT_TABLE, linkedChild.getType()).intern();
+        return "%s.%s".formatted(IProjectTypes.PT_TABLE, linkedChild.getType()).intern();
     }
 
     @Override

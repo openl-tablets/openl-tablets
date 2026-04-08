@@ -35,6 +35,9 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        if (tsn.getHeader().isCollect()) {
+            builder.collect(true);
+        }
         var tableBody = tsn.getTableBody();
 
         var headerTable = tableBody.getRow(0);
@@ -53,18 +56,25 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
      * The header may span multiple rows if there are hierarchical child headers.
      */
     public static List<LookupHeaderView> buildHeaders(ILogicalTable headerTable) {
+        return buildHeaders(headerTable, true);
+    }
+
+    private static List<LookupHeaderView> buildHeaders(ILogicalTable headerTable, boolean trimEmptyColumns) {
         List<LookupHeaderView> headers = new ArrayList<>();
-        var width = OpenLTableUtils.getWidthWithoutEmptyColumns(headerTable);
+        var width = trimEmptyColumns
+                ? OpenLTableUtils.getWidthWithoutEmptyColumns(headerTable)
+                : headerTable.getWidth();
         for (int colNum = 0; colNum < width; colNum++) {
             var column = headerTable.getColumn(colNum);
+            var title = column.getCell(0, 0).getStringValue();
             var headerBuilder = LookupHeaderView.builder()
-                    .title(column.getCell(0, 0).getStringValue());
-            var colHeight = OpenLTableUtils.getHeightWithoutEmptyRows(column);
+                    .title(title != null ? title : "");
+            var colHeight = column.getHeight();
             if (colHeight > 1) {
                 List<LookupHeaderView> subHeaders = new ArrayList<>();
                 for (int rowNum = 1; rowNum < colHeight; rowNum++) {
                     var subHeader = column.getRow(rowNum);
-                    subHeaders.addAll(buildHeaders(subHeader));
+                    subHeaders.addAll(buildHeaders(subHeader, false));
                 }
                 headerBuilder.children(subHeaders);
             }

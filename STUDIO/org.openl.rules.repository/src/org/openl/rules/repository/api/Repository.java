@@ -234,7 +234,6 @@ public interface Repository extends AutoCloseable {
      * Checks the path against path traversal vulnerability.
      *
      * @param path the path to validate
-     * @throws InvalidPathException
      */
     static void validatePath(String path) throws InvalidPathException {
         if (path == null || path.isEmpty()) {

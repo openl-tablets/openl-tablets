@@ -91,7 +91,7 @@ public class CharRange extends Range<Character> {
     protected void format(StringBuilder sb, Character ch) {
         boolean printable = !StringUtils.isSpaceOrControl(ch) && (ch < 255 || Character.isUnicodeIdentifierPart(ch));
 
-        sb.append(printable ? String.valueOf(ch) : String.format("\\u%04x", (int) ch));
+        sb.append(printable ? String.valueOf(ch) : "\\u%04x".formatted((int) ch));
     }
 
     public static CharRange autocast(char x, CharRange y) {

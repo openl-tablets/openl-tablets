@@ -6,30 +6,30 @@ import jakarta.xml.bind.annotation.XmlRootElement
 @XmlRootElement
 class MyType {
 
-    private String status;
-    private int code;
+    private String status
+    private int code
 
     MyType() {
     }
 
     MyType(String status, int code) {
-        this.status = status;
-        this.code = code;
+        this.status = status
+        this.code = code
     }
 
     String getStatus() {
-        return status;
+        return status
     }
 
     void setStatus(String status) {
-        this.status = status;
+        this.status = status
     }
 
     int getCode() {
-        return code;
+        return code
     }
 
     void setCode(int code) {
-        this.code = code;
+        this.code = code
     }
 }

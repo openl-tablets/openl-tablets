@@ -8,14 +8,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.common.CommonVersion;
@@ -43,8 +43,8 @@ import org.openl.util.StringUtils;
 /**
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
-    private static final Logger LOG = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
 
@@ -81,7 +81,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             rulesLocation = getBasePath();
             String[] designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
-                    .split("\\s*,\\s*");
+                    .split("\\s*,\\s*", -1);
             for (String repoId : designRepositories) {
 
                 Repository repository = createRepo(repoId, rulesLocation);
@@ -119,8 +119,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
-            if (repo instanceof RepositorySettingsAware) {
-                ((RepositorySettingsAware) repo).setRepositorySettings(repositorySettings);
+            if (repo instanceof RepositorySettingsAware aware) {
+                aware.setRepositorySettings(repositorySettings);
             }
 
             if (repo.supports().folders()) {
@@ -130,7 +130,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             return repo;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             // If exception is thrown, we must close repository in this method.
             // If no exception, repository will be closed later.
             if (repo != null) {
@@ -180,7 +180,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
 
-            ProjectKey projectKey = new ProjectKey(repositoryId, name.toLowerCase());
+            ProjectKey projectKey = new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT));
 
             AProject cached = projects.get(projectKey);
             if (cached != null) {
@@ -201,7 +201,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public AProject getProject(String repositoryId, String name, CommonVersion version) {
         String repoVersion = version.getVersionName();
-        ProjectKey key = new ProjectKey(repositoryId, String.format("%s:%s", name, repoVersion));
+        ProjectKey key = new ProjectKey(repositoryId, "%s:%s".formatted(name, repoVersion));
         AProject project = projectsVersions.get(key);
 
         if (project == null) {
@@ -237,12 +237,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
 
                         if (project == null) {
-                            LOG.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
+                            log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
                             project = new AProject(repository, projectPath, repoVersion);
                         }
                     }
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                     project = new AProject(repository, projectPath, repoVersion);
                 }
             } else {
@@ -335,13 +335,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     fileDatas = repository.list(path);
                 }
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-                exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
+                log.error(e.getMessage(), e);
+                exceptions.add("Repository '%s' : %s".formatted(repository.getName(), e.getMessage()));
             }
             for (FileData fileData : fileDatas) {
                 AProject project = new AProject(repository, fileData);
                 // FIXME: use project path, not name
-                projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase()), project);
+                projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase(Locale.ROOT)), project);
             }
         }
 
@@ -355,7 +355,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             // Check full name for mapped repositories
-            if (projects.containsKey(new ProjectKey(repositoryId, name.toLowerCase()))) {
+            if (projects.containsKey(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)))) {
                 return true;
             }
 

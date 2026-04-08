@@ -505,7 +505,7 @@ public class StringUtils {
         for (int i = 0; i < length; i++) {
             char c = camel.charAt(i);
             if (Character.isUpperCase(c)) {
-                if (i > 0 && (i < (length - 1) && Character.isLowerCase(camel.charAt(i + 1)) || Character
+                if (i > 0 && ((i < (length - 1) && Character.isLowerCase(camel.charAt(i + 1))) || Character
                         .isLowerCase(camel.charAt(i - 1)))) {
                     sb.append("-");
                 }

@@ -60,7 +60,7 @@ public final class PropertiesUtils {
             }
             ignoreLF = ch == '\r';
 
-            if (!backSlash && (ch == '\r' || ch == '\n') || ch == -1) {
+            if ((!backSlash && (ch == '\r' || ch == '\n')) || ch == -1) {
                 String value = str.substring(0, lastNonWhitespace);
                 if (key != null) {
                     result.accept(key, value);
@@ -105,33 +105,23 @@ public final class PropertiesUtils {
                 // escaped symbols via backslash
                 backSlash = false;
                 switch (ch) {
-                    case '\n':
-                    case '\r':
+                    case '\n', '\r' -> {
                         skipWhitespaces = true;
                         continue;
-
-                    case 't':
-                        ch = '\t';
-                        break;
-                    case 'n':
-                        ch = '\n';
-                        break;
-                    case 'r':
-                        ch = '\r';
-                        break;
-                    case 'f':
-                        ch = '\f';
-                        break;
-                    case 'u': {
+                    }
+                    case 't' -> ch = '\t';
+                    case 'n' -> ch = '\n';
+                    case 'r' -> ch = '\r';
+                    case 'f' -> ch = '\f';
+                    case 'u' -> {
                         char[] hex = new char[4];
                         ch = input.read(hex);
                         if (ch < 4) {
                             throw new EOFException("End of the data is reached unexpectedly");
                         }
                         ch = Integer.parseInt(String.valueOf(hex), 16);
-                        break;
-
                     }
+                    default -> { }
                 }
                 str.append((char) ch);
                 lastNonWhitespace = str.length();

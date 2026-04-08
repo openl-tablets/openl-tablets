@@ -10,8 +10,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -33,8 +32,8 @@ import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
 
 @GroupSequence({DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
+@Slf4j
 public class DataTableCreationWizard extends TableCreationWizard {
-    private static final Logger LOG = LoggerFactory.getLogger(DataTableCreationWizard.class);
 
     @NotBlank(message = "Cannot be empty")
     private String tableType;
@@ -127,7 +126,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         String s = super.next();
 
         // Switched to a next page
-        LOG.debug("Go to page {}", getStep());
+        log.debug("Go to page {}", getStep());
 
         if (Page.COLUMNS_CONFIGURATION == Page.valueOf(getStep())) {
             initTree();
@@ -395,7 +394,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
                     return page;
                 }
             }
-            LOG.warn("There is no pageNum {}.", pageNum);
+            log.warn("There is no pageNum {}.", pageNum);
 
             return NO_SUCH_PAGE;
         }

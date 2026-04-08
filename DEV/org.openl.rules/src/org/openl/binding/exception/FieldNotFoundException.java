@@ -6,6 +6,8 @@
 
 package org.openl.binding.exception;
 
+import java.io.Serial;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.types.IOpenClass;
 import org.openl.types.StaticOpenClass;
@@ -15,6 +17,7 @@ import org.openl.types.StaticOpenClass;
  */
 public class FieldNotFoundException extends OpenLCompilationException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final String fieldName;
@@ -38,7 +41,7 @@ public class FieldNotFoundException extends OpenLCompilationException {
         sb.append(fieldName).append("' is not found");
         if (type != null) {
             sb.append(" in type '")
-                    .append(type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName()
+                    .append(type instanceof StaticOpenClass soc ? soc.getDelegate().getName()
                             : type.getName());
         }
         sb.append("'.");

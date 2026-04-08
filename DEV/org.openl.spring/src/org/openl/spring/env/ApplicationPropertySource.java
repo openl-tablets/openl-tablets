@@ -1,17 +1,16 @@
 package org.openl.spring.env;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
@@ -81,8 +80,8 @@ import org.openl.util.StringUtils;
  * /html/spring-boot-features.html#boot-features-external-config">Spring
  * Boot. Externalized Configuration.</a>
  */
+@Slf4j
 public class ApplicationPropertySource extends EnumerablePropertySource<Deque<PropertySource<?>>> {
-    private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertySource.class);
 
     public static final String PROPS_NAME = "OpenL application properties";
     private static final String APP_NAME_TAG = "{appName}";
@@ -94,7 +93,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     private final Map<String, String> profiledSource = new HashMap<>();
 
     ApplicationPropertySource(PropertyResolver resolver, String appName, String... profiles) {
-        super(PROPS_NAME, new LinkedList<>());
+        super(PROPS_NAME, new ArrayDeque<>());
         this.resolver = resolver;
         this.appName = appName;
         this.profiles = profiles;
@@ -105,7 +104,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         try {
             return resource.getURL();
         } catch (Exception e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return resource;
         }
     }

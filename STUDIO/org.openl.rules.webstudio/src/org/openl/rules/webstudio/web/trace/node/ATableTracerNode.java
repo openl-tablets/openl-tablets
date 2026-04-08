@@ -1,13 +1,13 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.runtime.IRuntimeContext;
 
+@Slf4j
 public class ATableTracerNode extends SimpleTracerObject {
-    private static final Logger LOG = LoggerFactory.getLogger(ATableTracerNode.class);
     private final Object[] params;
     private final ExecutableRulesMethod method;
     private final String prefix;
@@ -31,7 +31,7 @@ public class ATableTracerNode extends SimpleTracerObject {
                 clonedParams = CachingArgumentsCloner.<Object[]>getInstance().clone(params);
             } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
                 clonedParams = params;
             }
             this.params = clonedParams;
@@ -47,8 +47,8 @@ public class ATableTracerNode extends SimpleTracerObject {
             return method;
         }
         ITracerObject parent = getParent();
-        if (parent instanceof ATableTracerNode) {
-            return ((ATableTracerNode) parent).getTraceObject();
+        if (parent instanceof ATableTracerNode node) {
+            return node.getTraceObject();
         }
         throw new IllegalStateException("The executable method is not defined");
     }

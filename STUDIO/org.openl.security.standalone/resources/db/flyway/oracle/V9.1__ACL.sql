@@ -1,7 +1,7 @@
 CREATE SEQUENCE acl_sid_sequence START WITH 1 INCREMENT BY 1 NOMAXVALUE;
 CREATE OR REPLACE TRIGGER acl_sid_id_trigger
-	BEFORE INSERT ON acl_sid
-	FOR EACH ROW
+    BEFORE INSERT ON acl_sid
+    FOR EACH ROW
 BEGIN
-	SELECT acl_sid_sequence.nextval INTO :new.id FROM dual;
+    SELECT acl_sid_sequence.nextval INTO :new.id FROM dual;
 END;

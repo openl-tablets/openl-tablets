@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.FileInputStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class XmlProjectDescriptorSerializerTest {
         projectDescriptor.setName("projectDescriptor Name ");
         projectDescriptor.setComment("projectDescriptor Comment ");
 
-        projectDescriptor.setProjectFolder(Paths.get("path"));
+        projectDescriptor.setProjectFolder(Path.of("path"));
 
         projectDescriptor.setModules(List.of(initModuleForTest(" 1"), initModuleForTest(" 2")));
         projectDescriptor.setClasspath(List.of(new PathEntry(" rules2/*.xlsx"), new PathEntry(" rules3/*.xlsx")));
@@ -95,7 +95,7 @@ public class XmlProjectDescriptorSerializerTest {
         List<Module> modules = pd.getModules();
         assertNotNull(modules);
         assertEquals(1, modules.size());
-        Module m = modules.get(0);
+        Module m = modules.getFirst();
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
@@ -113,7 +113,7 @@ public class XmlProjectDescriptorSerializerTest {
         List<Module> modules = pd1.getModules();
         assertNotNull(modules);
         assertEquals(1, modules.size());
-        Module m = modules.get(0);
+        Module m = modules.getFirst();
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());

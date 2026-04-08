@@ -9,10 +9,9 @@ import java.util.List;
 import jakarta.annotation.PreDestroy;
 import jakarta.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -25,8 +24,8 @@ import org.openl.util.FileTool;
 
 @Service
 @SessionScope
+@Slf4j
 public class UploadExcelDiffController extends ExcelDiffController {
-    private final Logger log = LoggerFactory.getLogger(UploadExcelDiffController.class);
 
     private final List<ProjectFile> uploadedFiles = new ArrayList<>();
 

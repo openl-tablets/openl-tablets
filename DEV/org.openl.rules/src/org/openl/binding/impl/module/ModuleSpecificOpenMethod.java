@@ -71,12 +71,12 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
             }
         }
 
-        if (type instanceof WrapModuleSpecificTypes && methodCaller instanceof IOpenMethod && methodCaller.getMethod()
+        if (type instanceof WrapModuleSpecificTypes && methodCaller instanceof IOpenMethod method && methodCaller.getMethod()
                 .getType() instanceof ModuleSpecificType) {
             IOpenClass t = bindingContext.findType(
                     methodCaller.getMethod().getType().getName());
             if (t != null) {
-                methodCaller = new ModuleSpecificOpenMethod((IOpenMethod) methodCaller, t);
+                methodCaller = new ModuleSpecificOpenMethod(method, t);
             }
         }
         return methodCaller;

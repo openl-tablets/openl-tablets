@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -26,8 +25,8 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
 
+@Slf4j
 public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
-    private static final Logger LOG = LoggerFactory.getLogger(AProjectFolder.class);
 
     private Map<String, AProjectArtefact> artefacts;
     private ResourceTransformer resourceTransformer;
@@ -61,6 +60,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
 
+    @Override
     public AProjectArtefact getArtefact(String name) throws ProjectException {
         AProjectArtefact artefact = getArtefactsInternal().get(name);
         if (artefact == null) {
@@ -112,7 +112,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             fileData.setName(fullName);
             Repository repository = getRepository();
             if (repository.check(fullName) != null) {
-                throw new ProjectException(String.format("The file '%s' exists in the folder.", name),
+                throw new ProjectException("The file '%s' exists in the folder.".formatted(name),
                         new IOException());
             }
             fileData = repository.save(fileData, content);
@@ -307,8 +307,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         String path = getFolderPath();
 
         for (AProjectArtefact artefact : from.getArtefacts()) {
-            if (artefact instanceof AProjectResource) {
-                AProjectResource resource = (AProjectResource) artefact;
+            if (artefact instanceof AProjectResource resource) {
                 InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
                 files.add(new FileItem(path + "/" + artefact.getInternalPath(), content));
             } else {
@@ -356,7 +355,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 }
             }
         } catch (IOException ex) {
-            LOG.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
         }
         return internalArtefacts;
     }
@@ -374,15 +373,16 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
         if (artefacts != null) {
             for (AProjectArtefact artefact : artefacts.values()) {
-                if (artefact instanceof AProjectFolder) {
-                    ((AProjectFolder) artefact).setResourceTransformer(resourceTransformer);
-                } else if (artefact instanceof AProjectResource) {
-                    ((AProjectResource) artefact).setResourceTransformer(resourceTransformer);
+                if (artefact instanceof AProjectFolder folder) {
+                    folder.setResourceTransformer(resourceTransformer);
+                } else if (artefact instanceof AProjectResource resource) {
+                    resource.setResourceTransformer(resourceTransformer);
                 }
             }
         }
     }
 
+    @Override
     public String getFolderPath() {
         return folderPath;
     }

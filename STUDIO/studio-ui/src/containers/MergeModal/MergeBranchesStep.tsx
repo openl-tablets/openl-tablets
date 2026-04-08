@@ -1,11 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Alert, Button, Form, Space, Spin, Tooltip, Typography } from 'antd'
-import { BranchesOutlined, DownloadOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons'
+import { BranchesOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { Select } from '../../components/form'
-import { apiCall } from '../../services'
+import type { ApiCallOptions } from '../../services'
+import { apiCall, isApiHttpError } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
 import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse } from './types'
+
+const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
 interface MergeBranchesStepProps {
     projectId: string
@@ -30,13 +33,15 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
 }) => {
     const { t } = useTranslation()
     const [form] = Form.useForm()
-    const selectedBranch = Form.useWatch('targetBranch', form)
+    const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined)
 
     const [isChecking, setIsChecking] = useState(false)
     const [isMerging, setIsMerging] = useState(false)
     const [checkResultReceive, setCheckResultReceive] = useState<CheckMergeResult | null>(null)
     const [checkResultSend, setCheckResultSend] = useState<CheckMergeResult | null>(null)
-    const [error, setError] = useState<string | null>(null)
+    const [receiveError, setReceiveError] = useState<string | null>(null)
+    const [sendError, setSendError] = useState<string | null>(null)
+    const [mergeError, setMergeError] = useState<string | null>(null)
 
     const isGitRepository = repositoryType === 'repo-git'
 
@@ -50,19 +55,16 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             }))
     }, [branches, currentBranch])
 
-    // Find if selected branch is protected
-    const selectedBranchInfo = useMemo(() => {
-        return branches.find(b => b.name === selectedBranch)
-    }, [branches, selectedBranch])
-
-    const checkMergeStatus = useCallback(async () => {
-        if (!selectedBranch) return
-
+    const checkMergeStatus = useCallback(async (branch: string) => {
         setIsChecking(true)
-        setError(null)
+        setCheckResultReceive(null)
+        setCheckResultSend(null)
+        setReceiveError(null)
+        setSendError(null)
+        setMergeError(null)
 
+        // Check receive (from selectedBranch to currentBranch)
         try {
-            // Check receive (from selectedBranch to currentBranch)
             const receiveResult: CheckMergeResult = await apiCall(
                 `/projects/${projectId}/merge/check`,
                 {
@@ -70,14 +72,19 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         mode: 'receive',
-                        otherBranch: selectedBranch,
+                        otherBranch: branch,
                     }),
                 },
-                true
+                MERGE_API_OPTIONS
             )
             setCheckResultReceive(receiveResult)
+        } catch (err: unknown) {
+            setCheckResultReceive(null)
+            setReceiveError(isApiHttpError(err) ? err.message : t('merge:errors.check_failed'))
+        }
 
-            // Check send (from currentBranch to selectedBranch)
+        // Check send (from currentBranch to selectedBranch)
+        try {
             const sendResult: CheckMergeResult = await apiCall(
                 `/projects/${projectId}/merge/check`,
                 {
@@ -85,35 +92,26 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         mode: 'send',
-                        otherBranch: selectedBranch,
+                        otherBranch: branch,
                     }),
                 },
-                true
+                MERGE_API_OPTIONS
             )
             setCheckResultSend(sendResult)
-        } catch (_err) {
-            setError(t('merge:errors.check_failed'))
-        } finally {
-            setIsChecking(false)
-        }
-    }, [projectId, selectedBranch, t])
-
-    // Check merge status when branch is selected
-    useEffect(() => {
-        if (selectedBranch) {
-            checkMergeStatus()
-        } else {
-            setCheckResultReceive(null)
+        } catch (err: unknown) {
             setCheckResultSend(null)
+            setSendError(isApiHttpError(err) ? err.message : t('merge:errors.check_failed'))
         }
-    }, [selectedBranch, checkMergeStatus])
+
+        setIsChecking(false)
+    }, [projectId, t])
 
     const handleMerge = async (mode: MergeMode) => {
         if (!selectedBranch) return
 
         const doMerge = async () => {
             setIsMerging(true)
-            setError(null)
+            setMergeError(null)
 
             try {
                 const result: MergeResultResponse = await apiCall(
@@ -126,7 +124,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                             otherBranch: selectedBranch,
                         }),
                     },
-                    true
+                    MERGE_API_OPTIONS
                 )
 
                 if (result.status === 'success') {
@@ -134,8 +132,9 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 } else if (result.status === 'conflicts') {
                     onMergeConflicts(result)
                 }
-            } catch (err: any) {
-                setError(err?.message || t('merge:errors.merge_failed'))
+            } catch (err: unknown) {
+                const message = isApiHttpError(err) ? err.message : (err instanceof Error ? err.message : undefined)
+                setMergeError(message || t('merge:errors.merge_failed'))
             } finally {
                 setIsMerging(false)
             }
@@ -155,7 +154,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     const isSendUpToDate = checkResultSend?.status === 'up-to-date'
 
     return (
-        <Space direction="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
+        <Space orientation="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
             <Form
                 labelWrap
                 form={form}
@@ -176,21 +175,18 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     options={branchOptions}
                     placeholder={t('merge:branches.select_placeholder')}
                     suffixIcon={<BranchesOutlined />}
+                    onChange={(value) => {
+                        const branch = value as string
+                        setSelectedBranch(branch)
+                        checkMergeStatus(branch)
+                    }}
                 />
             </Form>
-            {error && (
+            {mergeError && (
                 <Alert
                     showIcon
-                    title={error}
+                    title={mergeError}
                     type="error"
-                />
-            )}
-            {selectedBranchInfo?.protected && (
-                <Alert
-                    showIcon
-                    icon={<WarningOutlined />}
-                    title={t('merge:status.protected_warning')}
-                    type="warning"
                 />
             )}
             {isChecking && (
@@ -199,37 +195,53 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 </div>
             )}
             {!isChecking && selectedBranch && (
-                <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Tooltip
-                        title={isReceiveUpToDate
-                            ? t('merge:status.up_to_date_receive')
-                            : t('merge:actions.receive_description')}
-                    >
-                        <Button
-                            disabled={!canReceive || isMerging}
-                            icon={<DownloadOutlined />}
-                            loading={isMerging}
-                            onClick={() => handleMerge('receive')}
-                            type="primary"
+                <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
+                    {receiveError && (
+                        <Alert
+                            showIcon
+                            title={receiveError}
+                            type="error"
+                        />
+                    )}
+                    {sendError && sendError !== receiveError && (
+                        <Alert
+                            showIcon
+                            title={sendError}
+                            type="error"
+                        />
+                    )}
+                    <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Tooltip
+                            title={isReceiveUpToDate
+                                ? t('merge:status.up_to_date_receive')
+                                : t('merge:actions.receive_description')}
                         >
-                            {t('merge:actions.receive')}
-                        </Button>
-                    </Tooltip>
-                    <Tooltip
-                        title={isSendUpToDate
-                            ? t('merge:status.up_to_date_send')
-                            : t('merge:actions.send_description')}
-                    >
-                        <Button
-                            disabled={!canSend || isMerging || selectedBranchInfo?.protected}
-                            icon={<UploadOutlined />}
-                            loading={isMerging}
-                            onClick={() => handleMerge('send')}
-                            type="primary"
+                            <Button
+                                disabled={!canReceive || isMerging}
+                                icon={<DownloadOutlined />}
+                                loading={isMerging}
+                                onClick={() => handleMerge('receive')}
+                                type="primary"
+                            >
+                                {t('merge:actions.receive')}
+                            </Button>
+                        </Tooltip>
+                        <Tooltip
+                            title={isSendUpToDate
+                                ? t('merge:status.up_to_date_send')
+                                : t('merge:actions.send_description')}
                         >
-                            {t('merge:actions.send')}
-                        </Button>
-                    </Tooltip>
+                            <Button
+                                disabled={!canSend || isMerging}
+                                icon={<UploadOutlined />}
+                                loading={isMerging}
+                                onClick={() => handleMerge('send')}
+                                type="primary"
+                            >
+                                {t('merge:actions.send')}
+                            </Button>
+                        </Tooltip>
+                    </Space>
                 </Space>
             )}
         </Space>

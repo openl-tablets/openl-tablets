@@ -21,7 +21,7 @@ public class ResultTraceObject extends ATableTracerNode {
         ColumnMatch columnMatch = (ColumnMatch) args[0];
         int resultIndex = (Integer) args[1];
         Object result = args[2];
-        TableRow tableRow = columnMatch.getRows().get(0);
+        TableRow tableRow = columnMatch.getRows().getFirst();
         IGridRegion gridRegion = tableRow.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getGridRegion();
         ResultTraceObject traceObject = new ResultTraceObject(columnMatch, gridRegion);
         traceObject.setResult(result);

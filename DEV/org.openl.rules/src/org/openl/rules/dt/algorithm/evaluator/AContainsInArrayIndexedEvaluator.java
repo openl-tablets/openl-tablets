@@ -35,7 +35,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
 
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
 
-        String code = String.format("containsCtr(%1$s, %2$s)", cparams[0].getName(), conditionSource.getCode());
+        String code = "containsCtr(%1$s, %2$s)".formatted(cparams[0].getName(), conditionSource.getCode());
 
         return new StringSourceCodeModule(code, conditionSource.getUri());
     }

@@ -1,21 +1,22 @@
 package org.bool.expr
 
+import java.util.function.Supplier
+import java.util.stream.Collectors
+
 import com.bpodgursky.jbool_expressions.*
 import com.bpodgursky.jbool_expressions.rules.RuleSet
 import org.apache.commons.lang3.tuple.Triple
+
 import org.openl.binding.IBoundNode
 import org.openl.binding.impl.*
-import org.openl.rules.operator.*
 import org.openl.rules.convertor.IString2DataConvertor
 import org.openl.rules.convertor.String2DataConvertorFactory
 import org.openl.rules.dt.AST
+import org.openl.rules.operator.*
 import org.openl.types.IOpenClass
 import org.openl.types.IOpenMethod
 import org.openl.types.java.JavaOpenClass
 import org.openl.vm.SimpleRuntimeEnv
-
-import java.util.function.Supplier
-import java.util.stream.Collectors
 
 /**
  *  Not covered cases:
@@ -281,7 +282,7 @@ class ExprTool {
     }
 
     private static List<SE> pushLiteralsToStack(SE[] terms, Stack<Double> stack) {
-        List<SE> nonLiteralTerms = new ArrayList<>();
+        List<SE> nonLiteralTerms = new ArrayList<>()
         for (SE se : terms) {
             if (se != null) {
                 try {
@@ -291,7 +292,7 @@ class ExprTool {
                 }
             }
         }
-        return nonLiteralTerms;
+        return nonLiteralTerms
     }
 
     private static boolean isNegativeSE(SE se) {
@@ -427,7 +428,7 @@ class ExprTool {
             rightStack.push(mul(rightStack.pop(), rightStack.pop()))
         }
 
-        SE additionalLeftTerm = null;
+        SE additionalLeftTerm = null
         if (!leftStack.isEmpty()) {
             Double v = leftStack.pop()
             if (v == ZERO) {
@@ -445,7 +446,7 @@ class ExprTool {
             }
         }
 
-        SE additionalRightTerm = null;
+        SE additionalRightTerm = null
         if (!rightStack.isEmpty()) {
             Object v = rightStack.pop()
             if (v != ONE) {
@@ -1244,7 +1245,7 @@ class ExprTool {
             this.operation = operation
             this.leftPart = leftPart
             this.rightPart = rightPart
-            this.literal = false;
+            this.literal = false
         }
 
         SE(String value, boolean determined, String operation, boolean literal) {

@@ -2,8 +2,7 @@ package org.openl.rules.lang.xls.types.meta;
 
 import java.util.Collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -30,8 +29,8 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
+@Slf4j
 public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNode> {
-    private static final Logger LOG = LoggerFactory.getLogger(DataTableMetaInfoReader.class);
 
     public DataTableMetaInfoReader(DataTableBoundNode boundNode) {
         super(boundNode);
@@ -60,7 +59,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                 return RuleRowHelper
                         .createCellMetaInfo(parsedHeader[DataNodeBinder.TYPE_INDEX], typeMeta, NodeType.DATATYPE);
             } catch (OpenLCompilationException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 return null;
             }
         }
@@ -88,7 +87,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
 
             return null;
         } catch (SyntaxNodeException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return null;
         }
     }
@@ -120,8 +119,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     }
 
     private CellMetaInfo checkForeignKeyInHeader(ColumnDescriptor descriptor, int row, int col) {
-        if (descriptor instanceof ForeignKeyColumnDescriptor) {
-            ForeignKeyColumnDescriptor foreignDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+        if (descriptor instanceof ForeignKeyColumnDescriptor foreignDescriptor) {
             CellKey cellKey = foreignDescriptor.getForeignKeyCellCoordinate();
             if (isNeededCell(cellKey, row, col)) {
                 // Found needed cell
@@ -165,9 +163,9 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                     continue;
                 }
                 IOpenClass columnType;
-                if (descriptor instanceof ForeignKeyColumnDescriptor) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor columnDescriptor) {
                     IDataBase db = getBoundNode().getDataBase();
-                    columnType = ((ForeignKeyColumnDescriptor) descriptor).getDomainClassForForeignTable(db);
+                    columnType = columnDescriptor.getDomainClassForForeignTable(db);
                 } else {
                     columnType = descriptor.isConstructor() ? table.getDataModel().getType() : descriptor.getType();
                 }

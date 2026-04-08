@@ -56,8 +56,8 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     @Override
     protected Object resolveExample(Annotated a, Annotation[] annotations, io.swagger.v3.oas.annotations.media.Schema schema) {
         Object exampleValue = super.resolveExample(a, annotations, schema);
-        if (exampleValue instanceof String) {
-            return stringToRawType(a, (String) exampleValue);
+        if (exampleValue instanceof String string) {
+            return stringToRawType(a, string);
         }
         return exampleValue;
     }
@@ -67,8 +67,8 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                                          Annotation[] annotations,
                                          io.swagger.v3.oas.annotations.media.Schema schema) {
         Object defaultValue = super.resolveDefaultValue(a, annotations, schema);
-        if (defaultValue instanceof String) {
-            return stringToRawType(a, (String) defaultValue);
+        if (defaultValue instanceof String string) {
+            return stringToRawType(a, string);
         }
         return defaultValue;
     }
@@ -224,8 +224,8 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         final io.swagger.v3.oas.annotations.media.Schema resolvedSchemaAnnotation =
                 resolvedSchemaOrArrayAnnotation == null ?
                         null :
-                        resolvedSchemaOrArrayAnnotation instanceof io.swagger.v3.oas.annotations.media.ArraySchema ?
-                                ((io.swagger.v3.oas.annotations.media.ArraySchema) resolvedSchemaOrArrayAnnotation).schema() :
+                        resolvedSchemaOrArrayAnnotation instanceof io.swagger.v3.oas.annotations.media.ArraySchema as ?
+                                as.schema() :
                                 (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
 
         final BeanDescription beanDesc;

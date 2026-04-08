@@ -1,0 +1,41 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "66be13e1aebed8da02e6cc50a0f0ab52",
+  "tableType": "SmartRules",
+  "collect": true,
+  "kind": "Rules",
+  "name": "collectGreeting",
+  "returnType": "String[]",
+  "args": [
+    {
+      "name": "hour",
+      "type": "Integer"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Hour"
+    },
+    {
+      "title": "Greeting"
+    }
+  ],
+  "rules": [
+    {
+      "Hour": {
+        "min": 0,
+        "max": 12
+      },
+      "Greeting": "Good Morning"
+    },
+    {
+      "Hour": {
+        "min": 12,
+        "max": 18
+      },
+      "Greeting": "Good Afternoon"
+    }
+  ]
+}

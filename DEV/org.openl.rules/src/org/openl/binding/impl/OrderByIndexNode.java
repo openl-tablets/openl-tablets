@@ -86,8 +86,8 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
 
         ArrayList<Object> objects = new ArrayList<>();
         for (Object element : map.values()) {
-            if (element instanceof OrderList) {
-                objects.addAll((OrderList) element);
+            if (element instanceof OrderList list) {
+                objects.addAll(list);
             } else {
                 objects.add(element);
             }

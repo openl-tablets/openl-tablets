@@ -1,0 +1,44 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU3MDE6MGI5NGE2YWMxZWNlMGZkMzZhNDBlMTgyZjJiYzE2ZDZmY2M3YzZkNmIyZjc1NTMwMGNiMTk5MTYyODBkYzcxYw==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "table": {
+    "tableType": "SmartRules",
+    "collect": true,
+    "kind": "Rules",
+    "name": "collectGreeting",
+    "returnType": "String[]",
+    "args": [
+      {
+        "name": "hour",
+        "type": "Integer"
+      }
+    ],
+    "headers": [
+      {
+        "title": "Hour"
+      },
+      {
+        "title": "Greeting"
+      }
+    ],
+    "rules": [
+      {
+        "Hour": {
+          "min": 0,
+          "max": 12
+        },
+        "Greeting": "Good Morning"
+      },
+      {
+        "Hour": {
+          "min": 12,
+          "max": 18
+        },
+        "Greeting": "Good Afternoon"
+      }
+    ]
+  }
+}

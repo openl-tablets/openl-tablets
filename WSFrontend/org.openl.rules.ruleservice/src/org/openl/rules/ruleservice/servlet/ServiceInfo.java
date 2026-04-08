@@ -5,14 +5,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.Getter;
+
 public class ServiceInfo {
 
+    @Getter
     private final Date startedTime;
+    @Getter
     private final String name;
+    @Getter
     private final String servicePath;
+    @Getter
     private final Map<String, String> urls = new HashMap<>(1);
     private final boolean hasManifest;
+    @Getter
     private final String deploymentName;
+    @Getter
     private final ServiceStatus status;
 
     public enum ServiceStatus {
@@ -36,31 +44,7 @@ public class ServiceInfo {
         this.deploymentName = deploymentName;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Date getStartedTime() {
-        return startedTime;
-    }
-
-    public Map<String, String> getUrls() {
-        return urls;
-    }
-
-    public String getServicePath() {
-        return servicePath;
-    }
-
-    public ServiceStatus getStatus() {
-        return status;
-    }
-
     public boolean getHasManifest() {
         return hasManifest;
-    }
-
-    public String getDeploymentName() {
-        return deploymentName;
     }
 }

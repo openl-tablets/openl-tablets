@@ -6,6 +6,23 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Spreadsheet",
   "name": "AssetsCompare",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Method 'TotalAssets()' is not found.",
+      "severity": "ERROR"
+    },
+    {
+      "id": "*",
+      "summary": "Field '$USDValue$Total' is not found in type 'null-Class'.",
+      "severity": "ERROR"
+    },
+    {
+      "id": "*",
+      "summary": "Type 'SpreadsheetResultTotalAssets' is not found.",
+      "severity": "ERROR"
+    }
+  ],
   "source": [
     [
       {

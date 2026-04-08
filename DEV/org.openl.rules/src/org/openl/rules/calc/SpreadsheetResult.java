@@ -583,8 +583,7 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertSpreadsheetResult(Object v,
                                                    boolean spreadsheetResultsToMap,
                                                    SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        if (v instanceof SpreadsheetResult) {
-            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+        if (v instanceof SpreadsheetResult spreadsheetResult) {
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = spreadsheetResult
                         .getCustomSpreadsheetResultOpenClass()
@@ -628,12 +627,12 @@ public class SpreadsheetResult implements Serializable {
         if (v == null) {
             return null;
         }
-        if (v instanceof Collection) {
-            return convertCollection((Collection<?>) v,
+        if (v instanceof Collection<?> collection) {
+            return convertCollection(collection,
                     e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
         }
-        if (v instanceof Map) {
-            return convertMap((Map<?, ?>) v, e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
+        if (v instanceof Map<?, ?> map) {
+            return convertMap(map, e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
@@ -672,12 +671,12 @@ public class SpreadsheetResult implements Serializable {
         if (v == null) {
             return null;
         }
-        if (v instanceof Collection) {
-            return convertCollection((Collection<?>) v,
+        if (v instanceof Collection<?> collection) {
+            return convertCollection(collection,
                     e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
         }
-        if (v instanceof Map) {
-            return convertMap((Map<?, ?>) v,
+        if (v instanceof Map<?, ?> map) {
+            return convertMap(map,
                     e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
         }
         if (v.getClass().isArray()) {
@@ -742,22 +741,20 @@ public class SpreadsheetResult implements Serializable {
                 return v;
             }
         }
-        if (v instanceof SpreadsheetResult) {
-            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+        if (v instanceof SpreadsheetResult spreadsheetResult) {
             if (toType != null && toType.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
                 return CustomSpreadsheetResultOpenClass.createBean(toType, spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
             }
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
-            } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
+            } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass && customSpreadsheetResultOpenClass
                     .getBeanClass() == toType) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
                 return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
                         spreadsheetResultBeanPropertyNamingStrategy);
-            } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) toTypeOpenClass)
+            } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass class1 && class1
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass() == toType) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) toTypeOpenClass)
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = class1
                         .toCustomSpreadsheetResultOpenClass();
                 return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
                         spreadsheetResultBeanPropertyNamingStrategy);

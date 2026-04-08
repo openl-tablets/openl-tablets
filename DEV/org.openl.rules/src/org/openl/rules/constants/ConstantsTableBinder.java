@@ -40,7 +40,7 @@ public class ConstantsTableBinder extends AXlsTableBinder {
         if (parsedHeader.length > 1) {
             String constantsTableName = parsedHeader[CONSTANTS_TABLE_NAME_INDEX].getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(constantsTableName)) {
-                String message = String.format(NAME_ERROR_MESSAGE, "Constants table", constantsTableName);
+                String message = NAME_ERROR_MESSAGE.formatted("Constants table", constantsTableName);
                 bindingContext
                         .addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]));
             }

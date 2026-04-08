@@ -1,0 +1,5 @@
+DELETE /rest/user-workspace/design-flat/projects/EPBDS_15621%3Ac6e1adbfff6a4431e977a8536ffa8a80f8502fd0d9ac4e1ed37bd45822f2d3b4/delete HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/x-www-form-urlencoded
+
+comment=Cleanup EPBDS-15621

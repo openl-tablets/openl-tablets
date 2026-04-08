@@ -7,10 +7,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -19,8 +18,8 @@ import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")
+@Slf4j
 public class EntityManagerOperations implements RuleServicePublisherListener {
-    private final Logger log = LoggerFactory.getLogger(EntityManagerOperations.class);
 
     private final HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder;
 
@@ -31,7 +30,7 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
     private static class Key {
         final Set<Class<?>> entityClasses;
 
-        public Key(Class<?>[] entityClasses) {
+        private Key(Class<?>[] entityClasses) {
             this.entityClasses = Set.of(Objects.requireNonNull(entityClasses, "entityClasses cannot be null"));
         }
 
@@ -39,10 +38,8 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
         public boolean equals(Object o) {
             if (this == o)
                 return true;
-            if (o == null || getClass() != o.getClass())
+            if (!(o instanceof Key key))
                 return false;
-
-            Key key = (Key) o;
 
             return entityClasses.equals(key.entityClasses);
         }

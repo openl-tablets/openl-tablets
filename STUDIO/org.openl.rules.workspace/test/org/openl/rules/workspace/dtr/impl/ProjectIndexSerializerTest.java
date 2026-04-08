@@ -55,10 +55,10 @@ public class ProjectIndexSerializerTest {
     private static void assertTheSame(ProjectIndex projectIndex) {
         assertEquals(3, projectIndex.getProjects().size());
 
-        assertEquals("Project", projectIndex.getProjects().get(0).getName());
-        assertEquals("Project", projectIndex.getProjects().get(0).getPath());
-        assertNull(projectIndex.getProjects().get(0).getModifiedAt());
-        assertFalse(projectIndex.getProjects().get(0).isArchived());
+        assertEquals("Project", projectIndex.getProjects().getFirst().getName());
+        assertEquals("Project", projectIndex.getProjects().getFirst().getPath());
+        assertNull(projectIndex.getProjects().getFirst().getModifiedAt());
+        assertFalse(projectIndex.getProjects().getFirst().isArchived());
 
         assertEquals("Project4", projectIndex.getProjects().get(1).getName());
         assertEquals("foo/bar/Project4", projectIndex.getProjects().get(1).getPath());

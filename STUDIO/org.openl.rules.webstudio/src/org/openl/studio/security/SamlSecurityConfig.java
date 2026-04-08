@@ -69,7 +69,7 @@ public class SamlSecurityConfig {
     public SecurityFilterChain samlMetadataFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
             @Qualifier("metadataGeneratorFilter") Saml2MetadataFilter metadataGeneratorFilter) {
-        
+
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/saml2/service-provider-metadata/**"),
                 securityContextPersistenceFilter,
                 metadataGeneratorFilter);
@@ -81,7 +81,7 @@ public class SamlSecurityConfig {
     public SecurityFilterChain samlLoginFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
             @Qualifier("samlFilter") Saml2WebSsoAuthenticationFilter samlFilter) {
-        
+
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/login/saml2/**"),
                 securityContextPersistenceFilter,
                 samlFilter);
@@ -93,7 +93,7 @@ public class SamlSecurityConfig {
     public SecurityFilterChain samlAuthenticateFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
             @Qualifier("samlRequestFilter") Saml2WebSsoAuthenticationRequestFilter samlRequestFilter) {
-        
+
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/saml2/authenticate/**"),
                 securityContextPersistenceFilter,
                 samlRequestFilter);
@@ -135,7 +135,7 @@ public class SamlSecurityConfig {
             Saml2LogoutRequestFilter logoutFilter,
             @Qualifier("exceptionTranslationFilter") ExceptionTranslationFilter exceptionTranslationFilter,
             @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
-        
+
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/**"),
                 securityContextPersistenceFilter,
                 logoutFilter,
@@ -175,7 +175,7 @@ public class SamlSecurityConfig {
     public Saml2LogoutRequestFilter samlLogoutFilter(
             @Qualifier("relyingPartyRegistrationResolver") RelyingPartyRegistrationResolver relyingPartyRegistrationResolver,
             SamlLogoutSuccessHandler logoutHandler) {
-        
+
         var logoutRequestValidator = new OpenSaml5LogoutRequestValidator();
         var logoutResponseResolver = new OpenSaml5LogoutResponseResolver(relyingPartyRegistrationResolver);
 
@@ -217,7 +217,7 @@ public class SamlSecurityConfig {
             Environment environment,
             @Qualifier("syncUserData") Consumer<SimpleUser> syncUserData,
             @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
-        
+
         return new OpenLResponseAuthenticationConverter(environment, syncUserData, privilegeMapper);
     }
 
@@ -227,7 +227,7 @@ public class SamlSecurityConfig {
             AuthenticationManager authenticationManager,
             AuthenticationSuccessHandler authenticationSuccessHandler,
             @Qualifier("sessionAuthenticationStrategy") SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-        
+
         var filter = new Saml2WebSsoAuthenticationFilter(relyingPartyRegistration);
         filter.setAuthenticationManager(authenticationManager);
         filter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
@@ -239,7 +239,7 @@ public class SamlSecurityConfig {
     public AuthenticationProvider samlAuthenticationProvider(
             @Qualifier("openLSamlBuilder") OpenLSamlBuilder openLSamlBuilder,
             @Qualifier("responseAuthenticationConverter") OpenLResponseAuthenticationConverter responseAuthenticationConverter) {
-        
+
         var provider = openLSamlBuilder.openSaml5AuthenticationProvider();
         provider.setResponseAuthenticationConverter(responseAuthenticationConverter);
         return provider;

@@ -1,14 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is for releasing OpenL version wIth maven-release-plugin -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
+    <version>6.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <version>6.0.0-SNAPSHOT</version>
     <name>OpenL Tablets</name>
-    <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
+    <url>https://openl-tablets.org</url>
     <inceptionYear>2004</inceptionYear>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -16,10 +21,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <organization>
-        <name>OpenL Tablets</name>
-        <url>https://openl-tablets.org</url>
-    </organization>
+
     <developers>
         <developer>
             <name>Stanislav Shor</name>
@@ -51,22 +53,28 @@
             <timezone>+3</timezone>
         </developer>
     </developers>
+    <modules>
+        <module>DEV</module>
+        <module>STUDIO</module>
+        <module>WSFrontend</module>
+        <module>DEMO</module>
+        <module>Util/openl-openapi-model-scaffolding</module>
+        <module>Util/openl-openapi-parser</module>
+        <module>Util/openl-excel-builder</module>
+        <module>Util/org.openl.rules.profiler</module>
+        <module>Util/openl-rules-opentelemetry</module>
+        <module>ITEST</module>
+        <module>Util/openl-maven-plugin</module>
+        <module>Util/openl-simple-project-archetype</module>
+        <module>Util/openl-project-archetype</module>
+        <module>Util/openl-yaml</module>
+    </modules>
     <scm>
         <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
         <developerConnection>scm:git:git@github.com:openl-tablets/openl-tablets.git</developerConnection>
-        <url>https://github.com/openl-tablets/openl-tablets</url>
         <tag>HEAD</tag>
+        <url>https://github.com/openl-tablets/openl-tablets</url>
     </scm>
-    <repositories>
-        <repository>
-            <id>shibboleth-releases</id>
-            <name>Shibboleth Repository</name>
-            <url>https://build.shibboleth.net/maven/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- If true, deploying of artifacts will be skipped  -->
@@ -77,80 +85,77 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>6.2.15</spring.framework.version>
-        <spring.boot.version>3.5.10</spring.boot.version>
-        <spring.integration.version>6.5.6</spring.integration.version>
+        <spring.framework.version>6.2.17</spring.framework.version>
+        <spring.boot.version>3.5.13</spring.boot.version>
+        <spring.integration.version>6.5.8</spring.integration.version>
 
         <!-- Security -->
-        <spring.security.version>6.5.7</spring.security.version>
+        <spring.security.version>6.5.9</spring.security.version>
         <opensaml.version>5.2.0</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.9.1</asm.version>
-        <byte-buddy.version>1.18.4</byte-buddy.version>
+        <byte-buddy.version>1.18.8</byte-buddy.version>
 
         <!-- Kafka -->
-        <kafka.version>4.1.1</kafka.version>
+        <kafka.version>4.2.0</kafka.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.24.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.26.1</opentelemetry.version>
 
         <!-- REST -->
-        <jackson.version>2.21.0</jackson.version>
-        <cxf.version>4.1.4</cxf.version>
+        <jackson.version>2.21.2</jackson.version>
+        <cxf.version>4.1.5</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.79.0</grpc.version>
+        <grpc.version>1.80.0</grpc.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.42</swagger.core.version>
-        <swagger.parser.version>2.1.37</swagger.parser.version>
-
-        <!-- AI -->
-        <spring.ai.version>1.1.2</spring.ai.version>
-        <mcp.version>0.17.2</mcp.version>
+        <swagger.core.version>2.2.43</swagger.core.version>
+        <swagger.parser.version>2.1.39</swagger.parser.version>
 
         <!-- Logging -->
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
-        <maven.api.version>3.9.12</maven.api.version>
+        <maven.api.version>3.9.14</maven.api.version>
         <maven.plugin.version>3.15.2</maven.plugin.version>
-        <plexus-utils.version>4.0.2</plexus-utils.version>
+        <plexus-utils.version>4.0.3</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>12.1.6</jetty.version>
+        <jetty.version>12.1.8</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.41.24</amazonaws.version>
-        <azure.version>12.33.2</azure.version>
-        <netty.version>4.2.10.Final</netty.version>
+        <amazonaws.version>2.42.4</amazonaws.version>
+        <azure.version>12.33.3</azure.version>
+        <netty.version>4.2.12.Final</netty.version>
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
 
         <!-- DB -->
         <h2.version>2.4.240</h2.version>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <hibernate.orm.version>6.6.42.Final</hibernate.orm.version>
+        <hibernate.orm.version>6.6.47.Final</hibernate.orm.version>
         <hibernate.validator.version>8.0.3.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>6.0.2</junit.version>
+        <junit.version>6.0.3</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <mockito.version>5.21.0</mockito.version>
+        <mockito.version>5.23.0</mockito.version>
         <datasource-proxy.version>1.11.0</datasource-proxy.version>
         <xmlunit.version>2.11.0</xmlunit.version>
-        <testcontainers.version>2.0.3</testcontainers.version>
+        <testcontainers.version>2.0.4</testcontainers.version>
         <testcontainers.keycloak.version>4.1.1</testcontainers.keycloak.version>
-        <minio.version>8.6.0</minio.version>
+        <s3mock.version>4.11.0</s3mock.version>
         <ojdbc11.version>23.26.1.0.0</ojdbc11.version>
-        <postgresql.version>42.7.9</postgresql.version>
+        <postgresql.version>42.7.10</postgresql.version>
         <mariadb.version>2.7.13</mariadb.version>
-        <mssql.version>13.2.1.jre11</mssql.version>
+        <mssql.version>13.4.0.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- Jakarta APIs -->
@@ -169,7 +174,7 @@
         <greenmail.version>2.1.8</greenmail.version>
 
         <!-- XML -->
-        <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
 
         <!-- Commons and utils -->
         <commons-codec.version>1.21.0</commons-codec.version>
@@ -182,7 +187,7 @@
         <gson.version>2.13.2</gson.version>
 
         <bouncycastle.version>1.83</bouncycastle.version>
-        <groovy.version>4.0.30</groovy.version>
+        <groovy.version>4.0.31</groovy.version>
         <poi.version>5.5.1</poi.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
@@ -190,9 +195,15 @@
         <xmlsec.version>4.0.4</xmlsec.version>
         <jcodemodel.version>4.1.0</jcodemodel.version>
 
+        <!-- Static analysis -->
+        <errorprone.version>2.48.0</errorprone.version>
+        <nullaway.version>0.13.1</nullaway.version>
+        <jspecify.version>1.0.0</jspecify.version>
+        <lombok.version>1.18.44</lombok.version>
+
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
-        <node.version>v24.13.0</node.version>
-        <npm.version>11.7.0</npm.version>
+        <node.version>v24.14.1</node.version>
+        <npm.version>11.12.0</npm.version>
         <npm.test.skip>false</npm.test.skip>
 
         <!-- It needs to detect memory leaks. -->
@@ -202,476 +213,12 @@
         <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx61m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
-        <surefire.argLine.opts /> <!-- Extra settings per a maven module for the surefire plugin -->
+        <surefire.argLine.opts/>
+        <!-- Extra settings per a maven module for the surefire plugin -->
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
     </properties>
-
-    <modules>
-        <module>DEV</module>
-        <module>STUDIO</module>
-        <module>WSFrontend</module>
-        <module>DEMO</module>
-        <module>Util/openl-openapi-model-scaffolding</module>
-        <module>Util/openl-openapi-parser</module>
-        <module>Util/openl-excel-builder</module>
-        <module>Util/org.openl.rules.profiler</module>
-        <module>Util/openl-rules-opentelemetry</module>
-        <module>ITEST</module>
-        <module>Util/openl-maven-plugin</module>
-        <module>Util/openl-simple-project-archetype</module>
-        <module>Util/openl-project-archetype</module>
-        <module>Util/openl-yaml</module>
-    </modules>
-    <build>
-        <defaultGoal>clean verify</defaultGoal>
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-            <resource>
-                <directory>src</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>test-resources</directory>
-            </testResource>
-        </testResources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.4.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>javacc-maven-plugin</artifactId>
-                    <version>3.2.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.4.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>3.3.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.4</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>2.7.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.5.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.6.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-scm-plugin</artifactId>
-                    <version>2.2.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.15.0</version>
-                    <configuration>
-                        <release>21</release>
-                        <compilerArgs>
-                            <!-- enable parameter names for Spring Validation.
-                            See: https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x/d5e0133619a70f7529a0f4a6f042e770cb33bdbc#upgrading-to-version-60
-                            -->
-                            <arg>-parameters</arg>
-                            <arg>-Xlint:deprecation</arg>
-                        </compilerArgs>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.4</version>
-                    <configuration>
-                        <systemPropertyVariables>
-                            <openl.home>${openl.home}</openl.home>
-                            <openl.config.location />
-                        </systemPropertyVariables>
-                        <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} ${jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.5.1</version>
-                    <configuration>
-                        <warSourceDirectory>webapp</warSourceDirectory>
-                        <webappDirectory>${project.build.directory}/webapp</webappDirectory>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.8.0</version>
-                    <configuration>
-                        <appendAssemblyId>false</appendAssemblyId>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.5.0</version>
-                    <configuration>
-                        <skipIfEmpty>true</skipIfEmpty>
-                        <skip>${maven.deploy.skip}</skip>
-                        <archive>
-                            <manifest>
-                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                                <addBuildEnvironmentEntries>true</addBuildEnvironmentEntries>
-                            </manifest>
-                            <manifestEntries>
-                                <Implementation-Build>${buildNumber}</Implementation-Build>
-                                <Built-By>${user.name}</Built-By>
-                            </manifestEntries>
-                        </archive>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <!-- WARNING: Do not update to a higher version. For some unknown reason, dependencies that were
-                    copied during the `prepare-package` phase are being removed during the `war` packaging process. -->
-                    <version>3.0.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.basepom.maven</groupId>
-                    <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>2.0.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-plugin-plugin</artifactId>
-                    <version>${maven.plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.9.1</version>
-                    <dependencies>
-                        <dependency>
-                            <!-- To Support Java 25. Keep till maven-script-interpreter updates to groovy 4.0.27+ -->
-                            <groupId>org.apache.groovy</groupId>
-                            <artifactId>groovy</artifactId>
-                            <version>${groovy.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.9.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.21.0</version>
-                    <configuration>
-                        <siteDirectory>${basedir}/site</siteDirectory>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.owasp</groupId>
-                    <artifactId>dependency-check-maven</artifactId>
-                    <version>12.2.0</version>
-                </plugin>
-                <plugin>
-                    <!-- See https://docs.openrewrite.org/recipes/java -->
-                    <!-- Usage:    mvn rewrite:run   -->
-                    <groupId>org.openrewrite.maven</groupId>
-                    <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.28.1</version>
-                    <configuration>
-                        <activeRecipes>
-                            <recipe>org.openl.rewrite.Recipe</recipe>
-                        </activeRecipes>
-                        <activeStyles>
-                            <style>org.openl.rewrite.Style</style>
-                        </activeStyles>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring.boot.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.github.eirslett</groupId>
-                    <artifactId>frontend-maven-plugin</artifactId>
-                    <version>${frontend-maven-plugin.version}</version>
-                    <configuration>
-                        <nodeVersion>${node.version}</nodeVersion>
-                        <npmVersion>${npm.version}</npmVersion>
-                        <installDirectory>${project.build.directory}</installDirectory>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <timestampPropertyName>build.date</timestampPropertyName>
-                    <timestampFormat>yyyy-MM-dd</timestampFormat>
-                    <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
-                    <shortRevisionLength>12</shortRevisionLength>
-                    <format>{0}</format>
-                    <items>
-                        <item>scmVersion</item>
-                    </items>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- Before generate-resources phase -->
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>properties</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>perf</id>
-            <activation>
-                <property>
-                    <name>!noPerf</name>
-                </property>
-            </activation>
-            <properties>
-                <surefire.argLine>${surefire.argLine.perf}</surefire.argLine>
-            </properties>
-        </profile>
-        <profile>
-            <id>noDocker</id>
-            <activation>
-                <property>
-                    <name>noDocker</name>
-                </property>
-            </activation>
-            <properties>
-                <surefire.argLine.opts>-DnoDocker</surefire.argLine.opts>
-                <maven.test.skip>${dockerized}</maven.test.skip>
-            </properties>
-        </profile>
-        <profile>
-            <id>quick</id>
-            <activation>
-                <property>
-                    <name>quick</name>
-                </property>
-            </activation>
-            <properties>
-                <surefire.argLine.opts>-DnoDocker</surefire.argLine.opts>
-                <maven.test.skip>${skipTestsForQuick}</maven.test.skip>
-                <archetype.test.skip>${skipTestsForQuick}</archetype.test.skip>
-                <invoker.skip>${skipTestsForQuick}</invoker.skip>
-                <npm.test.skip>${skipTestsForQuick}</npm.test.skip>
-            </properties>
-        </profile>
-        <profile>
-            <id>skipTests</id>
-            <activation>
-                <property>
-                    <name>skipTests</name>
-                </property>
-            </activation>
-            <properties>
-                <maven.test.skip>true</maven.test.skip>
-                <archetype.test.skip>true</archetype.test.skip>
-                <invoker.skip>true</invoker.skip>
-                <npm.test.skip>true</npm.test.skip>
-            </properties>
-        </profile>
-        <profile>
-            <id>no-sonar</id>
-            <activation>
-                <property>
-                    <name>!sonar</name>
-                </property>
-            </activation>
-            <properties>
-                <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
-                <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
-            </properties>
-        </profile>
-        <profile>
-            <id>sonar</id>
-            <activation>
-                <property>
-                    <name>sonar</name>
-                </property>
-            </activation>
-            <properties>
-                <sonar />
-                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.14</version>
-                        <configuration>
-                            <propertyName>jacoco.argLine</propertyName>
-                            <includes>
-                                <include>org/openl/**/*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>org/openl/generated/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-ut</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>prepare-it</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>prepare-agent-integration</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>gpg-sign</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.simplify4u.plugins</groupId>
-                        <artifactId>sign-maven-plugin</artifactId>
-                        <version>1.1.0</version>
-                        <configuration>
-                            <skip>${maven.deploy.skip}</skip>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>sources</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.4.0</version>
-                        <configuration>
-                            <skipSource>${maven.deploy.skip}</skipSource>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.12.0</version>
-                        <configuration>
-                            <!-- To skip invalid HTML4 tags -->
-                            <!-- http://openjdk.java.net/jeps/172 -->
-                            <doclint>none</doclint>
-                            <skip>${maven.deploy.skip}</skip>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>owasp</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>aggregate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
     <dependencyManagement>
         <dependencies>
             <!-- GRPC -->
@@ -730,15 +277,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-minio</artifactId>
-                <version>${testcontainers.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.minio</groupId>
-                <artifactId>minio</artifactId>
-                <version>${minio.version}</version>
+                <groupId>com.adobe.testing</groupId>
+                <artifactId>s3mock-testcontainers</artifactId>
+                <version>${s3mock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -936,21 +477,6 @@
                 <artifactId>spring-integration-jdbc</artifactId>
                 <version>${spring.integration.version}</version>
             </dependency>
-            <!-- Spring AI -->
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>${spring.ai.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.modelcontextprotocol.sdk</groupId>
-                <artifactId>mcp-bom</artifactId>
-                <version>${mcp.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <!-- This library implements a filter to process X-Forwarded-* headers.
                 The reason of this usage: no huge dependencies.
@@ -1016,7 +542,7 @@
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>jakarta.faces</artifactId>
-                <version>4.0.14</version>
+                <version>4.0.15</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.enterprise</groupId>
@@ -1125,6 +651,18 @@
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${jakarta.annotation-api.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <!-- Apache CXF Runtime JAX-RS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -1209,6 +747,7 @@
                 <!-- this dependency is used through AWS S3Client -->
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
+                <version>4.5.14</version>
                 <exclusions>
                     <exclusion>
                         <!-- Classes from the commons-logging are duplicated by spring-jcl
@@ -1384,18 +923,6 @@
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
                 <version>${kafka.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.lz4</groupId>
-                        <artifactId>lz4-java</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- Remove the following override after updating kafka version to 4.2+ -->
-            <dependency>
-                <groupId>at.yawk.lz4</groupId>
-                <artifactId>lz4-java</artifactId>
-                <version>1.10.3</version>
             </dependency>
             <!-- //Kafka -->
             <!-- Open Telemetry -->
@@ -1568,9 +1095,9 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio</artifactId>
+                <version>${project.version}</version>
                 <type>war</type>
                 <scope>runtime</scope>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1638,15 +1165,15 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                <type>pom</type>
                 <version>${project.version}</version>
+                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <version>${project.version}</version>
                 <type>war</type>
                 <scope>runtime</scope>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1656,8 +1183,8 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                <classifier>classes</classifier>
                 <version>${project.version}</version>
+                <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1719,6 +1246,16 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
@@ -1740,4 +1277,647 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>shibboleth-releases</id>
+            <name>Shibboleth Repository</name>
+            <url>https://build.shibboleth.net/maven/releases/</url>
+        </repository>
+    </repositories>
+    <build>
+        <defaultGoal>clean verify</defaultGoal>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>test-resources</directory>
+            </testResource>
+        </testResources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-archetype-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>javacc-maven-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.1.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.7.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.6.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-plugin</artifactId>
+                    <version>2.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.15.0</version>
+                    <configuration>
+                        <release>21</release>
+                        <fork>true</fork>
+                        <compilerArgs>
+                            <!-- enable parameter names for Spring Validation.
+                            See: https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x/d5e0133619a70f7529a0f4a6f042e770cb33bdbc#upgrading-to-version-60
+                            -->
+                            <arg>-parameters</arg>
+                            <arg>-Xlint:deprecation</arg>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>--should-stop=ifError=FLOW</arg>
+                            <arg>-Xplugin:ErrorProne -XepAllErrorsAsWarnings -Xep:NullAway:WARN -XepOpt:NullAway:AnnotatedPackages=org.openl -XepOpt:NullAway:ExcludedClassAnnotations=javax.annotation.processing.Generated</arg>
+                            <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                            <!-- Error Prone requires access to internal javac APIs -->
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${errorprone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.uber.nullaway</groupId>
+                                <artifactId>nullaway</artifactId>
+                                <version>${nullaway.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.5</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <openl.home>${openl.home}</openl.home>
+                            <openl.config.location/>
+                        </systemPropertyVariables>
+                        <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} @{jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.5.1</version>
+                    <configuration>
+                        <warSourceDirectory>webapp</warSourceDirectory>
+                        <webappDirectory>${project.build.directory}/webapp</webappDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <appendAssemblyId>false</appendAssemblyId>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.5.0</version>
+                    <configuration>
+                        <skipIfEmpty>true</skipIfEmpty>
+                        <skip>${maven.deploy.skip}</skip>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addBuildEnvironmentEntries>true</addBuildEnvironmentEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Implementation-Build>${buildNumber}</Implementation-Build>
+                                <Built-By>${user.name}</Built-By>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <!-- WARNING: Do not update to a higher version. For some unknown reason, dependencies that were
+                    copied during the `prepare-package` phase are being removed during the `war` packaging process. -->
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.basepom.maven</groupId>
+                    <artifactId>duplicate-finder-maven-plugin</artifactId>
+                    <version>2.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>${maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-invoker-plugin</artifactId>
+                    <version>3.9.1</version>
+                    <dependencies>
+                        <dependency>
+                            <!-- To Support Java 25. Keep till maven-script-interpreter updates to groovy 4.0.27+ -->
+                            <groupId>org.apache.groovy</groupId>
+                            <artifactId>groovy</artifactId>
+                            <version>${groovy.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.9.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.21.0</version>
+                    <configuration>
+                        <siteDirectory>${basedir}/site</siteDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>12.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <version>${frontend-maven-plugin.version}</version>
+                    <configuration>
+                        <nodeVersion>${node.version}</nodeVersion>
+                        <npmVersion>${npm.version}</npmVersion>
+                        <installDirectory>${project.build.directory}</installDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.14</version>
+                    <configuration>
+                        <propertyName>jacoco.argLine</propertyName>
+                        <includes>
+                            <include>org/openl/**/*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>org/openl/generated/**/*</exclude>
+                        </excludes>
+                        <formats>
+                            <format>XML</format>
+                        </formats>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <upToDateChecking>
+                        <enabled>false</enabled>
+                    </upToDateChecking>
+                    <java>
+                        <includes>
+                            <include>**/*.java</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                            <exclude>**/resources/archetype-resources/**</exclude>
+                        </excludes>
+                        <importOrder>
+                            <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
+                        </importOrder>
+                        <removeUnusedImports/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                        <indent>
+                            <spaces>true</spaces>
+                            <spacesPerTab>4</spacesPerTab>
+                        </indent>
+                    </java>
+                    <groovy>
+                        <includes>
+                            <include>**/*.groovy</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                        </excludes>
+                        <importOrder>
+                            <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
+                        </importOrder>
+                        <removeSemicolons/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                        <indent>
+                            <spaces>true</spaces>
+                            <spacesPerTab>4</spacesPerTab>
+                        </indent>
+                    </groovy>
+                    <yaml>
+                        <includes>
+                            <include>**/*.yaml</include>
+                            <include>**/*.yml</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                        </excludes>
+                        <prettier/>
+                    </yaml>
+                    <pom>
+                        <includes>
+                            <include>**/pom.xml</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                            <exclude>**/resources/archetype-resources/**</exclude>
+                        </excludes>
+                        <sortPom>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                        </sortPom>
+                    </pom>
+                    <formats>
+                        <format>
+                            <lineEndings>GIT_ATTRIBUTES</lineEndings>
+                            <includes>
+                                <include>**/*.ts</include>
+                                <include>**/*.tsx</include>
+                                <include>**/*.scss</include>
+                                <include>**/*.css</include>
+                                <include>**/*.html</include>
+                                <include>**/*.xml</include>
+                                <include>**/*.json</include>
+                                <include>**/*.properties</include>
+                                <include>**/*.txt</include>
+                                <include>**/*.md</include>
+                                <include>**/*.svg</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.csv</include>
+                                <include>**/*.aj</include>
+                                <include>**/*.apt</include>
+                                <include>**/*.eml</include>
+                                <include>**/META-INF/services/*</include>
+                                <include>**/*.webmanifest</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/dist/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/build/**</exclude>
+                                <exclude>**/out/**</exclude>
+                                <exclude>**/generated/**</exclude>
+                                <exclude>**/*-ui/coverage/**</exclude>
+                                <exclude>.*/**</exclude>
+                                <exclude>**/.*/**</exclude>
+                                <exclude>**/pom.xml</exclude>
+                            </excludes>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <timestampPropertyName>build.date</timestampPropertyName>
+                    <timestampFormat>yyyy-MM-dd</timestampFormat>
+                    <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
+                    <shortRevisionLength>12</shortRevisionLength>
+                    <format>{0}</format>
+                    <items>
+                        <item>scmVersion</item>
+                    </items>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <!-- Before generate-resources phase -->
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+    </build>
+    <profiles>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.argLine>${surefire.argLine.perf}</surefire.argLine>
+            </properties>
+        </profile>
+        <profile>
+            <id>noDocker</id>
+            <activation>
+                <property>
+                    <name>noDocker</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.argLine.opts>-DnoDocker</surefire.argLine.opts>
+                <maven.test.skip>${dockerized}</maven.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>quick</id>
+            <activation>
+                <property>
+                    <name>quick</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.argLine.opts>-DnoDocker</surefire.argLine.opts>
+                <maven.test.skip>${skipTestsForQuick}</maven.test.skip>
+                <archetype.test.skip>${skipTestsForQuick}</archetype.test.skip>
+                <invoker.skip>${skipTestsForQuick}</invoker.skip>
+                <npm.test.skip>${skipTestsForQuick}</npm.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>skipTests</id>
+            <activation>
+                <property>
+                    <name>skipTests</name>
+                </property>
+            </activation>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <archetype.test.skip>true</archetype.test.skip>
+                <invoker.skip>true</invoker.skip>
+                <npm.test.skip>true</npm.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>no-sonar</id>
+            <activation>
+                <property>
+                    <name>!sonar</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Empty for building without JaCoCo agent -->
+                <jacoco.argLine/>
+                <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
+            </properties>
+        </profile>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <property>
+                    <name>sonar</name>
+                </property>
+            </activation>
+            <modules>
+                <module>jacoco-report</module>
+            </modules>
+            <properties>
+                <sonar/>
+                <surefire.argLine/>
+                <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-ut</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>prepare-it</id>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>gpg-sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.simplify4u.plugins</groupId>
+                        <artifactId>sign-maven-plugin</artifactId>
+                        <version>1.1.0</version>
+                        <configuration>
+                            <skip>${maven.deploy.skip}</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sources</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.4.0</version>
+                        <configuration>
+                            <skipSource>${maven.deploy.skip}</skipSource>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.12.0</version>
+                        <configuration>
+                            <!-- To skip invalid HTML4 tags -->
+                            <!-- http://openjdk.java.net/jeps/172 -->
+                            <doclint>none</doclint>
+                            <skip>${maven.deploy.skip}</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>owasp</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

@@ -87,9 +87,10 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             return DefaultTypingMode.JAVA_LANG_OBJECT;
         } else if (DefaultTypingMode.NON_FINAL.name().equalsIgnoreCase(defaultTypingMode.trim())) {
             return DefaultTypingMode.NON_FINAL;
+        } else if (DefaultTypingMode.NON_FINAL_AND_ENUMS.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.NON_FINAL_AND_ENUMS;
         }
-        throw new ObjectMapperConfigurationParsingException(String.format(
-                "Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL/EVERYTHING/DISABLED value for '%s' in the configuration for service '%s'.",
+        throw new ObjectMapperConfigurationParsingException("Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL/EVERYTHING/DISABLED value for '%s' in the configuration for service '%s'.".formatted(
                 JACKSON_DEFAULT_TYPING_MODE,
                 getRulesDeploy().getServiceName()));
     }
@@ -140,8 +141,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
                 if (type instanceof DatatypeOpenClass) {
                     rootClassNamesBindingClasses.add(type.getInstanceClass());
-                } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
+                } else if (type instanceof CustomSpreadsheetResultOpenClass class1) {
+                    rootClassNamesBindingClasses.add(class1.getBeanClass());
                 }
             }
             for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
@@ -161,13 +162,11 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected void processJacksonPropertiesSettingBoolean(Object value, String property, Consumer<Boolean> consumer) {
         if (value != null) {
-            if (value instanceof Boolean) {
-                consumer.accept((Boolean) value);
-            } else if (value instanceof String) {
-                consumer.accept(Boolean.parseBoolean((String) value));
-            } else {
-                throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
+            switch (value) {
+                case Boolean boolean1 -> consumer.accept(boolean1);
+                case String string -> consumer.accept(Boolean.parseBoolean(string));
+                case null, default -> throw new ObjectMapperConfigurationParsingException(
+                        "Expected true/false value for '%s' in the configuration for service '%s'.".formatted(
                                 property,
                                 rulesDeploy.getServiceName()));
             }
@@ -177,14 +176,12 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     protected void processJacksonSimpleClassNameAsTypingPropertyValueSetting(
             Object simpleClassNameAsTypingPropertyValue) {
         if (simpleClassNameAsTypingPropertyValue != null) {
-            if (simpleClassNameAsTypingPropertyValue instanceof Boolean) {
-                delegate.setSimpleClassNameAsTypingPropertyValue((Boolean) simpleClassNameAsTypingPropertyValue);
-            } else if (simpleClassNameAsTypingPropertyValue instanceof String) {
-                delegate.setSimpleClassNameAsTypingPropertyValue(
-                        Boolean.parseBoolean((String) simpleClassNameAsTypingPropertyValue));
-            } else {
-                throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
+            switch (simpleClassNameAsTypingPropertyValue) {
+                case Boolean boolean1 -> delegate.setSimpleClassNameAsTypingPropertyValue(boolean1);
+                case String string -> delegate.setSimpleClassNameAsTypingPropertyValue(
+                        Boolean.parseBoolean(string));
+                case null, default -> throw new ObjectMapperConfigurationParsingException(
+                        "Expected true/false value for '%s' in the configuration for service '%s'.".formatted(
                                 JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE,
                                 rulesDeploy.getServiceName()));
             }
@@ -193,19 +190,17 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected void processJacksonSerializationInclusionSetting(Object serializationInclusion) {
         if (serializationInclusion != null) {
-            if (serializationInclusion instanceof String) {
-                String stringValue = (String) serializationInclusion;
+            if (serializationInclusion instanceof String stringValue) {
                 try {
                     delegate.setSerializationInclusion(JsonInclude.Include.valueOf(stringValue));
                 } catch (IllegalArgumentException e) {
-                    throw new ObjectMapperConfigurationParsingException(String.format(
-                            "Invalid serializationInclusion value is used for '%s' in the configuration for service '%s'.",
+                    throw new ObjectMapperConfigurationParsingException("Invalid serializationInclusion value is used for '%s' in the configuration for service '%s'.".formatted(
                             JACKSON_SERIALIZATION_INCLUSION,
                             rulesDeploy.getServiceName()), e);
                 }
             } else {
                 throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                 JACKSON_SERIALIZATION_INCLUSION,
                                 rulesDeploy.getServiceName()));
             }
@@ -213,7 +208,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void processRootClassNamesBindingSetting(Object rootClassNamesBinding) {
-        if (rootClassNamesBinding instanceof String) {
+        if (rootClassNamesBinding instanceof String string) {
             Set<String> rootClassNamesBindingClassNames = delegate.getOverrideTypes();
             if (rootClassNamesBindingClassNames == null) {
                 rootClassNamesBindingClassNames = new HashSet<>();
@@ -221,12 +216,12 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 rootClassNamesBindingClassNames = new HashSet<>(rootClassNamesBindingClassNames);
             }
             rootClassNamesBindingClassNames
-                    .addAll(RulesDeployHelper.splitRootClassNamesBindingClasses((String) rootClassNamesBinding));
+                    .addAll(RulesDeployHelper.splitRootClassNamesBindingClasses(string));
             delegate.setOverrideTypes(rootClassNamesBindingClassNames);
         } else {
             if (rootClassNamesBinding != null) {
                 throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                 ROOT_CLASS_NAMES_BINDING,
                                 rulesDeploy.getServiceName()));
             }
@@ -234,13 +229,12 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void processJacksonTypingPropertyNameSetting(Object typingPropertyName) {
-        if (typingPropertyName instanceof String) {
-            String stringValue = (String) typingPropertyName;
+        if (typingPropertyName instanceof String stringValue) {
             delegate.setTypingPropertyName(stringValue);
         } else {
             if (typingPropertyName != null) {
                 throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                 JACKSON_TYPING_PROPERTY_NAME,
                                 rulesDeploy.getServiceName()));
             }
@@ -249,14 +243,14 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected void processJacksonJsonTypeInfoIdSetting(Object jsonTypeInfoId) {
         if (jsonTypeInfoId != null) {
-            if (jsonTypeInfoId instanceof JsonTypeInfo.Id) {
-                delegate.setJsonTypeInfoId((JsonTypeInfo.Id) jsonTypeInfoId);
-            } else if (jsonTypeInfoId instanceof String) {
-                JsonTypeInfo.Id jtiId = JsonTypeInfo.Id.valueOf(((String) jsonTypeInfoId).trim());
-                delegate.setJsonTypeInfoId(jtiId);
-            } else {
-                throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+            switch (jsonTypeInfoId) {
+                case JsonTypeInfo.Id id -> delegate.setJsonTypeInfoId(id);
+                case String string -> {
+                    JsonTypeInfo.Id jtiId = JsonTypeInfo.Id.valueOf(string.trim());
+                    delegate.setJsonTypeInfoId(jtiId);
+                }
+                case null, default -> throw new ObjectMapperConfigurationParsingException(
+                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                 JACKSON_JSON_TYPE_INFO_ID,
                                 rulesDeploy.getServiceName()));
             }
@@ -265,16 +259,16 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected void processJacksonDefaultTypingModeSetting(Object defaultTypingMode) {
         if (defaultTypingMode != null) {
-            if (defaultTypingMode instanceof DefaultTypingMode) {
-                delegate.setDefaultTypingMode((DefaultTypingMode) defaultTypingMode);
-            } else if (defaultTypingMode instanceof String) {
-                DefaultTypingMode dtm = toDefaultTypingMode((String) defaultTypingMode);
-                if (dtm != null) {
-                    delegate.setDefaultTypingMode(dtm);
+            switch (defaultTypingMode) {
+                case DefaultTypingMode mode -> delegate.setDefaultTypingMode(mode);
+                case String string -> {
+                    DefaultTypingMode dtm = toDefaultTypingMode(string);
+                    if (dtm != null) {
+                        delegate.setDefaultTypingMode(dtm);
+                    }
                 }
-            } else {
-                throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                case null, default -> throw new ObjectMapperConfigurationParsingException(
+                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                 JACKSON_DEFAULT_TYPING_MODE,
                                 rulesDeploy.getServiceName()));
             }
@@ -283,27 +277,27 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected void processJacksonDefaultDateFormatSetting(Object defaultDateFormat) {
         if (defaultDateFormat != null) {
-            if (defaultDateFormat instanceof String) {
-                String defaultDateFormatString = (String) defaultDateFormat;
+            if (defaultDateFormat instanceof String defaultDateFormatString) {
                 if (StringUtils.isNotBlank(defaultDateFormatString)) {
                     try {
                         delegate.setDefaultDateFormat(new ExtendedStdDateFormat(defaultDateFormatString));
                     } catch (Exception e) {
                         throw new ObjectMapperConfigurationParsingException(
-                                String.format("Invalid date format is used in the configuration for service '%s'.",
+                                "Invalid date format is used in the configuration for service '%s'.".formatted(
                                         rulesDeploy.getServiceName()),
                                 e);
                     }
                 }
             } else {
                 throw new ObjectMapperConfigurationParsingException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                 JACKSON_DEFAULT_DATE_FORMAT,
                                 rulesDeploy.getServiceName()));
             }
         }
     }
 
+    @Override
     public final ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
         applyBeforeProjectConfiguration();
         applyProjectConfiguration();
@@ -327,10 +321,10 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                              Consumer<DatatypeOpenClass> datatypeOpenClassConsumer,
                              Consumer<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClassConsumer) {
         for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
-            if (type instanceof DatatypeOpenClass) {
-                datatypeOpenClassConsumer.accept((DatatypeOpenClass) type);
-            } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                customSpreadsheetResultOpenClassConsumer.accept((CustomSpreadsheetResultOpenClass) type);
+            if (type instanceof DatatypeOpenClass class2) {
+                datatypeOpenClassConsumer.accept(class2);
+            } else if (type instanceof CustomSpreadsheetResultOpenClass class1) {
+                customSpreadsheetResultOpenClassConsumer.accept(class1);
             }
         }
         // Check: custom spreadsheet is enabled
@@ -361,7 +355,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         }
         forEachType(xlsModuleOpenClass,
                 e -> addMixInAnnotationsToDatatype(objectMapper, e, conflictedRootNames.get(e.getInstanceClass())),
-                e -> addMixInAnnotationsToSprBeanClass(objectMapper, e, conflictedRootNames.get((e.getBeanClass()))));
+                e -> addMixInAnnotationsToSprBeanClass(objectMapper, e, conflictedRootNames.get(e.getBeanClass())));
     }
 
     protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {
@@ -387,36 +381,33 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             if (rulesDeploy.getConfiguration() != null) {
                 Object propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
                 if (propertyNamingStrategy != null) {
-                    if (propertyNamingStrategy instanceof String) {
-                        String propertyNamingStrategyClassName = (String) propertyNamingStrategy;
+                    if (propertyNamingStrategy instanceof String propertyNamingStrategyClassName) {
                         try {
                             Class<?> propertyNamingStrategyClass = classLoader
                                     .loadClass(propertyNamingStrategyClassName);
                             if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
-                                throw new ObjectMapperConfigurationParsingException(String.format(
-                                        "Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.",
+                                throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
                                         JACKSON_PROPERTY_NAMING_STRATEGY,
                                         rulesDeploy.getServiceName(),
                                         PropertyNamingStrategy.class.getTypeName()));
                             }
                             try {
-                                return (PropertyNamingStrategy) propertyNamingStrategyClass.newInstance();
-                            } catch (InstantiationException | IllegalAccessException e) {
-                                throw new ObjectMapperConfigurationParsingException(String.format(
-                                        "Failed to instantiate property name strategy class '%s' for service '%s'.",
+                                return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
+                            } catch (ReflectiveOperationException e) {
+                                throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
                                         JACKSON_PROPERTY_NAMING_STRATEGY,
                                         rulesDeploy.getServiceName()), e);
                             }
                         } catch (ClassNotFoundException e) {
                             throw new ObjectMapperConfigurationParsingException(
-                                    String.format("Failed to load property naming strategy class '%s' for service '%s'.",
+                                    "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
                                             JACKSON_PROPERTY_NAMING_STRATEGY,
                                             rulesDeploy.getServiceName()),
                                     e);
                         }
                     } else {
                         throw new ObjectMapperConfigurationParsingException(
-                                String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                                "Expected string value for '%s' in the configuration for service '%s'.".formatted(
                                         JACKSON_PROPERTY_NAMING_STRATEGY,
                                         rulesDeploy.getServiceName()));
                     }

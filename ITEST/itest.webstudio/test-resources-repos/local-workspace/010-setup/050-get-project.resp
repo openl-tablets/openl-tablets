@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bG9jYWw6RVBCRFMtMTU2NDk=",
+  "name": "EPBDS-15649",
+  "status": "LOCAL",
+  "repository": "local",
+  "modifiedBy": "*",
+  "modifiedAt": "*",
+  "revision": "*",
+  "comment": "Project EPBDS-15649 is created."
+}

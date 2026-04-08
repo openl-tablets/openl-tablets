@@ -7,6 +7,7 @@ import java.time.Period;
 import java.util.Base64;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
@@ -15,8 +16,6 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generate KeyPair and X509Certificate.
@@ -24,9 +23,9 @@ import org.slf4j.LoggerFactory;
  * @author Eugene Biruk
  * @author Yury Molchan
  */
+@Slf4j
 public class KeyPairCertUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KeyPairCertUtils.class);
 
     private static Pair<String, String> generate() throws Exception {
 
@@ -73,9 +72,8 @@ public class KeyPairCertUtils {
         try {
             return generate();
         } catch (Exception e) {
-            LOG.error("Cannot generate X.509 certificate for the application", e);
+            log.error("Cannot generate X.509 certificate for the application", e);
             return null;
         }
     }
 }
-

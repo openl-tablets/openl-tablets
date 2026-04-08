@@ -16,4 +16,3 @@ SET mask = CASE
        ELSE mask
     END
 WHERE mask IN (16777217, 67108884, 33554448, 83886088);
-

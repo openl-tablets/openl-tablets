@@ -6,13 +6,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.webstudio.web.repository.IFilter;
 import org.openl.rules.webstudio.web.ErrorsContainer;
+import org.openl.rules.webstudio.web.repository.IFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
@@ -21,9 +20,9 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  *
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class TreeFolder extends AbstractTreeNode {
 
-    private final Logger log = LoggerFactory.getLogger(TreeFolder.class);
     /**
      * Collection of children. In LeafOnly mode it is left uninitialized.
      */

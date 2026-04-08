@@ -8,15 +8,14 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.PropertyResolver;
@@ -29,14 +28,14 @@ import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
+@Slf4j
 public class DeployClasspathJarsBean implements InitializingBean, DisposableBean {
 
-    private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
     private final boolean enabled;
     private final RulesDeployerService rulesDeployerService;
     private final DeployStrategy deployStrategy;
-    private Queue<File> filesToDeploy = new LinkedList<>();
+    private Queue<File> filesToDeploy = new ArrayDeque<>();
     private ScheduledExecutorService scheduledPool;
     private long retryPeriod = 10;
 
@@ -62,7 +61,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
      * For tests only. Allows setting files that will be deployed.
      */
     void setFilesToDeploy(Collection<File> filesToDeploy) {
-        this.filesToDeploy = new LinkedList<>(filesToDeploy);
+        this.filesToDeploy = new ArrayDeque<>(filesToDeploy);
     }
 
     private void deployJarForJboss(URL resourceURL) throws Exception {
@@ -109,7 +108,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         }
 
         scheduledPool = Executors.newSingleThreadScheduledExecutor();
-        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
+        var ignored = scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     private static String createClasspathPattern(String fileName) {

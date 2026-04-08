@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
@@ -23,9 +22,9 @@ import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
+@Slf4j
 public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
-    private final Logger log = LoggerFactory.getLogger(RuleServiceDependencyManager.class);
 
     private final RuleServiceLoader ruleServiceLoader;
     private final DeploymentDescription deployment;
@@ -125,7 +124,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                 }
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                        String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                        "Failed to initialize dependency loaders for project '%s' in deployment '%s'.".formatted(
                                 projectName,
                                 deploymentName),
                         e);

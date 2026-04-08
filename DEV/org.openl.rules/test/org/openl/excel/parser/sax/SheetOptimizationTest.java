@@ -21,7 +21,7 @@ public class SheetOptimizationTest {
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(1, sheets.size());
 
-        Object[][] firstSheet = reader.getCells(sheets.get(0));
+        Object[][] firstSheet = reader.getCells(sheets.getFirst());
         assertEquals(3, firstSheet.length);
         assertEquals(2, firstSheet[0].length);
         assertEquals("Environment", firstSheet[0][0]);
@@ -37,7 +37,7 @@ public class SheetOptimizationTest {
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(3, sheets.size());
 
-        Object[][] sheet1 = reader.getCells(sheets.get(0));
+        Object[][] sheet1 = reader.getCells(sheets.getFirst());
         assertEquals(18, sheet1.length);
         assertEquals(6, sheet1[0].length);
 

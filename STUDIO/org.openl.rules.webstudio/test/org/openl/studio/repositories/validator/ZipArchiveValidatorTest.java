@@ -3,7 +3,7 @@ package org.openl.studio.repositories.validator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +20,13 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     public void testArchives_NotOpenLProject() {
-        BindingResult bindingResult = validateAndGetResult(Paths.get("test-resources/upload/zip/test-rules-xml.zip"),
+        BindingResult bindingResult = validateAndGetResult(Path.of("test-resources/upload/zip/test-rules-xml.zip"),
                 validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("Unknown project structure.", bindingResult.getGlobalError());
 
-        bindingResult = validateAndGetResult(Paths.get("test-resources/XSSFOptimizerTest.xlsx"), validator);
+        bindingResult = validateAndGetResult(Path.of("test-resources/XSSFOptimizerTest.xlsx"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("Unknown project structure.", bindingResult.getGlobalError());
@@ -34,12 +34,12 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     public void testArchives_NotArchive() {
-        BindingResult bindingResult = validateAndGetResult(Paths.get("test-resources/test/export/trivial"), validator);
+        BindingResult bindingResult = validateAndGetResult(Path.of("test-resources/test/export/trivial"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("The provided file is not an archive.", bindingResult.getGlobalError());
 
-        bindingResult = validateAndGetResult(Paths.get("test-resources/log4j2-test.properties"), validator);
+        bindingResult = validateAndGetResult(Path.of("test-resources/log4j2-test.properties"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("The provided file is not an archive.", bindingResult.getGlobalError());
@@ -47,8 +47,8 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     public void testArchives() {
-        assertNull(validateAndGetResult(Paths.get("test-resources/upload/zip/test-workspace.zip"), validator));
-        assertNull(validateAndGetResult(Paths.get("test-resources/upload/zip/project.zip"), validator));
+        assertNull(validateAndGetResult(Path.of("test-resources/upload/zip/test-workspace.zip"), validator));
+        assertNull(validateAndGetResult(Path.of("test-resources/upload/zip/project.zip"), validator));
     }
 
 }

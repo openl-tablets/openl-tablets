@@ -9,8 +9,7 @@ import java.util.IdentityHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +23,8 @@ import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
 import org.openl.util.ClassUtils;
 
 @Component
+@Slf4j
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
-    private final Logger log = LoggerFactory.getLogger(StoreLogDataServiceInvocationAdviceListener.class);
 
     @Autowired
     private StoreLogDataManager storeLogDataManager;
@@ -51,8 +50,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         injectObjectSerializer(storeLogData.getObjectSerializer(), storeLogDataAdvice);
                         processAwareInterfaces(interfaceMethod, storeLogDataAdvice, cache, destroyFunctions);
                     } catch (Exception e) {
-                        String msg = String.format(
-                                "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                        String msg = "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                                 MethodUtil.printQualifiedMethodName(interfaceMethod),
                                 clazz.getTypeName());
                         log.error(msg, e);
@@ -94,8 +92,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     }
 
     private void injectObjectSerializer(ObjectSerializer objectSerializer, StoreLogDataAdvice storeLogDataAdvice) {
-        if (storeLogDataAdvice instanceof ObjectSerializerAware) {
-            ((ObjectSerializerAware) storeLogDataAdvice).setObjectSerializer(objectSerializer);
+        if (storeLogDataAdvice instanceof ObjectSerializerAware aware) {
+            aware.setObjectSerializer(objectSerializer);
         }
         try {
             inject(storeLogDataAdvice, InjectObjectSerializer.class, e -> objectSerializer);

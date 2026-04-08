@@ -40,7 +40,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             codeExpression.append(")");
             result += codeExpression.toString();
         } else {
-            String message = String.format("Cannot create expression for '%s' property validation.",
+            String message = "Cannot create expression for '%s' property validation.".formatted(
                     getProperty().getName());
             throw new OpenlNotCheckedException(message);
         }

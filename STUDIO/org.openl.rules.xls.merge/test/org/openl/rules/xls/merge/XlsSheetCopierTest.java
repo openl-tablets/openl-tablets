@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -24,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 public class XlsSheetCopierTest {
 
-    private static final Path FUNC_TEST = Paths.get("test-resources/functional-copy");
-    private static final Path TARGET = Paths.get("target/test-merged");
+    private static final Path FUNC_TEST = Path.of("test-resources/functional-copy");
+    private static final Path TARGET = Path.of("target/test-merged");
 
     @BeforeAll
     public static void setUp() {
@@ -45,7 +44,7 @@ public class XlsSheetCopierTest {
             if (!file.getPath().endsWith(".xlsx") && file.getPath().equals(".xls")) {
                 continue;
             }
-            Path destCopyFile = TARGET.resolve(FUNC_TEST.relativize(Paths.get(file.getPath())));
+            Path destCopyFile = TARGET.resolve(FUNC_TEST.relativize(Path.of(file.getPath())));
             if (Files.exists(destCopyFile)) {
                 Files.delete(destCopyFile);
             } else {
@@ -53,8 +52,8 @@ public class XlsSheetCopierTest {
             }
             try (Workbook srcWorkbook = WorkbookFactory.create(file, null, true);
                  Workbook destWorkbook = WorkbookFactory.create(srcWorkbook instanceof XSSFWorkbook)) {
-                if (srcWorkbook instanceof XSSFWorkbook) {
-                    StylesTable srcStylesTable = ((XSSFWorkbook) srcWorkbook).getStylesSource();
+                if (srcWorkbook instanceof XSSFWorkbook workbook) {
+                    StylesTable srcStylesTable = workbook.getStylesSource();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     srcStylesTable.writeTo(baos);
                     StylesTable destStylesTable = ((XSSFWorkbook) destWorkbook).getStylesSource();

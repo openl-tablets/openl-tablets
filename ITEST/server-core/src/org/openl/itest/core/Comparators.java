@@ -168,7 +168,7 @@ final class Comparators {
             if (expectedZipEntries.containsKey(actualEntry.getKey())) {
                 assertArrayEquals(expectedZipEntries.remove(actualEntry.getKey()),
                         actualEntry.getValue(),
-                        String.format("Zip entry [%s]: ", actualEntry.getKey()));
+                        "Zip entry [%s]: ".formatted(actualEntry.getKey()));
                 actual.remove();
             }
         }

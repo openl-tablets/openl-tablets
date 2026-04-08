@@ -842,7 +842,7 @@ opentelemetry.metrics.enabled = true
 **Integration Tests**:
 - `itest.kafka.smoke` - Kafka integration
 - `itest.spring-boot` - Spring Boot apps
-- `itest.minio` - MinIO storage
+- `itest.s3` - S3 storage
 - `itest.health` - Health checks
 - `itest.deployment-filters` - Deployment filtering
 - `itest.store-log-data` - Request logging

@@ -46,7 +46,7 @@ public class MatchAlgorithmFactory {
         }
 
         if (builder == null) {
-            throw new IllegalArgumentException(String.format("Cannot find algorithm for name '%s'.", nameOfAlgorithm));
+            throw new IllegalArgumentException("Cannot find algorithm for name '%s'.".formatted(nameOfAlgorithm));
         }
 
         return builder.build();

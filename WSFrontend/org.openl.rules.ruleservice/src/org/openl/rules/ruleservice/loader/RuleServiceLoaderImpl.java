@@ -20,8 +20,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import jakarta.annotation.PreDestroy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.FileSystemUtils;
 
 import org.openl.rules.common.CommonVersion;
@@ -53,9 +52,9 @@ import org.openl.util.ZipUtils;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
     private static final Pattern NOT_ALLOWED_SYMBOLS = Pattern.compile("[^[-.\\w]]");
-    private final Logger log = LoggerFactory.getLogger(RuleServiceLoaderImpl.class);
 
     private final ProjectResolver projectResolver;
     private final Repository repository;
@@ -96,11 +95,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         IProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                    String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
+                    "Project '%s' is not found in deployment '%s'.".formatted(projectName, deploymentName));
         }
         Path projectFolder;
-        if (project instanceof LocalProject) {
-            projectFolder = ((LocalProject) project).getData().getPath();
+        if (project instanceof LocalProject localProject) {
+            projectFolder = localProject.getData().getPath();
             if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(
                     projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
 
@@ -178,7 +177,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             String name = fd.getName();
             String deployFolder = getDeployPath();
             String deploymentPath = name.substring(deployFolder.length());
-            String[] pathEntries = deploymentPath.split("/");
+            String[] pathEntries = deploymentPath.split("/", -1);
             String deploymentFolderName = pathEntries[0];
 
             String version = fd.getVersion();
@@ -234,7 +233,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         if (isSimpleProjectDeployment(deploymentFolder)) {
             Map<String, IProjectArtefact> resourceMap = gatherProjectResources(deploymentFolder, repository);
             LocalProject project = new LocalProject(deploymentFolder, resourceMap);
-            deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0],
+            deployment = new LocalDeployment(deploymentFolder.getName().split("/", -1)[0],
                     commonVersion,
                     Collections.singletonMap(project.getName(), project));
         } else {
@@ -245,7 +244,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 LocalProject project = new LocalProject(projectFolder, resourceMap);
                 projectMap.put(project.getName(), project);
             }
-            deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0], commonVersion, projectMap);
+            deployment = new LocalDeployment(deploymentFolder.getName().split("/", -1)[0], commonVersion, projectMap);
         }
         return deployment;
     }
@@ -277,8 +276,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     @PreDestroy
     public void destroy() throws Exception {
         log.debug("Data source releasing");
-        if (repository instanceof Closeable) {
-            ((Closeable) repository).close();
+        if (repository instanceof Closeable closeable) {
+            closeable.close();
         }
         tempRepo.close();
         try {

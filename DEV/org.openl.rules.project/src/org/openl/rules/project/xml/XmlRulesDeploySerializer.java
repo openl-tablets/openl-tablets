@@ -4,9 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -42,13 +44,13 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     }
 
     public RulesDeploy deserialize(String source) throws JAXBException {
-        return (RulesDeploy) jaxbSerializer.unmarshal(new ByteArrayInputStream(source.getBytes()));
+        return (RulesDeploy) jaxbSerializer.unmarshal(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
     }
 
     public static class PublisherTypeXmlAdapter extends XmlAdapter<String, RulesDeploy.PublisherType> {
         @Override
         public RulesDeploy.PublisherType unmarshal(String name) {
-            return RulesDeploy.PublisherType.valueOf(name.toUpperCase());
+            return RulesDeploy.PublisherType.valueOf(name.toUpperCase(Locale.ENGLISH));
         }
 
         @Override
@@ -92,13 +94,13 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         private static class MapType {
 
             @XmlElement(name = "entry")
-            public List<MapStringEntryType> entry = new ArrayList<>();
+            private List<MapStringEntryType> entry = new ArrayList<>();
 
-            public List<MapStringEntryType> getEntry() {
+            private List<MapStringEntryType> getEntry() {
                 return entry;
             }
 
-            public void setEntry(List<MapStringEntryType> entry) {
+            private void setEntry(List<MapStringEntryType> entry) {
                 this.entry = entry;
             }
         }
@@ -106,13 +108,13 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         @XmlAccessorType(XmlAccessType.FIELD)
         private static class MapStringEntryType {
 
-            public String[] string;
+            private String[] string;
 
-            public String[] getString() {
+            private String[] getString() {
                 return string;
             }
 
-            public void setString(String[] string) {
+            private void setString(String[] string) {
                 this.string = string;
             }
         }

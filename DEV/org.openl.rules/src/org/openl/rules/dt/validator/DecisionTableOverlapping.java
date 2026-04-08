@@ -37,25 +37,21 @@ public class DecisionTableOverlapping {
 
     @Override
     public String toString() {
-        switch (status) {
-            case BLOCK:
-                return String.format("Rule #%d completely blocks rule #%d. For example: %s",
+        return switch (status) {
+            case BLOCK -> "Rule #%d completely blocks rule #%d. For example: %s".formatted(
                         rulesIndexes[0],
                         rulesIndexes[1],
                         value.toString());
-            case PARTIAL:
-                return String.format("Rule #%d partially overlaps with rule #%d. For example:  %s",
+            case PARTIAL -> "Rule #%d partially overlaps with rule #%d. For example:  %s".formatted(
                         rulesIndexes[0],
                         rulesIndexes[1],
                         value.toString());
 
-            case OVERRIDE:
-                return String.format("Rule #%d overrides rule #%d. For example: %s",
+            case OVERRIDE -> "Rule #%d overrides rule #%d. For example: %s".formatted(
                         rulesIndexes[1],
                         rulesIndexes[0],
                         value.toString());
-        }
-        return String.format("Rules with # %s overlap for values: %s", asString(rulesIndexes), value.toString());
+        };
     }
 
     private String asString(int[] ary) {

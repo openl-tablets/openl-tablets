@@ -3,11 +3,10 @@ package org.openl.rules.ruleservice.storelogdata;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class AbstractStoreLogDataService implements StoreLogDataService {
-    private final Logger log = LoggerFactory.getLogger(AbstractStoreLogDataService.class);
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -18,7 +17,7 @@ public abstract class AbstractStoreLogDataService implements StoreLogDataService
         if (isSync(storeLogData)) {
             save(storeLogData, true);
         } else {
-            executorService.submit(() -> {
+            var ignored = executorService.submit(() -> {
                 try {
                     save(storeLogData, false);
                 } catch (StoreLogDataException e) {

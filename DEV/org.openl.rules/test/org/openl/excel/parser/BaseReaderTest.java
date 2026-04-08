@@ -44,18 +44,18 @@ public abstract class BaseReaderTest {
 
         assertEquals(4, sheets.size());
 
-        assertEquals("Main", sheets.get(0).getName());
+        assertEquals("Main", sheets.getFirst().getName());
         assertEquals("Second", sheets.get(1).getName());
         assertEquals("Sheet3", sheets.get(2).getName());
 
-        assertEquals(0, sheets.get(0).getIndex());
+        assertEquals(0, sheets.getFirst().getIndex());
         assertEquals(1, sheets.get(1).getIndex());
         assertEquals(2, sheets.get(2).getIndex());
     }
 
     @Test
     public void getMainSheet() {
-        Object[][] cells = reader.getCells(reader.getSheets().get(0));
+        Object[][] cells = reader.getCells(reader.getSheets().getFirst());
         assertEquals(15, cells.length);
         assertEquals(1, cells[0].length);
 
@@ -157,7 +157,7 @@ public abstract class BaseReaderTest {
 
     @Test
     public void getComments() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(0), new GridRegion(17, 1, 17, 1));
+        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(17, 1, 17, 1));
 
         ICellComment comment = tableStyles.getComment(17, 1);
         assertNotNull(comment);
@@ -166,7 +166,7 @@ public abstract class BaseReaderTest {
 
     @Test
     public void getFormulas() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(0), new GridRegion(10, 1, 13, 1));
+        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(10, 1, 13, 1));
 
         assertEquals("B7/2", tableStyles.getFormula(10, 1));
         assertEquals("B10", tableStyles.getFormula(11, 1));

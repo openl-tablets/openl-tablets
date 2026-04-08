@@ -138,7 +138,7 @@ public final class Covar {
 
             @Override
             public BigDecimal result() {
-                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128));
+                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128));
             }
         });
 
@@ -155,7 +155,7 @@ public final class Covar {
     }
 
     private static BigDecimal covariance(BigDecimal y, BigDecimal x, BigDecimal avgY, BigDecimal avgX, BigDecimal result) {
-        var tmp = (x.subtract(avgX)).multiply(y.subtract(avgY));
+        var tmp = x.subtract(avgX).multiply(y.subtract(avgY));
         return result == null ? tmp : result.add(tmp);
     }
 
@@ -244,7 +244,7 @@ public final class Covar {
 
             @Override
             public BigDecimal result() {
-                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter), MathContext.DECIMAL128);
+                return result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter), MathContext.DECIMAL128);
             }
         });
     }

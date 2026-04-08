@@ -84,8 +84,7 @@ class DependentParametersOptimizedAlgorithm {
                     .findConditionCasts(conditionParamType0, expressionType, bindingContext);
 
             if (!conditionCasts.atLeastOneExists()) {
-                String message = String.format(
-                        "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.",
+                String message = "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.".formatted(
                         conditionParamType0.getName(),
                         expressionType.getName(),
                         condition.getName());
@@ -126,7 +125,7 @@ class DependentParametersOptimizedAlgorithm {
         IParameterDeclaration[] params = condition.getParams();
         IOpenClass conditionParamType = params[0].getType();
 
-        if (evaluatorFactory instanceof OneParameterContainsInFactory) {
+        if (evaluatorFactory instanceof OneParameterContainsInFactory factory) {
             IAggregateInfo aggregateInfo = conditionParamType.getAggregateInfo();
             if (aggregateInfo.isAggregate(conditionParamType)) {
                 var componentType = aggregateInfo.getComponentType(conditionParamType);
@@ -139,10 +138,10 @@ class DependentParametersOptimizedAlgorithm {
                         .isCastToInputTypeExists() && !expressionType.isArray()) {
                     return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
                             ? new OneParameterContainsInArrayIndexedEvaluatorV2(
-                            (OneParameterContainsInFactory) evaluatorFactory,
+                            factory,
                             aggregateConditionCasts)
                             : new OneParameterContainsInArrayIndexedEvaluator(
-                            (OneParameterContainsInFactory) evaluatorFactory,
+                            factory,
                             aggregateConditionCasts);
                 }
             }
@@ -153,8 +152,7 @@ class DependentParametersOptimizedAlgorithm {
                 .findConditionCasts(conditionParamType, expressionType, bindingContext);
 
         if (!conditionCasts.atLeastOneExists()) {
-            String message = String.format(
-                    "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.",
+            String message = "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.".formatted(
                     conditionParamType.getName(),
                     expressionType.getName(),
                     condition.getName());
@@ -163,14 +161,14 @@ class DependentParametersOptimizedAlgorithm {
             return null;
         }
 
-        if (evaluatorFactory instanceof OneParameterEqualsFactory) {
+        if (evaluatorFactory instanceof OneParameterEqualsFactory factory) {
             if (!conditionParamType.isArray() && !expressionType.isArray()) {
                 return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
                         ? new OneParameterEqualsIndexedEvaluatorV2(
-                        (OneParameterEqualsFactory) evaluatorFactory,
+                        factory,
                         conditionCasts)
                         : new OneParameterEqualsIndexedEvaluator(
-                        (OneParameterEqualsFactory) evaluatorFactory,
+                        factory,
                         conditionCasts);
             }
         } else {
@@ -246,8 +244,7 @@ class DependentParametersOptimizedAlgorithm {
     private static String buildFieldName(IndexNode indexNode, IBindingContext bindingContext) {
         String value = null;
         IBoundNode[] children = indexNode.getChildren();
-        if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode) {
-            LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[0];
+        if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode literalBoundNode) {
             if ("literal.string".equals(literalBoundNode.getSyntaxNode().getType())) {
                 value = "[\"" + literalBoundNode.getValue().toString() + "\"]";
             } else {
@@ -287,15 +284,13 @@ class DependentParametersOptimizedAlgorithm {
     private static Triple<String, RelationType, String> parseMethodBoundExpression(MethodBoundNode methodBoundNode,
                                                                                    IBindingContext ctx) {
         var children = methodBoundNode.getChildren();
-        if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode && children[1] instanceof FieldBoundNode) {
+        if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode fieldBoundNode0 && children[1] instanceof FieldBoundNode fieldBoundNode1) {
             RelationType relationType;
             if (isContainsMethod(methodBoundNode)) {
                 relationType = RelationType.IN;
             } else {
                 return null;
             }
-            FieldBoundNode fieldBoundNode0 = (FieldBoundNode) children[0];
-            FieldBoundNode fieldBoundNode1 = (FieldBoundNode) children[1];
             return Triple.of(buildFieldName(fieldBoundNode0, ctx), relationType, buildFieldName(fieldBoundNode1, ctx));
         }
 
@@ -316,7 +311,7 @@ class DependentParametersOptimizedAlgorithm {
     private static Triple<String, RelationType, String> parseBinaryOpExpression(BinaryOpNode binaryOpNode,
                                                                                 IBindingContext bindingContext) {
         IBoundNode[] children = binaryOpNode.getChildren();
-        if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode && children[1] instanceof FieldBoundNode) {
+        if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode fieldBoundNode0 && children[1] instanceof FieldBoundNode fieldBoundNode1) {
             RelationType relationType;
             if (binaryOpNode.getSyntaxNode()
                     .getType()
@@ -341,8 +336,6 @@ class DependentParametersOptimizedAlgorithm {
             } else {
                 return null;
             }
-            FieldBoundNode fieldBoundNode0 = (FieldBoundNode) children[0];
-            FieldBoundNode fieldBoundNode1 = (FieldBoundNode) children[1];
 
             return Triple.of(buildFieldName(fieldBoundNode0, bindingContext),
                     relationType,
@@ -355,18 +348,15 @@ class DependentParametersOptimizedAlgorithm {
                                                                                     IBindingContext bindingContext) {
         if (condition.getIndexMethod() != null) {
             IBoundNode boundNode = condition.getIndexMethod().getMethodBodyBoundNode();
-            if (boundNode instanceof BlockNode) {
-                BlockNode blockNode = (BlockNode) boundNode;
+            if (boundNode instanceof BlockNode blockNode) {
                 IBoundNode[] children = blockNode.getChildren();
-                if (children != null && children.length == 1 && children[0] instanceof BlockNode) {
-                    blockNode = (BlockNode) children[0];
+                if (children != null && children.length == 1 && children[0] instanceof BlockNode node) {
+                    blockNode = node;
                     children = blockNode.getChildren();
                     if (children.length == 1) {
-                        if (children[0] instanceof BinaryOpNode) {
-                            BinaryOpNode binaryOpNode = (BinaryOpNode) children[0];
+                        if (children[0] instanceof BinaryOpNode binaryOpNode) {
                             return parseBinaryOpExpression(binaryOpNode, bindingContext);
-                        } else if (children[0] instanceof MethodBoundNode) {
-                            var methodBoundNode = (MethodBoundNode) children[0];
+                        } else if (children[0] instanceof MethodBoundNode methodBoundNode) {
                             return parseMethodBoundExpression(methodBoundNode, bindingContext);
                         }
                     }
@@ -382,18 +372,14 @@ class DependentParametersOptimizedAlgorithm {
             IBindingContext bindingContext) {
         if (condition.getIndexMethod() != null) {
             IBoundNode boundNode = condition.getIndexMethod().getMethodBodyBoundNode();
-            if (boundNode instanceof BlockNode) {
-                BlockNode blockNode = (BlockNode) boundNode;
+            if (boundNode instanceof BlockNode blockNode) {
                 IBoundNode[] children = blockNode.getChildren();
-                if (children.length == 1 && children[0] instanceof BlockNode) {
-                    blockNode = (BlockNode) children[0];
+                if (children.length == 1 && children[0] instanceof BlockNode node) {
+                    blockNode = node;
                     children = blockNode.getChildren();
-                    if (children.length == 1 && children[0] instanceof BinaryOpNodeAnd) {
-                        BinaryOpNodeAnd binaryOpNode = (BinaryOpNodeAnd) children[0];
+                    if (children.length == 1 && children[0] instanceof BinaryOpNodeAnd binaryOpNode) {
                         children = binaryOpNode.getChildren();
-                        if (children.length == 2 && children[0] instanceof BinaryOpNode && children[1] instanceof BinaryOpNode) {
-                            BinaryOpNode binaryOpNode0 = (BinaryOpNode) children[0];
-                            BinaryOpNode binaryOpNode1 = (BinaryOpNode) children[1];
+                        if (children.length == 2 && children[0] instanceof BinaryOpNode binaryOpNode0 && children[1] instanceof BinaryOpNode binaryOpNode1) {
                             Triple<String, RelationType, String> parsedExpr1 = parseBinaryOpExpression(binaryOpNode0,
                                     bindingContext);
                             Triple<String, RelationType, String> parsedExpr2 = parseBinaryOpExpression(binaryOpNode1,

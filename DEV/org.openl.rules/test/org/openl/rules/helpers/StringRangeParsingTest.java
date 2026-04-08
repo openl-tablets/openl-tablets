@@ -375,7 +375,7 @@ public class StringRangeParsingTest {
         assertTrue(args.length > 0);
         for (String s : args) {
             assertTrue(range.contains(s),
-                    String.format("The range %s must include a string '%s'", range.toString(), s));
+                    "The range %s must include a string '%s'".formatted(range.toString(), s));
         }
     }
 
@@ -384,7 +384,7 @@ public class StringRangeParsingTest {
         assertTrue(args.length > 0);
         for (String s : args) {
             assertFalse(range.contains(s),
-                    String.format("The range %s must not include a string '%s'", range.toString(), s));
+                    "The range %s must not include a string '%s'".formatted(range.toString(), s));
         }
     }
 

@@ -37,7 +37,7 @@ public class CommonVersionImpl implements CommonVersion {
             revision = s;
             return;
         }
-        String[] version = s.split("\\.");
+        String[] version = s.split("\\.", -1);
 
         if (version.length == 1) {
             revision = version[0];
@@ -91,11 +91,11 @@ public class CommonVersionImpl implements CommonVersion {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof CommonVersion)) {
+        if (!(o instanceof CommonVersion commonVersion)) {
             return false;
         }
 
-        return compareTo((CommonVersion) o) == 0;
+        return compareTo(commonVersion) == 0;
     }
 
     @Override

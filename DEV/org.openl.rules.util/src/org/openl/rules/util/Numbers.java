@@ -30,15 +30,13 @@ public final class Numbers {
         if (number == null) {
             return null;
         }
-        if (number instanceof Double) {
-            Double doubleNumber = (Double) number;
+        if (number instanceof Double doubleNumber) {
             if (doubleNumber.isInfinite()) {
                 return doubleNumber > 0 ? POSITIVE_INFINITY_SIGN : NEGATIVE_INFINITY_SIGN;
             } else if (doubleNumber.isNaN()) {
                 return NOT_A_NUMBER;
             }
-        } else if (number instanceof Float) {
-            Float floatNumber = (Float) number;
+        } else if (number instanceof Float floatNumber) {
             if (floatNumber.isInfinite()) {
                 return floatNumber > 0 ? POSITIVE_INFINITY_SIGN : NEGATIVE_INFINITY_SIGN;
             } else if (floatNumber.isNaN()) {
@@ -47,8 +45,8 @@ public final class Numbers {
         }
         if (number instanceof Double || number instanceof Float) {
             return toString(new BigDecimal(number.toString())); // number.toString() is more accurate than just number
-        } else if (number instanceof BigDecimal) {
-            return toString((BigDecimal) number);
+        } else if (number instanceof BigDecimal decimal) {
+            return toString(decimal);
         } else {
             return number.toString();
         }

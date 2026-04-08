@@ -294,36 +294,36 @@ select.fd-hidden-input
         top:0;
         width:1px;
         height:1px;
-        overflow:hidden; 
+        overflow:hidden;
         outline: 0 none;
-	-moz-outline: 0 none;
-        } 
+        -moz-outline: 0 none;
+        }
 /* Disabled datePicker and activation button */
 a.dp-disabled,
 .dp-disabled table
         {
-        opacity:.3 !important;           
-        filter:alpha(opacity=40);           
+        opacity:.3 !important;
+        filter:alpha(opacity=40);
         }
 .dp-disabled,
 .dp-disabled td,
 .dp-disabled th,
 .dp-disabled th span
         {
-        cursor:default !important;          
+        cursor:default !important;
         }
 a.date-picker-control:focus,
-div.datePicker table td:focus 
+div.datePicker table td:focus
         {
         overflow:hidden;
         outline:0 none;
-	-moz-outline: 0 none;
-	color:rgb(100,130,170) !important;
+        -moz-outline: 0 none;
+        color:rgb(100,130,170) !important;
         }
 /* The wrapper div */
 div.datePicker
         {
-        position:absolute;        
+        position:absolute;
         z-index:9999;
         text-align:center;
 
@@ -332,20 +332,20 @@ div.datePicker
 
         /* For Example: If using the YUI font CSS, uncomment the following line to get a 10px font-size within the datePicker */
         /* font:900 77%/77% Verdana, sans-serif; */
-        
+
         /* Or, if you prefer a pixel precision */
         /* font:900 12px/12px Verdana, sans-serif; */
-        
+
         background:transparent;
 
         /* Mozilla & Webkit extensions to stop text-selection. */
         -moz-user-select:none;
-        -khtml-user-select:none;                 
-        }  
+        -khtml-user-select:none;
+        }
 /* Styles for the static datePickers */
 div.static-datepicker
         {
-        position:relative;        
+        position:relative;
         top:5px;
         left:0;
         }
@@ -353,8 +353,8 @@ div.datePicker table
         {
         width:auto;
         height:auto;
-        border-collapse:separate;         
-        } 
+        border-collapse:separate;
+        }
 /* Draggable datepickers */
 div.datePicker tfoot th.drag-enabled,
 div.datePicker thead th.drag-enabled,
@@ -389,7 +389,7 @@ a.date-picker-control:visited
         cursor:pointer;
         visibility:visible;
         text-decoration:none;
-        vertical-align:top;         
+        vertical-align:top;
         }
 a.date-picker-control:hover,
 a.date-picker-control:active,
@@ -440,7 +440,7 @@ div.datePicker th span.year-display
         text-transform:uppercase;
         letter-spacing:1px;
         font:normal 1.2em Verdana, Sans-Serif;
-        cursor:default;          
+        cursor:default;
         }
 /* Next & Previous (month, year) buttons */
 div.datePicker th span.prev-but,
@@ -469,9 +469,9 @@ div.datePicker th span.today-but
         padding-top:0.3em;
         text-transform:uppercase;
         vertical-align:middle;
-        cursor:pointer !important          
+        cursor:pointer !important
         }
-/* Disabled buttons */ 
+/* Disabled buttons */
 div.dp-disabled th span.prev-but,
 div.dp-disabled th span.next-but,
 div.dp-disabled th span.today-but,
@@ -484,9 +484,9 @@ div.datePicker thead th span.fd-disabled,
 div.datePicker th span.fd-disabled:hover
         {
         color:#aaa;
-        cursor:default !important; 
-        opacity:1;        
-        }   
+        cursor:default !important;
+        opacity:1;
+        }
 /* The mon, tue, wed etc day buttons */
 div.datePicker th span.fd-day-header
         {
@@ -495,11 +495,11 @@ div.datePicker th span.fd-day-header
         font:900 1em Verdana, Sans-Serif;
         text-decoration:none;
         text-transform:lowercase;
-        cursor:pointer;          
+        cursor:pointer;
         }
 /* The table */
 div.datePicker table
-        {               
+        {
         margin:0;
         padding:0;
         border: 1px solid #d2d2d2;
@@ -514,19 +514,19 @@ div.datePicker table
 /* Common TD & TH styling */
 div.datePicker table td,
 div.datePicker table tbody th
-        {                 
+        {
         border:0 none;
         padding:0;
         text-align:center;
-        vertical-align:middle;               
+        vertical-align:middle;
         cursor:pointer;
         background: #fff;
         width:3em;
-        height:3em;   
-        overflow:hidden;      
-        outline:transparent none 0px;        
+        height:3em;
+        overflow:hidden;
+        outline:transparent none 0px;
         border:1px solid #ccc;
-        text-transform:none;         
+        text-transform:none;
         }
 div.datePicker table td:focus,
 div.datePicker table td:active
@@ -536,28 +536,28 @@ div.datePicker table td:active
 div.datePicker table th
         {
         border:0 none;
-        padding:0;        
+        padding:0;
         font-weight:bold;
         color:#222;
         text-align:center;
-        vertical-align:middle; 
-        text-transform:none;        
+        vertical-align:middle;
+        text-transform:none;
         }
 div.datePicker table thead th
         {
         height:auto !important;
         }
 div.datePicker table tbody th
-        {                          
-        border:1px solid #dcdcdc;        
+        {
+        border:1px solid #dcdcdc;
         }
 /* Week number display */
 div.datePicker table thead th.date-picker-week-header,
 div.datePicker table tbody th.date-picker-week-header
         {
-        font-style:oblique;  
+        font-style:oblique;
         background:transparent;
-        cursor:default;         
+        cursor:default;
         }
 div.datePicker table thead th.date-picker-week-header
         {
@@ -580,7 +580,7 @@ div.datePicker tfoot th
 div.datePicker table tbody td.date-picker-unused
         {
         background:#fff url(../img/datepicker/backstripes.gif);
-        border-color:#dcdcdc;          
+        border-color:#dcdcdc;
         cursor:default !important;
         }
 
@@ -606,7 +606,7 @@ div.datePicker table tbody td.date-picker-today
         color:rgb(100,100,100) !important;
         }
 
-div.datePicker table tbody td.month-out.date-picker-highlight 
+div.datePicker table tbody td.month-out.date-picker-highlight
         {
         color:#aa8866 !important;
         }
@@ -622,23 +622,23 @@ div.datePicker table tbody td.date-picker-hover
         background: #d8f3ff;
         cursor:pointer;
         border-color:rgb(100,130,170) !important;
-        color:rgb(100,130,170); 
-        text-shadow: 0px 1px 1px #fff;                
+        color:rgb(100,130,170);
+        text-shadow: 0px 1px 1px #fff;
         }
 /* The "disabled days" style */
 div.datePicker table tbody td.day-disabled
-        {          
+        {
         background:#fff url(../img/datepicker/backstripes.gif) no-repeat 0 0;
         color:#aaa !important;
         cursor:default;
         text-decoration:line-through;
-        } 
+        }
 div.datePicker table tbody td.month-out
         {
         border-color:#ddd;
         color:#aaa !important;
         background: #fff;
-        } 
+        }
 /* The "selected date" style */
 div.datePicker table tbody td.date-picker-selected-date
         {
@@ -648,31 +648,31 @@ div.datePicker table tbody td.date-picker-selected-date
 /* The date "out of range" style */
 div.datePicker table tbody td.out-of-range,
 div.datePicker table tbody td.not-selectable
-        {           
+        {
         color:#ccc !important;
         font-style:oblique;
         background:#fcfcfc !important;
-        cursor:default !important;              
-        } 
+        cursor:default !important;
+        }
 /* Week number "out of range" && "month-out" styles */
 div.datePicker table tbody th.month-out,
 div.datePicker table tbody th.out-of-range
         {
         color:#aaa !important;
         font-style:oblique;
-        background:#fcfcfc !important;          
+        background:#fcfcfc !important;
         }
 /* week numbers "out of range" */
 div.datePicker table tbody th.out-of-range
         {
         opacity:0.6;
         filter:alpha(opacity=60);
-        }  
+        }
 /* Used when the entire grid is full but the next/prev months dates cannot be selected */
 div.datePicker table tbody td.not-selectable
-        {         
+        {
         opacity:0.8;
-        filter:alpha(opacity=80);        
+        filter:alpha(opacity=80);
         }
 div.datePicker table tbody tr
         {
@@ -684,56 +684,56 @@ div.datePicker table tfoot sup
         letter-spacing:normal;
         text-transform:none;
         height: 0;
-	line-height: 1;
-	position: relative;
-	top: -0.2em;	
-	vertical-align: baseline !important;
-	vertical-align: top;  
+        line-height: 1;
+        position: relative;
+        top: -0.2em;
+        vertical-align: baseline !important;
+        vertical-align: top;
         }
 div.datePicker table thead th.date-picker-day-header,
 div.datePicker table thead span.month-display,
 div.datePicker table thead span.year-display
-        {            
-        text-shadow: 0px 1px 1px #fff;                            
+        {
+        text-shadow: 0px 1px 1px #fff;
         }
 /* You can add focus effects (for everything but IE6) like so: */
 
 div.datepicker-focus table.datePickerTable
         {
-        border-color:#999 !important;         
+        border-color:#999 !important;
         }
 div.datePicker table tbody tr td:focus,
-div.datePicker table tbody td.date-picker-hover 
+div.datePicker table tbody td.date-picker-hover
         {
         overflow:hidden;
-        outline:0px solid #ff0000;        
-	-moz-outline: 0 none;
-	color:rgb(100,130,170) !important;        	
+        outline:0px solid #ff0000;
+        -moz-outline: 0 none;
+        color:rgb(100,130,170) !important;
         }
 div.static-datepicker table
         {
         -moz-box-shadow:0 0 0 transparent;
-        
-        }               
+
+        }
 div.datepicker-focus table
         {
         /* Naughty, naughty - but we add a highlight using the table's border colour */
         outline:none;
-         -moz-box-shadow:0px 0px 5px #aaa;         
-        }    
+         -moz-box-shadow:0px 0px 5px #aaa;
+        }
 
 /* INTERNET EXPLORER WOES
    ======================
-   
+
    Hover Effects
    -------------
-   
+
    IE cannot deal with :focus on the TR so the datePicker script adds the class "dp-row-highlight" to the
    row currently being hovered over. This should enable you to add hover effects if desired.
-   
+
    e.g. the following rule will highlight the cell borders in another colour when a row is moused over,
    it looks like crap though so I didn't include the rule within the demo:
-   
+
 div.datePicker table tbody tr.dp-row-highlight td
         {
         border-color:#aaa;
@@ -744,7 +744,7 @@ div.datePicker table tbody tr.dp-row-highlight td
         {
         background:#f2f2f2;
         }
-body.fd-drag-active 
+body.fd-drag-active
         {
         -webkit-user-select:none;
         }

@@ -53,11 +53,11 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         ICell firstMethodCell = returnColumn.getValueCell(0).getSource().getCell(0, 0);
         CellMetaInfo firstMethodMeta = getMetaInfo(metaInfoReader, firstMethodCell);
-        IOpenMethod firstMethodInOverloading = ((MethodUsage) firstMethodMeta.getUsedNodes().get(0)).getMethod();
+        IOpenMethod firstMethodInOverloading = ((MethodUsage) firstMethodMeta.getUsedNodes().getFirst()).getMethod();
 
         ICell secondMethodCell = returnColumn.getValueCell(1).getSource().getCell(0, 0);
         CellMetaInfo secondMethodMeta = getMetaInfo(metaInfoReader, secondMethodCell);
-        IOpenMethod secondMethodInOverloading = ((MethodUsage) secondMethodMeta.getUsedNodes().get(0)).getMethod();
+        IOpenMethod secondMethodInOverloading = ((MethodUsage) secondMethodMeta.getUsedNodes().getFirst()).getMethod();
         assertNotSame(firstMethodInOverloading.getInfo().getSourceUrl(),
                 secondMethodInOverloading.getInfo().getSourceUrl());
     }
@@ -124,8 +124,8 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
                 if (CellMetaInfo.isCellContainsNodeUsages(metaInfo)) {
                     for (NodeUsage methodUsage : metaInfo.getUsedNodes()) {
                         cellWithMethodUsagesCount++;
-                        if (methodUsage instanceof MethodUsage) {
-                            usedMethods.add(((MethodUsage) methodUsage).getMethod().getName());
+                        if (methodUsage instanceof MethodUsage usage) {
+                            usedMethods.add(usage.getMethod().getName());
                         }
                     }
                 }

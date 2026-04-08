@@ -7,6 +7,7 @@ package org.openl.rules.helpers;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -26,10 +28,10 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
 import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.binding.impl.cast.VOID;
-import org.openl.rules.annotations.IgnoreNonVarargsMatching;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.rules.annotations.IgnoreNonVarargsMatching;
 import org.openl.rules.cloner.Cloner;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
@@ -1399,7 +1401,7 @@ public final class RulesUtils {
         try {
             stringDate = DateTool.dateToString(date, dateFormat);
         } catch (Exception e) {
-            throw new OpenLRuntimeException(String.format("%s '%s'", stringDate, dateFormat));
+            throw new OpenLRuntimeException("%s '%s'".formatted(stringDate, dateFormat));
         }
         return stringDate;
     }
@@ -2363,7 +2365,7 @@ public final class RulesUtils {
      * @return a pseudorandom {@code double} greater than or equal to {@code 0.0} and less than {@code 1.0}.
      */
     public static double random() {
-        return Math.random();
+        return ThreadLocalRandom.current().nextDouble();
     }
 
     /**
@@ -3228,15 +3230,15 @@ public final class RulesUtils {
             while (aClass != null) {
                 Field[] declaredFields = aClass.getDeclaredFields();
                 for (Field field : declaredFields) {
-                    if (field.getName().equals(fieldName) && java.lang.reflect.Modifier
-                            .isPublic(field.getModifiers()) && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                    if (field.getName().equals(fieldName) && Modifier
+                            .isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                         return field.get(null);
                     }
                 }
                 aClass = aClass.getSuperclass();
             }
         } catch (IllegalAccessException e) {
-            throw new OpenLRuntimeException(String.format("%s '%s'.", instance, fieldName));
+            throw new OpenLRuntimeException("%s '%s'.".formatted(instance, fieldName));
         }
         return null;
     }

@@ -8,9 +8,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -48,12 +47,12 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
+@Slf4j
 public class DataTableBindHelper {
 
     private DataTableBindHelper() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(DataTableBindHelper.class);
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
@@ -613,19 +612,19 @@ public class DataTableBindHelper {
                     fieldAccessorChainTokens = trimAndSplitPrecisionToken(
                             Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
-                    LOG.debug("Error occurred: ", e);
-                    String message = String.format("Cannot parse field source '%s'", code);
+                    log.debug("Error occurred: ", e);
+                    String message = "Cannot parse field source '%s'".formatted(code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     bindingContext.addError(error);
                 }
                 if (identifiers.contains(new IdentifierNodesBucket(fieldAccessorChainTokens))) {
-                    String message = String.format("Found duplicate of field '%s'", code);
+                    String message = "Found duplicate of field '%s'".formatted(code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     bindingContext.addError(error);
                 } else {
                     boolean added = identifiers.add(new IdentifierNodesBucket(fieldAccessorChainTokens));
                     if (!added) {
-                        String message = String.format("Found duplicate of field '%s'", code);
+                        String message = "Found duplicate of field '%s'".formatted(code);
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                         bindingContext.addError(error);
                     }
@@ -758,7 +757,7 @@ public class DataTableBindHelper {
 
         IOpenClass type = bindingContext.findType(typeName);
         if (type == null) {
-            String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", identifierNode, typeName);
+            String message = "Cannot bind node: '%s'. Cannot find type: '%s'.".formatted(identifierNode, typeName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
             bindingContext.addError(error);
         }
@@ -925,7 +924,7 @@ public class DataTableBindHelper {
 
             return Integer.parseInt(txtIndex);
         } catch (Exception e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return null;
         }
     }
@@ -984,13 +983,13 @@ public class DataTableBindHelper {
         }
         if (field == null) {
             String errorMessage;
-            if (loadedFieldType instanceof TestMethodOpenClass) {
+            if (loadedFieldType instanceof TestMethodOpenClass class1) {
                 StringBuilder sb = new StringBuilder();
-                MethodUtil.printMethod(((TestMethodOpenClass) loadedFieldType).getTestedMethod(), sb);
-                errorMessage = String
-                        .format("Expected one of the parameters from the method '%s', but found '%s'.", sb, fieldName);
+                MethodUtil.printMethod(class1.getTestedMethod(), sb);
+                errorMessage = "Expected one of the parameters from the method '%s', but found '%s'."
+                        .formatted(sb, fieldName);
             } else {
-                errorMessage = String.format("%s '%s' is not found in type '%s'.",
+                errorMessage = "%s '%s' is not found in type '%s'.".formatted(
                         loadedFieldType.isStatic() ? "Static field" : "Field",
                         fieldName,
                         loadedFieldType.getName());
@@ -1001,8 +1000,8 @@ public class DataTableBindHelper {
         }
 
         if (!field.isWritable()) {
-            String message = String
-                    .format("Field '%s' is not writable in type '%s'.", fieldName, loadedFieldType.getName());
+            String message = "Field '%s' is not writable in type '%s'."
+                    .formatted(fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             bindingContext.addError(error);
             return null;
@@ -1043,8 +1042,8 @@ public class DataTableBindHelper {
         }
 
         if (field == null) {
-            String message = String
-                    .format("%s '%s' is not found.", loadedFieldType.isStatic() ? "Static field" : "Field", name);
+            String message = "%s '%s' is not found."
+                    .formatted(loadedFieldType.isStatic() ? "Static field" : "Field", name);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             bindingContext.addError(error);
             return null;
@@ -1053,7 +1052,7 @@ public class DataTableBindHelper {
         if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
                 field.getType().getInstanceClass(),
                 List.class) && !field.getType().isArray() && Object.class != field.getType().getInstanceClass()) {
-            String message = String.format("Expected a collection type for field '%s', but found type '%s'.",
+            String message = "Expected a collection type for field '%s', but found type '%s'.".formatted(
                     name,
                     field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
@@ -1066,7 +1065,7 @@ public class DataTableBindHelper {
             IOpenClass fieldType = field.getType();
             if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                        loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
+                        loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
                         bindingContext);
                 collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
@@ -1095,20 +1094,20 @@ public class DataTableBindHelper {
                 Object mapKey;
                 try {
                     mapKey = getCollectionKey(currentFieldNameNode,
-                            loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
+                            loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
                             bindingContext);
                 } catch (SyntaxNodeException e) {
                     bindingContext.addError(e);
                     return null;
                 } catch (Exception e) {
-                    LOG.debug("Error occurred: ", e);
+                    log.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                             currentFieldNameNode);
                     bindingContext.addError(error);
                     return null;
                 }
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                        loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
+                        loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
                         bindingContext);
                 collectionAccessField = new CollectionElementField(field, mapKey, elementType);
             } else {
@@ -1116,7 +1115,7 @@ public class DataTableBindHelper {
                 try {
                     index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
-                    LOG.debug("Error occurred: ", e);
+                    log.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                             currentFieldNameNode);
                     bindingContext.addError(error);
@@ -1125,7 +1124,7 @@ public class DataTableBindHelper {
                 IOpenClass fieldType = field.getType();
                 if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
                     IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                            loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
+                            loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
                             bindingContext);
                     collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
                 } else {
@@ -1149,7 +1148,7 @@ public class DataTableBindHelper {
             }
         }
         if (!collectionAccessField.isWritable()) {
-            String message = String.format("Field '%s' is not writable in %s.", name, loadedFieldType.getName());
+            String message = "Field '%s' is not writable in %s.".formatted(name, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             bindingContext.addError(error);
             return null;
@@ -1178,9 +1177,9 @@ public class DataTableBindHelper {
                                 .getConvertor(keyOpenClass.getInstanceClass());
                         return converter.parse(s, null);
                     } catch (Exception e) {
-                        LOG.debug("Error occurred: ", e);
+                        log.debug("Error occurred: ", e);
                         throw SyntaxNodeExceptionUtils.createError(
-                                String.format("Cannot convert a key value '%s' to type '%s'.", s, keyOpenClass.getName()),
+                                "Cannot convert a key value '%s' to type '%s'.".formatted(s, keyOpenClass.getName()),
                                 currentFieldNameNode);
                     }
                 }

@@ -122,8 +122,8 @@ To use a relational database repository as a data source, proceed as follows:
 
 5.  Set login and password for a connection to the database in production-repository.login and production-repository.password settings.
 
-    **Note:**        The password must be encoded via Base64 encoding schema if the repository.encode.decode.key property is not empty. 
-    
+    **Note:**        The password must be encoded via Base64 encoding schema if the repository.encode.decode.key property is not empty.
+
     ```properties
     production-repository.factory = repo-jdbc
     production-repository.uri = jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1
@@ -187,9 +187,9 @@ To use an AWS S3 repository as a data source, proceed as follows:
         </dependencyManagement>
     </project>
     ```
-        
+
 1.  Set the following properties in the `application.properties` file:
-    
+
     ```
     properties
     production-repository.factory = repo-aws-s3
@@ -198,14 +198,14 @@ To use an AWS S3 repository as a data source, proceed as follows:
     production-repository.access-key = yourAccessKey
     production-repository.secret-key = yourSecretKey
     ```
-  
-    
+
+
 ##### GIT
 
 To use a Git repository as a data source, proceed as follows:
 
 1.  To build a customized version of OpenL Rule Services with dependencies on `*org.openl.rules.repository.git`, create a `pom.xml` file with the following content:
-    
+
     ```xml
     <?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -234,7 +234,7 @@ To use a Git repository as a data source, proceed as follows:
         </dependencies>
     </project>
     ```
-        
+
 1.  Build it with Maven: `mvn clean package`.
 2.  Replace `webservice.war` with the war file you built.
 3.  Set the following properties to the `application.properties` file (change necessary fields):
@@ -247,7 +247,7 @@ To use a Git repository as a data source, proceed as follows:
     ```
 
 4.  Additionally, to override default values, add these optional properties:
-    
+
     ```xml
     properties
     # The branch where deployed projects can be found.
@@ -829,7 +829,7 @@ Apache Cassandra is a free and open-source, distributed, wide column storage dat
 
 1.  Enable the Cassandra Storing Log feature using the `ruleservice.store.logs.cassandra.enabled=true` setting in the `application.properties` file.
 2.  Set up Cassandra connection settings defined in the `application.properties` file as described in the following lines:
-        
+
     ```properties
     datastax-java-driver.basic.load-balancing-policy.local-datacenter = datacenter1
     datastax-java-driver.basic.contact-points.0 = 127.0.0.1:9042
@@ -838,12 +838,12 @@ Apache Cassandra is a free and open-source, distributed, wide column storage dat
     datastax-java-driver.advanced.auth-provider.username =
     datastax-java-driver.advanced.auth-provider.password =
     ```
-        
+
     For more information on Cassandra, see <https://docs.datastax.com/en/developer/java-driver/4.5/manual/core/configuration/>. For more information on connection configuration options, see <https://docs.datastax.com/en/developer/java-driver/4.5/manual/core/configuration/reference/>.
-        
+
 3.  Before running the application, create a keyspace in Cassandra as described in <https://docs.datastax.com/en/cql/3.1/cql/cql_reference/create_keyspace_r.html>.
 4.  To create a schema in the Cassandra database, start OpenL Rule Services for the first time with the `ruleservice.store.logs.cassandra.schema.create = true` property.
-        
+
     By default, this option is enabled. When the schema is created, set this property to the `false` value.
 
 As a result, the following table with the `openl_log_data` name is created in the Cassandra database:
@@ -867,14 +867,14 @@ As a result, the following table with the `openl_log_data` name is created in th
 To start using a relational database, proceed as follows:
 
 1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-        
+
     ```sh
     mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.full:<openl version here>:war -DoutputDirectory=./
     ```
-        
+
 1.  Enable the relational database Storing Log feature using the `ruleservice.store.logs.db.enabled=true` setting` `in the `application.properties` file.
 2.  Set up the Hibernate connection settings defined in the `application.properties` file as described in the following lines:
-                
+
     ```properties
     hibernate.connection.driver_class=oracle.jdbc.driver.OracleDriver
     hibernate.connection.url=
@@ -916,13 +916,13 @@ The system uses the JDBC driver to communicate with the Hive server that process
 To start using Hive, proceed as follows:
 
 1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-        
+
     ```sh
     mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.all:<openl version here>:war -DoutputDirectory=./
     ```
-        
+
 1.  Set up Hive connection settings defined in the `application.properties` file as follows:
-        
+
     ```properties
     ruleservice.store.logs.hive.enabled = true
     hive.connection.url = jdbc:hive2://localhost:10000/default
@@ -957,4 +957,3 @@ As a result, the following table with the default openl_log_data name is created
 | URL             | STRING    | URL of the request.                                            |
 
 **Note:** Only methods annotated with org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive are used for storing their requests and responses to Hive. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns of the tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).
-

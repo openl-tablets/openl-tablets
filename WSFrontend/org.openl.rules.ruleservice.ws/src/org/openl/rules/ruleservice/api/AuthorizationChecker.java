@@ -28,4 +28,3 @@ public interface AuthorizationChecker {
     boolean authorize(HttpServletRequest request);
 
 }
-

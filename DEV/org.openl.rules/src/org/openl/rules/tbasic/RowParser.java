@@ -38,17 +38,17 @@ public class RowParser implements IRowParser {
             IOpenSourceCodeModule source = columnValue.asSourceCodeModule();
             if (source.getUri() == null) {
                 // Column <columnName> is absent. Point to <operation> cell instead.
-                String errMsg = String.format("%s is required for operation %s.", columnName, operation);
+                String errMsg = "%s is required for operation %s.".formatted(columnName, operation);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
             } else {
                 // Column <columnName> exists but still is empty. Point to empty <columnValue> cell.
-                String errMsg = String.format("Operation must have value in %s.", columnName);
+                String errMsg = "Operation must have value in %s.".formatted(columnName);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, source);
             }
         }
 
         if (columnNecessity == ValueNecessity.PROHIBITED && !columnValue.isEmpty()) {
-            String errMsg = String.format("Operation must not have value in %s.", columnName);
+            String errMsg = "Operation must not have value in %s.".formatted(columnName);
             throw SyntaxNodeExceptionUtils.createError(errMsg, columnValue.asSourceCodeModule());
         }
     }
@@ -79,7 +79,7 @@ public class RowParser implements IRowParser {
                 //
                 errorMessage = "Operation %s cannot be singleline.";
             }
-            throw SyntaxNodeExceptionUtils.createError(String.format(errorMessage, operationName),
+            throw SyntaxNodeExceptionUtils.createError(errorMessage.formatted(operationName),
                     operation.asSourceCodeModule());
         }
 
@@ -136,7 +136,7 @@ public class RowParser implements IRowParser {
             } else {
                 StringValue operation = row.getOperation();
                 if (indent > prevIndent + 1) {
-                    String errMsg = String.format("Incorrect operation indention! Expected %d.", prevIndent + 1);
+                    String errMsg = "Incorrect operation indention! Expected %d.".formatted(prevIndent + 1);
                     throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
                 }
                 if (parentTree.isEmpty()) {
@@ -164,7 +164,7 @@ public class RowParser implements IRowParser {
 
             if (operation == null) {
                 throw new OpenlNotCheckedException(
-                        String.format("There is no operations in row '%s'", row.getDescription()));
+                        "There is no operations in row '%s'".formatted(row.getDescription()));
             }
 
             if (operation.isEmpty()) {

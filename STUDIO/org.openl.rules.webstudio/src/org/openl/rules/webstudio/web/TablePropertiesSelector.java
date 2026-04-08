@@ -50,14 +50,14 @@ public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
         boolean result = false;
 
         if (value.getClass().equals(searchValue.getClass())) {
-            if (value instanceof String) {
-                result = StringUtils.containsIgnoreCase((String) value, (String) searchValue);
+            if (value instanceof String string) {
+                result = StringUtils.containsIgnoreCase(string, (String) searchValue);
 
-            } else if (value instanceof Date) {
-                result = DateUtils.isSameDay((Date) searchValue, (Date) value);
+            } else if (value instanceof Date date) {
+                result = DateUtils.isSameDay((Date) searchValue, date);
 
-            } else if (value instanceof Comparable<?>) {
-                result = ((Comparable) value).compareTo(searchValue) == 0;
+            } else if (value instanceof Comparable comparable) {
+                result = comparable.compareTo(searchValue) == 0;
 
             } else if (value.getClass().isArray()) {
                 List<Object> valueArray = Arrays.asList((Object[]) value);

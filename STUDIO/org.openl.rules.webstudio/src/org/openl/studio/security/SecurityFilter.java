@@ -12,16 +12,15 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.WebAttributes;
 
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 
+@Slf4j
 public class SecurityFilter implements Filter {
 
-    private final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     @Override
     public void doFilter(ServletRequest servletRequest,
@@ -38,19 +37,18 @@ public class SecurityFilter implements Filter {
                     .getBean("filterChainProxy", Filter.class);
             filterChainProxy.doFilter(servletRequest, servletResponse, filterChain);
         } catch (RuntimeException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw e;
         } finally {
             readLock.unlock();
         }
-        if (servletRequest instanceof HttpServletRequest) {
-            HttpServletRequest request = (HttpServletRequest) servletRequest;
+        if (servletRequest instanceof HttpServletRequest request) {
             HttpSession session = request.getSession(false);
             if (session != null) {
                 // Log authentication errors if a backend authentication repository is unavailable, for example
                 Throwable ex = (Throwable) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
                 if (ex instanceof AuthenticationServiceException) {
-                    logger.error("Authentication error.", ex);
+                    log.error("Authentication error.", ex);
                 }
             }
         }

@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
+import java.io.Serial;
+
 /**
  * Main rule service runtime exception. All exceptions in rule service project should extend from this exception.
  *
@@ -7,6 +9,7 @@ package org.openl.rules.ruleservice.core;
  */
 public class RuleServiceRuntimeException extends RuntimeException {
 
+    @Serial
     private static final long serialVersionUID = -5355895091110317542L;
 
     /**

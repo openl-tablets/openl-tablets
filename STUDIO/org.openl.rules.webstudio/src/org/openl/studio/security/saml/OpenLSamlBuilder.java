@@ -39,6 +39,7 @@ public class OpenLSamlBuilder {
                     return super.marshall(object, element);
                 }
 
+                @Override
                 public Element marshall(XMLObject object, Document document) throws MarshallingException {
                     configureAuthnRequest((AuthnRequest) object);
                     return super.marshall(object, document);

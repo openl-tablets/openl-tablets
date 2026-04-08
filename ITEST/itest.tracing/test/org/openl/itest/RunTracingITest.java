@@ -139,7 +139,7 @@ public class RunTracingITest {
                 .collect(Collectors.toList());
 
         assertEquals(1, methodSpans.size());
-        var methodSpan = methodSpans.get(0);
+        var methodSpan = methodSpans.getFirst();
         assertEquals(methodSpan.get("scope"), expectedScope);
         var spanAttributes = (Map) methodSpan.get("attributes");
         assertEquals("DecisionTable", spanAttributes.get("openl.table.type"));
@@ -153,7 +153,7 @@ public class RunTracingITest {
                 .collect(Collectors.toList());
 
         assertEquals(1, parentSpans.size());
-        var parentSpan = parentSpans.get(0);
+        var parentSpan = parentSpans.getFirst();
         assertEquals(expectedRootSpanName, parentSpan.get("name"));
         assertTrue(parentSpan.get("scope").toString().contains(expectedParentScope));
     }

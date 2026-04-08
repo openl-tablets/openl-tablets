@@ -63,8 +63,7 @@ public class OpenLMessagesUtils {
     public static List<OpenLMessage> newErrorMessages(Throwable exception) {
         List<OpenLMessage> messages = new ArrayList<>();
 
-        if (exception instanceof OpenLException) {
-            OpenLException openLException = (OpenLException) exception;
+        if (exception instanceof OpenLException openLException) {
             OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
             messages.add(errorMessage);
         } else {

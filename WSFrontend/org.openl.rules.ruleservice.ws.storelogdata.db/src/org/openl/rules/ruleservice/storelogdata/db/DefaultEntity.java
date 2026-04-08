@@ -8,6 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
 import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
@@ -21,106 +24,52 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 public class DefaultEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "openl_log_data_generator")
+    @Getter
     @SequenceGenerator(name = "openl_log_data_generator", sequenceName = "openl_log_data_generator", allocationSize = 50)
+    @Setter
     private Long id;
 
+    @Getter
     @IncomingTime
+    @Setter
     private ZonedDateTime incomingTime;
 
+    @Getter
     @OutcomingTime
+    @Setter
     private ZonedDateTime outcomingTime;
 
+    @Getter
     @Request
+    @Setter
     @Lob
     private String request;
 
+    @Getter
     @Response
+    @Setter
     @Lob
     private String response;
 
+    @Getter
     @ServiceName
+    @Setter
     private String serviceName;
 
+    @Getter
+    @Setter
     @Url
     private String url;
 
+    @Getter
     @MethodName
+    @Setter
     private String methodName;
 
+    @Getter
     @Publisher
+    @Setter
     private String publisherType;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ZonedDateTime getIncomingTime() {
-        return incomingTime;
-    }
-
-    public void setIncomingTime(ZonedDateTime incomingTime) {
-        this.incomingTime = incomingTime;
-    }
-
-    public ZonedDateTime getOutcomingTime() {
-        return outcomingTime;
-    }
-
-    public void setOutcomingTime(ZonedDateTime outcomingTime) {
-        this.outcomingTime = outcomingTime;
-    }
-
-    public String getRequest() {
-        return request;
-    }
-
-    public void setRequest(String request) {
-        this.request = request;
-    }
-
-    public String getResponse() {
-        return response;
-    }
-
-    public void setResponse(String response) {
-        this.response = response;
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
-    public String getPublisherType() {
-        return publisherType;
-    }
-
-    public void setPublisherType(String publisherType) {
-        this.publisherType = publisherType;
-    }
 
     @Override
     public String toString() {

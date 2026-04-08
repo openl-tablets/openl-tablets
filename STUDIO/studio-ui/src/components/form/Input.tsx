@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
 import { useRules } from './hooks'
+import { getFieldValueProps } from './utils'
 import { RuleObject } from 'rc-field-form/lib/interface'
 
 type InputProps = {
@@ -16,6 +17,7 @@ type InputProps = {
     rules?: RuleObject[]
     required?: boolean
     type?: string
+    autoComplete?: string
 }
 
 const Input: FC<InputProps> = ({
@@ -28,6 +30,7 @@ const Input: FC<InputProps> = ({
     required,
     rules = [],
     type,
+    autoComplete,
     ...rest
 }) => {
     const form = Form.useFormInstance()
@@ -51,8 +54,15 @@ const Input: FC<InputProps> = ({
     }, [value])
 
     return (
-        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdInput disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
+        <Form.Item
+            getValueProps={getFieldValueProps}
+            label={label}
+            name={name}
+            rules={allRules}
+            style={formItemStyle}
+            {...rest}
+        >
+            <AntdInput autoComplete={autoComplete} disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
         </Form.Item>
     )
 }

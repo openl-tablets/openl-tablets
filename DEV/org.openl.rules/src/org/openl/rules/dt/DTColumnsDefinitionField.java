@@ -35,7 +35,7 @@ public class DTColumnsDefinitionField implements IOpenField {
         StringBuilder sb = new StringBuilder();
         sb.append("'").append(name).append("'");
         if (!StringUtils.isEmpty(title)) {
-            sb.append(String.format(" with column title '%s'", title));
+            sb.append(" with column title '%s'".formatted(title));
         }
         sb.append(" in external ");
         if (dtColumnsDefinition.getType() == DTColumnsDefinitionType.RETURN) {

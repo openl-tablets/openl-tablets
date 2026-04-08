@@ -85,8 +85,8 @@ public class DateRangeDomain implements IDomain<Date> {
 
         // see http://issues.apache.org/jira/browse/LANG-59
         time -= cal.get(Calendar.MILLISECOND);
-        time -= cal.get(Calendar.SECOND) * 1000;
-        time -= cal.get(Calendar.MINUTE) * 1000 * 60;
+        time -= cal.get(Calendar.SECOND) * 1000L;
+        time -= cal.get(Calendar.MINUTE) * 1000L * 60;
         // reset time
         if (date.getTime() != time) {
             date.setTime(time);
@@ -159,10 +159,8 @@ public class DateRangeDomain implements IDomain<Date> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof DateRangeDomain dates))
             return false;
-
-        DateRangeDomain dates = (DateRangeDomain) o;
 
         if (!min.equals(dates.min))
             return false;

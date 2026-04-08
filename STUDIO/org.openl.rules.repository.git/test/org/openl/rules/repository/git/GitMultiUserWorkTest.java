@@ -57,7 +57,7 @@ public class GitMultiUserWorkTest {
                     branchRepo = repo.forBranch(branchName);
                     for (int commitNo = 0; commitNo < 30; commitNo++) {
                         String path = projectPath + "/folder/file" + idx;
-                        String text = String.format("File located in '%s'. Commit id: %s", path, commitNo);
+                        String text = "File located in '%s'. Commit id: %s".formatted(path, commitNo);
                         createCommitAndCheck(branchRepo, path, text);
                         if ((commitNo + 1) % 10 == 0) {
                             repo.merge(branchName, new UserInfo("admin", "admin@email", "Admin"), null);

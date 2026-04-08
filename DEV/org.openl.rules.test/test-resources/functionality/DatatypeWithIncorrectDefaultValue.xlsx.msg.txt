@@ -3,4 +3,3 @@ ERROR: Type 'Person' is defined with errors.
 ERROR: Type 'Person' is defined with errors.
 ERROR: Type 'Person' is defined with errors.
 ERROR: Type 'Person' is defined with errors.
-

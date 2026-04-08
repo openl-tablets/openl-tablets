@@ -10,8 +10,7 @@ import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
@@ -35,9 +34,9 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class OpenApiGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenApiGenerator.class);
 
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
@@ -91,7 +90,7 @@ public class OpenApiGenerator {
             try (var stream = Files.newInputStream(deployXmlPath)){
                 return RULES_DEPLOY_XML_SERIALIZER.deserialize(stream);
             } catch (IOException | JAXBException e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
         }
         return null;
@@ -122,12 +121,12 @@ public class OpenApiGenerator {
                 if (serviceClass.isInterface()) {
                     return serviceClass;
                 } else {
-                    throw new OpenApiGenerationException(String
-                            .format("Interface is expected for service class '%s', but class is found.", serviceClassName));
+                    throw new OpenApiGenerationException("Interface is expected for service class '%s', but class is found."
+                            .formatted(serviceClassName));
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 throw new OpenApiGenerationException(
-                        String.format("An error is occurred during loading a service class '%s'.%s",
+                        "An error is occurred during loading a service class '%s'.%s".formatted(
                                 serviceClassName,
                                 StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }
@@ -152,15 +151,14 @@ public class OpenApiGenerator {
                             instantiationStrategy.compile().getOpenClass(),
                             resolveServiceClassLoader);
                 } else {
-                    throw new OpenApiGenerationException(String.format(
-                            "Interface or abstract class is expected for annotation template class '%s', but class is found.",
+                    throw new OpenApiGenerationException("Interface or abstract class is expected for annotation template class '%s', but class is found.".formatted(
                             templateClassName));
                 }
             } catch (RulesInstantiationException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
                 throw new OpenApiGenerationException(
-                        String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
+                        "An error is occurred during loading or applying annotation template class '%s'.%s".formatted(
                                 templateClassName,
                                 StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }

@@ -17,10 +17,12 @@ public class ServiceExtraMethodHandlerImpl implements ServiceExtraMethodHandler<
     public ServiceExtraMethodHandlerImpl() {
     }
 
+    @Override
     public String toString() {
         return "ServiceExtraMethodHandlerImpl{" + " }";
     }
 
+    @Override
     public boolean equals(Object var1) {
         if (this == var1) {
             return true;
@@ -34,10 +36,12 @@ public class ServiceExtraMethodHandlerImpl implements ServiceExtraMethodHandler<
         }
     }
 
+    @Override
     public int hashCode() {
         return 5;
     }
 
+    @Override
     public SpreadsheetResult invoke(Method var1, Object var2, Object[] var3) {
         return null;
     }

@@ -43,7 +43,7 @@ const Forbidden = () => {
             <div style={cardStyle}>
                 <Logo height={72} width={72} />
                 <div style={codeStyle}>403</div>
-                <div style={messageStyle}>Access denied.<br />Log out and use another credentials.</div>
+                <div style={messageStyle}>Access denied.<br />Log out and use other credentials.</div>
                 <Button href="logout" size="large" type="primary">Log out</Button>
             </div>
         </div>

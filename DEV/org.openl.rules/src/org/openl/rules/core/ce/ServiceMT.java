@@ -4,9 +4,9 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.vm.Tracer;
 
 public final class ServiceMT {
@@ -50,8 +50,8 @@ public final class ServiceMT {
     }
 
     private SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
-        if (env instanceof TBasicContextHolderEnv) {
-            IRuntimeEnv env1 = ((TBasicContextHolderEnv) env).getEnv();
+        if (env instanceof TBasicContextHolderEnv holderEnv) {
+            IRuntimeEnv env1 = holderEnv.getEnv();
             if (env1 instanceof TBasicContextHolderEnv) {
                 return extractSimpleRulesRuntimeEnv(env1);
             } else {

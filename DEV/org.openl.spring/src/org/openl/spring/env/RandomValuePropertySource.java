@@ -21,12 +21,9 @@ class RandomValuePropertySource extends PropertySource<Random> {
     @Override
     public Object getProperty(String name) {
         switch (name) {
-            case "random.int":
-                return getSource().nextInt();
-            case "random.long":
-                return getSource().nextLong();
-            case "random.uuid":
-                return UUID.randomUUID().toString();
+            case "random.int" -> { return getSource().nextInt(); }
+            case "random.long" -> { return getSource().nextLong(); }
+            case "random.uuid" -> { return UUID.randomUUID().toString(); }
         }
 
         if (name.startsWith("random.int(")) {

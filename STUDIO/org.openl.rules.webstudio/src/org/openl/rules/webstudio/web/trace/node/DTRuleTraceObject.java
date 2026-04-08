@@ -44,9 +44,9 @@ public class DTRuleTraceObject extends ATableTracerNode {
         IBaseCondition condition = (IBaseCondition) args[0];
         int[] rules;
         boolean indexed = false;
-        if (args[1] instanceof DecisionTableRuleNode) {
-            rules = ((DecisionTableRuleNode) args[1]).getRules();
-            indexed = ((DecisionTableRuleNode) args[1]).hasIndex();
+        if (args[1] instanceof DecisionTableRuleNode node) {
+            rules = node.getRules();
+            indexed = node.hasIndex();
         } else {
             rules = new int[]{(Integer) args[1]};
         }

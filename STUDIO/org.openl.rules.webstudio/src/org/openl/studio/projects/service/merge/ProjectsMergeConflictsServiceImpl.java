@@ -16,8 +16,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import jakarta.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
@@ -56,9 +55,9 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 @Service
+@Slf4j
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
 
-    private static final Logger log = LoggerFactory.getLogger(ProjectsMergeConflictsServiceImpl.class);
     private static final XmlProjectDescriptorSerializer PROJECT_DESCRIPTOR_SERIALIZER = new XmlProjectDescriptorSerializer();
 
     @Lookup

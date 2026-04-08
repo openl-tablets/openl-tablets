@@ -95,8 +95,8 @@ public class ExceptionMappingService {
     }
 
     private static String getFieldName(TypeMismatchException ex) {
-        if (ex instanceof MethodArgumentTypeMismatchException) {
-            return ((MethodArgumentTypeMismatchException) ex).getName();
+        if (ex instanceof MethodArgumentTypeMismatchException exception) {
+            return exception.getName();
         }
         return ex.getPropertyName();
     }

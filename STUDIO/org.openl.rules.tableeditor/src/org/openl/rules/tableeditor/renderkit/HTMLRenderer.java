@@ -134,7 +134,7 @@ public class HTMLRenderer {
 
                 String cellUri = table.getCell(col, row).getUri();
                 if (cellUri.equals(absoluteCellToEdit)) {
-                    return String.format("%d:%d", row + 1, col + 1);
+                    return "%d:%d".formatted(row + 1, col + 1);
                 }
             }
         }
@@ -406,7 +406,7 @@ public class HTMLRenderer {
                     }
 
                     s.append(tdPrefix);
-                    if (cell instanceof CellModel) {
+                    if (cell instanceof CellModel model) {
                         boolean selectErrorCell = false;
                         if (cellUri != null) {
                             XlsUrlParser uriParser = new XlsUrlParser(cellUri);
@@ -414,7 +414,7 @@ public class HTMLRenderer {
                                 selectErrorCell = true;
                             }
                         }
-                        ((CellModel) cell).attributesToHtml(s, selectErrorCell);
+                        model.attributesToHtml(s, selectErrorCell);
                     }
 
                     StringBuilder cellId = new StringBuilder();

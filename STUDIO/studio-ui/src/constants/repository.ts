@@ -6,7 +6,7 @@ export enum RepositoryType {
 /**
  * Map of repository types to their Base64-encoded root repository IDs.
  * These IDs are used to identify root-level repository ACL entries.
- * 
+ *
  * Decoded values:
  * - 'REVTSUdO' = 'DESIGN' (Base64)
  * - 'UFJPRA==' = 'PROD' (Base64)

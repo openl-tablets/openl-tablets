@@ -38,7 +38,7 @@ public class TBasicVMDataContext {
      * @return The first operation.
      */
     public RuntimeOperation getFirstOperation() {
-        return !operations.isEmpty() ? operations.get(0) : null;
+        return !operations.isEmpty() ? operations.getFirst() : null;
     }
 
     /**

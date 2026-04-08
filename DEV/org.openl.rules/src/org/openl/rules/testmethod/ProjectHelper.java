@@ -26,8 +26,8 @@ public final class ProjectHelper {
             if (isTester(tester)) {
                 res.add((TestSuiteMethod) tester);
             }
-            if (tester instanceof OpenMethodDispatcher && isTester(((OpenMethodDispatcher) tester).getTargetMethod())) {
-                res.add((TestSuiteMethod) ((OpenMethodDispatcher) tester).getTargetMethod());
+            if (tester instanceof OpenMethodDispatcher dispatcher && isTester(dispatcher.getTargetMethod())) {
+                res.add((TestSuiteMethod) dispatcher.getTargetMethod());
             }
         }
 
@@ -78,15 +78,15 @@ public final class ProjectHelper {
         if (toTest.equals(tested)) {
             return true;
         }
-        if (toTest instanceof OpenMethodDispatcher && ((OpenMethodDispatcher) toTest).getCandidates()
+        if (toTest instanceof OpenMethodDispatcher dispatcher && dispatcher.getCandidates()
                 .contains(tested)) {
             return true;
         }
         if (tested instanceof MethodDelegator) {
             return isTestForMethod(tester, tested.getMethod());
         }
-        if (tested instanceof OpenMethodDispatcher) {
-            return isTestForMethod(tester, ((OpenMethodDispatcher) tested).getTargetMethod());
+        if (tested instanceof OpenMethodDispatcher dispatcher) {
+            return isTestForMethod(tester, dispatcher.getTargetMethod());
         }
         return false;
     }

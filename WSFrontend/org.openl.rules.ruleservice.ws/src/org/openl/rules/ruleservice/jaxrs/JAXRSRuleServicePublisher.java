@@ -8,12 +8,13 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,10 +39,10 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
  *
  * @author Nail Samatov, Marat Kamalov
  */
+@Slf4j
 public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public static final String REST_PREFIX = "REST/";
 
-    private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
 
@@ -49,10 +50,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private boolean authenticationEnabled;
 
     @Autowired
+    @Getter
     @Qualifier("serviceDescriptionInProcess")
+    @Setter
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
 
     @Autowired
+    @Getter
+    @Setter
     private StoreLogDataManager storeLogDataManager;
 
     @Autowired
@@ -60,22 +65,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private List<Feature> features;
-
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
-        this.storeLogDataManager = storeLogDataManager;
-    }
-
-    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
-        return serviceDescriptionObjectFactory;
-    }
-
-    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
-        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -144,7 +133,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getDeployPath()), t);
+            throw new RuleServiceDeployException("Failed to deploy service '%s'.".formatted(service.getDeployPath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -167,7 +156,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Server server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'.", service.getDeployPath()));
+                    "There is no running service with name '%s'.".formatted(service.getDeployPath()));
         }
         try {
             server.destroy();
@@ -175,7 +164,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             runningServices.remove(service);
             log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
+            throw new RuleServiceUndeployException("Failed to undeploy service '%s'.".formatted(service.getDeployPath()),
                     t);
         }
     }

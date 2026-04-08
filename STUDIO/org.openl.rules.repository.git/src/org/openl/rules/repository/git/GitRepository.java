@@ -41,6 +41,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
@@ -110,8 +111,6 @@ import org.eclipse.jgit.util.LfsFactory;
 import org.eclipse.jgit.util.RawCharSequence;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.eclipse.jgit.util.io.NullOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
@@ -138,10 +137,10 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class GitRepository implements BranchRepository, RepositorySettingsAware, Closeable {
     static final String DELETED_MARKER_FILE = ".archived";
 
-    private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private String id;
     private String name;
@@ -700,9 +699,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         Lock writeLock = repositoryLock.writeLock();
+        writeLock.lock();
         try {
             log.debug("initialize(): lock");
-            writeLock.lock();
 
             if (git != null) {
                 return;
@@ -767,6 +766,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 try {
                     git.close();
                 } catch (Exception ignored) {
+                    // safe to ignore: close failure should not mask the original exception
                 }
                 git = null;
             }
@@ -917,18 +917,18 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             String error;
             final String message = cause.getMessage();
             if (message != null) {
-                error = String.format("Unknown host (%s) for URL %s.", message, uri);
+                error = "Unknown host (%s) for URL %s.".formatted(message, uri);
             } else {
-                error = String.format("Unknown host for URL %s.", uri);
+                error = "Unknown host for URL %s.".formatted(uri);
             }
             throw new IllegalArgumentException(error);
         } else if (cause instanceof NoRemoteRepositoryException) {
-            throw new IllegalArgumentException(String.format("Remote repository \"%s\" does not exist.", uri));
+            throw new IllegalArgumentException("Remote repository \"%s\" does not exist.".formatted(uri));
         }
 
         if (e instanceof TransportException) {
             try {
-                if ((new URIish(uri)).getScheme() == null) {
+                if (new URIish(uri).getScheme() == null) {
                     throw new IllegalStateException("Incorrect URL.");
                 }
             } catch (URISyntaxException uriSyntaxException) {
@@ -1043,7 +1043,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         if (treeWalk == null) {
             throw new FileNotFoundException(
-                    String.format("Missed expected path '%s' in tree '%s'.", path, tree.getName()));
+                    "Missed expected path '%s' in tree '%s'.".formatted(path, tree.getName()));
         }
         return treeWalk;
     }
@@ -1167,9 +1167,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             monitor.fireOnChange();
         }
 
+        readLock.lock();
         try {
             log.debug("getLastRevision(): lock");
-            readLock.lock();
             return git.getRepository().resolve(branch);
         } finally {
             readLock.unlock();
@@ -1203,7 +1203,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
-                case FAST_FORWARD:
+                case FAST_FORWARD -> {
                     if (!isEmpty()) {
                         checkoutForced(refUpdate.getRemoteName());
                     }
@@ -1217,11 +1217,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             .include(refUpdate.getNewObjectId())
                             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
                             .call();
-                    break;
-                case REJECTED_CURRENT_BRANCH:
-                    checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
-                    break;
-                case FORCED:
+                }
+                case REJECTED_CURRENT_BRANCH -> checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
+                case FORCED -> {
                     if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
@@ -1241,8 +1239,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             branchesChanged = true;
                         }
                     }
-                    break;
-                case NEW:
+                }
+                case NEW -> {
                     if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
@@ -1250,8 +1248,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             branchesChanged = true;
                         }
                     }
-                    break;
-                case REJECTED:
+                }
+                case REJECTED -> {
                     if (refUpdate.getRemoteName().startsWith(Constants.R_HEADS)) {
                         // Force update for branch
                         git.fetch()
@@ -1270,13 +1268,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             branchesChanged = true;
                         }
                     }
-                    break;
-                case NO_CHANGE:
-                    // Do nothing
-                    break;
-                default:
-                    log.warn("Unsupported type of fetch result type: {}", result);
-                    break;
+                }
+                case NO_CHANGE -> { /* Do nothing */ }
+                default -> log.warn("Unsupported type of fetch result type: {}", result);
             }
         }
 
@@ -1321,8 +1315,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         FetchResult fetchResult;
+        remoteRepoLock.lock();
         try {
-            remoteRepoLock.lock();
             fetchResult = fetchAll();
         } finally {
             remoteRepoLock.unlock();
@@ -1631,8 +1625,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return;
         }
 
+        remoteRepoLock.lock();
         try {
-            remoteRepoLock.lock();
             PushCommand push;
 
             if (git.getRepository().findRef(branch) != null) {
@@ -1642,7 +1636,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 git.branchCreate().setName(baseBranch).setForce(true).call();
                 push = git.push().setPushTags().add(baseBranch).setTimeout(connectionTimeout);
             } else {
-                throw new IOException(String.format("Cannot find branch '%s'", branch));
+                throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
 
             CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
@@ -1666,34 +1660,26 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             for (RemoteRefUpdate remoteUpdate : remoteUpdates) {
                 RemoteRefUpdate.Status status = remoteUpdate.getStatus();
                 switch (status) {
-                    case OK:
-                    case UP_TO_DATE:
-                    case NON_EXISTING:
-                        // Successful operation. Continue.
-                        break;
-                    case REJECTED_NONFASTFORWARD:
-                        throw new IOException(
-                                "Remote ref update was rejected, as it would cause non fast-forward update.");
-                    case REJECTED_NODELETE:
-                        throw new IOException(
-                                "Remote ref update was rejected, because remote side does not support/allow deleting refs.");
-                    case REJECTED_REMOTE_CHANGED:
-                        throw new IOException(
-                                "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
-                    case REJECTED_OTHER_REASON:
+                    case OK, UP_TO_DATE, NON_EXISTING -> { /* Successful operation. Continue. */ }
+                    case REJECTED_NONFASTFORWARD -> throw new IOException(
+                            "Remote ref update was rejected, as it would cause non fast-forward update.");
+                    case REJECTED_NODELETE -> throw new IOException(
+                            "Remote ref update was rejected, because remote side does not support/allow deleting refs.");
+                    case REJECTED_REMOTE_CHANGED -> throw new IOException(
+                            "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
+                    case REJECTED_OTHER_REASON -> {
                         String message = remoteUpdate.getMessage();
                         if ("pre-receive hook declined".equals(message)) {
                             message = "Remote git server rejected your commit because of pre-receive hook. Details:\n" + result
                                     .getMessages();
                         }
                         throw new IOException(message);
-                    case AWAITING_REPORT:
-                        throw new IOException(
-                                "Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
-                    default:
-                        throw new IOException(
-                                "Push process returned with status " + status + " and message " + remoteUpdate
-                                        .getMessage());
+                    }
+                    case AWAITING_REPORT -> throw new IOException(
+                            "Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
+                    default -> throw new IOException(
+                            "Push process returned with status " + status + " and message " + remoteUpdate
+                                    .getMessage());
                 }
             }
         }
@@ -1828,11 +1814,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
         // in this case JGit uses Pattern filter, so let's validate if filter can be compiled, and escape it if not;
         try {
-            var ignore = Pattern.compile(globalFilter).matcher("");
+            Pattern.compile(globalFilter).matcher("");
             return globalFilter;
         } catch (PatternSyntaxException e) {
             log.debug(e.getMessage(), e);
-            return String.format("\\Q%s\\E", globalFilter);
+            return "\\Q%s\\E".formatted(globalFilter);
         }
     }
 
@@ -2618,6 +2604,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             try {
                 git.branchDelete().setBranchNames(newBranch).call();
             } catch (Exception ignored) {
+                // safe to ignore: rollback best-effort; original exception is rethrown
             }
             throw e;
         } catch (Exception e) {
@@ -2625,6 +2612,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             try {
                 git.branchDelete().setBranchNames(newBranch).call();
             } catch (Exception ignored) {
+                // safe to ignore: rollback best-effort; original exception is rethrown
             }
             throw new IOException(e.getMessage(), e);
         } finally {
@@ -2735,9 +2723,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         initializeGit(true);
 
         Lock readLock = repositoryLock.readLock();
+        readLock.lock();
         try {
             log.debug("forBranch(): read: lock");
-            readLock.lock();
             initLfsCredentials();
 
             if (git.getRepository().findRef(branch) == null) {
@@ -2754,7 +2742,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 }
 
                 if (!branchExist) {
-                    throw new IOException(String.format("Cannot find branch '%s'", branch));
+                    throw new IOException("Cannot find branch '%s'".formatted(branch));
                 }
             }
         } catch (GitAPIException e) {
@@ -3063,6 +3051,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                     lfsApplied = new String(loader.getBytes(), StandardCharsets.UTF_8).contains("filter=lfs");
                 } catch (FileNotFoundException ignored) {
+                    // .gitattributes does not exist; LFS is not configured
                 }
             }
         }
@@ -3331,6 +3320,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     history.addAll(new ListCommand(commit).apply(repository, rootWalk, fullPath));
                 } catch (FileNotFoundException ignored) {
+                    // path does not exist in this commit tree; history remains empty
                 }
 
                 return true;
@@ -3415,7 +3405,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static class PatternIdRevFilter extends PatternMatchRevFilter {
-        public PatternIdRevFilter(String pattern) {
+        private PatternIdRevFilter(String pattern) {
             super(pattern, true, true, Pattern.CASE_INSENSITIVE);
         }
 
@@ -3431,7 +3421,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static class SubStringIdRevFilter extends SubStringRevFilter {
-        public SubStringIdRevFilter(String patternText) {
+        private SubStringIdRevFilter(String patternText) {
             super(patternText);
         }
 

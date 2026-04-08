@@ -1,9 +1,10 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Expression;
@@ -20,6 +21,7 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public final class ExpressionFactoryImpl extends UndoableOnceImpl implements ExpressionFactory, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 7593413055525940597L;
 
     /**
@@ -58,8 +60,8 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             }
 
             // arrays
-            if (arg1 instanceof IntExpArray) {
-                return equalArrays((IntExpArray) arg1, (IntExpArray) arg2);
+            if (arg1 instanceof IntExpArray array) {
+                return equalArrays(array, (IntExpArray) arg2);
             }
 
             return false;
@@ -163,7 +165,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
 
         };
 
-        private Hashtable _expressions;
+        private HashMap _expressions;
 
         static UndoExpressionFactory getUndo() {
             return (UndoExpressionFactory) _factory.getElement();
@@ -190,7 +192,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         public void undoable(Undoable u) {
             super.undoable(u);
             ExpressionFactoryImpl expFactory = (ExpressionFactoryImpl) u;
-            _expressions = (Hashtable) expFactory._expressions.clone();
+            _expressions = (HashMap) expFactory._expressions.clone();
         }
 
     } // ~UndoExpressionFactory
@@ -198,7 +200,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     /**
      * Cached expressions.
      */
-    private Hashtable _expressions = new Hashtable();
+    private HashMap _expressions = new HashMap();
 
     /**
      * Use cache to find already created expression.
@@ -209,11 +211,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      * Use cache to store newly created expression.
      */
     private final boolean _putInCache = false;
-
-    /**
-     * Use cache to find and store the expression.
-     */
-    private final boolean _useCache = false;
 
     /**
      * Returns a constructor with the given parameter types for a given parameter values.
@@ -295,10 +292,10 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        Enumeration e = _expressions.keys();
-        while (e.hasMoreElements()) {
-            ExpressionKey key = (ExpressionKey) e.nextElement();
-            Expression exp = (Expression) _expressions.get(key);
+        for (Object entry : _expressions.entrySet()) {
+            Map.Entry<?, ?> mapEntry = (Map.Entry<?, ?>) entry;
+            ExpressionKey key = (ExpressionKey) mapEntry.getKey();
+            Expression exp = (Expression) mapEntry.getValue();
             s.append(exp.getClass().getName()).append(", ").append(System.identityHashCode(exp)).append(", ");
             for (int i = 0; i < key.args().length; i++) {
                 if (i != 0) {

@@ -86,18 +86,18 @@ abstract class OpenLLogger {
 
     @SuppressWarnings("rawtypes")
     private void logComplexObject(Object value) {
-        if (value instanceof Map) {
+        if (value instanceof Map<?, ?> map) {
             int i = 0;
-            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
                 logSimpleObject("    '{}' = {}", entry.getKey(), entry.getValue());
                 if (i++ >= 50) {
                     log("    #### More than 50 elements");
                     break;
                 }
             }
-        } else if (value instanceof Collection) {
+        } else if (value instanceof Collection collection) {
             int i = 0;
-            for (Object item : (Collection) value) {
+            for (Object item : collection) {
                 logSimpleObject("    [{}] = {}", i++, item);
                 if (i >= 10) {
                     log("    #### More than 10 elements");

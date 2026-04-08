@@ -1,5 +1,7 @@
 package org.openl.rules.table.properties;
 
+import java.io.Serial;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -14,6 +16,7 @@ import org.openl.util.text.ILocation;
  */
 public class TablePropertiesException extends SyntaxNodeException {
 
+    @Serial
     private static final long serialVersionUID = -6085682866325439833L;
 
     public TablePropertiesException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {

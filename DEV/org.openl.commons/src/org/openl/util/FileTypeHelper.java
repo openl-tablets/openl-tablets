@@ -1,5 +1,7 @@
 package org.openl.util;
 
+import java.util.Locale;
+
 public final class FileTypeHelper {
 
     private FileTypeHelper() {
@@ -9,7 +11,7 @@ public final class FileTypeHelper {
         if (fileName == null) {
             return false;
         }
-        String lcFileName = fileName.toLowerCase();
+        String lcFileName = fileName.toLowerCase(Locale.ROOT);
         return !lcFileName.startsWith("~$")
                 && (lcFileName.endsWith(".xls") || lcFileName.endsWith(".xlsx") || lcFileName.endsWith(".xlsm"));
     }
@@ -18,7 +20,7 @@ public final class FileTypeHelper {
         if (fileName == null) {
             return false;
         }
-        String lcFileName = fileName.toLowerCase();
+        String lcFileName = fileName.toLowerCase(Locale.ROOT);
         return lcFileName.endsWith(".zip");
     }
 
@@ -26,7 +28,7 @@ public final class FileTypeHelper {
         if (fileName == null) {
             return false;
         }
-        String lcFileName = fileName.toLowerCase();
+        String lcFileName = fileName.toLowerCase(Locale.ROOT);
         return lcFileName.endsWith(".json") || lcFileName.endsWith(".yml") || lcFileName
                 .endsWith(".yaml");
     }

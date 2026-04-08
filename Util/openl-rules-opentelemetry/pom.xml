@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-rules-opentelemetry</artifactId>
@@ -15,10 +15,6 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
-
-    <build>
-        <finalName>openl-rules-opentelemetry</finalName>
-    </build>
 
     <dependencies>
         <dependency>
@@ -36,4 +32,8 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <finalName>openl-rules-opentelemetry</finalName>
+    </build>
 </project>

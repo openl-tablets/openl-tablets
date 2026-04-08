@@ -41,11 +41,9 @@ public class SpreadsheetParserModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof SpreadsheetParserModel that)) {
             return false;
         }
-
-        SpreadsheetParserModel that = (SpreadsheetParserModel) o;
 
         if (refIsDataType != that.refIsDataType) {
             return false;

@@ -59,7 +59,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
             try {
                 return super.parse(dateStr);
             } catch (ParseException e2) {
-                ParseException e = new ParseException(String.format(PARSE_ERROR_MSG, dateStr, getAllAllowedFormats()),
+                ParseException e = new ParseException(PARSE_ERROR_MSG.formatted(dateStr, getAllAllowedFormats()),
                         e2.getErrorOffset());
                 e.initCause(e2);
                 e.addSuppressed(e1);

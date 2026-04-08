@@ -1,0 +1,25 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUwMzU6YzdlZmM5OWRlYzAzOWY0NGQwN2Y1YWYwYjdhMzcyZDFlNzVmNWRiZTJkM2EyZmQzMWUxOTM3YThjYTE1MzNiYw==/tables/94b9260f0ab4546aa2dd10c0394dded7 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "kind": "Environment",
+  "name": "Environment",
+  "source": [
+    [
+      {
+        "value": "Environment"
+      },
+      {}
+    ],
+    [
+      {
+        "value": "dependency"
+      },
+      {
+        "value": "Main-*"
+      }
+    ]
+  ]
+}

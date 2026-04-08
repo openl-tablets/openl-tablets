@@ -11,8 +11,8 @@ import java.util.Objects;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.rules.operator.Comparison;
 import org.openl.domain.IDomain;
+import org.openl.rules.operator.Comparison;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -77,13 +77,11 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                                                                         IOpenMethod method,
                                                                         ISyntaxNode node,
                                                                         IBindingContext bindingContext) {
-        if (b1.getType().getDomain() != null && b2 instanceof LiteralBoundNode) {
+        if (b1.getType().getDomain() != null && b2 instanceof LiteralBoundNode literalBoundNode) {
             IDomain<Object> domain = (IDomain<Object>) b1.getType().getDomain();
-            LiteralBoundNode literalBoundNode = (LiteralBoundNode) b2;
             if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
-                BindHelper.processWarn(String.format(
-                        "Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.",
-                        ((LiteralBoundNode) b2).getValue(),
+                BindHelper.processWarn("Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.".formatted(
+                        literalBoundNode.getValue(),
                         b1.getType().getName(),
                         "ne".equals(method.getName())), node, bindingContext);
             }
@@ -114,8 +112,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             if (b2Final && b1InstanceClass.isAssignableFrom(b2InstanceClass)) {
                 return;
             }
-            BindHelper.processWarn(String.format(
-                    "Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
+            BindHelper.processWarn("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.".formatted(
                     b1.getType().getName(),
                     b2.getType().getName(),
                     "ne".equals(method.getName())), node, bindingContext);
@@ -123,7 +120,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {
-        return String.format("Operator '%s(%s, %s)' is not found.", methodName, t1.getName(), t2.getName());
+        return "Operator '%s(%s, %s)' is not found.".formatted(methodName, t1.getName(), t2.getName());
     }
 
     public static IMethodCaller findBinaryOperatorMethodCaller(String methodName,

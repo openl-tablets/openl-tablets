@@ -32,6 +32,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         this.defaultGroup = Props.text(InheritedAuthenticationSettings.DEFAULT_GROUP);
     }
 
+    @Override
     public Collection<GrantedAuthority> apply(String user, Collection<? extends GrantedAuthority> authorities) {
 
         Collection<GrantedAuthority> privileges = new ArrayList<>();

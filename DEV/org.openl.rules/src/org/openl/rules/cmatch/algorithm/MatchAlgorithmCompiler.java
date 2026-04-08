@@ -97,7 +97,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             // only 1
             if (values.length != 1) {
                 throw new IllegalArgumentException(
-                        String.format("Column %s can have single value only.", colDef.getName()));
+                        "Column %s can have single value only.".formatted(colDef.getName()));
             }
         }
     }
@@ -116,7 +116,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             }
 
             if (!exists) {
-                throw new IllegalArgumentException(String.format("Required column %s is absent.", colDef.getName()));
+                throw new IllegalArgumentException("Required column %s is absent.".formatted(colDef.getName()));
             }
         }
     }
@@ -139,7 +139,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     protected void checkSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
         List<TableRow> rows = columnMatch.getRows();
-        checkRowName(rows.get(0), ROW_RET_VALUE);
+        checkRowName(rows.getFirst(), ROW_RET_VALUE);
     }
 
     private void checkTreeChildren(MatchNode parent, List<TableRow> rows) throws SyntaxNodeException {
@@ -267,7 +267,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                                     ColumnMatch columnMatch) throws SyntaxNodeException {
         IOpenClass returnType = columnMatch.getHeader().getType();
 
-        TableRow row0 = columnMatch.getRows().get(0);
+        TableRow row0 = columnMatch.getRows().getFirst();
         Object[] retValues = parseValues(bindingContext, columnMatch, row0, returnType);
         columnMatch.setReturnValues(retValues);
     }
@@ -311,8 +311,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             IGridRegion gridRegion = sv.getGridRegion();
             ICell cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());
             MetaInfoReader metaInfoReader = columnMatch.getSyntaxNode().getMetaInfoReader();
-            if (metaInfoReader instanceof BaseMetaInfoReader) {
-                ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, constantOpenField);
+            if (metaInfoReader instanceof BaseMetaInfoReader reader) {
+                reader.addConstant(cell, constantOpenField);
             }
         }
     }
@@ -347,7 +347,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             } else if (arg.getField() != null && !Objects.equals(arg.getField().getName(), varName)) {
                 bindingContext.addMessage(
-                        OpenLMessagesUtils.newWarnMessage(String.format("Case insensitive matching to '%s'.", varName),
+                        OpenLMessagesUtils.newWarnMessage("Case insensitive matching to '%s'.".formatted(varName),
                                 columnMatch.getSyntaxNode()));
             }
 

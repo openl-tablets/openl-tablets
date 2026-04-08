@@ -38,18 +38,18 @@ Project structure uses default Maven project structure and contains the followin
 
 WRAPPER CLASS
 
-Current project uses OpenL dynamic wrapper to show how OpenL rules can be used in java application. 
+Current project uses OpenL dynamic wrapper to show how OpenL rules can be used in java application.
 
 For more information about OpenL Tablets visit our site https://openl-tablets.org .
 
 OPENL PROJECT DESCRIPTOR
 
-OpenL project descriptor is just simple xml file which contains information about current OpenL project. It is used 
+OpenL project descriptor is just simple xml file which contains information about current OpenL project. It is used
 by OpenL Studio and Rule Services deploy manager to obtain information about project.
 
 For more information about OpenL Tablets visit our site https://openl-tablets.org .
 
 CONFIGURATION CHANGING
 
-The "Main" java class demonstrates how can be used OpenL Tablets using file with rules directly. "rules.xml" also contains 
+The "Main" java class demonstrates how can be used OpenL Tablets using file with rules directly. "rules.xml" also contains
 reference to it. If you need to make changes concerning rules file (e.g. rename, move) you have to maintain "rules.xml" manually.

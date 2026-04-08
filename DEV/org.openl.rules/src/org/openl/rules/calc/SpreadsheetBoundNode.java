@@ -154,7 +154,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 IOpenClass bindingContextType = bindingContext.addType(type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
-                String message = String.format("Cannot define type '%s'.",
+                String message = "Cannot define type '%s'.".formatted(
                         Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 bindingContext.addError(error);
@@ -220,8 +220,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                                 : fName.toLowerCase();
                         String v = fNames.put(key, refName);
                         if (v != null) {
-                            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                                    "Cells '%s' and '%s' conflict with each other in the spreadsheet output model.",
+                            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Cells '%s' and '%s' conflict with each other in the spreadsheet output model.".formatted(
                                     v,
                                     refName), getTableSyntaxNode()));
                             warnCnt++;

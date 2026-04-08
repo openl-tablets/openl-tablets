@@ -43,7 +43,6 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.BaseTestUnit;
@@ -70,7 +69,6 @@ import org.openl.types.impl.ThisField;
 public final class TestMojo extends BaseOpenLMojo {
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
-    private static final int MAX_MODULES_IN_QUEUE = 10;
 
     /**
      * Parameter to skip running OpenL Tablets tests if it set to 'true'.
@@ -270,8 +268,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
-                        String message = String
-                                .format("Failed to load module '%s': %s", module.getName(), openLMessage.getSummary());
+                        String message = "Failed to load module '%s': %s"
+                                .formatted(module.getName(), openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -336,8 +334,8 @@ public final class TestMojo extends BaseOpenLMojo {
             for (TestSuiteMethod test : tests) {
                 String moduleName = test.getModuleName();
                 try {
-                    String moduleInfo = moduleName == null ? "" : String.format(" from module '%s'", moduleName);
-                    info("Running ", String.format("'%s'", test.getName()), moduleInfo, "...");
+                    String moduleInfo = moduleName == null ? "" : " from module '%s'".formatted(moduleName);
+                    info("Running ", "'%s'".formatted(test.getName()), moduleInfo, "...");
                     TestUnitsResults result;
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                     try {
@@ -509,8 +507,8 @@ public final class TestMojo extends BaseOpenLMojo {
 
     private String toString(Object value) {
         if (value != null && value.getClass().isArray()) {
-            if (value instanceof Object[]) {
-                return Arrays.deepToString((Object[]) value);
+            if (value instanceof Object[] objects) {
+                return Arrays.deepToString(objects);
             } else {
                 var string = Arrays.deepToString(new Object[]{value});
                 return string.substring(1, string.length() - 1); // Remove the first and the last brackets in [[1, 2, 3]]
@@ -523,22 +521,22 @@ public final class TestMojo extends BaseOpenLMojo {
         int threads;
 
         switch (threadCount) {
-            case "none":
+            case "none" -> {
                 return null;
-            case "auto":
+            }
+            case "auto" ->
                 // Can be changed in the future
                 threads = Runtime.getRuntime().availableProcessors() + 2;
-                break;
-            default:
+            default -> {
                 if (threadCount.matches("\\d+")) {
                     threads = Integer.parseInt(threadCount);
                 } else if (threadCount.matches("\\d[\\d.]*[cC]")) {
                     float multiplier = Float.parseFloat(threadCount.substring(0, threadCount.length() - 1));
                     threads = (int) (multiplier * Runtime.getRuntime().availableProcessors());
                 } else {
-                    throw new IllegalArgumentException(String.format("Incorrect thread count '%s'", threadCount));
+                    throw new IllegalArgumentException("Incorrect thread count '%s'".formatted(threadCount));
                 }
-                break;
+            }
         }
         info("Run tests using ", threads, " threads.");
 
@@ -553,7 +551,7 @@ public final class TestMojo extends BaseOpenLMojo {
         private final List<String> summaryErrors;
         private final boolean hasCompilationErrors;
 
-        public Summary(int runTests,
+        private Summary(int runTests,
                        int failedTests,
                        int errors,
                        List<String> summaryFailures,
@@ -567,27 +565,27 @@ public final class TestMojo extends BaseOpenLMojo {
             this.hasCompilationErrors = hasCompilationErrors;
         }
 
-        public int getRunTests() {
+        private int getRunTests() {
             return runTests;
         }
 
-        public int getFailedTests() {
+        private int getFailedTests() {
             return failedTests;
         }
 
-        public int getErrors() {
+        private int getErrors() {
             return errors;
         }
 
-        public List<String> getSummaryFailures() {
+        private List<String> getSummaryFailures() {
             return summaryFailures;
         }
 
-        public List<String> getSummaryErrors() {
+        private List<String> getSummaryErrors() {
             return summaryErrors;
         }
 
-        public boolean isHasCompilationErrors() {
+        private boolean isHasCompilationErrors() {
             return hasCompilationErrors;
         }
     }

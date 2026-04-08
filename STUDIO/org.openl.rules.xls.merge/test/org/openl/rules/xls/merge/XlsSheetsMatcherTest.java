@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -19,8 +18,8 @@ import org.slf4j.helpers.MessageFormatter;
 
 public class XlsSheetsMatcherTest {
 
-    private static final Path TEST_RES = Paths.get("test-resources");
-    private static final Path TEST_CL = Paths.get("target/test-classes");
+    private static final Path TEST_RES = Path.of("test-resources");
+    private static final Path TEST_CL = Path.of("target/test-classes");
     private static final Logger LOG = LoggerFactory.getLogger("Excel Sheet Matcher Test");
 
     @BeforeAll

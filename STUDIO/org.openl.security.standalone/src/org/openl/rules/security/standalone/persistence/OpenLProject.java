@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -13,11 +14,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 /**
- * This class was used to store link between projects and associated tags in a database. After 5.27.8 associated tags 
+ * This class was used to store link between projects and associated tags in a database. After 5.27.8 associated tags
  * are stored in {@code tags.properties} file. This entity is still important to conduct migration to a new approach.
  * However, it should not be used outside of migration.
  * @deprecated Left for backward compatibility.
@@ -26,6 +26,7 @@ import jakarta.persistence.Table;
 @Table(name = "OpenL_Projects")
 @Deprecated(since = "5.27.8")
 public class OpenLProject implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Long id;
     private String repositoryId;
@@ -76,9 +77,8 @@ public class OpenLProject implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof OpenLProject))
+        if (!(o instanceof OpenLProject that))
             return false;
-        OpenLProject that = (OpenLProject) o;
         return Objects.equals(getId(), that.getId());
     }
 

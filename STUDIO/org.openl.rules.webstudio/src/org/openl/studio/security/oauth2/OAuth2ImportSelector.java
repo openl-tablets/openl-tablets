@@ -1,5 +1,6 @@
 package org.openl.studio.security.oauth2;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -7,7 +8,6 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.lang.NonNull;
 
 public class OAuth2ImportSelector implements ImportSelector, BeanFactoryAware, EnvironmentAware {
 

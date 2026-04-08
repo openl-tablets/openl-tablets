@@ -39,7 +39,7 @@ public class EditProjectTagsBean {
     private String typeName;
     private String tagName;
     private String errorMessage;
-    
+
     private boolean shouldAskForConfirmation;
 
     public EditProjectTagsBean(TagTypeService tagTypeService,
@@ -49,11 +49,11 @@ public class EditProjectTagsBean {
     }
 
     public void init(TreeNode selectedNode) {
-        TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
+        TreeProject selectedProject = selectedNode instanceof TreeProject tp ? tp : null;
 
         if (selectedProject != null) {
             RulesProject project = (RulesProject) selectedProject.getData();
-            
+
             this.repoId = project.getRepository().getId();
             this.realPath = project.getRealPath();
             this.shouldAskForConfirmation = project.isOpenedOtherVersion() && !project.isModified();
@@ -104,19 +104,19 @@ public class EditProjectTagsBean {
             WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Cannot be empty");
 
             final TagType type = tagTypeService.getByName(typeName);
-            
+
             if (repoId != null && realPath != null) {
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
                 UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
                 Optional<RulesProject> rulesProjectOptional = userWorkspace.getProjectByPath(repoId, realPath);
-                
+
                 if (rulesProjectOptional.isPresent()) {
                     Tag existed = null;
                     String newTagName = tagName.equals(NONE_NAME) ? null : tagName;
                     RulesProject rulesProject = rulesProjectOptional.get();
                     Map<String, String> localTags = rulesProject.getLocalTags();
                     var currentTags = new HashMap<>(localTags);
-                    
+
                     if (newTagName == null) {
                         if (type != null) {
                             WebStudioUtils.validate(type.isNullable(), "Tag type '" + type.getName() + "' is mandatory.");
@@ -127,11 +127,11 @@ public class EditProjectTagsBean {
                             existed = tagService.getByTypeNameAndName(typeName, newTagName);
                             if (existed == null) {
                                 WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
-                                        String.format("'%s' is not allowed value for tag type '%s'.", newTagName, type.getName()));
+                                        "'%s' is not allowed value for tag type '%s'.".formatted(newTagName, type.getName()));
                             }
                         } else {
                             WebStudioUtils.validate(newTagName.equals(currentTags.get(typeName)),
-                                    String.format("Tag %s could be changed to %s only, since it is not configured", typeName, NONE_NAME));
+                                    "Tag %s could be changed to %s only, since it is not configured".formatted(typeName, NONE_NAME));
                         }
                     }
 

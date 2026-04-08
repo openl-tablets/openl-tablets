@@ -36,9 +36,8 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.ChangesetType;
@@ -62,6 +61,7 @@ import org.openl.util.StringUtils;
  *
  * @author Nail Samatov
  */
+@Slf4j
 public class AzureBlobRepository implements Repository {
     private static final String UNSUPPORTED_IN_FOLDER_REPOSITORY = "Unsupported in folder repository";
     static final String VERSION_FILE = "versions.yaml";
@@ -70,7 +70,6 @@ public class AzureBlobRepository implements Repository {
     static final String CONTENT_PREFIX = "[content]/";
     static final String VERSIONS_PREFIX = ".versions/";
 
-    private final Logger log = LoggerFactory.getLogger(AzureBlobRepository.class);
 
     private String id;
     private String name;

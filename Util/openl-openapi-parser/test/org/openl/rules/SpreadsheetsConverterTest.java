@@ -54,7 +54,7 @@ public class SpreadsheetsConverterTest {
         String formattedName = model.get().getName();
         assertEquals("myRule", formattedName);
 
-        PathInfo pathInfo = projectModel.getSpreadsheetResultModels().iterator().next().getPathInfo();
+        PathInfo pathInfo = projectModel.getSpreadsheetResultModels().getFirst().getPathInfo();
         assertNotNull(pathInfo);
         assertEquals("/myRule/{bla}/xyz", pathInfo.getOriginalPath());
         assertEquals("myRulexyz", pathInfo.getFormattedPath());
@@ -82,13 +82,13 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel blaArrayModel = findSpreadsheet(spreadsheetModels, "BlaArray");
         List<StepModel> blaSteps = blaArrayModel.getSteps();
         assertEquals(1, blaSteps.size());
-        assertEquals("= new SpreadsheetResultBla[][][][]{{{{Bla(null)}}}}", blaSteps.iterator().next().getValue());
+        assertEquals("= new SpreadsheetResultBla[][][][]{{{{Bla(null)}}}}", blaSteps.getFirst().getValue());
 
         SpreadsheetModel helloWorldModel = findSpreadsheet(spreadsheetModels, "HelloWorld");
         assertEquals("Double[][][][]", helloWorldModel.getType());
         List<StepModel> steps = helloWorldModel.getSteps();
         assertEquals(1, steps.size());
-        StepModel step = steps.iterator().next();
+        StepModel step = steps.getFirst();
         assertEquals("Double[][][][]", step.getType());
         assertEquals("= new Double[][][][]{}", step.getValue());
     }
@@ -114,11 +114,11 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel helloKittyModel = findSpreadsheet(spreadsheetModels, "$H1ello$Kitty");
         List<InputParameter> parameters = helloKittyModel.getParameters();
         assertFalse(parameters.isEmpty());
-        InputParameter next = parameters.iterator().next();
+        InputParameter next = parameters.getFirst();
         assertEquals("Integer", next.getType().getSimpleName());
         assertEquals("integer", next.getFormattedName());
         assertFalse(helloKittyModel.getSteps().isEmpty());
-        StepModel kittyStep = helloKittyModel.getSteps().iterator().next();
+        StepModel kittyStep = helloKittyModel.getSteps().getFirst();
         assertEquals("Result", kittyStep.getName());
 
         SpreadsheetModel bla112Model = findSpreadsheet(spreadsheetModels, "Bla112");
@@ -240,13 +240,13 @@ public class SpreadsheetsConverterTest {
         assertEquals("Object", mySpr2Model.getType());
         List<InputParameter> spr2Parameters = mySpr2Model.getParameters();
         assertEquals(1, spr2Parameters.size());
-        InputParameter objectParam = spr2Parameters.iterator().next();
+        InputParameter objectParam = spr2Parameters.getFirst();
         assertEquals("Object", objectParam.getType().getSimpleName());
         assertEquals("object", objectParam.getFormattedName());
 
         List<StepModel> objSteps = mySpr2Model.getSteps();
         assertEquals(1, objSteps.size());
-        StepModel objStep = objSteps.iterator().next();
+        StepModel objStep = objSteps.getFirst();
         assertEquals("Object", objStep.getType());
         assertEquals("Result", objStep.getName());
     }
@@ -259,7 +259,7 @@ public class SpreadsheetsConverterTest {
         assertEquals(2, spreadsheetModels.size());
         SpreadsheetModel apiBlaModel = findSpreadsheet(spreadsheetModels, "apiBla");
         List<StepModel> steps = apiBlaModel.getSteps();
-        StepModel step = steps.iterator().next();
+        StepModel step = steps.getFirst();
         validateGeneratedModel("Result",
                 step.getName(),
                 "DriverRisk",
@@ -292,7 +292,7 @@ public class SpreadsheetsConverterTest {
         List<SpreadsheetModel> spreadsheetResultModels = projectModelWithNotAllDRC.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
         assertEquals(1, modelsToClass.size());
-        SpreadsheetModel apiBlaModel = modelsToClass.iterator().next();
+        SpreadsheetModel apiBlaModel = modelsToClass.getFirst();
         List<InputParameter> parameters = apiBlaModel.getParameters();
         assertEquals(4, parameters.size());
         Set<String> parameterNames = parameters.stream()
@@ -311,7 +311,7 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel spreadsheetModel = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter param = parameters.iterator().next();
+        InputParameter param = parameters.getFirst();
         assertEquals("Double[]", param.getType().getSimpleName());
         assertEquals("double", param.getFormattedName());
     }
@@ -325,7 +325,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("SpreadsheetResultBla[]", hk.getType());
         List<InputParameter> hkParameters = hk.getParameters();
         assertEquals(1, hkParameters.size());
-        InputParameter decimalParam = hkParameters.iterator().next();
+        InputParameter decimalParam = hkParameters.getFirst();
         assertEquals("[Ljava.lang.Double;", decimalParam.getType().getJavaName());
         assertEquals("Double[]", decimalParam.getType().getSimpleName());
 
@@ -399,7 +399,7 @@ public class SpreadsheetsConverterTest {
         List<SpreadsheetModel> spreadsheetResultModels = oneDimArray.getSpreadsheetResultModels();
         SpreadsheetModel helloKittyArray = findSpreadsheet(spreadsheetResultModels, "helloKitty");
         assertEquals(1, helloKittyArray.getSteps().size());
-        StepModel step = helloKittyArray.getSteps().iterator().next();
+        StepModel step = helloKittyArray.getSteps().getFirst();
         assertEquals("= new Pokemon[]{}", step.getValue());
 
         ProjectModel nThArray = converter
@@ -415,7 +415,7 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel arrModel = findSpreadsheet(multiArrayModels, "helloKitty");
         List<StepModel> arrSteps = arrModel.getSteps();
         assertEquals(1, arrSteps.size());
-        StepModel arrStep = arrSteps.iterator().next();
+        StepModel arrStep = arrSteps.getFirst();
         assertEquals("= new Pokemon[][][][][]{}", arrStep.getValue());
     }
 
@@ -431,7 +431,7 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel spreadsheetModel = spr.get();
         assertEquals("Pet", spreadsheetModel.getType());
         assertEquals(1, spreadsheetModel.getSteps().size());
-        StepModel step = spreadsheetModel.getSteps().iterator().next();
+        StepModel step = spreadsheetModel.getSteps().getFirst();
         validateGeneratedModel("Pet", step.getType(), "Result", step.getName(), "= new Pet()", step.getValue());
     }
 
@@ -479,7 +479,7 @@ public class SpreadsheetsConverterTest {
 
         SpreadsheetModel spreadsheetModel = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "method2");
         assertEquals(1, spreadsheetModel.getSteps().size());
-        StepModel colorStep = spreadsheetModel.getSteps().iterator().next();
+        StepModel colorStep = spreadsheetModel.getSteps().getFirst();
         assertEquals("color", colorStep.getName());
     }
 
@@ -535,10 +535,10 @@ public class SpreadsheetsConverterTest {
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10481-wrong_request_body.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
-        SpreadsheetModel spreadsheetModel = spreadsheetResultModels.iterator().next();
+        SpreadsheetModel spreadsheetModel = spreadsheetResultModels.getFirst();
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter next = parameters.iterator().next();
+        InputParameter next = parameters.getFirst();
         assertEquals("WrapperObject", next.getType().getSimpleName());
         assertEquals("wrapperObject", next.getFormattedName());
     }
@@ -585,7 +585,7 @@ public class SpreadsheetsConverterTest {
     @Test
     public void testSpreadsheetWithManyParamsCreation() throws IOException {
         ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.yaml");
+                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel.getType());
@@ -608,7 +608,7 @@ public class SpreadsheetsConverterTest {
         assertEquals(expectedStepsForBla, stepsNames);
 
         ProjectModel projectModel2 = converter
-                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.yaml");
+                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.json");
         List<SpreadsheetModel> spreadsheetModels2 = projectModel2.getSpreadsheetResultModels();
         SpreadsheetModel mySprModel2 = findSpreadsheet(spreadsheetModels2, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel2.getType());
@@ -710,7 +710,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(mySmartSteps.stream().anyMatch(step -> step.getName().equals("Step3")));
 
         List<StepModel> mySpr2Steps = findSpreadsheet(spreadsheetResultModels, "mySpr2").getSteps();
-        StepModel step = mySpr2Steps.iterator().next();
+        StepModel step = mySpr2Steps.getFirst();
         validateGeneratedModel("Step1",
                 step.getName(),
                 "AnySpreadsheetResult",
@@ -826,14 +826,14 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel sp1 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr1");
         assertEquals("CensusSummary", sp1.getType());
         assertEquals(1, sp1.getSteps().size());
-        assertEquals("CensusSummary", sp1.getSteps().get(0).getType());
-        assertEquals("= new CensusSummary()", sp1.getSteps().get(0).getValue());
+        assertEquals("CensusSummary", sp1.getSteps().getFirst().getType());
+        assertEquals("= new CensusSummary()", sp1.getSteps().getFirst().getValue());
 
         SpreadsheetModel sp4 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr4");
         assertEquals("SpreadsheetResult", sp4.getType());
         assertEquals(2, sp4.getSteps().size());
-        assertEquals("CensusSummary[]", sp4.getSteps().get(0).getType());
-        assertEquals("= new CensusSummary[]{}", sp4.getSteps().get(0).getValue());
+        assertEquals("CensusSummary[]", sp4.getSteps().getFirst().getType());
+        assertEquals("= new CensusSummary[]{}", sp4.getSteps().getFirst().getValue());
     }
 
     private SpreadsheetModel findSpreadsheet(final List<SpreadsheetModel> spreadsheetModels, final String sprName) {

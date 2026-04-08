@@ -25,7 +25,7 @@ public final class VelocityTool {
     public String getTypeName(Class<?> clazz) {
 
         if (clazz.isArray()) {
-            return String.format("%s[]", clazz.getComponentType().getName());
+            return "%s[]".formatted(clazz.getComponentType().getName());
         }
         return clazz.getName();
     }
@@ -33,7 +33,7 @@ public final class VelocityTool {
     public String getVarArgTypeName(Class<?> clazz) {
 
         if (clazz.isArray()) {
-            return String.format("%s...", clazz.getComponentType().getName());
+            return "%s...".formatted(clazz.getComponentType().getName());
         }
         return clazz.getName();
     }
@@ -118,10 +118,10 @@ public final class VelocityTool {
             return "org.openl.types.java.JavaOpenClass.getOpenClass(" + value + ".class)";
         } else if (value instanceof Boolean) {
             return value.toString();
-        } else if (value instanceof Constraints) {
-            return "new Constraints(\"" + ((Constraints) value).getConstraintsStr() + "\")";
-        } else if (value instanceof MatchingExpression) {
-            return "new MatchingExpression(\"" + ((MatchingExpression) value).getMatchExpressionStr() + "\")";
+        } else if (value instanceof Constraints constraints) {
+            return "new Constraints(\"" + constraints.getConstraintsStr() + "\")";
+        } else if (value instanceof MatchingExpression expression) {
+            return "new MatchingExpression(\"" + expression.getMatchExpressionStr() + "\")";
         }
 
         throw new RuntimeException("Cannot process literal class: " + c.getName());

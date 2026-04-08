@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/combined-OneOf
-    variables: { }
+    variables: {}
 paths:
   /pets:
     patch:
@@ -13,16 +13,16 @@ paths:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/Cat'
-                - $ref: '#/components/schemas/Dog'
+                - $ref: "#/components/schemas/Cat"
+                - $ref: "#/components/schemas/Dog"
       responses:
-        '200':
+        "200":
           content:
             text/plain:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/CatResponse'
-                  - $ref: '#/components/schemas/DogResponse'
+                  - $ref: "#/components/schemas/CatResponse"
+                  - $ref: "#/components/schemas/DogResponse"
 
 components:
   schemas:
@@ -33,7 +33,7 @@ components:
           type: boolean
         breed:
           type: string
-          enum: [ Dingo, Husky, Retriever, Shepherd ]
+          enum: [Dingo, Husky, Retriever, Shepherd]
     Cat:
       type: object
       properties:

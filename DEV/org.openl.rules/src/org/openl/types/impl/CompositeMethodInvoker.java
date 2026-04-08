@@ -1,7 +1,7 @@
 package org.openl.types.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.IOpenRunner;
 import org.openl.binding.IBoundMethodNode;
@@ -17,8 +17,8 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author DLiauchuk
  */
+@Slf4j
 public class CompositeMethodInvoker implements Invokable {
-    private static final Logger LOG = LoggerFactory.getLogger(CompositeMethodInvoker.class);
 
     private IBoundMethodNode methodBodyBoundNode;
 
@@ -32,8 +32,7 @@ public class CompositeMethodInvoker implements Invokable {
 
     private void optimizeMethodCall(IBoundMethodNode methodBodyBoundNode, CompositeMethod method) {
 
-        if (methodBodyBoundNode instanceof BlockNode) {
-            BlockNode mbb = (BlockNode) methodBodyBoundNode;
+        if (methodBodyBoundNode instanceof BlockNode mbb) {
             IBoundNode[] children = mbb.getChildren();
             if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature()
                     .getNumberOfParameters()) {
@@ -56,8 +55,8 @@ public class CompositeMethodInvoker implements Invokable {
     }
 
     private static void clearSyntaxNodes(IBoundNode boundNode) {
-        if (boundNode instanceof ABoundNode) {
-            ((ABoundNode) boundNode).setSyntaxNode(null);
+        if (boundNode instanceof ABoundNode node) {
+            node.setSyntaxNode(null);
         }
         IBoundNode[] children = boundNode.getChildren();
         if (children != null) {
@@ -78,7 +77,7 @@ public class CompositeMethodInvoker implements Invokable {
             return expressionNode == null ? runner.run(methodBodyBoundNode, params, env)
                     : runner.runExpression(expressionNode, params, env);
         } catch (ControlSignalReturn csret) {
-            LOG.debug("Error occurred: ", csret);
+            log.debug("Error occurred: ", csret);
             return csret.getReturnValue();
         } finally {
             env.popThis();

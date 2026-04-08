@@ -35,15 +35,15 @@ public final class DefaultFormat {
             return formatArray(obj, buf);
         }
 
-        if (obj instanceof Collection<?>) {
-            return formatCollection((Collection<?>) obj, buf);
+        if (obj instanceof Collection<?> collection) {
+            return formatCollection(collection, buf);
         }
 
-        if (obj instanceof Map<?, ?>) {
-            return formatMap((Map<?, ?>) obj, buf);
+        if (obj instanceof Map<?, ?> map) {
+            return formatMap(map, buf);
         }
-        if (obj instanceof Map.Entry<?, ?>) {
-            return formatMapEntry((Map.Entry<?, ?>) obj, buf);
+        if (obj instanceof Map.Entry<?, ?> entry) {
+            return formatMapEntry(entry, buf);
         }
         if (!obj.getClass().isPrimitive()) {
             return formatBean(obj, buf);
@@ -66,8 +66,8 @@ public final class DefaultFormat {
     }
 
     protected static StringBuilder formatBean(Object obj, StringBuilder buf) {
-        if (obj instanceof INamedThing) {
-            return buf.append(((INamedThing) obj).getDisplayName(INamedThing.REGULAR));
+        if (obj instanceof INamedThing thing) {
+            return buf.append(thing.getDisplayName(INamedThing.REGULAR));
         }
         NicePrinter printer = new NicePrinter();
         printer.print(obj, new BeanNicePrinterAdaptor());

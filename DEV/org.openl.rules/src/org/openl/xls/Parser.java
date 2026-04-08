@@ -31,7 +31,7 @@ public class Parser implements IOpenParser {
     }
 
     protected IParsedCode getNotSupportedCode(IOpenSourceCodeModule source, String sourceType) {
-        String message = String.format("The source cannot be parsed as %s", sourceType);
+        String message = "The source cannot be parsed as %s".formatted(sourceType);
         return getInvalidCode(message, source);
     }
 

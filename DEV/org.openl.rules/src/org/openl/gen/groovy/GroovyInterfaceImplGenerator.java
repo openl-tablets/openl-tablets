@@ -49,6 +49,7 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         return fullRes;
     }
 
+    @Override
     protected String generateClassDescription() {
         String[] defaultInterfaces = getDefaultInterfaces();
         StringBuilder implementationChain = new StringBuilder();
@@ -66,6 +67,7 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         return super.generateClassDescription() + " implements " + implementationChain;
     }
 
+    @Override
     protected String generateExtraMethods() {
         StringBuilder methods = new StringBuilder();
         if (writerChain != null) {
@@ -74,12 +76,14 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         return methods.toString();
     }
 
+    @Override
     protected Set<String> getDefaultImports() {
         Set<String> imports = new HashSet<>(super.getDefaultImports());
         imports.addAll(Arrays.asList(getDefaultInterfaces()));
         return imports;
     }
 
+    @Override
     protected String generateImports() {
         StringBuilder imports = new StringBuilder();
         for (String defaultImport : getDefaultImports()) {

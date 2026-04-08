@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.webstudio</artifactId>
@@ -89,8 +89,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-minio</artifactId>
+            <groupId>com.adobe.testing</groupId>
+            <artifactId>s3mock-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -118,9 +118,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <webservice-webapp>
-                            ../../STUDIO/org.openl.rules.webstudio/target/webapp
-                        </webservice-webapp>
+                        <webservice-webapp>../../STUDIO/org.openl.rules.webstudio/target/webapp</webservice-webapp>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

@@ -297,8 +297,8 @@ public class TableBuilder {
      */
     private CellStyle analyseCellStyle(ICellStyle style) {
         CellStyle returnStyle;
-        if (style instanceof XlsCellStyle) {
-            returnStyle = ((XlsCellStyle) style).getXlsStyle();
+        if (style instanceof XlsCellStyle cellStyle) {
+            returnStyle = cellStyle.getXlsStyle();
         } else {
             returnStyle = getDefaultCellStyle();
         }

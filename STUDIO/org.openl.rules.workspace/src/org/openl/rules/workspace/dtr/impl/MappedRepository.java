@@ -3,10 +3,10 @@ package org.openl.rules.workspace.dtr.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,8 +19,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.project.abstraction.ArtefactProperties;
@@ -44,8 +43,8 @@ import org.openl.util.HashingUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
-    private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
     private static final String SEPARATOR = ":";
 
     private Repository delegate;
@@ -103,8 +102,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             indexLock.writeLock().unlock();
         }
 
-        if (delegate instanceof Closeable) {
-            ((Closeable) delegate).close();
+        if (delegate instanceof Closeable closeable) {
+            closeable.close();
         } else if (delegate != null) {
             try {
                 delegate.close();
@@ -354,8 +353,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
+        return new FeaturesBuilder(delegate)
+                .setVersions(delegate.supports().versions())
                 .setMappedFolders(true)
+                .setBranches(delegate.supports().branches())
                 .setFolders(delegate.supports().folders())
                 .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
                 .setSearchable(delegate.supports().searchable())
@@ -798,7 +799,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      */
     private ProjectIndex generateExternalToInternalMap(Repository delegate, String baseFolder) throws IOException {
         ProjectIndex externalToInternal = new ProjectIndex();
-        Queue<FileData> folderQueue = new LinkedList<>(delegate.listFolders(""));
+        Queue<FileData> folderQueue = new ArrayDeque<>(delegate.listFolders(""));
 
         while (!folderQueue.isEmpty()) {
             FileData folderData = folderQueue.poll();

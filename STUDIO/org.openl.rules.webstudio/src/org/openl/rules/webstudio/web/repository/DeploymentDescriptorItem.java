@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import org.openl.rules.common.CommonVersion;
@@ -8,6 +9,7 @@ import org.openl.rules.common.CommonVersion;
  * Represents a project in a deployment descriptor.
  */
 public class DeploymentDescriptorItem extends AbstractItem {
+    @Serial
     private static final long serialVersionUID = -3870494832804679843L;
 
     private final String repositoryId;

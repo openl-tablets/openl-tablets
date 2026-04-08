@@ -71,7 +71,7 @@ public class DataTableTreeNode implements TreeNode {
         }
 
         if (!(child instanceof DataTableTreeNode)) {
-            String message = String.format("Unsupported node type %s", child.getClass().getName());
+            String message = "Unsupported node type %s".formatted(child.getClass().getName());
             throw new IllegalArgumentException(message);
         }
 

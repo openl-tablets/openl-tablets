@@ -1,5 +1,8 @@
 package org.openl.rules.ruleservice.core;
 
+import java.io.Serial;
+
+import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
@@ -16,9 +19,12 @@ import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
  */
 public class RuleServiceWrapperException extends RuleServiceRuntimeException {
 
+    @Serial
     private static final long serialVersionUID = 3618613334261575918L;
 
+    @Getter
     private final Object body;
+    @Getter
     private final ExceptionType type;
 
     /**
@@ -48,8 +54,8 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
         var type = ExceptionType.SYSTEM;
         var message = ex.getMessage();
         for (Throwable t : ExceptionUtils.getThrowableList(ex)) {
-            if (t instanceof OpenLUserRuntimeException) {
-                body = ((OpenLUserRuntimeException) t).getBody();
+            if (t instanceof OpenLUserRuntimeException exception) {
+                body = exception.getBody();
                 body = SpreadsheetResult.convertSpreadsheetResult(body, namingStrategy);
                 type = ExceptionType.USER_ERROR;
                 message = t.getMessage();
@@ -65,19 +71,5 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
             }
         }
         return new RuleServiceWrapperException(body, type, message, ex);
-    }
-
-    /**
-     * Returns simple Message
-     */
-    public Object getBody() {
-        return body;
-    }
-
-    /**
-     * Returns error type
-     */
-    public ExceptionType getType() {
-        return type;
     }
 }

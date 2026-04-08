@@ -9,6 +9,22 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 public interface ProjectStateValidator {
 
     /**
+     * Check if project can be saved
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canSave(UserWorkspaceProject project);
+
+    /**
+     * Check if project can be modified
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canModify(UserWorkspaceProject project);
+
+    /**
      * Check if project can be closed
      *
      * @param project project
@@ -50,6 +66,7 @@ public interface ProjectStateValidator {
 
     /**
      * Check if project can be merged
+     *
      * @param project project
      * @return true or false
      */

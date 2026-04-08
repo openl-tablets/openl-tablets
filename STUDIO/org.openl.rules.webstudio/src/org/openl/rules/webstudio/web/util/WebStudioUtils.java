@@ -9,8 +9,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestAttributes;
@@ -30,6 +29,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  *
  * @author Aliaksandr Antonik
  */
+@Slf4j
 public abstract class WebStudioUtils {
 
     private static final String STUDIO_ATTR = "studio";
@@ -100,7 +100,6 @@ public abstract class WebStudioUtils {
     }
 
     public static UserWorkspace getUserWorkspace(HttpSession session) {
-        final Logger log = LoggerFactory.getLogger(WebStudioUtils.class);
         UserWorkspace userWorkspace = null;
         try {
             RulesUserSession rulesUserSession = getRulesUserSession(session, true);
@@ -126,8 +125,8 @@ public abstract class WebStudioUtils {
 
     public static HttpSession getSession() {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes) {
-            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+        if (requestAttributes instanceof ServletRequestAttributes attributes) {
+            HttpServletRequest request = attributes.getRequest();
             return request.getSession(false);
         }
         return null;

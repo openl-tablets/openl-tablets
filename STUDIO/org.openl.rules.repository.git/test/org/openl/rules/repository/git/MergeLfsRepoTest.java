@@ -17,7 +17,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.ZipUtils;
 
 public class MergeLfsRepoTest {
-    
+
     private static final String REPO_ID = "design";
 
     @TempDir

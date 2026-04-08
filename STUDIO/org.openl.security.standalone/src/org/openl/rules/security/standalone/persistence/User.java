@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
 import jakarta.persistence.CascadeType;
@@ -23,6 +24,7 @@ import org.openl.rules.security.UserExternalFlags;
 @Entity
 @Table(name = "OpenL_Users") // "USER" is a reserved word in SQL92/SQL99
 public class User implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private String loginName;
     private String passwordHash;
@@ -133,10 +135,8 @@ public class User implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof User user))
             return false;
-
-        User user = (User) o;
 
         return loginName != null ? loginName.equals(user.loginName) : user.loginName == null;
     }

@@ -95,7 +95,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 } else {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) openClass)
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass && customSpreadsheetResultOpenClass
                                 .isSpreadsheet()) {
                             try {
                                 if (g) {
@@ -110,11 +110,10 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                     SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
                                 }
                             }
-                            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                             IOpenField f = customSpreadsheetResultOpenClass.getField(fieldName, strictMatch);
-                            if (f instanceof CustomSpreadsheetResultField) {
+                            if (f instanceof CustomSpreadsheetResultField field) {
                                 if (mergedField == null) {
-                                    mergedField = (CustomSpreadsheetResultField) f;
+                                    mergedField = field;
                                 } else {
                                     mergedField = new CastingCustomSpreadsheetResultField(this,
                                             fieldName,
@@ -180,8 +179,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                             null,
                             false);
                     for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {
-                            CustomSpreadsheetResultOpenClass csrop = (CustomSpreadsheetResultOpenClass) openClass;
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass csrop && this.customSpreadsheetResultOpenClass == null) {
                             customSpreadsheetResultOpenClass.updateWithType(csrop);
                         }
                     }
@@ -219,10 +217,10 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             return false;
         }
         if (getModule() != null) {
-            if (ioc instanceof SpreadsheetResultOpenClass) {
-                return ((SpreadsheetResultOpenClass) ioc).getModule() == getModule();
-            } else if (ioc instanceof CustomSpreadsheetResultOpenClass) {
-                return ((CustomSpreadsheetResultOpenClass) ioc).getModule() == getModule();
+            if (ioc instanceof SpreadsheetResultOpenClass class2) {
+                return class2.getModule() == getModule();
+            } else if (ioc instanceof CustomSpreadsheetResultOpenClass class1) {
+                return class1.getModule() == getModule();
             }
         }
         return super.isAssignableFrom(ioc);
@@ -230,8 +228,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public boolean isInstance(Object instance) {
-        if (instance instanceof SpreadsheetResult) {
-            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) instance;
+        if (instance instanceof SpreadsheetResult spreadsheetResult) {
             if (getModule() == null) {
                 return spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null;
             } else {

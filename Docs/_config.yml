@@ -1,0 +1,103 @@
+# ── Theme ──────────────────────────────────────────────────────────────────────
+remote_theme: "mmistakes/minimal-mistakes@4.28.0"
+minimal_mistakes_skin: "default" # air, aqua, contrast, dark, dirt, neon, mint, plum, sunrise
+
+# ── Site settings ──────────────────────────────────────────────────────────────
+locale: "en-US"
+title: "OpenL Tablets"
+title_separator: "-"
+subtitle: "Open Source Business Rules Engine"
+description: >-
+  OpenL Tablets is an open source business rules engine and decision management system.
+  Write business rules in Excel, manage them in OpenL Studio, and deploy as REST services.
+url: "https://openl-tablets.github.io"
+baseurl: "/openl-tablets"
+repository: "openl-tablets/openl-tablets"
+logo: "/assets/logo.svg"
+
+# ── Features ──────────────────────────────────────────────────────────────────
+enable_copy_code_button: true
+breadcrumbs: true
+
+# ── Author ─────────────────────────────────────────────────────────────────────
+author:
+  name: "OpenL Tablets"
+  bio: "Open source business rules engine and decision management system."
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/openl-tablets/openl-tablets"
+    - label: "Website"
+      icon: "fas fa-fw fa-link"
+      url: "https://openl-tablets.org"
+
+# ── Footer ─────────────────────────────────────────────────────────────────────
+footer:
+  since: "2004"
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/openl-tablets/openl-tablets"
+    - label: "Issues"
+      icon: "fas fa-fw fa-bug"
+      url: "https://github.com/openl-tablets/openl-tablets/issues"
+    - label: "Discussions"
+      icon: "far fa-fw fa-comments"
+      url: "https://github.com/openl-tablets/openl-tablets/discussions"
+
+# ── Search ─────────────────────────────────────────────────────────────────────
+search: true
+search_full_content: true
+lunr:
+  search_within_pages: true
+
+# ── Permalinks ─────────────────────────────────────────────────────────────────
+permalink: /:categories/:title
+
+# ── Default layouts ─────────────────────────────────────────────────────────────
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      classes: wide
+      author_profile: false
+      read_time: false
+      comments: false
+      share: false
+  # ── Release notes: include migration notes if available ─────────────────────
+  - scope:
+      path: "release-notes"
+    values:
+      layout: release-notes
+  # ── User guides: left sidebar + sticky in-page TOC ─────────────────────────
+  - scope:
+      path: "user-guides"
+    values:
+      sidebar:
+        nav: "auto"
+      toc: true
+      toc_sticky: true
+
+# ── Plugins ────────────────────────────────────────────────────────────────────
+plugins:
+  - jekyll-include-cache
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-relative-links
+  - jekyll-redirect-from
+
+# ── Markdown & highlighting ────────────────────────────────────────────────────
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+
+# ── HTML compression ──────────────────────────────────────────────────────────
+compress_html:
+  clippings: all
+  comments: all
+  blanklines: false

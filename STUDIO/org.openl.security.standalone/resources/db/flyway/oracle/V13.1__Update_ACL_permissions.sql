@@ -61,4 +61,3 @@ WHERE mask = 50331664
 -- Delete rows with `DEPLOY`, `RUN`, `BENCHMARK` permission
 DELETE FROM acl_entry
 WHERE mask IN (184549376, 201326592, 218103808);
-

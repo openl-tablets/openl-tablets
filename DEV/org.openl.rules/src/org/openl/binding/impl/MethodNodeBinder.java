@@ -3,8 +3,7 @@ package org.openl.binding.impl;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -32,9 +31,9 @@ import org.openl.types.IOpenMethod;
 /**
  * @author snshor, Yury Molchan
  */
+@Slf4j
 public class MethodNodeBinder extends ANodeBinder {
 
-    private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
     protected IMethodCaller processFoundMethodCaller(IMethodCaller methodCaller) {
         if (methodCaller instanceof MultiCallOpenMethod multiCall && isParallel(multiCall.getSourceMethod())) {
@@ -177,7 +176,7 @@ public class MethodNodeBinder extends ANodeBinder {
             if (field != null) {
                 if (!Objects.equals(field.getName(), methodName)) {
                     bindingContext.addMessage(OpenLMessagesUtils
-                            .newWarnMessage(String.format("Case insensitive matching to '%s'.", methodName), methodNode));
+                            .newWarnMessage("Case insensitive matching to '%s'.".formatted(methodName), methodNode));
                 }
                 if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
                     var t = bindingContext.findType(field.getType().getName());
@@ -243,11 +242,11 @@ public class MethodNodeBinder extends ANodeBinder {
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
                 BindHelper
-                        .processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
-                                methodCaller.getMethod().getName(),
-                                target.getType().getName()), node, bindingContext);
+                        .processWarn("Accessing to static method '%s' from non-static object of type '%s'.".formatted(
+                        methodCaller.getMethod().getName(),
+                        target.getType().getName()), node, bindingContext);
             } else {
-                return makeErrorNode(String.format("Accessing to non-static method '%s' of static type '%s'.",
+                return makeErrorNode("Accessing to non-static method '%s' of static type '%s'.".formatted(
                         methodCaller.getMethod().getName(),
                         target.getType().getName()), node, bindingContext);
             }

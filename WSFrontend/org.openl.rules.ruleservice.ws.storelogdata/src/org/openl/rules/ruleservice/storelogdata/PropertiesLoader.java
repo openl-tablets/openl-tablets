@@ -4,16 +4,15 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.StreamSupport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 
+@Slf4j
 public final class PropertiesLoader {
-    private static final Logger LOG = LoggerFactory.getLogger(PropertiesLoader.class);
 
     private PropertiesLoader() {
     }
@@ -22,11 +21,11 @@ public final class PropertiesLoader {
         try {
             return env.getProperty(propName) != null;
         } catch (Exception e) {
-            if (LOG.isWarnEnabled()) {
+            if (log.isWarnEnabled()) {
                 if (e instanceof IllegalArgumentException) {
-                    LOG.warn("Failed to load spring property '{}'. {}", propName, e.getMessage(), e);
+                    log.warn("Failed to load spring property '{}'. {}", propName, e.getMessage(), e);
                 } else {
-                    LOG.warn("Failed to load spring property '{}'.", propName, e);
+                    log.warn("Failed to load spring property '{}'.", propName, e);
                 }
             }
             return false;

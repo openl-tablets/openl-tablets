@@ -10,9 +10,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.openl.rules.common.ProjectException;
@@ -23,9 +22,9 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class ProjectVersionCacheManager implements InitializingBean {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectVersionCacheManager.class);
 
     private DesignTimeRepository designRepository;
 
@@ -64,8 +63,8 @@ public class ProjectVersionCacheManager implements InitializingBean {
                         //skip manifest from hash calculation
                         continue;
                     }
-                    if (artefact instanceof AProjectResource) {
-                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                    if (artefact instanceof AProjectResource resource) {
+                        try (InputStream content = resource.getContent()) {
                             md5Strings.add(DigestUtils.md5Hex(content));
                             String fileName = artefact.getFileData().getName();
                             String folderPath = wsProject.getFolderPath();

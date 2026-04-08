@@ -1,0 +1,42 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Virtual test suite",
+  "tableId": "f7e9e48351f56988a3847fd05446f305",
+  "executionTimeMs": "##.##",
+  "result": 270.0,
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number"
+  },
+  "parameters": [
+    {
+      "name": "territoryCd",
+      "description": "territoryCd",
+      "value": "001",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    },
+    {
+      "name": "policyForm",
+      "description": "policyForm",
+      "value": "HO3",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    },
+    {
+      "name": "policyPlan",
+      "description": "policyPlan",
+      "value": "Gold",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    }
+  ]
+}

@@ -13,6 +13,10 @@ on:
       - '5.*.x'
     paths-ignore:
       - 'Docs/**'
+      - '.github/**'
+      - '.idea/**'
+      - '.claude/**'
+      - '*.md'
   pull_request:
     types:
       - opened
@@ -47,6 +51,8 @@ jobs:
           cache: 'maven'
 
       - name: Cache SonarCloud packages
+        # This step only runs if the sender is NOT dependabot
+        if: github.actor != 'dependabot[bot]'
         uses: actions/cache@v5
         with:
           path: ~/.sonar/cache
@@ -56,13 +62,17 @@ jobs:
       - name: Maven version
         run: mvn -v
 
-      - name: Build with Maven
+      - name: Build and Verify
+        run: mvn -B "-Dstyle.color=always" -Psonar
+
+      - name: Sonar Analysis
+        # This step only runs if the sender is NOT dependabot
+        if: github.actor != 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
-          mvn -B  "-Dstyle.color=always"
-          verify
+          mvn -B "-Dstyle.color=always"
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           "-Dsonar.organization=openl-tablets"
           -Psonar

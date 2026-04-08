@@ -19,10 +19,12 @@ public abstract class DefaultTableStyleImpl implements TableStyle {
         this.headerSizeSettings = headerSizeSettings;
     }
 
+    @Override
     public CellStyle getHeaderStyle() {
         return headerStyle;
     }
 
+    @Override
     public CellRangeSettings getHeaderSizeSettings() {
         return headerSizeSettings;
     }

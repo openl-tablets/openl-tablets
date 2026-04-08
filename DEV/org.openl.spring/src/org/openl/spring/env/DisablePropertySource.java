@@ -26,10 +26,10 @@ public class DisablePropertySource extends PropertySource<Preferences> {
                 }
                 Object value = propertySource.getProperty(name.replaceFirst(PROPS_PREFIX, ""));
                 if (value != null) {
-                    return Boolean.TRUE.toString();
+                    return "true";
                 }
             }
-            return Boolean.FALSE.toString();
+            return "false";
         }
         return null;
     }

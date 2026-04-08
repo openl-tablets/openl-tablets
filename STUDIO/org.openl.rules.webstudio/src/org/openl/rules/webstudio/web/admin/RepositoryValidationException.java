@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.Serial;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -8,6 +10,7 @@ import org.openl.rules.common.CommonException;
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
 public class RepositoryValidationException extends CommonException {
 
+    @Serial
     private static final long serialVersionUID = -7067195368061113686L;
 
     public RepositoryValidationException(String message) {

@@ -54,13 +54,13 @@ public class LogicalTableHelper {
                                              ILogicalTable columnOffsetsTable,
                                              ILogicalTable rowOffsetsTable) {
         int[] columnOffsets = null;
-        if (columnOffsetsTable instanceof LogicalTable) {
-            columnOffsets = ((LogicalTable) columnOffsetsTable).getColumnOffset();
+        if (columnOffsetsTable instanceof LogicalTable logicalTable) {
+            columnOffsets = logicalTable.getColumnOffset();
         }
 
         int[] rowOffsets = null;
-        if (rowOffsetsTable instanceof LogicalTable) {
-            rowOffsets = ((LogicalTable) rowOffsetsTable).getRowOffset();
+        if (rowOffsetsTable instanceof LogicalTable logicalTable) {
+            rowOffsets = logicalTable.getRowOffset();
         }
 
         if (rowOffsets == null && columnOffsets == null) {
@@ -235,8 +235,8 @@ public class LogicalTableHelper {
     }
 
     private static int[] getRowOffsets(ILogicalTable table) {
-        if (table instanceof LogicalTable) {
-            return ((LogicalTable) table).getRowOffset();
+        if (table instanceof LogicalTable logicalTable) {
+            return logicalTable.getRowOffset();
         }
 
         return calculateRowOffsets(table.getHeight(), table.getSource());
@@ -244,8 +244,8 @@ public class LogicalTableHelper {
 
     private static int[] getColumnOffsets(ILogicalTable table) {
 
-        if (table instanceof LogicalTable) {
-            return ((LogicalTable) table).getColumnOffset();
+        if (table instanceof LogicalTable logicalTable) {
+            return logicalTable.getColumnOffset();
         }
 
         return calculateColumnOffsets(table.getWidth(), table.getSource());

@@ -217,20 +217,14 @@ public class MergedRegionsTest {
 
     private Object extractCellValue(Cell cell) {
         CellType type = cell.getCellType();
-        switch (type) {
-            case BLANK:
-                return null;
-            case BOOLEAN:
-                return cell.getBooleanCellValue();
-            case NUMERIC:
-                return cell.getNumericCellValue();
-            case STRING:
-                return cell.getStringCellValue();
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return "unknown type: " + cell.getCellType();
-        }
+        return switch (type) {
+            case BLANK -> null;
+            case BOOLEAN -> cell.getBooleanCellValue();
+            case NUMERIC -> cell.getNumericCellValue();
+            case STRING -> cell.getStringCellValue();
+            case FORMULA -> cell.getCellFormula();
+            default -> "unknown type: " + cell.getCellType();
+        };
     }
 
     private void testActions(XlsWorkbookSourceCodeModule workbook,

@@ -42,8 +42,7 @@ public class CellStyleCreator {
                 cellStyle.setFont(HTMLToExcelStyleCoverter.getFont(style, workbook));
 
                 return new XlsCellStyle(cellStyle, workbook);
-            } else if (workbook instanceof XSSFWorkbook) {
-                XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
+            } else if (workbook instanceof XSSFWorkbook xssfWorkbook) {
                 XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
                 cellStyle.setFillForegroundColor(HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style, xssfWorkbook));

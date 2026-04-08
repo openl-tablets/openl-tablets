@@ -13,6 +13,7 @@ public class DatatypeModel implements Model {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -42,11 +43,9 @@ public class DatatypeModel implements Model {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof DatatypeModel that)) {
             return false;
         }
-
-        DatatypeModel that = (DatatypeModel) o;
 
         if (!Objects.equals(parent, that.parent)) {
             return false;

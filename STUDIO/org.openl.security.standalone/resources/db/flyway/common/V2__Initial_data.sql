@@ -24,13 +24,13 @@ INSERT INTO OpenL_Group_Authorities (groupID, authority) SELECT id, 'DELETE_DEPL
 INSERT INTO OpenL_Group_Authorities (groupID, authority) SELECT id, 'ERASE_DEPLOYMENT' FROM OpenL_Groups WHERE groupName = 'Deployers';
 
 INSERT INTO OpenL_Group2Group (groupID, includedGroupID) (
-	SELECT g1.id, g2.id
-	FROM OpenL_Groups g1, OpenL_Groups g2
-	WHERE g1.groupName = 'Developers' AND g2.groupName = 'Viewers'
-		OR g1.groupName = 'Deployers' AND g2.groupName = 'Viewers'
-		OR g1.groupName = 'Testers' AND g2.groupName = 'Viewers'
-		OR g1.groupName = 'Analysts' AND g2.groupName = 'Developers'
-		OR g1.groupName = 'Analysts' AND g2.groupName = 'Testers'
+    SELECT g1.id, g2.id
+    FROM OpenL_Groups g1, OpenL_Groups g2
+    WHERE g1.groupName = 'Developers' AND g2.groupName = 'Viewers'
+        OR g1.groupName = 'Deployers' AND g2.groupName = 'Viewers'
+        OR g1.groupName = 'Testers' AND g2.groupName = 'Viewers'
+        OR g1.groupName = 'Analysts' AND g2.groupName = 'Developers'
+        OR g1.groupName = 'Analysts' AND g2.groupName = 'Testers'
 );
 
 INSERT INTO OpenL_Users (loginName, password) VALUES('admin', '$2a$10$VSm7Xm79x6Nbzk7dxnzzzeITSB8IzwubuJxG/XYaK0Taa9Cb/4V06');

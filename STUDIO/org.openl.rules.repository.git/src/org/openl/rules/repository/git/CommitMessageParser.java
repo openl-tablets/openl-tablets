@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Parses {@code {commit-type}}, {@code {user-message}} and {@code {username}} from git commit messages by given
@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 class CommitMessageParser {
-    private static final Logger LOG = LoggerFactory.getLogger(CommitMessageParser.class);
 
     private static final String COMMIT_TYPE_TOKEN = "{commit-type}";
     private static final String USER_MESSAGE_TOKEN = "{user-message}";
@@ -72,27 +72,27 @@ class CommitMessageParser {
                         builder.append(':');
                     }
                     switch (token) {
-                        case COMMIT_TYPE_TOKEN:
+                        case COMMIT_TYPE_TOKEN -> {
                             if (firstTokenOccurrence) {
                                 // set group name
                                 builder.append("<commitType>");
                             }
                             builder.append(COMMIT_TYPES);
-                            break;
-                        case USER_MESSAGE_TOKEN:
+                        }
+                        case USER_MESSAGE_TOKEN -> {
                             if (firstTokenOccurrence) {
                                 // set group name
                                 builder.append("<message>");
                             }
                             builder.append(".*");
-                            break;
-                        case USERNAME_TOKEN:
+                        }
+                        case USERNAME_TOKEN -> {
                             if (firstTokenOccurrence) {
                                 // set group name
                                 builder.append("<author>");
                             }
                             builder.append(".+");
-                            break;
+                        }
                     }
                     // close group
                     builder.append(')');
@@ -149,7 +149,7 @@ class CommitMessageParser {
             try {
                 return matcher.group(groupName);
             } catch (IllegalArgumentException | IllegalStateException e) {
-                LOG.debug("Error occurred: ", e);
+                log.debug("Error occurred: ", e);
             }
             return null;
         }

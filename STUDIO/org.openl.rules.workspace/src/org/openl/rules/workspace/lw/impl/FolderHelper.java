@@ -2,10 +2,8 @@ package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
@@ -15,6 +13,7 @@ import org.openl.rules.project.model.Module;
  *
  * @author Aleh Bykhavets
  */
+@Slf4j
 public final class FolderHelper {
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
@@ -31,7 +30,6 @@ public final class FolderHelper {
      * @return true if all content is deleted and false if at least one file or sub-folder cannot be deleted.
      */
     public static boolean clearFolder(File folder) {
-        final Logger log = LoggerFactory.getLogger(FolderHelper.class);
         log.debug("Clearing folder ''{}''", folder);
 
         File[] files = folder.listFiles();
@@ -67,7 +65,6 @@ public final class FolderHelper {
      * @return true if the folder is deleted and false if the folder cannot be deleted.
      */
     private static boolean deleteFolder(File folder) {
-        final Logger log = LoggerFactory.getLogger(FolderHelper.class);
         log.debug("Deleting folder ''{}''", folder);
 
         boolean failures = false;
@@ -106,11 +103,11 @@ public final class FolderHelper {
     }
 
     public static String resolveHistoryFolder(RulesProject project, Module module) {
-        return normalizePath(Paths.get(project.getFolderPath(), resolveHistoryFolder(module)));
+        return normalizePath(Path.of(project.getFolderPath(), resolveHistoryFolder(module)));
     }
 
     public static String resolveHistoryFolder(Module module) {
-        return normalizePath(Paths.get(HISTORY_FOLDER, module.getRulesRootPath().getPath()));
+        return normalizePath(Path.of(HISTORY_FOLDER, module.getRulesRootPath().getPath()));
     }
 
     private static String normalizePath(Path p) {

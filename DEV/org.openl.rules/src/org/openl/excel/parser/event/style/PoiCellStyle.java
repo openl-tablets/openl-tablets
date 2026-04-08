@@ -70,6 +70,7 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Deprecated
+    @Override
     public int getFontIndexAsInt() {
         return format.getFontIndex();
     }

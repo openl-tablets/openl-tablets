@@ -12,8 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import jakarta.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -50,10 +49,10 @@ import org.openl.util.formatters.FileNameFormatter;
  * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
  * template files.
  */
+@Slf4j
 public class OpenAPIProjectCreator extends AProjectCreator {
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Logger logger = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
 
     private final ProjectFile uploadedOpenAPIFile;
     private final String comment;
@@ -76,7 +75,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  String modelsPath,
                                  String algorithmsPath,
                                  String modelsModuleName,
-                                 String algorithmsModuleName, 
+                                 String algorithmsModuleName,
                                  Map<String, String> tags) throws ProjectException {
         super(projectName, projectFolder, userWorkspace, tags);
         this.repositoryId = repositoryId;
@@ -197,7 +196,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             addFile(projectBuilder,
                     rulesFile,
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
-                    String.format("Error uploading %s file.",
+                    "Error uploading %s file.".formatted(
                             ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             addFile(projectBuilder,
                     openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
@@ -217,7 +216,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         addFile(projectBuilder,
                 IOUtils.toInputStream(groovyScriptFile.getScriptText()),
                 path,
-                String.format("Error uploading of '%s' file.", groovyScriptFile));
+                "Error uploading of '%s' file.".formatted(groovyScriptFile));
     }
 
     private void addFile(RulesProjectBuilder projectBuilder,
@@ -291,10 +290,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     public void destroy() {
         try {
             if (!Files.deleteIfExists(uploadedOpenAPIFile.getTempFile().toPath())) {
-                logger.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
+                log.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
             }
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 

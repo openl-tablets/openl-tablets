@@ -154,8 +154,8 @@ public class ParsedCell implements ICell {
         if (value == null) {
             return 0.0;
         }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
+        if (value instanceof Number number) {
+            return number.doubleValue();
         }
 
         return Double.NaN;
@@ -174,14 +174,14 @@ public class ParsedCell implements ICell {
         if (cellValue == null) {
             return null;
         }
-        if (cellValue instanceof Date) {
-            return (Date) cellValue;
+        if (cellValue instanceof Date date) {
+            return date;
         }
-        if (cellValue instanceof Number) {
-            return DateUtil.getJavaDate(((Number) cellValue).doubleValue(), grid.isUse1904Windowing());
+        if (cellValue instanceof Number number) {
+            return DateUtil.getJavaDate(number.doubleValue(), grid.isUse1904Windowing());
         }
-        if (cellValue instanceof String) {
-            return DateUtil.getJavaDate(Double.parseDouble((String) cellValue), grid.isUse1904Windowing());
+        if (cellValue instanceof String string) {
+            return DateUtil.getJavaDate(Double.parseDouble(string), grid.isUse1904Windowing());
         }
         return null;
     }

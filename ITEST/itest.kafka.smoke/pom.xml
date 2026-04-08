@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -18,25 +18,6 @@
         <dockerized>true</dockerized>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
-                        <systemPropertyVariables>
-                            <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp
-                            </webservice-webapp>
-                        </systemPropertyVariables>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <dependencies>
         <dependency>
@@ -64,4 +45,21 @@
             <artifactId>org.openl.rules.ruleservice.kafka</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
+                        <systemPropertyVariables>
+                            <webservice-webapp>../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp</webservice-webapp>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

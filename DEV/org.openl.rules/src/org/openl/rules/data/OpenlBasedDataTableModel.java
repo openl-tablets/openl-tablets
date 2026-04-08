@@ -59,7 +59,7 @@ public class OpenlBasedDataTableModel implements ITableModel {
             ColumnDescriptor.ColumnGroupKey key = descriptor.buildGroupKey();
             List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new LinkedList<>());
             if (descriptor.isPrimaryKey()) {
-                descriptorsByKey.add(0, descriptor);
+                descriptorsByKey.addFirst(descriptor);
             } else {
                 descriptorsByKey.add(descriptor);
             }

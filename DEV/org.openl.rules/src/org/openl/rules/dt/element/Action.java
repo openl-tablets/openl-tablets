@@ -21,7 +21,6 @@ import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -38,6 +37,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 public class Action extends FunctionalRow implements IAction {
 
@@ -90,8 +90,8 @@ public class Action extends FunctionalRow implements IAction {
     @Override
     public Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
 
-        if (target instanceof IDynamicObject) {
-            target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, ruleN);
+        if (target instanceof IDynamicObject object) {
+            target = new RuleExecutionObject(ruleExecutionType, object, ruleN);
         }
 
         if (isSingleReturnParam) {
@@ -150,8 +150,7 @@ public class Action extends FunctionalRow implements IAction {
 
     private Object setCustomSpreadsheetResultOpenClassToArray(Object e,
                                                               CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        if (e instanceof SpreadsheetResult) {
-            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) e;
+        if (e instanceof SpreadsheetResult spreadsheetResult) {
             SpreadsheetResult newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
             newSpreadsheetResult.setCustomSpreadsheetResultOpenClass(customSpreadsheetResultOpenClass);
             return newSpreadsheetResult;

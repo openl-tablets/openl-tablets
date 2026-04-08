@@ -19,8 +19,8 @@ public class CustomAnySpreadsheetResultOpenClass extends CustomSpreadsheetResult
 
     @Override
     public void updateWithType(IOpenClass openClass) {
-        if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-            anyOpenClasses.add((CustomSpreadsheetResultOpenClass) openClass);
+        if (openClass instanceof CustomSpreadsheetResultOpenClass class1) {
+            anyOpenClasses.add(class1);
         }
         super.updateWithType(openClass);
     }

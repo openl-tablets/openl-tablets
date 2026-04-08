@@ -2,9 +2,8 @@ package org.openl.rules.table.xls.formatters;
 
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
@@ -16,9 +15,9 @@ import org.openl.util.formatters.NumberFormatter;
  *
  * @author snshor
  */
+@Slf4j
 class XlsNumberFormatter implements IFormatter {
 
-    private final Logger log = LoggerFactory.getLogger(XlsNumberFormatter.class);
 
     private final int formatIndex;
     private final String format;
@@ -34,12 +33,12 @@ class XlsNumberFormatter implements IFormatter {
 
     @Override
     public String format(Object value) {
-        if (!(value instanceof Number)) {
+        if (!(value instanceof Number number)) {
             log.debug("Should be Number: {}", value);
             return null;
         }
 
-        double doubleValue = ((Number) value).doubleValue();
+        double doubleValue = number.doubleValue();
         String formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
 
         if (format.startsWith("# ?/") || format.startsWith("# ??/") || format.startsWith("# ???/")) {

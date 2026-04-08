@@ -246,8 +246,8 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
 
     @Override
     public void setRepositorySettings(RepositorySettings settings) {
-        if (delegate instanceof RepositorySettingsAware) {
-            ((RepositorySettingsAware) delegate).setRepositorySettings(settings);
+        if (delegate instanceof RepositorySettingsAware aware) {
+            aware.setRepositorySettings(settings);
         }
     }
 }

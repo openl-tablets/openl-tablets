@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "type": "folder",
+    "path": "groovy",
+    "name": "groovy"
+  },
+  {
+    "type": "folder",
+    "path": "i18n",
+    "name": "i18n"
+  },
+  {
+    "type": "folder",
+    "path": "rules",
+    "name": "rules"
+  },
+  {
+    "type": "folder",
+    "path": "rules/UK",
+    "name": "UK",
+    "basePath": "rules"
+  }
+]

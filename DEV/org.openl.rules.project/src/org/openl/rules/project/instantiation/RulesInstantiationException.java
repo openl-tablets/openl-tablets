@@ -1,11 +1,14 @@
 package org.openl.rules.project.instantiation;
 
+import java.io.Serial;
+
 /**
  * Appears during the compilation or instantiation of rules.
  *
  * @author PUdalau
  */
 public class RulesInstantiationException extends Exception {
+    @Serial
     private static final long serialVersionUID = -9185342823934771219L;
 
     public RulesInstantiationException(String message) {

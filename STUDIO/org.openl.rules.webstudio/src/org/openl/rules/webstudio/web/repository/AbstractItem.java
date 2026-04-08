@@ -48,8 +48,7 @@ public abstract class AbstractItem implements Serializable, Comparable<AbstractI
             return true;
         }
 
-        if (obj instanceof AbstractItem) {
-            AbstractItem o = (AbstractItem) obj;
+        if (obj instanceof AbstractItem o) {
 
             return name.equals(o.name);
         } else {

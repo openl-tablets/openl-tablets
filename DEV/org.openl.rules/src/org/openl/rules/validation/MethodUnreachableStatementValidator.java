@@ -44,8 +44,8 @@ public class MethodUnreachableStatementValidator implements IOpenLValidator {
 
     private void visit(Collection<IOpenMethod> methods, List<OpenLMessage> messages) {
         for (IOpenMethod method : methods) {
-            if (method instanceof OpenMethodDispatcher) {
-                visit(((OpenMethodDispatcher) method).getCandidates(), messages);
+            if (method instanceof OpenMethodDispatcher dispatcher) {
+                visit(dispatcher.getCandidates(), messages);
             } else {
                 visit(WrapperLogic.unwrapOpenMethod(method), messages);
             }
@@ -64,11 +64,11 @@ public class MethodUnreachableStatementValidator implements IOpenLValidator {
         if (blockNode == null) {
             return;
         }
-        if (blockNode instanceof LoopNode) {
-            visitStatement(((LoopNode) blockNode).getBlockCodeNode(), messages);
-        } else if (blockNode instanceof IfNode) {
-            visitStatement(((IfNode) blockNode).getThenNode(), messages);
-            visitStatement(((IfNode) blockNode).getElseNode(), messages);
+        if (blockNode instanceof LoopNode node1) {
+            visitStatement(node1.getBlockCodeNode(), messages);
+        } else if (blockNode instanceof IfNode node) {
+            visitStatement(node.getThenNode(), messages);
+            visitStatement(node.getElseNode(), messages);
         } else if (blockNode instanceof CastNode) {
             visitStatement(blockNode.getChildren()[0], messages);
         } else if (blockNode instanceof BlockNode) {

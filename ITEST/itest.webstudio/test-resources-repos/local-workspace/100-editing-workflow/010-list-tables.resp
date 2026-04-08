@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "835d473f9d79892d57894ba470d6233f",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Bank",
+      "file": "EPBDS-15649/Bank Rating.xlsx",
+      "pos": "*"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

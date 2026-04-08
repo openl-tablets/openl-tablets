@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "1f576ccba3af3191d019c7a45b3feb68",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "TestType",
+  "fields": [
+    {
+      "name": "value",
+      "type": "String"
+    },
+    {
+      "name": "count",
+      "type": "Integer"
+    }
+  ]
+}

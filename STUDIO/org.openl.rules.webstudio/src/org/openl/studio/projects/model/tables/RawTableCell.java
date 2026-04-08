@@ -1,8 +1,5 @@
 package org.openl.studio.projects.model.tables;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -43,7 +40,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
  * @author Vladyslav Pikus
  */
-@JsonDeserialize(builder = RawTableCell.Builder.class)
 public record RawTableCell(
         @Schema(description = "Value of the cell (null if covered by another cell's span)")
         Object value,
@@ -60,71 +56,24 @@ public record RawTableCell(
 
     public static final RawTableCell COVERED = new RawTableCell(null, null, null, true);
 
-    @JsonCreator
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder {
-        private Object value;
-        private Integer colspan;
-        private Integer rowspan;
-        private Boolean covered;
-
-        private Builder() {
-        }
-
-        public Builder value(Object value) {
-            this.value = value;
-            return this;
-        }
-
-        public Builder colspan(Integer colspan) {
-            this.colspan = colspan;
-            return this;
-        }
-
-        public Builder rowspan(Integer rowspan) {
-            this.rowspan = rowspan;
-            return this;
-        }
-
-        public Builder covered(Boolean covered) {
-            this.covered = covered;
-            return this;
-        }
-
-        private static Integer spanOrNull(Integer span) {
-            return (span != null && span > 1) ? span : null;
-        }
-
-        public RawTableCell build() {
-            if (Boolean.TRUE.equals(covered)) {
-                return COVERED;
-            }
-            return new RawTableCell(value,
-                    spanOrNull(colspan),
-                    spanOrNull(rowspan),
-                    null);
+    public RawTableCell {
+        if (Boolean.TRUE.equals(covered)) {
+            value = null;
+            colspan = null;
+            rowspan = null;
+        } else {
+            colspan = (colspan != null && colspan > 1) ? colspan : null;
+            rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;
+            covered = null;
         }
     }
 
-    /**
-     * Create a simple cell with no span (single cell)
-     */
-    public static RawTableCell simple(Object value) {
-        return builder().value(value).build();
+    public RawTableCell(Object value) {
+        this(value, null, null, null);
     }
 
-    /**
-     * Create a cell that spans both rows and columns
-     */
-    public static RawTableCell withSpan(Object value, int colspan, int rowspan) {
-        return builder().value(value)
-                .colspan(colspan)
-                .rowspan(rowspan)
-                .build();
+    public RawTableCell(Object value, int colspan, int rowspan) {
+        this(value, colspan, rowspan, null);
     }
 
 }

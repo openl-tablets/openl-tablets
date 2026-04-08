@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,8 +18,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.common.ProjectException;
@@ -44,8 +44,8 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 
+@Slf4j
 public class UserWorkspaceImpl implements UserWorkspace {
-    private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
     private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator
             .comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER)
@@ -123,7 +123,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         RulesProject uwp;
         synchronized (userRulesProjects) {
-            uwp = userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
+            uwp = userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
         }
 
         if (uwp == null) {
@@ -194,7 +194,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             if (projectsRefreshNeeded) {
                 refreshRulesProjects();
             }
-            return userRulesProjects.containsKey(new ProjectKey(repositoryId, name.toLowerCase()));
+            return userRulesProjects.containsKey(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
         }
     }
 
@@ -263,8 +263,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
             AProjectArtefact artefact = project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-            if (artefact instanceof AProjectResource) {
-                try (InputStream content = ((AProjectResource) artefact).getContent()) {
+            if (artefact instanceof AProjectResource resource) {
+                try (InputStream content = resource.getContent()) {
                     return getActualName(content);
                 }
             }
@@ -344,7 +344,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         local.getName());
                             }
                         } else {
-                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase()));
+                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)));
                         }
 
                         // If branch is null then keep default branch.
@@ -446,7 +446,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         log.warn("Cannot close the project {}", project.getName(), e);
                     }
                 }
-                userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
+                userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT)), project);
             }
 
             // LocalProjects that hasn't corresponding project in
@@ -455,7 +455,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String repoId = lp.getRepository().getId();
                 String name = lp.getName();
 
-                if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase()))) {
+                if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)))) {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
 
@@ -482,7 +482,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             null,
                             null,
                             projectsLockEngine);
-                    userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
+                    userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT)), project);
                 }
             }
 

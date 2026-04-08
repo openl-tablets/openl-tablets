@@ -12,7 +12,7 @@ import { useIsFormChanged } from '../hooks/useIsFormChanged'
 
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
-    const { isExternalAuthSystem } = useContext(SystemContext)
+    const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
     const [saving, setSaving] = useState(false)
     const [form] = Form.useForm()
@@ -56,7 +56,7 @@ export const UserProfile: React.FC = () => {
             )
             await fetchUserProfile()
             notification.success({ message: t('users:user_profile_updated_successfully') })
-            if (emailChanged && newEmailNonEmpty && hadEmailBefore) {
+            if (emailChanged && newEmailNonEmpty && hadEmailBefore && systemSettings?.supportedFeatures?.emailVerification) {
                 notification.warning({
                     message: t('users:email_verification_warning'),
                     duration: 0,

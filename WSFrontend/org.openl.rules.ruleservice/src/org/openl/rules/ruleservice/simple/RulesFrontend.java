@@ -77,4 +77,3 @@ public interface RulesFrontend {
     void unregisterService(String serviceName);
 
 }
-

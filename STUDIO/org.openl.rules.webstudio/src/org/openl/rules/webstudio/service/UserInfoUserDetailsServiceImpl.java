@@ -40,7 +40,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
 
         org.openl.rules.security.standalone.persistence.User user = userDao.getUserByName(name);
         if (user == null) {
-            throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
+            throw new UsernameNotFoundException("Unknown user: '%s'".formatted(name));
         }
 
         Collection<GrantedAuthority> privileges = mapPrivileges(user, Collections.emptyList());

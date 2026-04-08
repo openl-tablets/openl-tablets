@@ -1,0 +1,18 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MjE6YzZlMWFkYmZmZjZhNDQzMWU5NzdhODUzNmZmYThhODBmODUwMmZkMGQ5YWM0ZTFlZDM3YmQ0NTgyMmYyZDNiNA==/tables HTTP/1.1
+Authorization: Basic RVBCRFNfMTU2MjE6RVBCRFNfMTU2MjE=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "table": {
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "TestType",
+    "fields": [
+      {
+        "name": "value",
+        "type": "String"
+      }
+    ]
+  }
+}

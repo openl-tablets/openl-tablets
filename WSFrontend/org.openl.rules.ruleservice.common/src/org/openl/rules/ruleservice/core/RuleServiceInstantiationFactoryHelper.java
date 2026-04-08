@@ -288,7 +288,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             return loadedType;
         } catch (ClassNotFoundException e) {
             throw new InstantiationException(
-                    String.format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
+                    "Failed to load type '%s' that used in @RulesType annotation.".formatted(rulesType.value()));
         }
     }
 
@@ -369,6 +369,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 return Pair.of(RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget),
                         parameterTypes);
             } catch (NoSuchMethodException ignored) {
+                // method not found on this candidate class; continue searching
             }
         }
         return Pair.of(null, null);
@@ -392,23 +393,24 @@ public final class RuleServiceInstantiationFactoryHelper {
     private static Class<?> extractOpenMethodReturnType(IOpenMember openMember, TypeResolver typeResolver) {
         IOpenClass returnType = openMember.getType();
         switch (typeResolver) {
-            case ORIGINAL:
+            case ORIGINAL -> {
                 return returnType.getInstanceClass();
-            case IF_SPR_TO_PLAIN:
+            }
+            case IF_SPR_TO_PLAIN -> {
                 IOpenClass type = returnType;
                 int dim = 0;
                 while (type.isArray()) {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
+                if (type instanceof CustomSpreadsheetResultOpenClass class2) {
+                    Class<?> t = class2.getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
-                } else if (type instanceof SpreadsheetResultOpenClass) {
+                } else if (type instanceof SpreadsheetResultOpenClass class1) {
                     Class<?> t;
                     // Check: custom spreadsheet is enabled
-                    if (((SpreadsheetResultOpenClass) type).getModule() != null) {
-                        t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass().getBeanClass();
+                    if (class1.getModule() != null) {
+                        t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
                     } else {
                         t = type.getInstanceClass();
                     }
@@ -416,8 +418,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                 } else {
                     return returnType.getInstanceClass();
                 }
-            default:
-                throw new IllegalStateException();
+            }
+            default -> throw new IllegalStateException();
         }
     }
 
@@ -477,11 +479,11 @@ public final class RuleServiceInstantiationFactoryHelper {
             }
             if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
                 Class<?> t;
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
-                } else if (type instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) type)
+                if (type instanceof CustomSpreadsheetResultOpenClass class2) {
+                    t = class2.getBeanClass();
+                } else if (type instanceof SpreadsheetResultOpenClass class1 && class1
                         .getModule() != null) {
-                    t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass().getBeanClass();
+                    t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
                 } else {
                     t = Map.class;
                 }
@@ -532,8 +534,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                         methodParamType = loadedType;
                         f = true;
                     } catch (ClassNotFoundException e) {
-                        throw new InstantiationException(String
-                                .format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
+                        throw new InstantiationException("Failed to load type '%s' that used in @RulesType annotation."
+                                .formatted(rulesType.value()));
                     }
                 } else {
                     Class<?> baseParameterType = parameter.getType();
@@ -542,9 +544,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                         baseParameterType = baseParameterType.getComponentType();
                         dim++;
                     }
-                    if (toServiceClass && openMember instanceof IOpenMethod && baseParameterType.isAssignableFrom(
+                    if (toServiceClass && openMember instanceof IOpenMethod openMethod && baseParameterType.isAssignableFrom(
                             SpreadsheetResult.class) && !parameter.isAnnotationPresent(NoTypeConversion.class)) {
-                        IOpenMethod openMethod = (IOpenMethod) openMember;
                         if ((!provideRuntimeContext || i > 0) && i - (provideRuntimeContext ? 1 : 0) < openMethod
                                 .getSignature()
                                 .getNumberOfParameters()) {
@@ -556,8 +557,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                 d++;
                             }
                             if (dim != d) {
-                                throw new InstantiationException(String.format(
-                                        "Unexpected array dimension size for '%s' method parameter '%s'. Expected dimension size is '%s', but found '%s'.",
+                                throw new InstantiationException("Unexpected array dimension size for '%s' method parameter '%s'. Expected dimension size is '%s', but found '%s'.".formatted(
                                         MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
                                         i,
                                         d,
@@ -565,8 +565,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                             }
                             if (baseOpenParameterType instanceof CustomSpreadsheetResultOpenClass || baseOpenParameterType instanceof SpreadsheetResultOpenClass) {
                                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
-                                if (baseOpenParameterType instanceof CustomSpreadsheetResultOpenClass) {
-                                    customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) baseOpenParameterType;
+                                if (baseOpenParameterType instanceof CustomSpreadsheetResultOpenClass class1) {
+                                    customSpreadsheetResultOpenClass = class1;
                                 } else {
                                     customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) baseOpenParameterType)
                                             .toCustomSpreadsheetResultOpenClass();
@@ -600,7 +600,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         Pair<Class<?>, Boolean>[] newParamTypes;
         Class<?> returnType;
 
-        public MethodSignatureChanges(Pair<Class<?>, Boolean>[] newParamTypes,
+        private MethodSignatureChanges(Pair<Class<?>, Boolean>[] newParamTypes,
                                       Class<?> returnType,
                                       boolean generateReturnConverters) {
             this.newParamTypes = newParamTypes;
@@ -608,15 +608,15 @@ public final class RuleServiceInstantiationFactoryHelper {
             this.returnType = returnType;
         }
 
-        public Pair<Class<?>, Boolean>[] getNewParamTypes() {
+        private Pair<Class<?>, Boolean>[] getNewParamTypes() {
             return newParamTypes;
         }
 
-        public boolean isGenerateReturnConverters() {
+        private boolean isGenerateReturnConverters() {
             return generateReturnConverters;
         }
 
-        public Class<?> getReturnType() {
+        private Class<?> getReturnType() {
             return returnType;
         }
     }

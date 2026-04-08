@@ -14,12 +14,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
@@ -63,6 +62,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @SessionScope
+@Slf4j
 public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private static final String ROOT_TYPE = "root";
 
@@ -96,7 +96,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private SecureDeploymentRepositoryService deploymentRepositoryService;
 
     private static final String DEFAULT_TAB = "Properties";
-    private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
     private static final IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
 
     private RepositorySelectNodeStateHolder.SelectionHolder selectionHolder;
@@ -367,8 +366,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return null;
         }
         AProjectArtefact artefact = node.getData();
-        if (artefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) artefact;
+        if (artefact instanceof UserWorkspaceProject project) {
+            return project;
         } else if (artefact != null && artefact.getProject() instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact.getProject();
         }
@@ -396,8 +395,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         String branch = null;
         AProject project = artefact.getProject();
-        if (project instanceof UserWorkspaceProject) {
-            branch = ((UserWorkspaceProject) project).getBranch();
+        if (project instanceof UserWorkspaceProject workspaceProject) {
+            branch = workspaceProject.getBranch();
         }
 
         TreeNode currentNode;
@@ -411,8 +410,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             currentNode = findNodeById(currentNode, id);
 
             if (currentNode == null) {
-                if (artefact instanceof AProject) {
-                    String actualPath = ((AProject) artefact).getRealPath();
+                if (artefact instanceof AProject aProject) {
+                    String actualPath = aProject.getRealPath();
                     currentNode = getAllProjectNodes(parentNode).stream()
                             .filter(child -> actualPath.equals(((AProject) child.getData()).getRealPath()))
                             .findFirst()
@@ -625,7 +624,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 TreeNode selectedNode = selectionHolder.getSelectedNode();
                 AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
                 if (artefact != null) {
-                    AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
+                    AProject project = artefact instanceof UserWorkspaceProject uwp ? uwp
                             : artefact.getProject();
 
                     // project can be null if selected artefact is a Deployment.
@@ -684,14 +683,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 .isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
-        return aclServiceProvider.getDesignRepoAclService().isGranted(selectedProject, List.of(BasePermission.WRITE));
+        return aclProjectsHelper.hasPermission(selectedProject, BasePermission.WRITE);
     }
 
     public boolean getCanSaveProject() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
-            return selectedProject != null && selectedProject
-                    .isModified() && !isCurrentBranchProtected(selectedProject);
+            return selectedProject != null && selectedProject.isModified()
+                    && !isCurrentBranchProtected(selectedProject)
+                    && aclProjectsHelper.hasPermission(selectedProject, BasePermission.WRITE);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;

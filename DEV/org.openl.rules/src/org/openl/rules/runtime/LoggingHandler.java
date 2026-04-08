@@ -1,10 +1,9 @@
 package org.openl.rules.runtime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoggingHandler {
-    private static final Logger LOG = LoggerFactory.getLogger("openl.rules.invoke");
     private static final ThreadLocal<LoggingCapability> INSTANCE = new ThreadLocal<>();
 
     public static void setup(LoggingCapability value) {
@@ -20,7 +19,7 @@ public class LoggingHandler {
         if (cap == null) {
             return false;
         }
-        return cap.serializer() != null && (cap.loggingEnabled() || LOG.isDebugEnabled());
+        return cap.serializer() != null && (cap.loggingEnabled() || log.isDebugEnabled());
     }
 
     static String convert(Object obj) {
@@ -29,9 +28,9 @@ public class LoggingHandler {
 
     static void log(CharSequence text) {
         if (INSTANCE.get().loggingEnabled()) {
-            LOG.info("\n{}", text);
+            log.info("\n{}", text);
         } else {
-            LOG.debug("\n{}", text);
+            log.debug("\n{}", text);
         }
     }
 }

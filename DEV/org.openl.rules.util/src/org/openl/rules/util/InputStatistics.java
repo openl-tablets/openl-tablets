@@ -76,6 +76,7 @@ final class InputStatistics {
             y = new Double[len];
         }
 
+        @Override
         Double getAvgX() {
             if (avgX == null) {
                 avgX = Avg.avg(x);
@@ -83,6 +84,7 @@ final class InputStatistics {
             return avgX;
         }
 
+        @Override
         Double getAvgY() {
             if (avgY == null) {
                 avgY = Avg.avg(y);
@@ -100,6 +102,7 @@ final class InputStatistics {
             y = new BigDecimal[len];
         }
 
+        @Override
         BigDecimal getAvgX() {
             if (avgX == null) {
                 avgX = Avg.avg(x);
@@ -107,6 +110,7 @@ final class InputStatistics {
             return avgX;
         }
 
+        @Override
         BigDecimal getAvgY() {
             if (avgY == null) {
                 avgY = Avg.avg(y);
@@ -124,6 +128,7 @@ final class InputStatistics {
             y = new Float[len];
         }
 
+        @Override
         Float getAvgX() {
             if (avgX == null) {
                 avgX = Avg.avg(x);
@@ -131,6 +136,7 @@ final class InputStatistics {
             return avgX;
         }
 
+        @Override
         Float getAvgY() {
             if (avgY == null) {
                 avgY = Avg.avg(y);

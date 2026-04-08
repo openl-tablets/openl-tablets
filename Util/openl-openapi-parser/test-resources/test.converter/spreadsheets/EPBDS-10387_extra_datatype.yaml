@@ -4,46 +4,49 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/Example%202%20-%20Corporate%20Rating/Example%202%20-%20Corporate%20Rating
-    variables: { }
+    variables: {}
 paths:
   /RiskOfProfile:
     post:
       summary: "String RiskOfProfile(IRulesRuntimeContext, Corporate)"
-      description: "Method: java.lang.String RiskOfProfile(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.String RiskOfProfile(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.Corporate)"
       operationId: RiskOfProfile
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RiskOfProfileRequest'
+              $ref: "#/components/schemas/RiskOfProfileRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -55,41 +58,44 @@ paths:
   /QuickRatioGroup:
     post:
       summary: "Integer QuickRatioGroup(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.Integer QuickRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Integer QuickRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: QuickRatioGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuickRatioGroupRequest'
+              $ref: "#/components/schemas/QuickRatioGroupRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -102,41 +108,44 @@ paths:
   /RiskGroup:
     post:
       summary: "String RiskGroup(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.String RiskGroup(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.String RiskGroup(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: RiskGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RiskGroupRequest'
+              $ref: "#/components/schemas/RiskGroupRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -148,41 +157,44 @@ paths:
   /FinancialRating:
     post:
       summary: "Integer FinancialRating(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.Integer FinancialRating(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Integer FinancialRating(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: FinancialRating
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FinancialRatingRequest'
+              $ref: "#/components/schemas/FinancialRatingRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -195,41 +207,44 @@ paths:
   /RiskOfOperations:
     post:
       summary: "String RiskOfOperations(IRulesRuntimeContext, QualityIndicators)"
-      description: "Method: java.lang.String RiskOfOperations(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.String RiskOfOperations(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.QualityIndicators)"
       operationId: RiskOfOperations
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RiskOfOperationsRequest'
+              $ref: "#/components/schemas/RiskOfOperationsRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -241,41 +256,44 @@ paths:
   /CorporateRating:
     post:
       summary: "Double CorporateRating(IRulesRuntimeContext, Double, String)"
-      description: "Method: java.lang.Double CorporateRating(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double CorporateRating(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double, java.lang.String)"
       operationId: CorporateRating
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CorporateRatingRequest'
+              $ref: "#/components/schemas/CorporateRatingRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -288,41 +306,44 @@ paths:
   /ReputationScore:
     post:
       summary: "Double ReputationScore(IRulesRuntimeContext, String)"
-      description: "Method: java.lang.Double ReputationScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double ReputationScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String)"
       operationId: ReputationScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReputationScoreRequest'
+              $ref: "#/components/schemas/ReputationScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -341,34 +362,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -378,45 +401,48 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Corporate'
+                  $ref: "#/components/schemas/Corporate"
   /ContractorsScore:
     post:
       summary: "Double ContractorsScore(IRulesRuntimeContext, String)"
-      description: "Method: java.lang.Double ContractorsScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double ContractorsScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String)"
       operationId: ContractorsScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContractorsScoreRequest'
+              $ref: "#/components/schemas/ContractorsScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -429,41 +455,44 @@ paths:
   /RiskOfGeography:
     post:
       summary: "String RiskOfGeography(IRulesRuntimeContext, QualityIndicators)"
-      description: "Method: java.lang.String RiskOfGeography(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.String RiskOfGeography(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.QualityIndicators)"
       operationId: RiskOfGeography
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RiskOfGeographyRequest'
+              $ref: "#/components/schemas/RiskOfGeographyRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -475,41 +504,44 @@ paths:
   /IndustryScore:
     post:
       summary: "Double IndustryScore(IRulesRuntimeContext, String)"
-      description: "Method: java.lang.Double IndustryScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double IndustryScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String)"
       operationId: IndustryScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IndustryScoreRequest'
+              $ref: "#/components/schemas/IndustryScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -522,41 +554,44 @@ paths:
   /TerrorismScore:
     post:
       summary: "Double TerrorismScore(IRulesRuntimeContext, Boolean)"
-      description: "Method: java.lang.Double TerrorismScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double TerrorismScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Boolean)"
       operationId: TerrorismScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TerrorismScoreRequest'
+              $ref: "#/components/schemas/TerrorismScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -569,41 +604,44 @@ paths:
   /OwnershipScore:
     post:
       summary: "Double OwnershipScore(IRulesRuntimeContext, String)"
-      description: "Method: java.lang.Double OwnershipScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double OwnershipScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String)"
       operationId: OwnershipScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OwnershipScoreRequest'
+              $ref: "#/components/schemas/OwnershipScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -616,41 +654,44 @@ paths:
   /RegistrationOfAssociatedPersonScore:
     post:
       summary: "Double RegistrationOfAssociatedPersonScore(IRulesRuntimeContext, Boolean)"
-      description: "Method: java.lang.Double RegistrationOfAssociatedPersonScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double RegistrationOfAssociatedPersonScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Boolean)"
       operationId: RegistrationOfAssociatedPersonScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegistrationOfAssociatedPersonScoreRequest'
+              $ref: "#/components/schemas/RegistrationOfAssociatedPersonScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -663,41 +704,44 @@ paths:
   /SetNonZeroValues:
     post:
       summary: "void SetNonZeroValues(IRulesRuntimeContext, FinancialData)"
-      description: "Method: void SetNonZeroValues(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: void SetNonZeroValues(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.FinancialData)"
       operationId: SetNonZeroValues
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SetNonZeroValuesRequest'
+              $ref: "#/components/schemas/SetNonZeroValuesRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -708,9 +752,11 @@ paths:
                 type: string
   /CorporateRatingCalculation:
     post:
-      summary: "CorporateRatingCalculation CorporateRatingCalculation(IRulesRuntimeContext,\
+      summary:
+        "CorporateRatingCalculation CorporateRatingCalculation(IRulesRuntimeContext,\
         \ Corporate)"
-      description: "Method: org.openl.generated.spreadsheetresults.CorporateRatingCalculation\
+      description:
+        "Method: org.openl.generated.spreadsheetresults.CorporateRatingCalculation\
         \ CorporateRatingCalculation(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.Corporate)"
       operationId: CorporateRatingCalculation
@@ -718,34 +764,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CorporateRatingCalculationRequest'
+              $ref: "#/components/schemas/CorporateRatingCalculationRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -753,45 +801,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CorporateRatingCalculation'
+                $ref: "#/components/schemas/CorporateRatingCalculation"
   /GeographyOfBusinessScore:
     post:
       summary: "Double GeographyOfBusinessScore(IRulesRuntimeContext, Boolean)"
-      description: "Method: java.lang.Double GeographyOfBusinessScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double GeographyOfBusinessScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Boolean)"
       operationId: GeographyOfBusinessScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GeographyOfBusinessScoreRequest'
+              $ref: "#/components/schemas/GeographyOfBusinessScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -804,41 +855,44 @@ paths:
   /CashLiquidityRatioGroup:
     post:
       summary: "Integer CashLiquidityRatioGroup(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.Integer CashLiquidityRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Integer CashLiquidityRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: CashLiquidityRatioGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CashLiquidityRatioGroupRequest'
+              $ref: "#/components/schemas/CashLiquidityRatioGroupRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -851,41 +905,44 @@ paths:
   /RegistrationScore:
     post:
       summary: "Double RegistrationScore(IRulesRuntimeContext, Boolean)"
-      description: "Method: java.lang.Double RegistrationScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double RegistrationScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Boolean)"
       operationId: RegistrationScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegistrationScoreRequest'
+              $ref: "#/components/schemas/RegistrationScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -898,41 +955,44 @@ paths:
   /IncreaseRiskOfOperationsScore:
     post:
       summary: "Double IncreaseRiskOfOperationsScore(IRulesRuntimeContext, QualityIndicators)"
-      description: "Method: java.lang.Double IncreaseRiskOfOperationsScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double IncreaseRiskOfOperationsScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.QualityIndicators)"
       operationId: IncreaseRiskOfOperationsScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncreaseRiskOfOperationsScoreRequest'
+              $ref: "#/components/schemas/IncreaseRiskOfOperationsScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -944,43 +1004,47 @@ paths:
                 format: double
   /RiskOfWorkWithCorporate:
     post:
-      summary: "String RiskOfWorkWithCorporate(IRulesRuntimeContext, String, String,\
+      summary:
+        "String RiskOfWorkWithCorporate(IRulesRuntimeContext, String, String,\
         \ String)"
-      description: "Method: java.lang.String RiskOfWorkWithCorporate(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.String RiskOfWorkWithCorporate(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String, java.lang.String, java.lang.String)"
       operationId: RiskOfWorkWithCorporate
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RiskOfWorkWithCorporateRequest'
+              $ref: "#/components/schemas/RiskOfWorkWithCorporateRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -992,41 +1056,44 @@ paths:
   /IncreaseRiskOfProfileScore:
     post:
       summary: "Double IncreaseRiskOfProfileScore(IRulesRuntimeContext, QualityIndicators)"
-      description: "Method: java.lang.Double IncreaseRiskOfProfileScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double IncreaseRiskOfProfileScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.QualityIndicators)"
       operationId: IncreaseRiskOfProfileScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncreaseRiskOfProfileScoreRequest'
+              $ref: "#/components/schemas/IncreaseRiskOfProfileScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1038,43 +1105,47 @@ paths:
                 format: double
   /DecreaseRiskOfOperationsScore:
     post:
-      summary: "Double DecreaseRiskOfOperationsScore(IRulesRuntimeContext, Boolean,\
+      summary:
+        "Double DecreaseRiskOfOperationsScore(IRulesRuntimeContext, Boolean,\
         \ Boolean)"
-      description: "Method: java.lang.Double DecreaseRiskOfOperationsScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double DecreaseRiskOfOperationsScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Boolean, java.lang.Boolean)"
       operationId: DecreaseRiskOfOperationsScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DecreaseRiskOfOperationsScoreRequest'
+              $ref: "#/components/schemas/DecreaseRiskOfOperationsScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1087,41 +1158,44 @@ paths:
   /CurrentRatioGroup:
     post:
       summary: "Integer CurrentRatioGroup(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.Integer CurrentRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Integer CurrentRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: CurrentRatioGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CurrentRatioGroupRequest'
+              $ref: "#/components/schemas/CurrentRatioGroupRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1140,34 +1214,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1177,46 +1253,50 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/QualityIndicators'
+                  $ref: "#/components/schemas/QualityIndicators"
   /MonthlyAccountsTurnoverScore:
     post:
-      summary: "Double MonthlyAccountsTurnoverScore(IRulesRuntimeContext, Integer,\
+      summary:
+        "Double MonthlyAccountsTurnoverScore(IRulesRuntimeContext, Integer,\
         \ Double, Double)"
-      description: "Method: java.lang.Double MonthlyAccountsTurnoverScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double MonthlyAccountsTurnoverScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Integer, java.lang.Double, java.lang.Double)"
       operationId: MonthlyAccountsTurnoverScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MonthlyAccountsTurnoverScoreRequest'
+              $ref: "#/components/schemas/MonthlyAccountsTurnoverScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1229,41 +1309,44 @@ paths:
   /RatingDescription:
     post:
       summary: "String RatingDescription(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.String RatingDescription(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.String RatingDescription(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: RatingDescription
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RatingDescriptionRequest'
+              $ref: "#/components/schemas/RatingDescriptionRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1281,34 +1364,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1318,45 +1403,48 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FinancialData'
+                  $ref: "#/components/schemas/FinancialData"
   /SuspiciousOperationsScore:
     post:
       summary: "Double SuspiciousOperationsScore(IRulesRuntimeContext, String)"
-      description: "Method: java.lang.Double SuspiciousOperationsScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double SuspiciousOperationsScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String)"
       operationId: SuspiciousOperationsScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SuspiciousOperationsScoreRequest'
+              $ref: "#/components/schemas/SuspiciousOperationsScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1368,43 +1456,47 @@ paths:
                 format: double
   /EquityToCurrentAssetsRatioGroup:
     post:
-      summary: "Integer EquityToCurrentAssetsRatioGroup(IRulesRuntimeContext, String,\
+      summary:
+        "Integer EquityToCurrentAssetsRatioGroup(IRulesRuntimeContext, String,\
         \ Double)"
-      description: "Method: java.lang.Integer EquityToCurrentAssetsRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Integer EquityToCurrentAssetsRatioGroup(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String, java.lang.Double)"
       operationId: EquityToCurrentAssetsRatioGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EquityToCurrentAssetsRatioGroupRequest'
+              $ref: "#/components/schemas/EquityToCurrentAssetsRatioGroupRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1417,41 +1509,44 @@ paths:
   /OperatingProfitMarginGroup:
     post:
       summary: "Integer OperatingProfitMarginGroup(IRulesRuntimeContext, Double)"
-      description: "Method: java.lang.Integer OperatingProfitMarginGroup(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Integer OperatingProfitMarginGroup(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Double)"
       operationId: OperatingProfitMarginGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OperatingProfitMarginGroupRequest'
+              $ref: "#/components/schemas/OperatingProfitMarginGroupRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1464,41 +1559,44 @@ paths:
   /OperationsOfMainIndustryScore:
     post:
       summary: "Double OperationsOfMainIndustryScore(IRulesRuntimeContext, Boolean)"
-      description: "Method: java.lang.Double OperationsOfMainIndustryScore(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double OperationsOfMainIndustryScore(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.Boolean)"
       operationId: OperationsOfMainIndustryScore
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OperationsOfMainIndustryScoreRequest'
+              $ref: "#/components/schemas/OperationsOfMainIndustryScoreRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1510,9 +1608,11 @@ paths:
                 format: double
   /FinancialRatingCalculation:
     post:
-      summary: "FinancialRatingCalculation FinancialRatingCalculation(IRulesRuntimeContext,\
+      summary:
+        "FinancialRatingCalculation FinancialRatingCalculation(IRulesRuntimeContext,\
         \ FinancialData, String)"
-      description: "Method: org.openl.generated.spreadsheetresults.FinancialRatingCalculation\
+      description:
+        "Method: org.openl.generated.spreadsheetresults.FinancialRatingCalculation\
         \ FinancialRatingCalculation(org.openl.rules.context.IRulesRuntimeContext,\
         \ org.openl.generated.beans.FinancialData, java.lang.String)"
       operationId: FinancialRatingCalculation
@@ -1520,34 +1620,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FinancialRatingCalculationRequest'
+              $ref: "#/components/schemas/FinancialRatingCalculationRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1555,45 +1657,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FinancialRatingCalculation'
+                $ref: "#/components/schemas/FinancialRatingCalculation"
   /FinancialRatioWeight:
     post:
       summary: "Double FinancialRatioWeight(IRulesRuntimeContext, String)"
-      description: "Method: java.lang.Double FinancialRatioWeight(org.openl.rules.context.IRulesRuntimeContext,\
+      description:
+        "Method: java.lang.Double FinancialRatioWeight(org.openl.rules.context.IRulesRuntimeContext,\
         \ java.lang.String)"
       operationId: FinancialRatioWeight
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FinancialRatioWeightRequest'
+              $ref: "#/components/schemas/FinancialRatioWeightRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -1641,9 +1746,9 @@ components:
           format: int32
           default: 0
         financialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         qualityIndicators:
-          $ref: '#/components/schemas/QualityIndicators'
+          $ref: "#/components/schemas/QualityIndicators"
       xml:
         name: Corporate
         namespace: http://beans.generated.openl.org
@@ -2079,9 +2184,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         corporate:
-          $ref: '#/components/schemas/Corporate'
+          $ref: "#/components/schemas/Corporate"
       xml:
         name: RiskOfProfileRequest
         namespace: http://jaxrs.openl.org
@@ -2089,7 +2194,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         quickRatio:
           type: number
           format: double
@@ -2100,7 +2205,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         riskScore:
           type: number
           format: double
@@ -2111,7 +2216,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         financialScore:
           type: number
           format: double
@@ -2122,9 +2227,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         qualityIndicators:
-          $ref: '#/components/schemas/QualityIndicators'
+          $ref: "#/components/schemas/QualityIndicators"
       xml:
         name: RiskOfOperationsRequest
         namespace: http://jaxrs.openl.org
@@ -2132,7 +2237,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         financialRating:
           type: number
           format: double
@@ -2145,7 +2250,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         reputationOfTheCorporateOrAssociatedPerson:
           type: string
       xml:
@@ -2155,7 +2260,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         reputationOfRegularContractors:
           type: string
       xml:
@@ -2165,9 +2270,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         qualityIndicators:
-          $ref: '#/components/schemas/QualityIndicators'
+          $ref: "#/components/schemas/QualityIndicators"
       xml:
         name: RiskOfGeographyRequest
         namespace: http://jaxrs.openl.org
@@ -2175,7 +2280,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         industry:
           type: string
       xml:
@@ -2185,7 +2290,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         isAnyInfoInvolvedTerrorism:
           type: boolean
       xml:
@@ -2195,7 +2300,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         ownership:
           type: string
       xml:
@@ -2205,7 +2310,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         isRegistrationOfAssociatedPersonInSuspiciousArea:
           type: boolean
       xml:
@@ -2215,9 +2320,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         financialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
       xml:
         name: SetNonZeroValuesRequest
         namespace: http://jaxrs.openl.org
@@ -2225,7 +2330,7 @@ components:
       type: object
       properties:
         Value_FinancialRatingCalculation:
-          $ref: '#/components/schemas/FinancialRatingCalculation'
+          $ref: "#/components/schemas/FinancialRatingCalculation"
         Description_FinancialRating:
           type: string
         Value_FinancialRating:
@@ -2377,9 +2482,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         corporate:
-          $ref: '#/components/schemas/Corporate'
+          $ref: "#/components/schemas/Corporate"
       xml:
         name: CorporateRatingCalculationRequest
         namespace: http://jaxrs.openl.org
@@ -2387,7 +2492,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         isGeographyOfBusinessInSuspiciousArea:
           type: boolean
       xml:
@@ -2397,7 +2502,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         cashLiquidityRatio:
           type: number
           format: double
@@ -2408,7 +2513,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         isRegistrationInSuspiciousArea:
           type: boolean
       xml:
@@ -2418,9 +2523,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         qualityIndicators:
-          $ref: '#/components/schemas/QualityIndicators'
+          $ref: "#/components/schemas/QualityIndicators"
       xml:
         name: IncreaseRiskOfOperationsScoreRequest
         namespace: http://jaxrs.openl.org
@@ -2428,7 +2533,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         riskOfProfile:
           type: string
         riskOfOperations:
@@ -2442,9 +2547,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         qualityIndicators:
-          $ref: '#/components/schemas/QualityIndicators'
+          $ref: "#/components/schemas/QualityIndicators"
       xml:
         name: IncreaseRiskOfProfileScoreRequest
         namespace: http://jaxrs.openl.org
@@ -2452,7 +2557,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         isAnySalaryFinOperation:
           type: boolean
         isAnyCredits:
@@ -2464,7 +2569,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         currentRatio:
           type: number
           format: double
@@ -2475,7 +2580,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         numberOfEmployees:
           type: integer
           format: int32
@@ -2492,7 +2597,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         corporateRating:
           type: number
           format: double
@@ -2503,7 +2608,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         isAnySuspiciousFinancialTransaction:
           type: string
       xml:
@@ -2513,7 +2618,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         industry:
           type: string
         equityToCurrentAssetsRatio:
@@ -2526,7 +2631,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         operatingProfitMargin:
           type: number
           format: double
@@ -2537,7 +2642,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         areAllFinancialOperationsOfMainIndustry:
           type: boolean
       xml:
@@ -2547,9 +2652,9 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         financialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         industry:
           type: string
       xml:
@@ -2559,7 +2664,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         financialRatio:
           type: string
       xml:

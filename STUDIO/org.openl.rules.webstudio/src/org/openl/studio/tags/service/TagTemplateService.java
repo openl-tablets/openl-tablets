@@ -8,8 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +21,8 @@ import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.util.StringUtils;
 
 @Service
+@Slf4j
 public class TagTemplateService {
-    private static final Logger LOG = LoggerFactory.getLogger(TagTemplateService.class);
     private static final Pattern TAG_PATTERN = Pattern.compile("%([^%]+)%");
     private static final Pattern NONE_WILDCARD_PATTERN = Pattern.compile("([^*?]+)");
 
@@ -65,7 +64,7 @@ public class TagTemplateService {
             String regexPattern = buildPatternAndFindTagTypes(template.getTemplate(), tagTypes);
 
             if (tagTypes.isEmpty()) {
-                LOG.warn("Template '{}' doesn't contain tag types.", template);
+                log.warn("Template '{}' doesn't contain tag types.", template);
                 continue;
             }
 
@@ -131,7 +130,7 @@ public class TagTemplateService {
                 tagTypes.add(tagType);
                 regexPattern.append("(.+)"); // Capturing group order will be same as in groupTypes.
             } else {
-                LOG.warn("Cannot find tag type '{}'. Skip it.", tagTypeName);
+                log.warn("Cannot find tag type '{}'. Skip it.", tagTypeName);
             }
 
             pos = matcher.end();

@@ -25,4 +25,8 @@ i18next.addResourceBundle('en', 'tags', {
     project_name_templates: 'Project Name Templates',
     save_templates: 'Save Templates',
     fill_tags_for_project: 'Fill Tags for Project',
+    templates_saved: 'Templates saved successfully',
+    templates_save_error: 'Failed to save templates',
+    fill_tags_success: 'Tags filled successfully for {{count}} project(s)',
+    fill_tags_error: 'Failed to fill tags for projects',
 })

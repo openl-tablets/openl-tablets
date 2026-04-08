@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -20,30 +20,31 @@
     <properties>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-maven-plugin</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <resources>
             <resource>
-                <directory>resources</directory>
                 <filtering>true</filtering>
+                <directory>resources</directory>
                 <includes>
                     <include>archetype-resources/pom.xml</include>
                 </includes>
             </resource>
             <resource>
-                <directory>resources</directory>
                 <filtering>false</filtering>
+                <directory>resources</directory>
                 <excludes>
                     <exclude>archetype-resources/pom.xml</exclude>
                 </excludes>
             </resource>
         </resources>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.archetype</groupId>
-                <artifactId>archetype-packaging</artifactId>
-                <version>3.4.1</version>
-            </extension>
-        </extensions>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -54,14 +55,13 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>3.4.1</version>
+            </extension>
+        </extensions>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>openl-maven-plugin</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
 </project>

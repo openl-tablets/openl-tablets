@@ -3,11 +3,13 @@ package org.openl.studio.users.model.pat;
 import java.time.Instant;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 /**
  * Response model for newly created Personal Access Token.
  * Includes the full token which is only shown once.
  */
+@Builder
 public record CreatedPersonalAccessTokenResponse(
         @Schema(description = "pat.field.public-id.desc", example = "a1b2c3d4e5f6")
         String publicId,
@@ -26,51 +28,4 @@ public record CreatedPersonalAccessTokenResponse(
 
         @Schema(description = "pat.field.expires-at.desc")
         Instant expiresAt) {
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String publicId;
-        private String name;
-        private String loginName;
-        private String token;
-        private Instant createdAt;
-        private Instant expiresAt;
-
-        public Builder publicId(String publicId) {
-            this.publicId = publicId;
-            return this;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder loginName(String loginName) {
-            this.loginName = loginName;
-            return this;
-        }
-
-        public Builder token(String token) {
-            this.token = token;
-            return this;
-        }
-
-        public Builder createdAt(Instant createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Builder expiresAt(Instant expiresAt) {
-            this.expiresAt = expiresAt;
-            return this;
-        }
-
-        public CreatedPersonalAccessTokenResponse build() {
-            return new CreatedPersonalAccessTokenResponse(publicId, name, loginName, token, createdAt, expiresAt);
-        }
-    }
 }

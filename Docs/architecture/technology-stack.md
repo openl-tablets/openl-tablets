@@ -147,7 +147,6 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 |----------|------------|---------|
 | AWS S3 | 2.34.9 | Cloud repository backend |
 | Azure Blob Storage | 12.31.3 | Cloud repository backend |
-| MinIO | 8.5.17 | S3-compatible storage |
 
 ### Version Control
 | Component | Version | Purpose |

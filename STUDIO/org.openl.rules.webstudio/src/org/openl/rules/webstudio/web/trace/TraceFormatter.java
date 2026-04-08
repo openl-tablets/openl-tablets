@@ -4,11 +4,11 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
@@ -36,29 +36,58 @@ import org.openl.util.ClassUtils;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
 
+@Slf4j
 public class TraceFormatter {
-    static String getDisplayName(ITracerObject obj, boolean smartNumbers) {
+
+    /**
+     * Returns a human-readable display name for the given {@link ITracerObject}.
+     * <p>
+     * The returned string varies based on the runtime type of {@code obj}:
+     * <ul>
+     *   <li>{@link WScoreTraceObject}: returns {@code "Score: "} followed by the result value</li>
+     *   <li>{@link ResultTraceObject}: returns {@code "Result: "} followed by the result value</li>
+     *   <li>{@link MatchTraceObject}: returns match operation details with check value and result</li>
+     *   <li>{@link TBasicOperationTraceObject}: returns step details including row, operation name, and local vars</li>
+     *   <li>{@link DTRuleTraceObject}: returns condition name and matching rule names</li>
+     *   <li>{@link SpreadsheetTracerLeaf}: returns cell reference (e.g., {@code $Column$Row}) with optional result</li>
+     *   <li>{@link OverloadedMethodChoiceTraceObject}: returns overloaded method choice description</li>
+     *   <li>{@link DTRuleTracerLeaf}: returns {@code "Returned rule: "} followed by rule names</li>
+     *   <li>{@link ATableTracerNode}: returns method signature with prefix and optional result</li>
+     *   <li>{@link RefToTracerNodeObject}: recursively resolves the original tracer node</li>
+     *   <li>Unknown types: returns {@code "NULL - "} followed by the object's class name</li>
+     * </ul>
+     * <p>
+     * When {@code smartNumbers} is {@code true}, numeric values are formatted using smart formatting
+     * (e.g., removing unnecessary trailing zeros). When {@code false}, numbers use the default
+     * number format. Arrays are formatted with curly braces and comma separators.
+     *
+     * @param obj          the {@link ITracerObject} instance to format; must not be {@code null}
+     * @param smartNumbers {@code true} to apply smart number formatting (cleaner display),
+     *                     {@code false} to use the default number format
+     * @return a non-null display string describing the tracer object
+     */
+    public static String getDisplayName(ITracerObject obj, boolean smartNumbers) {
         if (obj instanceof WScoreTraceObject) {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {
             return "Result: " + obj.getResult();
-        } else if (obj instanceof MatchTraceObject) {
-            return getDisplayName((MatchTraceObject) obj, smartNumbers);
-        } else if (obj instanceof TBasicOperationTraceObject) {
-            return getDisplayName((TBasicOperationTraceObject) obj, smartNumbers);
-        } else if (obj instanceof DTRuleTraceObject) {
-            return getDisplayName((DTRuleTraceObject) obj);
-        } else if (obj instanceof SpreadsheetTracerLeaf) {
-            return getDisplayName((SpreadsheetTracerLeaf) obj, smartNumbers);
-        } else if (obj instanceof OverloadedMethodChoiceTraceObject) {
+        } else if (obj instanceof MatchTraceObject object4) {
+            return getDisplayName(object4, smartNumbers);
+        } else if (obj instanceof TBasicOperationTraceObject object3) {
+            return getDisplayName(object3, smartNumbers);
+        } else if (obj instanceof DTRuleTraceObject object2) {
+            return getDisplayName(object2);
+        } else if (obj instanceof SpreadsheetTracerLeaf leaf1) {
+            return getDisplayName(leaf1, smartNumbers);
+        } else if (obj instanceof OverloadedMethodChoiceTraceObject object1) {
             return "Overloaded method choice for method " + MethodUtil
-                    .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
-        } else if (obj instanceof DTRuleTracerLeaf) {
-            return "Returned rule: " + Arrays.toString(((DTRuleTracerLeaf) obj).getRuleNames());
-        } else if (obj instanceof ATableTracerNode) {
-            return getDisplayName((ATableTracerNode) obj, smartNumbers);
-        } else if (obj instanceof RefToTracerNodeObject) {
-            return getDisplayName(((RefToTracerNodeObject) obj).getOriginalTracerNode(), smartNumbers);
+                    .printSignature(object1.getMethodCandidates().getFirst(), 0);
+        } else if (obj instanceof DTRuleTracerLeaf leaf) {
+            return "Returned rule: " + Arrays.toString(leaf.getRuleNames());
+        } else if (obj instanceof ATableTracerNode node) {
+            return getDisplayName(node, smartNumbers);
+        } else if (obj instanceof RefToTracerNodeObject object) {
+            return getDisplayName(object.getOriginalTracerNode(), smartNumbers);
         }
         return "NULL - " + obj.getClass();
     }
@@ -90,10 +119,10 @@ public class TraceFormatter {
 
         String displayFieldFormattedValues = "";
         if (!fieldFormattedValues.equals("")) {
-            displayFieldFormattedValues = String.format("[Local vars: %s]", fieldFormattedValues);
+            displayFieldFormattedValues = "[Local vars: %s]".formatted(fieldFormattedValues);
         }
 
-        return String.format("Step: row %d: %s %s %s %s",
+        return "Step: row %d: %s %s %s %s".formatted(
                 operationRow,
                 operationName,
                 nameForDebug != null ? nameForDebug : "",
@@ -127,19 +156,24 @@ public class TraceFormatter {
             ruleNames[i] = decisionTable.getRuleName(rules[i]);
         }
         if (dti.isIndexed()) {
-            return String
-                    .format("Indexed condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+            return "Indexed condition: %s, Rules: %s"
+                    .formatted(dti.getConditionName(), Arrays.toString(ruleNames));
         } else {
-            return String.format("Condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+            return "Condition: %s, Rules: %s".formatted(dti.getConditionName(), Arrays.toString(ruleNames));
         }
     }
 
     private static String getDisplayName(SpreadsheetTracerLeaf stl, boolean smartNumbers) {
         StringBuilder buf = new StringBuilder(64);
         Spreadsheet spreadsheet = (Spreadsheet) stl.getTraceObject();
-        buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         SpreadsheetCell spreadsheetCell = stl.getSpreadsheetCell();
-        buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        var colsCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
+                .filter(Objects::nonNull)
+                .count();
+        if (colsCount > 1) {
+            buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+            buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        }
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         buf.append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
 
@@ -221,10 +255,8 @@ public class TraceFormatter {
             try {
                 return FormattersManager.format(o);
             } catch (Throwable e) {
-                Logger log = LoggerFactory.getLogger(TraceFormatter.class);
                 log.debug(e.getMessage(), e);
-                return String.format(
-                        "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                return "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>".formatted(
                         getClassName.apply(e),
                         getClassName.apply(o));
             }

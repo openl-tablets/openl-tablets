@@ -6,6 +6,18 @@ Content-Type: application/json
   "tableType": "Data",
   "kind": "Data",
   "name": "states",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Type 'USState' is not found.",
+      "severity": "ERROR"
+    },
+    {
+      "id": "*",
+      "summary": "Type 'USState' is defined with errors.",
+      "severity": "ERROR"
+    }
+  ],
   "headers": [
     {
       "fieldName": "name",

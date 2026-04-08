@@ -33,8 +33,8 @@ public class TraceHelper {
     private void initializeLazyChildren(ITracerObject node) {
         List<LazyTracerNodeObject> lazyNodes = new ArrayList<>();
         for (var childNode : node.getChildren()) {
-            if (childNode instanceof LazyTracerNodeObject) {
-                lazyNodes.add((LazyTracerNodeObject) childNode);
+            if (childNode instanceof LazyTracerNodeObject object) {
+                lazyNodes.add(object);
             }
         }
         for (var lazyNode : lazyNodes) {

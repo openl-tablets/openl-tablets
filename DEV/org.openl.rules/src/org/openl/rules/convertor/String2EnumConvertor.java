@@ -20,7 +20,7 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
             }
         }
 
-        throw new IllegalArgumentException(String
-                .format("Constant corresponding to value '%s' cannot be found in Enum %s ", data, enumType.getName()));
+        throw new IllegalArgumentException("Constant corresponding to value '%s' cannot be found in Enum %s "
+                .formatted(data, enumType.getName()));
     }
 }

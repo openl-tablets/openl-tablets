@@ -9,9 +9,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -38,15 +39,21 @@ import org.openl.types.IOpenClass;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServiceInstantiationFactory {
-    private final Logger log = LoggerFactory.getLogger(RuleServiceOpenLServiceInstantiationFactoryImpl.class);
 
+    @Getter
+    @Setter
     private RuleServiceLoader ruleServiceLoader;
 
+    @Getter
+    @Setter
     private Map<String, Object> externalParameters;
 
     private final Map<DeploymentDescription, RuleServiceDependencyManager> dependencyManagerMap = new HashMap<>();
 
+    @Getter
+    @Setter
     private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
     @Autowired
@@ -146,7 +153,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceClass = serviceClassLoader.loadClass(serviceClassName.trim());
                 if (!serviceClass.isInterface()) {
                     throw new RuleServiceRuntimeException(
-                            String.format("Failed to apply service class '%s'. Interface is expected, but class is found.",
+                            "Failed to apply service class '%s'. Interface is expected, but class is found.".formatted(
                                     serviceClass));
                 }
                 serviceTargetClass = RuleServiceInstantiationFactoryHelper
@@ -159,7 +166,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceTarget = instantiationStrategy.instantiate();
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 throw new RuleServiceRuntimeException(
-                        String.format("Failed to load a service class '%s'.", serviceClassName),
+                        "Failed to load a service class '%s'.".formatted(serviceClassName),
                         e);
             }
         } else {
@@ -196,14 +203,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                             serviceDescription.getDeployPath());
                     return decoratedClass;
                 }
-                throw new RuleServiceRuntimeException(String.format(
-                        "Failed to apply annotation template class '%s'. Interface or abstract class is expected, but class is found.",
+                throw new RuleServiceRuntimeException("Failed to apply annotation template class '%s'. Interface or abstract class is expected, but class is found.".formatted(
                         annotationTemplateClassName));
             } catch (RuleServiceRuntimeException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
                 throw new RuleServiceRuntimeException(
-                        String.format("Failed to load or apply annotation template class '%s'.",
+                        "Failed to load or apply annotation template class '%s'.".formatted(
                                 annotationTemplateClassName),
                         e);
             }
@@ -241,19 +247,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     throw e;
                 } catch (Exception e) {
                     throw new RuleServiceInstantiationException(
-                            String.format("Failed to initialize service '%s'.", openLService.getDeployPath()),
+                            "Failed to initialize service '%s'.".formatted(openLService.getDeployPath()),
                             e);
                 }
             }
         });
-    }
-
-    public RuleServiceLoader getRuleServiceLoader() {
-        return ruleServiceLoader;
-    }
-
-    public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
-        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleServiceLoader cannot be null");
     }
 
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {
@@ -262,23 +260,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         } else {
             return Collections.emptyList();
         }
-    }
-
-    public ObjectProvider<Collection<ServiceInvocationAdviceListener>> getServiceInvocationAdviceListeners() {
-        return serviceInvocationAdviceListeners;
-    }
-
-    public void setServiceInvocationAdviceListeners(
-            ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners) {
-        this.serviceInvocationAdviceListeners = serviceInvocationAdviceListeners;
-    }
-
-    public Map<String, Object> getExternalParameters() {
-        return externalParameters;
-    }
-
-    public void setExternalParameters(Map<String, Object> externalParameters) {
-        this.externalParameters = externalParameters;
     }
 
     @Override

@@ -304,6 +304,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
+    @Override
     public void prepareParams(OpenL openl, IBindingContext bindingContext) {
         for (int i = 0; i < paramsTable.getHeight(); i++) {
             if (!paramInitialized.get(i)) {
@@ -372,8 +373,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                             Object[][] values = arrayHolder.get2DimValues();
                             for (Object[] value : values) {
                                 for (Object o : value) {
-                                    if (o instanceof CompositeMethod) {
-                                        anySpreadsheetResult = processCompositeMethod((CompositeMethod) o,
+                                    if (o instanceof CompositeMethod compositeMethod) {
+                                        anySpreadsheetResult = processCompositeMethod(compositeMethod,
                                                 customSpreadsheetResultOpenClasses,
                                                 paramDim - 2,
                                                 anySpreadsheetResult);
@@ -386,8 +387,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                         } else if (paramDim > 0) {
                             Object[] values = arrayHolder.getValues();
                             for (Object o : values) {
-                                if (o instanceof CompositeMethod) {
-                                    anySpreadsheetResult = processCompositeMethod((CompositeMethod) o,
+                                if (o instanceof CompositeMethod compositeMethod) {
+                                    anySpreadsheetResult = processCompositeMethod(compositeMethod,
                                             customSpreadsheetResultOpenClasses,
                                             paramDim - 1,
                                             anySpreadsheetResult);
@@ -428,13 +429,13 @@ public abstract class FunctionalRow implements IDecisionRow {
             methodTypeDim++;
         }
         if (methodTypeDim == expectedDim) {
-            if (methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+            if (methodBodyType instanceof SpreadsheetResultOpenClass class3 && class3
                     .getModule() != null) {
                 customSpreadsheetResultOpenClasses
-                        .add(((SpreadsheetResultOpenClass) methodBodyType).toCustomSpreadsheetResultOpenClass());
-            } else if (methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
-                customSpreadsheetResultOpenClasses.add((CustomSpreadsheetResultOpenClass) methodBodyType);
-            } else if (methodBodyType instanceof AnySpreadsheetResultOpenClass || methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                        .add(class3.toCustomSpreadsheetResultOpenClass());
+            } else if (methodBodyType instanceof CustomSpreadsheetResultOpenClass class2) {
+                customSpreadsheetResultOpenClasses.add(class2);
+            } else if (methodBodyType instanceof AnySpreadsheetResultOpenClass || methodBodyType instanceof SpreadsheetResultOpenClass class1 && class1
                     .getModule() == null) {
                 return true;
             }
@@ -708,10 +709,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         for (int i = 0; i < dest.length - offset; i++) {
             Object value = storage[i].getValue(ruleN);
-            if (value instanceof IOpenMethod) {
-                value = ((IOpenMethod) value).invoke(target, tableParams, env);
-            } else if (value instanceof ArrayHolder) {
-                value = ((ArrayHolder) value).invoke(target, tableParams, env);
+            if (value instanceof IOpenMethod openMethod) {
+                value = openMethod.invoke(target, tableParams, env);
+            } else if (value instanceof ArrayHolder holder) {
+                value = holder.invoke(target, tableParams, env);
             }
             dest[i + offset] = value;
         }
@@ -721,10 +722,10 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public Object loadValue(int row, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
         Object value = storage[row].getValue(ruleN);
-        if (value instanceof IOpenMethod) {
-            value = ((IOpenMethod) value).invoke(target, tableParams, env);
-        } else if (value instanceof ArrayHolder) {
-            value = ((ArrayHolder) value).invoke(target, tableParams, env);
+        if (value instanceof IOpenMethod openMethod) {
+            value = openMethod.invoke(target, tableParams, env);
+        } else if (value instanceof ArrayHolder holder) {
+            value = holder.invoke(target, tableParams, env);
         }
         return value;
     }
@@ -777,8 +778,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                 int rules = st.size();
                 for (int i = 0; i < rules; i++) {
                     Object paramValue = st.getValue(i);
-                    if (paramValue instanceof CompositeMethod) {
-                        ((CompositeMethod) paramValue).removeDebugInformation();
+                    if (paramValue instanceof CompositeMethod compositeMethod) {
+                        compositeMethod.removeDebugInformation();
                     }
                 }
             }

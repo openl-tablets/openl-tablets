@@ -33,13 +33,9 @@ public class IntPair {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
+        if (!(obj instanceof IntPair other)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        IntPair other = (IntPair) obj;
         if (x != other.x) {
             return false;
         }

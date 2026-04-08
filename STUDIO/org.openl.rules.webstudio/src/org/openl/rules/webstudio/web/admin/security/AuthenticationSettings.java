@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
@@ -19,13 +18,6 @@ import org.openl.studio.settings.converter.SettingPropertyName;
         @JsonSubTypes.Type(value = ADAuthenticationSettings.class, name = "ad"),
         @JsonSubTypes.Type(value = SAMLAuthenticationSettings.class, name = "saml"),
         @JsonSubTypes.Type(value = OAuth2AuthenticationSettings.class, name = "oauth2")
-})
-@Schema(oneOf = {
-        InheritedAuthenticationSettings.class,
-        ADAuthenticationSettings.class,
-        SAMLAuthenticationSettings.class,
-        OAuth2AuthenticationSettings.class,
-        NOPAuthenticationSettings.class
 })
 public abstract class AuthenticationSettings implements SettingsHolder {
 

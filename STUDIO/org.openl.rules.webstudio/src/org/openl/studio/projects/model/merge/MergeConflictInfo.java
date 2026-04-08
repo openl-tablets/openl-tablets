@@ -4,6 +4,7 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.git.MergeConflictDetails;
@@ -17,6 +18,7 @@ import org.openl.rules.repository.git.MergeConflictDetails;
  * @param mergeBranchTo   target branch name of the merge operation
  * @param currentBranch   current branch name of the project
  */
+@Builder
 public record MergeConflictInfo(
         @NotNull
         MergeConflictDetails details,
@@ -30,6 +32,16 @@ public record MergeConflictInfo(
         String currentBranch
 ) {
 
+    public MergeConflictInfo {
+        Objects.requireNonNull(details);
+        Objects.requireNonNull(project);
+        if (mergeBranchFrom != null || mergeBranchTo != null || currentBranch != null) {
+            Objects.requireNonNull(mergeBranchFrom, "mergeBranchFrom must be initialized");
+            Objects.requireNonNull(mergeBranchTo, "mergeBranchTo must be initialized");
+            Objects.requireNonNull(currentBranch, "currentBranch must be initialized");
+        }
+    }
+
     public boolean isMerging() {
         return mergeBranchFrom != null && mergeBranchTo != null;
     }
@@ -40,59 +52,5 @@ public record MergeConflictInfo(
 
     public String getRepositoryId() {
         return project.getRepository().getId();
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private MergeConflictDetails details;
-        private RulesProject project;
-        private String mergeBranchFrom;
-        private String mergeBranchTo;
-        private String currentBranch;
-
-        private Builder() {
-
-        }
-
-        public Builder details(MergeConflictDetails details) {
-            this.details = details;
-            return this;
-        }
-
-        public Builder project(RulesProject project) {
-            this.project = project;
-            return this;
-        }
-
-        public Builder mergeBranchFrom(String mergeBranchFrom) {
-            this.mergeBranchFrom = mergeBranchFrom;
-            return this;
-        }
-
-        public Builder mergeBranchTo(String mergeBranchTo) {
-            this.mergeBranchTo = mergeBranchTo;
-            return this;
-        }
-
-        public Builder currentBranch(String currentBranch) {
-            this.currentBranch = currentBranch;
-            return this;
-        }
-
-        public MergeConflictInfo build() {
-            if (mergeBranchFrom != null || mergeBranchTo != null || currentBranch != null) {
-                Objects.requireNonNull(mergeBranchFrom, "mergeBranchFrom must be initialized");
-                Objects.requireNonNull(mergeBranchTo, "mergeBranchTo must be initialized");
-                Objects.requireNonNull(currentBranch, "currentBranch must be initialized");
-            }
-            return new MergeConflictInfo(Objects.requireNonNull(details),
-                    Objects.requireNonNull(project),
-                    mergeBranchFrom,
-                    mergeBranchTo,
-                    currentBranch);
-        }
     }
 }

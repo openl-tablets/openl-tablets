@@ -7,8 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -17,11 +16,11 @@ import org.springframework.util.ResourceUtils;
 /**
  * @author nsamatov.
  */
+@Slf4j
 public class PredefinedTemplatesResolver extends TemplatesResolver {
 
     private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
     private static final List<String> PREDEFINED_CATEGORIES = Arrays.asList("templates", "examples", "tutorials");
-    private final Logger log = LoggerFactory.getLogger(PredefinedTemplatesResolver.class);
 
     @Override
     protected List<String> resolveCategories() {

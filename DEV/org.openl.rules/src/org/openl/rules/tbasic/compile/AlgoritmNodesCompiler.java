@@ -95,7 +95,7 @@ public class AlgoritmNodesCompiler {
         }
 
         // the first operation always contains definition
-        boolean isLoopOperation = nodesToCompile.get(0).getSpecification().isLoopOperation();
+        boolean isLoopOperation = nodesToCompile.getFirst().getSpecification().isLoopOperation();
         labelManager.startOperationsSet(isLoopOperation);
 
         labelManager.generateAllLabels(conversionRule.getLabel());
@@ -121,10 +121,10 @@ public class AlgoritmNodesCompiler {
 
         // apply user defined label to the first emitted operation
         // label can be defined only for the first operation in the group
-        List<StringValue> userDefinedLabels = nodesToCompile.get(0).getLabels();
+        List<StringValue> userDefinedLabels = nodesToCompile.getFirst().getLabels();
         if (!userDefinedLabels.isEmpty() && !emittedOperations.isEmpty()) {
             for (StringValue userDefinedLabel : userDefinedLabels) {
-                currentCompileContext.setLabel(userDefinedLabel.getValue(), emittedOperations.get(0), bindingContext);
+                currentCompileContext.setLabel(userDefinedLabel.getValue(), emittedOperations.getFirst(), bindingContext);
             }
         }
 
@@ -137,7 +137,7 @@ public class AlgoritmNodesCompiler {
                                                               String fieldName,
                                                               IBindingContext bindingContext) {
         // TODO: strange method, refactore
-        String param = nodesToCompile.get(0)
+        String param = nodesToCompile.getFirst()
                 .getAlgorithmRow()
                 .getOperation() + AlgorithmCompilerTool.FIELD_SEPARATOR + fieldName;
 
@@ -192,8 +192,8 @@ public class AlgoritmNodesCompiler {
 
         if (!emittedOperations.isEmpty() && label != null) {
             // register internal generated label label
-            currentCompileContext.registerNewLabel(label, nodesToCompile.get(0), bindingContext);
-            currentCompileContext.setLabel(label, emittedOperations.get(0), bindingContext);
+            currentCompileContext.registerNewLabel(label, nodesToCompile.getFirst(), bindingContext);
+            currentCompileContext.setLabel(label, emittedOperations.getFirst(), bindingContext);
         }
 
         return emittedOperations;
@@ -259,11 +259,11 @@ public class AlgoritmNodesCompiler {
             String labelName = (String) parameterConverter
                     .convertParam(nodesToCompile, String.class, conversionStep.getOperationParam1(), bindingContext);
             if (!currentCompileContext.isLabelRegistered(labelName)) {
-                IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+                IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
                         .getAlgorithmRow()
                         .getOperation()
                         .asSourceCodeModule();
-                String errorMessage = String.format("Such label is not available from this place: '%s'.", labelName);
+                String errorMessage = "Such label is not available from this place: '%s'.".formatted(labelName);
                 BindHelper.processError(errorMessage, errorSource, bindingContext);
             }
             return null;

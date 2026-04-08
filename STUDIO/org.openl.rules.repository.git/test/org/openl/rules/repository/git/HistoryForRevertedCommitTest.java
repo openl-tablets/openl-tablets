@@ -55,7 +55,7 @@ public class HistoryForRevertedCommitTest {
         repo = repo.forBranch("project1");
         List<FileData> history = repo.listHistory("project1");
         assertEquals(5, history.size());
-        assertEquals("Add project1\n", history.get(0).getComment());
+        assertEquals("Add project1\n", history.getFirst().getComment());
         assertEquals("Hello\n", history.get(1).getComment());
         assertEquals("world\n", history.get(2).getComment());
         assertEquals("Revert \"world\"\n", history.get(3).getComment());
@@ -71,7 +71,7 @@ public class HistoryForRevertedCommitTest {
         repo = repo.forBranch("project2");
         List<FileData> history = repo.listHistory("project2");
         assertEquals(2, history.size());
-        assertEquals("Add project2\n", history.get(0).getComment());
+        assertEquals("Add project2\n", history.getFirst().getComment());
         assertEquals("Modify project2\n", history.get(1).getComment());
     }
 
@@ -93,7 +93,7 @@ public class HistoryForRevertedCommitTest {
         repo = repo.forBranch("project3");
         List<FileData> history = repo.listHistory("project3");
         assertEquals(5, history.size());
-        assertEquals("Add project3\n", history.get(0).getComment());
+        assertEquals("Add project3\n", history.getFirst().getComment());
         assertEquals("Modify project3\n", history.get(1).getComment());
         assertEquals("Improve project3\n", history.get(2).getComment());
         assertEquals("Revert \"Improve project3\"\n", history.get(3).getComment());

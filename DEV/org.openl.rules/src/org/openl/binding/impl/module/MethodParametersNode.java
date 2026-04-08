@@ -37,8 +37,7 @@ public class MethodParametersNode extends ABoundNode {
         ParameterDeclaration[] params = new ParameterDeclaration[len];
         Map<String, Integer> checkConflicts = new HashMap<>();
         for (int i = 0; i < len; i++) {
-            if (children[i] instanceof ParameterNode) {
-                ParameterNode parameterNode = (ParameterNode) children[i];
+            if (children[i] instanceof ParameterNode parameterNode) {
                 params[i] = new ParameterDeclaration(parameterNode.getType(),
                         parameterNode.getName(),
                         parameterNode.getContextProperty());
@@ -51,7 +50,7 @@ public class MethodParametersNode extends ABoundNode {
         }
         checkConflicts.entrySet().stream().filter(e -> e.getValue() > 1).forEach(e -> {
             bindingContext.addError(SyntaxNodeExceptionUtils.createError(
-                    String.format("Multiple method parameters refer to the same context property '%s'.", e.getKey()),
+                    "Multiple method parameters refer to the same context property '%s'.".formatted(e.getKey()),
                     getSyntaxNode()));
         });
         return new MethodSignature(params);

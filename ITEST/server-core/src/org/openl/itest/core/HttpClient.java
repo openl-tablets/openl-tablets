@@ -12,9 +12,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -102,25 +102,49 @@ public class HttpClient implements AutoCloseable {
      * So it allows grouping test suites and executing in predefined order.
      * It finds *.req files and match them with *.resp files.
      * <p>
+     * Environment variables can be defined in {@code itest.env} files placed in any test folder.
+     * Environment is loaded hierarchically using a stack: parent folder values are overridden by child folder values.
+     * Each env file is read only once and cached. Programmatic {@link #localEnv} values take the highest priority.
+     * <p>
      * Note. This method uses System.out and System.err for logging instead of Slf4j to provide consistent output
      * in cases when binding of the logger is failed.
      *
      * @param path a root directory where HTTP request files are stored
      */
     public void test(String path) {
-        var holder = new String[1];
-        try (Stream<Path> walk = Files.walk(Paths.get(path))) {
+        var cookieFolderHolder = new String[1];
+        var envFolderHolder = new String[1];
+        Path rootPath = Path.of(path);
+        var envLoader = new EnvironmentFileLoader(rootPath);
+        var currentFolderEnv = new HashMap<String, String>();
+
+        try (Stream<Path> walk = Files.walk(rootPath)) {
             long errors = walk.map(Path::toString).filter(p -> p.endsWith(".req")).map(p -> p.substring(0, p.length() - 4)).sorted().map(p -> {
                 long start = System.currentTimeMillis();
                 try {
-                    var folder = p.substring(0, p.indexOf(File.separatorChar, path.length() + 1) + 1);
-                    if (!folder.equals(holder[0])) {
-                        holder[0] = folder;
+                    // Cookie is scoped to first-level subfolder (original behavior)
+                    var cookieFolder = p.substring(0, p.indexOf(File.separatorChar, path.length() + 1) + 1);
+                    if (!cookieFolder.equals(cookieFolderHolder[0])) {
+                        cookieFolderHolder[0] = cookieFolder;
                         cookie.remove();
                         System.out.println(ANSI_BLUE_BOLD + "=============== RESET COOKIE ===============" + ANSI_RESET);
                     }
+
+                    // Environment is loaded per actual folder
+                    var envFolder = p.substring(0, p.lastIndexOf(File.separatorChar) + 1);
+                    if (!envFolder.equals(envFolderHolder[0])) {
+                        envFolderHolder[0] = envFolder;
+                        Path folderPath = Path.of(envFolder);
+                        currentFolderEnv.clear();
+                        currentFolderEnv.putAll(envLoader.navigateTo(folderPath));
+                    }
+
                     System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
-                    send(p + ".req", p + ".resp");
+
+                    // Merge: file env < programmatic env (programmatic has priority)
+                    Map<String, String> effectiveEnv = mergeEnvironments(currentFolderEnv, localEnv);
+                    send(p + ".req", p + ".resp", effectiveEnv);
+
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
                     return false;
@@ -135,6 +159,16 @@ public class HttpClient implements AutoCloseable {
         } catch (IOException e) {
             fail("Test folder is not found: " + path);
         }
+    }
+
+    /**
+     * Merges file-based environment with programmatic environment.
+     * Programmatic values take precedence.
+     */
+    private Map<String, String> mergeEnvironments(Map<String, String> fileEnv, Map<String, String> programmaticEnv) {
+        Map<String, String> merged = new LinkedHashMap<>(fileEnv);
+        merged.putAll(programmaticEnv);
+        return merged;
     }
 
     public <T> T getForObject(String url, Class<T> cl, int status, String... headers) {
@@ -194,6 +228,10 @@ public class HttpClient implements AutoCloseable {
      * </pre>
      */
     private void send(String requestFile, String responseFile) {
+        send(requestFile, responseFile, localEnv);
+    }
+
+    private void send(String requestFile, String responseFile, Map<String, String> effectiveEnv) {
         try {
             HttpData request = HttpData.readFile(requestFile);
             if (request == null) {
@@ -213,7 +251,7 @@ public class HttpClient implements AutoCloseable {
                 if (error != null) {
                     TimeUnit.MILLISECONDS.sleep(100);
                 }
-                response = HttpData.send(baseURL, request, cookie.get(), localEnv);
+                response = HttpData.send(baseURL, request, cookie.get(), effectiveEnv);
 
                 var c = response.getCookie();
                 if (c != null && !c.isBlank()) {
@@ -248,7 +286,7 @@ public class HttpClient implements AutoCloseable {
 
     public JsonNode readTree(String file) {
         try {
-            return HttpData.OBJECT_MAPPER.readTree(Paths.get(file).toFile());
+            return HttpData.OBJECT_MAPPER.readTree(Path.of(file).toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

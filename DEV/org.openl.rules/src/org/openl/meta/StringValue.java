@@ -7,8 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.meta.StringValue.StringValueAdapter;
 import org.openl.source.IOpenSourceCodeModule;
@@ -18,8 +17,8 @@ import org.openl.util.ArrayTool;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)
+@Slf4j
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    private static final Logger LOG = LoggerFactory.getLogger(StringValue.class);
 
     private transient ValueMetaInfo metaInfo;
     private final String value;
@@ -80,12 +79,10 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
      */
     public boolean equals(Object obj) {
 
-        if (obj instanceof StringValue) {
-            StringValue v = (StringValue) obj;
+        if (obj instanceof StringValue v) {
             return value.equals(v.value);
         }
-        if (obj instanceof String) {
-            String s = (String) obj;
+        if (obj instanceof String s) {
             return value.equals(s);
         }
 
@@ -118,6 +115,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * @return true if value is empty, and false if not
      */
+    @Override
     public boolean isEmpty() {
         return value.trim().length() == 0;
     }
@@ -135,15 +133,15 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
      */
     @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
-        if (metaInfo instanceof ValueMetaInfo) {
-            this.metaInfo = (ValueMetaInfo) metaInfo;
+        if (metaInfo instanceof ValueMetaInfo info) {
+            this.metaInfo = info;
         } else {
             try {
                 this.metaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
                         metaInfo.getDisplayName(IMetaInfo.LONG),
                         new URLSourceCodeModule(new URI(metaInfo.getSourceUrl()).toURL()));
             } catch (Exception e) {
-                LOG.debug("Failed to set meta info for StringValue '{}'", value, e);
+                log.debug("Failed to set meta info for StringValue '{}'", value, e);
                 this.metaInfo = null;
             }
         }

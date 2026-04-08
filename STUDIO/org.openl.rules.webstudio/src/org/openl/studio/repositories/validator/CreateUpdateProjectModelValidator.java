@@ -2,7 +2,6 @@ package org.openl.studio.repositories.validator;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import jakarta.inject.Inject;
 
@@ -91,11 +90,11 @@ public class CreateUpdateProjectModelValidator implements Validator {
                     if (((FolderMapper) repository).getDelegate().check(model.getFullPath()) != null) {
                         throw new ConflictException("duplicated.project.1.message");
                     } else {
-                        final Path currentPath = Paths.get(model.getFullPath());
+                        final Path currentPath = Path.of(model.getFullPath());
                         if (designTimeRepository.getProjects(model.getRepoName())
                                 .stream()
                                 .map(AProjectFolder::getRealPath)
-                                .map(Paths::get)
+                                .map(Path::of)
                                 .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
                             throw new ConflictException("duplicated.project.2.message");
                         }

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Deprecated(forRemoval = true, since = "6.1.0")
 public final class JsonUtils {
     private static final WeakHashMap<Object, ObjectMapper> cache = new WeakHashMap<>();
     private final static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -46,6 +47,7 @@ public final class JsonUtils {
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         } catch (ClassNotFoundException ignored) {
+            // optional class not available; return null so caller can use a fallback mapper
         }
         return null;
     }
@@ -58,16 +60,16 @@ public final class JsonUtils {
      */
     public static ObjectMapper getCachedObjectMapper(Object key, Class<?>[] classes) {
         ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
+        readLock.lock();
         try {
-            readLock.lock();
             ObjectMapper objectMapper = cache.get(key);
             if (objectMapper != null) return objectMapper;
         } finally {
             readLock.unlock();
         }
         ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
-            writeLock.lock();
             ObjectMapper objectMapper = cache.get(key);
             if (objectMapper == null) {
                 objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);

@@ -1,0 +1,62 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "type": "folder",
+    "path": "groovy",
+    "name": "groovy"
+  },
+  {
+    "type": "folder",
+    "path": "i18n",
+    "name": "i18n"
+  },
+  {
+    "type": "folder",
+    "path": "rules",
+    "name": "rules"
+  },
+  {
+    "type": "folder",
+    "path": "rules/UK",
+    "name": "UK",
+    "basePath": "rules"
+  },
+  {
+    "type": "file",
+    "path": "rules/Algorithm.xlsx",
+    "name": "Algorithm.xlsx",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules/UK/Model-copy.xlsx",
+    "name": "Model-copy.xlsx",
+    "basePath": "rules/UK",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules/Model.xlsx",
+    "name": "Model.xlsx",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules/UK/Rating.xlsx",
+    "name": "Rating.xlsx",
+    "basePath": "rules/UK",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

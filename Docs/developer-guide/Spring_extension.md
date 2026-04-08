@@ -1,7 +1,7 @@
 ## Adding Spring Framework configurations
 
 OpenL Rule Services imports all Spring Framework configurations which are exist in
-`org.openl.rules.ruleservice.spring` Java package or are matched to 
+`org.openl.rules.ruleservice.spring` Java package or are matched to
 `classpath*:META-INF/openl/extension-*.xml` pattern.
 
 So it is possible to register Spring beans in Java, like:

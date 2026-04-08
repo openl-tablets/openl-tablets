@@ -1,7 +1,10 @@
 package org.openl.rules.project.resolving;
 
+import java.io.Serial;
+
 public class NoMatchFileNameException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

@@ -13,10 +13,9 @@ import jakarta.annotation.PreDestroy;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -47,8 +46,8 @@ import org.openl.util.StringUtils;
  */
 @Service
 @SessionScope
+@Slf4j
 public class RepositoryDiffController extends AbstractDiffController {
-    private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
     private final RepositoryTreeState repositoryTreeState;
 
@@ -344,8 +343,8 @@ public class RepositoryDiffController extends AbstractDiffController {
      */
     public void resetTreeSelection(String componentId) {
         UIComponent treeComponent = RichFunction.findComponent(componentId);
-        if (treeComponent instanceof UITree) {
-            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        if (treeComponent instanceof UITree tree) {
+            tree.setSelection(Collections.emptyList());
         }
     }
 

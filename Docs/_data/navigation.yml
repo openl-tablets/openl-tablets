@@ -1,0 +1,15 @@
+# ── Main navigation (rendered in site header) ──────────────────────────────────
+# URLs use pretty permalinks (permalink: pretty in _config.yml).
+main:
+  - title: "About"
+    url: /what-is-openl-tablets
+  - title: "Features"
+    url: /features
+  - title: "User Guides"
+    url: /user-guides
+  - title: "Release Notes"
+    url: /release-notes
+  - title: "Supported Platforms"
+    url: /supported-platforms
+  - title: "Apologia"
+    url: /apologia

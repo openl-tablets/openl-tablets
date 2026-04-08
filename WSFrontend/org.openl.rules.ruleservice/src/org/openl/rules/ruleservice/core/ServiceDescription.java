@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
 
+import lombok.Getter;
+
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
@@ -21,19 +23,32 @@ import org.openl.rules.project.model.RulesDeploy;
  * @author Marat Kamalov
  */
 public final class ServiceDescription {
+    @Getter
     private final String name;
+    @Getter
     private final String url;
+    @Getter
     private final String deployPath;
+    @Getter
     private final String serviceClassName;
+    @Getter
     private final String annotationTemplateClassName;
+    @Getter
     private final boolean provideRuntimeContext;
+    @Getter
     private final Map<String, Object> configuration;
+    @Getter
     private final Collection<Module> modules;
+    @Getter
     private final DeploymentDescription deployment;
     private final String[] publishers;
+    @Getter
     private final ResourceLoader resourceLoader;
+    @Getter
     private final Manifest manifest;
+    @Getter
     private final RulesDeploy rulesDeploy;
+    @Getter
     private final ProjectDescriptor projectDescriptor;
 
     /**
@@ -101,109 +116,11 @@ public final class ServiceDescription {
                 builder.projectDescriptor);
     }
 
-    public RulesDeploy getRulesDeploy() {
-        return rulesDeploy;
-    }
-
-    /**
-     * Returns annotation template class name
-     *
-     * @return class name
-     */
-    public String getAnnotationTemplateClassName() {
-        return annotationTemplateClassName;
-    }
-
-    /**
-     * Returns service name.
-     *
-     * @return service name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns service URL.
-     *
-     * @return
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * Returns service servicePath.
-     *
-     * @return
-     */
-    public String getDeployPath() {
-        return deployPath;
-    }
-
-    /**
-     * Returns service class name.
-     *
-     * @return class name
-     */
-    public String getServiceClassName() {
-        return serviceClassName;
-    }
-
-    /**
-     * Returns provideRuntimeContext value. This value is define that service methods first argument is
-     * IRulesRuntimeContext.
-     *
-     * @return
-     */
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
-    /**
-     * Returns modules for the deployment.
-     *
-     * @return a set of modules
-     */
-    public Collection<Module> getModules() {
-        return modules;
-    }
-
-    /**
-     * Returns resourceLoader for the deployment.
-     *
-     * @return resourceLoader
-     */
-    public ResourceLoader getResourceLoader() {
-        return resourceLoader;
-    }
-
-    /**
-     * Retuns configuration
-     *
-     * @return configuration
-     */
-    public Map<String, Object> getConfiguration() {
-        return configuration;
-    }
-
-    public DeploymentDescription getDeployment() {
-        return deployment;
-    }
-
-    public Manifest getManifest() {
-        return manifest;
-    }
-
     public String[] getPublishers() {
         if (publishers == null) {
             return new String[]{};
         }
         return publishers;
-    }
-
-    public ProjectDescriptor getProjectDescriptor() {
-        return projectDescriptor;
     }
 
     @Override

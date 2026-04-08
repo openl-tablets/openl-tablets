@@ -103,8 +103,8 @@ public final class JavaOpenClassCache {
                 if (classLoader == cl) {
                     toRemove.add(c);
                 }
-                if (cl instanceof OpenLClassLoader) {
-                    if (((OpenLClassLoader) cl).containsClassLoader(classLoader)) {
+                if (cl instanceof OpenLClassLoader loader) {
+                    if (loader.containsClassLoader(classLoader)) {
                         toRemove.add(c);
                     }
                 }

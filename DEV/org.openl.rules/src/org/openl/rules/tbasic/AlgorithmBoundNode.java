@@ -50,10 +50,10 @@ public class AlgorithmBoundNode extends AMethodBasedNode {
             List<RuntimeOperation> operations = algorithm.getAlgorithmSteps();
             if (operations != null) {
                 for (RuntimeOperation step : operations) {
-                    if (step instanceof OpenLEvaluationOperation) {
-                        IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
-                        if (methodCaller instanceof CompositeMethod) {
-                            ((CompositeMethod) methodCaller).updateDependency(dependencies);
+                    if (step instanceof OpenLEvaluationOperation operation) {
+                        IMethodCaller methodCaller = operation.getOpenLStatement();
+                        if (methodCaller instanceof CompositeMethod method) {
+                            method.updateDependency(dependencies);
                         }
                     }
                 }

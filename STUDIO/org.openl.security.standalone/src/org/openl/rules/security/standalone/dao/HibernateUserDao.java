@@ -27,7 +27,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         Root<User> u = criteria.from(User.class);
         criteria.select(u).where(builder.equal(u.get("loginName"), name)).distinct(true);
         List<User> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override

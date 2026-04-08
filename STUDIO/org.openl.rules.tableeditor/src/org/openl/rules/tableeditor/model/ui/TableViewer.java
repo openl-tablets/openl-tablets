@@ -3,12 +3,12 @@ package org.openl.rules.tableeditor.model.ui;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -25,8 +25,8 @@ import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class TableViewer {
-    private final Logger log = LoggerFactory.getLogger(TableViewer.class);
 
     private final IGrid grid;
     private final IGridRegion reg;
@@ -44,36 +44,22 @@ public class TableViewer {
         }
 
         switch (style.getHorizontalAlignment()) {
-            case LEFT:
-                // Left by default
-                break;
-            case RIGHT:
-                cm.setHalign("right");
-                break;
-            case CENTER:
-                cm.setHalign("center");
-                break;
-            case JUSTIFY:
-                cm.setHalign("justify");
-                break;
-            default:
+            case LEFT -> { /* Left by default */ }
+            case RIGHT -> cm.setHalign("right");
+            case CENTER -> cm.setHalign("center");
+            case JUSTIFY -> cm.setHalign("justify");
+            default -> {
                 // Align right numeric and date
                 if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
                     cm.setHalign("right");
                 }
-                break;
+            }
         }
 
         switch (style.getVerticalAlignment()) {
-            case BOTTOM:
-                // Left by default
-                break;
-            case CENTER:
-                cm.setValign("center");
-                break;
-            case TOP:
-                cm.setValign("top");
-                break;
+            case BOTTOM -> { /* Bottom by default */ }
+            case CENTER -> cm.setValign("center");
+            case TOP -> cm.setValign("top");
         }
 
         if (style.getIndent() > 0) {
@@ -124,7 +110,7 @@ public class TableViewer {
                 // has Explanation link
                 content = formattedValue;
             } else if (isShowLinks() && (CellMetaInfo
-                    .isCellContainsNodeUsages(metaInfo) || metaInfo != null && metaInfo.isReturnCell())) {
+                    .isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnCell()))) {
                 // has method call
                 content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {
@@ -173,7 +159,7 @@ public class TableViewer {
                     // add link to used table with signature in tooltip
                     buff.append("<span class=\"title")
                             .append(" title-")
-                            .append(nodeUsage.getNodeType().toString().toLowerCase())
+                            .append(nodeUsage.getNodeType().toString().toLowerCase(Locale.ROOT))
                             .append(" ")
                             .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
                             .append("\">");
@@ -191,7 +177,7 @@ public class TableViewer {
 
             if (metaInfo.isReturnCell()) {
                 buff.append("<span class=\"title title-")
-                        .append(NodeType.OTHER.toString().toLowerCase())
+                        .append(NodeType.OTHER.toString().toLowerCase(Locale.ROOT))
                         .append(" ")
                         .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
                         .append("\">");
@@ -307,49 +293,46 @@ public class TableViewer {
         BorderStyle bs = new BorderStyle();
         bs.setRgb(rgb);
         switch (xlsStyle) {
-            case NONE:
+            case NONE -> {
                 return BorderStyle.NONE;
-            case DASH_DOT_DOT:
-            case DASH_DOT:
-            case DASHED:
+            }
+            case DASH_DOT_DOT, DASH_DOT, DASHED -> {
                 bs.setWidth(1);
                 bs.setStyle("dashed");
-                break;
-
-            case DOTTED:
+            }
+            case DOTTED -> {
                 bs.setWidth(1);
                 bs.setStyle("dotted");
-                break;
-            case DOUBLE:
+            }
+            case DOUBLE -> {
                 bs.setWidth(1);
                 bs.setStyle("double");
-                break;
-            case THIN:
+            }
+            case THIN -> {
                 bs.setWidth(1);
                 bs.setStyle("solid");
-                break;
-            case THICK:
+            }
+            case THICK -> {
                 bs.setWidth(2);
                 bs.setStyle("solid");
-                break;
-            case HAIR:
+            }
+            case HAIR -> {
                 bs.setWidth(1);
                 bs.setStyle("dotted");
-                break;
-            case MEDIUM:
+            }
+            case MEDIUM -> {
                 bs.setWidth(2);
                 bs.setStyle("solid");
-                break;
-            case MEDIUM_DASH_DOT:
-            case MEDIUM_DASH_DOT_DOT:
-            case MEDIUM_DASHED:
+            }
+            case MEDIUM_DASH_DOT, MEDIUM_DASH_DOT_DOT, MEDIUM_DASHED -> {
                 bs.setWidth(2);
                 bs.setStyle("dashed");
-                break;
-            default:
+            }
+            default -> {
                 log.warn("Unknown border style: {}", xlsStyle);
                 bs.setWidth(1);
                 bs.setStyle("solid");
+            }
         }
         return bs;
     }
@@ -439,17 +422,15 @@ public class TableViewer {
             BorderStyle bstyle = new BorderStyle(W, style, rgb);
 
             switch (W) {
-                case 0:
-                    break;
-                case 1:
+                case 0 -> { /* No border */ }
+                case 1 -> {
                     if (cmTop == null) {
                         cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
-
                     } else {
                         cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
                     }
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     if (cmTop == null) {
                         cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
                     } else if (cmBottom == null) {
@@ -459,7 +440,8 @@ public class TableViewer {
                         cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
                         cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
                     }
-
+                }
+                default -> { }
             }
         }
 
@@ -491,17 +473,15 @@ public class TableViewer {
             BorderStyle bstyle = new BorderStyle(W, style, rgb);
 
             switch (W) {
-                case 0:
-                    break;
-                case 1:
+                case 0 -> { /* No border */ }
+                case 1 -> {
                     if (cmLeft == null) {
                         cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
-
                     } else {
                         cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
                     }
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     if (cmLeft == null) {
                         cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
                     } else if (cmRight == null) {
@@ -511,7 +491,8 @@ public class TableViewer {
                         cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
                         cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
                     }
-
+                }
+                default -> { }
             }
         }
 

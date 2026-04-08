@@ -22,8 +22,8 @@ public class FailedNegativePrecisionTest {
     public void testFloatNumbersNegativePrecision1_mustBeFailed() {
         TestUnitsResults result = instance.testFloatNumbersNegativePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
-        assertAllFailed(result.getTestUnits().get(0));
-        ITestUnit testUnit = result.getTestUnits().get(0);
+        assertAllFailed(result.getTestUnits().getFirst());
+        ITestUnit testUnit = result.getTestUnits().getFirst();
         assertEquals(2, testUnit.getComparisonResults().size());
         assertAllFailed(testUnit);
     }
@@ -32,8 +32,8 @@ public class FailedNegativePrecisionTest {
     public void testPositivePrecision1_mustBeFailed() {
         TestUnitsResults result = instance.testPositivePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
-        assertAllFailed(result.getTestUnits().get(0));
-        ITestUnit testUnit = result.getTestUnits().get(0);
+        assertAllFailed(result.getTestUnits().getFirst());
+        ITestUnit testUnit = result.getTestUnits().getFirst();
         assertEquals(4, testUnit.getComparisonResults().size());
         assertAllFailed(testUnit);
     }
@@ -42,7 +42,7 @@ public class FailedNegativePrecisionTest {
     public void testNegativePrecision1_mustBeFailed() {
         TestUnitsResults result = instance.testNegativePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
-        ITestUnit testUnit = result.getTestUnits().get(0);
+        ITestUnit testUnit = result.getTestUnits().getFirst();
         assertEquals(4, testUnit.getComparisonResults().size());
         assertAllFailed(testUnit);
     }

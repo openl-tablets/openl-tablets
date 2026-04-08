@@ -60,8 +60,8 @@ public final class TableSyntaxNodeUtils {
                     String value;
 
                     Object propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
-                    if (formats != null && propertyValue instanceof Date) {
-                        value = formats.formatDateOrDateTime((Date) propertyValue);
+                    if (formats != null && propertyValue instanceof Date date) {
+                        value = formats.formatDateOrDateTime(date);
                     } else {
                         value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
                     }

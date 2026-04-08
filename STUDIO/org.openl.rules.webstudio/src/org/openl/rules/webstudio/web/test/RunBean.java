@@ -68,8 +68,8 @@ public class RunBean {
 
     public String getFormattedSpreadsheetResult(ITestUnit unit) {
         Object result = unit.getActualResult();
-        if (result instanceof SpreadsheetResult) {
-            return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result);
+        if (result instanceof SpreadsheetResult spreadsheetResult) {
+            return ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
         }
         return StringUtils.EMPTY;
     }

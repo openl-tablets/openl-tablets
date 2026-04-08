@@ -98,8 +98,8 @@ public class SpreadsheetCell implements Invokable {
         if (value == null) {
             return;
         }
-        if (value instanceof IOpenMethod) {
-            this.method = (IOpenMethod) value;
+        if (value instanceof IOpenMethod openMethod) {
+            this.method = openMethod;
         } else {
             this.value = value;
         }

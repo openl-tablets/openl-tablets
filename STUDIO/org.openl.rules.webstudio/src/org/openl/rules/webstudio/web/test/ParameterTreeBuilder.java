@@ -83,8 +83,7 @@ public class ParameterTreeBuilder {
                         config.getValue(),
                         config.getType(),
                         config.getParent());
-                node.setWarnMessage(String.format(
-                        "Cannot instantiate a bean of type '%s'. Make sure that it has a default constructor.",
+                node.setWarnMessage("Cannot instantiate a bean of type '%s'. Make sure that it has a default constructor.".formatted(
                         config.getType().getDisplayName(INamedThing.SHORT)));
                 return node;
             }
@@ -121,7 +120,7 @@ public class ParameterTreeBuilder {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
-            node.setWarnMessage(String.format("Field '%s' is not writable.", fieldName));
+            node.setWarnMessage("Field '%s' is not writable.".formatted(fieldName));
             return node;
         }
     }
@@ -194,7 +193,7 @@ public class ParameterTreeBuilder {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return (value instanceof SpreadsheetResult) && (((SpreadsheetResult) value).getLogicalTable() != null);
+        return (value instanceof SpreadsheetResult sr) && (sr.getLogicalTable() != null);
     }
 
     public String formattedResult(Object value) {
@@ -206,12 +205,12 @@ public class ParameterTreeBuilder {
     }
 
     public boolean isHtmlTable(Object value) {
-        if (value instanceof ParameterWithValueDeclaration) {
+        if (value instanceof ParameterWithValueDeclaration declaration) {
             Object singlValue = value;
-            if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
-                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType()
+            if (Utils.isCollection(declaration.getType())) {
+                Iterator<Object> iterator = declaration.getType()
                         .getAggregateInfo()
-                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                        .getIterator(declaration.getValue());
 
                 if (iterator.hasNext()) {
                     singlValue = iterator.next();
@@ -229,26 +228,24 @@ public class ParameterTreeBuilder {
     }
 
     public String tableToHtml(Object value) {
-        if (value instanceof ParameterWithValueDeclaration) {
+        if (value instanceof ParameterWithValueDeclaration declaration) {
             StringBuilder result = new StringBuilder();
-            if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
-                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType()
+            if (Utils.isCollection(declaration.getType())) {
+                Iterator<Object> iterator = declaration.getType()
                         .getAggregateInfo()
-                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                        .getIterator(declaration.getValue());
                 ProjectModel model = WebStudioUtils.getWebStudio().getModel();
                 while (iterator.hasNext()) {
                     Object singleValue = iterator.next();
 
-                    if (singleValue instanceof GridTable) {
-                        GridTable gridTable = (GridTable) singleValue;
+                    if (singleValue instanceof GridTable gridTable) {
                         MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(
                                 TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
-                    } else if (singleValue instanceof SubGridTable) {
-                        SubGridTable sgTable = (SubGridTable) singleValue;
+                    } else if (singleValue instanceof SubGridTable sgTable) {
                         GridTable gridTable = new GridTable(sgTable.getRegion(), sgTable.getGrid());
                         MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);

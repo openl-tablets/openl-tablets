@@ -133,8 +133,8 @@ public abstract class AbstractTreeNode implements TreeNode {
 
         getElements().put(id, child);
         child.setParent(this);
-        if (child instanceof AbstractTreeNode) {
-            ((AbstractTreeNode) child).setErrorsContainer(getErrorsContainer());
+        if (child instanceof AbstractTreeNode node) {
+            node.setErrorsContainer(getErrorsContainer());
         }
     }
 
@@ -191,8 +191,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
         if (getElements().containsKey(id)) {
             return getElements().get(id);
-        } else if (id instanceof String) {
-            String idAsString = (String) id;
+        } else if (id instanceof String idAsString) {
             if (getElements().containsKey(FOLDER_PREFIX + idAsString)) {
                 return getElements().get(FOLDER_PREFIX + idAsString);
             }
@@ -331,7 +330,7 @@ public abstract class AbstractTreeNode implements TreeNode {
                 }
             } else {
                 AProjectArtefact artefact = getData();
-                return artefact instanceof AProject && ((AProject) artefact).getLastHistoryVersion() != null;
+                return artefact instanceof AProject ap && ap.getLastHistoryVersion() != null;
             }
         } else {
             return false;

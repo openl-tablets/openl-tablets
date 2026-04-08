@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -24,8 +23,8 @@ import org.openl.rules.repository.api.Repository;
  *
  * @author PUdalau
  */
+@Slf4j
 public class Deployment extends AProjectFolder implements IDeployment {
-    private static final Logger LOG = LoggerFactory.getLogger(Deployment.class);
     private Map<String, IProject> projects;
 
     private final String deploymentName;
@@ -44,6 +43,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
         this.deploymentName = deploymentName;
     }
 
+    @Override
     public CommonVersion getCommonVersion() {
         if (commonVersion == null) {
             return this.getVersion();
@@ -51,6 +51,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
         return commonVersion;
     }
 
+    @Override
     public String getDeploymentName() {
         if (deploymentName == null) {
             return this.getName();
@@ -75,10 +76,12 @@ public class Deployment extends AProjectFolder implements IDeployment {
         }
     }
 
+    @Override
     public Collection<IProject> getProjects() {
         return projects.values();
     }
 
+    @Override
     public IProject getProject(String name) {
         return projects.get(name);
     }
@@ -105,7 +108,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
                     fileDataList = repository.list(folderPath);
                 }
             } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 return Collections.emptyMap();
             }
 

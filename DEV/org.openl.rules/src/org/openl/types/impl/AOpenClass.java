@@ -16,8 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -32,11 +31,11 @@ import org.openl.types.StaticOpenClass;
 /**
  * @author snshor
  */
+@Slf4j
 public abstract class AOpenClass implements IOpenClass {
 
     private volatile StaticOpenClass staticOpenClass;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AOpenClass.class);
 
     protected static final Map<MethodKey, IOpenMethod> STUB = Collections.emptyMap();
     private IOpenField indexField;
@@ -99,7 +98,7 @@ public abstract class AOpenClass implements IOpenClass {
                 return new DomainOpenClass(domainOpenClassName.toString(),
                         arrayType,
                         openClass.getDomain(),
-                        openClass instanceof BelongsToModuleOpenClass ? ((BelongsToModuleOpenClass) openClass).getModule()
+                        openClass instanceof BelongsToModuleOpenClass btmoc ? btmoc.getModule()
                                 : null,
                         null);
             } else {
@@ -124,7 +123,7 @@ public abstract class AOpenClass implements IOpenClass {
         try {
             return getField(fname, true);
         } catch (AmbiguousFieldException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return null;
         }
     }
@@ -234,8 +233,8 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public boolean isAssignableFrom(IType type) {
-        if (type instanceof IOpenClass) {
-            return isAssignableFrom((IOpenClass) type);
+        if (type instanceof IOpenClass class1) {
+            return isAssignableFrom(class1);
         }
         return false;
     }
@@ -332,8 +331,8 @@ public abstract class AOpenClass implements IOpenClass {
     public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
-            throw new DuplicatedMethodException(String
-                    .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
+            throw new DuplicatedMethodException("Method '%s' is already defined in class '%s'"
+                    .formatted(method, getName()), existMethod, method);
         }
         invalidateInternalData();
     }

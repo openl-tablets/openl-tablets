@@ -5,8 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.Listener;
 
@@ -16,8 +15,8 @@ import org.openl.rules.repository.api.Listener;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class ChangesMonitor implements Runnable {
-    private static final Logger LOG = LoggerFactory.getLogger(ChangesMonitor.class);
     private RevisionGetter getter;
     private final int period;
 
@@ -76,7 +75,7 @@ public class ChangesMonitor implements Runnable {
 
             fireOnChange();
         } catch (Exception e) {
-            LOG.warn("An exception has occurred during checking the repository.", e);
+            log.warn("An exception has occurred during checking the repository.", e);
         }
     }
 
@@ -90,7 +89,7 @@ public class ChangesMonitor implements Runnable {
                 listener.onChange();
             }
         } catch (Exception e) {
-            LOG.warn("An exception is occurred in onChange() method in '{}' listener.", listener, e);
+            log.warn("An exception is occurred in onChange() method in '{}' listener.", listener, e);
         }
     }
 
@@ -116,7 +115,7 @@ public class ChangesMonitor implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             // (Re-)Cancel if current thread also interrupted
             scheduledPool.shutdownNow();
             // Preserve interrupt status
@@ -129,7 +128,7 @@ public class ChangesMonitor implements Runnable {
         try {
             return getter.getRevision();
         } catch (Exception e) {
-            LOG.warn("An exception is occurred during retrieving the last change set from the repository.", e);
+            log.warn("An exception is occurred during retrieving the last change set from the repository.", e);
             return null;
         }
     }

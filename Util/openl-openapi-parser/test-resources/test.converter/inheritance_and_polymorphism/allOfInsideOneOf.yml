@@ -7,7 +7,7 @@ paths:
     get:
       summary: test
       responses:
-        '200':
+        "200":
           description: Test
           content:
             application/json:
@@ -35,16 +35,16 @@ paths:
     get:
       summary: test
       responses:
-        '200':
+        "200":
           description: Test
           content:
             application/json:
               schema:
                 oneOf:
                   - allOf:
-                      - $ref: '#/components/schemas/Nose'
+                      - $ref: "#/components/schemas/Nose"
                   - allOf:
-                      - $ref: '#/components/schemas/Ear'
+                      - $ref: "#/components/schemas/Ear"
 components:
   schemas:
     Nose:

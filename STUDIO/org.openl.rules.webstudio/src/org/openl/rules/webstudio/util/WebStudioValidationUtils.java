@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class WebStudioValidationUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(WebStudioValidationUtils.class);
 
     /**
      * Validates directory for write access. If specified folder is not writable the validation error will appears
@@ -36,13 +35,12 @@ public class WebStudioValidationUtils {
                          */
                         validateIsWritable(directory);
                     } else {
-                        WebStudioUtils.throwValidationError(String.format(
-                                "There is not enough access rights for installing '%s' into the folder: '%s'.",
+                        WebStudioUtils.throwValidationError("There is not enough access rights for installing '%s' into the folder: '%s'.".formatted(
                                 directoryType,
                                 dirPath));
                     }
                 } else {
-                    WebStudioUtils.throwValidationError(String.format("'%s' is not a folder.", dirPath));
+                    WebStudioUtils.throwValidationError("'%s' is not a folder.".formatted(dirPath));
                 }
             } else {
                 File parentFolder = directory.getAbsoluteFile().getParentFile();
@@ -68,7 +66,7 @@ public class WebStudioValidationUtils {
             }
 
         } else {
-            WebStudioUtils.throwValidationError(String.format("'%s' cannot be blank", directoryType));
+            WebStudioUtils.throwValidationError("'%s' cannot be blank".formatted(directoryType));
         }
     }
 
@@ -86,7 +84,7 @@ public class WebStudioValidationUtils {
             }
 
         } catch (IOException | InvalidPathException ioe) {
-            WebStudioUtils.throwValidationError(String.format("%s for '%s'", ioe.getMessage(), file.getName()));
+            WebStudioUtils.throwValidationError("%s for '%s'".formatted(ioe.getMessage(), file.getName()));
         }
     }
 

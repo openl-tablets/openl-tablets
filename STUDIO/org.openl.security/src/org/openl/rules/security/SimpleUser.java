@@ -1,5 +1,6 @@
 package org.openl.rules.security;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -8,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 public class SimpleUser implements User {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String firstName;
@@ -131,7 +133,7 @@ public class SimpleUser implements User {
                 return true;
             }
 
-            if (auth instanceof Group && ((Group) auth).hasPrivilege(privilege)) {
+            if (auth instanceof Group group && group.hasPrivilege(privilege)) {
                 return true;
             }
         }

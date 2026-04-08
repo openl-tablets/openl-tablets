@@ -120,7 +120,7 @@ Usage
 
 ---
   mvn openl:generate
---- 
+---
 
   For more information on configuration options, see {{{./generate-mojo.html}openl:generate}}.
 

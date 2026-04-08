@@ -56,14 +56,14 @@ public class OAuth2Configuration {
             } catch (IllegalArgumentException ex) {
                 throw ex;
             } catch (RuntimeException ex) {
-                if (!(ex instanceof HttpClientErrorException && ((HttpClientErrorException) ex).getStatusCode()
+                if (!(ex instanceof HttpClientErrorException exception && exception.getStatusCode()
                         .is4xxClientError())) {
-                    throw new IllegalArgumentException(String.format(ERROR_MESSAGE, issuer), ex);
+                    throw new IllegalArgumentException(ERROR_MESSAGE.formatted(issuer), ex);
                 }
                 // else try another endpoint
             }
         }
-        throw new IllegalArgumentException(String.format(ERROR_MESSAGE, issuer));
+        throw new IllegalArgumentException(ERROR_MESSAGE.formatted(issuer));
     }
 
     private static URI oidc(URI issuer) {

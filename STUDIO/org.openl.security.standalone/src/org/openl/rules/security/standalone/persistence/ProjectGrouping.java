@@ -1,11 +1,13 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 import org.openl.util.StringUtils;
 
 public class ProjectGrouping implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private String loginName;
     private String group1;
@@ -51,10 +53,8 @@ public class ProjectGrouping implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof ProjectGrouping user))
             return false;
-
-        ProjectGrouping user = (ProjectGrouping) o;
 
         return Objects.equals(loginName, user.loginName);
     }

@@ -666,6 +666,6 @@ public class StringsTest {
     public void testToLocale() {
         assertNull(toLocale(null));
         assertNull(toLocale(""));
-        assertEquals(new Locale("fr", "FR"), toLocale("fr-FR"));
+        assertEquals(Locale.of("fr", "FR"), toLocale("fr-FR"));
     }
 }

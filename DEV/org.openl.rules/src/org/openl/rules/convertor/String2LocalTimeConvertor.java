@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTime> {
 
@@ -12,8 +13,8 @@ public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTim
 
     {
         supportedFormats.add(DateTimeFormatter.ISO_LOCAL_TIME);
-        supportedFormats.add(DateTimeFormatter.ofPattern("H:mm a"));
-        supportedFormats.add(DateTimeFormatter.ofPattern("hh:mm a"));
+        supportedFormats.add(DateTimeFormatter.ofPattern("H:mm a", Locale.US));
+        supportedFormats.add(DateTimeFormatter.ofPattern("hh:mm a", Locale.US));
     }
 
     @Override
@@ -29,7 +30,7 @@ public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTim
                 // Loop on
             }
         }
-        throw new IllegalArgumentException(String.format("Cannot convert '%s' to LocalTime type", data));
+        throw new IllegalArgumentException("Cannot convert '%s' to LocalTime type".formatted(data));
     }
 
 }

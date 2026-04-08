@@ -387,8 +387,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         CellStyle newPoiStyle;
         CellStyle styleToClone;
 
-        if (style instanceof XlsCellStyle) {
-            newPoiStyle = ((XlsCellStyle) style).getXlsStyle();
+        if (style instanceof XlsCellStyle cellStyle) {
+            newPoiStyle = cellStyle.getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
         } /*
          * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
@@ -469,11 +469,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private void setCellFillColor(CellStyle dest, short[] rgb) {
         // Xlsx
-        if (dest instanceof XSSFCellStyle) {
+        if (dest instanceof XSSFCellStyle style) {
             XSSFWorkbook workbook = (XSSFWorkbook) getSheet().getWorkbook();
             IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
             XSSFColor color = new XSSFColor(convertRGB(rgb), indexedColors);
-            ((XSSFCellStyle) dest).setFillForegroundColor(color);
+            style.setFillForegroundColor(color);
 
             // Xls
         } else {
@@ -507,10 +507,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
         if (color != null) {
             // Xlsx
-            if (newFont instanceof XSSFFont) {
+            if (newFont instanceof XSSFFont font) {
                 IndexedColorMap indexedColors = ((XSSFWorkbook) workbook).getStylesSource().getIndexedColors();
                 XSSFColor color1 = new XSSFColor(convertRGB(color), indexedColors);
-                ((XSSFFont) newFont).setColor(color1);
+                font.setColor(color1);
 
                 // Xls
             } else {

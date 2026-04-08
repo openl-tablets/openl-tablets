@@ -39,9 +39,9 @@ public class RegexpPropertyValidator extends TablesValidator {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     SyntaxNodeException exception = SyntaxNodeExceptionUtils
-                            .createError(String.format("Incorrect value '%s' for property '%s'",
-                                    propertyValue,
-                                    TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
+                            .createError("Incorrect value '%s' for property '%s'".formatted(
+                            propertyValue,
+                            TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
                     messages.add(new OpenLErrorMessage(exception));
                 }
             }

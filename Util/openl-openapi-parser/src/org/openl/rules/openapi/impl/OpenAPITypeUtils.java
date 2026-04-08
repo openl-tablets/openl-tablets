@@ -16,8 +16,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -26,9 +25,9 @@ import org.openl.rules.openapi.OpenAPIRefResolver;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class OpenAPITypeUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
 
     protected static final Map<String, TypeInfo> PRIMITIVE_CLASSES = initPrimitiveMap();
     protected static final Map<String, TypeInfo> WRAPPER_CLASSES = initWrapperMap();
@@ -143,8 +142,7 @@ public class OpenAPITypeUtils {
             }
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
-        } else if (schema instanceof ArraySchema) {
-            ArraySchema arraySchema = (ArraySchema) schema;
+        } else if (schema instanceof ArraySchema arraySchema) {
             TypeInfo type = extractType(openAPIRefResolver, arraySchema.getItems(), false);
             String name = type.getSimpleName() + "[]";
             int dim = type.getDimension() + 1;
@@ -210,7 +208,7 @@ public class OpenAPITypeUtils {
         if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf('/') + 1);
         } else {
-            throw new IllegalStateException(String.format("Invalid ref %s", ref));
+            throw new IllegalStateException("Invalid ref %s".formatted(ref));
         }
         return ref;
     }
@@ -226,46 +224,27 @@ public class OpenAPITypeUtils {
     }
 
     public static String getSimpleValue(String type) {
-        switch (type) {
-            case INTEGER:
-            case INTEGER_PRIMITIVE:
-                return "= 0";
-            case LONG:
-            case LONG_PRIMITIVE:
-                return "= 0L";
-            case DOUBLE:
-            case DOUBLE_PRIMITIVE:
-                return "= 0.0";
-            case FLOAT:
-            case FLOAT_PRIMITIVE:
-                return "= 0.0f";
-            case STRING:
-                return "= \"\"";
-            case DATE:
-                return "= new Date()";
-            case BOOLEAN:
-            case BOOLEAN_PRIMITIVE:
-                return "= false";
-            default:
-                return "= new Object()";
-        }
+        return switch (type) {
+            case INTEGER, INTEGER_PRIMITIVE -> "= 0";
+            case LONG, LONG_PRIMITIVE -> "= 0L";
+            case DOUBLE, DOUBLE_PRIMITIVE -> "= 0.0";
+            case FLOAT, FLOAT_PRIMITIVE -> "= 0.0f";
+            case STRING -> "= \"\"";
+            case DATE -> "= new Date()";
+            case BOOLEAN, BOOLEAN_PRIMITIVE -> "= false";
+            default -> "= new Object()";
+        };
     }
 
     public static String getJavaDefaultValue(TypeInfo type) {
-        switch (type.getJavaName()) {
-            case INTEGER_PRIMITIVE:
-                return "0";
-            case LONG_PRIMITIVE:
-                return "0L";
-            case DOUBLE_PRIMITIVE:
-                return "0.0";
-            case FLOAT_PRIMITIVE:
-                return "0.0f";
-            case BOOLEAN_PRIMITIVE:
-                return "false";
-            default:
-                return "null";
-        }
+        return switch (type.getJavaName()) {
+            case INTEGER_PRIMITIVE -> "0";
+            case LONG_PRIMITIVE -> "0L";
+            case DOUBLE_PRIMITIVE -> "0.0";
+            case FLOAT_PRIMITIVE -> "0.0f";
+            case BOOLEAN_PRIMITIVE -> "false";
+            default -> "null";
+        };
     }
 
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
@@ -280,7 +259,7 @@ public class OpenAPITypeUtils {
                     String parentName = OpenAPITypeUtils.getSimpleName(schema.get$ref());
                     Schema<?> s = allSchemas.get(parentName);
                     if (s == null) {
-                        LOGGER.error("Failed to obtain schema from {}", parentName);
+                        log.error("Failed to obtain schema from {}", parentName);
                         return "UNKNOWN_PARENT_NAME";
                     } else if (hasOrInheritsDiscriminator(s, allSchemas)) {
                         // discriminator.propertyName is used
@@ -295,7 +274,7 @@ public class OpenAPITypeUtils {
 
         // parent name only makes sense when there is a single obvious parent
         if (refedWithoutDiscriminator.size() == 1) {
-            return refedWithoutDiscriminator.get(0);
+            return refedWithoutDiscriminator.getFirst();
         }
 
         return null;
@@ -310,10 +289,9 @@ public class OpenAPITypeUtils {
             if (s != null) {
                 return hasOrInheritsDiscriminator(s, allSchemas);
             } else {
-                LOGGER.error("Failed to obtain schema from {}", parentName);
+                log.error("Failed to obtain schema from {}", parentName);
             }
-        } else if (schema instanceof ComposedSchema) {
-            final ComposedSchema composed = (ComposedSchema) schema;
+        } else if (schema instanceof ComposedSchema composed) {
             final List<Schema> interfaces = OpenLOpenAPIUtils.getInterfaces(composed);
             for (Schema<?> i : interfaces) {
                 if (hasOrInheritsDiscriminator(i, allSchemas)) {
@@ -363,8 +341,8 @@ public class OpenAPITypeUtils {
             if (CollectionUtils.isNotEmpty(properties)) {
                 properties.forEach(allProperties::putIfAbsent);
             }
-            if (parentSchema instanceof ComposedSchema) {
-                getAllProperties((ComposedSchema) parentSchema, openAPI).forEach(allProperties::putIfAbsent);
+            if (parentSchema instanceof ComposedSchema schema) {
+                getAllProperties(schema, openAPI).forEach(allProperties::putIfAbsent);
             }
         }
         if (cs != null) {

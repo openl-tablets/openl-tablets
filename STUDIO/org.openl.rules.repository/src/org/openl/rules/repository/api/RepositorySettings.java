@@ -2,7 +2,7 @@ package org.openl.rules.repository.api;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +18,7 @@ public class RepositorySettings implements Closeable {
     public RepositorySettings(Repository repository, String locksRoot, int lockTimeToLive) {
         Objects.requireNonNull(repository);
         this.repository = repository;
-        this.lockManager = new LockManager(Paths.get(locksRoot));
+        this.lockManager = new LockManager(Path.of(locksRoot));
         this.lockTimeToLive = lockTimeToLive;
 
         repository.setListener(() -> syncDate = new Date());

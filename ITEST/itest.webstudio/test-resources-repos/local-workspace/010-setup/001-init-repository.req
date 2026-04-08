@@ -1,0 +1,12 @@
+PATCH /rest/admin/settings/repos/design HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "name": "Design EPBDS-15649",
+  "settings": {
+    "uri": "jdbc:h2:mem:epbds_15649;DB_CLOSE_DELAY=-1"
+  },
+  "type": "repo-jdbc",
+  "id": "design1"
+}

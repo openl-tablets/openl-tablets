@@ -3,6 +3,7 @@ package org.openl.rules.repository.git;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.eclipse.jgit.api.Git;
@@ -13,12 +14,12 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import org.openl.util.HashingUtils;
 
 class GitRootFactory {
-    
+
     public GitRoot create(String repositoryId, String uri, String localRepositoriesFolder) throws IOException {
         URIish repositoryUri = getUri(uri);
         boolean remote = repositoryUri.isRemote();
@@ -32,12 +33,11 @@ class GitRootFactory {
             if (localGitRoot.exists()) {
                 File[] files = localGitRoot.listFiles();
                 if (files == null) {
-                    throw new IOException(String.format("'%s' is not a directory.", localGitRoot));
+                    throw new IOException("'%s' is not a directory.".formatted(localGitRoot));
                 }
                 if (files.length > 0 && RepositoryCache.FileKey.resolve(localGitRoot, FS.DETECTED) == null) {
                     // Cannot overwrite existing files that is definitely not git repository
-                    throw new IOException(String.format(
-                            "Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.",
+                    throw new IOException("Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.".formatted(
                             localGitRoot));
                 }
                 empty = files.length == 0;
@@ -106,7 +106,7 @@ class GitRootFactory {
         URIish uriObject = getUri(uri);
         uriObject = uriObject.setScheme(null); // Scheme shouldn't affect uniqueness of the URL
         String cleanedUri = uriObject.toASCIIString()
-                .toLowerCase()
+                .toLowerCase(Locale.ROOT)
                 .strip()
                 .replaceAll("/$", "")
                 .replace(":", "\\:");
@@ -120,7 +120,7 @@ class GitRootFactory {
         try {
             return new URIish(uriOrPath);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(String.format("URI %s is misconfigured", uriOrPath), e);
+            throw new IllegalArgumentException("URI %s is misconfigured".formatted(uriOrPath), e);
         }
     }
 

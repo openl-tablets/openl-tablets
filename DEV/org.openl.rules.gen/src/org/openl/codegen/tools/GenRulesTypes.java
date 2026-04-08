@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ public final class GenRulesTypes {
     public static void main(String[] args) throws Exception {
 
         System.out.println("Generating Rules enumerations...");
-        try (Stream<Path> stream = Files.walk(Paths.get("enums"))) {
+        try (Stream<Path> stream = Files.walk(Path.of("enums"))) {
             stream.filter(Files::isRegularFile).forEach(GenRulesTypes::generateEnumeration);
         }
     }

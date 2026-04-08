@@ -6,17 +6,16 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Number formatter.
  *
  * @author Andrei Astrouski
  */
+@Slf4j
 public class NumberFormatter implements IFormatter {
 
-    private final Logger log = LoggerFactory.getLogger(NumberFormatter.class);
 
     private final NumberFormat format;
 

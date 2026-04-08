@@ -22,25 +22,25 @@ import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 
 public class RegionsExtractor {
-    static List<IGridRegion> getGridRegions(ITracerObject obj) {
-        if (obj instanceof DTRuleTraceObject) {
-            return getiGridRegions((DTRuleTraceObject) obj);
-        } else if (obj instanceof DTRuleTracerLeaf) {
-            return getiGridRegions((DTRuleTracerLeaf) obj);
-        } else if (obj instanceof ResultTraceObject) {
-            return getiGridRegions((ResultTraceObject) obj);
-        } else if (obj instanceof MatchTraceObject) {
-            return getiGridRegions((MatchTraceObject) obj);
-        } else if (obj instanceof MethodTableTraceObject) {
-            return getiGridRegions((MethodTableTraceObject) obj);
-        } else if (obj instanceof OverloadedMethodChoiceTraceObject) {
-            return getiGridRegions((OverloadedMethodChoiceTraceObject) obj);
-        } else if (obj instanceof SpreadsheetTracerLeaf) {
-            return getiGridRegions((SpreadsheetTracerLeaf) obj);
-        } else if (obj instanceof TBasicOperationTraceObject) {
-            return getiGridRegions((TBasicOperationTraceObject) obj);
-        } else if (obj instanceof RefToTracerNodeObject) {
-            return getGridRegions(((RefToTracerNodeObject) obj).getOriginalTracerNode());
+    public static List<IGridRegion> getGridRegions(ITracerObject obj) {
+        if (obj instanceof DTRuleTraceObject object6) {
+            return getiGridRegions(object6);
+        } else if (obj instanceof DTRuleTracerLeaf leaf1) {
+            return getiGridRegions(leaf1);
+        } else if (obj instanceof ResultTraceObject object5) {
+            return getiGridRegions(object5);
+        } else if (obj instanceof MatchTraceObject object4) {
+            return getiGridRegions(object4);
+        } else if (obj instanceof MethodTableTraceObject object3) {
+            return getiGridRegions(object3);
+        } else if (obj instanceof OverloadedMethodChoiceTraceObject object2) {
+            return getiGridRegions(object2);
+        } else if (obj instanceof SpreadsheetTracerLeaf leaf) {
+            return getiGridRegions(leaf);
+        } else if (obj instanceof TBasicOperationTraceObject object1) {
+            return getiGridRegions(object1);
+        } else if (obj instanceof RefToTracerNodeObject object) {
+            return getGridRegions(object.getOriginalTracerNode());
         }
         return null;
     }

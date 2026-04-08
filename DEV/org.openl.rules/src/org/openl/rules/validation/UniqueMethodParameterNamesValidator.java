@@ -89,10 +89,9 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
     public ValidationResult validate(IOpenClass openClass) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (IOpenMethod method : openClass.getMethods()) {
-            if (method instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+            if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
                 List<IOpenMethod> candidates = openMethodDispatcher.getCandidates();
-                int parameterCount = candidates.iterator().next().getSignature().getNumberOfParameters();
+                int parameterCount = candidates.getFirst().getSignature().getNumberOfParameters();
                 Set<ParameterNameKey>[] parameterKeysByName = new HashSet[parameterCount];
                 for (int i = 0; i < parameterCount; i++) {
                     parameterKeysByName[i] = new HashSet<>();
@@ -138,8 +137,8 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
         ISyntaxNode syntaxNodeB = ((IMemberMetaInfo) methodB).getSyntaxNode();
         String signA = MethodUtil.printSignature(methodA, INamedThing.REGULAR);
         String signB = MethodUtil.printSignature(methodB, INamedThing.REGULAR);
-        String messageA = String.format(message, signA, signB);
-        String messageB = String.format(message, signB, signA);
+        String messageA = message.formatted(signA, signB);
+        String messageB = message.formatted(signB, signA);
         if (syntaxNodeA instanceof TableSyntaxNode) {
             messages.add(OpenLMessagesUtils.newWarnMessage(messageA, syntaxNodeA));
         }

@@ -21,18 +21,22 @@ public class ParameterModel implements InputParameter {
         this.originalName = originalName;
     }
 
+    @Override
     public TypeInfo getType() {
         return type;
     }
 
+    @Override
     public String getFormattedName() {
         return formattedName;
     }
 
+    @Override
     public String getOriginalName() {
         return originalName;
     }
 
+    @Override
     public In getIn() {
         return in;
     }
@@ -46,10 +50,9 @@ public class ParameterModel implements InputParameter {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ParameterModel that)) {
             return false;
         }
-        ParameterModel that = (ParameterModel) o;
         return Objects.equals(type, that.type) && Objects.equals(formattedName, that.formattedName) && Objects
                 .equals(originalName, that.originalName) && in == that.in;
     }

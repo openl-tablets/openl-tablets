@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,8 +17,8 @@ public class ModulePathSourceCodeModuleTest {
 
     @Test
     public void testUri() {
-        final Path pathToProject = Paths.get("test/rules/test xls").toAbsolutePath();
-        final Path pathToModule = Paths.get("test/rules/test xls/Test with spaces.xls").toAbsolutePath();
+        final Path pathToProject = Path.of("test/rules/test xls").toAbsolutePath();
+        final Path pathToModule = Path.of("test/rules/test xls/Test with spaces.xls").toAbsolutePath();
         Module module = new Module();
         module.setRulesRootPath(new PathEntry());
         module.getRulesRootPath().setPath(pathToModule.toString());

@@ -41,10 +41,10 @@ public class OpenLJUnitTest {
                 if (!testUnit.getErrors().isEmpty()) {
                     assertEquals(1, testUnit.getErrors().size());
                     assertTrue(testUnit.getErrors()
-                            .get(0)
+                            .getFirst()
                             .getSummary()
                             .contains("Object '0' is outside of valid domain") || testUnit.getErrors()
-                            .get(0)
+                            .getFirst()
                             .getSummary()
                             .contains("Object '0.0' is outside of valid domain"));
                     cnt++;
@@ -73,13 +73,13 @@ public class OpenLJUnitTest {
                 var description = testCase.getDescription();
                 switch (description) {
                     case "pass":
-                        assertEquals(TestStatus.TR_OK, testCase.getResultStatus(), String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()));
+                        assertEquals(TestStatus.TR_OK, testCase.getResultStatus(), "Failed tests '%s' #%s".formatted(testSuit.getName(), testCase.getTest().getId()));
                         break;
                     case "fail":
-                        assertEquals(TestStatus.TR_NEQ, testCase.getResultStatus(), String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()));
+                        assertEquals(TestStatus.TR_NEQ, testCase.getResultStatus(), "Failed tests '%s' #%s".formatted(testSuit.getName(), testCase.getTest().getId()));
                         break;
                     default:
-                        fail(String.format("Unexpected '%s' description in the tests '%s'", description, testSuit.getName()));
+                        fail("Unexpected '%s' description in the tests '%s'".formatted(description, testSuit.getName()));
                 }
             }
 
@@ -90,23 +90,23 @@ public class OpenLJUnitTest {
             assertEquals(3, res1.getNumberOfFailures());
             assertEquals(4, res1.getTestUnits().size());
 
-            ITestUnit testUnit1 = res1.getTestUnits().get(0);
+            ITestUnit testUnit1 = res1.getTestUnits().getFirst();
             assertEquals(TestStatus.TR_NEQ, testUnit1.getResultStatus());
             assertEquals(1, testUnit1.getComparisonResults().size());
             assertComparedResult(new ComparedResult(null, "Foo bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
-                    testUnit1.getComparisonResults().get(0));
+                    testUnit1.getComparisonResults().getFirst());
 
             ITestUnit testUnit2 = res1.getTestUnits().get(1);
             assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
             assertEquals(1, testUnit2.getComparisonResults().size());
             assertComparedResult(new ComparedResult(null, "foo.bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
-                    testUnit2.getComparisonResults().get(0));
+                    testUnit2.getComparisonResults().getFirst());
 
             ITestUnit testUnit3 = res1.getTestUnits().get(2);
             assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
             assertEquals(1, testUnit3.getComparisonResults().size());
             assertComparedResult(new ComparedResult(null, null, "foo.bar: Foo bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().get(0));
+                    testUnit3.getComparisonResults().getFirst());
 
             ITestUnit testUnit4 = res1.getTestUnits().get(3);
             assertEquals(TestStatus.TR_OK, testUnit4.getResultStatus());
@@ -117,26 +117,26 @@ public class OpenLJUnitTest {
             assertEquals(3, res1.getNumberOfFailures());
             assertEquals(4, res1.getTestUnits().size());
 
-            ITestUnit testUnit1 = res1.getTestUnits().get(0);
+            ITestUnit testUnit1 = res1.getTestUnits().getFirst();
             assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
 
             ITestUnit testUnit2 = res1.getTestUnits().get(1);
             assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
             assertEquals(1, testUnit2.getComparisonResults().size());
             assertComparedResult(new ComparedResult("message", "foo.bar", "Foo bar", TestStatus.TR_NEQ),
-                    testUnit2.getComparisonResults().get(0));
+                    testUnit2.getComparisonResults().getFirst());
 
             ITestUnit testUnit3 = res1.getTestUnits().get(2);
             assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
             assertEquals(1, testUnit3.getComparisonResults().size());
             assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().get(0));
+                    testUnit3.getComparisonResults().getFirst());
 
             ITestUnit testUnit4 = res1.getTestUnits().get(3);
             assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
             assertEquals(1, testUnit4.getComparisonResults().size());
             assertComparedResult(new ComparedResult("message", "null: Foo bar", "Foo bar", TestStatus.TR_NEQ),
-                    testUnit4.getComparisonResults().get(0));
+                    testUnit4.getComparisonResults().getFirst());
         }
 
         {
@@ -144,14 +144,14 @@ public class OpenLJUnitTest {
             assertEquals(5, res1.getNumberOfFailures());
             assertEquals(6, res1.getTestUnits().size());
 
-            ITestUnit testUnit1 = res1.getTestUnits().get(0);
+            ITestUnit testUnit1 = res1.getTestUnits().getFirst();
             assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
 
             ITestUnit testUnit2 = res1.getTestUnits().get(1);
             assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
             assertEquals(2, testUnit2.getComparisonResults().size());
             assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
-                    testUnit2.getComparisonResults().get(0));
+                    testUnit2.getComparisonResults().getFirst());
             assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
                     testUnit2.getComparisonResults().get(1));
 
@@ -159,7 +159,7 @@ public class OpenLJUnitTest {
             assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
             assertEquals(2, testUnit3.getComparisonResults().size());
             assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().get(0));
+                    testUnit3.getComparisonResults().getFirst());
             assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
                     testUnit3.getComparisonResults().get(1));
 
@@ -167,7 +167,7 @@ public class OpenLJUnitTest {
             assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
             assertEquals(2, testUnit4.getComparisonResults().size());
             assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
-                    testUnit4.getComparisonResults().get(0));
+                    testUnit4.getComparisonResults().getFirst());
             assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
                     testUnit4.getComparisonResults().get(1));
 
@@ -175,7 +175,7 @@ public class OpenLJUnitTest {
             assertEquals(TestStatus.TR_NEQ, testUnit5.getResultStatus());
             assertEquals(2, testUnit5.getComparisonResults().size());
             assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
-                    testUnit5.getComparisonResults().get(0));
+                    testUnit5.getComparisonResults().getFirst());
             assertComparedResult(new ComparedResult("message", "baza", "Foo bar", TestStatus.TR_NEQ),
                     testUnit5.getComparisonResults().get(1));
 
@@ -183,7 +183,7 @@ public class OpenLJUnitTest {
             assertEquals(TestStatus.TR_NEQ, testUnit6.getResultStatus());
             assertEquals(2, testUnit6.getComparisonResults().size());
             assertComparedResult(new ComparedResult("code", "baza", "foo.bar", TestStatus.TR_NEQ),
-                    testUnit6.getComparisonResults().get(0));
+                    testUnit6.getComparisonResults().getFirst());
             assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
                     testUnit6.getComparisonResults().get(1));
         }
@@ -204,7 +204,7 @@ public class OpenLJUnitTest {
                         .invoke(target, new Object[0], new SimpleRulesVM().getRuntimeEnv());
             }
         }
-        fail(String.format("The '%s' test table is not found", testTableName));
+        fail("The '%s' test table is not found".formatted(testTableName));
         return null;
     }
 }

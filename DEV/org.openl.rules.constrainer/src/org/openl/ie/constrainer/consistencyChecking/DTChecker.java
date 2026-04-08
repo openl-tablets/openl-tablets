@@ -7,10 +7,6 @@ import org.openl.ie.constrainer.IntExpArray;
 public interface DTChecker {
     class Utils {
 
-        /**
-         * @param solution
-         * @return
-         */
         public static String[] IntExpArray2Names(IntExpArray solution) {
             String[] names = new String[solution.size()];
             for (int i = 0; i < names.length; i++) {
@@ -19,10 +15,6 @@ public interface DTChecker {
             return names;
         }
 
-        /**
-         * @param solution
-         * @return
-         */
         public static int[] IntExpArray2Values(IntExpArray solution) {
             int[] values = new int[solution.size()];
             for (int i = 0; i < values.length; i++) {

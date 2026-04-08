@@ -79,12 +79,12 @@ The following diagram displays how OpenL Tablets is used by different types of u
 A typical lifecycle of an OpenL Tablets project is as follows:
 
 1.  A business analyst creates a new OpenL Tablets project in OpenL Studio.
-	Optionally, development team may provide the analyst with a project in case of complex configuration.
-	The business analyst also creates correctly structured tables in Excel files based on requirements and includes them in the project. Typically, this task is performed through Excel or OpenL Studio in a web browser.
+    Optionally, development team may provide the analyst with a project in case of complex configuration.
+    The business analyst also creates correctly structured tables in Excel files based on requirements and includes them in the project. Typically, this task is performed through Excel or OpenL Studio in a web browser.
 2.  The business analyst performs unit and integration tests by creating test tables and performance tests on rules through OpenL Studio.
-	As a result, fully working rules are created and ready to be used.
+    As a result, fully working rules are created and ready to be used.
 3.  A developer adds configuration to the project according to application needs.
-	Alternatively, they can create a new OpenL Tablets project in their IDE via OpenL Maven Archetype and adjust it to use business user input.
+    Alternatively, they can create a new OpenL Tablets project in their IDE via OpenL Maven Archetype and adjust it to use business user input.
 4.  A developer employs business rules directly through the OpenL Tablets engine or remotely through web services.
 5.  Whenever required, the business user updates or adds new rules to project tables.
 
@@ -98,4 +98,3 @@ After a project is created, a zip or Excel file for importing the project to Ope
 OpenL Studio provides convenient UI to work with rules. However, its usage can be avoided by working with rules from IDE only using the OpenL Tablets Maven plugin. The plugin provides compilation and testing of rules and wrapper generation support.
 
 Also, OpenL Tablets has OpenL Tablet Demo Package available at <https://openl-tablets.org/>. A demo is a zip file that contains a Tomcat with configured OpenL Studio and OpenL Rule Services projects. It can be used to effectively start using OpenL Tablets products.
-

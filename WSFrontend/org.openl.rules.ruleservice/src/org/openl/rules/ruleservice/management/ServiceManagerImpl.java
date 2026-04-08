@@ -16,9 +16,10 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import jakarta.annotation.PreDestroy;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,18 +57,25 @@ import org.openl.util.StringUtils;
  *
  * @author PUdalau
  */
+@Slf4j
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
-    private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
+    @Setter
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
+    @Setter
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
     private final Map<String, ServiceDescription> services = new ConcurrentHashMap<>();
     private final Map<String, OpenLService> services2 = new ConcurrentHashMap<>();
     private final Map<String, Date> startDates = new ConcurrentHashMap<>();
 
+    @Autowired
+    @Setter
     private Collection<RuleServicePublisher> supportedPublishers;
+    @Autowired(required = false)
+    @Setter
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
+    @Getter
     private ServiceDescription serviceDescriptionInProcess;
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
@@ -78,25 +86,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         if (this.ruleServiceLoader != null) {
             this.ruleServiceLoader.setListener(this);
         }
-    }
-
-    public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
-        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory,
-                "ruleServiceInstantiationFactory cannot be null");
-    }
-
-    public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
-        this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer cannot be null");
-    }
-
-    @Autowired(required = false)
-    public void setListeners(Collection<RuleServicePublisherListener> listeners) {
-        this.listeners = listeners;
-    }
-
-    @Autowired
-    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = supportedPublishers;
     }
 
     /**
@@ -212,6 +201,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 ClassLoader classloader = service.getClassLoader();
                 OpenClassUtil.releaseClassLoader(classloader);
             } catch (RuleServiceInstantiationException ignored) {
+                // Best effort classloader cleanup
             }
             cleanDeploymentResources(serviceDescription);
         }
@@ -234,7 +224,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         String servicePath = serviceDescription.getDeployPath();
         if (getServiceByDeploy(servicePath) != null) {
             throw new RuleServiceDeployException(
-                    String.format("The service with path '%s' is already deployed.", servicePath));
+                    "The service with path '%s' is already deployed.".formatted(servicePath));
         }
         try {
             this.serviceDescriptionInProcess = serviceDescription;
@@ -254,10 +244,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     public RulesDeploy getRulesDeployInProcess() {
         return serviceDescriptionInProcess != null ? serviceDescriptionInProcess.getRulesDeploy() : null;
-    }
-
-    public ServiceDescription getServiceDescriptionInProcess() {
-        return this.serviceDescriptionInProcess;
     }
 
     public ProjectDescriptor getProjectDescriptorInProcess() {
@@ -430,7 +416,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     public void undeploy(String deployPath) throws RuleServiceUndeployException {
         Objects.requireNonNull(deployPath, "deployPath cannot be null");
         OpenLService undeployService = services2.get(deployPath);
-        Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", deployPath));
+        Objects.requireNonNull(undeployService, "Service '%s' has not been found.".formatted(deployPath));
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers) {
             if (publisher.getServiceByDeploy(deployPath) != null) {

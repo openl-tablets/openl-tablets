@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "OpenL_Tag_Templates")
 public class TagTemplate implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private String template;
     private int priority;
@@ -34,9 +36,8 @@ public class TagTemplate implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof TagTemplate))
+        if (!(o instanceof TagTemplate that))
             return false;
-        TagTemplate that = (TagTemplate) o;
         return getTemplate().equals(that.getTemplate());
     }
 

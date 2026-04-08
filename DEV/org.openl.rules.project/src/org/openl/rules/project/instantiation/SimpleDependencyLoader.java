@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -22,9 +21,9 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IDependency;
 import org.openl.validation.ValidationManager;
 
+@Slf4j
 public class SimpleDependencyLoader implements IDependencyLoader {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleDependencyLoader.class);
 
     private final AbstractDependencyManager dependencyManager;
     private final ResolvedDependency dependency;
@@ -166,9 +165,10 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected CompiledDependency onCompilationFailure(Exception ex,
                                                       AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
-        throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
+        throw new OpenLCompilationException("Failed to load dependency '%s'.".formatted(dependency), ex);
     }
 
+    @Override
     public ResolvedDependency getDependency() {
         return dependency;
     }
@@ -189,9 +189,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof SimpleDependencyLoader that))
             return false;
-        SimpleDependencyLoader that = (SimpleDependencyLoader) o;
         return dependency.equals(that.dependency);
     }
 

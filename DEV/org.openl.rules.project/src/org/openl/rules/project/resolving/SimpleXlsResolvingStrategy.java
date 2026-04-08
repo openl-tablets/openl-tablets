@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -29,9 +28,9 @@ import org.openl.util.FileUtils;
  *
  * @author PUdalau
  */
+@Slf4j
 public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleXlsResolvingStrategy.class);
 
     @Override
     public boolean isRulesProject(Path folder) {
@@ -44,15 +43,15 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                 isExcelFile = stream.anyMatch(this::isExcelFile);
             }
             if (isExcelFile) {
-                LOG.debug("Project in {} folder has been resolved as simple xls project.", folder);
+                log.debug("Project in {} folder has been resolved as simple xls project.", folder);
             } else {
-                LOG.debug(
+                log.debug(
                         "Simple xls strategy has failed to resolve project folder: there is no excel files in the folder '{}'.",
                         folder);
             }
             return isExcelFile;
         } catch (IOException e) {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
         }
         return false;
     }
@@ -76,7 +75,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                             Module module = createModule(project, rootPath, name);
                             modules.put(name, module);
                         } else {
-                            LOG.error("A module with the same name already exists: {}", name);
+                            log.error("A module with the same name already exists: {}", name);
                         }
                     }
                     return FileVisitResult.CONTINUE;
@@ -116,7 +115,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                 return attrs.isRegularFile() && FileTypeHelper.isExcelFile(path.getFileName().toString());
             }
         } catch (IOException e) {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
         }
         return false;
     }

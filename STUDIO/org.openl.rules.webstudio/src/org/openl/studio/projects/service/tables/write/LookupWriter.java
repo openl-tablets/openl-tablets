@@ -127,10 +127,10 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
             if (!header.children.isEmpty()) {
                 writeSubHeader(tableBody, header.children, left, fromRow + 1);
             }
-            if (width > 1 || maxHeight > 1) {
-                int bottom = header.children.isEmpty()
-                        ? fromRow + maxHeight - 1 // merge vertically only if no children
-                        : fromRow;
+            int bottom = header.children.isEmpty()
+                    ? fromRow + maxHeight - 1 // merge vertically only if no children
+                    : fromRow;
+            if (left < right || fromRow < bottom) {
                 var mergeCondition = new GridRegion(fromRow, left, bottom, right);
                 mergeRegions.add(mergeCondition);
             }
@@ -163,6 +163,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
 
     @Override
     protected String getBusinessTableType(LookupView tableView) {
-        return tableView.tableType;
+        var type = tableView.tableType;
+        return Boolean.TRUE.equals(tableView.collect) ? type + " " + IXlsTableNames.COLLECT : type;
     }
 }

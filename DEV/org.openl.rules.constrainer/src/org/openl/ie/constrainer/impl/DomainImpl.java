@@ -91,10 +91,6 @@ public class DomainImpl implements Domain {
      * Does nothing
      * <p>
      * added by SV 20.01.03
-     *
-     * @param min
-     * @param max
-     * @throws Failure
      */
     @Override
     public boolean removeRange(int min, int max) throws Failure {

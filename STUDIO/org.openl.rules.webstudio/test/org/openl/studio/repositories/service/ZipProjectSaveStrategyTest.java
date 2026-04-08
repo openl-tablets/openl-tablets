@@ -22,7 +22,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,7 +100,7 @@ public class ZipProjectSaveStrategyTest {
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
-        Path expected = Paths.get("test-resources/upload/zip/project.zip");
+        Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
         assertSame(expected, BASE_RULES_LOCATION + "Project 1/", actualFileItems);
@@ -129,7 +128,7 @@ public class ZipProjectSaveStrategyTest {
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
-        Path expected = Paths.get("test-resources/upload/zip/project.zip");
+        Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
         assertSame(expected, BASE_RULES_LOCATION + "Project 1/", actualFileItems);
@@ -157,7 +156,7 @@ public class ZipProjectSaveStrategyTest {
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         AtomicReference<InputStream> actualStream = captureStream(repo);
 
-        Path expected = Paths.get("test-resources/upload/zip/project.zip");
+        Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any());
         assertSame(expected, actualStream.get());
@@ -182,7 +181,7 @@ public class ZipProjectSaveStrategyTest {
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
-        Path expected = Paths.get("test-resources/upload/zip/project.zip");
+        Path expected = Path.of("test-resources/upload/zip/project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
         final String expectedRootFolder = BASE_RULES_LOCATION + "Project 1/";
@@ -216,7 +215,7 @@ public class ZipProjectSaveStrategyTest {
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
-        Path expected = Paths.get("test-resources/upload/zip/excel-only-project.zip");
+        Path expected = Path.of("test-resources/upload/zip/excel-only-project.zip");
         saveStrategy.save(model, expected);
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
 

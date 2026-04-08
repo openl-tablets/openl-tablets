@@ -157,6 +157,7 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
 
     @Override
     protected String getBusinessTableType(SmartRulesView tableView) {
-        return SmartRulesView.TABLE_TYPE;
+        var type = SmartRulesView.TABLE_TYPE;
+        return Boolean.TRUE.equals(tableView.collect) ? type + " " + IXlsTableNames.COLLECT : type;
     }
 }

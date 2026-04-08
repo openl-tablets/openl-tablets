@@ -361,8 +361,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             names.add(name);
         }
 
-        String message = String.format(
-                "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.",
+        String message = "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.".formatted(
                 condition.getName(),
                 String.join(", ", names),
                 conditionMethodType.getName());
@@ -381,8 +380,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
                 IConditionEvaluator eval = evaluators[j];
                 ICondition condition = table.getCondition(j);
-                if (eval instanceof ContainsInArrayIndexedEvaluatorV2) {
-                    ContainsInArrayIndexedEvaluatorV2 containsInArrayIndexedEvaluatorV2 = (ContainsInArrayIndexedEvaluatorV2) eval;
+                if (eval instanceof ContainsInArrayIndexedEvaluatorV2 containsInArrayIndexedEvaluatorV2) {
                     final int maxArrayLength = containsInArrayIndexedEvaluatorV2.getMaxArrayLength(condition,
                             info.makeRuleIterator());
                     if (maxArrayLength > 1 && !condition.isOptimizedExpression()) {
@@ -462,11 +460,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     private boolean isDependencyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {
-            if (field instanceof ConditionOrActionParameterField && ((ConditionOrActionParameterField) field)
+            if (field instanceof ConditionOrActionParameterField parameterField && parameterField
                     .getConditionOrAction() == condition) {
                 return true;
             }
-            if (field instanceof ConditionOrActionDirectParameterField && ((ConditionOrActionDirectParameterField) field)
+            if (field instanceof ConditionOrActionDirectParameterField parameterField && parameterField
                     .getConditionOrAction() == condition) {
                 return true;
             }

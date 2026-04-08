@@ -45,7 +45,7 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
         String name = getName();
 
         if (!spreadsheetResult.hasField(name)) {
-            throw new OpenLRuntimeException(String.format("Field '%s' does not exist in SpreadsheetResult", name));
+            throw new OpenLRuntimeException("Field '%s' does not exist in SpreadsheetResult".formatted(name));
         }
         spreadsheetResult.setFieldValue(name, value);
     }

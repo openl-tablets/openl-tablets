@@ -14,14 +14,17 @@ public class DataTypeTableRowStyleImpl implements DataTypeRowStyle {
         this.defaultValueStyle = defaultValueStyle;
     }
 
+    @Override
     public CellStyle getTypeStyle() {
         return typeStyle;
     }
 
+    @Override
     public CellStyle getNameStyle() {
         return nameStyle;
     }
 
+    @Override
     public CellStyle getValueStyle() {
         return defaultValueStyle;
     }

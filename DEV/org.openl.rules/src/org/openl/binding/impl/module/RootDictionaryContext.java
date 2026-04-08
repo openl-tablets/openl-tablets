@@ -27,8 +27,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
             if (!super.equals(obj)) {
                 return false;
             }
-            if (obj instanceof ContextField) {
-                ContextField cf = (ContextField) obj;
+            if (obj instanceof ContextField cf) {
                 if (parent == null) {
                     return null == cf.parent;
                 }
@@ -124,7 +123,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
         if (ff.size() > 1) {
             throw new AmbiguousFieldException(fieldName, ff);
         }
-        return ff.get(0);
+        return ff.getFirst();
     }
 
     protected final void initializeField(IOpenField parent, IOpenField field, int level) {

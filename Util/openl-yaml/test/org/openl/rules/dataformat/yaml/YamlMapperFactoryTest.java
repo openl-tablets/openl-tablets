@@ -58,7 +58,7 @@ public class YamlMapperFactoryTest {
     private static void assertTheSame(MyBean myBean) {
         assertEquals("foo bar", myBean.getField1());
         assertEquals(2, myBean.getField3().size());
-        assertEquals("foo", myBean.getField3().get(0));
+        assertEquals("foo", myBean.getField3().getFirst());
         assertEquals("bar", myBean.getField3().get(1));
         assertEquals(createDate(2023, 2, 14), myBean.getField2());
         assertTrue(myBean.getField4());

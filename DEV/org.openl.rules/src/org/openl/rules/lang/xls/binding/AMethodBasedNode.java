@@ -95,8 +95,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        if (cxt.isExecutionMode() && header instanceof OpenMethodHeader) {
-            OpenMethodHeader tableHeader = (OpenMethodHeader) header;
+        if (cxt.isExecutionMode() && header instanceof OpenMethodHeader tableHeader) {
             tableHeader.setTypeLocation(null);
             tableHeader.setParamTypeLocations(null);
         }
@@ -104,9 +103,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
-        if (header instanceof OpenMethodHeader) {
-            // Validate that there are no errors in dependent types.
-            OpenMethodHeader tableHeader = (OpenMethodHeader) header;
+        if (header instanceof OpenMethodHeader tableHeader) {
 
             IOpenSourceCodeModule headerSyntaxNode = null;
             // Return type

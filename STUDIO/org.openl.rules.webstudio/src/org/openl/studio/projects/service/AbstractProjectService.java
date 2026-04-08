@@ -88,8 +88,8 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         Predicate<AProject> filter = ALL_PROJECTS;
         if (!query.tags().isEmpty()) {
             filter = project ->
-                    project instanceof RulesProject
-                            && projectHasTags((RulesProject) project, query.tags());
+                    project instanceof RulesProject rp
+                            && projectHasTags(rp, query.tags());
         }
         return filter;
     }

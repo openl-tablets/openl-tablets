@@ -1,7 +1,7 @@
 package org.openl.rules.util.dates;
 
 /**
- * Stub for cases when impossible to calculate a difference between two dates. For example, when one day is @{code null}
+ * Stub for cases when impossible to calculate a difference between two dates. For example, when one day is {@code null}
  *
  * @author Vladyslav Pikus
  */

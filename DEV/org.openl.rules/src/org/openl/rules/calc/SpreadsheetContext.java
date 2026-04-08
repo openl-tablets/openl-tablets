@@ -80,14 +80,14 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
         if (NullOpenClass.class.isAssignableFrom(rangeType.getClass())) {
             throw new OpenLCompilationException(
-                    String.format("Range %s:%s contains only undefined type values.", rangeStartName, rangeEndName));
+                    "Range %s:%s contains only undefined type values.".formatted(rangeStartName, rangeEndName));
         }
 
         CastsCollector castsCollector = new CastsCollector(rangeType, w, h);
         iterateThroughTheRange(sx, sy, w, h, castsCollector);
 
         if (castsCollector.isImplicitCastNotSupported() || rangeType.getInstanceClass() == null) {
-            throw new OpenLCompilationException(String.format("Types in range %s:%s cannot be implicit casted to '%s'.",
+            throw new OpenLCompilationException("Types in range %s:%s cannot be implicit casted to '%s'.".formatted(
                     rangeStartName,
                     rangeEndName,
                     rangeType.getDisplayName(0)));
@@ -113,8 +113,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
         ComponentBindingContext componentBindingContext = this;
         while (componentOpenClass != null) {
             for (IOpenField f : componentOpenClass.getDeclaredFields()) {
-                if (f instanceof SpreadsheetCellField) {
-                    SpreadsheetCellField field = (SpreadsheetCellField) f;
+                if (f instanceof SpreadsheetCellField field) {
                     int columnInRange = field.getCell().getColumnIndex() - startColumn;
                     int rowInRange = field.getCell().getRowIndex() - startRow;
 

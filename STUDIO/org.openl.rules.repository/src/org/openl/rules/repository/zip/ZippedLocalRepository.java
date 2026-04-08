@@ -6,7 +6,6 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
@@ -40,7 +39,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
             }
             root = rootFile.toPath();
             if (!Files.isDirectory(root)) {
-                throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s].", root));
+                throw new IllegalStateException("Failed to initialize the root directory: [%s].".formatted(root));
             }
         }
         final Map<String, Path> localStorage = new HashMap<>();
@@ -50,7 +49,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                     continue;
                 }
                 archive = archive.trim().replace('\\', '/');
-                Path pathToArchive = Paths.get(archive);
+                Path pathToArchive = Path.of(archive);
                 boolean exists = Files.exists(pathToArchive);
                 boolean isArchive = exists && zipArchiveFilter(pathToArchive);
                 if (!pathToArchive.isAbsolute() && (!exists || !isArchive) && root != null) {
@@ -59,14 +58,14 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                     exists |= Files.exists(pathToArchive);
                 }
                 if (!exists) {
-                    throw new IllegalStateException(String.format("The path [%s] does not exist.", archive));
+                    throw new IllegalStateException("The path [%s] does not exist.".formatted(archive));
                 }
                 if (!zipArchiveFilter(pathToArchive)) {
-                    throw new IllegalStateException(String.format("[%s] is not archive.", archive));
+                    throw new IllegalStateException("[%s] is not archive.".formatted(archive));
                 }
                 String archiveName = FileUtils.getBaseName(pathToArchive.getFileName().toString());
                 if (localStorage.containsKey(archiveName)) {
-                    throw new IllegalStateException(String.format("An archive name [%s] is duplicated!", archiveName));
+                    throw new IllegalStateException("An archive name [%s] is duplicated!".formatted(archiveName));
                 }
                 localStorage.put(archiveName, pathToArchive);
             }

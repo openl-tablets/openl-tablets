@@ -69,7 +69,7 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
                 if (List.class.isAssignableFrom(claims.getClass())) {
                     List<?> stringClaims = (List<?>) claim;
                     if (!stringClaims.isEmpty()) {
-                        attribute = stringClaims.get(0).toString();
+                        attribute = stringClaims.getFirst().toString();
                     }
                 } else {
                     attribute = claim.toString();

@@ -23,6 +23,7 @@ public final class RuleServiceOpenLServiceInstantiationHelper {
                 Method m = clazz.getMethod(methodName, paramTypes);
                 return findOpenMember(m, serviceTarget);
             } catch (NoSuchMethodException ignored) {
+                // method not found on this interface; try next
             }
         }
         return null;

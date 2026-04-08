@@ -1,10 +1,13 @@
 package org.openl.rules.common.impl;
 
+import java.io.Serial;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 
 public class RepositoryProjectVersionImpl implements ProjectVersion {
+    @Serial
     private static final long serialVersionUID = -5156747482692477220L;
 
     private int major = MAX_MM_INT;
@@ -75,7 +78,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     @Override
     public boolean equals(Object o) {
-        return this == o || o instanceof ProjectVersion && compareTo((ProjectVersion) o) == 0;
+        return this == o || (o instanceof ProjectVersion pv && compareTo(pv) == 0);
     }
 
     @Override

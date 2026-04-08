@@ -1,2 +1,2 @@
 ERROR: Expression is required for a condition.
-ERROR: Expression is required for an action.  
+ERROR: Expression is required for an action.

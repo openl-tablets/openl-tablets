@@ -53,7 +53,7 @@ public class DisabledAclConfiguration {
             } else if ("equals".equals(method.getName()) && method.getParameterCount() == 1) {
                 return proxy == args[0];
             } else if ("toString".equals(method.getName()) && method.getParameterCount() == 0) {
-                return String.format("Disabled%s@%s", typeName,
+                return "Disabled%s@%s".formatted(typeName,
                         Integer.toHexString(System.identityHashCode(proxy)));
             }
 

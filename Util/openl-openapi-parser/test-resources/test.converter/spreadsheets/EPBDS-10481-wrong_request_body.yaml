@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 servers:
   - url: /test
-    variables: { }
+    variables: {}
 paths:
   /ThisIsEndpoint:
     post:
@@ -15,7 +15,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WrapperObject'
+              $ref: "#/components/schemas/WrapperObject"
       responses:
         "200":
           description: "Test response"
@@ -37,4 +37,4 @@ components:
       type: object
       properties:
         input:
-          $ref: '#/components/schemas/InnerObject'
+          $ref: "#/components/schemas/InnerObject"

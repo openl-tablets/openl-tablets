@@ -102,8 +102,8 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
 
     @Override
     public void addChild(Object key, TreeNode node) {
-        if (node instanceof ParameterDeclarationTreeNode) {
-            getChildrenMap().put(key, (ParameterDeclarationTreeNode) node);
+        if (node instanceof ParameterDeclarationTreeNode treeNode) {
+            getChildrenMap().put(key, treeNode);
         }
     }
 

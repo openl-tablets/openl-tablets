@@ -23,4 +23,3 @@ The following diagram identifies all components to be configured and customized.
 ![](../../assets/images/rule-services/5d0d09ff58045febcb4f99f179e5050b.jpeg)
 
 *Configurable and customizable components of Rule Services Core*
-

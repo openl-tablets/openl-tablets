@@ -20,7 +20,7 @@ public class PropertySet {
         String propertyName = property.getName();
         if (properties.get(propertyName) != null) {
             // property with such name exists already
-            throw new IllegalArgumentException(String.format("Property '%s' exists already.", propertyName));
+            throw new IllegalArgumentException("Property '%s' exists already.".formatted(propertyName));
         }
 
         properties.put(propertyName, property);

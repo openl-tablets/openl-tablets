@@ -7,13 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.BindingContextDelegator;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -56,9 +54,9 @@ import org.openl.util.StringUtils;
  *
  * @author DLiauchuk
  */
+@Slf4j
 public class TableSyntaxNodeDispatcherBuilder {
 
-    private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
 
     // LinkedHashMap to save the sequence of params
     static final LinkedHashMap<String, IOpenClass> INCOME_PARAMS;
@@ -271,7 +269,7 @@ public class TableSyntaxNodeDispatcherBuilder {
     private IOpenMethod getMember() {
         // as we have a group of overloaded methods, we need to take one it`s
         // member to get all common settings for the whole group
-        return dispatcher.getCandidates().get(0);
+        return dispatcher.getCandidates().getFirst();
     }
 
     /**
@@ -283,7 +281,7 @@ public class TableSyntaxNodeDispatcherBuilder {
         String originalTableName = getMethodName();
 
         // table name for dispatcher table.
-        return String.format("%s_%s", DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME, originalTableName);
+        return "%s_%s".formatted(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME, originalTableName);
     }
 
     private Map<String, IOpenClass> updateIncomeParams() {

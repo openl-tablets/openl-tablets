@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "rules/Algorithm.xlsx",
+    "name": "Algorithm.xlsx",
+    "type": "file",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "path": "rules/Model.xlsx",
+    "name": "Model.xlsx",
+    "type": "file",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

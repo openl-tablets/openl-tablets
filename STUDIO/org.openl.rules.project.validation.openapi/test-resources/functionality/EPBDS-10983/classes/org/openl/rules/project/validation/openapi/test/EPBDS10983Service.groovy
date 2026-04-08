@@ -12,6 +12,5 @@ interface EPBDS10983Service {
     @Produces(["text/plain"])
     Double myMethod(@PathParam("param1") double var1,
                     @PathParam("param2") double var3,
-                    @PathParam("param3") double var5);
+                    @PathParam("param3") double var5)
 }
-

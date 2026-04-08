@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import jakarta.persistence.Column;
@@ -10,12 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "OpenL_Tags")
 public class Tag implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;
@@ -58,9 +59,8 @@ public class Tag implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Tag))
+        if (!(o instanceof Tag tag))
             return false;
-        Tag tag = (Tag) o;
         return Objects.equals(getId(), tag.getId());
     }
 

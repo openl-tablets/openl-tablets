@@ -16,6 +16,7 @@ import java.util.Map;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -27,8 +28,6 @@ import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.testcontainers.containers.MinIOContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 
 import org.openl.itest.core.JettyServer;
 
@@ -47,30 +46,19 @@ public class KeycloakTest {
                 .withRealmImportFile("/openlstudio-realm.json");
     }
 
-    @SuppressWarnings("resource")
-    private static MinIOContainer createMinioContainer() {
-        return new MinIOContainer("minio/minio") {
-            @Override
-            public void configure() {
-                super.configure();
-                waitingFor(Wait.defaultWaitStrategy());
-            }
-        };
-    }
-
     @Test
     public void smoke() throws Exception {
         try (var keycloack = createKeycloakContainer();
-             var minio = createMinioContainer()) {
+             var s3 = new S3MockContainer("latest")) {
             keycloack.start();
-            minio.start();
+            s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
             try (var httpClient = JettyServer.get()
                         .withProfile("oauth2")
-                        .withInitParam("repository.production-s3.service-endpoint", minio.getS3URL())
-                        .withInitParam("repository.production-s3.access-key", minio.getUserName())
-                        .withInitParam("repository.production-s3.secret-key", minio.getPassword())
+                        .withInitParam("repository.production-s3.service-endpoint", s3.getHttpEndpoint())
+                        .withInitParam("repository.production-s3.access-key", "access key")
+                        .withInitParam("repository.production-s3.secret-key", "secret key")
                         .start()) {
                 initStudio(httpClient, authServerUrl);
 
@@ -87,16 +75,16 @@ public class KeycloakTest {
     @Test
     public void smokePat() throws Exception {
         try (var keycloack = createKeycloakContainer();
-             var minio = createMinioContainer()) {
+             var s3 = new S3MockContainer("latest")) {
             keycloack.start();
-            minio.start();
+            s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
             try (var httpClient = JettyServer.get()
                     .withProfile("oauth2")
-                    .withInitParam("repository.production-s3.service-endpoint", minio.getS3URL())
-                    .withInitParam("repository.production-s3.access-key", minio.getUserName())
-                    .withInitParam("repository.production-s3.secret-key", minio.getPassword())
+                    .withInitParam("repository.production-s3.service-endpoint", s3.getHttpEndpoint())
+                    .withInitParam("repository.production-s3.access-key", "access key")
+                    .withInitParam("repository.production-s3.secret-key", "secret key")
                     .start()) {
                 initStudio(httpClient, authServerUrl);
 

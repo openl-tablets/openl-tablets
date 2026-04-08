@@ -54,7 +54,7 @@ public class CommentsTest {
     }
 
     private ICellComment readComment(ExcelReader reader) {
-        TableStyles styles = reader.getTableStyles(reader.getSheets().get(0), new GridRegion(0, 0, 6, 3));
+        TableStyles styles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(0, 0, 6, 3));
         return styles.getComment(5, 1);
     }
 }

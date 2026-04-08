@@ -114,38 +114,41 @@ public class TableModel {
         if (icm == null) {
             return null;
         }
-        CellModel cm;
-        switch (border) {
-            case ICellStyle.TOP:
-                if (icm instanceof CellModel) {
-                    return (CellModel) icm;
+        return switch (border) {
+            case ICellStyle.TOP -> {
+                if (icm instanceof CellModel model) {
+                    yield model;
+                }
+                CellModel cm = ((CellModelDelegator) icm).getModel();
+                yield cm.getRow() == row ? cm : null;
+            }
+            case ICellStyle.LEFT -> {
+                if (icm instanceof CellModel model) {
+                    yield model;
+                }
+                CellModel cm = ((CellModelDelegator) icm).getModel();
+                yield cm.getColumn() == col ? cm : null;
+            }
+            case ICellStyle.RIGHT -> {
+                CellModel cm;
+                if (icm instanceof CellModel model) {
+                    cm = model;
+                    yield cm.getColspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.getRow() == row ? cm : null;
-            case ICellStyle.LEFT:
-                if (icm instanceof CellModel) {
-                    return (CellModel) icm;
+                yield cm.getColumn() + cm.getColspan() - 1 == col ? cm : null;
+            }
+            case ICellStyle.BOTTOM -> {
+                CellModel cm;
+                if (icm instanceof CellModel model) {
+                    cm = model;
+                    yield cm.getRowspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.getColumn() == col ? cm : null;
-            case ICellStyle.RIGHT:
-                if (icm instanceof CellModel) {
-                    cm = (CellModel) icm;
-                    return cm.getColspan() == 1 ? cm : null;
-                }
-                cm = ((CellModelDelegator) icm).getModel();
-                return cm.getColumn() + cm.getColspan() - 1 == col ? cm : null;
-            case ICellStyle.BOTTOM:
-                if (icm instanceof CellModel) {
-                    cm = (CellModel) icm;
-                    return cm.getRowspan() == 1 ? cm : null;
-                }
-                cm = ((CellModelDelegator) icm).getModel();
-                return cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
-            default:
-                throw new IllegalArgumentException("Incorrect border");
-
-        }
+                yield cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
+            }
+            default -> throw new IllegalArgumentException("Incorrect border");
+        };
 
     }
 

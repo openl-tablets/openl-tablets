@@ -15,8 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -42,6 +41,7 @@ import org.openl.util.OpenClassUtils;
  *
  * @author snshor, Yury Molchan, Marat Kamalov
  */
+@Slf4j
 public class CastFactory implements ICastFactory {
 
     private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Set
@@ -52,7 +52,6 @@ public class CastFactory implements ICastFactory {
             .contains(e.getInstanceClass()) && e.getInstanceClass().getPackage() != null && !Objects
             .equals(e.getInstanceClass().getPackage().getName(), "java.lang.constant");
 
-    private static final Logger LOG = LoggerFactory.getLogger(CastFactory.class);
 
     public static final int NO_CAST_DISTANCE = 1;
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 1;
@@ -150,9 +149,7 @@ public class CastFactory implements ICastFactory {
             return openClass1;
         }
 
-        if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType) {
-            ModuleSpecificType moduleSpecificType1 = (ModuleSpecificType) openClass1;
-            ModuleSpecificType moduleSpecificType2 = (ModuleSpecificType) openClass2;
+        if (openClass1 instanceof ModuleSpecificType moduleSpecificType1 && openClass2 instanceof ModuleSpecificType moduleSpecificType2) {
             IOpenClass t;
             if (moduleSpecificType1.getModule()
                     .isDependencyModule(moduleSpecificType2.getModule(), new IdentityHashMap<>())) {
@@ -244,8 +241,8 @@ public class CastFactory implements ICastFactory {
 
         if (ret == null) {
             IOpenClass c;
-            if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType && ((ModuleSpecificType) openClass1)
-                    .getModule() != ((ModuleSpecificType) openClass2).getModule()) {
+            if (openClass1 instanceof ModuleSpecificType type && openClass2 instanceof ModuleSpecificType type1 && type
+                    .getModule() != type1.getModule()) {
                 c = JavaOpenClass.OBJECT;
             } else {
                 c = casts.findParentClass(openClass1, openClass2);
@@ -354,8 +351,8 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType) {
-            IOpenClass t = ((ModuleSpecificType) openClass1).getClosestClass((ModuleSpecificType) openClass2);
+        if (openClass1 instanceof ModuleSpecificType type && openClass2 instanceof ModuleSpecificType type1) {
+            IOpenClass t = type.getClosestClass(type1);
             if (t != null) {
                 return t;
             }
@@ -873,9 +870,7 @@ public class CastFactory implements ICastFactory {
      */
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && !to.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
-            if (from instanceof DomainOpenClass && to instanceof DomainOpenClass && from != to) {
-                DomainOpenClass fromDomainOpenClass = (DomainOpenClass) from;
-                DomainOpenClass toDomainOpenClass = (DomainOpenClass) to;
+            if (from instanceof DomainOpenClass fromDomainOpenClass && to instanceof DomainOpenClass toDomainOpenClass && from != to) {
                 IOpenCast openCast = getCast(fromDomainOpenClass.getBaseClass(), toDomainOpenClass.getBaseClass());
                 if (openCast != null) {
                     if (openCast.isImplicit() && DomainOpenClass
@@ -888,13 +883,13 @@ public class CastFactory implements ICastFactory {
                 }
                 return null;
             }
-            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to
-                    .equals(((DomainOpenClass) from).getBaseClass())) {
+            if (from instanceof DomainOpenClass class1 && !(to instanceof DomainOpenClass) && to
+                    .equals(class1.getBaseClass())) {
                 return AliasToTypeCast.getInstance();
             }
 
-            if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass && from
-                    .equals(((DomainOpenClass) to).getBaseClass())) {
+            if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass class1 && from
+                    .equals(class1.getBaseClass())) {
                 return new TypeToAliasCast(to);
             }
 
@@ -1066,7 +1061,7 @@ public class CastFactory implements ICastFactory {
                         new IOpenClass[]{openClassFrom, openClassTo});
             }
         } catch (AmbiguousMethodException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
         }
 
         // If appropriate auto cast method is not found try to find explicit
@@ -1110,7 +1105,7 @@ public class CastFactory implements ICastFactory {
                 }
 
             } catch (AmbiguousMethodException e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
         }
 
@@ -1124,7 +1119,7 @@ public class CastFactory implements ICastFactory {
             distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
                     new IOpenClass[]{fromOpenClass, toOpenClass});
         } catch (AmbiguousMethodException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
         }
 
         if (distanceCaller != null) {

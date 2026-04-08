@@ -5,9 +5,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.ruleservice.core.ExceptionType;
@@ -20,9 +19,9 @@ import org.openl.rules.ruleservice.publish.jaxrs.JAXRSErrorResponse;
  */
 @Component
 @Provider
+@Slf4j
 public class SystemExceptionMapper implements ExceptionMapper<Exception> {
 
-    private final Logger log = LoggerFactory.getLogger(SystemExceptionMapper.class);
 
     @Override
     public Response toResponse(Exception exception) {

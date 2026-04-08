@@ -1,0 +1,19 @@
+PUT /rest/projects/ZGVzaWduLWZpbGU6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi/tables/e1556fd97dd6c5017afe103067ae3e7e HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Hello",
+  "fields": [
+    {
+      "name": "prop1",
+      "type": "String"
+    },
+    {
+      "name": "prop2",
+      "type": "Integer"
+    }
+  ]
+}

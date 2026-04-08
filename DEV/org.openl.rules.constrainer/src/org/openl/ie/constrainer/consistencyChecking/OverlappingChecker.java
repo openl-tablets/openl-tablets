@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.consistencyChecking;
 
+import java.util.List;
+
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -9,9 +11,6 @@ package org.openl.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-
-import java.util.List;
-
 public interface OverlappingChecker {
     List<Overlapping> check();
 }

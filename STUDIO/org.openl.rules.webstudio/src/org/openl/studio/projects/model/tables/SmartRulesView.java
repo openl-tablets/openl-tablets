@@ -18,6 +18,9 @@ public class SmartRulesView extends ExecutableView {
     private static final int DEFAULT_HEADER_HEIGHT = 1;
     public static final String TABLE_TYPE = "SmartRules";
 
+    @Schema(description = "Whether the table uses the Collect keyword for aggregation")
+    public final Boolean collect;
+
     @Schema(description = "List of smart rule headers with grouping support")
     public final List<SmartRulesHeaderView> headers;
 
@@ -26,6 +29,7 @@ public class SmartRulesView extends ExecutableView {
 
     public SmartRulesView(Builder builder) {
         super(builder);
+        this.collect = builder.collect;
         this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElse(List.of());
         this.rules = Optional.ofNullable(builder.rules).map(List::copyOf).orElse(List.of());
     }
@@ -59,10 +63,16 @@ public class SmartRulesView extends ExecutableView {
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends ExecutableView.Builder<Builder> {
 
+        private Boolean collect;
         private List<SmartRulesHeaderView> headers;
         private List<LinkedHashMap<String, Object>> rules;
 
         public Builder() {
+        }
+
+        public Builder collect(Boolean collect) {
+            this.collect = collect;
+            return this;
         }
 
         public Builder headers(List<SmartRulesHeaderView> headers) {

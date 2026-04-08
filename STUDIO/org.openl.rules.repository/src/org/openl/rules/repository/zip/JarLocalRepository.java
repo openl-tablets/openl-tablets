@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -45,7 +44,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                 final String name = FileUtils.getBaseName(path.getFileName().toString());
                 var existed = localStorage.put(name, path);
                 if (existed != null && !existed.equals(path)) {
-                    throw new IllegalStateException(String.format("The resources '%s' and '%s' conflict for the same '%s' name.", existed, path, name));
+                    throw new IllegalStateException("The resources '%s' and '%s' conflict for the same '%s' name.".formatted(existed, path, name));
                 }
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to initialize a repository.", e);
@@ -69,7 +68,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
 
         Path root = findCommonParentPath(localStorage.values());
         if (root == null) {
-            root = Paths.get(System.getProperty("java.io.tmpdir")); // just a stab to prevent NPE
+            root = Path.of(System.getProperty("java.io.tmpdir")); // just a stab to prevent NPE
         }
 
         setStorage(localStorage);
@@ -98,12 +97,12 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                         //it's ok
                     }
                 }
-                return Paths.get(uriToZip);
+                return Path.of(uriToZip);
             } catch (URISyntaxException e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
         } else if ("file".equals(uri.getScheme())) {
-            return Paths.get(uri);
+            return Path.of(uri);
         }
         throw new IllegalArgumentException("Invalid URI scheme.");
     }

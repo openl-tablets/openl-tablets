@@ -199,9 +199,6 @@ public final class IntDomainHistory implements Serializable {
      * The function stores range removal from Int domain.
      * <p>
      * added by SV 20.01.03 to support removeRangeInternal in IntVarImpl
-     *
-     * @param range_min
-     * @param range_max
      */
     void remove(int range_min, int range_max) {
         int t_min = Math.max(_min, range_min);
@@ -219,8 +216,10 @@ public final class IntDomainHistory implements Serializable {
 
     public void restore(int index) {
         _var.forceSize(_history.elementAt(index + SIZE_IDX));
-        _var.forceMin(_min = _history.elementAt(index + MIN_IDX));
-        _var.forceMax(_max = _history.elementAt(index + MAX_IDX));
+        _min = _history.elementAt(index + MIN_IDX);
+        _var.forceMin(_min);
+        _max = _history.elementAt(index + MAX_IDX);
+        _var.forceMax(_max);
         int firstRemoveIndex = _history.elementAt(index + REMOVE_IDX);
 
         for (int i = _remove_history.size() - 1; i >= firstRemoveIndex; --i) {
@@ -237,8 +236,10 @@ public final class IntDomainHistory implements Serializable {
     int save() {
         int old = _currentIndex;
         _currentIndex = _history.size();
-        _history.add(_min = _var.min());
-        _history.add(_max = _var.max());
+        _min = _var.min();
+        _history.add(_min);
+        _max = _var.max();
+        _history.add(_max);
         _history.add(_var.size());
         _history.add(_remove_history.size());
         _mask = 0;

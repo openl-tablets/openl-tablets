@@ -25,16 +25,14 @@ public class StyleTrackingListener implements HSSFListener {
 
     @Override
     public void processRecord(Record record) {
-        if (record instanceof FormatRecord) {
-            FormatRecord fr = (FormatRecord) record;
+        if (record instanceof FormatRecord fr) {
             customFormats.put(fr.getIndexCode(), fr);
         }
-        if (record instanceof ExtendedFormatRecord) {
-            ExtendedFormatRecord xr = (ExtendedFormatRecord) record;
+        if (record instanceof ExtendedFormatRecord xr) {
             extendedFormats.add(xr);
         }
-        if (record instanceof FontRecord) {
-            fonts.add((FontRecord) record);
+        if (record instanceof FontRecord fontRecord) {
+            fonts.add(fontRecord);
         }
 
         delegate.processRecord(record);

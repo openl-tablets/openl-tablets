@@ -16,8 +16,8 @@ package org.openl.ie.tools;
 ///////////////////////////////////////////////////////////////////////////////
 
 import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An abstract implementation of the factory for reusable objects.
@@ -32,7 +32,7 @@ public abstract class ReusableFactory implements Serializable {
     /**
      * All created factories.
      */
-    protected static final Vector _allFactories = new Vector();
+    protected static final List _allFactories = new ArrayList();
     protected FastStack _reusables;
 
     protected int _element_counter;
@@ -41,10 +41,8 @@ public abstract class ReusableFactory implements Serializable {
      * Performs cleanup for all factories.
      */
     public static void cleanAll() {
-        Enumeration it = _allFactories.elements();
-
-        while (it.hasMoreElements()) {
-            ((ReusableFactory) it.nextElement()).cleanUp();
+        for (Object factory : _allFactories) {
+            ((ReusableFactory) factory).cleanUp();
         }
     }
 
@@ -97,7 +95,7 @@ public abstract class ReusableFactory implements Serializable {
      * Registers this factory in all factories.
      */
     void register() {
-        _allFactories.addElement(this);
+        _allFactories.add(this);
     }
 
 } // ~ReusableFactory

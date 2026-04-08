@@ -56,8 +56,8 @@ public class XlsDefinitions {
                 return false;
             }
             for (int i = 0; i < parameterDeclarations1.size(); i++) {
-                IParameterDeclaration parameterDeclaration1 = parameterDeclarations1.get(0);
-                IParameterDeclaration parameterDeclaration2 = parameterDeclarations2.get(0);
+                IParameterDeclaration parameterDeclaration1 = parameterDeclarations1.getFirst();
+                IParameterDeclaration parameterDeclaration2 = parameterDeclarations2.getFirst();
                 if (parameterDeclaration1 == null || parameterDeclaration2 == null) {
                     if (parameterDeclaration1 == null && parameterDeclaration2 == null) {
                         continue;

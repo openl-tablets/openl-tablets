@@ -7,14 +7,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
+import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -23,8 +24,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -40,11 +39,11 @@ import org.openl.types.java.JavaOpenClass;
  *
  * @author PUdalau
  */
+@Slf4j
 public class InterfaceTransformer {
     public static final Function<Integer, Integer> IGNORE_PARAMETER_ANNOTATIONS = index -> -1;
     public static final Function<Integer, Integer> ADD_FIRST_PARAMETER = index -> index + 1;
     public static final Function<Integer, Integer> REMOVE_FIRST_PARAMETER = index -> index - 1;
-    private final Logger log = LoggerFactory.getLogger(InterfaceTransformer.class);
     private final Class<?> classToTransform;
     private final String className;
     private final Function<Integer, Integer> methodParameterAdaptor;
@@ -108,8 +107,8 @@ public class InterfaceTransformer {
         Set<String> usedFields = new HashSet<>();
         Set<Class<?>> usedClasses = new HashSet<>();
         Set<MethodKey> usedMethods = new HashSet<>();
-        Queue<Class<?>> queue = new LinkedList<>();
-        Queue<Class<?>> interfacesQueue = new LinkedList<>();
+        Queue<Class<?>> queue = new ArrayDeque<>();
+        Queue<Class<?>> interfacesQueue = new ArrayDeque<>();
         queue.add(classToTransform);
         while (!queue.isEmpty()) {
             Class<?> x = queue.poll();
@@ -248,6 +247,7 @@ public class InterfaceTransformer {
                         visitNonArrayAnnotationAttribute(av, m.getName(), attributeValue);
                     }
                 } catch (IllegalAccessException | InvocationTargetException ignored) {
+                    // Skip inaccessible annotation attributes
                 }
             }
             av.visitEnd();
@@ -258,12 +258,11 @@ public class InterfaceTransformer {
                                                          String attributeName,
                                                          Object attributeValue) {
         Class<? extends Object> attributeType = attributeValue.getClass();
-        if (attributeValue instanceof Class) {
-            av.visit(attributeName, Type.getType((Class<?>) attributeValue));
+        if (attributeValue instanceof Class<?> class1) {
+            av.visit(attributeName, Type.getType(class1));
         } else if (attributeType.isEnum()) {
             av.visitEnum(attributeName, Type.getDescriptor(attributeType), attributeValue.toString());
-        } else if (attributeValue instanceof Annotation) {
-            Annotation annotation = (Annotation) attributeValue;
+        } else if (attributeValue instanceof Annotation annotation) {
             AnnotationVisitor av1 = av.visitAnnotation(attributeName, Type.getDescriptor(annotation.annotationType()));
             processAnnotation(annotation, av1);
         } else {

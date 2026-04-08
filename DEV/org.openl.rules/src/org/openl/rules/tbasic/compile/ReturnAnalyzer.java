@@ -104,10 +104,10 @@ public class ReturnAnalyzer {
                 List<AlgorithmTreeNode> nodesToAnalyze1 = nodesToAnalyze.subList(i, i + linkedNodesGroupSize);
                 SuitablityAsReturn result1;
                 if (TBasicSpecificationKey.IF.toString()
-                        .equals(nodesToAnalyze1.get(0).getSpecificationKeyword()) && TBasicSpecificationKey.ELSE.toString()
+                        .equals(nodesToAnalyze1.getFirst().getSpecificationKeyword()) && TBasicSpecificationKey.ELSE.toString()
                         .equals(nodesToAnalyze1.get(1).getSpecificationKeyword())) {
                     result1 = analyzeIFOperation(nodesToAnalyze1,
-                            nodesToAnalyze1.get(0).getSpecification().isMultiline(),
+                            nodesToAnalyze1.getFirst().getSpecification().isMultiline(),
                             bindingContext);
                 } else {
                     result1 = SuitablityAsReturn.NONE;

@@ -29,7 +29,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         IOpenClass containerType = targetNode.getType();
 
         if (NullOpenClass.the.equals(containerType)) {
-            return makeErrorNode(String.format("An array or a collection is expected, but type '%s' is found.",
+            return makeErrorNode("An array or a collection is expected, but type '%s' is found.".formatted(
                     NullOpenClass.the.getName()), targetNode.getSyntaxNode(), bindingContext);
         }
 
@@ -37,7 +37,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         IOpenClass componentType = info.getComponentType(containerType);
         if (componentType == null) {
             String typeName = containerType.getName();
-            return makeErrorNode(String.format("An array or a collection is expected, but type '%s' is found.",
+            return makeErrorNode("An array or a collection is expected, but type '%s' is found.".formatted(
                     typeName), targetNode.getSyntaxNode(), bindingContext);
         }
         int numberOfChildren = node.getNumberOfChildren();
@@ -72,7 +72,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             if (varType != componentType) {
                 IOpenCast cast = bindingContext.getCast(componentType, varType);
                 if (cast == null) {
-                    return makeErrorNode(String.format("Cannot cast '%s' to '%s'.", componentType, varType),
+                    return makeErrorNode("Cannot cast '%s' to '%s'.".formatted(componentType, varType),
                             varNode,
                             bindingContext);
                 }
@@ -95,7 +95,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                         .getComponentType(targetNode.getType());
                 openCast = bindingContext.getCast(componentType1, localVar.getType());
                 if (targetNode.getType().isArray() && openCast == null) {
-                    String message = String.format("Cannot convert from '%s' to '%s'.",
+                    String message = "Cannot convert from '%s' to '%s'.".formatted(
                             targetNode.getType().getAggregateInfo().getComponentType(targetNode.getType()).getName(),
                             localVar.getType().getName());
                     return makeErrorNode(message, varNode, bindingContext);

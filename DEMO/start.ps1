@@ -22,12 +22,12 @@ $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 
 $JAVA_MAJOR_VERSION = "25"
-$JETTY_VERSION = "12.1.5"
+$JETTY_VERSION = "12.1.7"
 
 # JDBC Driver Versions
-$POSTGRES_VERSION = "42.7.7"
-$ORACLE_VERSION = "23.8.0.25.04"
-$MSSQL_VERSION = "12.10.1.jre11"
+$POSTGRES_VERSION = "42.7.10"
+$ORACLE_VERSION = "23.26.1.0.0"
+$MSSQL_VERSION = "13.2.1.jre11"
 
 
 # --- SCRIPT INTERNAL VARIABLES ---
@@ -205,33 +205,22 @@ Download-Driver "$MAVEN_URL/com/oracle/database/jdbc/ojdbc11/$ORACLE_VERSION/ojd
 Download-Driver "$MAVEN_URL/com/microsoft/sqlserver/mssql-jdbc/$MSSQL_VERSION/mssql-jdbc-$MSSQL_VERSION.jar"
 
 
-# --- 6. DOWNLOAD AND UNPACK OPENL .WAR FILES ---
+# --- 6. DOWNLOAD OPENL .WAR FILES ---
 # -----------------------------------------------------------------------------------
 function Download-War {
     param($componentName, $downloadUrl)
-    $targetWar = Join-Path $WEBAPPS_DIR "$componentName.zip"
-    $targetDir = Join-Path $WEBAPPS_DIR $componentName
+    $targetWar = Join-Path $WEBAPPS_DIR "$componentName.war"
 
-    # Check if the destination directory already exists
-    if (-not (Test-Path -Path $targetDir -PathType Container)) {
-        Write-Host "INFO: Downloading and unpacking '$componentName'..." -ForegroundColor Green
+    # Check if the .war file already exists
+    if (-not (Test-Path -Path $targetWar -PathType Leaf)) {
+        Write-Host "INFO: Downloading '$componentName'..." -ForegroundColor Green
         try {
-            # 1. Download the .war file
             Invoke-WebRequest -Uri $downloadUrl -OutFile $targetWar -UseBasicParsing
-
-            # 2. Unpack the .war archive to the target directory
-            Expand-Archive -Path $targetWar -DestinationPath $targetDir -Force
-
-            # 3. Remove the temporary .war file after extraction
-            Remove-Item -Path $targetWar -Force
-
-            Write-Host "INFO: '$componentName' has been successfully downloaded and unpacked." -ForegroundColor Green
+            Write-Host "INFO: '$componentName' has been successfully downloaded." -ForegroundColor Green
         } catch {
-            Write-Host "ERROR: Failed to download or unpack '$componentName'." -ForegroundColor Red
-            # Clean up any partial files if an error occurs
+            Write-Host "ERROR: Failed to download '$componentName'." -ForegroundColor Red
+            # Clean up any partial file if an error occurs
             if (Test-Path $targetWar) { Remove-Item -Path $targetWar -Force }
-            if (Test-Path $targetDir) { Remove-Item -Path $targetDir -Recurse -Force }
-            # Stop the script by re-throwing the exception
             throw
         }
     } else {
@@ -296,6 +285,9 @@ Write-Host "    OpenL Home: $OPENL_HOME"
 Write-Host "   Webapps Dir: $WEBAPPS_DIR"
 Write-Host "  Total Memory: $TotalRamMB MB"
 Write-Host "   Memory Opts: $_JAVA_MEMORY"
+if ($env:JAVA_OPTS) {
+    Write-Host "    Java  Opts: $env:JAVA_OPTS"
+}
 Write-Host "============================================================" -ForegroundColor Magenta
 Write-Host " Access OpenL Studio at: `e[94m http://localhost:8080/webstudio `e[0m"
 Write-Host "Access Rule Services at: `e[94m http://localhost:8080/webservice `e[0m"
@@ -314,6 +306,7 @@ $javaArgs = @(
     "-Djetty.httpConfig.requestHeaderSize=32768",
     "-Djetty.httpConfig.responseHeaderSize=32768",
     $_JAVA_MEMORY.Split(' '),
+    $(if ($env:JAVA_OPTS) { $env:JAVA_OPTS.Split(' ') } else { @() }),
     "-Djetty.home=$JETTY_HOME",
     "-Djetty.base=$JETTY_HOME",
     "-Djetty.deploy.webappsDir=$WEBAPPS_DIR",

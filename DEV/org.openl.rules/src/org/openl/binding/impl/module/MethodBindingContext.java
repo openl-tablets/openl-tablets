@@ -49,8 +49,8 @@ public class MethodBindingContext extends BindingContextDelegator {
                     localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, pName, params[i]);
                 }
             } catch (DuplicatedVarException e) {
-                if (signature instanceof MethodSignature) {
-                    IParameterDeclaration paramDeclaration = ((MethodSignature) signature).getParameterDeclaration(i);
+                if (signature instanceof MethodSignature methodSignature) {
+                    IParameterDeclaration paramDeclaration = methodSignature.getParameterDeclaration(i);
                     if (paramDeclaration != null && paramDeclaration.getModule() != null) {
                         BindHelper.processError(e, paramDeclaration.getModule(), delegate);
                         continue;

@@ -72,10 +72,10 @@ export class ErrorBoundary extends Component<Props, State> {
             // Default error UI
             return (
                 <div
-                    style={{ 
-                        minHeight: '100vh', 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                    style={{
+                        minHeight: '100vh',
+                        display: 'flex',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         padding: '20px'
                     }}
@@ -106,10 +106,10 @@ export class ErrorBoundary extends Component<Props, State> {
                     >
                         {process.env.NODE_ENV === 'development' && this.state.error && (
                             <div
-                                style={{ 
-                                    marginTop: 24, 
-                                    padding: 16, 
-                                    backgroundColor: '#f5f5f5', 
+                                style={{
+                                    marginTop: 24,
+                                    padding: 16,
+                                    backgroundColor: '#f5f5f5',
                                     borderRadius: 6,
                                     maxWidth: '600px',
                                     overflow: 'auto'
@@ -123,9 +123,9 @@ export class ErrorBoundary extends Component<Props, State> {
                                     <Paragraph style={{ marginBottom: 0 }}>
                                         <Text strong>Component Stack:</Text>
                                         <pre
-                                            style={{ 
-                                                marginTop: 8, 
-                                                fontSize: '12px', 
+                                            style={{
+                                                marginTop: 8,
+                                                fontSize: '12px',
                                                 color: '#666',
                                                 whiteSpace: 'pre-wrap'
                                             }}

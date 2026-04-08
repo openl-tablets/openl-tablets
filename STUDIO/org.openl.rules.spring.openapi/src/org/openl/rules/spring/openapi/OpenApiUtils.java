@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Optional;
 import java.util.Set;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -20,6 +21,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
+
+import org.openl.util.StringUtils;
 
 public final class OpenApiUtils {
 
@@ -40,9 +43,18 @@ public final class OpenApiUtils {
      */
     public static String getRequestBasePath() {
         var requestAttrs = RequestContextHolder.getRequestAttributes();
-        if (requestAttrs instanceof ServletRequestAttributes) {
-            final var request = ((ServletRequestAttributes) requestAttrs).getRequest();
-            return RequestPathUtils.getFullRequestPath(request);
+        if (requestAttrs instanceof ServletRequestAttributes attributes) {
+            final var request = attributes.getRequest();
+            final var scheme = request.getScheme();
+            final var port = request.getServerPort();
+            final var url = new StringBuilder(scheme).append("://").append(request.getServerName());
+
+            if ("http".equals(scheme) && port != 80 || "https".equals(scheme) && port != 443) {
+                url.append(':').append(request.getServerPort());
+            }
+            Optional.of(request.getContextPath()).filter(StringUtils::isNotBlank).ifPresent(url::append);
+            Optional.of(request.getServletPath()).filter(StringUtils::isNotBlank).ifPresent(url::append);
+            return url.toString();
         }
         return null;
     }
@@ -86,7 +98,7 @@ public final class OpenApiUtils {
 
     public static boolean isHiddenApiMethod(Method method) {
         var anno = AnnotationUtils.findAnnotation(method, Operation.class);
-        return anno != null && anno.hidden() || AnnotationUtils.findAnnotation(method,
+        return (anno != null && anno.hidden()) || AnnotationUtils.findAnnotation(method,
                 Hidden.class) != null || isHidden(method.getDeclaringClass());
     }
 

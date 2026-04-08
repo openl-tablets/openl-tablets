@@ -9,8 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -24,8 +23,8 @@ import org.openl.util.ClassUtils;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public class RulesFrontendImpl implements RulesFrontend {
-    private final Logger log = LoggerFactory.getLogger(RulesFrontendImpl.class);
 
     private final Map<String, OpenLService> runningServices = new ConcurrentHashMap<>();
 
@@ -78,7 +77,7 @@ public class RulesFrontendImpl implements RulesFrontend {
         Objects.requireNonNull(ruleName, "ruleName cannot be null");
         OpenLService service = getService(serviceName);
         if (service == null) {
-            throw new MethodInvocationException(String.format("Service '%s' is not found.", serviceName));
+            throw new MethodInvocationException("Service '%s' is not found.".formatted(serviceName));
         }
         try {
             if (service.getServiceBean() != null) {
@@ -95,8 +94,8 @@ public class RulesFrontendImpl implements RulesFrontend {
                         }
                         sb.append(param != null ? param.getTypeName() : "null-class");
                     }
-                    throw new MethodInvocationException(String
-                            .format("Method '%s(%s)' is not found in service '%s'.", ruleName, sb, serviceName));
+                    throw new MethodInvocationException("Method '%s(%s)' is not found in service '%s'."
+                            .formatted(ruleName, sb, serviceName));
                 }
                 try {
                     return serviceMethod.invoke(service.getServiceBean(), params);
@@ -108,11 +107,11 @@ public class RulesFrontendImpl implements RulesFrontend {
                 }
             } else {
                 throw new MethodInvocationException(
-                        String.format("Service initialization '%s' has been failed.", serviceName), service.getException());
+                        "Service initialization '%s' has been failed.".formatted(serviceName), service.getException());
             }
         } catch (RuleServiceInstantiationException e) {
             throw new MethodInvocationException(
-                    String.format("Service initialization '%s' has been failed.", serviceName),
+                    "Service initialization '%s' has been failed.".formatted(serviceName),
                     e);
         }
     }
@@ -169,7 +168,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                 }
             }
         } else {
-            throw new MethodInvocationException(String.format("Service '%s' is not found.", serviceName));
+            throw new MethodInvocationException("Service '%s' is not found.".formatted(serviceName));
         }
 
         return result;

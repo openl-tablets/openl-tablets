@@ -147,12 +147,11 @@ class ParameterExport extends BaseParameterExport {
             for (int p = 0; p < executionParams.length; p++) {
                 ParameterWithValueDeclaration parameter = executionParams[p];
                 Object value = parameter.getValue();
-                if (value instanceof Collection) {
-                    value = ((Collection<?>) value).toArray();
+                if (value instanceof Collection<?> collection) {
+                    value = collection.toArray();
                 }
 
-                if (value instanceof Map) {
-                    Map<?, ?> map = (Map<?, ?>) value;
+                if (value instanceof Map<?, ?> map) {
                     for (Object val : map.values()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
                     }
@@ -227,14 +226,13 @@ class ParameterExport extends BaseParameterExport {
             for (FieldDescriptor fieldDescriptor : fields) {
                 Object fieldValue = ExportUtils.fieldValue(value, fieldDescriptor.getField());
                 List<FieldDescriptor> children = fieldDescriptor.getChildren();
-                if (fieldValue instanceof Map) {
-                    Map<?, ?> map = (Map<?, ?>) fieldValue;
+                if (fieldValue instanceof Map<?, ?> map) {
                     for (Object val : map.values()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
                     }
                     continue;
-                } else if (fieldValue instanceof Collection) {
-                    fieldValue = ((Collection<?>) fieldValue).toArray();
+                } else if (fieldValue instanceof Collection<?> collection) {
+                    fieldValue = collection.toArray();
                 }
                 if (children == null) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum), fieldValue, styles.parameterValue, rowHeight));
@@ -252,8 +250,8 @@ class ParameterExport extends BaseParameterExport {
             return 1;
         }
 
-        if (value instanceof Collection) {
-            value = ((Collection<?>) value).toArray();
+        if (value instanceof Collection<?> collection) {
+            value = collection.toArray();
         }
 
         if (value.getClass().isArray()) {

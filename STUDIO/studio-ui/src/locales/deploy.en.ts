@@ -34,5 +34,7 @@ i18next.addResourceBundle('en', 'deploy', {
         deploy_configuration_added_description: 'The deployment configuration has been successfully added.',
         deploy_failed: 'Deploy Failed',
         deploy_failed_description: 'Failed to deploy configuration. Please try again.',
+        no_deploy_rights: 'You do not have permission to deploy to the selected repository. Please select another repository.',
+        no_deploy_rights_short: 'No permission to deploy. Select another repository.',
     },
 })

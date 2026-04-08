@@ -100,7 +100,7 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
         while (res.getNumberOfChildren() > 0 && !(res instanceof IdentifierNode)) {
             res = res.getChild(0);
         }
-        return res instanceof IdentifierNode ? (IdentifierNode) res : null;
+        return res instanceof IdentifierNode in ? in : null;
     }
 
     private static class Holder {

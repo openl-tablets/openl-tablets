@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest</artifactId>
+        <version>6.1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>itest.s3</artifactId>
+    <packaging>jar</packaging>
+    <name>ITEST - S3</name>
+    <url>https://openl-tablets.org</url>
+
+    <properties>
+        <dockerized>true</dockerized>
+        <skipTestsForQuick>true</skipTestsForQuick>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.testing</groupId>
+            <artifactId>s3mock-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- requires for testcontainers due absent transitive dependency -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository.aws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
+                        <systemPropertyVariables>
+                            <webservice-webapp>../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp</webservice-webapp>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

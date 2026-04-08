@@ -5,7 +5,6 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -24,12 +23,11 @@ import java.util.stream.Stream;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -57,6 +55,7 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class Migrator {
 
     private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
@@ -67,7 +66,6 @@ public class Migrator {
     private Migrator() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(Migrator.class);
 
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
@@ -108,7 +106,7 @@ public class Migrator {
             settings.save(props);
             settings.reloadIfModified();
         } catch (IOException e) {
-            LOG.error("Migration of properties failed.", e);
+            log.error("Migration of properties failed.", e);
         }
     }
 
@@ -134,7 +132,7 @@ public class Migrator {
             return;
         }
 
-        Path locksPath = Paths.get(locksRoot);
+        Path locksPath = Path.of(locksRoot);
         if (!Files.exists(locksPath)) {
             return;
         }
@@ -148,10 +146,10 @@ public class Migrator {
         try (Stream<Path> paths = Files.find(locksPath, Integer.MAX_VALUE, matcher)) {
             paths.forEach(FileUtils::deleteQuietly);
         } catch (IOException e) {
-            LOG.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
+            log.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
         }
     }
-    
+
     private static void migrateLocalRepositoryPath(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX)
@@ -159,7 +157,7 @@ public class Migrator {
                 .forEach(localRepositoryPathProperty -> {
                     int start = REPOSITORY_PREFIX.length();
                     int end = localRepositoryPathProperty.length() - LOCAL_REPO_PATH_SUFFIX.length();
-                    String repositoryId = localRepositoryPathProperty.substring(start, end);                    
+                    String repositoryId = localRepositoryPathProperty.substring(start, end);
                     String uriPropName = REPOSITORY_PREFIX + repositoryId + ".uri";
                     var uri = settings.getProperty(uriPropName);
                     if (StringUtils.isEmpty(uri)) {
@@ -281,7 +279,7 @@ public class Migrator {
                 .distinct()
                 .forEach(uri -> {
                     if (uri != null && uri.startsWith("jdbc:h2:")) {
-                        LOG.warn(
+                        log.warn(
                                 "You have h2 database with uri '{}'. Make sure that it's migrated to v2 or newer version. You need to migrate it yourself. See https://www.h2database.com/html/migration-to-v2.html for details.",
                                 uri);
                     }
@@ -309,7 +307,7 @@ public class Migrator {
 
     private static Map<String, String> loadProjectsPathes(String designRepo) {
         Map<String, String> projectPathMap = new HashMap<>();
-        Path projectProperties = Paths.get(designRepo, "openl-projects.properties");
+        Path projectProperties = Path.of(designRepo, "openl-projects.properties");
         if (Files.isRegularFile(projectProperties)) {
             try {
                 var projectProps = new HashMap<String, String>();
@@ -321,7 +319,7 @@ public class Migrator {
                     projectPathMap.put(name, path);
                 }
             } catch (IOException e) {
-                LOG.error("Loading of openl-projects.properties has been failed.", e);
+                log.error("Loading of openl-projects.properties has been failed.", e);
             }
         }
         return projectPathMap;
@@ -386,7 +384,7 @@ public class Migrator {
 
     private static void migrateNonFlatProjectSettings(Map<String, String> nonFlatProjectPaths) {
         String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
-        Path workspace = Paths.get(workspacePath);
+        Path workspace = Path.of(workspacePath);
 
         try {
             // depth 3 - WorkSpace/UserDir/ProjectName
@@ -405,12 +403,12 @@ public class Migrator {
                 }
             });
         } catch (IOException e) {
-            LOG.error("Migration of locks failed.", e);
+            log.error("Migration of locks failed.", e);
         }
     }
 
     private static void migrateBranchesProps(Map<String, String> projectPathMap) {
-        Path branchesProperties = Paths.get(Props.text("openl.home") + "/git-settings/branches.properties");
+        Path branchesProperties = Path.of(Props.text("openl.home") + "/git-settings/branches.properties");
         if (Files.isRegularFile(branchesProperties)) {
             try {
                 var branchProps = new HashMap<String, String>();
@@ -430,11 +428,11 @@ public class Migrator {
                             branches.addBranch(namePath, branch, null);
                         }
                     }
-                    Path config = Paths.get(Props.text("openl.home"), "repositories/settings/design/branches.yaml");
+                    Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/branches.yaml");
                     createYaml(branches, config);
                 }
             } catch (IOException e) {
-                LOG.error("Migration of branches.properties has been failed.", e);
+                log.error("Migration of branches.properties has been failed.", e);
             }
         }
     }
@@ -450,7 +448,7 @@ public class Migrator {
         }
         ProjectIndex index = new ProjectIndex();
         index.setProjects(projects);
-        Path config = Paths.get(Props.text("openl.home"), "repositories/settings/design/openl-projects.yaml");
+        Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/openl-projects.yaml");
         createYaml(index, config);
 
     }
@@ -460,12 +458,12 @@ public class Migrator {
             Files.createDirectories(filePath.getParent());
             Files.write(filePath, YamlMapperFactory.getYamlMapper().writeValueAsBytes(data));
         } catch (IOException e) {
-            LOG.error("Writing to file has been failed.", e);
+            log.error("Writing to file has been failed.", e);
         }
     }
 
     private static void migrateLocks(Map<String, String> projectPathMap) {
-        Path projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks/rules");
+        Path projectLocks = Path.of(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks/rules");
         if (Files.exists(projectLocks)) {
             try {
                 Files.walkFileTree(projectLocks, new SimpleFileVisitor<Path>() {
@@ -481,7 +479,7 @@ public class Migrator {
                         }
                         String projectName = lockPath.getFileName().toString();
                         String projectPath = projectPathMap.getOrDefault(projectName, "/DESIGN/rules/" + projectName);
-                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
+                        Path newLock = Path.of(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
                                 ".locks/projects/design",
                                 projectPath,
                                 branchName,
@@ -492,7 +490,7 @@ public class Migrator {
                     }
                 });
             } catch (IOException e) {
-                LOG.error("Migration of locks failed.", e);
+                log.error("Migration of locks failed.", e);
             }
         }
     }
@@ -515,13 +513,13 @@ public class Migrator {
             var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
             var migrator = new ProjectTagsMigrator(designTimeRepository);
             allOpenLProjects.forEach(openLProject -> {
-                LOG.info("Starting migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
+                log.info("Starting migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
                 try {
                     migrator.migrate(openLProject.repositoryId, openLProject.projectPath, openLProject.tags, migrationUserInfo);
                     runInSession(sessionFactory, session -> deleteProjectTagsInDB(session, openLProject.id));
-                    LOG.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
+                    log.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
                 } catch (IOException | ProjectException e) {
-                    LOG.error(String.format("Migration of project %s with repository id %s has failed", openLProject.projectPath, openLProject.repositoryId), e);
+                    log.error("Migration of project %s with repository id %s has failed".formatted(openLProject.projectPath, openLProject.repositoryId), e);
                 }
             });
         }

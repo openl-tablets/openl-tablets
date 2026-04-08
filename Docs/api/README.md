@@ -197,7 +197,45 @@ GET /projects/MyProject/tables/LOOKUP_PrimaryBreedFactor
 
 ---
 
-### 5. **Projects Merge API (BETA)** ([projects-merge-api.md](projects-merge-api.md))
+### 5. **Project Modules API (BETA)** ([project-modules-api.md](project-modules-api.md))
+
+Complete REST API for managing project modules (Excel file definitions in `rules.xml`). Supports regular and wildcard modules with full lifecycle operations.
+
+**Key Features:**
+- List modules with wildcard expansion
+- Add modules with optional empty Excel file creation
+- Edit module name, path, method filter, and compilation settings
+- Copy modules with wildcard coverage detection
+- Remove modules with optional file deletion
+- ACL permission enforcement
+
+**Use Cases:**
+- Managing project structure programmatically
+- Creating test modules with dependencies
+- Copying modules for state-based rule variants
+- Renaming modules to match naming patterns
+
+**Example:**
+```bash
+# Add a new module with auto-created file
+POST /projects/{projectId}/modules
+{
+  "name": "MainTests",
+  "path": "MainTests.xlsx",
+  "createFile": true
+}
+
+# Copy a module
+POST /projects/{projectId}/modules/Main-CW/copy
+{
+  "newModuleName": "Main-NY",
+  "newPath": "Main-NY.xlsx"
+}
+```
+
+---
+
+### 6. **Projects Merge API (BETA)** ([projects-merge-api.md](projects-merge-api.md))
 
 The Projects Merge API provides comprehensive Git branch merge operations with conflict detection and resolution capabilities.
 
@@ -247,7 +285,7 @@ message="Merged feature-auth: kept our business rules"
 
 ---
 
-### 6. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
+### 7. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
 
 The Personal Access Token (PAT) API enables users to generate and manage authentication tokens for programmatic access to OpenL Tablets Studio. PATs provide an alternative to OAuth2/SAML authentication for service-to-service communication and API integrations.
 
@@ -307,6 +345,60 @@ Authorization: Token openl_pat_x1Y2z3A4b5C6d7E8.f9G0h1I2j3K4l5M6n7O8p9Q0r1S2t3U4
 
 **Architecture Documentation:**
 - [Personal Access Token Architecture](personal-access-token-architecture.md) - Detailed architecture design, security considerations, and implementation details
+
+---
+
+### 7. **Projects Trace API (BETA)** ([projects-trace-api.md](projects-trace-api.md))
+
+The Projects Trace API provides comprehensive debugging and execution tracing capabilities for OpenL rules. It enables step-by-step analysis of rule execution including decision table evaluations, spreadsheet cell computations, and method calls.
+
+**Key Features:**
+- Asynchronous trace execution with WebSocket progress notifications
+- Hierarchical trace tree with lazy loading for large traces
+- Lazy parameter loading for complex objects
+- Test suite support with range selection (e.g., "1-3,5")
+- Table HTML rendering with execution path highlighting
+- Session-based task management (one trace per session)
+
+**Use Cases:**
+- Rule debugging and analysis
+- Decision table execution visualization
+- Test case failure investigation
+- Performance analysis of rule chains
+- Spreadsheet cell dependency tracing
+
+**Example:**
+```bash
+# Start trace execution
+POST /projects/MyProject/trace?tableId=DT_RiskRating
+{
+  "params": {"age": 35, "income": 75000},
+  "runtimeContext": {"lob": "Auto"}
+}
+# Response: 202 Accepted
+
+# Get trace result (after completion)
+GET /projects/MyProject/trace
+
+# Response
+{
+  "rootNodes": [
+    {"key": 1, "title": "DT_RiskRating", "type": "method", "lazy": true}
+  ],
+  "totalNodes": 42
+}
+
+# Get node details
+GET /projects/MyProject/trace/nodes/1
+# Returns full details including parameters, context, result
+
+# Get traced table with highlighting
+GET /projects/MyProject/trace/nodes/1/table
+# Returns HTML with traced cells highlighted
+```
+
+**Architecture Documentation:**
+- [Projects Trace Architecture](projects-trace-architecture.md) - Detailed architecture design, component interactions, lazy loading strategy, and implementation details
 
 ---
 
@@ -513,6 +605,19 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Type Safety | ✅ Yes | ✅ Yes | ❌ Raw | ✅ Yes | ✅ Yes |
 | Testing | ✅ Integrated | ✅ Integrated | ✅ Integrated | ✅ Integrated | ✅ Integrated |
 
+### Project Modules API (BETA)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| List Modules | ✅ Complete | Wildcard expansion with oneOf schema |
+| Add Module | ✅ Complete | Optional empty Excel creation |
+| Edit Module | ✅ Complete | Rename, path, method filter |
+| Copy Module | ✅ Complete | Wildcard coverage detection |
+| Remove Module | ✅ Complete | Optional file deletion |
+| Validation | ✅ Complete | Duplicate, blank, missing, conflict |
+| ACL Permissions | ✅ Complete | WRITE, CREATE, DELETE checks |
+| Integration Tests | ✅ Complete | Full lifecycle coverage |
+
 ### Projects Merge API (BETA)
 
 | Feature | Status | Notes |
@@ -543,6 +648,22 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Unit Tests | ✅ Complete | Comprehensive coverage |
 | Integration Tests | ✅ Complete | Full workflow with OAuth2 |
 
+### Projects Trace API (BETA)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Start Trace | ✅ Complete | Async execution with CompletableFuture |
+| Get Trace Result | ✅ Complete | Root nodes with total count |
+| Get Node Children | ✅ Complete | Lazy loading support |
+| Get Node Details | ✅ Complete | Parameters, context, result, errors |
+| Cancel Trace | ✅ Complete | Idempotent cancellation |
+| Lazy Parameters | ✅ Complete | On-demand loading for large values |
+| Table HTML | ✅ Complete | Traced cells highlighting |
+| Test Range Support | ✅ Complete | Parse ranges like "1-3,5" |
+| WebSocket Progress | ✅ Complete | PENDING/STARTED/COMPLETED/ERROR |
+| Session Management | ✅ Complete | One trace per session |
+| JSON Schema | ✅ Complete | Schema generation for parameters |
+
 ---
 
 ## Future Enhancements
@@ -557,7 +678,7 @@ Refer to the specific API documentation for detailed test cases and expected res
 
 ---
 
-**Last Updated**: 2025-12-23
+**Last Updated**: 2026-01-28
 **Version**: 6.0.0-SNAPSHOT
 
 For API endpoint details, see individual table type documentation above.

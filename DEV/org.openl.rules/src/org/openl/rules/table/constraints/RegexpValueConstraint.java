@@ -38,8 +38,8 @@ public class RegexpValueConstraint extends AbstractConstraint {
 
     @Override
     public boolean check(Object... valuesToCheck) {
-        if (valuesToCheck.length == 1 && valuesToCheck[0] instanceof String) {
-            return ((String) valuesToCheck[0]).matches(regexp);
+        if (valuesToCheck.length == 1 && valuesToCheck[0] instanceof String string) {
+            return string.matches(regexp);
         }
         return false;
     }

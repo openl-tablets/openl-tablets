@@ -395,24 +395,24 @@ public class DecisionTableLoader {
         if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
                 Collection.class)) && parametersCount > 1) {
             throw SyntaxNodeExceptionUtils
-                    .createError(String.format("Expected exactly one parameter for return type '%s'.",
-                            type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
+                    .createError("Expected exactly one parameter for return type '%s'.".formatted(
+                    type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
         }
         if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
             if (parametersCount != 2) {
                 throw SyntaxNodeExceptionUtils
-                        .createError(String.format("Expected two parameters for return type '%s'.",
-                                type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
+                        .createError("Expected two parameters for return type '%s'.".formatted(
+                        type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
             }
         }
         for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
             IOpenClass t = bindingContext.findType(parameterType);
             if (t == null) {
-                throw SyntaxNodeExceptionUtils.createError(String.format("Type '%s' is not found.", parameterType),
+                throw SyntaxNodeExceptionUtils.createError("Type '%s' is not found.".formatted(parameterType),
                         tableSyntaxNode.getHeader().getCellSource());
             } else {
                 if (type.isArray() && bindingContext.getCast(t, type.getComponentClass()) == null) {
-                    throw SyntaxNodeExceptionUtils.createError(String.format("Incompatible types: '%s' and '%s'.",
+                    throw SyntaxNodeExceptionUtils.createError("Incompatible types: '%s' and '%s'.".formatted(
                             type.getComponentClass().getDisplayName(0),
                             t.getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
                 }
@@ -733,7 +733,7 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             if (tableStructure.hasCollectReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Invalid Decision Table header '%s'. Headers '%s' and '%s' cannot be used together.",
+                        "Invalid Decision Table header '%s'. Headers '%s' and '%s' cannot be used together.".formatted(
                                 header,
                                 tableStructure.firstUsedReturnActionHeader,
                                 header),
@@ -751,7 +751,7 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidCRetHeader(header)) {
             if (tableStructure.hasReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Invalid Decision Table header '%s'. Headers '%s' and '%s' cannot be used together.",
+                        "Invalid Decision Table header '%s'. Headers '%s' and '%s' cannot be used together.".formatted(
                                 header,
                                 tableStructure.firstUsedReturnActionHeader,
                                 header),
@@ -774,14 +774,13 @@ public class DecisionTableLoader {
             } else {
                 if (isSmart(decisionTable.getSyntaxNode()) || isSimple(decisionTable.getSyntaxNode())) {
                     boolean isMap = decisionTable.getSyntaxNode().getHeader().getCollectParameters().length > 0;
-                    final String errorMsg = String.format(
-                            "Decision table return type '%s' is incompatible with keyword 'Collect' in the table header, expected %s.",
+                    final String errorMsg = "Decision table return type '%s' is incompatible with keyword 'Collect' in the table header, expected %s.".formatted(
                             decisionTable.getType().getName(),
                             isMap ? "a map" : "an array or a collection");
                     throw SyntaxNodeExceptionUtils.createError(errorMsg, decisionTable.getSyntaxNode());
                 } else {
                     throw SyntaxNodeExceptionUtils.createError(
-                            String.format("Decision table return type '%s' is incompatible with column header '%s'.",
+                            "Decision table return type '%s' is incompatible with column header '%s'.".formatted(
                                     decisionTable.getType().getName(),
                                     header),
                             new GridCellSourceCodeModule(table.getRow(row).getSource(),
@@ -791,7 +790,7 @@ public class DecisionTableLoader {
                 }
             }
         } else if (!ParserUtils.isBlankOrCommented(header)) {
-            throw SyntaxNodeExceptionUtils.createError(String.format("Invalid Decision Table header '%s'.", header),
+            throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header '%s'.".formatted(header),
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                             IDecisionTableConstants.INFO_COLUMN_INDEX,
                             0,

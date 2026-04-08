@@ -6,8 +6,7 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -32,9 +31,9 @@ import org.openl.studio.projects.validator.ProjectStateValidator;
 
 @Validated
 @Service
+@Slf4j
 public class ProjectsMergeServiceImpl implements ProjectsMergeService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectsMergeServiceImpl.class);
 
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
@@ -53,6 +52,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         validateMerge(project, otherBranch);
         var repository = getBranchRepository(project);
         var branchPair = getBranchPair(project, otherBranch, mode);
+        validateTargetBranchNotProtected(project, branchPair.target());
         validateProjectLock(project, branchPair.target());
         boolean merged = repository.isMergedInto(branchPair.source(), branchPair.target());
         return CheckMergeResult.builder()
@@ -96,13 +96,20 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         return false;
     }
 
+    private void validateTargetBranchNotProtected(RulesProject project, String targetBranch) {
+        var repository = getBranchRepository(project);
+        if (repository.isBranchProtected(targetBranch)) {
+            throw new ConflictException("project.merge.branch.protected.message", targetBranch);
+        }
+    }
+
     private void validateProjectLock(RulesProject project, String targetBranch) {
         var userWorkspace = getUserWorkspace();
         var repository = getBranchRepository(project);
         LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
         LockInfo lockInfo = projectsLockEngine.getLockInfo(repository.getId(), targetBranch, project.getRealPath());
         if (lockInfo.isLocked()) {
-            throw new ConflictException("project.merge.branch.locked", targetBranch);
+            throw new ConflictException("project.merge.branch.locked.message", targetBranch);
         }
     }
 
@@ -118,6 +125,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     public MergeResult merge(RulesProject project, String otherBranch, MergeOpMode mode) throws IOException {
         validateMerge(project, otherBranch);
         var branchPair = getBranchPair(project, otherBranch, mode);
+        validateTargetBranchNotProtected(project, branchPair.target());
         validateProjectLock(project, branchPair.target());
         var branchRepository = getBranchRepository(project);
         var currentUser = getUserWorkspace().getUser();
@@ -125,7 +133,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         try {
             branchRepository.forBranch(branchPair.target()).merge(branchPair.source(), currentUser.getUserInfo(), null);
         } catch (MergeConflictException conflictEx) {
-            LOG.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
+            log.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
                     branchPair.source(),
                     branchPair.target(),
                     project.getName());

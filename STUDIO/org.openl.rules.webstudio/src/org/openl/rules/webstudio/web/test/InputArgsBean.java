@@ -24,10 +24,9 @@ import jakarta.faces.model.SelectItem;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -53,10 +52,11 @@ import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
+@Deprecated(forRemoval = true)
 @Service
 @ViewScope
+@Slf4j
 public class InputArgsBean {
-    private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
 
     @Autowired
     private Environment environment;
@@ -284,7 +284,7 @@ public class InputArgsBean {
     }
 
     private String constructJsonExceptionMessage(JsonParseException e) {
-        return String.format("%s</br>[line: %s, column: %s]",
+        return "%s</br>[line: %s, column: %s]".formatted(
                 e.getOriginalMessage(),
                 e.getLocation().getLineNr(),
                 e.getLocation().getColumnNr());
@@ -489,6 +489,66 @@ public class InputArgsBean {
 
     public IRulesRuntimeContext getRuntimeContext() {
         return runtimeContext;
+    }
+
+    /**
+     * Converts current parameters to JSON string for trace API.
+     * Format: {"params": {...}, "runtimeContext": {...}}
+     *
+     * @return JSON string with params and optional runtime context
+     */
+    public String getParamsAsJson() {
+        try {
+            ObjectMapper mapper = configureObjectMapper();
+
+            // Get params - this also populates runtimeContext as side effect
+            Object[] paramValues = getParams();
+
+            // Build JSON using tree model to preserve type-aware serialization.
+            // Each parameter is serialized with its declared type via writerFor(),
+            // so Jackson uses the mixin's @JsonTypeInfo (NAME mode) instead of
+            // default typing (CLASS mode) which produces fully-qualified class names.
+            var paramsNode = mapper.createObjectNode();
+            IOpenMethod method = getTestedMethod();
+            if (method != null && paramValues != null) {
+                var signature = method.getSignature();
+                for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                    String paramName = signature.getParameterName(i);
+                    Object value = i < paramValues.length ? paramValues[i] : null;
+                    if (value == null) {
+                        paramsNode.putNull(paramName);
+                    } else {
+                        var javaType = mapper.getTypeFactory()
+                                .constructType(signature.getParameterType(i).getInstanceClass());
+                        var json = mapper.writerFor(javaType).writeValueAsString(value);
+                        paramsNode.set(paramName, mapper.readTree(json));
+                    }
+                }
+            }
+
+            var resultNode = mapper.createObjectNode();
+            resultNode.set("params", paramsNode);
+
+            // Include runtime context if available
+            if (runtimeContext != null) {
+                resultNode.set("runtimeContext", mapper.valueToTree(runtimeContext));
+            }
+
+            return mapper.writeValueAsString(resultNode);
+        } catch (Message e) {
+            throw e;
+        } catch (IOException e) {
+            if (StringUtils.isNotBlank(e.getMessage())) {
+                throw new Message("Failed to serialize params to JSON. " + e.getMessage(), e);
+            }
+            throw new Message("Failed to serialize params to JSON.", e);
+        } catch (RuntimeException e) {
+            if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
+                throw new Message("Failed to serialize params to JSON.", e);
+            } else {
+                throw e;
+            }
+        }
     }
 
     private static <T> T tryParseJson(String json, Class<T> clazz, ObjectMapper mapper) throws IOException {

@@ -177,9 +177,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         foreignTable.getColumnName(foreignKeyIndex));
                 ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor(foreignKeyIndex);
                 if (foreignColumnDescriptor
-                        .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
+                        .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
                     // In the case when foreign key is like: ">policies.driver"
-                    String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).foreignKeyColumnChainTokens;
+                    String[] endOfChain = descriptor.foreignKeyColumnChainTokens;
                     foreignKeyColumnChainTokens = ArrayUtils.addAll(foreignKeyColumnChainTokens, endOfChain);
                 }
             }

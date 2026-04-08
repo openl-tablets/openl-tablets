@@ -8,8 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -34,9 +33,9 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author snshor
  */
+@Slf4j
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
-    private final Logger log = LoggerFactory.getLogger(DecisionTableValidatedObject.class);
 
     private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
@@ -69,13 +68,11 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {
         IDomainAdaptor result = null;
-        if (domain instanceof EnumDomain<?>) {
-            result = new EnumDomainAdaptor((EnumDomain<?>) domain);
-        } else if (domain instanceof IntRangeDomain) {
-            IntRangeDomain irange = (IntRangeDomain) domain;
-            result = new IntRangeDomainAdaptor(irange);
-        } else if (domain instanceof JavaEnumDomain) {
-            result = new JavaEnumDomainAdaptor((JavaEnumDomain) domain);
+        switch (domain) {
+            case EnumDomain<?> enumDomain1 -> result = new EnumDomainAdaptor(enumDomain1);
+            case IntRangeDomain irange -> result = new IntRangeDomainAdaptor(irange);
+            case JavaEnumDomain enumDomain -> result = new JavaEnumDomainAdaptor(enumDomain);
+            case null, default -> {}
         }
         return result;
     }
@@ -156,8 +153,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
                                                      DecisionTableAnalyzer dtan) {
 
         Object result = value;
-        if (value instanceof IntRange) {
-            IntRange intr = (IntRange) value;
+        if (value instanceof IntRange intr) {
             return new CtrIntRange(intr.getMin(), intr.getMax());
         }
 
@@ -178,7 +174,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             } else {
                 if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value
                     // will be returned. in other cases throws an exception.
-                    throw new OpenLRuntimeException(String.format("Could not create domain for %s", name));
+                    throw new OpenLRuntimeException("Could not create domain for %s".formatted(name));
                 }
             }
         }

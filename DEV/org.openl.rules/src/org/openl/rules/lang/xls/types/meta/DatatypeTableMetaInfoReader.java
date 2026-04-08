@@ -5,8 +5,7 @@ import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSou
 import java.util.Collections;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -28,8 +27,8 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ParserUtils;
 
+@Slf4j
 public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTableBoundNode> {
-    private static final Logger LOG = LoggerFactory.getLogger(DatatypeTableMetaInfoReader.class);
 
     public DatatypeTableMetaInfoReader(DatatypeTableBoundNode boundNode) {
         super(boundNode);
@@ -83,7 +82,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
 
                 return new CellMetaInfo(type, multiValue);
             } catch (OpenLCompilationException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 return null;
             }
         } else if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.TYPE_COLUMN_TITLE), c)) {
@@ -99,7 +98,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
                     IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
                     return createMetaInfo(idn[0], fieldMetaInfo);
                 } catch (OpenLCompilationException e) {
-                    LOG.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                     return null;
                 }
             }

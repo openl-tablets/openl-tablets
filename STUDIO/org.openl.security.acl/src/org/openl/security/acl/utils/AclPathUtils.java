@@ -47,7 +47,7 @@ public final class AclPathUtils {
             return repoId;
         }
 
-        var parts = path.split("/");
+        var parts = path.split("/", -1);
         var normalizedPath = new StringBuilder(repoId);
 
         int i = 0;
@@ -89,7 +89,7 @@ public final class AclPathUtils {
                     return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
                 } else {
                     List<FileData> fileDatas = projectArtefact.getProject().getHistoryFileDatas();
-                    return getRepoPath(fileDatas.get(fileDatas.size() - 1));
+                    return getRepoPath(fileDatas.getLast());
                 }
             } else {
                 // For deployments fileData is null and project is null

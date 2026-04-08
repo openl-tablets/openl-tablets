@@ -47,11 +47,10 @@ public class CellEditorSelector {
             IDomain<?> domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
 
-            if (domain instanceof EnumDomain) {
-                Object[] allObjects = ((EnumDomain<?>) domain).getAllObjects();
+            if (domain instanceof EnumDomain<?> enumDomain) {
+                Object[] allObjects = enumDomain.getAllObjects();
 
-                if (allObjects instanceof String[]) {
-                    String[] allObjectValues = (String[]) allObjects;
+                if (allObjects instanceof String[] allObjectValues) {
 
                     if (meta.isMultiValue()) {
                         return factory.makeMultiSelectEditor(allObjectValues);
@@ -60,9 +59,9 @@ public class CellEditorSelector {
                     }
                 } else if (allObjects != null) {
                     IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta, false);
-                    if (formatter instanceof ArrayFormatter) {
+                    if (formatter instanceof ArrayFormatter arrayFormatter) {
                         // We need a formatter for each element of an array.
-                        formatter = ((ArrayFormatter) formatter).getElementFormat();
+                        formatter = arrayFormatter.getElementFormat();
                         if (formatter == null) {
                             formatter = new DefaultFormatter();
                         }
@@ -71,7 +70,7 @@ public class CellEditorSelector {
                     String[] allObjectValues = new String[allObjects.length];
                     for (int i = 0; i < allObjects.length; i++) {
                         Object value = allObjects[i];
-                        allObjectValues[i] = value instanceof String ? (String) value : formatter.format(value);
+                        allObjectValues[i] = value instanceof String s ? s : formatter.format(value);
                     }
 
                     if (meta.isMultiValue()) {

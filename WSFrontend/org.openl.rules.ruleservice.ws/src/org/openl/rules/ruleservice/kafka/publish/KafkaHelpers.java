@@ -39,12 +39,12 @@ public final class KafkaHelpers {
         }
         if (cnt == 0) {
             throw new MethodNotFoundException(
-                    String.format("Method with name '%s' is not found in the service class.", methodName));
+                    "Method with name '%s' is not found in the service class.".formatted(methodName));
         } else if (cnt == 1 && methodParameters == null) {
             return method;
         } else if (cnt > 1 && methodParameters == null) {
             throw new AmbiguousMethodException(
-                    String.format("Multiple methods with the same name '%s' is found in the service class.", methodName));
+                    "Multiple methods with the same name '%s' is found in the service class.".formatted(methodName));
         } else {
             String[] methodParametersSplitted = KafkaHelpers.getMethodParameters(methodParameters);
             List<Method> methods = new ArrayList<>();
@@ -56,15 +56,14 @@ public final class KafkaHelpers {
             }
             if (methods.isEmpty()) {
                 throw new MethodNotFoundException(
-                        String.format("Method with name '%s' and parameters '%s' is not found in the service class.",
+                        "Method with name '%s' and parameters '%s' is not found in the service class.".formatted(
                                 methodName,
                                 Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
             } else {
                 if (methods.size() == 1) {
-                    return methods.get(0);
+                    return methods.getFirst();
                 } else {
-                    throw new AmbiguousMethodException(String.format(
-                            "Multiple methods with the same name '%s' and parameters '%s' is found in the service class.",
+                    throw new AmbiguousMethodException("Multiple methods with the same name '%s' and parameters '%s' is found in the service class.".formatted(
                             methodName,
                             Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
                 }

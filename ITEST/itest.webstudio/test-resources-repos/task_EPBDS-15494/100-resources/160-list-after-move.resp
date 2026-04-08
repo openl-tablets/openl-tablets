@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "type": "file",
+    "path": "rules/UK/Algorithm-renamed.xlsx",
+    "name": "Algorithm-renamed.xlsx",
+    "basePath": "rules/UK",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules/UK/Model-copy.xlsx",
+    "name": "Model-copy.xlsx",
+    "basePath": "rules/UK",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules/UK/Rating.xlsx",
+    "name": "Rating.xlsx",
+    "basePath": "rules/UK",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

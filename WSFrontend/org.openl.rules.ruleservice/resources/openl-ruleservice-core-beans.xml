@@ -24,7 +24,7 @@
 
     <!-- Controls all services currently exposed.
     Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->
-    <bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
+    <bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl" init-method="start">
         <property name="serviceConfigurer" ref="serviceConfigurer"/>
         <property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
         <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
@@ -39,11 +39,6 @@
         <property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
         <property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
         <property name="defaultPublishers" value="${ruleservice.publishers:}"/>
-    </bean>
-
-    <bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean"
-          depends-on="serviceManager" lazy-init="false">
-        <property name="serviceManager" ref="serviceManager"/>
     </bean>
 
     <!-- Simple front end to access all services. -->

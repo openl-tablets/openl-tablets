@@ -48,4 +48,3 @@ OpenL Tablets deployment descriptor is a marker which tells OpenL Tablets Engine
 ```yaml
 name: openl-multiple-project-deployment
 ```
-

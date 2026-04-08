@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -37,8 +38,6 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
 import org.apache.poi.xssf.usermodel.XSSFPictureData;
 import org.apache.poi.xssf.usermodel.XSSFShape;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.util.CollectionUtils;
 
@@ -47,9 +46,9 @@ import org.openl.util.CollectionUtils;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class XlsSheetsMatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XlsSheetsMatcher.class);
 
     private static final Pattern THREADED_COMMENT_MARKER = Pattern
             .compile("^tc=\\{[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}}$");
@@ -83,7 +82,7 @@ public class XlsSheetsMatcher {
         boolean isHidden1 = baseCursor.isSheetHidden();
         boolean isHidden2 = cursor.isSheetHidden();
         if (isHidden1 != isHidden2) {
-            LOG.debug("Base '{}' sheet is hidden={}, but another sheet is hidden={}.",
+            log.debug("Base '{}' sheet is hidden={}, but another sheet is hidden={}.",
                     baseCursor.sheet.getSheetName(),
                     isHidden1,
                     isHidden2);
@@ -115,18 +114,18 @@ public class XlsSheetsMatcher {
         List<XSSFPicture> shapes2 = cursor.getSheetPictures();
         if (CollectionUtils.isEmpty(shapes1)) {
             if (CollectionUtils.isNotEmpty(shapes2)) {
-                LOG.debug("Base '{}' sheet hasn't drawings, but another sheet has", baseCursor.sheet.getSheetName());
+                log.debug("Base '{}' sheet hasn't drawings, but another sheet has", baseCursor.sheet.getSheetName());
                 return false;
             } else {
                 return true;
             }
         }
         if (CollectionUtils.isEmpty(shapes2)) {
-            LOG.debug("Base '{}' sheet has drawings, but another sheet hasn't", baseCursor.sheet.getSheetName());
+            log.debug("Base '{}' sheet has drawings, but another sheet hasn't", baseCursor.sheet.getSheetName());
             return false;
         }
         if (shapes1.size() != shapes2.size()) {
-            LOG.debug("Base '{}' sheet has {} drawings, but another sheet has {}",
+            log.debug("Base '{}' sheet has {} drawings, but another sheet has {}",
                     baseCursor.sheet.getSheetName(),
                     shapes1.size(),
                     shapes2.size());
@@ -141,7 +140,7 @@ public class XlsSheetsMatcher {
                     .map(XSSFPicture.class::cast)
                     .orElse(null);
             if (picture2 == null) {
-                LOG.debug("Base '{}' sheet has picture '{}', but another sheet hasn't",
+                log.debug("Base '{}' sheet has picture '{}', but another sheet hasn't",
                         baseCursor.sheet.getSheetName(),
                         picture1.getShapeName());
                 return false;
@@ -153,7 +152,7 @@ public class XlsSheetsMatcher {
             int pictureType1 = pictureData1.getPictureType();
             int pictureType2 = pictureData2.getPictureType();
             if (pictureType1 != pictureType2) {
-                LOG.debug("Base '{}' sheet, picture '{}' PictureType={}, but another PictureType={}",
+                log.debug("Base '{}' sheet, picture '{}' PictureType={}, but another PictureType={}",
                         baseCursor.sheet.getSheetName(),
                         picture1.getShapeName(),
                         pictureType1,
@@ -163,7 +162,7 @@ public class XlsSheetsMatcher {
             String mimeType1 = pictureData1.getMimeType();
             String mimeType2 = pictureData2.getMimeType();
             if (!mimeType1.equals(mimeType2)) {
-                LOG.debug("Base '{}' sheet, picture '{}' MimeType={}, but another MimeType={}",
+                log.debug("Base '{}' sheet, picture '{}' MimeType={}, but another MimeType={}",
                         baseCursor.sheet.getSheetName(),
                         picture1.getShapeName(),
                         mimeType1,
@@ -173,7 +172,7 @@ public class XlsSheetsMatcher {
             byte[] data1 = pictureData1.getData();
             byte[] data2 = pictureData2.getData();
             if (data1.length != data2.length) {
-                LOG.debug("Base '{}' sheet, picture '{}' data.length={}, but another data.length={}",
+                log.debug("Base '{}' sheet, picture '{}' data.length={}, but another data.length={}",
                         baseCursor.sheet.getSheetName(),
                         picture1.getShapeName(),
                         data1.length,
@@ -182,7 +181,7 @@ public class XlsSheetsMatcher {
             }
             for (int i = 0; i < data1.length; i++) {
                 if (data1[i] != data2[i]) {
-                    LOG.debug("Base '{}' sheet, picture '{}' data[{}]={}, but another data.[{}]={}",
+                    log.debug("Base '{}' sheet, picture '{}' data[{}]={}, but another data.[{}]={}",
                             baseCursor.sheet.getSheetName(),
                             picture1.getShapeName(),
                             i,
@@ -209,14 +208,14 @@ public class XlsSheetsMatcher {
             if (isNullOrEmpty(cursor.row)) {
                 return true;
             } else {
-                LOG.debug("Base '{}' sheet {} row is null. But the same row in another sheet is not.",
+                log.debug("Base '{}' sheet {} row is null. But the same row in another sheet is not.",
                         baseCursor.sheet.getSheetName(),
                         cursor.row.getRowNum());
                 return false;
             }
         }
         if (isNullOrEmpty(cursor.row)) {
-            LOG.debug("Base '{}' sheet {} row isn't null. But the same row in another sheet is null.",
+            log.debug("Base '{}' sheet {} row isn't null. But the same row in another sheet is null.",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.row.getRowNum());
             return false;
@@ -260,14 +259,14 @@ public class XlsSheetsMatcher {
             if (isNullOrEmpty(cursor.cell)) {
                 return true;
             } else {
-                LOG.debug("Base sheet={}&cell={} is null, but second is not",
+                log.debug("Base sheet={}&cell={} is null, but second is not",
                         baseCursor.sheet.getSheetName(),
                         cursor.cell.getAddress());
                 return false;
             }
         }
         if (isNullOrEmpty(cursor.cell)) {
-            LOG.debug("Base sheet={}&cell={} isn't null, but second is null",
+            log.debug("Base sheet={}&cell={} isn't null, but second is null",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress());
             return false;
@@ -278,7 +277,7 @@ public class XlsSheetsMatcher {
         }
 
         if (baseCursor.cell.getCellType() != cursor.cell.getCellType()) {
-            LOG.debug("Base sheet={}&cell={} contentType='{}', but second contentType='{}'",
+            log.debug("Base sheet={}&cell={} contentType='{}', but second contentType='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     baseCursor.cell.getCellType(),
@@ -288,32 +287,30 @@ public class XlsSheetsMatcher {
 
         final CellType baseCellType = baseCursor.cell.getCellType();
         switch (baseCellType) {
-            case BLANK:
-            case STRING:
-            case ERROR:
+            case BLANK, STRING, ERROR -> {
                 if (!baseCursor.cell.toString().equals(cursor.cell.toString())) {
-                    LOG.debug("Base sheet={}&cell={} string content='{}', but second string content='{}'",
+                    log.debug("Base sheet={}&cell={} string content='{}', but second string content='{}'",
                             baseCursor.sheet.getSheetName(),
                             baseCursor.cell.getAddress(),
                             baseCursor.cell.toString(),
                             cursor.cell.toString());
                     return false;
                 }
-                break;
-            case BOOLEAN:
+            }
+            case BOOLEAN -> {
                 if (baseCursor.cell.getBooleanCellValue() != cursor.cell.getBooleanCellValue()) {
-                    LOG.debug("Base sheet={}&cell={} boolean content='{}', but another boolean content='{}'",
+                    log.debug("Base sheet={}&cell={} boolean content='{}', but another boolean content='{}'",
                             baseCursor.sheet.getSheetName(),
                             baseCursor.cell.getAddress(),
                             baseCursor.cell.getBooleanCellValue(),
                             cursor.cell.getBooleanCellValue());
                     return false;
                 }
-                break;
-            case NUMERIC:
+            }
+            case NUMERIC -> {
                 if (DateUtil.isCellDateFormatted(baseCursor.cell)) {
                     if (!DateUtil.isCellDateFormatted(cursor.cell)) {
-                        LOG.debug("Base sheet={}&cell={} cell is date formatted, but another cell is not",
+                        log.debug("Base sheet={}&cell={} cell is date formatted, but another cell is not",
                                 baseCursor.sheet.getSheetName(),
                                 baseCursor.cell.getAddress());
                         return false;
@@ -321,7 +318,7 @@ public class XlsSheetsMatcher {
                     Date date1 = baseCursor.cell.getDateCellValue();
                     Date date2 = cursor.cell.getDateCellValue();
                     if (!date1.equals(date2)) {
-                        LOG.debug("Base sheet={}&cell={} date content='{}', but second date content='{}'",
+                        log.debug("Base sheet={}&cell={} date content='{}', but second date content='{}'",
                                 baseCursor.sheet.getSheetName(),
                                 baseCursor.cell.getAddress(),
                                 date1,
@@ -332,7 +329,7 @@ public class XlsSheetsMatcher {
                     double num1 = baseCursor.cell.getNumericCellValue();
                     double num2 = cursor.cell.getNumericCellValue();
                     if (num1 != num2) {
-                        LOG.debug("Base sheet={}&cell={} numeric content='{}', but second numeric content='{}'",
+                        log.debug("Base sheet={}&cell={} numeric content='{}', but second numeric content='{}'",
                                 baseCursor.sheet.getSheetName(),
                                 baseCursor.cell.getAddress(),
                                 num1,
@@ -340,8 +337,8 @@ public class XlsSheetsMatcher {
                         return false;
                     }
                 }
-                break;
-            case FORMULA:
+            }
+            case FORMULA -> {
                 // Trim leading/trailing spaces from formulas
                 // For some unknown reason Apache POI org.apache.poi.ss.usermodel.Cell#setCellFormula trims spaces
                 // automatically.As a result formula cell will not be equals if the same value is set via
@@ -349,22 +346,21 @@ public class XlsSheetsMatcher {
                 String formula1 = baseCursor.cell.getCellFormula().trim();
                 String formula2 = cursor.cell.getCellFormula().trim();
                 if (!formula1.equals(formula2)) {
-                    LOG.debug("Base sheet={}&cell={} formula content='{}', but second formula content='{}'",
+                    log.debug("Base sheet={}&cell={} formula content='{}', but second formula content='{}'",
                             baseCursor.sheet.getSheetName(),
                             baseCursor.cell.getAddress(),
                             formula1,
                             formula2);
                     return false;
                 }
-                break;
-            default:
-                throw new IllegalStateException("Unexpected cell type: " + baseCellType);
+            }
+            default -> throw new IllegalStateException("Unexpected cell type: " + baseCellType);
         }
 
         baseCursor.comment = baseCursor.cell.getCellComment();
         cursor.comment = cursor.cell.getCellComment();
         if (!equalCommentInCell(baseCursor, cursor)) {
-            LOG.debug("Base sheet={}&cell={} cell comment doesn't equal to another",
+            log.debug("Base sheet={}&cell={} cell comment doesn't equal to another",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress());
             return false;
@@ -387,7 +383,7 @@ public class XlsSheetsMatcher {
         CellRangeAddress mergedRegion2 = cursor.getCellMergedRegion();
         if (mergedRegion1 == null) {
             if (mergedRegion2 != null) {
-                LOG.debug("Base sheet={}&cell={} is not merged, but second is merged",
+                log.debug("Base sheet={}&cell={} is not merged, but second is merged",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress());
                 return false;
@@ -396,7 +392,7 @@ public class XlsSheetsMatcher {
             }
         }
         if (mergedRegion2 == null) {
-            LOG.debug("Base sheet={}&cell={} is merged, but second is not",
+            log.debug("Base sheet={}&cell={} is merged, but second is not",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress());
             return false;
@@ -405,7 +401,7 @@ public class XlsSheetsMatcher {
         int firstColumn1 = mergedRegion1.getFirstColumn();
         int firstColumn2 = mergedRegion2.getFirstColumn();
         if (firstColumn1 != firstColumn2) {
-            LOG.debug("Base sheet={}&cell={} merged region FirstColumn='{}', but second merged region FirstColumn='{}'",
+            log.debug("Base sheet={}&cell={} merged region FirstColumn='{}', but second merged region FirstColumn='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     firstColumn1,
@@ -416,7 +412,7 @@ public class XlsSheetsMatcher {
         int lastColumn1 = mergedRegion1.getLastColumn();
         int lastColumn2 = mergedRegion2.getLastColumn();
         if (lastColumn1 != lastColumn2) {
-            LOG.debug("Base sheet={}&cell={} merged region LastColumn='{}', but second merged region LastColumn='{}'",
+            log.debug("Base sheet={}&cell={} merged region LastColumn='{}', but second merged region LastColumn='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     lastColumn1,
@@ -427,7 +423,7 @@ public class XlsSheetsMatcher {
         int firstRow1 = mergedRegion1.getFirstRow();
         int firstRow2 = mergedRegion2.getFirstRow();
         if (firstRow1 != firstRow2) {
-            LOG.debug("Base sheet={}&cell={} merged region FirstRow='{}', but second merged region FirstRow='{}'",
+            log.debug("Base sheet={}&cell={} merged region FirstRow='{}', but second merged region FirstRow='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     firstRow1,
@@ -438,7 +434,7 @@ public class XlsSheetsMatcher {
         int lastRow1 = mergedRegion1.getLastRow();
         int lastRow2 = mergedRegion2.getLastRow();
         if (lastRow1 != lastRow2) {
-            LOG.debug("Base sheet={}&cell={} merged region LastRow='{}', but second merged region LastRow='{}'",
+            log.debug("Base sheet={}&cell={} merged region LastRow='{}', but second merged region LastRow='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     lastRow1,
@@ -461,14 +457,14 @@ public class XlsSheetsMatcher {
             if (cursor.comment == null) {
                 return true;
             } else {
-                LOG.debug("Base sheet={}&cell={} cell comment is null, but second is not",
+                log.debug("Base sheet={}&cell={} cell comment is null, but second is not",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress());
                 return false;
             }
         }
         if (cursor.comment == null) {
-            LOG.debug("Base sheet={}&cell={} cell comment is not null, but second is null",
+            log.debug("Base sheet={}&cell={} cell comment is not null, but second is null",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress());
             return false;
@@ -477,7 +473,7 @@ public class XlsSheetsMatcher {
         String author1 = getCommentAuthor(baseCursor.comment);
         String author2 = getCommentAuthor(cursor.comment);
         if (!author1.equals(author2)) {
-            LOG.debug("Base sheet={}&cell={} cell comment author='{}', but second cell comment author='{}'",
+            log.debug("Base sheet={}&cell={} cell comment author='{}', but second cell comment author='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     author1,
@@ -488,7 +484,7 @@ public class XlsSheetsMatcher {
         RichTextString commentTxt1 = baseCursor.comment.getString();
         RichTextString commentTxt2 = cursor.comment.getString();
         if (commentTxt1.length() != commentTxt2.length()) {
-            LOG.debug("Base sheet={}&cell={} cell comment length='{}', but second cell comment length='{}'",
+            log.debug("Base sheet={}&cell={} cell comment length='{}', but second cell comment length='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     commentTxt1.length(),
@@ -496,7 +492,7 @@ public class XlsSheetsMatcher {
             return false;
         }
         if (!commentTxt1.getString().equals(commentTxt2.getString())) {
-            LOG.debug("Base sheet={}&cell={} cell comment='{}', but second cell comment='{}'",
+            log.debug("Base sheet={}&cell={} cell comment='{}', but second cell comment='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     commentTxt1.getString(),
@@ -541,7 +537,7 @@ public class XlsSheetsMatcher {
             // In this case, there is no visual difference in MS Excel. So, it may sense to assume,
             // if string representation of dataformat is equal, dataformat index may be ignored
             if (!Objects.equals(dataFormatStr1, dataFormatStr2)) {
-                LOG.debug("Base sheet={}&cell={} DataFormat='{}', but second DataFormat='{}'",
+                log.debug("Base sheet={}&cell={} DataFormat='{}', but second DataFormat='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         dataFormatStr1,
@@ -553,7 +549,7 @@ public class XlsSheetsMatcher {
         HorizontalAlignment horizontalAlignment1 = baseCursor.cellStyle.getAlignment();
         HorizontalAlignment horizontalAlignment2 = cursor.cellStyle.getAlignment();
         if (horizontalAlignment1 != horizontalAlignment2) {
-            LOG.debug("Base sheet={}&cell={} horizontalAlignment='{}', but second horizontalAlignment='{}'",
+            log.debug("Base sheet={}&cell={} horizontalAlignment='{}', but second horizontalAlignment='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     horizontalAlignment1,
@@ -564,7 +560,7 @@ public class XlsSheetsMatcher {
         VerticalAlignment verticalAlignment1 = baseCursor.cellStyle.getVerticalAlignment();
         VerticalAlignment verticalAlignment2 = cursor.cellStyle.getVerticalAlignment();
         if (verticalAlignment1 != verticalAlignment2) {
-            LOG.debug("Base sheet={}&cell={} VerticalAlignment='{}', but second VerticalAlignment='{}'",
+            log.debug("Base sheet={}&cell={} VerticalAlignment='{}', but second VerticalAlignment='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     verticalAlignment1,
@@ -575,7 +571,7 @@ public class XlsSheetsMatcher {
         short indent1 = baseCursor.cellStyle.getIndention();
         short indent2 = cursor.cellStyle.getIndention();
         if (indent1 != indent2) {
-            LOG.debug("Base sheet={}&cell={} Indention='{}', but second Indention='{}'",
+            log.debug("Base sheet={}&cell={} Indention='{}', but second Indention='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     indent1,
@@ -586,7 +582,7 @@ public class XlsSheetsMatcher {
         short rotation1 = baseCursor.cellStyle.getRotation();
         short rotation2 = cursor.cellStyle.getRotation();
         if (rotation1 != rotation2) {
-            LOG.debug("Base sheet={}&cell={} Rotation='{}', but second Rotation='{}'",
+            log.debug("Base sheet={}&cell={} Rotation='{}', but second Rotation='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     rotation1,
@@ -597,7 +593,7 @@ public class XlsSheetsMatcher {
         boolean wrapText1 = baseCursor.cellStyle.getWrapText();
         boolean wrapText2 = cursor.cellStyle.getWrapText();
         if (wrapText1 != wrapText2) {
-            LOG.debug("Base sheet={}&cell={} WrapText='{}', but second WrapText='{}'",
+            log.debug("Base sheet={}&cell={} WrapText='{}', but second WrapText='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     wrapText1,
@@ -608,7 +604,7 @@ public class XlsSheetsMatcher {
         boolean shrinkToFit1 = baseCursor.cellStyle.getShrinkToFit();
         boolean shrinkToFit2 = cursor.cellStyle.getShrinkToFit();
         if (shrinkToFit1 != shrinkToFit2) {
-            LOG.debug("Base sheet={}&cell={} ShrinkToFit='{}', but second ShrinkToFit='{}'",
+            log.debug("Base sheet={}&cell={} ShrinkToFit='{}', but second ShrinkToFit='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     shrinkToFit1,
@@ -634,7 +630,7 @@ public class XlsSheetsMatcher {
         String fontName1 = baseFont.getFontName();
         String fontName2 = font.getFontName();
         if (!fontName1.equals(fontName2)) {
-            LOG.debug("Base sheet={}&cell={} FontName='{}', but second FontName='{}'",
+            log.debug("Base sheet={}&cell={} FontName='{}', but second FontName='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     fontName1,
@@ -645,7 +641,7 @@ public class XlsSheetsMatcher {
         short fontHeight1 = baseFont.getFontHeightInPoints();
         short fontHeight2 = font.getFontHeightInPoints();
         if (fontHeight1 != fontHeight2) {
-            LOG.debug("Base sheet={}&cell={} FontHeightInPoints='{}', but second FontHeightInPoints='{}'",
+            log.debug("Base sheet={}&cell={} FontHeightInPoints='{}', but second FontHeightInPoints='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     fontHeight1,
@@ -653,22 +649,22 @@ public class XlsSheetsMatcher {
             return false;
         }
 
-        if (baseFont instanceof XSSFFont && font instanceof XSSFFont) {
-            XSSFColor color1 = ((XSSFFont) baseFont).getXSSFColor();
-            XSSFColor color2 = ((XSSFFont) font).getXSSFColor();
+        if (baseFont instanceof XSSFFont fFont2 && font instanceof XSSFFont fFont3) {
+            XSSFColor color1 = fFont2.getXSSFColor();
+            XSSFColor color2 = fFont3.getXSSFColor();
             if (!equalColor(color1, color2)) {
-                LOG.debug("Base sheet={}&cell={} XSSFColor='{}', but second XSSFColor='{}'",
+                log.debug("Base sheet={}&cell={} XSSFColor='{}', but second XSSFColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(color1),
                         toARGBHex(color2));
                 return false;
             }
-        } else if (baseFont instanceof HSSFFont && font instanceof HSSFFont) {
-            HSSFColor color1 = ((HSSFFont) baseFont).getHSSFColor((HSSFWorkbook) baseCursor.originalWorkbook());
-            HSSFColor color2 = ((HSSFFont) font).getHSSFColor((HSSFWorkbook) cursor.originalWorkbook());
+        } else if (baseFont instanceof HSSFFont fFont && font instanceof HSSFFont fFont1) {
+            HSSFColor color1 = fFont.getHSSFColor((HSSFWorkbook) baseCursor.originalWorkbook());
+            HSSFColor color2 = fFont1.getHSSFColor((HSSFWorkbook) cursor.originalWorkbook());
             if (!equalColor(color1, color2)) {
-                LOG.debug("Base sheet={}&cell={} HSSFColor='{}', but second HSSFColor='{}'",
+                log.debug("Base sheet={}&cell={} HSSFColor='{}', but second HSSFColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(color1),
@@ -680,7 +676,7 @@ public class XlsSheetsMatcher {
         short color1 = baseFont.getColor();
         short color2 = font.getColor();
         if (color1 != color2) {
-            LOG.debug("Base sheet={}&cell={} FontColor='{}', but second FontColor='{}'",
+            log.debug("Base sheet={}&cell={} FontColor='{}', but second FontColor='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     color1,
@@ -691,7 +687,7 @@ public class XlsSheetsMatcher {
         boolean bold1 = baseFont.getBold();
         boolean bold2 = font.getBold();
         if (bold1 != bold2) {
-            LOG.debug("Base sheet={}&cell={} font Bold='{}', but second font Bold='{}'",
+            log.debug("Base sheet={}&cell={} font Bold='{}', but second font Bold='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     bold1,
@@ -702,7 +698,7 @@ public class XlsSheetsMatcher {
         byte underline1 = baseFont.getUnderline();
         byte underline2 = font.getUnderline();
         if (underline1 != underline2) {
-            LOG.debug("Base sheet={}&cell={} font Underline='{}', but second font Underline='{}'",
+            log.debug("Base sheet={}&cell={} font Underline='{}', but second font Underline='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     underline1,
@@ -713,7 +709,7 @@ public class XlsSheetsMatcher {
         boolean italic1 = baseFont.getItalic();
         boolean italic2 = font.getItalic();
         if (italic1 != italic2) {
-            LOG.debug("Base sheet={}&cell={} font Italic='{}', but second font Italic='{}'",
+            log.debug("Base sheet={}&cell={} font Italic='{}', but second font Italic='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     italic1,
@@ -734,7 +730,7 @@ public class XlsSheetsMatcher {
         BorderStyle borderBottom1 = baseCursor.cellStyle.getBorderBottom();
         BorderStyle borderBottom2 = cursor.cellStyle.getBorderBottom();
         if (borderBottom1 != borderBottom2) {
-            LOG.debug("Base sheet={}&cell={} BorderBottom='{}', but second BorderBottom='{}'",
+            log.debug("Base sheet={}&cell={} BorderBottom='{}', but second BorderBottom='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     borderBottom1,
@@ -745,7 +741,7 @@ public class XlsSheetsMatcher {
         BorderStyle borderLeft1 = baseCursor.cellStyle.getBorderLeft();
         BorderStyle borderLeft2 = cursor.cellStyle.getBorderLeft();
         if (borderLeft1 != borderLeft2) {
-            LOG.debug("Base sheet={}&cell={} BorderLeft='{}', but second BorderLeft='{}'",
+            log.debug("Base sheet={}&cell={} BorderLeft='{}', but second BorderLeft='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     borderLeft1,
@@ -756,7 +752,7 @@ public class XlsSheetsMatcher {
         BorderStyle borderTop1 = baseCursor.cellStyle.getBorderTop();
         BorderStyle borderTop2 = cursor.cellStyle.getBorderTop();
         if (borderTop1 != borderTop2) {
-            LOG.debug("Base sheet={}&cell={} BorderTop='{}', but second BorderTop='{}'",
+            log.debug("Base sheet={}&cell={} BorderTop='{}', but second BorderTop='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     borderTop1,
@@ -767,7 +763,7 @@ public class XlsSheetsMatcher {
         BorderStyle borderRight1 = baseCursor.cellStyle.getBorderRight();
         BorderStyle borderRight2 = cursor.cellStyle.getBorderRight();
         if (borderRight1 != borderRight2) {
-            LOG.debug("Base sheet={}&cell={} BorderRight='{}', but second BorderRight='{}'",
+            log.debug("Base sheet={}&cell={} BorderRight='{}', but second BorderRight='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     borderRight1,
@@ -775,14 +771,13 @@ public class XlsSheetsMatcher {
             return false;
         }
 
-        if (baseCursor.cellStyle instanceof XSSFCellStyle) {
-            XSSFCellStyle baseCellStyle = (XSSFCellStyle) baseCursor.cellStyle;
+        if (baseCursor.cellStyle instanceof XSSFCellStyle baseCellStyle) {
             XSSFCellStyle cellStyle = (XSSFCellStyle) cursor.cellStyle;
 
             XSSFColor bottomBorderColor1 = baseCellStyle.getBottomBorderXSSFColor();
             XSSFColor bottomBorderColor2 = cellStyle.getBottomBorderXSSFColor();
             if (!equalColor(bottomBorderColor1, bottomBorderColor2)) {
-                LOG.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(bottomBorderColor1),
@@ -793,7 +788,7 @@ public class XlsSheetsMatcher {
             XSSFColor leftBorderColor1 = baseCellStyle.getLeftBorderXSSFColor();
             XSSFColor leftBorderColor2 = cellStyle.getLeftBorderXSSFColor();
             if (!equalColor(leftBorderColor1, leftBorderColor2)) {
-                LOG.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(leftBorderColor1),
@@ -804,7 +799,7 @@ public class XlsSheetsMatcher {
             XSSFColor topBorderColor1 = baseCellStyle.getTopBorderXSSFColor();
             XSSFColor topBorderColor2 = cellStyle.getTopBorderXSSFColor();
             if (!equalColor(topBorderColor1, topBorderColor2)) {
-                LOG.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(topBorderColor1),
@@ -815,7 +810,7 @@ public class XlsSheetsMatcher {
             XSSFColor rightBorderColor1 = baseCellStyle.getRightBorderXSSFColor();
             XSSFColor rightBorderColor2 = cellStyle.getRightBorderXSSFColor();
             if (!equalColor(rightBorderColor1, rightBorderColor2)) {
-                LOG.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(rightBorderColor1),
@@ -826,7 +821,7 @@ public class XlsSheetsMatcher {
             short bottomBorderColor1 = baseCursor.cellStyle.getBottomBorderColor();
             short bottomBorderColor2 = cursor.cellStyle.getBottomBorderColor();
             if (bottomBorderColor1 != bottomBorderColor2) {
-                LOG.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         bottomBorderColor1,
@@ -837,7 +832,7 @@ public class XlsSheetsMatcher {
             short leftBorderColor1 = baseCursor.cellStyle.getLeftBorderColor();
             short leftBorderColor2 = cursor.cellStyle.getLeftBorderColor();
             if (leftBorderColor1 != leftBorderColor2) {
-                LOG.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         leftBorderColor1,
@@ -848,7 +843,7 @@ public class XlsSheetsMatcher {
             short topBorderColor1 = baseCursor.cellStyle.getTopBorderColor();
             short topBorderColor2 = cursor.cellStyle.getTopBorderColor();
             if (topBorderColor1 != topBorderColor2) {
-                LOG.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         topBorderColor1,
@@ -859,7 +854,7 @@ public class XlsSheetsMatcher {
             short rightBorderColor1 = baseCursor.cellStyle.getRightBorderColor();
             short rightBorderColor2 = cursor.cellStyle.getRightBorderColor();
             if (rightBorderColor1 != rightBorderColor2) {
-                LOG.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
+                log.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         rightBorderColor1,
@@ -878,14 +873,13 @@ public class XlsSheetsMatcher {
      * @return {@code true} if no changes is detected, otherwise {@code false}
      */
     private static boolean equalFillInCell(Cursor baseCursor, Cursor cursor) {
-        if (baseCursor.cellStyle instanceof XSSFCellStyle) {
-            XSSFCellStyle baseCellStyle = (XSSFCellStyle) baseCursor.cellStyle;
+        if (baseCursor.cellStyle instanceof XSSFCellStyle baseCellStyle) {
             XSSFCellStyle cellStyle = (XSSFCellStyle) cursor.cellStyle;
 
             XSSFColor fillBackgroundColor1 = baseCellStyle.getFillBackgroundXSSFColor();
             XSSFColor fillBackgroundColor2 = cellStyle.getFillBackgroundXSSFColor();
             if (!equalColor(fillBackgroundColor1, fillBackgroundColor2)) {
-                LOG.debug("Base sheet={}&cell={} FillBackgroundColor='{}', but second FillBackgroundColor='{}'",
+                log.debug("Base sheet={}&cell={} FillBackgroundColor='{}', but second FillBackgroundColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(fillBackgroundColor1),
@@ -896,7 +890,7 @@ public class XlsSheetsMatcher {
             XSSFColor fillForegroundColor1 = baseCellStyle.getFillForegroundXSSFColor();
             XSSFColor fillForegroundColor2 = cellStyle.getFillForegroundXSSFColor();
             if (!equalColor(fillForegroundColor1, fillForegroundColor2)) {
-                LOG.debug("Base sheet={}&cell={} FillForegroundColor='{}', but second FillForegroundColor='{}'",
+                log.debug("Base sheet={}&cell={} FillForegroundColor='{}', but second FillForegroundColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         toARGBHex(fillForegroundColor1),
@@ -907,7 +901,7 @@ public class XlsSheetsMatcher {
             short fillBackgroundColor1 = baseCursor.cellStyle.getFillBackgroundColor();
             short fillBackgroundColor2 = cursor.cellStyle.getFillBackgroundColor();
             if (fillBackgroundColor1 != fillBackgroundColor2) {
-                LOG.debug("Base sheet={}&cell={} FillBackgroundColor='{}', but second FillBackgroundColor='{}'",
+                log.debug("Base sheet={}&cell={} FillBackgroundColor='{}', but second FillBackgroundColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         fillBackgroundColor1,
@@ -918,7 +912,7 @@ public class XlsSheetsMatcher {
             short fillForegroundColor1 = baseCursor.cellStyle.getFillForegroundColor();
             short fillForegroundColor2 = cursor.cellStyle.getFillForegroundColor();
             if (fillForegroundColor1 != fillForegroundColor2) {
-                LOG.debug("Base sheet={}&cell={} FillForegroundColor='{}', but second FillForegroundColor='{}'",
+                log.debug("Base sheet={}&cell={} FillForegroundColor='{}', but second FillForegroundColor='{}'",
                         baseCursor.sheet.getSheetName(),
                         baseCursor.cell.getAddress(),
                         fillForegroundColor1,
@@ -930,7 +924,7 @@ public class XlsSheetsMatcher {
         FillPatternType fillPattern1 = baseCursor.cellStyle.getFillPattern();
         FillPatternType fillPattern2 = cursor.cellStyle.getFillPattern();
         if (fillPattern1 != fillPattern2) {
-            LOG.debug("Base sheet={}&cell={} FillPattern='{}', but second FillPattern='{}'",
+            log.debug("Base sheet={}&cell={} FillPattern='{}', but second FillPattern='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     fillPattern1,
@@ -941,7 +935,7 @@ public class XlsSheetsMatcher {
         Color fillForegroundColorColor1 = baseCursor.cellStyle.getFillForegroundColorColor();
         Color fillForegroundColorColor2 = cursor.cellStyle.getFillForegroundColorColor();
         if (!Objects.equals(fillForegroundColorColor1, fillForegroundColorColor2)) {
-            LOG.debug("Base sheet={}&cell={} FillForegroundColorColor='{}', but second FillForegroundColorColor='{}'",
+            log.debug("Base sheet={}&cell={} FillForegroundColorColor='{}', but second FillForegroundColorColor='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     fillForegroundColorColor1,
@@ -952,7 +946,7 @@ public class XlsSheetsMatcher {
         Color fillBackgroundColorColor1 = baseCursor.cellStyle.getFillBackgroundColorColor();
         Color fillBackgroundColorColor2 = cursor.cellStyle.getFillBackgroundColorColor();
         if (!Objects.equals(fillBackgroundColorColor1, fillBackgroundColorColor2)) {
-            LOG.debug("Base sheet={}&cell={} FillBackgroundColorColor='{}', but second FillBackgroundColorColor='{}'",
+            log.debug("Base sheet={}&cell={} FillBackgroundColorColor='{}', but second FillBackgroundColorColor='{}'",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress(),
                     fillBackgroundColorColor1,
@@ -1007,8 +1001,7 @@ public class XlsSheetsMatcher {
         if (cellStyle.getBorderRight() != BorderStyle.NONE) {
             return false;
         }
-        if (cellStyle instanceof XSSFCellStyle) {
-            XSSFCellStyle xssfCellStyle = (XSSFCellStyle) cellStyle;
+        if (cellStyle instanceof XSSFCellStyle xssfCellStyle) {
             if (!isNullOrEmpty(xssfCellStyle.getBottomBorderXSSFColor())) {
                 return false;
             }

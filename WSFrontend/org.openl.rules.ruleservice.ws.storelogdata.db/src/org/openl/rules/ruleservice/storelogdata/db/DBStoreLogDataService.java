@@ -104,8 +104,8 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
                         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                                  InvocationTargetException e) {
                             throw new StoreLogDataException(
-                                    String
-                                            .format("Failed to instantiate entity class '%s'%s.",
+                                    "Failed to instantiate entity class '%s'%s."
+                                            .formatted(
                                                     entityClass.getTypeName(),
                                                     serviceMethod != null ? (" for method '" + MethodUtil
                                                             .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY),
@@ -122,12 +122,12 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
                 entityClasses.add(entity.getClass());
             } catch (Exception e) {
                 if (serviceMethod != null) {
-                    throw new StoreLogDataException(String.format("Failed to populate entity '%s' for method '%s'.",
+                    throw new StoreLogDataException("Failed to populate entity '%s' for method '%s'.".formatted(
                             entity.getClass().getTypeName(),
                             MethodUtil.printQualifiedMethodName(serviceMethod)), e);
                 } else {
                     throw new StoreLogDataException(
-                            String.format("Failed to populate entity '%s'.", entity.getClass().getTypeName()),
+                            "Failed to populate entity '%s'.".formatted(entity.getClass().getTypeName()),
                             e);
                 }
             }

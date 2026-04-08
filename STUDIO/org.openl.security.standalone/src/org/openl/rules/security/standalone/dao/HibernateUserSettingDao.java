@@ -23,7 +23,7 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
                         builder.equal(u.get("id").get("settingKey"), key)))
                 .distinct(true);
         List<UserSetting> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override

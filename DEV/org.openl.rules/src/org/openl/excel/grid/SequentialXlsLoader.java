@@ -9,8 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.dependency.DependencyType;
 import org.openl.excel.parser.ExcelReader;
@@ -49,8 +48,8 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 
+@Slf4j
 public class SequentialXlsLoader {
-    private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);
     private final Collection<String> imports = new HashSet<>();
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -154,7 +153,7 @@ public class SequentialXlsLoader {
                 // ignore comment
                 log.debug("Comment: {}", value);
             } else {
-                String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
+                String message = "Error in Environment table: unrecognized keyword '%s'".formatted(value);
                 messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
@@ -210,8 +209,8 @@ public class SequentialXlsLoader {
                 continue;
             }
             if (pp1[i].equals("..")) {
-                if (!result.isEmpty() && !result.get(result.size() - 1).equals("..")) {
-                    result.remove(result.size() - 1);
+                if (!result.isEmpty() && !result.getLast().equals("..")) {
+                    result.removeLast();
                     continue;
                 }
             }
@@ -223,7 +222,7 @@ public class SequentialXlsLoader {
                 continue;
             }
             if (!result.isEmpty() && s.equals("..")) {
-                result.remove(result.size() - 1);
+                result.removeLast();
                 continue;
             }
             result.add(s);

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -14,8 +15,6 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.DataTableStyle;
@@ -25,6 +24,7 @@ import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.CollectionUtils;
 
+@Slf4j
 public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
 
     public static final String DATA_SHEET = "Data Table";
@@ -33,14 +33,13 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
     public static final int ROWS_COUNT = 3;
     public static final String KEYWORD = "this";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(DataTableExporter.class);
 
     @Override
     protected void exportTables(Collection<DataModel> models, Sheet sheet) {
         Cursor endPosition = null;
         TableStyle style = getTableStyle();
         for (DataModel model : models) {
-            LOGGER.debug("exporting data table with name {}", model.getName());
+            log.debug("exporting data table with name {}", model.getName());
             Cursor startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }

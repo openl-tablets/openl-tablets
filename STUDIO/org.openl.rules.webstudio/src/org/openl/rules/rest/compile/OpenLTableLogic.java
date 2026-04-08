@@ -38,13 +38,13 @@ public class OpenLTableLogic {
                 .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
             IOpenMethod method = openedModule ? model.getOpenedModuleMethod(table.getUri())
                     : model.getMethod(table.getUri());
-            if (method instanceof TestSuiteMethod) {
+            if (method instanceof TestSuiteMethod suiteMethod) {
                 List<IOpenMethod> targetMethods = new ArrayList<>();
-                IOpenMethod testedMethod = ((TestSuiteMethod) method).getTestedMethod();
+                IOpenMethod testedMethod = suiteMethod.getTestedMethod();
 
                 // Overloaded methods
-                if (testedMethod instanceof OpenMethodDispatcher) {
-                    List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) testedMethod).getCandidates();
+                if (testedMethod instanceof OpenMethodDispatcher dispatcher) {
+                    List<IOpenMethod> overloadedMethods = dispatcher.getCandidates();
                     targetMethods.addAll(overloadedMethods);
                 } else {
                     targetMethods.add(testedMethod);
@@ -75,15 +75,13 @@ public class OpenLTableLogic {
             IOpenSourceCodeModule module = null;
             String code = null;
             String messageNodeId = model.getMessageNodeId(message.getSourceLocation());
-            if (message instanceof OpenLErrorMessage) {
-                OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
+            if (message instanceof OpenLErrorMessage errorMessage) {
                 hasStackTrace = errorMessage.getError() != null;
                 OpenLException error = errorMessage.getError();
                 location = error.getLocation();
                 sourceCode = error.getSourceCode();
                 code = error.getSourceCode();
-            } else if (message instanceof OpenLWarnMessage) {
-                OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
+            } else if (message instanceof OpenLWarnMessage warnMessage) {
                 ISyntaxNode source = warnMessage.getSource();
                 location = source.getSourceLocation();
                 sourceCode = source.getModule() == null ? null : source.getModule().getCode();

@@ -281,7 +281,7 @@ public class SimpleProjectEngineFactory<T> {
             }
             if (pd == null) {
                 throw new ProjectResolvingException(
-                        String.format("Failed to resolve the project. Folder '%s' is not a OpenL project.",
+                        "Failed to resolve the project. Folder '%s' is not a OpenL project.".formatted(
                                 project.toAbsolutePath()));
             }
             this.projectDescriptor = pd;

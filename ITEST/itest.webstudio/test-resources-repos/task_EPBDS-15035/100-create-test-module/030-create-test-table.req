@@ -1,0 +1,31 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUwMzU6YzdlZmM5OWRlYzAzOWY0NGQwN2Y1YWYwYjdhMzcyZDFlNzVmNWRiZTJkM2EyZmQzMWUxOTM3YThjYTE1MzNiYw==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "MainTests",
+  "table": {
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "HelloTest",
+    "testedTableName": "Hello",
+    "headers": [
+      {
+        "fieldName": "hour",
+        "displayName": "hour"
+      },
+      {
+        "fieldName": "_res_",
+        "displayName": "_res_"
+      }
+    ],
+    "rows": [
+      {
+        "values": [
+          16,
+          "Good Afternoon"
+        ]
+      }
+    ]
+  }
+}

@@ -23,8 +23,8 @@ public final class CommentsCollector implements HSSFShapeContainer {
 
     @Override
     public void addShape(HSSFShape shape) {
-        if (shape instanceof HSSFComment) {
-            comments.add((HSSFComment) shape);
+        if (shape instanceof HSSFComment comment) {
+            comments.add(comment);
         }
     }
 

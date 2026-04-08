@@ -71,8 +71,8 @@ public class Utils {
             return false;
         }
         Repository repository;
-        if (artefact instanceof UserWorkspaceProject) {
-            repository = ((UserWorkspaceProject) artefact).getDesignRepository();
+        if (artefact instanceof UserWorkspaceProject project) {
+            repository = project.getDesignRepository();
             if (repository == null) {
                 repository = artefact.getRepository();
             }

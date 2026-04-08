@@ -9,7 +9,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -140,7 +139,7 @@ public class ZipProjectSaveStrategy {
     }
 
     private boolean checkIfRequiredProjectDescriptorCreation(CreateUpdateProjectModel model, Path projectRoot) {
-        Path p = Paths.get(model.getFullPath());
+        Path p = Path.of(model.getFullPath());
         String folderName = p.getName(p.getNameCount() - 1).toString();
         return !folderName.equals(model.getProjectName()) && !Files
                 .exists(projectRoot.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));

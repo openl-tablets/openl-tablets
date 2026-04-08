@@ -81,7 +81,7 @@ public final class DimensionPropertiesMethodKey {
             if (methodProperties != null) {
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
                     Object property = methodProperties.get(dimensionalPropertyName);
-                    hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property)
+                    hash = 31 * hash + (property instanceof Object[] os ? Arrays.deepHashCode(os)
                             : Objects.hashCode(property));
                 }
             }

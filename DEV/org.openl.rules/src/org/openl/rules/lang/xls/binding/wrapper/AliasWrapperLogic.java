@@ -138,26 +138,26 @@ public final class AliasWrapperLogic {
     }
 
     public static IOpenMethod wrapOpenMethod(final IOpenMethod openMethod, final String aliasMethodName) {
-        if (openMethod instanceof Algorithm) {
-            return new AliasAlgorithmWrapper((Algorithm) openMethod, aliasMethodName);
+        if (openMethod instanceof Algorithm algorithm) {
+            return new AliasAlgorithmWrapper(algorithm, aliasMethodName);
         }
-        if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return new AliasAlgorithmSubroutineMethodWrapper((AlgorithmSubroutineMethod) openMethod, aliasMethodName);
+        if (openMethod instanceof AlgorithmSubroutineMethod method) {
+            return new AliasAlgorithmSubroutineMethodWrapper(method, aliasMethodName);
         }
-        if (openMethod instanceof DecisionTable) {
-            return new AliasDecisionTableWrapper((DecisionTable) openMethod, aliasMethodName);
+        if (openMethod instanceof DecisionTable table) {
+            return new AliasDecisionTableWrapper(table, aliasMethodName);
         }
-        if (openMethod instanceof ColumnMatch) {
-            return new AliasColumnMatchWrapper((ColumnMatch) openMethod, aliasMethodName);
+        if (openMethod instanceof ColumnMatch match) {
+            return new AliasColumnMatchWrapper(match, aliasMethodName);
         }
-        if (openMethod instanceof Spreadsheet) {
-            return new AliasSpreadsheetWrapper((Spreadsheet) openMethod, aliasMethodName);
+        if (openMethod instanceof Spreadsheet spreadsheet) {
+            return new AliasSpreadsheetWrapper(spreadsheet, aliasMethodName);
         }
-        if (openMethod instanceof TableMethod) {
-            return new AliasTableMethodWrapper((TableMethod) openMethod, aliasMethodName);
+        if (openMethod instanceof TableMethod method) {
+            return new AliasTableMethodWrapper(method, aliasMethodName);
         }
         throw new IllegalStateException(
-                String.format("Unsupported method type '%s' for method wrapping with alias functionality",
+                "Unsupported method type '%s' for method wrapping with alias functionality".formatted(
                         openMethod.getClass().getTypeName()));
     }
 }

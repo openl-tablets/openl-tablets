@@ -27,7 +27,7 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
         Root<Group> g = criteria.from(Group.class);
         criteria.select(g).where(builder.equal(g.get("name"), name)).distinct(true);
         List<Group> groupList = getSession().createQuery(criteria).getResultList();
-        return groupList.isEmpty() ? null : groupList.get(0);
+        return groupList.isEmpty() ? null : groupList.getFirst();
     }
 
     @Override

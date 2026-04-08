@@ -1,0 +1,177 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Virtual test suite",
+  "tableId": "1544f84fe26a4d851a3aa43381ace131",
+  "executionTimeMs": "##.##",
+  "result": 0.94,
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number"
+  },
+  "parameters": [
+    {
+      "name": "currentFinancialData",
+      "description": "currentFinancialData",
+      "value": {
+        "reportDate": "2010-01-01T00:00:00.000",
+        "totalAssets": 754299.0,
+        "claimsOnDemand": 74502.0,
+        "claimsUpTo3Months": 179938.0,
+        "claimsSecuredByPropertyCharges": 134321.0,
+        "claimsOnBanks": 110956.0,
+        "claimsOnCustomers": 336872.0,
+        "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+        "otherAssets": 7349.0,
+        "capital": 40857.0,
+        "equity": 28658.0,
+        "liabilities": 725641.0,
+        "liabilitiesToBanks": 137626.0,
+        "liabilitiesToCustomers": 262827.0,
+        "liabilitiesOnDemand": 193986.0,
+        "liabilitiesToCustomersOnDemand": 143807.0,
+        "consolidatedProfit": 1489.0
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "capital": {
+            "type": "number"
+          },
+          "claimsOnBanks": {
+            "type": "number"
+          },
+          "claimsOnCustomers": {
+            "type": "number"
+          },
+          "claimsOnDemand": {
+            "type": "number"
+          },
+          "claimsSecuredByPropertyCharges": {
+            "type": "number"
+          },
+          "claimsUpTo3Months": {
+            "type": "number"
+          },
+          "consolidatedProfit": {
+            "type": "number"
+          },
+          "equity": {
+            "type": "number"
+          },
+          "liabilities": {
+            "type": "number"
+          },
+          "liabilitiesOnDemand": {
+            "type": "number"
+          },
+          "liabilitiesToBanks": {
+            "type": "number"
+          },
+          "liabilitiesToCustomers": {
+            "type": "number"
+          },
+          "liabilitiesToCustomersOnDemand": {
+            "type": "number"
+          },
+          "loanLossProvisionsForClaimsOnCustomers": {
+            "type": "number"
+          },
+          "otherAssets": {
+            "type": "number"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalAssets": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "name": "previousFinancialData",
+      "description": "previousFinancialData",
+      "value": {
+        "reportDate": "2009-01-01T00:00:00.000",
+        "totalAssets": 0.0,
+        "claimsOnDemand": 69940.0,
+        "claimsUpTo3Months": 176674.0,
+        "claimsSecuredByPropertyCharges": 0.0,
+        "claimsOnBanks": 0.0,
+        "claimsOnCustomers": 1.0E-4,
+        "loanLossProvisionsForClaimsOnCustomers": 0.0,
+        "otherAssets": 0.0,
+        "capital": 41437.0,
+        "equity": 0.0,
+        "liabilities": 817527.0,
+        "liabilitiesToBanks": 0.0,
+        "liabilitiesToCustomers": 264618.0,
+        "liabilitiesOnDemand": 179283.0,
+        "liabilitiesToCustomersOnDemand": 0.0,
+        "consolidatedProfit": -4633.0
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "capital": {
+            "type": "number"
+          },
+          "claimsOnBanks": {
+            "type": "number"
+          },
+          "claimsOnCustomers": {
+            "type": "number"
+          },
+          "claimsOnDemand": {
+            "type": "number"
+          },
+          "claimsSecuredByPropertyCharges": {
+            "type": "number"
+          },
+          "claimsUpTo3Months": {
+            "type": "number"
+          },
+          "consolidatedProfit": {
+            "type": "number"
+          },
+          "equity": {
+            "type": "number"
+          },
+          "liabilities": {
+            "type": "number"
+          },
+          "liabilitiesOnDemand": {
+            "type": "number"
+          },
+          "liabilitiesToBanks": {
+            "type": "number"
+          },
+          "liabilitiesToCustomers": {
+            "type": "number"
+          },
+          "liabilitiesToCustomersOnDemand": {
+            "type": "number"
+          },
+          "loanLossProvisionsForClaimsOnCustomers": {
+            "type": "number"
+          },
+          "otherAssets": {
+            "type": "number"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalAssets": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  ]
+}

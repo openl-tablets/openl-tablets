@@ -3,15 +3,13 @@ package org.openl.rules.maven;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +53,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     static final String DEPLOYMENT_CLASSIFIER = "deployment";
-    private static final String OPENL_ARTIFACT_TYPE = "zip";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -275,7 +272,8 @@ public final class PackageMojo extends BaseOpenLMojo {
                 }
             }
             unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
-            generateDeploymentFile(outputDeploymentDir);
+
+            YamlMapperFactory.getYamlMapper().writeValue(new File(outputDeploymentDir, DEPLOYMENT_YAML), Map.of("name", deploymentName));
 
             final String artifactType = getFormats()[0];
             File outputFile = getOutputFile(outputDirectory,
@@ -290,14 +288,11 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private String[] getFormats() {
-        switch (packaging) {
-            case "openl":
-                return new String[]{"zip"};
-            case "openl-jar":
-                return new String[]{"jar"};
-            default:
-                return StringUtils.split(format, ',');
-        }
+        return switch (packaging) {
+            case "openl" -> new String[]{"zip"};
+            case "openl-jar" -> new String[]{"jar"};
+            default -> StringUtils.split(format, ',');
+        };
     }
 
     private Set<Artifact> getDependencies() {
@@ -306,9 +301,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         Set<Artifact> dependencies = new HashSet<>();
         for (Artifact artifact : getDependentNonOpenLProjects()) {
             String groupId = artifact.getGroupId();
-            String type = artifact.getType();
             String scope = artifact.getScope();
-            if (skipToProcess(groupId, type, scope)) {
+            if (skipToProcess(groupId, scope)) {
                 debug("SKIP : ", artifact);
                 continue;
             }
@@ -337,9 +331,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         for (Dependency dep : project.getDependencies()) {
             String groupId = dep.getGroupId();
             String artifactId = dep.getArtifactId();
-            String type = dep.getType();
             String scope = dep.getScope();
-            if (skipToProcess(groupId, type, scope)) {
+            if (skipToProcess(groupId, scope)) {
                 debug("SKIP : ", dep);
             } else {
                 allowed.add(ArtifactUtils.versionlessKey(groupId, artifactId));
@@ -348,7 +341,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         return allowed;
     }
 
-    private boolean skipToProcess(String groupId, String type, String scope) {
+    private boolean skipToProcess(String groupId, String scope) {
         return !isRuntimeScope(scope) || isOpenLCoreDependency(groupId);
     }
 
@@ -389,14 +382,6 @@ public final class PackageMojo extends BaseOpenLMojo {
         ZipUtils.extractAll(zip, outDir);
     }
 
-    private void generateDeploymentFile(File baseDir) throws IOException {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("name", deploymentName);
-        try (FileWriter writer = new FileWriter(new File(baseDir, DEPLOYMENT_YAML))) {
-            YamlMapperFactory.getYamlMapper().writeValue(writer, properties);
-        }
-    }
-
     private Manifest createManifest() {
         Manifest manifest = new Manifest();
         Attributes attributes = manifest.getMainAttributes();
@@ -406,7 +391,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             attributes.putValue("Built-By", userName);
             attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
-                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+                    "%s:%s".formatted(project.getGroupId(), project.getArtifactId()));
             attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
             if (project.getOrganization() != null) {
                 attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
@@ -429,7 +414,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         ArrayList<String> strings = new ArrayList<>(excludes.length + 2);
         Collections.addAll(strings, excludes);
 
-        final String targetDir = Paths.get(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
+        final String targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
         strings.add(targetDir);
         strings.add("pom.xml");
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);

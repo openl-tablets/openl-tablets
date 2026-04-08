@@ -6,15 +6,13 @@ import org.springframework.web.context.annotation.SessionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
-import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
@@ -30,33 +28,13 @@ public class RunTestHelper {
     // TODO move this object to the correct place
     private Object[] params = new Object[0];
     private IRulesRuntimeContext runtimeContext;
-
-    public ITracerObject getTraceObject(boolean lazyNodes) {
-        catchParams();
-        TestSuite testSuite = getTestSuite();
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        ITracerObject t;
-        try {
-            t = TreeBuildTracer.initialize(lazyNodes);
-            model.traceElement(testSuite);
-        } finally {
-            TreeBuildTracer.destroy();
-        }
-
-        return t;
-    }
-
-    public void initTrace() {
-        ITracerObject root = getTraceObject(true);
-
-        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
-        traceHelper.cacheTraceTree(root);// Register
-    }
+    private String tableUri;
 
     public void catchParams() {
         InputArgsBean bean = (InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean");
         this.params = bean.getParams();
         this.runtimeContext = bean.getRuntimeContext();
+        this.tableUri = bean.getUri();
     }
 
     public void fillBean() {
@@ -73,6 +51,15 @@ public class RunTestHelper {
         boolean currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
         ProjectModel model = WebStudioUtils.getProjectModel();
+        if (id == null) {
+            // Fallback: resolve table ID by URI when 'id' is not in request params.
+            // The URI is captured from InputArgsBean during catchParams(),
+            // or from the current table page (WebStudio session).
+            String uri = tableUri != null ? tableUri : WebStudioUtils.getWebStudio().getTableUri();
+            if (uri != null) {
+                id = TableUtils.makeTableId(uri);
+            }
+        }
         IOpenLTable table = model.getTableById(id);
         if (table == null) {
             return null;
@@ -87,8 +74,7 @@ public class RunTestHelper {
         IDataBase db = Utils.getDb(model, currentOpenedModule);
 
         TestSuite testSuite;
-        if (method instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+        if (method instanceof TestSuiteMethod testSuiteMethod) {
 
             String testRanges = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
             if (testRanges == null) {
@@ -116,6 +102,7 @@ public class RunTestHelper {
 
         params = new Object[0]; // Reset caught params
         runtimeContext = null;
+        tableUri = null;
         return testSuite;
     }
 }

@@ -107,8 +107,8 @@ public class Algorithm extends AlgorithmFunction {
         }
         List<AlgorithmSubroutineMethod> subroutines = new ArrayList<>();
         for (IOpenMethod method : thisIOpenClass.getMethods()) {
-            if (method instanceof AlgorithmSubroutineMethod) {
-                subroutines.add((AlgorithmSubroutineMethod) method);
+            if (method instanceof AlgorithmSubroutineMethod subroutineMethod) {
+                subroutines.add(subroutineMethod);
             }
         }
 

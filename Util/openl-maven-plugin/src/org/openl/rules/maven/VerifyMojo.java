@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
@@ -59,9 +58,6 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${plugin.artifacts}", readonly = true, required = true)
     private List<Artifact> pluginArtifacts;
-
-    @Parameter(defaultValue = "${session}", readonly = true)
-    private MavenSession mavenSession;
 
     @Component
     private RepositorySystem repositorySystem;
@@ -119,10 +115,10 @@ public class VerifyMojo extends BaseOpenLMojo {
             var checkMethod = appClass.getDeclaredMethod("check", String.class, Collection.class, String.class);
             checkMethod.invoke(null, pathDeployment, openlJars.values(), outputDirectory.getPath());
 
-            info(String.format("Verification is passed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()));
+            info("Verification is passed for '%s:%s' artifact.".formatted(project.getGroupId(), project.getArtifactId()));
         } catch (Exception e) {
-            throw new MojoFailureException(String
-                    .format("Verification is failed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()), e);
+            throw new MojoFailureException("Verification is failed for '%s:%s' artifact."
+                    .formatted(project.getGroupId(), project.getArtifactId()), e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassloader);
             world.disposeRealm("jetty");

@@ -15,4 +15,4 @@ const Logo: React.FC<LogoProps> = ({ width = 24, height = 24 }) => (
     </svg>
 )
 
-export default Logo 
+export default Logo

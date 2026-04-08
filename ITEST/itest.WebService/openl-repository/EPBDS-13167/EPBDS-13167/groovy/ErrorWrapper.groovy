@@ -2,6 +2,6 @@ import org.openl.generated.beans.MyError
 
 class ErrorWrapper {
 
-    public MyError[] errors;
+    public MyError[] errors
 
 }

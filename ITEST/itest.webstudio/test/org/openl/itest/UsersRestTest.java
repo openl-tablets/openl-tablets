@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -43,7 +43,7 @@ public class UsersRestTest {
 
     private static Server h2Server;
     private static Connection h2Connection;
-    private static final String DB_DUMP_FILE = String.format("target/dump-%s.sql", System.currentTimeMillis());
+    private static final String DB_DUMP_FILE = "target/dump-%s.sql".formatted(System.currentTimeMillis());
 
     @BeforeAll
     public static void setUp() throws Exception {
@@ -66,7 +66,7 @@ public class UsersRestTest {
         mailUrl = smtp.getProtocol() + "://" + smtp.getBindTo() + ":" + smtp.getPort();
 
         try (Statement statement = h2Connection.createStatement()) {
-            statement.execute(String.format("SCRIPT TO '%s'", DB_DUMP_FILE));
+            statement.execute("SCRIPT TO '%s'".formatted(DB_DUMP_FILE));
         }
     }
 
@@ -84,7 +84,7 @@ public class UsersRestTest {
             statement.execute("DROP ALL OBJECTS DELETE FILES;");
             h2Connection.commit();
 
-            String dump = Files.readString(Paths.get(DB_DUMP_FILE), Charset.defaultCharset());
+            String dump = Files.readString(Path.of(DB_DUMP_FILE), Charset.defaultCharset());
             statement.execute(dump);
             h2Connection.commit();
         }
@@ -124,11 +124,11 @@ public class UsersRestTest {
         client.send("users-service/users/groups/external/empty.jsmith.get");
 
         try (Statement statement = h2Connection.createStatement()) {
-            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_1"));
-            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_2"));
-            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_3"));
-            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Analysts"));
-            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Admiral Nelson"));
+            statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "GROUP_1"));
+            statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "GROUP_2"));
+            statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "GROUP_3"));
+            statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "Analysts"));
+            statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "Admiral Nelson"));
 
             statement.executeBatch();
             h2Connection.commit();

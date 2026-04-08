@@ -199,13 +199,13 @@ public class AzureBlobRepositoryTest {
     public void listHistory() throws IOException {
         List<FileData> project2History = repo.listHistory("rules/project2");
         assertEquals(1, project2History.size());
-        assertEquals("version21", project2History.get(0).getVersion());
+        assertEquals("version21", project2History.getFirst().getVersion());
 
         final String newVersion = addFileToProject2AndSave().getVersion();
 
         project2History = repo.listHistory("rules/project2");
         assertEquals(2, project2History.size());
-        assertEquals("version21", project2History.get(0).getVersion());
+        assertEquals("version21", project2History.getFirst().getVersion());
         assertEquals(newVersion, project2History.get(1).getVersion());
     }
 
@@ -292,7 +292,7 @@ public class AzureBlobRepositoryTest {
         return mockPagedIterable(blobs.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(options.getPrefix()))
-                .map(entry -> entry.getValue().get(0).getBlobItem())
+                .map(entry -> entry.getValue().getFirst().getBlobItem())
                 .collect(Collectors.toList()));
     }
 
@@ -362,7 +362,7 @@ public class AzureBlobRepositoryTest {
         String versionId = UUID.randomUUID().toString();
 
         final List<ByteBuffer> block = options.getDataFlux().collectList().block();
-        final ByteBuffer byteBuffer = Objects.requireNonNull(block).get(0);
+        final ByteBuffer byteBuffer = Objects.requireNonNull(block).getFirst();
         byte[] content = new byte[byteBuffer.remaining()];
         byteBuffer.get(content);
         addBlob(client.getBlobName(), versionId, content);
@@ -420,7 +420,7 @@ public class AzureBlobRepositoryTest {
         blobItem.setVersionId(versionId);
         final List<BlobEmulation> versions = blobs.computeIfAbsent(name, k -> new ArrayList<>());
         // Newest version will be first.
-        versions.add(0, new BlobEmulation(blobItem, content));
+        versions.addFirst(new BlobEmulation(blobItem, content));
     }
 
     private static void assertContains(List<FileData> files, String fileName) {

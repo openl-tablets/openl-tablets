@@ -6,6 +6,18 @@ Content-Type: application/json
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "CoverageRate",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Smart table has unmatched title 'Limit'.",
+      "severity": "ERROR"
+    },
+    {
+      "id": "*",
+      "summary": "Type 'CoverageForm' is not found.",
+      "severity": "ERROR"
+    }
+  ],
   "returnType": "Double",
   "args": [
     {

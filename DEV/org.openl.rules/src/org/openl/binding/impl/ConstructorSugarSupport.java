@@ -59,11 +59,11 @@ public class ConstructorSugarSupport {
                 var defaultConstructor = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
                 if (isAllParamsAssign && duplicatedParamSyntaxNode != null) {
                     cleanErrorsAndMessages(bindingContext);
-                    return ANodeBinder.makeErrorNode(String.format("Field '%s' has already used.",
+                    return ANodeBinder.makeErrorNode("Field '%s' has already used.".formatted(
                             duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
                 } else if (isAllParamsAssign && defaultConstructor == null) {
                     cleanErrorsAndMessages(bindingContext);
-                    return ANodeBinder.makeErrorNode(String.format("Default constructor is not found in type '%s'.",
+                    return ANodeBinder.makeErrorNode("Default constructor is not found in type '%s'.".formatted(
                             type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
                 } else if (defaultConstructor != null && isAllParamsAssign) {
                     for (var e : namedParams.entrySet()) {
@@ -71,20 +71,20 @@ public class ConstructorSugarSupport {
                         if (f == null || f.isStatic() || !f.isWritable()) {
                             cleanErrorsAndMessages(bindingContext);
                             if (f == null) {
-                                return ANodeBinder.makeErrorNode(String.format("Field '%s' is not found.", e.getKey()),
+                                return ANodeBinder.makeErrorNode("Field '%s' is not found.".formatted(e.getKey()),
                                         e.getValue(),
                                         bindingContext);
                             }
                             if (f.isStatic()) {
                                 return ANodeBinder.makeErrorNode(
-                                        String.format("Field '%s' is found, but it is declared with static modifier.",
+                                        "Field '%s' is found, but it is declared with static modifier.".formatted(
                                                 e.getKey()),
                                         e.getValue(),
                                         bindingContext);
                             }
                             if (!f.isWritable()) {
                                 return ANodeBinder.makeErrorNode(
-                                        String.format("Field '%s' is found, but it is read only.", e.getKey()),
+                                        "Field '%s' is found, but it is read only.".formatted(e.getKey()),
                                         e.getValue(),
                                         bindingContext);
                             }

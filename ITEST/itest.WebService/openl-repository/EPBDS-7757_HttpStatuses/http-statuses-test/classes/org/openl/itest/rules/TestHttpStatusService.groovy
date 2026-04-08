@@ -1,19 +1,19 @@
-package org.openl.itest.rules;
+package org.openl.itest.rules
 
-import org.openl.generated.beans.Username;
+import org.openl.generated.beans.Username
 
 public interface TestHttpStatusService {
 
-    void throwUserException();
+    void throwUserException()
 
-    Double throwOpenLException();
+    Double throwOpenLException()
 
-    String throwValidationException();
+    String throwValidationException()
 
-    String hello(Username username);
+    String hello(Username username)
 
-    void throwNPE();
+    void throwNPE()
 
-    Integer throwNFE();
+    Integer throwNFE()
 
 }

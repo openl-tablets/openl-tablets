@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -38,9 +37,9 @@ import org.openl.util.StringUtils;
 @Service
 @RequestScope
 @Deprecated(forRemoval = true)
+@Slf4j
 public class TestBean {
 
-    private final Logger log = LoggerFactory.getLogger(TestBean.class);
 
     private static final Comparator<TestUnitsResults> TEST_COMPARATOR = Comparator
             .nullsLast(Comparator.comparingInt(TestUnitsResults::getNumberOfFailures)
@@ -247,8 +246,7 @@ public class TestBean {
         Object actualResultInternal = objTestUnit.getActualResult();
 
         try {
-            if (actualResultInternal instanceof SpreadsheetResult) {
-                SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
+            if (actualResultInternal instanceof SpreadsheetResult spreadsheetResult) {
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer
                         .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);

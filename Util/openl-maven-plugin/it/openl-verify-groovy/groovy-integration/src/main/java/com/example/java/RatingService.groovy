@@ -5,6 +5,6 @@ import org.openl.rules.ruleservice.core.interceptors.RulesType
 
 interface RatingService {
 
-    SpreadsheetResult DeterminePolicyRates(@RulesType("Policy") Object policy);
+    SpreadsheetResult DeterminePolicyRates(@RulesType("Policy") Object policy)
 
 }

@@ -1,0 +1,9 @@
+POST /rest/projects/{PROJECT_ID}/run?tableId=f7e9e48351f56988a3847fd05446f305 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "territoryCd": "001",
+  "policyForm": "HO3",
+  "policyPlan": "Gold"
+}

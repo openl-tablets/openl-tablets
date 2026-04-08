@@ -263,7 +263,7 @@ public abstract class AbstractDiffController {
 
     public void processSelection(TreeSelectionChangeEvent event) {
         List<Object> selection = new ArrayList<>(event.getNewSelection());
-        Object currentSelectionKey = selection.get(0);
+        Object currentSelectionKey = selection.getFirst();
         UITree tree = (UITree) event.getSource();
 
         Object storedKey = tree.getRowKey();
@@ -286,4 +286,3 @@ public abstract class AbstractDiffController {
         tempFiles.clear();
     }
 }
-

@@ -5,13 +5,12 @@ import static org.openl.rules.excel.builder.export.DefaultValueCellWriter.writeD
 import java.util.Collection;
 import java.util.Iterator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.DataTypeTableStyle;
@@ -21,9 +20,9 @@ import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeModel> {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(DatatypeTableExporter.class);
 
     public static final String DATATYPES_SHEET = "Datatypes";
 
@@ -34,7 +33,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         Cursor endPosition = null;
         TableStyle style = getTableStyle();
         for (DatatypeModel model : models) {
-            LOGGER.debug("Writing data type with name {}", model.getName());
+            log.debug("Writing data type with name {}", model.getName());
             Cursor startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }

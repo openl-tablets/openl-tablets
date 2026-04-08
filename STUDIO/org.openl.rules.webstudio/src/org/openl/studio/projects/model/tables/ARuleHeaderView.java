@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -11,6 +12,7 @@ public abstract class ARuleHeaderView {
 
     public static final String UNKNOWN_HEADER_NAME = "col";
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Title of the rule column")
     public final String title;
 

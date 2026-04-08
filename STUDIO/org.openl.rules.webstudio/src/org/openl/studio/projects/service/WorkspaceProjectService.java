@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -15,14 +16,16 @@ import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -33,9 +36,13 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
+import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -76,6 +83,7 @@ import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Implementation of project service for workspace projects.
@@ -84,11 +92,13 @@ import org.openl.util.FileUtils;
  */
 @Component
 @ParametersAreNonnullByDefault
+@Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkspaceProjectService.class);
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+    private static final Comparator<MessageDescription> MESSAGE_DESCRIPTION_COMPARATOR = Comparator.comparing(MessageDescription::severity)
+            .thenComparing(MessageDescription::id);
 
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -149,7 +159,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 selectedBranches.sort(String.CASE_INSENSITIVE_ORDER);
                 builder.selectedBranches(selectedBranches);
             } catch (ProjectException e) {
-                LOG.warn("Failed to retrieve project branches", e);
+                log.warn("Failed to retrieve project branches", e);
             }
         }
         projectDependencyResolver.getProjectDependencies(src).stream()
@@ -243,6 +253,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isModified()) {
             return;
         }
+        if (!projectStateValidator.canSave(project) || project.isLocalOnly()) {
+            throw new ConflictException("project.save.conflict.message");
+        }
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException("default.message");
+        }
         var comment = model.getComment().map(String::trim).orElse(null);
         try {
             CommentValidator.forRepo(project.getRepository().getId()).validate(comment);
@@ -284,8 +300,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         try {
             ProjectHistoryService.deleteHistory(project.getBusinessName());
         } catch (IOException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
             }
             throw new ProjectException("Failed to delete project history", e);
         }
@@ -370,8 +386,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var previousBranch = project.getBranch();
         if (Objects.equals(previousBranch, branchName)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Project '{}' is already opened in branch '{}'", project.getBusinessName(), branchName);
+            if (log.isDebugEnabled()) {
+                log.debug("Project '{}' is already opened in branch '{}'", project.getBusinessName(), branchName);
             }
             return;
         }
@@ -399,8 +415,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 try {
                     ProjectHistoryService.deleteHistory(previousBusinessName);
                 } catch (IOException e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(e.getMessage(), e);
+                    if (log.isDebugEnabled()) {
+                        log.debug(e.getMessage(), e);
                     }
                     throw new ProjectException("Failed to delete project history", e);
                 }
@@ -488,8 +504,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return project tables
      */
     public PageResponse<SummaryTableView> getTables(RulesProject project,
-                                                     ProjectTableCriteriaQuery query,
-                                                     Pageable page) {
+                                                    ProjectTableCriteriaQuery query,
+                                                    Pageable page) {
         var moduleModel = getProjectModel(project);
 
         var selectors = buildTableSelector(query);
@@ -547,26 +563,52 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public ProjectModel getProjectModel(RulesProject project, @Nullable String moduleName) {
-        if (!project.isOpened()) {
-            throw new ConflictException("project.not.opened.message");
-        }
-        var webstudio = getWebStudio();
-
-        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
+        var projectDescriptor = getProjectDescriptor(project);
         var moduleSelector = projectDescriptor.getModules().stream();
         if (moduleName != null) {
             moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
         }
         var module = moduleSelector.findFirst().orElse(null);
-        return getProjectModel(project, module);
+        return getProjectModel(projectDescriptor, project, module);
     }
 
-    private ProjectModel getProjectModel(RulesProject project, @Nullable Module module) {
+    public ProjectDescriptor getProjectDescriptor(RulesProject project) {
+        if (!project.isOpened()) {
+            throw new ConflictException("project.not.opened.message");
+        }
+        var webstudio = getWebStudio();
+        var projectName = project.getName();
+        if (project.isLocalOnly()) {
+            // The case when in local project is not linked to any design repository,
+            // so project name is may not equal to it is business name.
+            // In that case we should resolve project descriptor manually. and get real project name from it.
+            var localWorkspace = getUserWorkspace().getLocalWorkspace();
+            var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+            var folder = repoRoot.resolve(project.getFolderPath());
+            try {
+                var pd = ProjectResolver.getInstance().resolve(folder);
+                projectName = pd.getName();
+            } catch (ProjectResolvingException e) {
+                // If project descriptor cannot be resolved, then we cannot open project and get model.
+                // Usually it means that project folder is corrupted or has invalid structure.
+                // User can do nothing with such project until the problem is fixed, so we should not silently ignore that error and return null.
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        }
+
+        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), projectName);
+        if (projectDescriptor == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
+        return projectDescriptor;
+    }
+
+    private ProjectModel getProjectModel(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
         var webstudio = getWebStudio();
-        webstudio.init(project.getRepository().getId(), project.getBranch(), project.getName(), module.getName());
+        webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
         var moduleModel = webstudio.getModel();
         while (!moduleModel.isProjectCompilationCompleted()) {
             try {
@@ -587,12 +629,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table data
      */
     public TableView getTable(RulesProject project, String tableId) {
-        var table = getOpenLTable(project, tableId);
+        var context = getOpenLTable(project, tableId);
+        var table = context.table();
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
                 .findFirst()
                 .orElse(null);
-        return reader != null ? reader.read(table) : rawTableReader.read(table);
+        var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
+        tableView.messages = mapMessages(context.getMessages());
+        return tableView;
+    }
+
+    private List<MessageDescription> mapMessages(Map<Severity, List<OpenLMessage>> messages) {
+        return messages.values().stream()
+                .flatMap(Collection::stream)
+                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                .sorted(MESSAGE_DESCRIPTION_COMPARATOR)
+                .toList();
     }
 
     /**
@@ -603,11 +656,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        var table = getOpenLTable(project, tableId);
-        return rawTableReader.read(table);
+        var context = getOpenLTable(project, tableId);
+        var tableView = rawTableReader.read(context.table());
+        tableView.messages = mapMessages(context.getMessages());
+        return tableView;
     }
 
-    private IOpenLTable getOpenLTable(RulesProject project, String tableId) {
+    private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
         var moduleModel = getProjectModel(project);
         var table = moduleModel.getTableById(tableId);
         if (table == null) {
@@ -618,16 +673,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!module.containsTable(tableUri)) {
             // if table is not in the current module, then need to find it and inititialize module.
             // otherwise, all required listeners and hooks will not function properly
-            var pd = getWebStudio().getProjectByName(project.getRepository().getId(), project.getName());
+            var pd = getProjectDescriptor(project);
             module = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
             // initialize module
-            moduleModel = getProjectModel(project, module);
+            moduleModel = getProjectModel(pd, project, module);
             table = moduleModel.getTableById(tableId);
             if (table == null) {
                 throw new NotFoundException("table.message");
             }
         }
-        return table;
+        return new OpenLTableContext(table, moduleModel);
     }
 
     /**
@@ -642,8 +697,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var table = getOpenLTable(project, tableId);
-        var writer = tableWritersFactory.getTableWriter(table, tableView.getTableType());
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableWriterExecutor.executeWrite(writer, tableView);
     }
@@ -662,8 +717,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var table = getOpenLTable(project, tableId);
-        var writer = tableWritersFactory.getTableWriter(table, tableView.getTableType());
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableWriterExecutor.executeAppend(writer, tableView);
     }
@@ -690,6 +745,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var projectModel = getProjectModel(project, createTableRequest.moduleName());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableCreatorService.createTable(createTableRequest, projectModel);
+    }
+
+    private record OpenLTableContext(
+            @NotNull
+            IOpenLTable table,
+            @NotNull
+            ProjectModel module
+    ) {
+
+        public Map<Severity, List<OpenLMessage>> getMessages() {
+            var tableUri = table.getUri();
+            return Stream.of(Severity.values())
+                    .flatMap(severity -> module.getMessagesByTsn(tableUri, severity).stream())
+                    .collect(Collectors.groupingBy(OpenLMessage::getSeverity));
+        }
+
     }
 
 }

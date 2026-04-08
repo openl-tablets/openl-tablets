@@ -84,8 +84,7 @@ public class OpenAPIRefResolver {
         Schema<?> resolvedSchema = resolve(schema, Schema::get$ref);
         if (resolvedSchema != null) {
             allSchemaProperties = new HashMap<>();
-            if (resolvedSchema instanceof ComposedSchema) {
-                ComposedSchema composedSchema = (ComposedSchema) resolvedSchema;
+            if (resolvedSchema instanceof ComposedSchema composedSchema) {
                 if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
                     for (Schema<?> embeddedSchema : composedSchema.getAllOf()) {
                         Map<String, Schema> embeddedSchemaProperties = resolveAllProperties(embeddedSchema, allPropertiesCache);

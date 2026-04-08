@@ -9,4 +9,3 @@ To use Swagger, in OpenL Rule Services, click the Swagger (UI) link, select the 
 ![](../../../assets/images/rule-services/09a5e4fecf604849af7681cd8771ed37.png)
 
 *Using Swagger UI*
-

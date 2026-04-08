@@ -1,4 +1,4 @@
-StringBuilder modules = new StringBuilder(10000);
+StringBuilder modules = new StringBuilder(10000)
 
 File folder = basedir
 def itFolder = folder.getParentFile()
@@ -13,7 +13,7 @@ for (def test : itFolder.listFiles()) {
 println(modules)
 
 def pomFile = new File(itFolder, '_2_install/pom.xml')
-def pomText = pomFile.getText('UTF-8').replace('        <module>generated.pom</module>', modules);
+def pomText = pomFile.getText('UTF-8').replace('        <module>generated.pom</module>', modules)
 pomFile.write(pomText, 'UTF-8')
 
 return true

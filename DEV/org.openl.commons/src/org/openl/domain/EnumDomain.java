@@ -70,10 +70,8 @@ public class EnumDomain<T> implements IDomain<T> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof EnumDomain<?> that))
             return false;
-
-        EnumDomain<?> that = (EnumDomain<?>) o;
         if (componentType.equals(that.componentType)) {
             return index.equals(that.index);
         }

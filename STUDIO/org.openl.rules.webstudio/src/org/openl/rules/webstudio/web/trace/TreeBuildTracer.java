@@ -6,11 +6,10 @@ package org.openl.rules.webstudio.web.trace;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.domain.IIntSelector;
-import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
@@ -26,9 +25,9 @@ import org.openl.vm.Tracer;
 /**
  * @author Yury Molchan
  */
+@Slf4j
 public final class TreeBuildTracer extends Tracer {
 
-    private final static Logger LOG = LoggerFactory.getLogger(TreeBuildTracer.class);
     private static final ThreadLocal<ITracerObject> tree = new ThreadLocal<>();
     private static final ThreadLocal<Map<TracerKeyNode, SimpleTracerObject>> map = new ThreadLocal<>();
     private static final ThreadLocal<Boolean> lazyNodesHolder = ThreadLocal.withInitial(() -> false);
@@ -70,7 +69,7 @@ public final class TreeBuildTracer extends Tracer {
         if (current != null) {
             tree.set(current.getParent());
         } else {
-            LOG.warn("Something is wrong. Current trace object is null. Cannot pop trace object.");
+            log.warn("Something is wrong. Current trace object is null. Cannot pop trace object.");
         }
     }
 
@@ -90,7 +89,7 @@ public final class TreeBuildTracer extends Tracer {
             try {
                 trObj = new LazyTracerNodeObject(executor, target, params, env, source, Thread.currentThread().getContextClassLoader());
             } catch (Exception e) {
-                LOG.warn("Error during lazy node creation. Fallback to normal tracing.", e);
+                log.warn("Error during lazy node creation. Fallback to normal tracing.", e);
                 trObj = TracedObjectFactory.getTracedObject(source, executor, target, params, env);
             }
         } else {
@@ -103,16 +102,16 @@ public final class TreeBuildTracer extends Tracer {
         doBegin(trObj);
         try {
             R res = executor.invoke(target, params, env);
-            if (trObj instanceof SimpleTracerObject) {
-                ((SimpleTracerObject) trObj).setResult(res);
+            if (trObj instanceof SimpleTracerObject object) {
+                object.setResult(res);
             }
-            if (trObj instanceof SpreadsheetTracerLeaf) {
-                cacheNode(new TracerKeyNode<>(executor, target, params, env, source), (SpreadsheetTracerLeaf) trObj);
+            if (trObj instanceof SpreadsheetTracerLeaf leaf) {
+                cacheNode(new TracerKeyNode<>(executor, target, params, env, source), leaf);
             }
             return res;
         } catch (Throwable ex) {
-            if (trObj instanceof SimpleTracerObject) {
-                ((SimpleTracerObject) trObj).setError(ex);
+            if (trObj instanceof SimpleTracerObject object) {
+                object.setError(ex);
             }
             throw ex;
         } finally {
@@ -130,8 +129,8 @@ public final class TreeBuildTracer extends Tracer {
     protected <T> T doWrap(Object source, T target, Object[] args) {
         if (!isOn()) {
             return target;
-        } else if (target instanceof IIntSelector) {
-            return (T) new IntSelectorTracer((IIntSelector) target, (ICondition) args[0]);
+        } else if (target instanceof IIntSelector selector) {
+            return (T) new IntSelectorTracer(selector, (ICondition) args[0]);
         }
         return target;
     }
@@ -153,9 +152,9 @@ public final class TreeBuildTracer extends Tracer {
             var rootNode = initialize(true);
             try {
                 invoke(lazyNode.getExecutor(), lazyNode.getTarget(), lazyNode.getParams(), lazyNode.getEnv(), lazyNode.getSource());
-            } catch (OpenLUserRuntimeException ignored) {
+            } catch (OpenLRuntimeException ignored) {
             } catch (Throwable ex) {
-                LOG.warn("Error during lazy node execution", ex);
+                log.warn("Error during lazy node execution", ex);
             }
             ITracerObject realNode = null;
             for (var childNode : rootNode.getChildren()) {
@@ -195,7 +194,7 @@ public final class TreeBuildTracer extends Tracer {
         }
         ITracerObject prevValue = localCache.put(key, value);
         if (prevValue != null) {
-            LOG.warn("Something is wrong. Previous tracer node is not null");
+            log.warn("Something is wrong. Previous tracer node is not null");
         }
     }
 

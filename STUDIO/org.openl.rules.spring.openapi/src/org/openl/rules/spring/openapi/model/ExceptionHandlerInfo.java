@@ -86,11 +86,11 @@ public class ExceptionHandlerInfo {
                     .map(String::valueOf)
                     .orElse(null);
             this.returnType = OpenApiUtils.getReturnType(method);
-            if (returnType instanceof ParameterizedType) {
-                var rawType = ((ParameterizedType) returnType).getRawType();
+            if (returnType instanceof ParameterizedType type) {
+                var rawType = type.getRawType();
                 if (rawType == ResponseEntity.class || rawType == HttpEntity.class) {
                     wrapperReturnType = returnType;
-                    returnType = ((ParameterizedType) returnType).getActualTypeArguments()[0];
+                    returnType = type.getActualTypeArguments()[0];
                 }
             }
             this.handledExceptions = Objects

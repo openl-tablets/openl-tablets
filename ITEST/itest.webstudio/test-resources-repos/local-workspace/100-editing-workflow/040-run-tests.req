@@ -1,0 +1,6 @@
+POST /rest/projects/bG9jYWw6RVBCRFMtMTU2NDk=/tests/run HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+}

@@ -43,8 +43,8 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
-import org.openl.types.NullOpenClass;
 import org.openl.types.Invokable;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.OpenMethodHeader;
@@ -108,8 +108,8 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     public DecisionValue calculateCondition(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
-        if (target instanceof IDynamicObject) {
-            target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, ruleN);
+        if (target instanceof IDynamicObject object) {
+            target = new RuleExecutionObject(ruleExecutionType, object, ruleN);
         }
 
         if (isEmpty(ruleN)) {
@@ -154,8 +154,7 @@ public class Condition extends FunctionalRow implements ICondition {
             return f;
         }
 
-        if (f instanceof OpenFieldDelegator) {
-            OpenFieldDelegator d = (OpenFieldDelegator) f;
+        if (f instanceof OpenFieldDelegator d) {
             return d.getDelegate();
         }
         return f;
@@ -276,7 +275,7 @@ public class Condition extends FunctionalRow implements ICondition {
                                                 ConditionCasts conditionCasts,
                                                 IBindingContext bindingContext) {
         if (Objects.equals(param.getType().getComponentClass(), methodType)) {
-            return String.format("contains(%s, %s)", param.getName(), source.getCode());
+            return "contains(%s, %s)".formatted(param.getName(), source.getCode());
         }
         if (conditionCasts.isCastToConditionTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
@@ -284,7 +283,7 @@ public class Condition extends FunctionalRow implements ICondition {
                     getName(),
                     methodType.getName(),
                     param.getType().getComponentClass().getName()), tableSyntaxNode));
-            return String.format("contains(%s, (%s) %s)",
+            return "contains(%s, (%s) %s)".formatted(
                     param.getName(),
                     param.getType().getComponentClass().getName(),
                     source.getCode());
@@ -294,7 +293,7 @@ public class Condition extends FunctionalRow implements ICondition {
                     getName(),
                     param.getType().getComponentClass().getInstanceClass().getTypeName(),
                     methodType.getName()), tableSyntaxNode));
-            return String.format("contains((%s[]) %s, %s)", methodType.getName(), param.getName(), source.getCode());
+            return "contains((%s[]) %s, %s)".formatted(methodType.getName(), param.getName(), source.getCode());
         } else {
             throw new IllegalStateException("It should not happen.");
         }
@@ -316,7 +315,7 @@ public class Condition extends FunctionalRow implements ICondition {
                     param.getType().getName(),
                     DoubleRange.class.getTypeName()), tableSyntaxNode));
         }
-        return String.format("contains(%s, %s)", param.getName(), source.getCode());
+        return "contains(%s, %s)".formatted(param.getName(), source.getCode());
     }
 
     private static boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {
@@ -369,6 +368,7 @@ public class Condition extends FunctionalRow implements ICondition {
         return dependentOnOtherColumnsParams;
     }
 
+    @Override
     public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
         this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
     }
@@ -385,8 +385,7 @@ public class Condition extends FunctionalRow implements ICondition {
         if (children != null && children.length == 1 &&
                 children[0] != null && children[0].getChildren() != null &&
                 children[0].getChildren().length == 1 &&
-                children[0].getChildren()[0] instanceof BinaryOpNodeOr) {
-            var binaryOpNodeOr = (BinaryOpNodeOr) children[0].getChildren()[0];
+                children[0].getChildren()[0] instanceof BinaryOpNodeOr binaryOpNodeOr) {
 
             var staticMethod = compileStaticExpression(binaryOpNodeOr, signature, openl);
             if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {

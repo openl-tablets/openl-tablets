@@ -9,8 +9,7 @@ package org.openl.main;
 import java.io.PrintWriter;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
@@ -21,8 +20,8 @@ import org.openl.util.text.TextInfo;
 /**
  * @author snshor
  */
+@Slf4j
 public final class SourceCodeURLTool {
-    private static final Logger LOG = LoggerFactory.getLogger(SourceCodeURLTool.class);
 
     private SourceCodeURLTool() {
     }
@@ -51,7 +50,7 @@ public final class SourceCodeURLTool {
                 start = location.getStart().getAbsolutePosition(info) + module.getStartPosition();
                 end = location.getEnd().getAbsolutePosition(info) + module.getStartPosition();
             } catch (UnsupportedOperationException e) {
-                LOG.warn("Cannot make source location URL", e);
+                log.warn("Cannot make source location URL", e);
             }
 
             lineInfo = "start=" + start + "&end=" + end;
@@ -74,13 +73,13 @@ public final class SourceCodeURLTool {
 
     private static String getUri(IOpenSourceCodeModule module, ILocation location) {
         String moduleUri;
-        if (module instanceof CompositeSourceCodeModule && location != null && location.isTextLocation()) {
+        if (module instanceof CompositeSourceCodeModule codeModule && location != null && location.isTextLocation()) {
             int line = location.getStart().getLine(new TextInfo(module.getCode()));
 
-            IOpenSourceCodeModule[] modules = ((CompositeSourceCodeModule) module).getModules();
+            IOpenSourceCodeModule[] modules = codeModule.getModules();
             if (modules.length <= line || line < 0) {
                 // Occurs when Method table expression has several lines but reside inside single cell.
-                LOG.debug("Modules count in composite module are less than error line number. Return first found module uri.");
+                log.debug("Modules count in composite module are less than error line number. Return first found module uri.");
                 moduleUri = module.getUri();
             } else {
                 // Occurs when Method table expression has several lines and each line resides inside his own cell.

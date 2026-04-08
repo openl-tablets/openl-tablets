@@ -22,14 +22,14 @@ final class BoundNodeAnalyzingUtils {
         }
         if (node instanceof ReturnNode) {
             return false;
-        } else if (node instanceof LoopNode) {
-            return loopNodeMayCompleteNormally((LoopNode) node);
-        } else if (node instanceof IfNode) {
-            return ifNodeMayCompleteNormally((IfNode) node);
+        } else if (node instanceof LoopNode loopNode) {
+            return loopNodeMayCompleteNormally(loopNode);
+        } else if (node instanceof IfNode ifNode) {
+            return ifNodeMayCompleteNormally(ifNode);
         } else if (node instanceof CastNode) {
             return nodeMayCompleteNormally(node.getChildren()[0]);
-        } else if (node instanceof BlockNode) {
-            return blockNodeMayCompleteNormally((BlockNode) node);
+        } else if (node instanceof BlockNode blockNode) {
+            return blockNodeMayCompleteNormally(blockNode);
         }
         return true;
     }

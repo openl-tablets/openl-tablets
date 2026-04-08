@@ -1,11 +1,14 @@
 package org.openl.rules.binding;
 
+import java.io.Serial;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
 public class RecursiveSpreadsheetMethodPreBindingException extends OpenlNotCheckedException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public RecursiveSpreadsheetMethodPreBindingException() {

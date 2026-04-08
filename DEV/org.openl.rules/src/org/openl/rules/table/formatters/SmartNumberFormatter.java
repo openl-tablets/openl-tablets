@@ -84,11 +84,11 @@ public class SmartNumberFormatter implements IFormatter {
             throw new NullPointerException("Null value is not supported");
         }
 
-        if (value instanceof BigDecimal) {
+        if (value instanceof BigDecimal decimal) {
             /**
              * If BigDecimal the scale can be taken directly
              */
-            return ((BigDecimal) value).scale();
+            return decimal.scale();
         }
 
         if (NumberUtils.isObjectFloatPointNumber(value)) {

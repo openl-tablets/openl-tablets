@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ import org.openl.util.formatters.FileNameFormatter;
 public class GitRepositoryMergeConflictsInExcelTest {
 
     private static final String COPY_BRANCH_PREF = "_COPY";
-    private static final Path TEST_CASES_ROOT = Paths.get("test-resources/EPBDS-8483");
+    private static final Path TEST_CASES_ROOT = Path.of("test-resources/EPBDS-8483");
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
     private static final String REPO_ID = "designMerge";
 
@@ -410,7 +409,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     private void assertSymmetryMerge(String testCase,
                                      String masterToBranchMergeCommit,
                                      String branchToMasterMergeCommit) throws IOException {
-        Path basePath = Paths.get(testCase);
+        Path basePath = Path.of(testCase);
         Path testCaseRoot = TEST_CASES_ROOT.resolve(testCase);
         Set<String> filesToVerify = new HashSet<>();
         Files.walkFileTree(testCaseRoot, new SimpleFileVisitor<>() {

@@ -100,7 +100,7 @@ public class DataTableTest {
         DataModel myStrModel = findDataModel(dataModels, "MystrData");
         List<FieldModel> strFields = myStrModel.getDatatypeModel().getFields();
         assertEquals(1, strFields.size());
-        FieldModel strModel = strFields.iterator().next();
+        FieldModel strModel = strFields.getFirst();
         assertEquals("this", strModel.getName());
 
         DataModel superDataModel = findDataModel(dataModels, "SuperDatatypeData");
@@ -152,13 +152,13 @@ public class DataTableTest {
         assertEquals("JAXRSErrorResponse", dm.getName());
 
         assertEquals(1, spreadsheetResultModels.size());
-        SpreadsheetModel sprModel = spreadsheetResultModels.iterator().next();
+        SpreadsheetModel sprModel = spreadsheetResultModels.getFirst();
         assertEquals("GetMyAlias", sprModel.getName());
         assertEquals("String[]", sprModel.getType());
         List<StepModel> steps = sprModel.getSteps();
         assertEquals(1, steps.size());
 
-        StepModel step = steps.iterator().next();
+        StepModel step = steps.getFirst();
         assertEquals("Result", step.getName());
         assertEquals("= new String[]{}", step.getValue());
     }

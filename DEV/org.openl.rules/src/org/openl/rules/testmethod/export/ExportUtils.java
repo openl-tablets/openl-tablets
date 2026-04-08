@@ -15,8 +15,8 @@ final class ExportUtils {
         if (value == null) {
             return null;
         }
-        if (value instanceof Collection) {
-            return ((Collection<?>) value).toArray();
+        if (value instanceof Collection<?> collection) {
+            return collection.toArray();
         }
         if (value.getClass().isArray()) {
             int length = Array.getLength(value);
@@ -44,8 +44,8 @@ final class ExportUtils {
             if (element == null) {
                 result.add(null);
             } else {
-                if (element instanceof Collection) {
-                    result.addAll((Collection<?>) element);
+                if (element instanceof Collection<?> collection) {
+                    result.addAll(collection);
                 } else if (!element.getClass().isArray()) {
                     result.add(element);
                 } else {

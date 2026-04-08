@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.header.Header;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
@@ -38,9 +37,9 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 import org.openl.util.ClassUtils;
 
+@Slf4j
 public class StoreLogDataMapper {
 
-    private final Logger log = LoggerFactory.getLogger(StoreLogDataMapper.class);
 
     private static final Set<Class<? extends Annotation>> CUSTOM_ANNOTATIONS;
     private static final Set<Class<? extends Annotation>> MAPPING_ANNOTATIONS;
@@ -121,21 +120,20 @@ public class StoreLogDataMapper {
             } else if (annotation instanceof Request) {
                 String request = null;
                 switch (storeLogData.getPublisherType()) {
-                    case KAFKA:
-                        request = storeLogData.getConsumerRecord().value().asText();
-                        break;
-                    case RESTFUL:
-                    case WEBSERVICE:
+                    case KAFKA -> request = storeLogData.getConsumerRecord().value().asText();
+                    case RESTFUL, WEBSERVICE -> {
                         if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
                                 .getPayload() != null) {
                             request = storeLogData.getRequestMessage().getPayload().toString();
                         }
+                    }
+                    default -> { /* unsupported publisher type */ }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, request);
             } else if (annotation instanceof Response) {
                 String response = null;
                 switch (storeLogData.getPublisherType()) {
-                    case KAFKA:
+                    case KAFKA -> {
                         if (storeLogData.getDltRecord() != null) {
                             final byte[] bytes = storeLogData.getDltRecord().value();
                             response = new String(bytes, StandardCharsets.UTF_8);
@@ -147,17 +145,17 @@ public class StoreLogDataMapper {
                                 throw new RuleServiceRuntimeException(e);
                             }
                         }
-                        break;
-                    case RESTFUL:
-                    case WEBSERVICE:
+                    }
+                    case RESTFUL, WEBSERVICE -> {
                         if (storeLogData.getResponseMessage() != null && storeLogData.getResponseMessage()
                                 .getPayload() != null) {
                             response = storeLogData.getResponseMessage().getPayload().toString();
                         }
+                    }
+                    default -> { /* unsupported publisher type */ }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, response);
-            } else if (annotation instanceof KafkaMessageHeader) {
-                KafkaMessageHeader kafkaMessageHeader = (KafkaMessageHeader) annotation;
+            } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {
                 if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
                     if (storeLogData.getConsumerRecord() != null) {
                         Header header = storeLogData.getConsumerRecord()
@@ -188,8 +186,7 @@ public class StoreLogDataMapper {
         for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
-            if (annotation instanceof Value) {
-                Value valueAnnotation = (Value) annotation;
+            if (annotation instanceof Value valueAnnotation) {
                 if (StoreLogDataConverter.class.isAssignableFrom(valueAnnotation.converter())) {
                     injectValue(storeLogData, target, annotation, annotatedElement, storeLogData);
                 } else {
@@ -239,7 +236,7 @@ public class StoreLogDataMapper {
             converterClass = (Class<? extends Converter<?, ?>>) converterMethod.invoke(annotation);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
-                    String.format("Invalid annotation is used! Property 'converter' is not found in '%s'.",
+                    "Invalid annotation is used! Property 'converter' is not found in '%s'.".formatted(
                             annotation.getClass().getTypeName()));
         }
 
@@ -286,11 +283,9 @@ public class StoreLogDataMapper {
     }
 
     private String getAnnotatedElementRef(AnnotatedElement annotatedElement) {
-        if (annotatedElement instanceof Method) {
-            Method method = (Method) annotatedElement;
+        if (annotatedElement instanceof Method method) {
             return MethodUtil.printQualifiedMethodName(method);
-        } else if (annotatedElement instanceof Field) {
-            Field field = (Field) annotatedElement;
+        } else if (annotatedElement instanceof Field field) {
             return field.getDeclaringClass().getTypeName() + "." + field.getName();
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
@@ -299,8 +294,7 @@ public class StoreLogDataMapper {
     private void setValueWithAnnotatedElement(Object target,
                                               AnnotatedElement annotatedElement,
                                               Object value) throws Exception {
-        if (annotatedElement instanceof Method) {
-            Method method = (Method) annotatedElement;
+        if (annotatedElement instanceof Method method) {
             if (method.getParameterCount() == 0 && method.getName().startsWith("get")) {
                 try {
                     Method m = method.getDeclaringClass()
@@ -310,12 +304,13 @@ public class StoreLogDataMapper {
                     }
                     return;
                 } catch (NoSuchMethodException ignored) {
+                    // no corresponding setter; fall back to direct method invocation below
                 }
             }
             method.invoke(target, value);
             return;
-        } else if (annotatedElement instanceof Field) {
-            ClassUtils.set(target, ((Field) annotatedElement).getName(), value);
+        } else if (annotatedElement instanceof Field field) {
+            ClassUtils.set(target, field.getName(), value);
             return;
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
@@ -323,18 +318,14 @@ public class StoreLogDataMapper {
 
     private boolean matchPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType[] value,
                                        PublisherType publisherType) {
-        switch (publisherType) {
-            case KAFKA:
-                return Arrays.asList(value)
+        return switch (publisherType) {
+            case KAFKA -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.KAFKA);
-            case WEBSERVICE:
-                return Arrays.asList(value)
+            case WEBSERVICE -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE);
-            case RESTFUL:
-                return Arrays.asList(value)
+            case RESTFUL -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL);
-            default:
-                return false;
-        }
+            default -> false;
+        };
     }
 }

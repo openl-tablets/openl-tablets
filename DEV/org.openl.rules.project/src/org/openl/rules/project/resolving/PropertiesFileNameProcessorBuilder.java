@@ -44,8 +44,7 @@ public final class PropertiesFileNameProcessorBuilder {
             }
 
             if (!PropertiesFileNameProcessor.class.isAssignableFrom(clazz)) {
-                String message = String.format(
-                        "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.",
+                String message = "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.".formatted(
                         prcClass,
                         PropertiesFileNameProcessor.class.getTypeName());
                 throw new InvalidFileNameProcessorException(message);
@@ -101,11 +100,11 @@ public final class PropertiesFileNameProcessorBuilder {
             prc = procConstructor.newInstance(args);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
-            if (targetException instanceof InvalidFileNamePatternException) {
-                throw (InvalidFileNamePatternException) targetException;
+            if (targetException instanceof InvalidFileNamePatternException exception) {
+                throw exception;
             }
-            if (targetException instanceof RuntimeException) {
-                throw (RuntimeException) targetException;
+            if (targetException instanceof RuntimeException exception) {
+                throw exception;
             }
             String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
                     .getTypeName() + "'. Unexpected exception is thrown, only InvalidFileNamePatternException is supported.";

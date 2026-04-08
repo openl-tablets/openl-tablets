@@ -1,0 +1,4 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6Tm9uRXhpc3RlbnRQcm9qZWN0OjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=/run?tableId=some_table HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+

@@ -36,8 +36,8 @@ public class WorkspaceUserImpl implements WorkspaceUser {
             return true;
         }
 
-        if (obj instanceof WorkspaceUser) {
-            return 0 == compareTo((WorkspaceUser) obj);
+        if (obj instanceof WorkspaceUser user) {
+            return 0 == compareTo(user);
         } else {
             return false;
         }
@@ -75,6 +75,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         return userName;
     }
 
+    @Override
     public UserInfo getUserInfo() {
         return Optional.ofNullable(userInfoCollector.apply(userName)).orElse(new UserInfo(userName));
     }

@@ -13,8 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.PropertyResolver;
 
@@ -42,10 +41,10 @@ import org.openl.util.StringUtils;
  *
  * @author Andrey Naumenko
  */
+@Slf4j
 public class DeploymentManager implements InitializingBean {
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String API_VERSION_SEPARATOR = "_V";
-    private static final Logger LOG = LoggerFactory.getLogger(DeploymentManager.class);
 
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
@@ -65,7 +64,7 @@ public class DeploymentManager implements InitializingBean {
 
     public DeployID deploy(DeploymentRequest request) throws DeploymentException {
         if (!deployers.contains(request.productionRepositoryId())) {
-            throw new IllegalArgumentException(String.format("Repository '%s' is not found.", request.productionRepositoryId()));
+            throw new IllegalArgumentException("Repository '%s' is not found.".formatted(request.productionRepositoryId()));
         }
         try {
             StringBuilder sb = new StringBuilder(request.name());
@@ -276,7 +275,7 @@ public class DeploymentManager implements InitializingBean {
                 } catch (ProjectException ignored) {
                 }
             } catch (Exception e) {
-                LOG.error(
+                log.error(
                         "Project loading from repository was failed! " + "Project with name '{}' in deploy configuration '{}' has been skipped.",
                         pd.projectName(),
                         deploymentName,

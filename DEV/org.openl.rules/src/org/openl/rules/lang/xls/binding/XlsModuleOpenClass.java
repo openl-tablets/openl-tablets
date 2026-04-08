@@ -18,8 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -76,9 +75,9 @@ import org.openl.util.StringUtils;
 /**
  * @author snshor
  */
+@Slf4j
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private final IDataBase dataBase;
 
@@ -153,8 +152,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             CustomSpreadsheetResultOpenClass... customSpreadsheetResultOpenClasses) {
         Set<CustomSpreadsheetResultOpenClass> c = new HashSet<>();
         for (CustomSpreadsheetResultOpenClass t : customSpreadsheetResultOpenClasses) {
-            if (t instanceof CombinedSpreadsheetResultOpenClass) {
-                c.addAll(((CombinedSpreadsheetResultOpenClass) t).getCombinedTypes());
+            if (t instanceof CombinedSpreadsheetResultOpenClass class1) {
+                c.addAll(class1.getCombinedTypes());
             } else {
                 c.add(t);
             }
@@ -177,20 +176,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     public IOpenClass toModuleType(IOpenClass type) {
-        if (type instanceof SpreadsheetResultOpenClass) {
-            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) type;
+        if (type instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass) {
             if (isDependencyModule(spreadsheetResultOpenClass.getModule(), new IdentityHashMap<>())) {
                 return getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             }
-        } else if (type instanceof ModuleSpecificType) {
-            if (isDependencyModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
+        } else if (type instanceof ModuleSpecificType specificType) {
+            if (isDependencyModule((XlsModuleOpenClass) specificType.getModule(),
                     new IdentityHashMap<>())) {
-                if (type instanceof CombinedSpreadsheetResultOpenClass) {
-                    return ((CombinedSpreadsheetResultOpenClass) type).convertToModuleType(this, false);
+                if (type instanceof CombinedSpreadsheetResultOpenClass class1) {
+                    return class1.convertToModuleType(this, false);
                 }
                 IOpenClass p = findType(type.getName());
                 if (p == null) {
-                    return ((ModuleSpecificType) type).convertToModuleTypeAndRegister(this);
+                    return specificType.convertToModuleTypeAndRegister(this);
                 }
                 return p;
             }
@@ -258,8 +256,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     protected void addXlsDefinitions(CompiledDependency dependency) {
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
-        if (openClass instanceof XlsModuleOpenClass) {
-            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+        if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             this.xlsDefinitions.addAll(xlsModuleOpenClass.getXlsDefinitions());
         }
     }
@@ -270,14 +267,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     protected IOpenClass processDependencyTypeBeforeAdding(IOpenClass type) {
-        if (type instanceof ModuleSpecificType) {
+        if (type instanceof ModuleSpecificType specificType) {
             IOpenClass existingType = findType(type.getName());
             if (existingType != null) {
                 ModuleSpecificType existingModuleRelatedType = (ModuleSpecificType) existingType;
                 existingModuleRelatedType.updateWithType(type);
                 return existingType;
             } else {
-                return ((ModuleSpecificType) type).convertToModuleTypeAndRegister(this);
+                return specificType.convertToModuleTypeAndRegister(this);
             }
         }
         return super.processDependencyTypeBeforeAdding(type);
@@ -287,11 +284,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         IOpenClass type = WrapperLogic.toModuleType(openField.getType(), this, new IdentityHashMap<>());
         if (type != openField.getType()) {
             if (openField instanceof DataOpenField) {
-                DataOpenField f = openField instanceof DataOpenFieldWrapper ? ((DataOpenFieldWrapper) openField)
+                DataOpenField f = openField instanceof DataOpenFieldWrapper dofw ? dofw
                         .getDelegate() : (DataOpenField) openField;
                 return new DataOpenFieldWrapper(f, type);
             } else if (openField instanceof ConstantOpenField) {
-                ConstantOpenField f = openField instanceof ConstantOpenFieldWrapper ? ((ConstantOpenFieldWrapper) openField)
+                ConstantOpenField f = openField instanceof ConstantOpenFieldWrapper cofw ? cofw
                         .getDelegate() : (ConstantOpenField) openField;
                 return new ConstantOpenFieldWrapper(f, type);
             } else {
@@ -364,10 +361,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 IOpenField openField2 = fields.get(j);
                 if (Objects.equals(openField1.getName(),
                         openField2
-                                .getName()) && openField1 instanceof DataOpenField && openField2 instanceof DataOpenField && XlsNodeTypes.XLS_DATA
-                        .equals(((DataOpenField) openField1).getNodeType()) && XlsNodeTypes.XLS_DATA
-                        .equals(((DataOpenField) openField2).getNodeType())) {
-                    if (!Objects.equals(((DataOpenField) openField1).getUri(), ((DataOpenField) openField2).getUri())) {
+                                .getName()) && openField1 instanceof DataOpenField field && openField2 instanceof DataOpenField field1 && XlsNodeTypes.XLS_DATA
+                        .equals(field.getNodeType()) && XlsNodeTypes.XLS_DATA
+                        .equals(field1.getNodeType())) {
+                    if (!Objects.equals(field.getUri(), field1.getUri())) {
                         fieldsToHide.add(i);
                         fieldsToHide.add(j);
                     }
@@ -396,8 +393,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private void collectDataTables(CompiledDependency dependency, Map<String, ITable> dataTables) {
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
-        if (openClass instanceof XlsModuleOpenClass) {
-            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+        if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             if (xlsModuleOpenClass.getDataBase() != null) {
                 for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
                     if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
@@ -442,8 +438,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     protected void addGlobalTableProperties(CompiledDependency dependency) {
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
-        if (openClass instanceof XlsModuleOpenClass) {
-            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+        if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             addGlobalTableProperties(xlsModuleOpenClass.getGlobalTableProperties());
         }
     }
@@ -464,7 +459,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         addMethod(dependencyMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
-                    LOG.debug("An exception occurred during adding the method '{}'.",
+                    log.debug("An exception occurred during adding the method '{}'.",
                             MethodUtil.printMethod(dependencyMethod.getName(),
                                     dependencyMethod.getSignature().getParameterTypes()),
                             e);
@@ -488,8 +483,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     protected boolean isDependencyFieldInheritable(IOpenField openField) {
-        if (openField instanceof ConstantOpenField || openField instanceof DataOpenField && XlsNodeTypes.XLS_DATA
-                .equals(((DataOpenField) openField).getNodeType())) {
+        if (openField instanceof ConstantOpenField || openField instanceof DataOpenField field && XlsNodeTypes.XLS_DATA
+                .equals(field.getNodeType())) {
             return true;
         }
         return super.isDependencyFieldInheritable(openField);
@@ -519,15 +514,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         Map<String, IOpenField> fields = fieldMap();
         IOpenField existedField = fields.get(openField.getName());
         if (existedField != null) {
-            if (openField instanceof DataOpenField && existedField instanceof DataOpenField && XlsNodeTypes.XLS_DATA
-                    .equals(((DataOpenField) openField).getNodeType()) && XlsNodeTypes.XLS_DATA
-                    .equals(((DataOpenField) existedField).getNodeType())) {
+            if (openField instanceof DataOpenField field && existedField instanceof DataOpenField field1 && XlsNodeTypes.XLS_DATA
+                    .equals(field.getNodeType()) && XlsNodeTypes.XLS_DATA
+                    .equals(field1.getNodeType())) {
                 return;
             }
-            if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
+            if (openField instanceof ConstantOpenField field && existedField instanceof ConstantOpenField field1) {
                 // Ignore constants with the same values
-                if (Objects.equals(((ConstantOpenField) openField).getValue(),
-                        ((ConstantOpenField) existedField).getValue()) && openField.getType()
+                if (Objects.equals(field.getValue(),
+                        field1.getValue()) && openField.getType()
                         .equals(existedField.getType())) {
                     return;
                 }
@@ -540,8 +535,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private static String extractContextParameter(IMethodSignature methodSignature, int index) {
-        if (methodSignature instanceof MethodSignature) {
-            IParameterDeclaration parameterDeclaration = ((MethodSignature) methodSignature)
+        if (methodSignature instanceof MethodSignature signature) {
+            IParameterDeclaration parameterDeclaration = signature
                     .getParameterDeclaration(index);
             return parameterDeclaration.getContextProperty();
         }
@@ -555,7 +550,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      */
     @Override
     public void addMethod(IOpenMethod method) {
-        if (method instanceof OpenMethodDispatcher) {
+        if (method instanceof OpenMethodDispatcher dispatcher) {
             /*
              * Dispatcher method should be added by adding all candidates of the specified dispatcher to current
              * XlsModuleOpenClass(it will cause adding methods to dispatcher of current module or creating new
@@ -565,7 +560,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
              * current module(dispatcher as a candidate in another dispatcher) or added to current module and was
              * modified during the current module processing. FIXME
              */
-            for (IOpenMethod candidate : ((OpenMethodDispatcher) method).getCandidates()) {
+            for (IOpenMethod candidate : dispatcher.getCandidates()) {
                 addMethod(candidate);
             }
             return;
@@ -586,7 +581,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
 
             if (!existedMethod.getType().equals(m.getType())) {
-                String message = String.format("Method '%s' is already defined with another return type '%s'.",
+                String message = "Method '%s' is already defined with another return type '%s'.".formatted(
                         MethodUtil.printSignature(m, INamedThing.REGULAR),
                         existedMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existedMethod, method);
@@ -597,8 +592,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             for (int i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
                 if (!Objects.equals(extractContextParameter(existedMethodSignature, i),
                         extractContextParameter(candidateMethodSignature, i))) {
-                    String message = String.format(
-                            "Method '%s' is already defined with another set of context parameters.",
+                    String message = "Method '%s' is already defined with another set of context parameters.".formatted(
                             MethodUtil.printSignature(method, INamedThing.REGULAR));
                     throw new DuplicatedMethodException(message, existedMethod, method);
                 }
@@ -609,10 +603,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            if (existedMethod instanceof OpenMethodDispatcher) {
+            if (existedMethod instanceof OpenMethodDispatcher dispatcher) {
                 super.removeMethod(existedMethod);
                 try {
-                    OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) existedMethod;
                     dispatcher.addMethod(m);
                 } finally {
                     super.addMethod(existedMethod);
@@ -676,12 +669,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void clearForExecutionMode(IOpenMethod openMethod) {
-        if (openMethod instanceof OpenMethodDispatcher) {
-            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+        if (openMethod instanceof OpenMethodDispatcher dispatcher) {
+            for (IOpenMethod candidate : dispatcher.getCandidates()) {
                 clearForExecutionMode(candidate);
             }
-        } else if (openMethod instanceof ExecutableRulesMethod) {
-            ((ExecutableRulesMethod) openMethod).clearForExecutionMode();
+        } else if (openMethod instanceof ExecutableRulesMethod method) {
+            method.clearForExecutionMode();
         }
     }
 
@@ -705,11 +698,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private void validateType(IOpenClass type) {
         if (type instanceof CustomSpreadsheetResultOpenClass) {
             for (IOpenClass t : getTypes()) {
-                if (t instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass csrType = (CustomSpreadsheetResultOpenClass) t;
+                if (t instanceof CustomSpreadsheetResultOpenClass csrType) {
                     if (Objects.equals(csrType.getName(), type.getName()) && csrType.isBeanClassInitialized()) {
-                        throw new IllegalStateException(String.format(
-                                "This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for existing custom spreadsheet result type.",
+                        throw new IllegalStateException("This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for existing custom spreadsheet result type.".formatted(
                                 csrType.getName()));
                     }
                 }
@@ -745,8 +736,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             for (IOpenMethod dependencyMethod : dependency.getCompiledOpenClass()
                     .getOpenClassWithErrors()
                     .getMethods()) {
-                if (dependencyMethod instanceof TestSuiteMethod) {
-                    TestSuiteMethod testSuiteMethod = (TestSuiteMethod) dependencyMethod;
+                if (dependencyMethod instanceof TestSuiteMethod testSuiteMethod) {
                     try {
                         TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
                         addMethod(newTestSuiteMethod);

@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.notification.service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,7 +21,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     public NotificationServiceImpl(@Value("${admin.notification-file}") String notificationFile,
                                    ApplicationEventPublisher publisher) {
-        this.NOTIFICATION_FILE = Paths.get(notificationFile);
+        this.NOTIFICATION_FILE = Path.of(notificationFile);
         this.publisher = publisher;
     }
 

@@ -139,8 +139,8 @@ class Cursor {
     }
 
     public Workbook originalWorkbook() {
-        if (workbook instanceof StreamWorkbook) {
-            return ((StreamWorkbook) workbook).unwrap();
+        if (workbook instanceof StreamWorkbook streamWorkbook) {
+            return streamWorkbook.unwrap();
         }
         return workbook;
     }

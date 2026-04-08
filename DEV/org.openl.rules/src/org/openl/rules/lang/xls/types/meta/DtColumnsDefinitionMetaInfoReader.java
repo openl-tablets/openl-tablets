@@ -81,8 +81,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                     parameterType = parameterType.getComponentClass();
                     metaInfo = parameterType.getMetaInfo();
                 }
-                if (metaInfo != null && header instanceof OpenMethodHeader) {
-                    OpenMethodHeader openMethodHeader = (OpenMethodHeader) header;
+                if (metaInfo != null && header instanceof OpenMethodHeader openMethodHeader) {
                     ILocation[] paramTypeLocations = openMethodHeader.getParamTypeLocations();
                     ILocation sourceLocation = paramTypeLocations[i];
                     TextInfo text = new TextInfo(value1.getMiddle());

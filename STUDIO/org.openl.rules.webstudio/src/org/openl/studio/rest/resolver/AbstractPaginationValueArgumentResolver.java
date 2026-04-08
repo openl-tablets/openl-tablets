@@ -78,7 +78,7 @@ public abstract class AbstractPaginationValueArgumentResolver implements Handler
         if (size < 1) {
             Method annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
-                    String.format("Invalid default page size configured for method '%s'. Must not be less than one.",
+                    "Invalid default page size configured for method '%s'. Must not be less than one.".formatted(
                             annotatedMethod));
         }
         return size;

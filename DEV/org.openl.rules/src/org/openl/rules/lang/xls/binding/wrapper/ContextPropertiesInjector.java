@@ -3,8 +3,7 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.EnumToStringCast;
@@ -13,16 +12,16 @@ import org.openl.binding.impl.cast.StringToEnumCast;
 import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
+@Slf4j
 class ContextPropertiesInjector {
-    private static final Logger LOG = LoggerFactory.getLogger(ContextPropertiesInjector.class);
     private static final IContextPropertyInjection[] PROPERTY_INJECTIONS = new IContextPropertyInjection[0];
     private final IContextPropertyInjection[] contextPropertyInjections;
 
@@ -39,10 +38,10 @@ class ContextPropertiesInjector {
                         .forEach(field -> contextInjections.put(field.getContextProperty(),
                                 createFieldContextPropertyInjection(paramIndex, field, castFactory)));
             } catch (Exception | LinkageError e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
-            if (methodSignature instanceof MethodSignature) {
-                String contextParameter = ((MethodSignature) methodSignature).getParameterDeclaration(i)
+            if (methodSignature instanceof MethodSignature signature) {
+                String contextParameter = signature.getParameterDeclaration(i)
                         .getContextProperty();
                 if (contextParameter != null) {
                     contextInjections.put(contextParameter,
@@ -66,14 +65,14 @@ class ContextPropertiesInjector {
                                                                                      ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextProperty);
         if (contextType == null) {
-            throw new IllegalStateException(String.format("Context property '%s' is not found.", contextProperty));
+            throw new IllegalStateException("Context property '%s' is not found.".formatted(contextProperty));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(type, contextTypeOpenClass);
         if (openCast == null || !openCast
                 .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
             throw new IllegalStateException(
-                    String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                    "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.".formatted(
                             contextProperty,
                             type.getName(),
                             contextTypeOpenClass.getName()));
@@ -88,7 +87,7 @@ class ContextPropertiesInjector {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
         if (contextType == null) {
             throw new IllegalStateException(
-                    String.format("Context property '%s' is not found.", field.getContextProperty()));
+                    "Context property '%s' is not found.".formatted(field.getContextProperty()));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);

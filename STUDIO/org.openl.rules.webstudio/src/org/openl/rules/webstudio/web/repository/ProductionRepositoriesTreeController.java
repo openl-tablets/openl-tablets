@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -17,9 +16,9 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @Service
 @SessionScope
+@Slf4j
 public class ProductionRepositoriesTreeController {
 
-    private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeController.class);
 
     @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;

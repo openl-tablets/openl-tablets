@@ -42,8 +42,7 @@ public class GapOverlapValidator extends TablesValidator {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         for (IOpenMethod method : allModuleMethods) {
-            if (method instanceof ExecutableRulesMethod) {
-                ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) method;
+            if (method instanceof ExecutableRulesMethod executableMethod) {
                 if (isValidatableMethod(executableMethod)) {
                     // can cast to DecisionTable, as validateDT property belongs
                     // only to DT.
@@ -78,7 +77,7 @@ public class GapOverlapValidator extends TablesValidator {
             Map<String, IDomainAdaptor> domains = gatherDomains(decisionTable);
             dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);
         } catch (Exception t) {
-            String errorMessage = String.format("%s%s.Reason : %s",
+            String errorMessage = "%s%s.Reason : %s".formatted(
                     VALIDATION_FAILED,
                     decisionTable.getSyntaxNode().getDisplayName(),
                     t.getMessage());

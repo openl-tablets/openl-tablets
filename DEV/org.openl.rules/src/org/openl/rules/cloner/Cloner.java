@@ -256,8 +256,7 @@ public class Cloner {
         var cloner = getCloner(clazz);
         Object instance = cloner.getInstance(source);
         Object target = instance;
-        if (instance instanceof Wrapper) {
-            var w = (Wrapper) instance;
+        if (instance instanceof Wrapper w) {
             target = w.target;
             instance = w.unmodifiable;
         }

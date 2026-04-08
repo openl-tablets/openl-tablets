@@ -1,5 +1,7 @@
 package org.openl.rules.repository;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum RepositoryMode {
@@ -12,6 +14,6 @@ public enum RepositoryMode {
 
     //FIXME remove after implementation of unification of default settings
     public String getId() {
-        return name().toLowerCase().replaceAll("_", "-");
+        return name().toLowerCase(Locale.ROOT).replaceAll("_", "-");
     }
 }

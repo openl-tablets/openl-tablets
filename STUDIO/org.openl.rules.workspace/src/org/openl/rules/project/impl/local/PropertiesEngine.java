@@ -3,15 +3,13 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 
+@Slf4j
 class PropertiesEngine {
-    private final Logger log = LoggerFactory.getLogger(PropertiesEngine.class);
     private final File root;
 
     PropertiesEngine(File root) {
@@ -62,7 +60,7 @@ class PropertiesEngine {
     File getPropertiesFolder(String path) {
         if (!new File(path).isAbsolute()) {
             path = path.replace(File.separatorChar, '/');
-            File projectFolder = new File(root, path.split("/")[0]);
+            File projectFolder = new File(root, path.split("/", -1)[0]);
             return new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
         } else {
             return getPropertiesFolder(getRelativePath(path));
@@ -76,16 +74,16 @@ class PropertiesEngine {
         Path base;
         Path pathAbsolute;
         try {
-            base = Paths.get(root.getAbsolutePath()).toRealPath();
+            base = Path.of(root.getAbsolutePath()).toRealPath();
         } catch (IOException e) {
             log.debug(e.getMessage(), e);
-            base = Paths.get(root.getAbsolutePath()).normalize();
+            base = Path.of(root.getAbsolutePath()).normalize();
         }
         try {
-            pathAbsolute = Paths.get(path).toRealPath();
+            pathAbsolute = Path.of(path).toRealPath();
         } catch (IOException e) {
             log.debug(e.getMessage(), e);
-            pathAbsolute = Paths.get(path).normalize();
+            pathAbsolute = Path.of(path).normalize();
         }
 
         String relativePath = base.relativize(pathAbsolute).toString();

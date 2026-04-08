@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -14,6 +13,7 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 /**
  * Virtual method for getting messages from OpenL Rules.<br>

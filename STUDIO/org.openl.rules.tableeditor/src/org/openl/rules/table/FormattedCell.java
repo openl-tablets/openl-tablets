@@ -2,8 +2,7 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.CellFont;
@@ -16,9 +15,9 @@ import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 /**
  * @author snshor
  */
+@Slf4j
 public class FormattedCell implements ICell {
 
-    private final Logger log = LoggerFactory.getLogger(FormattedCell.class);
 
     private final ICell delegate;
 

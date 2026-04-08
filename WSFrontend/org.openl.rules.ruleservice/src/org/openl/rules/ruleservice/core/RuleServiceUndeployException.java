@@ -1,11 +1,14 @@
 package org.openl.rules.ruleservice.core;
 
+import java.io.Serial;
+
 /**
  * Exception for issues that occurs while service undeploying.
  *
  * @author Marat Kamalov
  */
 public class RuleServiceUndeployException extends RuleServiceException {
+    @Serial
     private static final long serialVersionUID = -5393130145512014248L;
 
     /**

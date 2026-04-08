@@ -328,8 +328,8 @@ public final class TablePropertyDefinitionUtils {
                     mergedGlobalProperties.put(key, v2);
                 } else if (Objects.equals(defaultValue, v2)) {
                     mergedGlobalProperties.put(key, v1);
-                } else if (v1 instanceof Comparable && v2 instanceof Comparable && v1.getClass() == v2.getClass()) {
-                    mergedGlobalProperties.put(key, ((Comparable) v1).compareTo(v2) < 0 ? v1 : v2);
+                } else if (v1 instanceof Comparable comparable && v2 instanceof Comparable && v1.getClass() == v2.getClass()) {
+                    mergedGlobalProperties.put(key, comparable.compareTo(v2) < 0 ? v1 : v2);
                 }
                 throw new IllegalStateException("Failed to merge global properties.");
             } else {

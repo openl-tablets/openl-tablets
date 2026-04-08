@@ -30,52 +30,52 @@ The following code fragment is an example of the rules project descriptor:
 
 ```
 <project>
-	<!-- Project name. -->
-	<name>Project name</name>
-	<!-- Optional. Comment string to project. -->
-	<comment>comment</comment>
+    <!-- Project name. -->
+    <name>Project name</name>
+    <!-- Optional. Comment string to project. -->
+    <comment>comment</comment>
 
-	<!-- OpenL project includes one or more rules modules.  -->
-	<modules>
+    <!-- OpenL project includes one or more rules modules.  -->
+    <modules>
 
-		<module>
-			<name>MyModule1</name>
-
-<!--
-				Rules document which is usually an excel file in the project.
-			-->
-			<rules-root path="MyModule1.xls"/>
-
-		</module>
-
-		<module>
-			<name>MyModule2</name>
+        <module>
+            <name>MyModule1</name>
 
 <!--
-				Rules document which is usually an excel file in the project.
-			-->
-			<rules-root path="MyModule2.xls"/>
-			<method-filter>
-				<includes>
-					<value> * </value>
-				</includes>
-			</method-filter>
-		</module>
-	</modules>
+                Rules document which is usually an excel file in the project.
+            -->
+            <rules-root path="MyModule1.xls"/>
+
+        </module>
+
+        <module>
+            <name>MyModule2</name>
+
+<!--
+                Rules document which is usually an excel file in the project.
+            -->
+            <rules-root path="MyModule2.xls"/>
+            <method-filter>
+                <includes>
+                    <value> * </value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
 
 <dependencies>
-		<dependency>
-			<name>projectName</name>
-			<autoIncluded>false</autoIncluded>
-		</dependency>
-	</dependencies>
-	<properties-file-name-pattern>{lob}</properties-file-name-pattern>
-	<properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
-	<!-- Project's classpath (list of all source dependencies). -->
-	<classpath>
-		<entry path="path1"/>
-		<entry path="path2"/>
-	</classpath>
+        <dependency>
+            <name>projectName</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+    <properties-file-name-pattern>{lob}</properties-file-name-pattern>
+    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
+    <!-- Project's classpath (list of all source dependencies). -->
+    <classpath>
+        <entry path="path1"/>
+        <entry path="path2"/>
+    </classpath>
 
 </project>
 ```
@@ -117,11 +117,11 @@ When working with a large project that, for example, includes huge amounts of te
 ```
 <modules>
   <module>
-	<name>Tests</name>
-	<rules-root path="rules/Test*.xlsx"/>
-	<webstudioConfiguration>
-	  <compileThisModuleOnly>true</compileThisModuleOnly>
-	</webstudioConfiguration>
+    <name>Tests</name>
+    <rules-root path="rules/Test*.xlsx"/>
+    <webstudioConfiguration>
+      <compileThisModuleOnly>true</compileThisModuleOnly>
+    </webstudioConfiguration>
   </module>
 </modules>
 ```
@@ -175,27 +175,27 @@ OpenL Tablets provides the Maven archetype which can be used to create a simple 
 To create a project using the Maven archetype, proceed as follows:
 
 1.  Execute the following command in command line:
-	`mvn archetype:generate`
-	Maven runs the archetype console wizard.
+    `mvn archetype:generate`
+    Maven runs the archetype console wizard.
 1.  Select the **openl-simple-project-archetype** menu item.
-	As an alternative way is using the following command:
-	`mvn archetype:generate
-	–DarchetypeGroupId=org.openl.rules
-	–DarchetypeArtifactId=openl-simple-project-archetype
-	-DarchetypeVersion=5.X.X`
+    As an alternative way is using the following command:
+    `mvn archetype:generate
+    –DarchetypeGroupId=org.openl.rules
+    –DarchetypeArtifactId=openl-simple-project-archetype
+    -DarchetypeVersion=5.X.X`
 1.  Follow with the Maven creation wizard.
-	After all steps are completed, a new Maven based project appears in the file system. It is an OpenL Rules project which has one module with simple rules in it.
+    After all steps are completed, a new Maven based project appears in the file system. It is an OpenL Rules project which has one module with simple rules in it.
 1.  Execute the following command in the command line from the root of the project folder to compile the project:
-	```
-	mvn install
-	```
-	After executing this command, the following files can be found in the target folder:
+    ```
+    mvn install
+    ```
+    After executing this command, the following files can be found in the target folder:
 1.  zip file with "-deployable" suffix for importing the project to OpenL Studio.
-	For more information, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
+    For more information, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
 1.  zip file (with "-runnable" suffix) that can be executed after extracting it.
-	It demonstrates how OpenL Tablets rules can be invoked from Java code.
+    It demonstrates how OpenL Tablets rules can be invoked from Java code.
 1.  jar file that contains only compiled Java classes.
-	This jar can be put in classpath of the project and used as a depended library.
+    This jar can be put in classpath of the project and used as a depended library.
 
 #### Creating a Project in OpenL Studio
 OpenL Studio allows users to create new rule projects in the Repository in one of the following ways:
@@ -234,30 +234,30 @@ This section illustrates the creation of a wrapper for a **Simple** project in I
 Proceed as follows:
 
 1.  In the project `src` folder, create an interface as follows:
-	```
-	public interface Simple {
-			void hello1(int i);
-	}
-	```
+    ```
+    public interface Simple {
+            void hello1(int i);
+    }
+    ```
 1.  Create a wrapper object as follows:
-	```
-	import static java.lang.System.out;
-	import org.openl.rules.runtime.RulesEngineFactory;
+    ```
+    import static java.lang.System.out;
+    import org.openl.rules.runtime.RulesEngineFactory;
 
-	public class Example {
+    public class Example {
 
-			public static void main(String[] args) {
-				//define the interface
-				RulesEngineFactory<Simple > rulesFactory =
-					new RulesEngineFactory<Simple>("TemplateRules.xls",
-										Simple.class);
+            public static void main(String[] args) {
+                //define the interface
+                RulesEngineFactory<Simple > rulesFactory =
+                    new RulesEngineFactory<Simple>("TemplateRules.xls",
+                                        Simple.class);
 
-				Simple rules = (Simple) rulesFactory.newInstance();
-				rules.hello1(12);
+                Simple rules = (Simple) rulesFactory.newInstance();
+                rules.hello1(12);
 
-			}
-	}
-	```
+            }
+    }
+    ```
 When the class is run, it executes and displays **Good Afternoon, World!**
 
 The interface can be generated by OpenL Tablets in runtime if the developer does not define it when initializing the rule engine factory. In this case, rules can be executed via reflection.
@@ -265,17 +265,17 @@ The interface can be generated by OpenL Tablets in runtime if the developer does
 The following example illustrates using a wrapper with a generated interface in runtime:
 ```
 public static void callRulesWithGeneratedInterface(){
-	// Creates new instance of OpenL Rules Factory
-	RulesEngineFactory<?> rulesFactory =
+    // Creates new instance of OpenL Rules Factory
+    RulesEngineFactory<?> rulesFactory =
 new RulesEngineFactory<Object>("TemplateRules.xls");
-				//Creates new instance of dynamic Java Wrapper for our lesson
+                //Creates new instance of dynamic Java Wrapper for our lesson
 Object rules = rulesFactory.newInstance();
 
-	   //Get current hour
-	Calendar = Calendar.getInstance();
-	int hour = calendar.get(Calendar.HOUR_OF_DAY);
+       //Get current hour
+    Calendar = Calendar.getInstance();
+    int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-	Class<?> clazz = rulesFactory.getInterfaceClass();
+    Class<?> clazz = rulesFactory.getInterfaceClass();
 
 try{
 Method method = clazz.getMethod("hello1”, int.class);
@@ -411,29 +411,29 @@ To generate an interface for rules and datatype classes defined in the MS Excel 
 <build>
   [...]
   <plugins>
-	  [...]
-	  <plugin>
-		  <groupId>org.openl.rules</groupId>
-		  <artifactId>openl-maven-plugin</artifactId>
-		  <version>${openl.rules.version}</version>
-		  <configuration>
-			  <generateInterfaces>
-				  <generateInterface>
-					  <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
-					  <targetClass>
-						org.company.gen.TemplateRulesInterface
-					  </targetClass>
-				  </generateInterface>
-			  </generateInterfaces>
-		  </configuration>
-		  <executions>
-			  <execution>
-				  <goals>
-					  <goal>generate</goal>
-				  </goals>
-			  </execution>
-		  </executions>
-	  </plugin>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.rules.version}</version>
+          <configuration>
+              <generateInterfaces>
+                  <generateInterface>
+                      <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
+                      <targetClass>
+                        org.company.gen.TemplateRulesInterface
+                      </targetClass>
+                  </generateInterface>
+              </generateInterfaces>
+          </configuration>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>generate</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
 
   </plugins>
   [...]
@@ -519,7 +519,7 @@ This section includes the following `topics` about data and data types handling 
 Datatype lifecycle is as follows:
 
 1.  A Datatype table is created in the rules file.
-	At runtime, Java class is generated for each datatype as described in [Byte Code Generation at Runtime](#byte-code-generation-at-runtime).
+    At runtime, Java class is generated for each datatype as described in [Byte Code Generation at Runtime](#byte-code-generation-at-runtime).
 1.  If Java classes are generated from a Datatype table as described in [Generating Java Classes from Datatype Tables](#generating-java-classes-from-datatype-tables), the appropriate generated Java classes must be included in classpath as described in [Java Files Generation](#java-files-generation).
 
 ##### Inheritance in Datatypes
@@ -602,9 +602,9 @@ In case of Java code, dispatching priority rules is used after selecting tables 
 There are two predefined priority rules and possibility to implement Java class that compares two tables using their properties:
 
 -   **min(\<property name\>)**
-	<br/>A table that has lower value of property specified will have a higher priority. The property specified by name must be `instanceof Comparable<class of property value>`.
+    <br/>A table that has lower value of property specified will have a higher priority. The property specified by name must be `instanceof Comparable<class of property value>`.
 -   **max(\<property name\>)**
-	<br/>A table that has a higher value of property specified will have a higher priority. The property specified by name must be `instanceof Comparable<class of property value>`.
+    <br/>A table that has a higher value of property specified will have a higher priority. The property specified by name must be `instanceof Comparable<class of property value>`.
 
 To specify the Java comparator of tables, the `javaclass:<java class name>` expression must be used. Java class must implement `Comparator<ITableProperties>`.
 
@@ -693,4 +693,3 @@ As a result, a `GridTable` is received. It works as a decision table structure. 
 | `new IntRange(String rangeExpression)`         | Borders are parsed by formats of `rangeExpression`.                          |
 
 The same formats and restrictions are used in `DoubleRange`.
-

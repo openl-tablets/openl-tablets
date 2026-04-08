@@ -92,7 +92,7 @@ public class RulesDeployerRestController {
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8.name())
+        final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8)
                 .replace("+", "%20");
         return Response
                 .ok((StreamingOutput) outputStream -> rulesDeployerService.read(deploymentName,

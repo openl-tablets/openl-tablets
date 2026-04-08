@@ -274,10 +274,10 @@ public class XlsCell implements ICell {
             }
             Workbook workbook = cell.getSheet().getWorkbook();
             boolean date1904 = false;
-            if (workbook instanceof XSSFWorkbook) {
-                date1904 = ((XSSFWorkbook) workbook).isDate1904();
-            } else if (workbook instanceof HSSFWorkbook) {
-                date1904 = ((HSSFWorkbook) workbook).getInternalWorkbook().isUsing1904DateWindowing();
+            if (workbook instanceof XSSFWorkbook fWorkbook1) {
+                date1904 = fWorkbook1.isDate1904();
+            } else if (workbook instanceof HSSFWorkbook fWorkbook) {
+                date1904 = fWorkbook.getInternalWorkbook().isUsing1904DateWindowing();
             }
             return DateUtil.getJavaDate(doubleValue, date1904);
         } else {

@@ -1,7 +1,7 @@
 package org.openl.rules.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.helpers.NumberUtils;
@@ -12,6 +12,7 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.ui.filters.AGridFilter;
 import org.openl.util.formatters.IFormatter;
 
+@Slf4j
 class TableValueFilter extends AGridFilter {
 
     private final SpreadsheetResult res;
@@ -77,10 +78,8 @@ class TableValueFilter extends AGridFilter {
                     IFormatter formatter = FormattersManager.getFormatter(v.getClass(), format);
                     cell.setFormattedValue(formatter.format(v));
                 } catch (Exception | LinkageError | StackOverflowError e) {
-                    Logger log = LoggerFactory.getLogger(getClass());
                     log.debug(e.getMessage(), e);
-                    cell.setFormattedValue(String.format(
-                            "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                    cell.setFormattedValue("<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>".formatted(
                             e.getClass().getName(),
                             v.getClass().getName()));
                 }

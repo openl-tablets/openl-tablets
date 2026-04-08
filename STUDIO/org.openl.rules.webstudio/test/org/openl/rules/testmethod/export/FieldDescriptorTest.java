@@ -47,46 +47,46 @@ public class FieldDescriptorTest {
         descriptors = FieldDescriptor.nonEmptyFields(aType, asList(A1, A1), true);
         assertNotNull(descriptors);
         assertEquals(1, descriptors.size());
-        assertEquals("name", descriptors.get(0).getField().getName());
-        assertNull(descriptors.get(0).getChildren());
+        assertEquals("name", descriptors.getFirst().getField().getName());
+        assertNull(descriptors.getFirst().getChildren());
 
         descriptors = FieldDescriptor.nonEmptyFields(aType, asList(A1, null, A2), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
-        assertEquals("name", descriptors.get(0).getField().getName());
-        assertNull(descriptors.get(0).getChildren());
+        assertEquals("name", descriptors.getFirst().getField().getName());
+        assertNull(descriptors.getFirst().getChildren());
         assertEquals("values", descriptors.get(1).getField().getName());
         assertNull(descriptors.get(1).getChildren());
 
         descriptors = FieldDescriptor.nonEmptyFields(bType, asList(null, B2, B1), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
-        assertEquals("id", descriptors.get(0).getField().getName());
-        assertNull(descriptors.get(0).getChildren());
+        assertEquals("id", descriptors.getFirst().getField().getName());
+        assertNull(descriptors.getFirst().getChildren());
         assertEquals("aValues", descriptors.get(1).getField().getName());
         List<FieldDescriptor> children = descriptors.get(1).getChildren();
         assertNotNull(children);
         assertEquals(2, children.size());
-        assertEquals("name", children.get(0).getField().getName());
-        assertNull(children.get(0).getChildren());
+        assertEquals("name", children.getFirst().getField().getName());
+        assertNull(children.getFirst().getChildren());
         assertEquals("values", children.get(1).getField().getName());
         assertNull(children.get(1).getChildren());
 
         descriptors = FieldDescriptor.nonEmptyFields(cType, List.of(C1), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
-        assertEquals("filed1", descriptors.get(0).getField().getName());
-        children = descriptors.get(0).getChildren();
+        assertEquals("filed1", descriptors.getFirst().getField().getName());
+        children = descriptors.getFirst().getChildren();
         assertNotNull(children);
         assertEquals(1, children.size());
-        assertEquals("name", children.get(0).getField().getName());
-        assertNull(children.get(0).getChildren());
+        assertEquals("name", children.getFirst().getField().getName());
+        assertNull(children.getFirst().getChildren());
         assertEquals("filed2", descriptors.get(1).getField().getName());
         children = descriptors.get(1).getChildren();
         assertNotNull(children);
         assertEquals(1, children.size());
-        assertEquals("name", children.get(0).getField().getName());
-        assertNull(children.get(0).getChildren());
+        assertEquals("name", children.getFirst().getField().getName());
+        assertNull(children.getFirst().getChildren());
     }
 
     @Test
@@ -94,24 +94,24 @@ public class FieldDescriptorTest {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
-        assertFalse(descriptors.get(0).isArray());
-        assertEquals("id", descriptors.get(0).getField().getName());
+        assertFalse(descriptors.getFirst().isArray());
+        assertEquals("id", descriptors.getFirst().getField().getName());
         assertTrue(descriptors.get(1).isArray());
         assertEquals("aValues", descriptors.get(1).getField().getName());
 
         descriptors = FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(B[].class), asList(B1, B2), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
-        assertFalse(descriptors.get(0).isArray());
-        assertEquals("id", descriptors.get(0).getField().getName());
+        assertFalse(descriptors.getFirst().isArray());
+        assertEquals("id", descriptors.getFirst().getField().getName());
         assertTrue(descriptors.get(1).isArray());
         assertEquals("aValues", descriptors.get(1).getField().getName());
 
         descriptors = FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(B[][].class), asList(B1, B2), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
-        assertFalse(descriptors.get(0).isArray());
-        assertEquals("id", descriptors.get(0).getField().getName());
+        assertFalse(descriptors.getFirst().isArray());
+        assertEquals("id", descriptors.getFirst().getField().getName());
         assertTrue(descriptors.get(1).isArray());
         assertEquals("aValues", descriptors.get(1).getField().getName());
     }
@@ -120,12 +120,12 @@ public class FieldDescriptorTest {
     public void leafNodeCount() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2), true);
         assertNotNull(descriptors);
-        assertEquals(1, descriptors.get(0).getLeafNodeCount());
+        assertEquals(1, descriptors.getFirst().getLeafNodeCount());
         assertEquals(2, descriptors.get(1).getLeafNodeCount());
 
         descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(new B("id", new A(null, 5))), true);
         assertNotNull(descriptors);
-        assertEquals(1, descriptors.get(0).getLeafNodeCount());
+        assertEquals(1, descriptors.getFirst().getLeafNodeCount());
         assertEquals(1, descriptors.get(1).getLeafNodeCount());
     }
 
@@ -133,7 +133,7 @@ public class FieldDescriptorTest {
     public void maxArraySize() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, asList(B2, B1), true);
         assertNotNull(descriptors);
-        FieldDescriptor id = descriptors.get(0);
+        FieldDescriptor id = descriptors.getFirst();
         assertEquals(1, id.getMaxArraySize(B1));
         assertEquals(1, id.getMaxArraySize(B2));
         assertEquals(1, id.getMaxArraySize(B3));

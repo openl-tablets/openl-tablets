@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Date;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
@@ -14,6 +15,7 @@ import org.openl.util.EnumUtils;
 
 public class TablePropertyValues extends HttpServlet {
 
+    @Serial
     private static final long serialVersionUID = -2074749648149949900L;
 
     @Override
@@ -39,8 +41,7 @@ public class TablePropertyValues extends HttpServlet {
                 String choisesString = "\"" + String.join("\", \"", values) + "\"";
                 String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
-                String params = String.format(
-                        "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
+                String params = "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}".formatted(
                         choisesString,
                         displayValuesString);
 
@@ -52,8 +53,7 @@ public class TablePropertyValues extends HttpServlet {
                 String choisesString = "\"" + String.join("\", \"", values) + "\"";
                 String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
-                String params = String.format(
-                        "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
+                String params = "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}".formatted(
                         choisesString,
                         displayValuesString);
 

@@ -162,10 +162,6 @@ public final class DomainBits extends DomainImpl {
 
     /**
      * added by SV 20.01.03
-     *
-     * @param min
-     * @param max
-     * @throws Failure
      */
     @Override
     public boolean removeRange(int min, int max) throws Failure {

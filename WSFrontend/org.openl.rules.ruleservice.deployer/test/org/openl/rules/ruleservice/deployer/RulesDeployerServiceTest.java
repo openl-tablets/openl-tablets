@@ -315,10 +315,10 @@ public class RulesDeployerServiceTest {
             }
         }
         if (!unexpectedNames.isEmpty()) {
-            fail(String.format("Unexpected deployment names: %s", String.join(", ", unexpectedNames)));
+            fail("Unexpected deployment names: %s".formatted(String.join(", ", unexpectedNames)));
         }
         if (!namesToVerify.isEmpty()) {
-            fail(String.format("Missed expected deployment names: %s", String.join(", ", namesToVerify)));
+            fail("Missed expected deployment names: %s".formatted(String.join(", ", namesToVerify)));
         }
     }
 

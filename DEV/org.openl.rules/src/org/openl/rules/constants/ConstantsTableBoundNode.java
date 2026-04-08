@@ -84,7 +84,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         GridCellSourceCodeModule nameCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 1);
         String constantName = nameCellSource.getCode();
         if (TableNameChecker.isInvalidJavaIdentifier(constantName)) {
-            String errorMessage = String.format("Bad constant name: %s", constantName);
+            String errorMessage = "Bad constant name: %s".formatted(constantName);
             BindHelper.processError(errorMessage, nameCellSource, cxt);
         }
 
@@ -137,7 +137,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                         objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     }
                 } catch (RuntimeException e) {
-                    String message = String.format("Cannot parse cell value '%s'.", value);
+                    String message = "Cannot parse cell value '%s'.".formatted(value);
                     BindHelper.processError(message, e, defaultValueSrc, cxt);
                 }
             }

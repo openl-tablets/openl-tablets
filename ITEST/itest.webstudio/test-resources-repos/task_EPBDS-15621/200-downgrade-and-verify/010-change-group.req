@@ -1,0 +1,12 @@
+PUT /rest/users/EPBDS_15621 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+Cookie: NO_JSESSIONID=noAuth
+
+{
+  "groups": ["Viewers"],
+  "firstName": "EPBDS",
+  "lastName": "15621",
+  "email": "EPBDS_15621@email",
+  "displayName": "EPBDS_15621"
+}

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -139,7 +140,7 @@ public final class Comments {
     }
 
     public String restoredFrom(String revisionNum, String userName, Date modifiedAt) {
-        String dateStr = modifiedAt == null ? "" : new SimpleDateFormat(dateTimeFormat).format(modifiedAt);
+        String dateStr = modifiedAt == null ? "" : new SimpleDateFormat(dateTimeFormat, Locale.ROOT).format(modifiedAt);
         return restoredFromTemplate.replace(REVISION, StringUtils.trimToEmpty(revisionNum))
                 .replace(AUTHOR, StringUtils.trimToEmpty(userName))
                 .replace(DATETIME, dateStr);

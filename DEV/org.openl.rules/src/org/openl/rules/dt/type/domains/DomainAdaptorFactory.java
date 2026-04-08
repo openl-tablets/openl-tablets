@@ -12,17 +12,17 @@ public final class DomainAdaptorFactory {
     }
 
     public static IDomainAdaptor getAdaptor(IDomain<?> domain) {
-        if (domain instanceof EnumDomain<?>) {
-            return new EnumDomainAdaptor((EnumDomain<?>) domain);
+        if (domain instanceof EnumDomain<?> enumDomain) {
+            return new EnumDomainAdaptor(enumDomain);
         }
-        if (domain instanceof IntRangeDomain) {
-            return new IntRangeDomainAdaptor((IntRangeDomain) domain);
+        if (domain instanceof IntRangeDomain rangeDomain) {
+            return new IntRangeDomainAdaptor(rangeDomain);
         }
-        if (domain instanceof DateRangeDomain) {
-            return new DateRangeDomainAdaptor((DateRangeDomain) domain);
+        if (domain instanceof DateRangeDomain rangeDomain) {
+            return new DateRangeDomainAdaptor(rangeDomain);
         }
-        if (domain instanceof JavaEnumDomain) {
-            return new JavaEnumDomainAdaptor((JavaEnumDomain) domain);
+        if (domain instanceof JavaEnumDomain enumDomain) {
+            return new JavaEnumDomainAdaptor(enumDomain);
         }
         return null;
     }

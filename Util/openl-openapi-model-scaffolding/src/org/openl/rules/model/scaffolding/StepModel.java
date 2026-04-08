@@ -61,11 +61,9 @@ public class StepModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof StepModel stepModel)) {
             return false;
         }
-
-        StepModel stepModel = (StepModel) o;
 
         if (!Objects.equals(name, stepModel.name)) {
             return false;

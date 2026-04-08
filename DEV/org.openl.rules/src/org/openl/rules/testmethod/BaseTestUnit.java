@@ -98,10 +98,10 @@ public class BaseTestUnit implements ITestUnit {
      */
     private TestStatus compareResult(Object expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
-            String oldStyleMessage = expectedError != null ? ((expectedError instanceof UserErrorOpenClass.Entry) ? ((UserErrorOpenClass.Entry) expectedError).get().toString() : expectedError.toString()) : null;
+            String oldStyleMessage = expectedError != null ? ((expectedError instanceof UserErrorOpenClass.Entry e) ? e.get().toString() : expectedError.toString()) : null;
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-            if (rootCause instanceof OpenLUserRuntimeException) {
-                var detailedEx = ((OpenLUserRuntimeException) rootCause).getBody();
+            if (rootCause instanceof OpenLUserRuntimeException exception) {
+                var detailedEx = exception.getBody();
                 if (test.isEmptyOrNewStyleErrorDescription()) {
                     // to support old behaviour
                     return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
@@ -191,8 +191,8 @@ public class BaseTestUnit implements ITestUnit {
     private boolean isFieldEqual(IOpenField field, Object expectedFieldValue, Object actualFieldValue) {
         // Get delta for field if setted
         Double columnDelta = null;
-        if (field instanceof PrecisionFieldChain && ((PrecisionFieldChain) field).hasDelta()) {
-            columnDelta = ((PrecisionFieldChain) field).getDelta();
+        if (field instanceof PrecisionFieldChain chain && chain.hasDelta()) {
+            columnDelta = chain.getDelta();
         }
         Class<?> clazz = field.getType().getInstanceClass();
         TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);

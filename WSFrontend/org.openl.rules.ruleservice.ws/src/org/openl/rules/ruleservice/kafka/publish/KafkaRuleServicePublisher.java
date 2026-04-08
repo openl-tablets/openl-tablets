@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -25,8 +28,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,9 +49,9 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 
+@Slf4j
 public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
-    private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
 
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
@@ -60,30 +61,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private BaseKafkaConfig immutableKafkaDeploy;
 
     @Autowired
+    @Getter
+    @Setter
     private StoreLogDataManager storeLogDataManager;
 
     @Autowired
     private Environment env;
 
     @Autowired
+    @Getter
     @Qualifier("serviceDescriptionInProcess")
+    @Setter
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
-
-    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
-        this.storeLogDataManager = storeLogDataManager;
-    }
-
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
-        return serviceDescriptionObjectFactory;
-    }
-
-    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
-        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
 
     private BaseKafkaConfig getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
@@ -120,12 +109,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                     .collect(Collectors.joining(",", "[", "]"));
             if (config instanceof KafkaMethodConfig kafkaMethodConfig) {
                 throw new KafkaServiceConfigurationException(
-                        String.format("Missed mandatory configs %s in method '%s' configuration.",
+                        "Missed mandatory configs %s in method '%s' configuration.".formatted(
                                 missedRequiredFieldsString,
                                 kafkaMethodConfig.getMethodName()));
             } else {
-                throw new KafkaServiceConfigurationException(String
-                        .format("Missed mandatory config %s in the service configuration.", missedRequiredFieldsString));
+                throw new KafkaServiceConfigurationException("Missed mandatory config %s in the service configuration."
+                        .formatted(missedRequiredFieldsString));
             }
         }
     }
@@ -392,13 +381,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
                 log.info("Service '{}' has been successfully deployed.", service.getDeployPath());
             } else {
-                throw new KafkaServiceConfigurationException(String.format(
-                        "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
+                throw new KafkaServiceConfigurationException("Failed to deploy service '%s'. Kafka method configs are not found in the configuration.".formatted(
                         service.getDeployPath()));
             }
         } catch (Exception t) {
             throw new RuleServiceDeployException(
-                    String.format("Failed to deploy service '%s'.", service.getDeployPath()),
+                    "Failed to deploy service '%s'.".formatted(service.getDeployPath()),
                     t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -467,7 +455,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 .get(service);
         if (triple == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'", service.getDeployPath()));
+                    "There is no running service with name '%s'".formatted(service.getDeployPath()));
         }
         try {
             if (stopAndClose(triple)) {
@@ -478,7 +466,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             runningServices.remove(service);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(
-                    String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
+                    "Failed to undeploy service '%s'.".formatted(service.getDeployPath()),
                     t);
         }
     }
@@ -503,30 +491,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private static final class ServiceDeployContext {
+        @Getter
         private KafkaProducer<String, Object> producer;
+        @Getter
+        @Setter
         private KafkaProducer<String, byte[]> dltProducer;
+        @Getter
         private ObjectSerializer objectSerializer;
 
-        public KafkaProducer<String, byte[]> getDltProducer() {
-            return dltProducer;
-        }
-
-        public void setDltProducer(KafkaProducer<String, byte[]> dltProducer) {
-            this.dltProducer = Objects.requireNonNull(dltProducer);
-        }
-
-        public KafkaProducer<String, Object> getProducer() {
-            return producer;
-        }
-
-        public void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
+        private void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
                                                    ObjectSerializer objectSerializer) {
             this.producer = Objects.requireNonNull(producer);
             this.objectSerializer = Objects.requireNonNull(objectSerializer);
-        }
-
-        public ObjectSerializer getObjectSerializer() {
-            return objectSerializer;
         }
 
     }

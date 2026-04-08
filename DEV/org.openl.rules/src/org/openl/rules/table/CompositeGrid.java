@@ -140,8 +140,8 @@ public class CompositeGrid extends AGrid {
     }
 
     private boolean isGenerated(IGrid grid) {
-        if (grid instanceof XlsSheetGridModel) {
-            return ((XlsSheetGridModel) grid).getSheetSource().getWorkbookSource().getUri() == null;
+        if (grid instanceof XlsSheetGridModel model) {
+            return model.getSheetSource().getWorkbookSource().getUri() == null;
         }
         return false;
     }

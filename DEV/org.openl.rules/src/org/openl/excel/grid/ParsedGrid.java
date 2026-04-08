@@ -5,8 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelReader;
@@ -31,8 +30,8 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class ParsedGrid extends AGrid {
-    private final Logger log = LoggerFactory.getLogger(ParsedGrid.class);
 
     private final String workbookPath;
     private final Object[][] cells;
@@ -118,7 +117,7 @@ public class ParsedGrid extends AGrid {
     @Override
     public boolean isEmpty(int col, int row) {
         Object value = getCellValue(row, col);
-        return value == null || value instanceof String && StringUtils.isBlank((String) value);
+        return value == null || value instanceof String s && StringUtils.isBlank(s);
     }
 
     @Override
@@ -203,8 +202,8 @@ public class ParsedGrid extends AGrid {
             CellRowCol topLeft = findTopLeft(internalRow, internalCol);
             value = cells[topLeft.row][topLeft.col];
         }
-        if (value instanceof ExtendedValue) {
-            value = ((ExtendedValue) value).getValue();
+        if (value instanceof ExtendedValue extendedValue) {
+            value = extendedValue.getValue();
         }
 
         return value;
@@ -219,7 +218,7 @@ public class ParsedGrid extends AGrid {
         }
 
         Object value = cells[internalRow][internalCol];
-        short indent = value instanceof AlignedValue ? ((AlignedValue) value).getIndent() : 0;
+        short indent = value instanceof AlignedValue av ? av.getIndent() : 0;
         return new IndentedStyle(indent, this, row, column);
     }
 

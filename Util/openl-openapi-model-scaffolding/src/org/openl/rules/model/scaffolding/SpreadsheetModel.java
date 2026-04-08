@@ -19,6 +19,7 @@ public class SpreadsheetModel implements MethodModel {
         // empty constructor
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -27,6 +28,7 @@ public class SpreadsheetModel implements MethodModel {
         this.name = name;
     }
 
+    @Override
     public List<InputParameter> getParameters() {
         return parameters;
     }
@@ -35,6 +37,7 @@ public class SpreadsheetModel implements MethodModel {
         this.parameters = Optional.ofNullable(parameters).orElseGet(Collections::emptyList);
     }
 
+    @Override
     public String getType() {
         return type;
     }
@@ -51,6 +54,7 @@ public class SpreadsheetModel implements MethodModel {
         this.steps = steps;
     }
 
+    @Override
     public PathInfo getPathInfo() {
         return pathInfo;
     }
@@ -74,11 +78,9 @@ public class SpreadsheetModel implements MethodModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof SpreadsheetModel that)) {
             return false;
         }
-
-        SpreadsheetModel that = (SpreadsheetModel) o;
 
         if (!Objects.equals(name, that.name)) {
             return false;

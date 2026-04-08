@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
@@ -26,8 +25,8 @@ import org.openl.util.StringTool;
  *
  * @author NSamatov
  */
+@Slf4j
 final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePatternResolver {
-    private static final Logger LOG = LoggerFactory.getLogger(EncodedJarPathResourcePatternResolver.class);
 
     @Override
     protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,
@@ -39,9 +38,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
         String rootEntryPath;
         boolean newJarFile = false;
 
-        if (con instanceof JarURLConnection) {
-            // Should usually be the case for traditional JAR files.
-            JarURLConnection jarCon = (JarURLConnection) con;
+        if (con instanceof JarURLConnection jarCon) {
             ResourceUtils.useCachesIfNecessary(jarCon);
             jarFile = jarCon.getJarFile();
             jarFileUrl = jarCon.getJarFileURL().toExternalForm();
@@ -68,7 +65,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
         }
 
         try {
-            LOG.debug("Looking for matching resources in jar file [{}]", jarFileUrl);
+            log.debug("Looking for matching resources in jar file [{}]", jarFileUrl);
             if (!"".equals(rootEntryPath) && !rootEntryPath.endsWith("/")) {
                 // Root entry path must end with slash to allow for proper matching.
                 // The Sun JRE does not return a slash here, but BEA JRockit does.

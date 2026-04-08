@@ -35,7 +35,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         when(ws.getProjectResolver()).thenReturn(ProjectResolver.getInstance());
 
         pm = new ProjectModel(ws);
-        pm.setModuleInfo(getModules().get(0));
+        pm.setModuleInfo(getModules().getFirst());
     }
 
     @MethodSource("data")

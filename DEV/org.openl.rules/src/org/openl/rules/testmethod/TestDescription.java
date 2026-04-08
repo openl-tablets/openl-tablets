@@ -3,8 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -22,9 +21,9 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 
+@Slf4j
 public class TestDescription {
 
-    private final Logger log = LoggerFactory.getLogger(TestDescription.class);
 
     private final ParameterWithValueDeclaration[] executionParams;
     private final IOpenMethod testedMethod;
@@ -228,9 +227,7 @@ public class TestDescription {
                 IdentifierNode[] fieldChainTokens = columnDescriptor.getFieldChainTokens();
                 if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
                     // Found first column descriptor for needed parameter
-                    if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor) {
-                        // Foreign key to a data described in the Data Table
-                        ForeignKeyColumnDescriptor descriptor = (ForeignKeyColumnDescriptor) columnDescriptor;
+                    if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
                         foreignKeyField = descriptor.getForeignKeyField(type, db);
                     } else {
                         // Test data is described in the current Test Table
@@ -259,6 +256,6 @@ public class TestDescription {
      */
     public boolean isEmptyOrNewStyleErrorDescription() {
         return errorFields
-                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
+                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.getFirst().getName()));
     }
 }

@@ -16,6 +16,7 @@ class OpenApiSupportConverter implements ModelConverter {
 
     static final OpenApiSupportConverter INSTANCE = new OpenApiSupportConverter();
 
+    @Override
     public Schema<?> resolve(AnnotatedType annotatedType,
                              ModelConverterContext context,
                              Iterator<ModelConverter> chain) {
@@ -27,14 +28,11 @@ class OpenApiSupportConverter implements ModelConverter {
         }
         // Replace with JAXB adapter type
         var valueType = annotatedType.getType();
-        if (valueType instanceof JavaType) {
-            JavaType javaType = (JavaType) valueType;
-            valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
-        } else if (valueType instanceof Class) {
-            valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter((Class<?>) valueType);
-        } else if (valueType == null) {
-            // If a generic type is not defined, we will assume that it is an Object.
-            valueType = Object.class;
+        switch (valueType) {
+            case null -> valueType = Object.class;
+            case JavaType javaType -> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
+            case Class<?> class1 -> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(class1);
+            default -> {}
         }
         if (valueType != null) {
             annotatedType.setType(valueType);

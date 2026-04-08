@@ -52,9 +52,9 @@ abstract class BaseExport {
 
         Object simpleValue = getSimpleValue(value);
         if (simpleValue != null) {
-            if (simpleValue instanceof Date) {
+            if (simpleValue instanceof Date date) {
                 style = styles.getDateStyle(row.getSheet().getWorkbook(), style);
-                cell.setCellValue((Date) simpleValue);
+                cell.setCellValue(date);
             } else {
                 String cellValue = FormattersManager.format(simpleValue);
                 int maxTextLength = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
@@ -76,11 +76,10 @@ abstract class BaseExport {
             return null;
         }
 
-        if (value instanceof ParameterWithValueDeclaration) {
-            ParameterWithValueDeclaration parameter = (ParameterWithValueDeclaration) value;
+        if (value instanceof ParameterWithValueDeclaration parameter) {
             Object simpleValue = parameter.getValue();
-            if (simpleValue instanceof Collection) {
-                simpleValue = ((Collection<?>) simpleValue).toArray();
+            if (simpleValue instanceof Collection<?> collection) {
+                simpleValue = collection.toArray();
             }
             // Return key field for complex objects
             IOpenField keyField = parameter.getKeyField();

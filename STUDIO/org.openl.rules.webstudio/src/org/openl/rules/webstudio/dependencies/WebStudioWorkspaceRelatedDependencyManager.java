@@ -16,8 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -32,12 +31,12 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.types.NullOpenClass;
 
+@Slf4j
 public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependencyManager {
-    private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);
 
     private enum ThreadPriority {
         LOW,
-        HIGH;
+        HIGH
     }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -216,7 +215,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 dependencyLoaders.add(projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                        String.format("Failed to initialize dependency loaders for project '%s'.", project.getName()),
+                        "Failed to initialize dependency loaders for project '%s'.".formatted(project.getName()),
                         e);
             }
         }

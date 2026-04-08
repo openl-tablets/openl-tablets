@@ -131,7 +131,7 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
     private void logInputStream(Message message, InputStream is, LoggingMessage buffer, String encoding) {
         try (CachedOutputStream bos = new CachedOutputStream()) {
             // use the appropriate input stream and restore it later
-            InputStream bis = is instanceof DelegatingInputStream ? ((DelegatingInputStream) is).getInputStream() : is;
+            InputStream bis = is instanceof DelegatingInputStream dis ? dis.getInputStream() : is;
 
             // only copy up to the limit since that's all we need to log
             // we can stream the rest
@@ -140,8 +140,8 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
             bis = new SequenceInputStream(bos.getInputStream(), bis);
 
             // restore the delegating input stream or the input stream
-            if (is instanceof DelegatingInputStream) {
-                ((DelegatingInputStream) is).setInputStream(bis);
+            if (is instanceof DelegatingInputStream stream) {
+                stream.setInputStream(bis);
             } else {
                 message.setContent(InputStream.class, bis);
             }

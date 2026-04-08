@@ -6,14 +6,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +42,21 @@ import org.openl.util.StringUtils;
  *
  * @author PUdalau, Marat Kamalov
  */
+@Slf4j
 public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, InitializingBean {
 
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Logger log = LoggerFactory.getLogger(LastVersionProjectsServiceConfigurer.class);
 
+    @Setter
     private IRulesDeploySerializer rulesDeploySerializer;
+    @Setter
     private IProjectDescriptorSerializer projectDescriptorSerializer;
+    @Getter
+    @Setter
     private boolean provideRuntimeContext = false;
+    @Getter
+    @Setter
     private String supportedGroups = null;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
     private Collection<String> defaultPublishers = Collections.emptyList();
@@ -135,6 +141,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                             }
                         }
                     } catch (ProjectException ignored) {
+                        // rules-deploy.xml is optional; proceed with defaults
                     }
                     serviceDescriptionBuilder.setManifest(readManifestFile(project));
                     serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
@@ -173,13 +180,14 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                 }
             }
         } catch (IOException | ProjectException ignored) {
+            // manifest is optional; return null so callers treat it as absent
         }
         return null;
     }
 
     private Set<String> getSupportedGroupsSet() {
         if (getSupportedGroups() != null && !getSupportedGroups().trim().isEmpty()) {
-            String[] groups = getSupportedGroups().split(",");
+            String[] groups = getSupportedGroups().split(",", -1);
             Set<String> supportedGroupSet = new HashSet<>();
             for (String group : groups) {
                 supportedGroupSet.add(group.trim());
@@ -195,7 +203,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             if (rulesDeploy == null || rulesDeploy.getGroups() == null || rulesDeploy.getGroups().trim().isEmpty()) {
                 return false;
             }
-            String[] groups = rulesDeploy.getGroups().split(",");
+            String[] groups = rulesDeploy.getGroups().split(",", -1);
             for (String group : groups) {
                 if (supportedGroupSet.contains(group)) {
                     return true;
@@ -252,37 +260,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         return rulesDeploySerializer;
     }
 
-    public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
-        this.rulesDeploySerializer = Objects.requireNonNull(rulesDeploySerializer,
-                "rulesDeploySerializer cannot be null");
-    }
-
     public final IProjectDescriptorSerializer getProjectDescriptorSerializer() {
         if (projectDescriptorSerializer == null) {
             projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
         }
         return projectDescriptorSerializer;
-    }
-
-    public final void setProjectDescriptorSerializer(IProjectDescriptorSerializer projectDescriptorSerializer) {
-        this.projectDescriptorSerializer = Objects.requireNonNull(projectDescriptorSerializer,
-                "projectDescriptorSerializer cannot be null");
-    }
-
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
-    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
-        this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public void setSupportedGroups(String supportedGroups) {
-        this.supportedGroups = supportedGroups;
-    }
-
-    public String getSupportedGroups() {
-        return supportedGroups;
     }
 
     public void setDatasourceDeploymentPatterns(String deploymentPatterns) {
@@ -301,12 +283,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     /**
      * For validation
      */
-    private Collection<RuleServicePublisher> supportedPublishers;
-
     @Autowired
-    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = supportedPublishers;
-    }
+    @Setter
+    private Collection<RuleServicePublisher> supportedPublishers;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -314,7 +293,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             var publisher = supportedPublishers.stream().filter((n) -> n.name().equalsIgnoreCase(defPublisher)).findAny();
             if (publisher.isEmpty()) {
                 throw new BeanInitializationException(
-                        String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
+                        "Default publisher with id '%s' is not found in the map of supported publishers.".formatted(
                                 defPublisher));
             }
         }

@@ -15,8 +15,7 @@ import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -64,10 +63,10 @@ import org.openl.util.ArrayUtils;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Method, Method> implements Ordered, LoggingCapability {
 
     public static final String OBJECT_MAPPER_ID = "serviceObjectMapper";
-    private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
     private final Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
     private final Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
@@ -256,8 +255,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 var aroundInterceptor = createBean(method, interceptorClass);
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
-                throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                throw new RuleServiceRuntimeException("Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
             }
@@ -272,8 +270,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     var preInterceptor = createBean(method, interceptorClass);
                     beforeInterceptors.computeIfAbsent(method, e -> new ArrayList<>()).add(preInterceptor);
                 } catch (Exception e) {
-                    throw new RuleServiceRuntimeException(String.format(
-                            "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                    throw new RuleServiceRuntimeException("Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                             MethodUtil.printQualifiedMethodName(method),
                             interceptorClass.getTypeName()), e);
                 }
@@ -312,8 +309,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 var serviceExtraMethodHandler = createBean(method, serviceExtraMethodHandlerClass);
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
-                throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate service method handler for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                throw new RuleServiceRuntimeException("Failed to instantiate service method handler for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                         MethodUtil.printQualifiedMethodName(method),
                         serviceExtraMethodHandlerClass.getTypeName()), e);
             }
@@ -326,11 +322,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             for (var interceptorClass : annotation.value()) {
                 try {
                     var postInterceptor = createBean(method, interceptorClass);
-                    ;
                     afterInterceptors.computeIfAbsent(method, e -> new ArrayList<>()).add(postInterceptor);
                 } catch (Exception e) {
-                    throw new RuleServiceRuntimeException(String.format(
-                            "Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                    throw new RuleServiceRuntimeException("Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                             MethodUtil.printQualifiedMethodName(method),
                             interceptorClass.getTypeName()), e);
                 }
@@ -410,8 +404,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
             beanMethod = getTargetMember(calledMethod);
             if (beanMethod == null) {
-                var msg = String.format(
-                        "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
+                var msg = "Called method is not found in the service bean. Please, check that excel file contains method '%s'.".formatted(
                         MethodUtil.printMethod(methodName, parameterTypes));
                 throw new RuleServiceWrapperException(msg, ExceptionType.SYSTEM);
             }
@@ -453,8 +446,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                         }
                     } catch (InvocationTargetException | UndeclaredThrowableException e) {
                         Throwable t = e.getCause();
-                        if (t instanceof Exception) {
-                            ex = (Exception) t;
+                        if (t instanceof Exception exception) {
+                            ex = exception;
                             ex.addSuppressed(e);
                         } else {
                             ex = e;

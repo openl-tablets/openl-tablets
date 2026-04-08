@@ -44,6 +44,7 @@ public class FuzzyRulesDTHeader extends DTHeader {
         return true;
     }
 
+    @Override
     boolean isMethodParameterUsed() {
         return false;
     }

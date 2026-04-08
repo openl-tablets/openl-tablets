@@ -168,8 +168,10 @@ class OpenLServiceTest {
         assertEquals("{\"result\":null,\"error\":{\"message\":\"Object 'WW' is outside of valid domain 'State'. Valid values: [NY, CA, MI]\",\"type\":\"VALIDATION\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "WW"));
         assertEquals("{\"result\":null,\"error\":{\"message\":\"Object '' is outside of valid domain 'State'. Valid values: [NY, CA, MI]\",\"type\":\"VALIDATION\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", ""));
         assertEquals("{\"result\":null,\"error\":{\"name\":\"Yura\",\"age\":1000}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", null));
-        assertEquals("{\"result\":null,\"error\":{\"message\":\"Unexpected character ('M' (code 77)): was expecting comma to separate Object entries\n" +
-                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 8]\",\"type\":\"BAD_REQUEST\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", "{\"s\":\"\"Mike\",\"i\":80}"));
+        assertEquals("""
+                {"result":null,"error":{"message":"Unexpected character ('M' (code 77)): was expecting comma to separate Object entries
+                 at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 8]","type":"BAD_REQUEST"}}\
+                """, OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", "{\"s\":\"\"Mike\",\"i\":80}"));
 
         assertNotNull(OpenLService.rulesFrontend);
         OpenLService.reset();
@@ -326,6 +328,7 @@ class OpenLServiceTest {
     public interface Proxy {
         String worldHello(Integer i, String s);
 
+        @Override
         String toString();
 
         String absent(String value);

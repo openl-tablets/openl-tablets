@@ -41,10 +41,10 @@ class InheritanceFixConverter implements ModelConverter {
         for (AnnotatedType aType : new LinkedHashSet<>(modelConverterContext.modelByType.keySet())) {
             var type = aType.getType();
             Class<?> clazz = null;
-            if (type instanceof JavaType) {
-                clazz = ((JavaType) type).getRawClass();
-            } else if (type instanceof Class) {
-                clazz = (Class<?>) type;
+            if (type instanceof JavaType javaType) {
+                clazz = javaType.getRawClass();
+            } else if (type instanceof Class<?> class1) {
+                clazz = class1;
             }
             Class<?> parentClass = clazz;
             while (parentClass != null && parentClass.getSuperclass() != null && parentClass.getSuperclass() != Object.class) {

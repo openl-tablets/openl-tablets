@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Main-CW",
+    "path": "Main.xlsx"
+  },
+  {
+    "name": "MainTests",
+    "path": "MainTests.xlsx"
+  },
+  {
+    "name": "WildcardRules",
+    "path": "rules/*.xlsx",
+    "matchedModules": [
+      {
+        "name": "Main-Copy",
+        "path": "rules/Main-Copy.xlsx"
+      }
+    ]
+  }
+]

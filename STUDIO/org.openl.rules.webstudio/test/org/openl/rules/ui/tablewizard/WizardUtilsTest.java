@@ -3,6 +3,7 @@ package org.openl.rules.ui.tablewizard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -18,9 +19,9 @@ public class WizardUtilsTest {
     @Test
     public void testGetClasses() throws Exception {
         URL dirUrl = getClass().getResource("./test");
-        URL jarUrl = new URL("jar:file:test/rules/classes/test.jar!/");
-        var notExistJar = new URL("jar:file:test/not_exist.jar!/");
-        URL exampleUrl = new URL("http://www.example.com"); // not used protocol
+        URL jarUrl = URI.create("jar:file:test/rules/classes/test.jar!/").toURL();
+        var notExistJar = URI.create("jar:file:test/not_exist.jar!/").toURL();
+        URL exampleUrl = URI.create("http://www.example.com").toURL(); // not used protocol
         String packageName = "org.openl.rules.lang.xls.classes";
 
         ClassLoader stub = createClassLoaderStub(dirUrl);
@@ -49,7 +50,7 @@ public class WizardUtilsTest {
         classes = WizardUtils.getClasses("org.openl.rules.ui.tablewizard", stub);
         assertTrue(classes.contains(getClass()));
 
-        url = new URL("file:/not_exist");
+        url = URI.create("file:/not_exist").toURL();
         stub = createClassLoaderStub(url);
         classes = WizardUtils.getClasses(packageName, stub);
         assertEquals(0, classes.size());

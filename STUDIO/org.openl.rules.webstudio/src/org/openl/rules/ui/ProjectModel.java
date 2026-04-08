@@ -3,7 +3,7 @@ package org.openl.rules.ui;
 import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,9 +22,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.CompiledOpenClass;
@@ -104,9 +103,9 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
 
+@Slf4j
 public class ProjectModel {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
 
     private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator.comparing(
             node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),
@@ -303,8 +302,8 @@ public class ProjectModel {
         for (IOpenMethod method : openClass.getMethods()) {
             IOpenMethod resolvedMethod;
 
-            if (method instanceof OpenMethodDispatcher) {
-                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tableUri);
+            if (method instanceof OpenMethodDispatcher dispatcher) {
+                resolvedMethod = resolveMethodDispatcher(dispatcher, tableUri);
                 if (resolvedMethod != null) {
                     return method;
                 }
@@ -689,6 +688,18 @@ public class ProjectModel {
     private boolean isEditableProject(RulesProject rulesProject) {
         return !isCurrentBranchProtected() && (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject
                 .isOpenedForEditing());
+    }
+
+    public boolean getCanSave() {
+        if (isEditable()) {
+            if (studio.getCurrentModule() == null) {
+                RulesProject currentProject = getProject();
+                var alcService = studio.getDesignRepositoryAclService();
+                return alcService.isGranted(currentProject, List.of(BasePermission.WRITE));
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean getCanUpdate() {
@@ -1318,7 +1329,7 @@ public class ProjectModel {
         log.error("Failed to load.", t);
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
-            String message = String.format("Cannot load the module: %s", openLMessage.getSummary());
+            String message = "Cannot load the module: %s".formatted(openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
         compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
@@ -1398,10 +1409,15 @@ public class ProjectModel {
         }
     }
 
-    public synchronized void traceElement(TestSuite testSuite) {
+    /**
+     * Execute trace for a test suite without relying on request parameters.
+     * This method is designed for REST API usage where request context is not available.
+     *
+     * @param testSuite           the test suite to trace
+     * @param currentOpenedModule if true, use currently opened module; otherwise, use full project
+     */
+    public synchronized void traceElement(TestSuite testSuite, boolean currentOpenedModule) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        boolean currentOpenedModule = Boolean
-                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         try {
             if (currentOpenedModule) {
                 Thread.currentThread().setContextClassLoader(openedModuleCompiledOpenClass.getClassLoader());
@@ -1492,8 +1508,8 @@ public class ProjectModel {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                     .getLocalWorkspace()
                     .getLocation();
-            this.historyStoragePath = Paths
-                    .get(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+            this.historyStoragePath = Path
+                    .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
                     .toString();
         }
     }

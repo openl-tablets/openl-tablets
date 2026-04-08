@@ -5,13 +5,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class NotResettableCredentialsProvider extends UsernamePasswordCredentialsProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(NotResettableCredentialsProvider.class);
 
     private static final String FAIL_MESSAGE = "Problem communicating with '%s' Git server, will retry automatically in %s";
     private static final String BLOCK_MESSAGE = "Problem communicating with '%s' Git server, please contact admin.";
@@ -43,20 +42,20 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     public void reset(URIish uri) {
         // This method is called when authentication attempt was unsuccessful and need to provide correct credentials.
         // Our application works in non-interactive mode so we just throw exception.
-        LOG.info("Reset the credentials provider for the URI: {}", uri);
+        log.info("Reset the credentials provider for the URI: {}", uri);
         synchronized (this) {
             failedActions.addAll(currentActions);
         }
         if (currentActions.contains(GitActionType.INIT)) {
-            throw new InvalidCredentialsException(String.format(INCORRECT_CRED_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(INCORRECT_CRED_MESSAGE.formatted(repositoryName));
         }
         if (maxAuthorizationAttempts != null && failedAttempts.incrementAndGet() >= maxAuthorizationAttempts) {
             // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
             nextAttempt.set(-1);
-            throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
         }
         nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000L);
-        throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, repositoryName, getNextAttemptTime()));
+        throw new InvalidCredentialsException(FAIL_MESSAGE.formatted(repositoryName, getNextAttemptTime()));
     }
 
     void validateAuthorizationState(GitActionType actionType) throws InvalidCredentialsException {
@@ -67,7 +66,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             return;
         } else if (attemptTime == -1) {
             // The maximum number of authorization attempts has been exceeded.
-            throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
         } else {
             if (System.currentTimeMillis() > attemptTime) {
                 if (maxAuthorizationAttempts == null || failedAttempts.get() <= maxAuthorizationAttempts) {
@@ -76,11 +75,11 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
                 } else {
                     // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
                     nextAttempt.set(-1);
-                    throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+                    throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
                 }
             } else {
                 // The time for the next try has not yet come
-                throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, repositoryName, getNextAttemptTime()));
+                throw new InvalidCredentialsException(FAIL_MESSAGE.formatted(repositoryName, getNextAttemptTime()));
             }
         }
     }
@@ -120,6 +119,6 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     @Override
     public void clear() {
         // Do nothing to ensure that username and password is not cleared.
-        LOG.warn("clear() method should never be invoked.");
+        log.warn("clear() method should never be invoked.");
     }
 }

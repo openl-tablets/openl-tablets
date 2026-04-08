@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -17,8 +18,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
@@ -39,8 +38,8 @@ import org.openl.util.FileUtils;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class DOMReader implements ExcelReader {
-    private static final Logger LOG = LoggerFactory.getLogger(DOMReader.class);
 
     private final String fileName;
     private File tempFile;
@@ -121,7 +120,7 @@ public class DOMReader implements ExcelReader {
             // Fill values
             int rows = lastRow - firstRow + 1;
             int cols = lastColumn - firstColumn + 1;
-            LOG.debug("Array size: {}:{}", rows, cols);
+            log.debug("Array size: {}:{}", rows, cols);
             Object[][] cells = new Object[rows][cols];
 
             for (int i = firstRow; i <= lastRow; i++) {
@@ -176,10 +175,10 @@ public class DOMReader implements ExcelReader {
         try {
             initializeWorkbook();
 
-            if (workbook instanceof XSSFWorkbook) {
-                return ((XSSFWorkbook) workbook).isDate1904();
-            } else if (workbook instanceof HSSFWorkbook) {
-                return ((HSSFWorkbook) workbook).getInternalWorkbook().isUsing1904DateWindowing();
+            if (workbook instanceof XSSFWorkbook fWorkbook1) {
+                return fWorkbook1.isDate1904();
+            } else if (workbook instanceof HSSFWorkbook fWorkbook) {
+                return fWorkbook.getInternalWorkbook().isUsing1904DateWindowing();
             }
 
             throw new UnsupportedOperationException("Unsupported workbook type");
@@ -239,7 +238,7 @@ public class DOMReader implements ExcelReader {
                 workbook = null;
             }
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         FileUtils.deleteQuietly(tempFile);

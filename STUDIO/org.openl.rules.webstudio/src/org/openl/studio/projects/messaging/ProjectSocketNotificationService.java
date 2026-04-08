@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
+import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 
 @Component
@@ -20,6 +21,8 @@ public class ProjectSocketNotificationService {
     private static final  String RESULTS = "/units";
     private static final String TOPIC_PROJECTS_TESTS = "/topic/projects/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TESTS = "/topic/projects/%s/tables/%s/tests";
+    private static final String TOPIC_PROJECTS_TABLES_TRACE = "/topic/projects/%s/tables/%s/trace";
+    private static final String TOPIC_PROJECTS_TABLES_RUN = "/topic/projects/%s/tables/%s/run";
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -79,6 +82,62 @@ public class ProjectSocketNotificationService {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_TESTS.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + RESULTS,
                 testCaseExecutionResult);
+    }
+
+    /**
+     * Notifies user about trace execution status change for a specific table.
+     *
+     * @param user      user to notify
+     * @param projectId project id
+     * @param tableId   table id
+     * @param status    new trace execution status
+     */
+    public void notifyTraceExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                status.name());
+    }
+
+    /**
+     * Notifies user about trace execution error for a specific table.
+     *
+     * @param user         user to notify
+     * @param projectId    project id
+     * @param tableId      table id
+     * @param errorMessage error message
+     */
+    public void notifyTraceExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                java.util.Map.of("status", "ERROR", "message", errorMessage));
+    }
+
+    /**
+     * Notifies user about run execution status change for a specific table.
+     *
+     * @param user      user to notify
+     * @param projectId project id
+     * @param tableId   table id
+     * @param status    new run execution status
+     */
+    public void notifyRunExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                status.name());
+    }
+
+    /**
+     * Notifies user about run execution error for a specific table.
+     *
+     * @param user         user to notify
+     * @param projectId    project id
+     * @param tableId      table id
+     * @param errorMessage error message
+     */
+    public void notifyRunExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                java.util.Map.of("status", "ERROR", "message", errorMessage));
     }
 
     private String encodePathSegment(String segment) {

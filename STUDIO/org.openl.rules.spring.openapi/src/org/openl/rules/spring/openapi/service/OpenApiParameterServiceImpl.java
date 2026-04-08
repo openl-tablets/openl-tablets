@@ -139,7 +139,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
     }
 
     private void mergeParameters(Parameter firstParam, Parameter secondParam) {
-        if (firstParam.getRequired() == null && secondParam.getRequired() == Boolean.TRUE) {
+        if (firstParam.getRequired() == null && Boolean.TRUE.equals(secondParam.getRequired())) {
             firstParam.setRequired(Boolean.TRUE);
         }
         if (firstParam.get$ref() != null) {
@@ -241,7 +241,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
             }
         }
 
-        if (parameter.getRequired() == Boolean.FALSE) {
+        if (Boolean.FALSE.equals(parameter.getRequired())) {
             // false to null. Because null means is not required
             parameter.setRequired(null);
         }

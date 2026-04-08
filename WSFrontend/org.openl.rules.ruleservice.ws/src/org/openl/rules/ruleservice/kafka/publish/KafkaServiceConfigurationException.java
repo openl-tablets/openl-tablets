@@ -1,7 +1,10 @@
 package org.openl.rules.ruleservice.kafka.publish;
 
+import java.io.Serial;
+
 public class KafkaServiceConfigurationException extends KafkaServiceException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public KafkaServiceConfigurationException() {

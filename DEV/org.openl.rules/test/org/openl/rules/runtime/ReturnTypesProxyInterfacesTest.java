@@ -36,7 +36,7 @@ public class ReturnTypesProxyInterfacesTest {
         try {
             initInstance(VoidReturnType.class);
         } catch (RuntimeException e) {
-            assertReturnTypeException(String.format(EXP_MSG, "java.lang.Long", "doSomething", "void"), e);
+            assertReturnTypeException(EXP_MSG.formatted("java.lang.Long", "doSomething", "void"), e);
             return;
         }
         fail("Must be failed with return type mismatch exception");
@@ -47,7 +47,7 @@ public class ReturnTypesProxyInterfacesTest {
         try {
             initInstance(ArrayReturnType.class);
         } catch (RuntimeException e) {
-            assertReturnTypeException(String.format(EXP_MSG, "java.lang.Long", "doSomething", "[Ljava.lang.Long;"), e);
+            assertReturnTypeException(EXP_MSG.formatted("java.lang.Long", "doSomething", "[Ljava.lang.Long;"), e);
             return;
         }
         fail("Must be failed with return type mismatch exception");
@@ -58,7 +58,7 @@ public class ReturnTypesProxyInterfacesTest {
         try {
             initInstance(CannotCastReturnType.class);
         } catch (RuntimeException e) {
-            assertReturnTypeException(String.format(EXP_MSG, "java.lang.Long", "doSomething", "java.lang.Integer"), e);
+            assertReturnTypeException(EXP_MSG.formatted("java.lang.Long", "doSomething", "java.lang.Integer"), e);
             return;
         }
         fail("Must be failed with return type mismatch exception");
@@ -69,7 +69,7 @@ public class ReturnTypesProxyInterfacesTest {
         try {
             initInstance(LongArrayReturnType.class);
         } catch (RuntimeException e) {
-            assertReturnTypeException(String.format(EXP_MSG, "[J", "doArray", "[Ljava.lang.Long;"), e);
+            assertReturnTypeException(EXP_MSG.formatted("[J", "doArray", "[Ljava.lang.Long;"), e);
             return;
         }
         fail("Must be failed with return type mismatch exception");

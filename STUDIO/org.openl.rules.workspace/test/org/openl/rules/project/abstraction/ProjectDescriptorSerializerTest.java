@@ -55,8 +55,8 @@ public class ProjectDescriptorSerializerTest {
                 .deserialize(new FileInputStream("test-resources/xml/descriptor1.xml"));
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
-        assertEquals(expected.get(0).projectName(), result.get(0).projectName());
-        assertEquals(expected.get(0).projectVersion(), result.get(0).projectVersion());
+        assertEquals(expected.getFirst().projectName(), result.getFirst().projectName());
+        assertEquals(expected.getFirst().projectVersion(), result.getFirst().projectVersion());
         assertEquals(expected.get(1).projectName(), result.get(1).projectName());
         assertEquals(expected.get(1).projectVersion(), result.get(1).projectVersion());
         assertEquals(expected.get(2).projectName(), result.get(2).projectName());
@@ -76,8 +76,8 @@ public class ProjectDescriptorSerializerTest {
 
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
-        assertEquals(expected.get(0).projectName(), result.get(0).projectName());
-        assertEquals(expected.get(0).projectVersion(), result.get(0).projectVersion());
+        assertEquals(expected.getFirst().projectName(), result.getFirst().projectName());
+        assertEquals(expected.getFirst().projectVersion(), result.getFirst().projectVersion());
         assertEquals(expected.get(1).projectName(), result.get(1).projectName());
         assertEquals(expected.get(1).projectVersion(), result.get(1).projectVersion());
         assertEquals(expected.get(2).projectName(), result.get(2).projectName());

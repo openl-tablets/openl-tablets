@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.ai.tool.annotation.ToolParam;
 
 import org.openl.rules.rest.validation.ProjectNameConstraint;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -20,20 +19,16 @@ public class DeployProjectModel {
     private static final String FIELD_DEPLOYMENT_COMMENT_DESC = "Deployment reason comment";
 
     @Parameter(description = FIELD_PROD_REPO_ID_DESC, required = true)
-    @ToolParam(description = FIELD_PROD_REPO_ID_DESC)
     public final String productionRepositoryId;
 
     @Parameter(description = FIELD_DEPLOYMENT_NAME_DESC, required = true)
-    @ToolParam(description = FIELD_DEPLOYMENT_NAME_DESC)
     @ProjectNameConstraint
     public final String deploymentName;
 
     @Parameter(description = FIELD_PROJECT_ID_DESC, required = true)
-    @ToolParam(description = FIELD_PROJECT_ID_DESC)
     public final ProjectIdModel projectId;
 
     @Parameter(description = FIELD_DEPLOYMENT_COMMENT_DESC)
-    @ToolParam(description = FIELD_DEPLOYMENT_COMMENT_DESC)
     public final String comment;
 
     public DeployProjectModel(Builder builder) {

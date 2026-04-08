@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,9 +39,8 @@ import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -136,6 +134,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @ViewScope
+@Slf4j
 public class RepositoryTreeController {
 
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
@@ -144,7 +143,6 @@ public class RepositoryTreeController {
     public static final String OPENAPI_DEFAULT_DATA_MODULE_PATH = "openapi.default.data.module.path";
     public static final String OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH = "openapi.default.algorithm.module.path";
 
-    private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
     @Autowired
     private RepositoryTreeState repositoryTreeState;
@@ -240,7 +238,10 @@ public class RepositoryTreeController {
 
     /**
      * Adds new file to active node (project or folder).
+     *
+     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API instead.
      */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     public String addFile() {
         if (getLastUploadedFile() == null) {
             WebStudioUtils.addErrorMessage("Select a file to upload.");
@@ -266,6 +267,10 @@ public class RepositoryTreeController {
         return null;
     }
 
+    /**
+     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API with {@code createFolders=true} instead.
+     */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     public String addFolder() {
         AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
         String errorMessage = null;
@@ -280,7 +285,7 @@ public class RepositoryTreeController {
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
                                 throw new Message(
-                                        String.format("There is no permission for creating a new folder in '%s'.",
+                                        "There is no permission for creating a new folder in '%s'.".formatted(
                                                 ProjectArtifactUtils.extractResourceName(projectArtefact)));
                             }
                         } catch (Exception e) {
@@ -288,16 +293,16 @@ public class RepositoryTreeController {
                             errorMessage = e.getMessage();
                         }
                     } else {
-                        errorMessage = String
-                                .format("Folder name '%s' is invalid. %s", folderName, NameChecker.FOLDER_EXISTS);
+                        errorMessage = "Folder name '%s' is invalid. %s"
+                                .formatted(folderName, NameChecker.FOLDER_EXISTS);
                     }
                 } else {
-                    errorMessage = String
-                            .format("Folder name '%s' is invalid. %s", folderName, NameChecker.BAD_NAME_MSG);
+                    errorMessage = "Folder name '%s' is invalid. %s"
+                            .formatted(folderName, NameChecker.BAD_NAME_MSG);
                 }
             } else {
-                errorMessage = String
-                        .format("Folder name '%s' is invalid. %s", folderName, NameChecker.FOLDER_NAME_EMPTY);
+                errorMessage = "Folder name '%s' is invalid. %s"
+                        .formatted(folderName, NameChecker.FOLDER_NAME_EMPTY);
             }
         }
 
@@ -316,8 +321,8 @@ public class RepositoryTreeController {
                 log.warn("Tried to save a project without any changes.");
                 return null;
             }
-            if (project instanceof RulesProject) {
-                studio.saveProject((RulesProject) project);
+            if (project instanceof RulesProject rulesProject) {
+                studio.saveProject(rulesProject);
             } else {
                 project.save();
             }
@@ -354,7 +359,7 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
             if (!aclProjectsHelper.hasPermission(repositoryProject, BasePermission.READ)) {
-                WebStudioUtils.addErrorMessage(String.format("There is no permission for closing '%s' project.",
+                WebStudioUtils.addErrorMessage("There is no permission for closing '%s' project.".formatted(
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
                 return null;
             }
@@ -377,7 +382,7 @@ public class RepositoryTreeController {
     public List<String> getDependingProjects() {
         List<String> projects = new ArrayList<>();
         TreeNode selectedNode = getSelectedNode();
-        TreeProject projectNode = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
+        TreeProject projectNode = selectedNode instanceof TreeProject tp ? tp : null;
         if (projectNode != null) {
             String name = projectNode.getName();
 
@@ -576,7 +581,7 @@ public class RepositoryTreeController {
         ProjectFile[] templateFiles = templatesResolver.getProjectFiles(templateParts[1], templateParts[2]);
         if (templateFiles.length == 0) {
             this.clearForm();
-            String errorMessage = String.format("Cannot load template files: %s", newProjectTemplate);
+            String errorMessage = "Cannot load template files: %s".formatted(newProjectTemplate);
             WebStudioUtils.addErrorMessage(errorMessage);
             return null;
         }
@@ -620,7 +625,7 @@ public class RepositoryTreeController {
 
                     return null;
                 } else {
-                    String message = String.format("Granting permissions to a new project '%s' is failed.",
+                    String message = "Granting permissions to a new project '%s' is failed.".formatted(
                             ProjectArtifactUtils.extractResourceName(newRuleProject));
                     WebStudioUtils.addErrorMessage(message);
                     return message;
@@ -676,13 +681,13 @@ public class RepositoryTreeController {
                     if (msg != null) {
                         return msg;
                     }
-                    final Path currentPath = Paths.get(projectPath);
+                    final Path currentPath = Path.of(projectPath);
                     if (userWorkspace.getDesignTimeRepository()
                             .getProjects()
                             .stream()
                             .filter(proj -> proj.getRepository().getId().equals(repositoryId))
                             .map(AProjectFolder::getRealPath)
-                            .map(Paths::get)
+                            .map(Path::of)
                             .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
                         return "Cannot create the project because a path conflicts with an existed project.";
                     }
@@ -843,7 +848,7 @@ public class RepositoryTreeController {
                 String xmlString = serializer.serialize(projectDescriptor);
                 InputStream newContent = IOUtils.toInputStream(xmlString);
                 if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
-                    throw new Message(String.format("There is no permission for modifying '%s' file.",
+                    throw new Message("There is no permission for modifying '%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(resource)));
                 }
                 resource.setContent(newContent);
@@ -851,13 +856,17 @@ public class RepositoryTreeController {
         }
     }
 
+    /**
+     * @deprecated Use {@code DELETE /projects/{projectId}/resources/{resourceId}} REST API instead.
+     */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     public String deleteElement() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         String childName = WebStudioUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
                 .getChild(RepositoryUtils.getTreeNodeId(artefact.getRepository().getId(), childName))).getData();
         if (!aclProjectsHelper.hasPermission(childArtefact, BasePermission.DELETE)) {
-            WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
+            WebStudioUtils.addErrorMessage("There is no permission for deleting '%s' file.".formatted(
                     ProjectArtifactUtils.extractResourceName(childArtefact)));
             return null;
         }
@@ -904,7 +913,7 @@ public class RepositoryTreeController {
             return null;
         }
         AProject p = projectArtefact.getProject();
-        boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
+        boolean localOnly = p instanceof UserWorkspaceProject uwp && uwp.isLocalOnly();
         String repositoryId = p.getRepository().getId();
         if (isSupportsBranches(repositoryId) && projectArtefact.getVersion() == null && !localOnly) {
             activeProjectNode = null;
@@ -912,7 +921,7 @@ public class RepositoryTreeController {
             return null;
         }
         if (!aclProjectsHelper.hasPermission(projectArtefact, BasePermission.DELETE)) {
-            throw new Message(String.format("There is no permission for deleting '%s' project.",
+            throw new Message("There is no permission for deleting '%s' project.".formatted(
                     ProjectArtifactUtils.extractResourceName(projectArtefact)));
         }
         try {
@@ -953,8 +962,8 @@ public class RepositoryTreeController {
                 parent.refresh();
             }
 
-            if (projectArtefact instanceof UserWorkspaceProject) {
-                if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
+            if (projectArtefact instanceof UserWorkspaceProject workspaceProject) {
+                if (repositoryTreeState.isHideDeleted() || workspaceProject.isLocalOnly()) {
                     if (selectedNode != activeProjectNode) {
                         repositoryTreeState.deleteSelectedNodeFromTree();
                     } else {
@@ -1018,9 +1027,9 @@ public class RepositoryTreeController {
         try {
             projectArtefact.unlock();
             repositoryTreeState.refreshSelectedNode();
-            if (projectArtefact instanceof RulesProject) {
+            if (projectArtefact instanceof RulesProject project) {
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
+                closeProjectForAllUsers(workspacesRoot, project);
             }
             resetStudioModel();
 
@@ -1068,8 +1077,8 @@ public class RepositoryTreeController {
             ProjectHistoryService.deleteHistory(businessName);
             if (projectNode != null) {
                 AProjectArtefact artefact = projectNode.getData();
-                if (artefact instanceof RulesProject) {
-                    ((RulesProject) artefact).close();
+                if (artefact instanceof RulesProject rulesProject) {
+                    rulesProject.close();
                 }
             }
         } catch (IOException e) {
@@ -1224,7 +1233,7 @@ public class RepositoryTreeController {
                     .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
-            zipFileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
+            zipFileName = "%s-%s.zip".formatted(selectedProject.getBusinessName(), suffix);
         } catch (Exception e) {
             String msg = "Failed to export project version.";
             log.error(msg, e);
@@ -1244,6 +1253,7 @@ public class RepositoryTreeController {
         return null;
     }
 
+    @Deprecated(forRemoval = true)
     public String exportFileVersion() {
         File file = null;
         String fileName;
@@ -1287,6 +1297,10 @@ public class RepositoryTreeController {
                 : projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue();
     }
 
+    /**
+     * @deprecated Use {@code POST /projects/{projectId}/resources/{resourceId}/copy} REST API instead.
+     */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     public String copyFileVersion() {
         String path = WebStudioUtils.getRequestParameter("copyFileForm:filePath");
         String currentRevision = WebStudioUtils.getRequestParameter("copyFileForm:currentRevision");
@@ -1299,7 +1313,7 @@ public class RepositoryTreeController {
         ArtefactPath artefactPath = new ArtefactPathImpl(path);
         try {
             selectedProject.getArtefactByPath(artefactPath);
-            WebStudioUtils.addErrorMessage(String.format("File '%s' is already exists.", path));
+            WebStudioUtils.addErrorMessage("File '%s' is already exists.".formatted(path));
             return null;
         } catch (Exception ignored) {
             // Artefact by this path shouldn't exist
@@ -1316,7 +1330,7 @@ public class RepositoryTreeController {
                 AProjectArtefact artefact = folder.getArtefact(segment);
                 if (!artefact.isFolder()) {
                     WebStudioUtils.addErrorMessage(
-                            String.format("Artefact '%s' is not a folder.", artefact.getArtefactPath().getStringValue()));
+                            "Artefact '%s' is not a folder.".formatted(artefact.getArtefactPath().getStringValue()));
                     return null;
                 }
                 folder = (AProjectFolder) folder.getArtefact(segment);
@@ -1344,7 +1358,7 @@ public class RepositoryTreeController {
                 is = ((AProjectResource) uwp.getArtefactByPath(pathInProject)).getContent();
             }
             if (!aclProjectsHelper.hasPermission(folder, BasePermission.CREATE)) {
-                throw new Message(String.format("There is no permission for creating '%s/%s' file.",
+                throw new Message("There is no permission for creating '%s/%s' file.".formatted(
                         folder.getArtefactPath().getStringValue(),
                         artefactPath.segment(artefactPath.segmentCount() - 1)));
             }
@@ -1353,7 +1367,7 @@ public class RepositoryTreeController {
             if (!aclServiceProvider.getDesignRepoAclService()
                     .hasAcl(addedFileResource) && !aclServiceProvider.getDesignRepoAclService()
                     .createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                String message = String.format("Granting permissions to a new file '%s' is failed.",
+                String message = "Granting permissions to a new file '%s' is failed.".formatted(
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -1505,7 +1519,7 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
             if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
-                throw new Message(String.format("There is no permission for opening '%s' project.",
+                throw new Message("There is no permission for opening '%s' project.".formatted(
                         ProjectArtifactUtils.extractResourceName(project)));
             }
             if (userWorkspace.isOpenedOtherProject(project)) {
@@ -1567,7 +1581,7 @@ public class RepositoryTreeController {
                 return null;
             }
             if (!aclProjectsHelper.hasPermission(repositoryProject, BasePermission.READ)) {
-                throw new Message(String.format("There is no permission for opening '%s' project.",
+                throw new Message("There is no permission for opening '%s' project.".formatted(
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
             }
             boolean openedSimilarToHistoric = false;
@@ -1894,7 +1908,10 @@ public class RepositoryTreeController {
 
     /**
      * Updates file (active node)
+     *
+     * @deprecated Use {@code PUT /projects/{projectId}/resources/{resourceId}} REST API instead.
      */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     public String updateFile() {
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
@@ -1994,6 +2011,10 @@ public class RepositoryTreeController {
         clearUploadedFiles();
     }
 
+    /**
+     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API instead.
+     */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     private String uploadAndAddFile() {
         if (!NameChecker.checkName(fileName)) {
             return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
@@ -2007,7 +2028,7 @@ public class RepositoryTreeController {
                 return "Upload the file";
             }
             if (!aclProjectsHelper.hasPermission(node, BasePermission.CREATE)) {
-                throw new Message(String.format("There is no permission for creating '%s/%s' file.",
+                throw new Message("There is no permission for creating '%s/%s' file.".formatted(
                         ProjectArtifactUtils.extractResourceName(node),
                         fileName));
             }
@@ -2022,14 +2043,14 @@ public class RepositoryTreeController {
             while (!projectFolders.isEmpty()) {
                 AProjectFolder p = projectFolders.pop();
                 if ((!repositoryAclService.hasAcl(p)) && !repositoryAclService.createAcl(p, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                    String message = String.format("Granting permissions to a new folder '%s' is failed.",
+                    String message = "Granting permissions to a new folder '%s' is failed.".formatted(
                             ProjectArtifactUtils.extractResourceName(p));
                     WebStudioUtils.addErrorMessage(message);
                 }
             }
             if (!aclServiceProvider.getDesignRepoAclService().hasAcl(addedFileResource)
                     && !aclServiceProvider.getDesignRepoAclService().createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                String message = String.format("Granting permissions to a new file '%s' is failed.",
+                String message = "Granting permissions to a new file '%s' is failed.".formatted(
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -2065,7 +2086,7 @@ public class RepositoryTreeController {
                     var serializer = new XmlProjectDescriptorSerializer();
 
                     if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
-                        throw new Message(String.format("There is no permission for modifying '%s' file.",
+                        throw new Message("There is no permission for modifying '%s' file.".formatted(
                                 ProjectArtifactUtils.extractResourceName(resource)));
                     }
                     content = resource.getContent();
@@ -2095,6 +2116,10 @@ public class RepositoryTreeController {
         }
     }
 
+    /**
+     * @deprecated Use {@code PUT /projects/{projectId}/resources/{resourceId}} REST API instead.
+     */
+    @Deprecated(forRemoval = true, since = "6.1.0")
     private String uploadAndUpdateFile() {
         ProjectFile lastUploadedFile = getLastUploadedFile();
         if (lastUploadedFile == null) {
@@ -2104,7 +2129,7 @@ public class RepositoryTreeController {
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
             if (!aclProjectsHelper.hasPermission(node, BasePermission.WRITE)) {
-                throw new Message(String.format("There is no permission for modifying '%s' file.",
+                throw new Message("There is no permission for modifying '%s' file.".formatted(
                         ProjectArtifactUtils.extractResourceName(node)));
             }
             node.setContent(lastUploadedFile.getInput());
@@ -2357,8 +2382,8 @@ public class RepositoryTreeController {
 
     public UserWorkspaceProject getSelectedProject() {
         AProjectArtefact artefact = getSelectedNode().getData();
-        if (artefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) artefact;
+        if (artefact instanceof UserWorkspaceProject project) {
+            return project;
         }
         return null;
     }
@@ -2433,7 +2458,7 @@ public class RepositoryTreeController {
                 .collect(Collectors.toList());
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "6.1.0")
     public boolean isSupportsMappedFolders() {
         return repositoryId != null && isSupportsMappedFolders(repositoryId);
     }
@@ -2578,8 +2603,8 @@ public class RepositoryTreeController {
 
     public List<String> getCommentParts(AProjectArtefact artefact, ProjectVersion version) {
         String comment = version.getVersionComment();
-        if (artefact instanceof RulesProject) {
-            repositoryId = ((RulesProject) artefact).getDesignRepository().getId();
+        if (artefact instanceof RulesProject project) {
+            repositoryId = project.getDesignRepository().getId();
             List<String> commentParts = getDesignRepoComments().getCommentParts(comment);
             if (commentParts.size() == 3) {
                 String name = commentParts.get(1);

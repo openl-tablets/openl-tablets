@@ -4,8 +4,7 @@ public class ClassCastExceptionFormatter implements ExceptionMessageFormatter {
 
     @Override
     public String format(Throwable error) {
-        if (error instanceof ClassCastException) {
-            ClassCastException classCastException = (ClassCastException) error;
+        if (error instanceof ClassCastException classCastException) {
             String msg = classCastException.getMessage();
             if (msg.startsWith("class ")) {
                 msg = msg.substring("class ".length());
@@ -15,7 +14,7 @@ public class ClassCastExceptionFormatter implements ExceptionMessageFormatter {
             }
             String classFrom = msg.substring(0, msg.indexOf(' '));
             String classTo = msg.substring(msg.lastIndexOf(' ') + 1);
-            return String.format("Class '%s' cannot be cast to class '%s'.", classFrom, classTo);
+            return "Class '%s' cannot be cast to class '%s'.".formatted(classFrom, classTo);
         }
         return error.getMessage();
 

@@ -29,10 +29,12 @@ public class DataModel implements MethodModel {
         return name;
     }
 
+    @Override
     public String getType() {
         return type;
     }
 
+    @Override
     public PathInfo getPathInfo() {
         return pathInfo;
     }
@@ -61,11 +63,9 @@ public class DataModel implements MethodModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof DataModel dataModel)) {
             return false;
         }
-
-        DataModel dataModel = (DataModel) o;
 
         if (!Objects.equals(name, dataModel.name)) {
             return false;

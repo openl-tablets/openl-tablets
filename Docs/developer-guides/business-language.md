@@ -13,19 +13,19 @@ The following topics are included in this chapter:
 OpenL Tablets minimizes the effort required to build a business vocabulary. Using BEX does not require any special mapping, and the existing Java BOM automatically becomes the basis for OpenL Tablets business vocabulary (OBV). For example, the following expressions are equivalent:
 
 ```
-driver.age 
+driver.age
 ```
 and
 ```
-Age of the Driver 
+Age of the Driver
 ```
 Another example:
 ```
-policy.effectiveDate 
+policy.effectiveDate
 ```
 and
 ```
-Effective Date of the Policy 
+Effective Date of the Policy
 ```
 
 ### New Keywords and Avoiding Possible Naming Conflicts
@@ -43,7 +43,7 @@ When adding new keywords to OpenL Tablets BEX language, there is a chance of a n
 ### Simplifying Expressions with Explanatory Variables
 Consider a rather simple expression in Java:
 ```
-(vehicle.agreedValue - vehicle.marketValue) / vehicle.marketValue > limitDefinedByUser 
+(vehicle.agreedValue - vehicle.marketValue) / vehicle.marketValue > limitDefinedByUser
 ```
 
 In BEX language, the same expression can be rewritten in a business-friendly way:
@@ -174,13 +174,13 @@ OpenL Tablets has a modular structure, so OpenL Tablets has configurable, high-l
 The found method is executed in runtime. So, to override binary operator **t1 OP t2**, where **t1**, **t2** are objects of classes **T1**, **T2**, perform the following steps:
 
 1.  Check operators and find the operator's type name.
-	The last part of the type name is the name of the method to be implemented.
+    The last part of the type name is the name of the method to be implemented.
 1.  Use one of the following options available for implementing operators:
-	-   Put it into the YourCustomOperators class as a static method and register the class as a library in the org.openl.operators namespace
-		For more information on how to do that, see OpenLBuilder code.
-	-   Implement **public Tx name(T2 p2)** as method in T1.
-	-   Implement **Tx name(T1 p1,T2 p2) as** method in T1.
-	-   Implement **static public Tx name(T1 p1,T2 p2)** as method in T2.
+    -   Put it into the YourCustomOperators class as a static method and register the class as a library in the org.openl.operators namespace
+        For more information on how to do that, see OpenLBuilder code.
+    -   Implement **public Tx name(T2 p2)** as method in T1.
+    -   Implement **Tx name(T1 p1,T2 p2) as** method in T1.
+    -   Implement **static public Tx name(T1 p1,T2 p2)** as method in T2.
 1.  If **T1** and **T2** are different, define both **OP(T1, T2)** and **OP(T2, T1**), unless **autocast()** operator can be relied on or binary operators semantic **map. Autocast** can help skipping implementation when there is already an operator implemented for the autocasted type.
 
 For example, when having **OP(T1, double)**, there is no need to implement **OP(T1, int)** because **int** is autocasted to double. Some performance penalty can be incurred by doing this though. For more information on binary operators semantic map, see [Binary Operators Semantic Map](#binary-operators-semantic-map).
@@ -282,4 +282,3 @@ The `org.openl.j` operators in order of priority are as follows:
 |-----------------|-------------------------------------------------------------------------------------------------------------|
 | **Symmetrical** | eq(T1,T2) <=> eq(T2, T1) add(T1,T2) <=> add(T2, T1)                                                         |
 | **Inverse**     | `le(T1,T2) <=> gt(T2, T1)` `lt(T1,T2) <=> ge(T2, T1)` `ge(T1,T2) <=> lt(T2, T1)` `gt(T1,T2) <=> le(T2, T1)` |
-

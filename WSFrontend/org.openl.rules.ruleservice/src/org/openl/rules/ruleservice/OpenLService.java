@@ -93,7 +93,7 @@ public class OpenLService {
     private static Invoker getInvoker(String serviceName, String ruleName, String json) throws Exception {
         var service = getService(serviceName);
         if (service == null) {
-            throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
+            throw new IllegalArgumentException("Service '%s' is not found.".formatted(serviceName));
         }
         var instance = service.getServiceBean();
 
@@ -104,14 +104,14 @@ public class OpenLService {
             }
         }
         if (methods.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Method '%s' is not found in service '%s'.", ruleName, serviceName));
+            throw new IllegalArgumentException("Method '%s' is not found in service '%s'.".formatted(ruleName, serviceName));
         }
 
         if (methods.size() > 1) {
-            throw new IllegalArgumentException(String.format("Non-unique '%s' method name in service '%s'. There are %d methods with the same name.", ruleName, serviceName, methods.size()));
+            throw new IllegalArgumentException("Non-unique '%s' method name in service '%s'. There are %d methods with the same name.".formatted(ruleName, serviceName, methods.size()));
         }
 
-        var caller = methods.get(0);
+        var caller = methods.getFirst();
 
         var args = new Object[caller.getParameterCount()];
 
@@ -135,12 +135,12 @@ public class OpenLService {
     }
 
     private static class Invoker {
-        public final Object instance;
-        public final Method caller;
-        public final Object[] args;
-        public final ObjectMapper mapper;
+        private final Object instance;
+        private final Method caller;
+        private final Object[] args;
+        private final ObjectMapper mapper;
 
-        public Invoker(Object instance, Method caller, Object[] args, ObjectMapper mapper) {
+        private Invoker(Object instance, Method caller, Object[] args, ObjectMapper mapper) {
             this.instance = instance;
             this.caller = caller;
             this.args = args;
@@ -153,14 +153,13 @@ public class OpenLService {
     }
 
     private static String errorJSON(ObjectMapper mapper, Throwable ex) {
-        if (ex instanceof InvocationTargetException) {
-            ex = ((InvocationTargetException) ex).getTargetException();
+        if (ex instanceof InvocationTargetException exception) {
+            ex = exception.getTargetException();
         }
         var message = ex.getMessage();
         var type = ex instanceof JsonParseException ? ExceptionType.BAD_REQUEST : ExceptionType.SYSTEM;
         Object body = null;
-        if (ex instanceof RuleServiceWrapperException) {
-            var e = (RuleServiceWrapperException) ex;
+        if (ex instanceof RuleServiceWrapperException e) {
             type = e.getType();
             body = e.getBody();
         }
@@ -177,6 +176,7 @@ public class OpenLService {
             x.putPOJO("error", body);
             return mapper.writeValueAsString(x);
         } catch (Exception ignore) {
+            // JSON serialization failed; fall back to a manually built JSON string below
         }
         /*
         {"result":null,"error":{"message":"@","type":"$"}}
@@ -197,7 +197,7 @@ public class OpenLService {
     public static String callJSONArgs(String serviceName, String ruleName, String... json) throws Exception {
         var service = getService(serviceName);
         if (service == null) {
-            throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
+            throw new IllegalArgumentException("Service '%s' is not found.".formatted(serviceName));
         }
         var instance = service.getServiceBean();
 
@@ -209,14 +209,14 @@ public class OpenLService {
             }
         }
         if (methods.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Method '%s' with %d input arguments is not found in service '%s'.", ruleName, argsCount, serviceName));
+            throw new IllegalArgumentException("Method '%s' with %d input arguments is not found in service '%s'.".formatted(ruleName, argsCount, serviceName));
         }
 
         if (methods.size() > 1) {
-            throw new IllegalArgumentException(String.format("Non-unique '%s' method name with %d input arguments in service '%s'. There are %d methods with the same name and count of arguments.", ruleName, argsCount, serviceName, methods.size()));
+            throw new IllegalArgumentException("Non-unique '%s' method name with %d input arguments in service '%s'. There are %d methods with the same name and count of arguments.".formatted(ruleName, argsCount, serviceName, methods.size()));
         }
 
-        var caller = methods.get(0);
+        var caller = methods.getFirst();
 
         var args = new Object[argsCount];
 
@@ -293,12 +293,12 @@ public class OpenLService {
                                   Object[] params) throws Exception {
         var instance = get(serviceName);
         if (instance == null) {
-            throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
+            throw new IllegalArgumentException("Service '%s' is not found.".formatted(serviceName));
         }
         var method = MethodUtil.getMatchingAccessibleMethod(instance.getClass(), ruleName, inputParamsTypes);
         if (method == null) {
             var types = Arrays.stream(inputParamsTypes).map(x -> x == null ? "null-class" : x.getTypeName()).collect(Collectors.joining(", "));
-            throw new IllegalArgumentException(String.format("Method '%s(%s)' is not found in service '%s'.", ruleName, types, serviceName));
+            throw new IllegalArgumentException("Method '%s(%s)' is not found in service '%s'.".formatted(ruleName, types, serviceName));
         }
         return method.invoke(instance, params);
     }

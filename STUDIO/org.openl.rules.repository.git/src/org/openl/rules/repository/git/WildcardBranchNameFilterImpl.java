@@ -4,7 +4,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -72,7 +71,7 @@ final class WildcardBranchNameFilterImpl implements WildcardBranchNameFilter {
 
     @Override
     public boolean test(String branch) {
-        Path p = Paths.get(branch);
+        Path p = Path.of(branch);
         return matchers.stream().anyMatch(matcher -> matcher.matches(p));
     }
 

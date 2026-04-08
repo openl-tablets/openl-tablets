@@ -8,8 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import jakarta.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,8 +44,8 @@ import org.openl.studio.common.exception.ForbiddenException;
 @Component
 @ConditionalOnProperty(name = "demo.init", havingValue = "true")
 @DependsOn("singleUserModeInit")
+@Slf4j
 public class DemoInit {
-    private static final Logger LOG = LoggerFactory.getLogger(DemoInit.class);
 
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
@@ -76,7 +75,7 @@ public class DemoInit {
             config.put("demo.init", null);
             DynamicPropertySource.get().save(config);
         } catch (IOException ex) {
-            LOG.error("Could not clean demo.init property", ex);
+            log.error("Could not clean demo.init property", ex);
         }
 
         var usr = userManagementService.getAllUsers().getFirst();
@@ -137,7 +136,7 @@ public class DemoInit {
             try {
                 projectCreator.createRulesProject();
             } catch (ProjectException e) {
-                LOG.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
+                log.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
                 return;
             }
             String technicalName = projectCreator.getCreatedProjectName();
@@ -173,7 +172,7 @@ public class DemoInit {
                 deploymentManager.deploy(request);
             }
         } catch (Exception ex) {
-            LOG.error("Project: {}", projectName, ex);
+            log.error("Project: {}", projectName, ex);
         } finally {
             projectCreator.destroy();
         }

@@ -140,7 +140,7 @@ public class XlsBinder implements IOpenBinder {
     private void registerOpenL(String name, OpenL opl) {
         OpenL openl = openls.get(name);
         if (openl != null) {
-            throw new OpenLConfigurationException(String.format("The openl %s already exists", name), null);
+            throw new OpenLConfigurationException("The openl %s already exists".formatted(name), null);
         }
         openls.put(name, opl);
     }
@@ -214,8 +214,7 @@ public class XlsBinder implements IOpenBinder {
             while (bc1 instanceof BindingContextDelegator) {
                 bc1 = ((BindingContextDelegator) bc1).getDelegate();
             }
-            if (bc1 instanceof BindingContext) {
-                BindingContext bc = (BindingContext) bc1;
+            if (bc1 instanceof BindingContext bc) {
                 if (bc.getOpenL() == null || bc.getBinder() == null) { // Workaround
                     bc.setOpenl(openl);
                     bc.setBinder(openl.getBinder());
@@ -675,8 +674,7 @@ public class XlsBinder implements IOpenBinder {
                                   RulesModuleBindingContext rulesModuleBindingContext) {
         Collection<DatatypeTableBoundNode> datatypeTableBoundNodes = null;
         for (IMemberBoundNode children : childrens) {
-            if (children instanceof DatatypeTableBoundNode) {
-                DatatypeTableBoundNode datatypeTableBoundNode = (DatatypeTableBoundNode) children;
+            if (children instanceof DatatypeTableBoundNode datatypeTableBoundNode) {
                 if (datatypeTableBoundNodes == null) {
                     datatypeTableBoundNodes = Arrays.stream(childrens)
                             .filter(e -> e instanceof DatatypeTableBoundNode)
@@ -692,8 +690,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
         for (int i = 0; i < childrens.length; i++) {
-            if (childrens[i] instanceof DatatypeTableBoundNode) {
-                DatatypeTableBoundNode datatypeTableBoundNode = (DatatypeTableBoundNode) childrens[i];
+            if (childrens[i] instanceof DatatypeTableBoundNode datatypeTableBoundNode) {
                 try {
                     datatypeTableBoundNode.generateByteCode(rulesModuleBindingContext);
                 } catch (SyntaxNodeException error) {
@@ -853,6 +850,7 @@ public class XlsBinder implements IOpenBinder {
             return customSpreadsheetResultOpenClass != null;
         }
 
+        @Override
         public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultOpenClass() {
             return customSpreadsheetResultOpenClass;
         }
@@ -915,7 +913,7 @@ public class XlsBinder implements IOpenBinder {
         @Override
         public void startPreBind() {
             if (completed) {
-                throw new IllegalStateException(String.format("Method '%s' is already pre-compiled.",
+                throw new IllegalStateException("Method '%s' is already pre-compiled.".formatted(
                         MethodUtil.printMethod(getHeader().getName(), getHeader().getSignature().getParameterTypes())));
             }
             preBinding = true;
@@ -924,11 +922,11 @@ public class XlsBinder implements IOpenBinder {
         @Override
         public void finishPreBind() {
             if (!completed && preBinding) {
-                throw new IllegalStateException(String.format("Method '%s' is not pre-compiled.",
+                throw new IllegalStateException("Method '%s' is not pre-compiled.".formatted(
                         MethodUtil.printMethod(getHeader().getName(), getHeader().getSignature().getParameterTypes())));
             }
             if (!preBinding) {
-                throw new IllegalStateException(String.format("Pre-compilation is not started for method '%s'.",
+                throw new IllegalStateException("Pre-compilation is not started for method '%s'.".formatted(
                         MethodUtil.printMethod(getHeader().getName(), getHeader().getSignature().getParameterTypes())));
             }
             preBinding = false;
@@ -939,7 +937,7 @@ public class XlsBinder implements IOpenBinder {
             try {
                 if (!completed) {
                     if (!preBinding) {
-                        throw new IllegalStateException(String.format("Pre-compilation is not started for method '%s'.",
+                        throw new IllegalStateException("Pre-compilation is not started for method '%s'.".formatted(
                                 MethodUtil.printMethod(getHeader().getName(),
                                         getHeader().getSignature().getParameterTypes())));
                     }

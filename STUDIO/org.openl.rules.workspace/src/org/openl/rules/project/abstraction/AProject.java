@@ -16,8 +16,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -35,8 +34,8 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
+@Slf4j
 public class AProject extends AProjectFolder implements IProject {
-    private static final Logger LOG = LoggerFactory.getLogger(AProject.class);
 
     /**
      * true if the project has a folder structure and false if the project is stored as a zip
@@ -122,7 +121,7 @@ public class AProject extends AProjectFolder implements IProject {
             // from the repository directly.
             List<FileData> fileDatas = historyFileDatas;
             if (fileDatas != null) {
-                lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
+                lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.getLast().getVersion();
             } else {
                 lastHistoryVersion = findLastHistoryVersion();
             }
@@ -139,7 +138,7 @@ public class AProject extends AProjectFolder implements IProject {
                     return fileData.getVersion();
                 }
             } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
         return null;
@@ -193,7 +192,7 @@ public class AProject extends AProjectFolder implements IProject {
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {
-                LOG.error(ex.getMessage(), ex);
+                log.error(ex.getMessage(), ex);
                 return Collections.emptyList();
             }
         }
@@ -267,12 +266,13 @@ public class AProject extends AProjectFolder implements IProject {
         }
     }
 
+    @Override
     public boolean isDeleted() {
         try {
             FileData fileData = getFileData();
             return fileData == null || fileData.isDeleted();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return false;
         }
     }
@@ -371,11 +371,9 @@ public class AProject extends AProjectFolder implements IProject {
 
     @Override
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
-        if (!(newFolder instanceof AProject)) {
+        if (!(newFolder instanceof AProject projectFrom)) {
             throw new IllegalArgumentException("Cannot update not from AProject");
         }
-
-        AProject projectFrom = (AProject) newFolder;
 
         Repository repositoryTo = getRepository();
 
@@ -447,7 +445,7 @@ public class AProject extends AProjectFolder implements IProject {
             for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
                 writeArtefact(changes, artefact);
             }
-            
+
             if (getResourceTransformer() != null) {
                 changes = getResourceTransformer().transformChangedFiles(null, changes);
             }
@@ -503,8 +501,7 @@ public class AProject extends AProjectFolder implements IProject {
 
     private void writeArtefact(List<FileItem> files, AProjectArtefact artefact) throws IOException,
             ProjectException {
-        if (artefact instanceof AProjectResource) {
-            AProjectResource resource = (AProjectResource) artefact;
+        if (artefact instanceof AProjectResource resource) {
             InputStream content = getResourceTransformer() != null ? getResourceTransformer().transform(resource) : resource.getContent();
             files.add(new FileItem(resource.getInternalPath(), content));
         } else {

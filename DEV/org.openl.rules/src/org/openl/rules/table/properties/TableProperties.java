@@ -544,11 +544,11 @@ public class TableProperties implements ITableProperties {
         String result = null;
         Object propValue = getPropertyValue(key);
         if (propValue != null) {
-            if (propValue instanceof Date) {
+            if (propValue instanceof Date date) {
                 String format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
                 if (format != null) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-                    result = dateFormat.format((Date) propValue);
+                    result = dateFormat.format(date);
                 }
             } else if (EnumUtils.isEnum(propValue)) {
                 result = ((Enum<?>) propValue).name();
@@ -835,9 +835,9 @@ public class TableProperties implements ITableProperties {
                 return ((Object[]) value).clone();
             }
         }
-        if (("expirationDate".equals(name) || "endRequestDate".equals(name)) && value instanceof Date) {
+        if (("expirationDate".equals(name) || "endRequestDate".equals(name)) && value instanceof Date date) {
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime((Date) value);
+            calendar.setTime(date);
             calendar.set(Calendar.HOUR_OF_DAY, 23);
             calendar.set(Calendar.MINUTE, 59);
             calendar.set(Calendar.SECOND, 59);

@@ -88,10 +88,9 @@ public abstract class Pageable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof Pageable pageable)) {
             return false;
         }
-        Pageable pageable = (Pageable) o;
         return size == pageable.size;
     }
 

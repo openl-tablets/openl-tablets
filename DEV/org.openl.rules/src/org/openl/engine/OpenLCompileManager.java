@@ -123,8 +123,8 @@ public class OpenLCompileManager {
                                 .getContextClassLoader();
                         ClassLoader dependencyClassLoader = loadedDependency.getClassLoader();
                         if (dependencyClassLoader != currentClassLoader
-                                && !(dependencyClassLoader instanceof OpenLClassLoader
-                                && ((OpenLClassLoader) dependencyClassLoader)
+                                && !(dependencyClassLoader instanceof OpenLClassLoader loader
+                                && loader
                                 .containsClassLoader(currentClassLoader))) {
 
                             currentClassLoader.addClassLoader(dependencyClassLoader);
@@ -133,8 +133,7 @@ public class OpenLCompileManager {
 
                         CompiledOpenClass compiledOpenClass = loadedDependency.getCompiledOpenClass();
                         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-                        if (openClass instanceof ExtendableModuleOpenClass) {
-                            ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) openClass;
+                        if (openClass instanceof ExtendableModuleOpenClass extendableModuleOpenClass) {
                             extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                         }
 

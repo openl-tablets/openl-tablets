@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -18,17 +19,15 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public class JavaClassRuleServicePublisher implements RuleServicePublisher {
 
-    private final Logger log = LoggerFactory.getLogger(JavaClassRuleServicePublisher.class);
 
+    @Getter
+    @Setter
     private RulesFrontend frontend = new RulesFrontendImpl();
 
     private final Map<String, OpenLService> runningServices = new HashMap<>();
-
-    public RulesFrontend getFrontend() {
-        return frontend;
-    }
 
     /**
      * {@inheritDoc}
@@ -49,7 +48,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
             OpenLService registeredService = frontend.findServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
-                        String.format("Service '%s' is already deployed.", service.getName()));
+                        "Service '%s' is already deployed.".formatted(service.getName()));
             }
             frontend.registerService(service);
             runningServices.put(service.getDeployPath(), service);
@@ -66,13 +65,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         Objects.requireNonNull(deployPath, "deployPath cannot be null");
         frontend.unregisterService(service.getName());
         if (runningServices.remove(deployPath) == null) {
-            throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", deployPath));
+            throw new RuleServiceUndeployException("Service '%s' has not been deployed.".formatted(deployPath));
         }
         log.info("Service '{}' has been undeployed successfully.", deployPath);
-    }
-
-    public void setFrontend(RulesFrontend frontend) {
-        this.frontend = Objects.requireNonNull(frontend, "frontend cannot be null");
     }
 
     @Override

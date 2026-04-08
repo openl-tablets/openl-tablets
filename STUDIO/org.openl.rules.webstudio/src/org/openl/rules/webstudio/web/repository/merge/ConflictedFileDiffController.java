@@ -8,10 +8,9 @@ import java.util.Optional;
 import jakarta.annotation.PreDestroy;
 import jakarta.faces.component.UIComponent;
 
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -34,8 +33,8 @@ import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
+@Slf4j
 public class ConflictedFileDiffController extends ExcelDiffController {
-    private static final Logger LOG = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
@@ -112,7 +111,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 compare(Arrays.asList(theirFile, ourFile));
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new Message(e.getMessage(), e);
         }
     }
@@ -126,8 +125,8 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
     private static void clearTreeSelection() {
         UIComponent treeComponent = RichFunction.findComponent("newTree");
-        if (treeComponent instanceof UITree) {
-            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        if (treeComponent instanceof UITree tree) {
+            tree.setSelection(Collections.emptyList());
         }
     }
 
@@ -137,7 +136,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         }
         File ourFile = FileTool.toTempFile(item.getStream(), FileUtils.getName(fullName));
         if (ourFile == null) {
-            throw new FileNotFoundException(String.format("Cannot create temp file for '%s'", fullName));
+            throw new FileNotFoundException("Cannot create temp file for '%s'".formatted(fullName));
         }
         addTempFile(ourFile);
         return ourFile;

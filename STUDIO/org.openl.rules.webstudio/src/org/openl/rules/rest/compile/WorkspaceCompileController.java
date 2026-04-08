@@ -55,13 +55,13 @@ public class WorkspaceCompileController {
             response.dataType("new");
             if (messageIndex != -1 && messageId != -1 && messageIndex < messages.size()) {
                 MessageDescription messageDescription = messages.get(messageIndex);
-                if (messageDescription.getId() == messageId) {
+                if (messageDescription.id() == messageId) {
                     messages = messages.subList(messageIndex + 1, messages.size());
                     response.dataType("add");
                 }
             }
             response.messages(messages);
-            response.messageId(messages.isEmpty() ? -1 : messages.get(messages.size() - 1).getId());
+            response.messageId(messages.isEmpty() ? -1 : messages.getLast().id());
             response.messageIndex(messages.size() - 1);
             response.errorsCount(status.getErrorsCount());
             response.warningsCount(status.getWarningsCount());
@@ -202,7 +202,7 @@ public class WorkspaceCompileController {
     private String getTestName(IOpenMethod method) {
         String name = TableSyntaxNodeUtils.getTestName(method);
         String info = ProjectHelper.getTestInfo(method);
-        return String.format("%s (%s)", name, info);
+        return "%s (%s)".formatted(name, info);
     }
 
 }

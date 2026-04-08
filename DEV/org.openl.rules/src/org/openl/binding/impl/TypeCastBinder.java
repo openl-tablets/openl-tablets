@@ -31,7 +31,7 @@ public class TypeCastBinder extends ANodeBinder {
         IOpenCast cast = bindingContext.getCast(from, to);
 
         if (cast == null) {
-            return makeErrorNode(String.format("Cannot convert from '%s' to '%s'.", from.getName(), to.getName()),
+            return makeErrorNode("Cannot convert from '%s' to '%s'.".formatted(from.getName(), to.getName()),
                     node,
                     bindingContext);
         }

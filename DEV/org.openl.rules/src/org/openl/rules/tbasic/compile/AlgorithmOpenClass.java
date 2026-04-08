@@ -5,8 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedFieldException;
@@ -14,8 +13,8 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.types.IOpenField;
 
+@Slf4j
 public class AlgorithmOpenClass extends ComponentOpenClass {
-    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmOpenClass.class);
 
     private final Set<String> invisibleFields = new HashSet<>();
 
@@ -49,7 +48,7 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
         try {
             super.addField(field);
         } catch (DuplicatedFieldException e) {
-            LOG.debug("Error occurred: ", e);
+            log.debug("Error occurred: ", e);
             throw new DuplicatedVarException("", e.getFieldName());
         }
     }

@@ -17,8 +17,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
@@ -37,13 +36,13 @@ import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 
+@Slf4j
 public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private static final Pattern ASTERISK_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
     private static final Pattern SLASH_SIGN = Pattern.compile("\\s*/\\s*");
 
-    private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
     private volatile CopyOnWriteArraySet<IDependencyLoader> dependencyLoaders;
     private final Object dependencyLoadersFlag = new Object();
@@ -105,13 +104,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (this == obj) {
                 return true;
             }
-            if (obj == null) {
+            if (!(obj instanceof DependencyRelation other)) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            DependencyRelation other = (DependencyRelation) obj;
             if (dependOnThisDependency == null) {
                 if (other.dependOnThisDependency != null) {
                     return false;
@@ -128,7 +123,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         @Override
         public String toString() {
-            return String.format("DependencyReference [dependOnThisDependency=%s, dependency=%s]",
+            return "DependencyReference [dependOnThisDependency=%s, dependency=%s]".formatted(
                     dependOnThisDependency.getDependency(),
                     dependency.getDependency());
         }
@@ -193,7 +188,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
             if (isCircularDependency) {
                 throw new OpenLCompilationException(
-                        String.format("Circular dependency is detected: %s.",
+                        "Circular dependency is detected: %s.".formatted(
                                 buildCircularDependencyDetails(dependencyLoader, compilationStack)),
                         null,
                         dependency.getNode().getSourceLocation(),
@@ -318,13 +313,13 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (!withWildcard && ret.size() != 1) {
             if (ret.isEmpty()) {
                 throw new DependencyNotFoundException(
-                        String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                        "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
                         null,
                         dependency.getNode().getSourceLocation(),
                         dependency.getNode().getModule());
             } else {
                 throw new AmbiguousDependencyException(
-                        String.format("Multiple dependencies '%s' are found.", dependency.getNode().getIdentifier()),
+                        "Multiple dependencies '%s' are found.".formatted(dependency.getNode().getIdentifier()),
                         null,
                         dependency.getNode().getSourceLocation(),
                         dependency.getNode().getModule());
@@ -338,7 +333,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
         if (dependencyLoader == null) {
             throw new OpenLCompilationException(
-                    String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                    "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
                     null,
                     dependency.getNode().getSourceLocation(),
                     dependency.getNode().getModule());
@@ -377,7 +372,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private CompiledDependency throwDependencyNotFoundError(IDependency dependency) throws OpenLCompilationException {
         IdentifierNode node = dependency.getNode();
-        throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", node.getIdentifier()),
+        throw new OpenLCompilationException("Dependency '%s' is not found.".formatted(node.getIdentifier()),
                 null,
                 node.getSourceLocation(),
                 node.getModule());
@@ -478,7 +473,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (depLoader.getRefToCompiledDependency() != null) {
                 CompiledDependency compiledDependency = depLoader.getRefToCompiledDependency();
                 IOpenClass openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
-                if (openClass instanceof XlsModuleOpenClass && ((XlsModuleOpenClass) openClass)
+                if (openClass instanceof XlsModuleOpenClass class1 && class1
                         .isAppliedChangesToClasspath()) {
                     // Datatypes are generated into the project classloader. If module contains datatype then
                     // whole project needs to be recompiled.

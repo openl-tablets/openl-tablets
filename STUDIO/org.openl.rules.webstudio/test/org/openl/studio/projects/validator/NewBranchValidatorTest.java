@@ -99,9 +99,10 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
         var result = validateAndGetResult("foo/bar", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
-        assertObjectError("Cannot create the branch 'foo/bar' because the branch 'foo' already exists.\n" +
-                "Explanation: for example a branch 'foo/bar' exists. That branch can be considered as a file bar located in the folder 'foo'.\n" +
-                "So you cannot create a branch 'foo/bar/baz' because you cannot create the folder 'foo/bar': the file with such name already exists.", result.getGlobalError());
+        assertObjectError("""
+                Cannot create the branch 'foo/bar' because the branch 'foo' already exists.
+                Explanation: for example a branch 'foo/bar' exists. That branch can be considered as a file bar located in the folder 'foo'.
+                So you cannot create a branch 'foo/bar/baz' because you cannot create the folder 'foo/bar': the file with such name already exists.""", result.getGlobalError());
     }
 
     @Test

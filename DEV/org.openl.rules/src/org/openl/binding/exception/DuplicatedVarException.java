@@ -6,6 +6,8 @@
 
 package org.openl.binding.exception;
 
+import java.io.Serial;
+
 import org.openl.exception.OpenlNotCheckedException;
 
 /**
@@ -13,6 +15,7 @@ import org.openl.exception.OpenlNotCheckedException;
  */
 public class DuplicatedVarException extends OpenlNotCheckedException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final String variableName;
@@ -33,7 +36,7 @@ public class DuplicatedVarException extends OpenlNotCheckedException {
             sb.append(super.getMessage());
         }
 
-        sb.append(String.format("Variable '%s' is already defined.", variableName));
+        sb.append("Variable '%s' is already defined.".formatted(variableName));
         return sb.toString();
     }
 

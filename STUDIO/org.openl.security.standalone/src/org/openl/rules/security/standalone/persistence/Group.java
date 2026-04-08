@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
 import jakarta.persistence.CollectionTable;
@@ -11,12 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 
 /**
  * Group.
@@ -26,6 +22,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "OpenL_Groups")
 public class Group implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;
@@ -55,8 +52,6 @@ public class Group implements Serializable {
 
     /**
      * Group name.
-     *
-     * @return
      */
     @Column(length = 65, name = "groupName", unique = true, nullable = false)
     public String getName() {
@@ -65,8 +60,6 @@ public class Group implements Serializable {
 
     /**
      * Comma separated list of user's privileges.
-     *
-     * @return
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "OpenL_Group_Authorities", joinColumns = @JoinColumn(name = "groupID"))
@@ -91,10 +84,8 @@ public class Group implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof Group group))
             return false;
-
-        Group group = (Group) o;
 
         return id != null ? id.equals(group.id) : group.id == null;
     }

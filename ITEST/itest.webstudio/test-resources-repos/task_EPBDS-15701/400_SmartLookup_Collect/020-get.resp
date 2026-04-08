@@ -1,0 +1,79 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "c926ad554329f8a5caccf920cd8600ad",
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "collectSmartLookup",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "No input parameter found for horizontal condition.",
+      "severity": "ERROR"
+    }
+  ],
+  "returnType": "Integer[]",
+  "args": [
+    {
+      "name": "region",
+      "type": "String"
+    },
+    {
+      "name": "category",
+      "type": "String"
+    }
+  ],
+  "collect": true,
+  "headers": [
+    {
+      "title": "Region"
+    },
+    {
+      "title": "Small",
+      "children": [
+        {
+          "title": "A"
+        },
+        {
+          "title": "B"
+        }
+      ]
+    },
+    {
+      "title": "Large",
+      "children": [
+        {
+          "title": "A"
+        },
+        {
+          "title": "B"
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "Region": "North",
+      "Small": {
+        "A": 10,
+        "B": 20
+      },
+      "Large": {
+        "A": 30,
+        "B": 40
+      }
+    },
+    {
+      "Region": "South",
+      "Small": {
+        "A": 50,
+        "B": 60
+      },
+      "Large": {
+        "A": 70,
+        "B": 80
+      }
+    }
+  ]
+}

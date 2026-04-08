@@ -32,7 +32,7 @@ public class TestUtils {
         String s = sw.toString();
         if (errorMessages.length == 1) {
             if (!s.contains(errorMessages[0])) {
-                throw new RuntimeException(String.format("Expect to see '%s' in stack trace.", errorMessages[0]), ex);
+                throw new RuntimeException("Expect to see '%s' in stack trace.".formatted(errorMessages[0]), ex);
             }
         } else {
             boolean[] ok = new boolean[errorMessages.length];
@@ -71,8 +71,7 @@ public class TestUtils {
                 throwable = throwable.getCause();
                 protectionFromCyclicDependency++;
             }
-            if (throwable instanceof CompositeOpenlException) {
-                CompositeOpenlException compositeOpenlException = (CompositeOpenlException) throwable;
+            if (throwable instanceof CompositeOpenlException compositeOpenlException) {
                 return compositeOpenlException.getErrorMessages();
             }
         }
@@ -139,8 +138,8 @@ public class TestUtils {
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             RuntimeException exc;
-            if (targetException instanceof RuntimeException) {
-                exc = (RuntimeException) targetException;
+            if (targetException instanceof RuntimeException exception) {
+                exc = exception;
             } else {
                 exc = new IllegalStateException(targetException);
             }

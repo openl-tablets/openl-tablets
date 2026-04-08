@@ -1,7 +1,10 @@
 package org.openl.rules.vm;
 
+import java.io.Serial;
+
 public class ResultNotFoundException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 2767662067900098124L;
 
     public ResultNotFoundException() {

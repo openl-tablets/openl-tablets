@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "executionTimeMs": "##.##",
+  "numberOfTests": 34,
+  "numberOfFailures": 0,
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 14,
+  "testCases": "*"
+}

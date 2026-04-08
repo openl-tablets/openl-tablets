@@ -59,7 +59,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
-            String message = String.format(NAME_ERROR_MESSAGE, "Datatype table", typeName);
+            String message = NAME_ERROR_MESSAGE.formatted("Datatype table", typeName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
         }
         IOpenClass openClass;

@@ -52,7 +52,7 @@ public final class EnumUtils {
     public static Object[] getEnumConstants(Class<?> enumClass) {
         if (!enumClass.isEnum()) {
             throw new IllegalArgumentException(
-                    String.format("The class '%s' must be an enum.", enumClass.getTypeName()));
+                    "The class '%s' must be an enum.".formatted(enumClass.getTypeName()));
         }
         return enumClass.getEnumConstants();
     }

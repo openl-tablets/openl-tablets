@@ -1,4 +1,4 @@
-if (Boolean.valueOf(System.getProperty("noPerf"))) {
+if (Boolean.valueOf(noPerf)) {
     return true
 }
 
@@ -15,17 +15,17 @@ for (def test : folder.getParentFile().listFiles()) {
     def propsFile = new File(test, "invoker.properties")
     def props = new Properties()
     if (propsFile.exists()) {
-        props.load(propsFile.newInputStream());
+        props.load(propsFile.newInputStream())
     }
     if (props.containsKey("openl.perf.mavenOpts")) {
         props.setProperty("invoker.mavenOpts", props.getProperty("openl.perf.mavenOpts"))
         props.remove("openl.perf.mavenOpts")
     }
 
-    def poms = 0;
+    def poms = 0
     test.eachFileRecurse(groovy.io.FileType.FILES) { file ->
         if (file.getName() == "pom.xml") {
-            poms++;
+            poms++
         }
     }
 
@@ -37,7 +37,7 @@ for (def test : folder.getParentFile().listFiles()) {
 
     timeout *= (clock / 1500) // Adjust for performance of the server, 2000 is the base time
 
-    timeout = Math.max(timeout.toInteger(), 10);
+    timeout = Math.max(timeout.toInteger(), 10)
 
     props.setProperty("invoker.timeoutInSeconds", timeout.toString())
 

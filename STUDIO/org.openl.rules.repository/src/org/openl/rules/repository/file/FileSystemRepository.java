@@ -18,11 +18,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -31,6 +30,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.FileUtils;
 
@@ -39,8 +39,8 @@ import org.openl.util.FileUtils;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class FileSystemRepository implements Repository, Closeable {
-    private static final Logger LOG = LoggerFactory.getLogger(FileSystemRepository.class);
 
     private Path root;
     private ChangesMonitor monitor;
@@ -87,7 +87,7 @@ public class FileSystemRepository implements Repository, Closeable {
                     try {
                         list.add(getFileData(file));
                     } catch (Exception ex) {
-                        LOG.warn("Failed to resolve file '{}' in the directory '{}'.",
+                        log.warn("Failed to resolve file '{}' in the directory '{}'.",
                                 file.getFileName(),
                                 directory,
                                 ex);
@@ -198,7 +198,7 @@ public class FileSystemRepository implements Repository, Closeable {
                     break;
                 }
             } catch (IOException e) {
-                LOG.warn("Failed to check or delete parent directory '{}'.", parent, e);
+                log.warn("Failed to check or delete parent directory '{}'.", parent, e);
                 break;
             }
             parent = parent.equals(root) ? null : parent.getParent();
@@ -230,14 +230,14 @@ public class FileSystemRepository implements Repository, Closeable {
                 return Collections.singletonList(data);
             }
         } catch (Exception ex) {
-            LOG.warn("Failed to resolve a file '{}'.", file, ex);
+            log.warn("Failed to resolve a file '{}'.", file, ex);
         }
         return Collections.emptyList();
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(name))) {
             return check(name);
         }
         return null;
@@ -245,7 +245,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(name))) {
             return read(name);
         }
         return null;
@@ -253,12 +253,15 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        return data.getVersion() == null && delete(data);
+        if (data.getVersion() == null || Objects.equals(data.getVersion(), getVersion(data.getName()))) {
+            return delete(data);
+        }
+        return false;
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(srcName))) {
             return copy(srcName, destData);
         }
         throw new FileNotFoundException("File versions are not supported.");
@@ -271,7 +274,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     protected FileData getFileData(Path file) throws IOException {
         if (!Files.exists(file)) {
-            throw new FileNotFoundException(String.format("File '%s' does not exist.", file));
+            throw new FileNotFoundException("File '%s' does not exist.".formatted(file));
         }
         var data = new FileData();
 
@@ -281,6 +284,12 @@ public class FileSystemRepository implements Repository, Closeable {
         data.setVersion(getVersion(file));
         if (Files.isRegularFile(file)) {
             data.setSize(Files.size(file));
+        }
+        try {
+            var owner = Files.getOwner(file);
+            data.setAuthor(new UserInfo(owner.getName()));
+        } catch (UnsupportedOperationException ignored) {
+            // File system does not support owner attribute
         }
         return data;
     }
@@ -307,7 +316,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listFolders(String path) {
-        var files = new LinkedList<FileData>();
+        var files = new ArrayList<FileData>();
         var directory = root.resolve(path);
         if (Files.isDirectory(directory)) {
             try (var stream = Files.list(directory)) {
@@ -315,11 +324,11 @@ public class FileSystemRepository implements Repository, Closeable {
                     try {
                         files.add(getFileData(file));
                     } catch (Exception ex) {
-                        LOG.warn("Failed to resolve folder '{}'.", directory, ex);
+                        log.warn("Failed to resolve folder '{}'.", directory, ex);
                     }
                 });
             } catch (IOException e) {
-                LOG.warn("Failed to list folders in directory '{}'.", directory, e);
+                log.warn("Failed to list folders in directory '{}'.", directory, e);
             }
         }
         return files;
@@ -329,9 +338,13 @@ public class FileSystemRepository implements Repository, Closeable {
         return null;
     }
 
+    protected String getVersion(String path) throws IOException {
+        return null;
+    }
+
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(path))) {
             return list(path);
         }
 
@@ -384,7 +397,7 @@ public class FileSystemRepository implements Repository, Closeable {
                     try {
                         Files.delete(file);
                     } catch (IOException e) {
-                        LOG.warn("Failed to delete a file: '{}'", file, e);
+                        log.warn("Failed to delete a file: '{}'", file, e);
                     }
                 }
                 return FileVisitResult.CONTINUE;
@@ -407,7 +420,7 @@ public class FileSystemRepository implements Repository, Closeable {
                         Files.delete(dir);
                     }
                 } catch (IOException e) {
-                    LOG.warn("Failed to delete an empty directory: '{}'", dir, e);
+                    log.warn("Failed to delete an empty directory: '{}'", dir, e);
                 }
                 return FileVisitResult.CONTINUE;
             }

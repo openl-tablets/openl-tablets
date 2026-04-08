@@ -36,7 +36,7 @@ final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
             }
         }
         throw new ClassCastException(
-                String.format("Cannot convert from '%s' to '%s'.", from.getClass().getTypeName(), to.getName()));
+                "Cannot convert from '%s' to '%s'.".formatted(from.getClass().getTypeName(), to.getName()));
     }
 
     @Override

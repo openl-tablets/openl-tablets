@@ -56,7 +56,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
      */
     @Override
     public Saml2Authentication convert(OpenSaml5AuthenticationProvider.ResponseToken responseToken) {
-        Assertion assertion = responseToken.getResponse().getAssertions().iterator().next();
+        Assertion assertion = responseToken.getResponse().getAssertions().getFirst();
         SimpleUserSamlBuilder simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);
         simpleUserBuilder.setAssertionAttributes(assertion);
         simpleUserBuilder.setNameID(assertion.getSubject().getNameID().getValue());
@@ -145,7 +145,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
 
         private String getAttributeAsString(String key) {
             List<String> values = fields.get(key);
-            return CollectionUtils.isNotEmpty(values) ? values.iterator().next() : null;
+            return CollectionUtils.isNotEmpty(values) ? values.getFirst() : null;
         }
 
         private List<String> getAttributeValues(String key) {
@@ -154,14 +154,11 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
 
         // The resulting fields are used to create a SimpleUser, only strings are expected.
         private String getAttributeValue(XMLObject xmlObject) {
-            String textContent;
-            if (xmlObject instanceof XSString) {
-                textContent = ((XSString) xmlObject).getValue();
-            } else if (xmlObject instanceof XSAny) {
-                textContent = ((XSAny) xmlObject).getTextContent();
-            } else {
-                textContent = Optional.ofNullable(xmlObject.getDOM()).map(Node::getTextContent).orElse(null);
-            }
+            String textContent = switch (xmlObject) {
+                case XSString string -> string.getValue();
+                case XSAny any -> any.getTextContent();
+                case null, default -> Optional.ofNullable(xmlObject.getDOM()).map(Node::getTextContent).orElse(null);
+            };
             return StringUtils.trimToNull(textContent);
         }
 

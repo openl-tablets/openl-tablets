@@ -2,8 +2,11 @@ package org.openl.studio.tags.rest.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -11,7 +14,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,9 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -36,21 +43,33 @@ import org.openl.studio.common.model.GenericView;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.tags.model.TagTypeDTO;
 import org.openl.studio.tags.service.TagService;
+import org.openl.studio.tags.service.TagTemplateService;
 import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping(value = "/admin/tag-config")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
+@Slf4j
 public class TagConfigController {
+
 
     private final TagTypeService tagTypeService;
     private final TagService tagService;
+    private final TagTemplateService tagTemplateService;
 
     @Autowired
-    public TagConfigController(TagTypeService tagTypeService, TagService tagService) {
+    public TagConfigController(TagTypeService tagTypeService,
+                               TagService tagService,
+                               TagTemplateService tagTemplateService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
+        this.tagTemplateService = tagTemplateService;
+    }
+
+    @Lookup
+    public UserWorkspace getUserWorkspace() {
+        return null;
     }
 
     @Operation(summary = "tags.get-types.summary", description = "tags.get-types.desc")
@@ -215,6 +234,61 @@ public class TagConfigController {
             tagService.update(tag);
             return ResponseEntity.noContent().build();
         }
+    }
+
+    @Operation(summary = "tags.get-templates.summary", description = "tags.get-templates.desc")
+    @GetMapping(value = "/templates", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminPrivilege
+    public List<String> getTemplates() {
+        return tagTemplateService.getTemplates();
+    }
+
+    @Operation(summary = "tags.save-templates.summary", description = "tags.save-templates.desc")
+    @PutMapping(value = "/templates", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminPrivilege
+    public void saveTemplates(@RequestBody List<String> templates) {
+        for (String template : templates) {
+            if (StringUtils.isNotBlank(template)) {
+                String error = tagTemplateService.validate(template);
+                if (error != null) {
+                    throw new BadRequestException("tag-template.invalid.message", new Object[]{error});
+                }
+            }
+        }
+        tagTemplateService.save(templates);
+    }
+
+    @Operation(summary = "tags.fill-tags.summary", description = "tags.fill-tags.desc")
+    @PostMapping(value = "/fill", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @AdminPrivilege
+    public Map<String, Integer> fillTagsForProjects() {
+        var workspace = getUserWorkspace();
+        int updated = 0;
+        int skipped = 0;
+        for (RulesProject project : workspace.getProjects()) {
+            try {
+                String projectName = project.getBusinessName();
+                List<Tag> tags = tagTemplateService.getTags(projectName);
+                if (tags.isEmpty()) {
+                    skipped++;
+                    continue;
+                }
+                Map<String, String> tagMap = tags.stream()
+                        .collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName, (a, b) -> a));
+                // Merge with existing tags — template tags take priority
+                Map<String, String> currentTags = new HashMap<>(project.getLocalTags());
+                currentTags.putAll(tagMap);
+                project.saveTags(currentTags);
+                updated++;
+            } catch (Exception e) {
+                log.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
+                skipped++;
+            }
+        }
+        workspace.refresh();
+        return Map.of("updated", updated, "skipped", skipped);
     }
 
     private ResponseEntity<Void> created(HttpServletRequest request, Long id) {

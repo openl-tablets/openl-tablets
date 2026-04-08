@@ -31,10 +31,10 @@ class ValidationHandler {
         if (obj != null) {
             if (type.isArray()) {
                 doValidateArray(env, obj, type);
-            } else if (type instanceof DomainOpenClass) {
-                validateAliasValue(obj, (DomainOpenClass) type);
-            } else if (type instanceof DatatypeOpenClass) {
-                doValidateDatatype(env, obj, (DatatypeOpenClass) type);
+            } else if (type instanceof DomainOpenClass class2) {
+                validateAliasValue(obj, class2);
+            } else if (type instanceof DatatypeOpenClass class1) {
+                doValidateDatatype(env, obj, class1);
             }
         }
     }
@@ -63,7 +63,7 @@ class ValidationHandler {
         boolean isInDomain = domain.selectObject(value);
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(
-                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    "Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
                             value,
                             domainOpenClass.getName(),
                             DomainUtils.toString(domain)));

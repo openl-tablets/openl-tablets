@@ -37,8 +37,8 @@ public class BindingDependencies {
     public void addMethodDependency(IOpenMethod method, IBoundNode node) {
         methods.put(method, node);
         // check if method is instance of Openl executable rules method.
-        if (method instanceof ExecutableMethod) {
-            rulesMethods.put((ExecutableMethod) method, node);
+        if (method instanceof ExecutableMethod executableMethod) {
+            rulesMethods.put(executableMethod, node);
         }
     }
 

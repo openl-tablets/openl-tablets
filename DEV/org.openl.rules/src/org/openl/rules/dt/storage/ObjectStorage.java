@@ -59,8 +59,8 @@ public class ObjectStorage implements IStorage<Object> {
     @Override
     public void setFormula(int index, Object formula) {
         values[index] = formula;
-        if (formula instanceof CompositeMethod) {
-            exprValues[index] = new Expr(((CompositeMethod) formula).getMethodBodyBoundNode());
+        if (formula instanceof CompositeMethod method) {
+            exprValues[index] = new Expr(method.getMethodBodyBoundNode());
         }
     }
 

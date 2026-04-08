@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
@@ -19,8 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.instantiation.ReloadType;
@@ -36,16 +34,16 @@ import org.openl.studio.projects.model.history.ProjectHistoryItem;
 import org.openl.util.FileUtils;
 
 @Service
+@Slf4j
 public class ProjectHistoryService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectHistoryService.class);
     private static final String CURRENT_VERSION = "_current";
     private static final String REVISION_VERSION = "Revision Version";
 
     public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
         ProjectModel model = webStudio.getModel();
-        String projectHistoryPath = Paths
-                .get(webStudio.getWorkspacePath(),
+        String projectHistoryPath = Path
+                .of(webStudio.getWorkspacePath(),
                         FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
                 .toString();
         File dir = new File(projectHistoryPath);
@@ -57,7 +55,7 @@ public class ProjectHistoryService {
         List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
                 .map(this::createItem)
                 .collect(Collectors.toList());
-        ProjectHistoryItem revisionVersion = collect.remove(0);
+        ProjectHistoryItem revisionVersion = collect.removeFirst();
         collect.add(revisionVersion);
         return collect;
     }
@@ -107,7 +105,7 @@ public class ProjectHistoryService {
         try {
             FileUtils.copy(source, new File(storagePath, REVISION_VERSION + CURRENT_VERSION));
         } catch (Exception e) {
-            LOG.error("Cannot add file", e);
+            log.error("Cannot add file", e);
         }
     }
 
@@ -115,7 +113,7 @@ public class ProjectHistoryService {
         File userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-        String projectHistoryPath = Paths.get(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
+        String projectHistoryPath = Path.of(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
                 .toString();
         File dir = new File(projectHistoryPath);
         // Project can contain no history
@@ -138,7 +136,7 @@ public class ProjectHistoryService {
                     deleteHistoryOverLimit(storagePath);
                 }
             } catch (IOException e) {
-                LOG.error("Cannot add file", e);
+                log.error("Cannot add file", e);
             }
         }
     }
@@ -179,7 +177,7 @@ public class ProjectHistoryService {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Cannot delete history", e);
+            log.error("Cannot delete history", e);
         }
     }
 

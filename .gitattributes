@@ -7,30 +7,26 @@
 **/*.xlsx binary
 **/*.doc binary
 **/*.docx binary
-**/*.pdf binary
 **/*.jar binary
 **/*.class binary
 **/*.jpg binary
 **/*.gif binary
 **/*.png binary
 **/*.ico binary
-**/*.xmind binary
-**/*.vsd binary
 
 # Windows files
-**/*.cmd eol=crlf
-**/*.vbs eol=crlf
+**/*.cmd text eol=crlf
+**/*.ps1 text eol=crlf
 
 # Unix files
-**/*.sh eol=lf
-**/start eol=lf
-**/stop eol=lf
+**/*.sh text eol=lf
+**/start text eol=lf
 
 # EOL for Dockerfile
-**/Dockerfile eol=lf
+**/Dockerfile text eol=lf
 
 # EOL for Http Requests
-**/*.req eol=crlf
-**/*.resp eol=crlf
-**/*.http eol=crlf
-**/*.eml eol=crlf
+**/*.req text eol=crlf
+**/*.resp text eol=crlf
+**/*.http text eol=crlf
+**/*.eml text eol=crlf

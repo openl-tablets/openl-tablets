@@ -61,6 +61,7 @@ public class OpenAPIConfiguration {
     static abstract class SortedOpenAPIMixin extends OpenAPIMixin {
 
         @JsonPropertyOrder(alphabetic = true)
+        @Override
         public abstract Map<String, Object> getExtensions();
 
     }
@@ -69,6 +70,7 @@ public class OpenAPIConfiguration {
     static abstract class OpenApiXmlIgnoreMixIn extends SchemaMixin {
 
         @JsonPropertyOrder(alphabetic = true)
+        @Override
         public abstract Map<String, Object> getExtensions();
 
         @JsonIgnore
@@ -119,7 +121,7 @@ public class OpenAPIConfiguration {
             return result;
         } finally {
             // Restore the previous converters
-            var ignore = clearConverters(singleton);
+            clearConverters(singleton);
             var itr = converters.listIterator(converters.size());
             while (itr.hasPrevious()) {
                 var converter = itr.previous();

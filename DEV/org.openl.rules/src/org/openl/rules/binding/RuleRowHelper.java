@@ -123,8 +123,8 @@ public final class RuleRowHelper {
                     index.setValue(arrayValues, i, values.get(i));
                 }
             } else {
-                if (arrayValues instanceof Collection) {
-                    ((Collection) arrayValues).addAll(values);
+                if (arrayValues instanceof Collection collection) {
+                    collection.addAll(values);
                 }
             }
         } else {
@@ -210,8 +210,8 @@ public final class RuleRowHelper {
             try {
                 Object res = loadNativeValue(theValueCell, paramType);
 
-                if (res instanceof IMetaHolder) {
-                    setMetaInfo((IMetaHolder) res, table, paramName, ruleName, openlAdapter.getBindingContext());
+                if (res instanceof IMetaHolder holder) {
+                    setMetaInfo(holder, table, paramName, ruleName, openlAdapter.getBindingContext());
                 }
 
                 if (res != null) {
@@ -305,14 +305,13 @@ public final class RuleRowHelper {
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
-        if (bindingContext instanceof ComponentBindingContext) {
-            IOpenClass openClass = ((ComponentBindingContext) bindingContext).getComponentOpenClass();
-            if (openClass instanceof XlsModuleOpenClass) {
-                return (XlsModuleOpenClass) openClass;
+        if (bindingContext instanceof ComponentBindingContext context) {
+            IOpenClass openClass = context.getComponentOpenClass();
+            if (openClass instanceof XlsModuleOpenClass class1) {
+                return class1;
             }
         }
-        if (bindingContext instanceof BindingContextDelegator) {
-            BindingContextDelegator bindingContextDelegator = (BindingContextDelegator) bindingContext;
+        if (bindingContext instanceof BindingContextDelegator bindingContextDelegator) {
             return getComponentOpenClass(bindingContextDelegator.getDelegate());
         }
         return null;
@@ -326,8 +325,8 @@ public final class RuleRowHelper {
         XlsModuleOpenClass xlsModuleOpenClass = getComponentOpenClass(bindingContext);
         if (xlsModuleOpenClass != null) {
             IOpenField openField = xlsModuleOpenClass.getField(source.trim());
-            if (openField instanceof ConstantOpenField) {
-                return (ConstantOpenField) openField;
+            if (openField instanceof ConstantOpenField field) {
+                return field;
             }
         }
         return null;
@@ -340,7 +339,7 @@ public final class RuleRowHelper {
         if (openCast != null && openCast.isImplicit()) {
             return openCast.convert(constantOpenField.getValue());
         } else {
-            throw new ClassCastException(String.format("Expected value of type '%s'.", expectedType.getName()));
+            throw new ClassCastException("Expected value of type '%s'.".formatted(expectedType.getName()));
         }
     }
 
@@ -386,7 +385,7 @@ public final class RuleRowHelper {
             if (expectedType == null) {
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                         bindingContext);
-                BindHelper.processError(String.format("Cannot parse cell value '%s'. Undefined cell type.", source),
+                BindHelper.processError("Cannot parse cell value '%s'. Undefined cell type.".formatted(source),
                         cellSourceCodeModule,
                         bindingContext);
                 return null;
@@ -426,7 +425,7 @@ public final class RuleRowHelper {
                 // As a result various exception types can be thrown (e.g.
                 // CompositeSyntaxNodeException) with not user-friendly message.
                 //
-                String message = String.format("Cannot parse cell value '%s'. Expected value of type '%s'.",
+                String message = "Cannot parse cell value '%s'. Expected value of type '%s'.".formatted(
                         source,
                         paramType.getDisplayName(INamedThing.SHORT));
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
@@ -434,14 +433,14 @@ public final class RuleRowHelper {
                 BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);
             }
 
-            if (result instanceof IMetaHolder) {
-                setMetaInfo((IMetaHolder) result, cell, paramName, ruleName, bindingContext);
+            if (result instanceof IMetaHolder holder) {
+                setMetaInfo(holder, cell, paramName, ruleName, bindingContext);
             }
 
             try {
                 validateValue(result, paramType);
             } catch (Exception e) {
-                String message = String.format("Invalid cell value '%s'", source);
+                String message = "Invalid cell value '%s'".formatted(source);
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                         bindingContext);
 
@@ -458,8 +457,8 @@ public final class RuleRowHelper {
                                             ConstantOpenField constantOpenField,
                                             ICell theValueCell) {
         MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
-        if (metaInfoReader instanceof BaseMetaInfoReader) {
-            ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, constantOpenField);
+        if (metaInfoReader instanceof BaseMetaInfoReader reader) {
+            reader.addConstant(theValueCell, constantOpenField);
         }
     }
 
@@ -519,8 +518,7 @@ public final class RuleRowHelper {
                 Object element = Array.get(value, i);
                 validateDomain(element, domain, paramType);
             }
-        } else if (value instanceof Iterable && !(value instanceof INumberRange)) {
-            Iterable list = (Iterable) value;
+        } else if (value instanceof Iterable list && !(value instanceof INumberRange)) {
             for (Object element : list) {
                 validateDomain(element, domain, paramType);
             }
@@ -533,7 +531,7 @@ public final class RuleRowHelper {
                 boolean contains = domain.selectObject(value);
                 if (!contains) {
                     throw new OpenLCompilationException(
-                            String.format("The value '%s' is outside of valid domain '%s'. Valid values: %s",
+                            "The value '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
                                     value,
                                     paramType.getName(),
                                     DomainUtils.toString(domain)));
@@ -660,8 +658,8 @@ public final class RuleRowHelper {
                 }
             }
             // For backward compatibility
-            while (values.size() > 0 && values.get(values.size() - 1) == EMPTY_CELL) {
-                values.remove(values.size() - 1);
+            while (values.size() > 0 && values.getLast() == EMPTY_CELL) {
+                values.removeLast();
             }
             for (int i = 0; i < values.size(); i++) {
                 if (values.get(i) == EMPTY_CELL) {
@@ -707,8 +705,8 @@ public final class RuleRowHelper {
                     values.add(values1);
                 }
             }
-            while (values.size() > 0 && values.get(values.size() - 1) == EMPTY_ROW) {
-                values.remove(values.size() - 1);
+            while (values.size() > 0 && values.getLast() == EMPTY_ROW) {
+                values.removeLast();
             }
             for (int i = 0; i < values.size(); i++) {
                 if (values.get(i) == EMPTY_ROW) {

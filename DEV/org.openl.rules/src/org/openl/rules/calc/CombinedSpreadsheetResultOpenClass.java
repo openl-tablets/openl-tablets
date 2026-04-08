@@ -36,8 +36,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     private void registerCustomSpreadsheetResultOpenClass(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        if (customSpreadsheetResultOpenClass instanceof CombinedSpreadsheetResultOpenClass) {
-            CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass;
+        if (customSpreadsheetResultOpenClass instanceof CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass) {
             for (CustomSpreadsheetResultOpenClass o : combinedSpreadsheetResultOpenClass.combinedOpenClasses) {
                 combinedOpenClasses.add(o);
                 o.addEventOnUpdateWithType(this::notifyChanges);
@@ -72,16 +71,15 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     @Override
     public void updateWithType(IOpenClass openClass) {
-        if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-            registerCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) openClass);
+        if (openClass instanceof CustomSpreadsheetResultOpenClass class1) {
+            registerCustomSpreadsheetResultOpenClass(class1);
         }
         super.updateWithType(openClass);
     }
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CombinedSpreadsheetResultOpenClass) {
-            CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) ioc;
+        if (ioc instanceof CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass) {
             return getCombinedTypes().stream()
                     .map(IOpenClass::getName)
                     .collect(Collectors.toSet())
@@ -102,6 +100,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
      * @param module
      * @return converted type
      */
+    @Override
     public CustomSpreadsheetResultOpenClass convertToModuleType(ModuleOpenClass module, boolean register) {
         if (getModule() != module) {
             if (register) {
@@ -120,6 +119,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         return this;
     }
 
+    @Override
     protected String getBeanClassName() {
         if (beanClassName == null) {
             synchronized (this) {

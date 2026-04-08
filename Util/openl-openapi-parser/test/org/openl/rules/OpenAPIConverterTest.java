@@ -77,7 +77,7 @@ public class OpenAPIConverterTest {
         SpreadsheetModel dsModel = findSpreadsheetByName(spreadsheetModels, "drivers");
         List<InputParameter> dsParameters = dsModel.getParameters();
         assertEquals(1, dsParameters.size());
-        InputParameter dsParam = dsParameters.iterator().next();
+        InputParameter dsParam = dsParameters.getFirst();
         assertEquals("someValue", dsParam.getFormattedName());
         TypeInfo dsType = dsParam.getType();
         validateTypeInfo("SomeValue", dsType.getSimpleName(), "SomeValue", dsType.getJavaName());
@@ -92,10 +92,10 @@ public class OpenAPIConverterTest {
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel sprResult = spreadsheetModels.iterator().next();
+        SpreadsheetModel sprResult = spreadsheetModels.getFirst();
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter param = parameters.iterator().next();
+        InputParameter param = parameters.getFirst();
         TypeInfo type = param.getType();
         validateTypeInfo("RequestModel", type.getSimpleName(), "RequestModel", type.getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, type.getType());
@@ -110,10 +110,10 @@ public class OpenAPIConverterTest {
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, datatypeModels.size());
         assertEquals(2, spreadsheetModels.size());
-        SpreadsheetModel oneMoreTestSpreadsheet = spreadsheetModels.iterator().next();
+        SpreadsheetModel oneMoreTestSpreadsheet = spreadsheetModels.getFirst();
         List<InputParameter> parameters = oneMoreTestSpreadsheet.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter param = parameters.iterator().next();
+        InputParameter param = parameters.getFirst();
         assertEquals("requestModel", param.getFormattedName());
         TypeInfo type = param.getType();
         assertEquals("RequestModel", type.getSimpleName());
@@ -148,10 +148,10 @@ public class OpenAPIConverterTest {
         ProjectModel oneOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInRequest.json");
         List<SpreadsheetModel> spreadsheetModels = oneOf.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel testSpreadsheet = spreadsheetModels.iterator().next();
+        SpreadsheetModel testSpreadsheet = spreadsheetModels.getFirst();
         List<InputParameter> parameters = testSpreadsheet.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter inputParam = parameters.iterator().next();
+        InputParameter inputParam = parameters.getFirst();
         assertEquals("object", inputParam.getFormattedName());
         TypeInfo inputParamType = inputParam.getType();
         validateTypeInfo("java.lang.Object", inputParamType.getJavaName(), "Object", inputParamType.getSimpleName());
@@ -165,7 +165,7 @@ public class OpenAPIConverterTest {
         ProjectModel anyOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/anyOfInRequest.json");
         List<SpreadsheetModel> anyOfModels = anyOf.getSpreadsheetResultModels();
         assertEquals(1, anyOfModels.size());
-        SpreadsheetModel anyOfSpr = anyOfModels.iterator().next();
+        SpreadsheetModel anyOfSpr = anyOfModels.getFirst();
         List<InputParameter> anyOfParams = anyOfSpr.getParameters();
         assertEquals(1, anyOfParams.size());
     }
@@ -181,7 +181,7 @@ public class OpenAPIConverterTest {
         Optional<DatatypeModel> body = datatypeModels.stream().filter(x -> x.getName().equals("Body")).findFirst();
         boolean isBodyPresented = body.isPresent();
         assertFalse(isBodyPresented);
-        SpreadsheetModel sprModel = spreadsheetModels.iterator().next();
+        SpreadsheetModel sprModel = spreadsheetModels.getFirst();
         List<InputParameter> parameters = sprModel.getParameters();
         assertEquals(1, parameters.size());
     }
@@ -194,10 +194,10 @@ public class OpenAPIConverterTest {
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(6, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel testSpreadsheet = spreadsheetModels.iterator().next();
+        SpreadsheetModel testSpreadsheet = spreadsheetModels.getFirst();
         List<InputParameter> parameters = testSpreadsheet.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter inputParameter = parameters.iterator().next();
+        InputParameter inputParameter = parameters.getFirst();
         assertEquals("object", inputParameter.getFormattedName());
         assertNull(inputParameter.getIn());
         TypeInfo type = inputParameter.getType();
@@ -212,7 +212,7 @@ public class OpenAPIConverterTest {
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, spreadsheetModels.size());
         assertEquals(3, datatypeModels.size());
-        SpreadsheetModel spreadsheetModel = spreadsheetModels.iterator().next();
+        SpreadsheetModel spreadsheetModel = spreadsheetModels.getFirst();
 
         PathInfo pathInfo = spreadsheetModel.getPathInfo();
         TypeInfo returnType = pathInfo.getReturnType();
@@ -268,7 +268,7 @@ public class OpenAPIConverterTest {
         SpreadsheetModel oneMorePath = findSpreadsheetByName(spreadsheetModels, "oneMorePath");
         List<InputParameter> parameters = oneMorePath.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter catParam = parameters.iterator().next();
+        InputParameter catParam = parameters.getFirst();
         TypeInfo catType = catParam.getType();
         assertEquals("Cat", catType.getSimpleName());
         assertEquals(TypeInfo.Type.DATATYPE, catType.getType());
@@ -294,7 +294,7 @@ public class OpenAPIConverterTest {
         assertEquals("SpreadsheetResult", simpleModel.getType());
         List<InputParameter> parameters = simpleModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter integerParam = parameters.iterator().next();
+        InputParameter integerParam = parameters.getFirst();
         validateTypeInfo("integer", integerParam.getFormattedName(), "Integer", integerParam.getType().getSimpleName());
         assertEquals("java.lang.Integer", integerParam.getType().getJavaName());
 
@@ -303,7 +303,7 @@ public class OpenAPIConverterTest {
         assertEquals("SpreadsheetResult", textPlainWithPrimitiveDoubleParam.getType());
         List<InputParameter> paramsPrimitive = textPlainWithPrimitiveDoubleParam.getParameters();
         assertEquals(1, paramsPrimitive.size());
-        InputParameter doubleParam = paramsPrimitive.iterator().next();
+        InputParameter doubleParam = paramsPrimitive.getFirst();
         validateTypeInfo("double", doubleParam.getFormattedName(), "Double", doubleParam.getType().getSimpleName());
         assertEquals("java.lang.Double", doubleParam.getType().getJavaName());
 
@@ -319,7 +319,7 @@ public class OpenAPIConverterTest {
                 "[Ljava.lang.Boolean;",
                 doubleArrayParamModel.getPathInfo().getReturnType().getJavaName());
         List<InputParameter> doubleArrayParam = doubleArrayParamModel.getParameters();
-        InputParameter param = doubleArrayParam.iterator().next();
+        InputParameter param = doubleArrayParam.getFirst();
         validateTypeInfo("Double[]",
                 param.getType().getSimpleName(),
                 "[Ljava.lang.Double;",
@@ -329,7 +329,7 @@ public class OpenAPIConverterTest {
         SpreadsheetModel longModel = findSpreadsheetByName(spreadsheetResultModels, "myTestWithLongRBTP");
         assertEquals("Long", longModel.getType());
         List<InputParameter> longParams = longModel.getParameters();
-        InputParameter longParam = longParams.iterator().next();
+        InputParameter longParam = longParams.getFirst();
         validateTypeInfo("Long",
                 longParam.getType().getSimpleName(),
                 "java.lang.Long",
@@ -339,7 +339,7 @@ public class OpenAPIConverterTest {
         SpreadsheetModel testWithParams = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams");
         List<InputParameter> parametersList = testWithParams.getParameters();
         assertEquals(1, parametersList.size());
-        InputParameter oneParam = parametersList.iterator().next();
+        InputParameter oneParam = parametersList.getFirst();
         validateTypeInfo("Long", oneParam.getType().getSimpleName(), "simpleId", oneParam.getFormattedName());
 
         SpreadsheetModel model = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams2");
@@ -413,7 +413,7 @@ public class OpenAPIConverterTest {
         assertEquals("SpreadsheetResultmyFirsSpr[]", secondModel.getType());
         List<StepModel> secondModelSteps = secondModel.getSteps();
         assertEquals(1, secondModelSteps.size());
-        StepModel secondModelResultStep = secondModelSteps.iterator().next();
+        StepModel secondModelResultStep = secondModelSteps.getFirst();
         validateTypeInfo("Result", secondModelResultStep.getName(), "MyFirsSpr[]", secondModelResultStep.getType());
         assertEquals("= new SpreadsheetResultmyFirsSpr[]{myFirsSpr(null)}", secondModelResultStep.getValue());
         assertFalse(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
@@ -550,7 +550,7 @@ public class OpenAPIConverterTest {
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10939_doubleResult.json");
         List<SpreadsheetModel> spreadsheetModels = pmWithDoubleResult.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel doubleResultSprModel = spreadsheetModels.iterator().next();
+        SpreadsheetModel doubleResultSprModel = spreadsheetModels.getFirst();
         assertEquals("Double", doubleResultSprModel.getType());
     }
 
@@ -562,10 +562,10 @@ public class OpenAPIConverterTest {
         assertTrue(projectModel.isRuntimeContextProvided());
 
         assertEquals(1, projectModel.getSpreadsheetResultModels().size());
-        SpreadsheetModel sprModel = projectModel.getSpreadsheetResultModels().get(0);
+        SpreadsheetModel sprModel = projectModel.getSpreadsheetResultModels().getFirst();
 
         assertEquals(1, sprModel.getParameters().size());
-        InputParameter param1 = sprModel.getParameters().get(0);
+        InputParameter param1 = sprModel.getParameters().getFirst();
         assertEquals("param1", param1.getFormattedName());
         assertEquals("java.lang.String", param1.getType().getJavaName());
         assertEquals("String", param1.getType().getSimpleName());
@@ -591,7 +591,7 @@ public class OpenAPIConverterTest {
                 .orElse(null);
         assertNotNull(datatypeModel);
         assertEquals(1, projectModel.getDataModels().size());
-        DataModel dataModel = projectModel.getDataModels().get(0);
+        DataModel dataModel = projectModel.getDataModels().getFirst();
         assertEquals(datatypeModel, dataModel.getDatatypeModel());
     }
 

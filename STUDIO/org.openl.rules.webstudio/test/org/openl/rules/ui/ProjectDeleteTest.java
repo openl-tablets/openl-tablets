@@ -36,7 +36,7 @@ public class ProjectDeleteTest {
 
     @Test
     public void testOpenThenDelete() throws Exception {
-        pm.setModuleInfo(getModules().get(0));
+        pm.setModuleInfo(getModules().getFirst());
         pm.clearModuleInfo();
 
         try {

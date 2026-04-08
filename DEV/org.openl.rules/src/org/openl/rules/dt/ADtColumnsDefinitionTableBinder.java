@@ -41,7 +41,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
             tableName = in.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
                 String formattedPrefix = tableNamePrefix.substring(0, tableNamePrefix.length() - 2);
-                String message = String.format(NAME_ERROR_MESSAGE, formattedPrefix + " table", tableName);
+                String message = NAME_ERROR_MESSAGE.formatted(formattedPrefix + " table", tableName);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, in));
             }
             aDtColumnsDefinitionTableBoundNode.setTableName(tableName);

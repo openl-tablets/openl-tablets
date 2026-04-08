@@ -70,9 +70,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         switch (selected.size()) {
             case 0:
-                IOpenMethod candidateMethod = candidates.iterator().next();
-                throw new OpenLRuntimeException(String.format(
-                        "No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s",
+                IOpenMethod candidateMethod = candidates.getFirst();
+                throw new OpenLRuntimeException("No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s".formatted(
                         toString(candidates),
                         context.toString(),
                         candidateMethod.getName()));
@@ -81,7 +80,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             default:
                 IOpenMethod method = selected.iterator().next();
                 throw new OpenLRuntimeException(
-                        String.format("Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s",
+                        "Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s".formatted(
                                 toString(selected),
                                 context.toString(),
                                 method.getName()));
@@ -104,13 +103,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (decisionTableOpenMethod != null) {
             return (TableSyntaxNode) decisionTableOpenMethod.getInfo().getSyntaxNode();
         }
-        throw new IllegalStateException(String.format("There is no dispatcher table for [%s] method.", getName()));
+        throw new IllegalStateException("There is no dispatcher table for [%s] method.".formatted(getName()));
     }
 
     @Override
     public IMemberMetaInfo getInfo() {
         if (getCandidates().size() == 1) {
-            return getCandidates().get(0).getInfo();
+            return getCandidates().getFirst().getInfo();
         }
         return getDispatcherTable().getMember().getInfo();
     }

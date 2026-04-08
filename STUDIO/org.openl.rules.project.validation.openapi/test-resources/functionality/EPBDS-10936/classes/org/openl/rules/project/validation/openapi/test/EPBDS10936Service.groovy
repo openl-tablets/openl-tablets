@@ -10,6 +10,5 @@ interface EPBDS10935Service {
     @Path(value = "/getNewForUsedRate")
     @Consumes(value = ["text/plain"])
     @Produces(value = ["text/plain"])
-    double getNewForUsedRate(String var1);
+    double getNewForUsedRate(String var1)
 }
-

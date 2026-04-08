@@ -91,7 +91,7 @@ public class SelectFolderBean {
             return;
         }
 
-        Object currentSelectionKey = selection.get(0);
+        Object currentSelectionKey = selection.getFirst();
         UITree tree = (UITree) event.getSource();
 
         Object storedKey = tree.getRowKey();
@@ -106,7 +106,7 @@ public class SelectFolderBean {
 
         List<String> ids = new ArrayList<>();
         while (node != null && !node.getName().isEmpty()) {
-            ids.add(0, node.getId());
+            ids.addFirst(node.getId());
             node = node.getParent();
         }
 

@@ -72,6 +72,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
             try {
                 IOUtils.closeQuietly(file.getInput());
             } catch (IOException ignored) {
+                // safe to ignore: best-effort cleanup of uploaded file streams
             }
         }
     }

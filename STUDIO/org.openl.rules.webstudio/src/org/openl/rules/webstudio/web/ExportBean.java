@@ -15,8 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -48,8 +47,8 @@ import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
+@Slf4j
 public class ExportBean {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportBean.class);
 
     private static final String VIEWING_VERSION = "Viewing";
     private static final String IN_EDITING_VERSION = "In Editing";
@@ -86,7 +85,7 @@ public class ExportBean {
                 String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
                 String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
                 String suffix = name + "-" + modifiedOnStr;
-                fileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
+                fileName = "%s-%s.zip".formatted(selectedProject.getName(), suffix);
                 WorkspaceUserImpl user = new WorkspaceUserImpl(userName,
                         (username) -> Optional.ofNullable(userManagementService.getUser(username))
                                 .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
@@ -99,7 +98,7 @@ public class ExportBean {
                         .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 file = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
                 String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
-                fileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
+                fileName = "%s-%s.zip".formatted(selectedProject.getBusinessName(), suffix);
             }
             addCookie(cookieName, "success", -1);
             final FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -117,13 +116,17 @@ public class ExportBean {
             } else {
                 message = "Failed to export the project. See logs for details.";
             }
-            LOG.error(message, e);
+            log.error(message, e);
             addCookie(cookieName, message, -1);
         } finally {
             FileUtils.deleteQuietly(file);
         }
     }
 
+    /**
+     * @deprecated Should be removed after migration to the React UI
+     */
+    @Deprecated(forRemoval = true)
     public void exportFileVersion() {
         File file = null;
         String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;
@@ -153,7 +156,7 @@ public class ExportBean {
             facesContext.responseComplete();
         } catch (Exception e) {
             String msg = "Failed to export file version. ";
-            LOG.error(msg, e);
+            log.error(msg, e);
             addCookie(cookieName, msg + e.getMessage(), -1);
         } finally {
             FileUtils.deleteQuietly(file);
@@ -178,7 +181,7 @@ public class ExportBean {
                 projectVersions.addAll(toSelectItems(versions));
             }
         } catch (ProjectException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return projectVersions;
     }
@@ -216,7 +219,7 @@ public class ExportBean {
         try {
             return getUserWorkspace().getProject(repositoryId, currentProjectName, false).getBusinessName();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return currentProjectName;

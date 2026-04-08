@@ -56,8 +56,8 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         if (encodingValue == null) {
             encodingValue = configs.get("deserializer.encoding");
         }
-        if (encodingValue instanceof String) {
-            encoding = Charset.forName((String) encodingValue);
+        if (encodingValue instanceof String string) {
+            encoding = Charset.forName(string);
         }
     }
 
@@ -163,7 +163,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         private final Method method;
         private final String[] paramNames;
 
-        public Entry(Method method, String[] paramNames) {
+        private Entry(Method method, String[] paramNames) {
             this.method = Objects.requireNonNull(method);
             this.paramNames = Objects.requireNonNull(paramNames);
         }

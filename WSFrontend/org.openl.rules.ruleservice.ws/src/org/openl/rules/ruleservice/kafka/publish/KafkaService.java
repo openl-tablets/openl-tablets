@@ -18,6 +18,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
@@ -29,8 +31,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -49,6 +49,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 
+@Slf4j
 public final class KafkaService implements Runnable {
 
     private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
@@ -58,11 +59,12 @@ public final class KafkaService implements Runnable {
             TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
-    private final Logger log = LoggerFactory.getLogger(KafkaService.class);
 
     private volatile boolean flag = true;
+    @Getter
     private final OpenLService service;
     private final String requestIdHeaderKey;
+    @Getter
     private final String inTopic;
     private final String outTopic;
     private final String dltTopic;
@@ -71,8 +73,10 @@ public final class KafkaService implements Runnable {
     private final KafkaProducer<String, byte[]> dltProducer;
     private final KafkaConsumer<String, RequestMessage> consumer;
     private Thread loopRunningThread;
+    @Getter
     private final ObjectSerializer objectSerializer;
     private final boolean storageEnabled;
+    @Getter
     private StoreLogDataManager storeLogDataManager;
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
@@ -130,8 +134,8 @@ public final class KafkaService implements Runnable {
         try {
             PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
                     .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
-            if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
-                this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
+            if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy strategy) {
+                this.sprBeanPropertyNamingStrategy = strategy;
             } else {
                 this.sprBeanPropertyNamingStrategy = null;
             }
@@ -142,18 +146,6 @@ public final class KafkaService implements Runnable {
 
     public boolean isStoreLogDataEnabled() {
         return storageEnabled;
-    }
-
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public OpenLService getService() {
-        return service;
-    }
-
-    public String getInTopic() {
-        return inTopic;
     }
 
     public String getOutTopic(ConsumerRecord<?, ?> record) {
@@ -211,10 +203,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    public ObjectSerializer getObjectSerializer() {
-        return objectSerializer;
-    }
-
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Override
     public void run() {
         while (flag) {
@@ -224,7 +213,7 @@ public final class KafkaService implements Runnable {
                     CountDownLatch countDownLatch = new CountDownLatch(records.count());
                     ZonedDateTime incomingTime = ZonedDateTime.now();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
-                        executor.submit(() -> {
+                        var ignored = executor.submit(() -> {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
                             String requestIdHeader = null;
                             try {
@@ -312,7 +301,7 @@ public final class KafkaService implements Runnable {
                                 }
                             } catch (InvocationTargetException | UndeclaredThrowableException e) {
                                 Throwable ex = e.getCause();
-                                sendError(consumerRecord, storeLogData, ex instanceof Exception ? (Exception) ex : e, requestIdHeader);
+                                sendError(consumerRecord, storeLogData, ex instanceof Exception e1 ? e1 : e, requestIdHeader);
                             } catch (Exception e) {
                                 sendError(consumerRecord, storeLogData, e, requestIdHeader);
                             } finally {
@@ -405,6 +394,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData, String requestIdHeader) {
         final String dltTopic = getDltTopic(record);
         if (StringUtils.isEmpty(dltTopic)) {

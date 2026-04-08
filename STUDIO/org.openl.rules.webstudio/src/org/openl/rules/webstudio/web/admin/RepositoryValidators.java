@@ -5,7 +5,6 @@ import java.net.ConnectException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.ListIterator;
 import javax.security.auth.login.FailedLoginException;
@@ -37,8 +36,7 @@ public final class RepositoryValidators {
             throw new RepositoryValidationException(msg);
         }
         if (!NameChecker.checkName(repoConfig.getName())) {
-            String msg = String.format(
-                    "Repository name '%s' contains illegal characters. Please, correct repository name.",
+            String msg = "Repository name '%s' contains illegal characters. Please, correct repository name.".formatted(
                     repoConfig.getName());
             throw new RepositoryValidationException(msg);
         }
@@ -47,7 +45,7 @@ public final class RepositoryValidators {
         for (RepositoryConfiguration other : repositoryConfigurations) {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
+                    String msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
                             repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
@@ -73,8 +71,8 @@ public final class RepositoryValidators {
         try {
             urIish = new URIish(uri);
         } catch (URISyntaxException e) {
-            String msg = String
-                    .format("Repository URI '%s' is incorrect.", uri);
+            String msg = "Repository URI '%s' is incorrect."
+                    .formatted(uri);
             throw new RepositoryValidationException(msg);
         }
         if (! urIish.isRemote()) {
@@ -83,10 +81,10 @@ public final class RepositoryValidators {
             }
             Path path = normalizeLocalPath(uri);
             for (RepositoryConfiguration other : repositoryConfigurations) {
-                if (other != repoConfig 
+                if (other != repoConfig
                         && hasTheSameGitLocalPath(other, path)) {
-                        String msg = String
-                                .format("Repository local path '%s' already exists. Please, insert a new one.", uri);
+                        String msg = "Repository local path '%s' already exists. Please, insert a new one."
+                                .formatted(uri);
                         throw new RepositoryValidationException(msg);
                     }
 
@@ -126,10 +124,10 @@ public final class RepositoryValidators {
         // Windows: handle forms like "/C:/repo"
         if (File.separatorChar == '\\') {
             pathStr = pathStr.replace('/', '\\')
-                    .replaceFirst("^\\\\+([A-Za-z]:\\\\)", "$1"); 
+                    .replaceFirst("^\\\\+([A-Za-z]:\\\\)", "$1");
         }
 
-        Path p = Paths.get(pathStr).toAbsolutePath().normalize();
+        Path p = Path.of(pathStr).toAbsolutePath().normalize();
 
         // Trim trailing separators (except root)
         String s = p.toString().replaceAll("[/\\\\]+$", "");
@@ -137,9 +135,9 @@ public final class RepositoryValidators {
             s = p.toString();
         }
 
-        return Paths.get(s);
+        return Path.of(s);
     }
-    
+
     private static void validateCommonRepository(RepositoryConfiguration repoConfig,
                                                  List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
         CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
@@ -153,7 +151,7 @@ public final class RepositoryValidators {
         for (RepositoryConfiguration other : repositoryConfigurations) {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
+                    String msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
                             repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
@@ -164,7 +162,7 @@ public final class RepositoryValidators {
                         // Different users can access different schemas
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                            String msg = String.format("Repository path '%s' already exists. Please, insert a new one.",
+                            String msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
                                     path);
                             throw new RepositoryValidationException(msg);
                         }
@@ -184,14 +182,14 @@ public final class RepositoryValidators {
             }
         } catch (Exception e) {
             throw new RepositoryValidationException(
-                    String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)),
+                    "Repository '%s' : %s".formatted(repoConfig.getName(), getMostSpecificMessage(e)),
                     e);
         }
     }
 
     static String getMostSpecificMessage(Exception e) {
         final List<Throwable> list = ExceptionUtils.getThrowableList(e);
-        Throwable cause = list.isEmpty() ? null : list.get(list.size() - 1);
+        Throwable cause = list.isEmpty() ? null : list.getLast();
         if (cause == null) {
             cause = e;
         }
@@ -203,7 +201,7 @@ public final class RepositoryValidators {
             return "Connection refused. Check the repository URL and try again.";
         } else if (cause instanceof UnknownHostException) {
             final String message = cause.getMessage();
-            return message != null ? String.format("Unknown host (%s).", message) : "Unknown host.";
+            return message != null ? "Unknown host (%s).".formatted(message) : "Unknown host.";
         }
 
         // Obviously root cause gives more specific message. If we get empty message, we should consider wrapper

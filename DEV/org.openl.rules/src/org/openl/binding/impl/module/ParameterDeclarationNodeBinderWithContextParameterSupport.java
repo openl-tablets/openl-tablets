@@ -12,6 +12,7 @@ import org.openl.types.IOpenClass;
  */
 public class ParameterDeclarationNodeBinderWithContextParameterSupport extends ParameterDeclarationNodeBinder {
 
+    @Override
     protected void validateMetaData(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         if (syntaxNode.getNumberOfChildren() == 2) {
             IdentifierNode identifierNode = (IdentifierNode) syntaxNode.getChild(0);
@@ -24,6 +25,7 @@ public class ParameterDeclarationNodeBinderWithContextParameterSupport extends P
         }
     }
 
+    @Override
     protected IBoundNode makeParameterNode(ISyntaxNode node,
                                            String name,
                                            IOpenClass type,

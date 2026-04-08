@@ -48,8 +48,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
 
     private Collection<IOpenField> extractFields(IOpenField field) {
         Collection<IOpenField> ret = new ArrayList<>();
-        if (field instanceof CastingCustomSpreadsheetResultField) {
-            CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField = (CastingCustomSpreadsheetResultField) field;
+        if (field instanceof CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField) {
             ret.addAll(castingCustomSpreadsheetResultField.fields);
         } else {
             ret.add(field);
@@ -173,8 +172,8 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         if (declaringClasses.contains(field.getDeclaringClass())) {
             return;
         }
-        if (field instanceof IOriginalDeclaredClassesOpenField) {
-            IOpenClass[] fieldDeclaringClasses = ((IOriginalDeclaredClassesOpenField) field).getDeclaringClasses();
+        if (field instanceof IOriginalDeclaredClassesOpenField openField) {
+            IOpenClass[] fieldDeclaringClasses = openField.getDeclaringClasses();
             declaringClasses.addAll(Arrays.asList(fieldDeclaringClasses));
         } else {
             declaringClasses.add(field.getDeclaringClass());
