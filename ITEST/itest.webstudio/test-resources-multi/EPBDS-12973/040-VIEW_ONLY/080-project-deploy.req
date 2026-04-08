@@ -1,0 +1,10 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Basic RVBCRFNfMTI5NzM6cGFzcw==
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "EPBDS-12973-viewer",
+  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "comment": "Viewer tries to deploy"
+}
