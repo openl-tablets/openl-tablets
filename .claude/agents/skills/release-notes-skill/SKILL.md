@@ -22,42 +22,25 @@ Generate release notes for OpenL Tablets versions. Output matches the official O
 6. **Use `---` horizontal rules** between individual items within each section (between features, between improvement areas, between breaking changes, between migration topics) — **omit the trailing `---` after the last item in each section**
 7. **Bold section headings** - use `## **Section Name**` for top-level sections, `### **Item Title**` for items within sections
 
-## Audience
+## Writing Style
 
-OpenL Tablets release notes serve three distinct reader types. Every item must be written for its primary audience, and audience must be signaled within the content itself so readers can quickly determine what is relevant to them.
+Write each item as a unified description — do not split features by audience or add sub-sections labelled "For Developers" or "For Administrators". All readers (rule authors, admins, and developers) read the same release notes. Describe the feature holistically: what it is, what users and integrators can do with it, and why it matters. Include technical details (endpoint names, configuration properties, supported formats) naturally in the prose when they add value, not hidden in a sub-section.
 
-### The Three Personas
+**The single governing principle:** describe what changed and what it enables — not how it was implemented.
 
-**Business Analyst / Rule Author**
-Works inside OpenL Studio authoring Excel-based rules, formulas, and tags. Not a developer. Cares about UI changes, workflow improvements, and new capabilities in the rule editor. Does not read Java stack traces or API endpoint paths.
+**Do:**
+- Start bullets with action verbs (Added, Improved, Fixed, Enhanced)
+- Be specific but brief
+- Describe the feature holistically — UI capability, API surface, and configuration in one place
+- Include technical details (endpoint paths, property names) inline when they are user-actionable
+- For bug fixes: describe what the user experienced and what now works correctly
 
-**System Administrator / DevOps**
-Deploys and configures OpenL Studio and Rule Services. Cares about configuration properties, authentication modes, security changes, and upgrade impact. Needs actionable migration steps, not feature marketing.
-
-**Developer / Integrator**
-Builds on top of OpenL APIs, embeds custom Java code, or integrates OpenL into larger systems. Cares about API changes, new endpoints, breaking changes, and library versions.
-
-### Audience Signaling Rules
-
-- If a feature or change targets only one persona, **signal it explicitly** — either in the heading (e.g., `### **Batch ACL Operations (Administrators Only)**`) or in the opening sentence (e.g., *"Available when `user.mode=oauth2` or `user.mode=saml`"*).
-- For features that serve multiple personas, **lead with the business value** (BA/admin perspective), then add a technical sub-section for developers/integrators.
-- **Never lead a BA-facing feature with implementation details** — exception class names, endpoint paths, internal component names are not meaningful to rule authors. Describe what changed in the UI or workflow first.
-- Breaking Changes are written for admins and developers. A plain-language "Who Is Affected" note should clarify whether BA/rule authors need to act at all (often they don't).
-
-### Persona Check (required before writing each New Feature)
-
-Before drafting a New Feature description, identify:
-1. **Who benefits most?** (BA / Admin / Developer)
-2. **What does it change for them in practice?** (UI workflow / config property / API endpoint)
-3. **Is there a secondary audience?** If yes, add a sub-section for them after the primary description.
-
-### Writing Tone by Persona
-
-| Persona | Lead with | Avoid |
-|---|---|---|
-| BA / Rule Author | What they can now do in the UI | Exception names, endpoint paths, internal component names |
-| Admin / DevOps | What changed in config or behavior, and what action is needed | Feature marketing language |
-| Developer | Exact API surface, endpoint, property name | Vague benefit statements |
+**Don't:**
+- Split a single feature into BA-facing and developer-facing sub-sections
+- Lead with implementation details — exception class names, internal component names, database identifiers
+- Use vague language ("various improvements", "minor fixes")
+- Add Jira ticket numbers
+- Create a subsection for a single improvement bullet
 
 ## Workflow
 
@@ -97,41 +80,23 @@ StartAt: 0
 
 #### New Features
 - Each feature gets `### **Title**` heading
-- **Apply the Persona Check** before writing each feature (see Audience section above)
-- **1-2 sentences** describing what it does and why it matters — from the primary persona's perspective
-- For complex features with multiple logical sub-areas, use `####` sub-headings to improve navigability (see 6.0.0 ACL feature as the model)
-- For features with both a BA-facing and a developer-facing dimension, describe the UI/workflow change first, then add a sub-section with technical details (API endpoint, config property, etc.)
+- **1-3 sentences** describing what it is, what users and integrators can do with it, and why it matters — all in one unified description
+- Include technical details (API endpoint, config property, supported formats) inline when they are actionable, not in a separate sub-section
+- For complex features with multiple logical sub-areas, use `####` sub-headings to improve navigability
 - Bullets for listing capabilities (if needed) — minimum 2 bullets if using a bullet list; don't create a list for a single item
 - Image reference if applicable
 - **Separate each feature with `---`**
 
-**Example (BA-primary feature with developer sub-section):**
+**Example:**
 ```markdown
 ### **Table Formula Smart Edit**
 
-Business analysts can now describe a formula change in plain language — for example, "multiply the base rate by 1.15 for platinum tier" — and the system proposes a valid OpenL expression to review and apply. This removes the need to know exact syntax when modifying spreadsheet logic.
+Users can now describe a formula change in plain language — for example, "multiply the base rate by 1.15 for platinum tier" — and OpenL Studio proposes a valid OpenL expression to review and apply. This works with decision tables, spreadsheets, and lookup tables. The feature requires `openl.ai.enabled=true` to be set in the configuration.
 
-  * Works with decision tables, spreadsheets, and lookup tables
-  * Proposed changes are previewed before applying
+  * Proposed change is shown as a preview before applying
   * Original formula is preserved until the user confirms
 
-#### For Developers
-
-The feature calls the OpenL AI API endpoint and requires the `openl.ai.enabled=true` configuration property.
-
 ![Table Formula Smart Edit](images/formula-smart-edit.png)
-```
-
-**Example (Admin-primary feature):**
-```markdown
-### **Project Creation Control (Administrators)**
-
-Administrators can now globally disable project creation and deletion in OpenL Studio via a system property, regardless of individual user role assignments.
-
-```
-security.allow-project-create-delete=true   # default
-security.allow-project-create-delete=false  # hides Create/Delete actions
-```
 ```
 
 #### Improvements
@@ -159,8 +124,7 @@ security.allow-project-create-delete=false  # hides Create/Delete actions
 
 #### Breaking Changes
 - Each breaking change gets `### **Title**` heading
-- Open with a plain-language "Who Is Affected" statement so BA/rule authors can quickly determine if they need to read further
-- Describe what changed and the impact
+- Describe what changed and the impact in plain language
 - Include `#### **Migration Steps**` sub-section when applicable
 - **Separate each breaking change with `---`**
 
@@ -269,28 +233,12 @@ Images needed:
 [List image placeholders, or "None" if no images referenced]
 ```
 
-## Writing Style
-
-**Do:**
-- Start bullets with action verbs (Added, Improved, Fixed, Enhanced)
-- Be specific but brief
-- Lead with the primary persona's perspective
-- Signal audience explicitly when a feature or change targets one persona only
-- For BA-facing features: describe the UI workflow change in plain language first
-
-**Don't:**
-- Write multi-paragraph descriptions for routine items
-- Include implementation details in BA-facing feature descriptions (exception names, internal component names, endpoint paths)
-- Use vague language ("various improvements")
-- Add Jira ticket numbers
-- Create a subsection for a single improvement bullet
-
 ## Quick Reference: Item Length
 
 | Item Type | Length |
 |-----------|--------|
 | Overview | 1-2 paragraphs |
-| New Feature | 1-2 sentences + optional bullets + optional developer sub-section |
+| New Feature | 1-3 sentences + optional bullets (unified, no audience sub-sections) |
 | Improvement | 1 line |
 | Bug Fix | 1 line |
 | Library Update | 1 line |
@@ -324,13 +272,6 @@ This skill can also be used to validate and update existing release notes.
 - [ ] No excessive blank lines
 - [ ] No single-item improvement subsections (lone items folded into a broader group)
 
-**Audience:**
-- [ ] Each New Feature is written from the perspective of its primary persona
-- [ ] BA-facing features do not lead with exception names, endpoint paths, or internal component names
-- [ ] Admin- or developer-only items are explicitly labeled
-- [ ] Breaking Changes include a "Who Is Affected" statement
-- [ ] Features with mixed audiences lead with plain language, technical details in a sub-section
-
 **Style:**
 - [ ] No Jira ticket numbers anywhere
 - [ ] Bullets start with action verbs
@@ -356,7 +297,6 @@ This skill can also be used to validate and update existing release notes.
    - Maintaining consistent style
    - Keeping proper formatting
    - Following template structure
-   - Preserving audience framing
 
 4. **Validate result** using checklist above
 
