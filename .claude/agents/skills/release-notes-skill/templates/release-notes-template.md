@@ -6,8 +6,8 @@ AI filling rules (important):
 - Include ONLY the sections that have content (tickets/changes). If no tickets exist for a category, omit the entire section.
 - The first section after the overview should be the first category that has items (e.g., New Features, Improvements, Fixed Bugs, Updated Libraries, or Runtime Dependencies).
 - Keep labels/headers exactly (case, punctuation, colons) and keep bullet indentation consistent.
-- Use --- (horizontal rule) between individual items within a section to visually separate them.
-- Use --- between subsections within Migration Notes.
+- Use --- (horizontal rule) between individual items within a section to visually separate them. Omit the trailing --- after the last item in each section.
+- Use --- between subsections within Migration Notes. Omit the trailing --- after the last migration topic.
 -->
 
 ## Release Notes
@@ -110,7 +110,7 @@ AI filling rules (important):
 <!-- style for that release.                                 -->
 <!-- ====================================================== -->
 
-<!-- FORMAT A (with heading) — used on many versions -->
+<!-- FORMAT A (DEFAULT) — use for all new releases -->
 ## **Security & Library Updates**
 
 ### **Security Vulnerability Fixes**
@@ -137,12 +137,13 @@ AI filling rules (important):
 
   * {{removed_dependency_1}}
 
-<!-- FORMAT B (no heading) — some versions use a flat list -->
-{{#if updated_libraries_simple_list}}
+<!-- FORMAT B (LEGACY only) — flat list, only for older releases that used this style.
+     Do NOT use for new releases. Do NOT mix Format A and Format B in the same output. -->
+<!--
   * {{updated_library_1}}
   * {{updated_library_2}}
   * {{updated_library_3}}
-{{/if}}
+-->
 
 <!-- ====================================================== -->
 <!-- Optional section. Omit if no Known Issues.              -->

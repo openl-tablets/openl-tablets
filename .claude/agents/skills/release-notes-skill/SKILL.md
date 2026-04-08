@@ -19,7 +19,7 @@ Generate release notes for OpenL Tablets versions. Output matches the official O
 3. **Keep descriptions concise** - one sentence per item unless truly complex
 4. **Bullet-first approach** - prefer bullet points over paragraphs
 5. **Output format:** Markdown (.md)
-6. **Use `---` horizontal rules** between individual items within each section (between features, between improvement areas, between breaking changes, between migration topics)
+6. **Use `---` horizontal rules** between individual items within each section (between features, between improvement areas, between breaking changes, between migration topics) — **omit the trailing `---` after the last item in each section**
 7. **Bold section headings** - use `## **Section Name**` for top-level sections, `### **Item Title**` for items within sections
 
 ## Workflow
@@ -27,20 +27,28 @@ Generate release notes for OpenL Tablets versions. Output matches the official O
 ### Step 1: Get Version
 Ask for version if not provided (format: X.Y.Z).
 
+**Version tag and GitHub URL format:**
+- Version tag: `openl-tablets-X.Y.Z` (e.g., `openl-tablets-5.27.8`)
+- GitHub release URL: `https://github.com/openl-tablets/openl-tablets/releases/tag/openl-tablets-X.Y.Z`
+
+These are used to fill the `[{{version_tag}}]({{github_tag_url}}) on the GitHub` line in the template.
+
 ### Step 2: Collect Jira Tickets
 
 **Use Jira MCP tools** to search for tickets:
 
 ```
 Tool: jira:jira_search
-JQL: fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true
+JQL: project = EPBDS AND fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true
 Fields: summary, description, issuetype, priority, labels
+MaxResults: 100
+StartAt: 0
 ```
 
-**Important:** 
+**Important:**
 - Only use `jira:jira_search` MCP tool to retrieve tickets
 - Only include tickets where `"Exclude from Release Notes" != true`
-- Process all pages if results exceed limit
+- Paginate using `startAt` increments of 100 until the returned list is smaller than `maxResults`
 
 ### Step 3: Categorize & Write
 
@@ -118,10 +126,20 @@ Project deployment is now available as a single-click action.
   * Fixed flat folder structure display issue
 ```
 
+#### Known Issues
+- Flat bullet list (no area grouping needed)
+- **One line per issue** — describe what is broken and any workaround if known
+- Only include if there are open, unresolved issues shipping with this version
+
+**Example:**
+```markdown
+  * When executing test tables in OpenL Studio, a `ClassCastException` is encountered when the `SpreadsheetResult` cell type combines array and scalar values.
+```
+
 #### Security & Library Updates
-- Split into `### **Security Vulnerability Fixes**` and `### **Major Library Upgrades**`
-- Library upgrades subdivided by `#### **Runtime Dependencies**`, `#### **Test Dependencies**`, `#### **Removed Dependencies**`
-- Follow template format exactly (see template for structure options).
+- Use **FORMAT A** (the default): `## **Security & Library Updates**` with `### **Security Vulnerability Fixes**` and `### **Major Library Upgrades**` subsections, each further split by `#### **Runtime Dependencies**`, `#### **Test Dependencies**`, `#### **Removed Dependencies**` as applicable.
+- Use **FORMAT B** (flat bullet list, no headings) only for older or simpler releases where no structured breakdown was provided. Do not mix both formats.
+- Omit subsections that have no entries (e.g., omit `#### **Removed Dependencies**` if nothing was removed).
 
 #### Migration Notes
 - Each topic gets `### **Topic Title**` heading
@@ -168,17 +186,17 @@ Provide:
 ```
 Release notes generated for OpenL Tablets [VERSION]
 
-📁 Files created:
+Files created:
 - Docs/release-notes/[VERSION]/README.md
 - Docs/release-notes/[VERSION]/images/.DELETE_ME
 
-📊 Summary:
+Summary:
 - X New Features
-- X Improvements  
+- X Improvements
 - X Bug Fixes
 
-🖼️ Images needed:
-[List image placeholders]
+Images needed:
+[List image placeholders, or "None" if no images referenced]
 ```
 
 ## Writing Style
@@ -221,7 +239,8 @@ This skill can also be used to validate and update existing release notes.
 - [ ] Version tag link is present and correctly formatted
 - [ ] Overview is 1-2 paragraphs max
 - [ ] Only sections with content are included
-- [ ] Sections appear in correct order per template
+- [ ] Sections appear in correct order per template: New Features → Improvements → Breaking Changes → Bug Fixes → Security & Library Updates → Known Issues → Migration Notes
+- [ ] Known Issues section is included when there are open unresolved issues, omitted otherwise
 - [ ] Proper heading levels: `## **Section**` for top-level, `### **Item**` for items, `#### **Sub**` for sub-sections
 - [ ] `---` horizontal rules between individual items within each section
 
