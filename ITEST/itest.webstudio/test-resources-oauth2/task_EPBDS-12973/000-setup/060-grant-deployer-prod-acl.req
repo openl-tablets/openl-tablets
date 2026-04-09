@@ -1,0 +1,7 @@
+PUT /rest/acls/repositories/{PROD_REPO_ID}?sid={DEPLOYER_GROUP} HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "role": "CONTRIBUTOR"
+}

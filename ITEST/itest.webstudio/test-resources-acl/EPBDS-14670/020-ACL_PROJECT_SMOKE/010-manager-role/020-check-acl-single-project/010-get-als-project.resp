@@ -4,15 +4,30 @@ Content-Type: application/json
 [
   {
     "sid": {
-      "sid": "admin",
+      "sid": "jsmith",
+      "principal": true
+    },
+    "role": "MANAGER"
+  },
+  {
+    "sid": {
+      "sid": "jdoe",
       "principal": true
     },
     "role": "CONTRIBUTOR"
   },
   {
     "sid": {
-      "sid": "openl_mnt"
+      "sid": "jane.doe",
+      "principal": true
     },
-    "role": "MANAGER"
+    "role": "VIEWER"
+  },
+  {
+    "sid": {
+      "sid": "admin",
+      "principal": true
+    },
+    "role": "CONTRIBUTOR"
   }
 ]

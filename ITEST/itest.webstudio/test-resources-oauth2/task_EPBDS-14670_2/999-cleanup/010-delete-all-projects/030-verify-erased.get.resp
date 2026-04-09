@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduOkVQQkRTLTEyOTcz",
+      "name": "EPBDS-12973",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project EPBDS-12973 is created."
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "name": "Project",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "OpenL Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project",
+      "comment": "Project Project is created.",
+      "selectedBranches": [
+        "admin/feature-1",
+        "master"
+      ]
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+      "name": "ProjectUser1",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "User User1",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "ProjectUser1",
+      "comment": "Project ProjectUser1 is created.",
+      "selectedBranches": [
+        "master",
+        "user1/feature-1"
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}

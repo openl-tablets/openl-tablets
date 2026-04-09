@@ -1,7 +1,7 @@
-HTTP/1.1 403
+HTTP/1.1 404
 Content-Type: application/json
 
 {
-  "code": "openl.error.403.default.message",
-  "message": "You do not have the required privileges to do that."
+  "code": "openl.error.404.project.identifier.message",
+  "message": "The project identifier is invalid or not found."
 }

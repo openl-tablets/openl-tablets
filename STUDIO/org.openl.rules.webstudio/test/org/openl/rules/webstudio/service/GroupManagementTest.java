@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -32,6 +34,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import org.openl.rules.security.Group;
+import org.openl.rules.security.User;
+import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class,
@@ -51,6 +55,8 @@ public class GroupManagementTest {
     private UserManagementService userService;
     @Autowired
     private GroupManagementService groupService;
+    @Autowired
+    private UserDao userDao;
 
     @Autowired
     @Qualifier("flywayDBReset")
@@ -384,6 +390,76 @@ public class GroupManagementTest {
         var queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(6, queryCount.getSelect());
         assertEquals(6, queryCount.getTotal());
+    }
+
+    @Test
+    void testGetGroupsForUser() {
+        initOneUser();
+        userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
+
+        var groups = userDao.getGroupsForUser("jdoe");
+        assertEquals(2, groups.size());
+        assertCollectionEquals(List.of("Analysts", "Developers"), groups,
+                org.openl.rules.security.standalone.persistence.Group::getName);
+    }
+
+    @Test
+    void testGetGroupsForUser_noGroups() {
+        initOneUser();
+        var groups = userDao.getGroupsForUser("jdoe");
+        assertTrue(groups.isEmpty());
+    }
+
+    @Test
+    void testGetGroupsForUser_unknownUser() {
+        var groups = userDao.getGroupsForUser("unknown");
+        assertTrue(groups.isEmpty());
+    }
+
+    @Test
+    void testUpdateGroupsForUser() {
+        initOneUser();
+        userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
+        var groups = userDao.getGroupsForUser("jdoe");
+        assertEquals(2, groups.size());
+
+        // Update to different groups
+        userManagementService.updateAuthorities("jdoe", Set.of("Deployers"));
+        groups = userDao.getGroupsForUser("jdoe");
+        assertEquals(1, groups.size());
+        assertCollectionEquals(List.of("Deployers"), groups,
+                org.openl.rules.security.standalone.persistence.Group::getName);
+    }
+
+    @Test
+    void testUpdateGroupsForUser_clearAll() {
+        initOneUser();
+        userManagementService.updateAuthorities("jdoe", Set.of("Analysts"));
+        assertEquals(1, userDao.getGroupsForUser("jdoe").size());
+
+        userManagementService.updateAuthorities("jdoe", Collections.emptySet());
+        assertTrue(userDao.getGroupsForUser("jdoe").isEmpty());
+    }
+
+    @Test
+    void testGetUserWithoutGroups() {
+        initOneUser();
+        userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
+
+        User userWithGroups = userManagementService.getUser("jdoe");
+        assertNotNull(userWithGroups);
+        assertFalse(userWithGroups.getAuthorities().isEmpty());
+        assertEquals(2, userWithGroups.getAuthorities().size());
+
+        User userWithoutGroups = userManagementService.getUserWithoutGroups("jdoe");
+        assertNotNull(userWithoutGroups);
+        assertTrue(userWithoutGroups.getAuthorities().isEmpty());
+        assertEquals("jdoe", userWithoutGroups.getUsername());
+    }
+
+    @Test
+    void testGetUserWithoutGroups_unknownUser() {
+        assertNull(userManagementService.getUserWithoutGroups("unknown"));
     }
 
     private static <T, R> void assertCollectionEquals(Collection<R> expected,

@@ -4,18 +4,6 @@ Content-Type: application/json
 [
   {
     "sid": {
-      "sid": "openl_r"
-    },
-    "role": "VIEWER"
-  },
-  {
-    "sid": {
-      "sid": "openl_rw"
-    },
-    "role": "CONTRIBUTOR"
-  },
-  {
-    "sid": {
       "sid": "EPBDS_14584_2",
       "principal": true
     },

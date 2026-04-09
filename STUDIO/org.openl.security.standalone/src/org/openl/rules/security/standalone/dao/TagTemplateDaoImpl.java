@@ -35,6 +35,10 @@ public class TagTemplateDaoImpl extends BaseHibernateDao<TagTemplate> implements
     @Transactional
     @Override
     public void deleteAll() {
-        getSession().createNativeQuery("delete from OpenL_Tag_Templates").executeUpdate();
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var delete = cb.createCriteriaDelete(TagTemplate.class);
+        delete.from(TagTemplate.class);
+        session.createMutationQuery(delete).executeUpdate();
     }
 }

@@ -112,13 +112,11 @@ public class UsersRestTest {
 
         client.send("users-service/users-options.get");
 
-        client.send("admin/management/groups/addEmptyGroups.json.post");
         client.send("users-service/users-create-2.put");
     }
 
     @Test
     public void testExternalGroups() throws SQLException {
-        client.send("admin/management/groups/groupsAddAdmin.json.post");
         client.send("users-service/users-create-1.put");
         client.send("users-service/users-5.get");
         client.send("users-service/users/groups/external/empty.jsmith.get");
@@ -138,7 +136,6 @@ public class UsersRestTest {
         client.send("users-service/users/groups/external/allExternal.jsmith.get");
         client.send("users-service/users/groups/external/matchedExternal.jsmith.get");
         client.send("users-service/users/groups/external/notMatchedExternal.jsmith.get");
-        client.send("admin/management/groups/searchExternalGroup.json.get");
         client.send("users-service/users-delete-1.delete");
     }
 

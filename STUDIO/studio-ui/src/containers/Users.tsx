@@ -15,7 +15,7 @@ import { ExclamationCircleTwoTone } from '@ant-design/icons'
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
-    const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
+    const { isExternalAuthSystem, isGroupsManagementEnabled, systemSettings } = useContext(SystemContext)
     const [selectedUser, setSelectedUser] = useState<UserDetails>()
     const [users, setUsers] = useState<UserDetails[]>([])
     const { groups, error: groupsError, reloadGroups } = useGroups()
@@ -160,7 +160,7 @@ export const Users: React.FC = () => {
             },
         ]
 
-        if (!isExternalAuthSystem) {
+        if (!isGroupsManagementEnabled) {
             return columns.filter((column) => column.key !== 'userGroups')
         }
 
@@ -169,8 +169,8 @@ export const Users: React.FC = () => {
 
     return (
         <>
-            <DefaultGroupInfo />
-            {groupsError && (
+            {isGroupsManagementEnabled && <DefaultGroupInfo />}
+            {isGroupsManagementEnabled && groupsError && (
                 <Alert
                     closable
                     showIcon

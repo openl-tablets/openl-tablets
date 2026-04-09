@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -61,7 +62,7 @@ public class GroupManagementService {
 
     public void updateGroup(String name, Set<String> privileges) {
         Group persistGroup = groupDao.getGroupByName(name);
-        persistGroup.setPrivileges(privileges);
+        persistGroup.setPrivileges(new HashSet<>(privileges));
         groupDao.update(persistGroup);
     }
 

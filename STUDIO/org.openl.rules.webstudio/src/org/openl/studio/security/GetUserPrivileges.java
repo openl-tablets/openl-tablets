@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.User;
@@ -17,9 +16,9 @@ import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSetti
 import org.openl.util.StringUtils;
 
 /**
- * Get all privileges for the given user.
+ * Get all privileges for the given user, including group-based privileges.
+ * Used in ad, saml, and oauth2 modes where groups are managed externally.
  */
-@Service("privilegeMapper")
 public class GetUserPrivileges implements BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;

@@ -1,4 +1,4 @@
-PUT /rest/acls/repositories/UFJPRDpwcm9kdWN0aW9uLXMz?sid=guest&principal=true HTTP/1.1
+PUT /rest/acls/repositories/{PROD_S3_REPO_ID}?sid=guest&principal=true HTTP/1.1
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Content-Type: application/json
 

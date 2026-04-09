@@ -3,49 +3,35 @@ Content-Type: application/json
 
 [
   {
-    "userGroups": [
-      {
-        "name": "Administrators",
-        "type": "ADMIN"
-      }
-    ],
     "username": "admin",
     "currentUser": true,
     "superUser": true,
     "unsafePassword": true,
     "externalFlags": {
-      "emailVerified": false,
-      "lastNameExternal": false,
       "emailExternal": false,
+      "emailVerified": false,
+      "displayNameExternal": false,
       "firstNameExternal": false,
-      "displayNameExternal": false
+      "lastNameExternal": false
     },
-    "notMatchedExternalGroupsCount": 0,
     "online": false
   },
   {
-    "displayName": "John Smith",
     "email": "jsmith@email",
+    "displayName": "John Smith",
     "firstName": "John",
     "lastName": "Smith",
-    "userGroups": [
-      {
-        "name": "Administrators",
-        "type": "ADMIN"
-      }
-    ],
     "username": "jsmith",
-    "externalFlags": {
-      "emailVerified": false,
-      "lastNameExternal": false,
-      "emailExternal": false,
-      "firstNameExternal": false,
-      "displayNameExternal": false
-    },
-    "notMatchedExternalGroupsCount": 0,
-    "online": false,
     "currentUser": false,
     "superUser": false,
-    "unsafePassword": false
+    "unsafePassword": false,
+    "externalFlags": {
+      "emailExternal": false,
+      "emailVerified": false,
+      "displayNameExternal": false,
+      "firstNameExternal": false,
+      "lastNameExternal": false
+    },
+    "online": false
   }
 ]

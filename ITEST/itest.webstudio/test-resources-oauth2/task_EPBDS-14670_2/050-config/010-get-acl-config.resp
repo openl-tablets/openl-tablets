@@ -1,0 +1,135 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      },
+      {
+        "role": "MANAGER",
+        "sub": {
+          "sid": "group-epbds14670r-manager"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "group-epbds14670r-contributor"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "group-epbds14670r-viewer"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design",
+      "projectName": "EPBDS-12973"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "admin",
+          "principal": true
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design",
+      "projectName": "EPBDS_14670_Project"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "epbds14670r_manager",
+          "principal": true
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design-flat"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "openl-ba"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design-flat",
+      "projectName": "Project:985959785319747668373cc6dee294b11db782b03cdd90a2851fbdc0637c6b7b"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "admin",
+          "principal": true
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design-flat",
+      "projectName": "ProjectUser1:68f8e7d37c30483d791a957ebb479e8e381179f319d307f7ccf63be84807f120"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "user1",
+          "principal": true
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "PROD"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "openl-ba"
+        }
+      }
+    ]
+  }
+]

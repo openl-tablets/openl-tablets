@@ -1,4 +1,4 @@
-DELETE /rest/user-workspace/design/projects/EPBDS_15595/delete HTTP/1.1
+DELETE /rest/user-workspace/design/projects/{DB_PROJECT_NAME}/delete HTTP/1.1
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Cookie: NO_JSESSIONID=noAuth
 Content-Type: application/x-www-form-urlencoded

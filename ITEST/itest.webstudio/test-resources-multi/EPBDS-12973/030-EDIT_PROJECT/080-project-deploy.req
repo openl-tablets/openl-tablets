@@ -1,0 +1,10 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Basic RVBCRFNfMTI5NzNfMjpwYXNz
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "EPBDS-12973-editor",
+  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "comment": "Editor tries to deploy"
+}

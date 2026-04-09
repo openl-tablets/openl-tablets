@@ -1,3 +1,0 @@
-GET /web/admin/management/groups HTTP/1.1
-Cookie: NO_JSESSIONID=noAuth
-

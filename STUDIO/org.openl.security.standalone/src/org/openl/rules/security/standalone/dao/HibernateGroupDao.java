@@ -10,7 +10,7 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.security.standalone.persistence.Group;
-import org.openl.rules.security.standalone.persistence.User;
+import org.openl.rules.security.standalone.persistence.UserGroup;
 
 /**
  * Hibernate implementation of {@link GroupDao}.
@@ -56,9 +56,12 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Override
     @Transactional
     public void deleteGroupById(final Long id) {
-        getSession().createNativeQuery("delete from OpenL_Groups where id = :id")
-                .setParameter("id", id)
-                .executeUpdate();
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var delete = cb.createCriteriaDelete(Group.class);
+        var root = delete.from(Group.class);
+        delete.where(cb.equal(root.get("id"), id));
+        session.createMutationQuery(delete).executeUpdate();
     }
 
     @Override
@@ -75,11 +78,16 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     public long countUsersInGroup(String groupName) {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(Long.class);
-        var userRoot = criteria.from(User.class);
+        var ugRoot = criteria.from(UserGroup.class);
 
-        criteria.select(builder.count(userRoot))
-                .where(builder.equal(userRoot.join("groups").get("name"), groupName));
+        // Subquery: SELECT g.id FROM Group g WHERE g.name = :groupName
+        var subquery = criteria.subquery(Long.class);
+        var groupRoot = subquery.from(Group.class);
+        subquery.select(groupRoot.get("id"))
+                .where(builder.equal(groupRoot.get("name"), groupName));
 
+        criteria.select(builder.count(ugRoot))
+                .where(ugRoot.get("id").get("groupId").in(subquery));
         return getSession().createQuery(criteria).getSingleResult();
     }
 
@@ -99,6 +107,6 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
         var criteria = builder.createCriteriaDelete(Group.class);
         var root = criteria.from(Group.class);
         criteria.where(builder.equal(root.get("name"), name));
-        getSession().createQuery(criteria).executeUpdate();
+        getSession().createMutationQuery(criteria).executeUpdate();
     }
 }

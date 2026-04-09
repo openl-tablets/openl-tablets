@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "sid": {
+      "sid": "group-epbds14670r-contributor"
+    },
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "sid": {
+      "sid": "group-epbds14670r-viewer"
+    },
+    "role": "VIEWER"
+  }
+]
