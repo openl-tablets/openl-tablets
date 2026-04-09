@@ -321,41 +321,50 @@ describe('ConflictResolutionStep', () => {
 
         it('opens download URL for OURS version', async () => {
             const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
-            await renderAndLoad()
+            try {
+                await renderAndLoad()
 
-            await userEvent.click(screen.getByText('merge:compare.download_yours'))
+                await userEvent.click(screen.getByText('merge:compare.download_yours'))
 
-            expect(openSpy).toHaveBeenCalledWith(
-                expect.stringContaining('side=OURS'),
-                '_blank'
-            )
-            openSpy.mockRestore()
+                expect(openSpy).toHaveBeenCalledWith(
+                    expect.stringContaining('side=OURS'),
+                    '_blank'
+                )
+            } finally {
+                openSpy.mockRestore()
+            }
         })
 
         it('opens download URL for THEIRS version', async () => {
             const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
-            await renderAndLoad()
+            try {
+                await renderAndLoad()
 
-            await userEvent.click(screen.getByText('merge:compare.download_theirs'))
+                await userEvent.click(screen.getByText('merge:compare.download_theirs'))
 
-            expect(openSpy).toHaveBeenCalledWith(
-                expect.stringContaining('side=THEIRS'),
-                '_blank'
-            )
-            openSpy.mockRestore()
+                expect(openSpy).toHaveBeenCalledWith(
+                    expect.stringContaining('side=THEIRS'),
+                    '_blank'
+                )
+            } finally {
+                openSpy.mockRestore()
+            }
         })
 
         it('opens download URL for BASE version', async () => {
             const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
-            await renderAndLoad()
+            try {
+                await renderAndLoad()
 
-            await userEvent.click(screen.getByText('merge:compare.download_base'))
+                await userEvent.click(screen.getByText('merge:compare.download_base'))
 
-            expect(openSpy).toHaveBeenCalledWith(
-                expect.stringContaining('side=BASE'),
-                '_blank'
-            )
-            openSpy.mockRestore()
+                expect(openSpy).toHaveBeenCalledWith(
+                    expect.stringContaining('side=BASE'),
+                    '_blank'
+                )
+            } finally {
+                openSpy.mockRestore()
+            }
         })
     })
 
