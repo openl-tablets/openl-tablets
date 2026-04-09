@@ -135,8 +135,13 @@ public class RulesDeployerService implements Closeable {
         deploy(null, in, ignoreIfExists);
     }
 
+    @Deprecated(since = "6.1.0")
     public void deploy(File file, boolean ignoreIfExists) throws IOException {
-        deployInternal(null, file.toPath(), ignoreIfExists);
+        deploy(file.toPath(), ignoreIfExists);
+    }
+
+    public void deploy(Path path, boolean ignoreIfExists) throws IOException {
+        deployInternal(null, path, ignoreIfExists);
     }
 
     public boolean isReady() {

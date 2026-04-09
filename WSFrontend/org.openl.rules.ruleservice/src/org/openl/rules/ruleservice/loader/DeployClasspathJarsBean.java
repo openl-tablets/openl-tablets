@@ -4,7 +4,7 @@ import static org.springframework.core.io.support.ResourcePatternResolver.CLASSP
 
 import static org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
 import jakarta.annotation.PostConstruct;
@@ -49,7 +49,7 @@ public class DeployClasspathJarsBean {
         deployThread.start();
     }
 
-    private void processResources(ArrayDeque<File> filesToDeploy, String location) {
+    private void processResources(ArrayDeque<Path> filesToDeploy, String location) {
         try {
             for (var rulesXmlResource : resourceResolver.getResources(location)) {
                 try {
@@ -57,7 +57,7 @@ public class DeployClasspathJarsBean {
                     if ("jar".equals(resourceURL.getProtocol())) {
                         resourceURL = ResourceUtils.extractJarFileURL(resourceURL);
                     }
-                    filesToDeploy.add(ResourceUtils.getFile(resourceURL));
+                    filesToDeploy.add(ResourceUtils.getFile(resourceURL).toPath());
                 } catch (Exception e) {
                     log.warn("Failed to load a resource.", e);
                 }
@@ -68,7 +68,7 @@ public class DeployClasspathJarsBean {
     }
 
     private void deployLoop() {
-        var filesToDeploy = new ArrayDeque<File>(); // Package level for tests only
+        var filesToDeploy = new ArrayDeque<Path>(); // Package level for tests only
         try {
             processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + PROJECT_DESCRIPTOR_FILE_NAME);
             processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.XML.getFileName());
