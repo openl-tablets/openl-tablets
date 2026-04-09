@@ -26,7 +26,7 @@ public class RunS3Test extends AbstractS3Test {
             client.test("test-resources-smoke/stage1");
 
             try (var deployer = new RulesDeployerService(config::get)) {
-                deployer.deploy(Path.of("test-resources-smoke/stage2/rules-to-deploy-datasource.zip").toFile(), true);
+                deployer.deploy(Path.of("test-resources-smoke/stage2/rules-to-deploy-datasource.zip"), true);
             }
 
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",

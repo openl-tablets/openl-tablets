@@ -67,7 +67,7 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.base.path", "deploy/");
 
         try (RulesDeployerService deployerService = new RulesDeployerService(properties::get)) {
-            deployerService.deploy(zipFile, false);
+            deployerService.deploy(zipFile.toPath(), false);
         }
     }
 

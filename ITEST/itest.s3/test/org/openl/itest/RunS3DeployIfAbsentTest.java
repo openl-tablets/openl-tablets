@@ -14,7 +14,7 @@ public class RunS3DeployIfAbsentTest extends AbstractS3Test {
     @Test
     public void testWhenDeployJarsIfAbsent() throws Exception {
         try (var deployer = new RulesDeployerService(config::get)) {
-            deployer.deploy(Path.of("test-resources/openl/multiple-deployment-datasource.zip").toFile(), false);
+            deployer.deploy(Path.of("test-resources/openl/multiple-deployment-datasource.zip"), false);
         }
         verifyS3Repository();
         final var beforeStartProject1 = s3Client.headObject(it -> it.bucket(bucketName).key("deploy/multiple-deployment-datasource/project1"));

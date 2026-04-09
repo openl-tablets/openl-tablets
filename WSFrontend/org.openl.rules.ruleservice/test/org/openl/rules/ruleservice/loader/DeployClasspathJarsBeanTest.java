@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +60,7 @@ public class DeployClasspathJarsBeanTest {
                 return null;
             }
             throw new IOException("Not available");
-        }).when(unstableDeployerService).deploy(any(File.class), anyBoolean());
+        }).when(unstableDeployerService).deploy(any(Path.class), anyBoolean());
 
         // Finalize deployer initialization.
         classpathDeployer.start();
@@ -68,6 +69,6 @@ public class DeployClasspathJarsBeanTest {
         done.await(10, TimeUnit.SECONDS);
 
         verify(unstableDeployerService, times(4)).isReady();
-        verify(unstableDeployerService, times(3)).deploy(any(File.class), anyBoolean());
+        verify(unstableDeployerService, times(3)).deploy(any(Path.class), anyBoolean());
     }
 }
