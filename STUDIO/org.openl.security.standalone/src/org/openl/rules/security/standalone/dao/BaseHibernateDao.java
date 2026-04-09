@@ -30,19 +30,19 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     @Override
     @Transactional
     public void save(T obj) {
-        getSession().save(obj);
+        getSession().persist(obj);
     }
 
     @Override
     @Transactional
     public void saveOrUpdate(T obj) {
-        getSession().saveOrUpdate(obj);
+        getSession().merge(obj);
     }
 
     @Override
     @Transactional
     public void update(T obj) {
-        getSession().update(obj);
+        getSession().merge(obj);
     }
 
     @Transactional
@@ -56,7 +56,7 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
                 session.flush();
                 session.clear();
             }
-            session.save(obj);
+            session.persist(obj);
             i++;
         }
     }

@@ -48,9 +48,12 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Override
     @Transactional
     public void deleteUserByName(final String name) {
-        getSession().createNativeQuery("delete from OpenL_Users where loginName = :name")
-                .setParameter("name", name)
-                .executeUpdate();
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var delete = cb.createCriteriaDelete(User.class);
+        var root = delete.from(User.class);
+        delete.where(cb.equal(root.get("loginName"), name));
+        session.createMutationQuery(delete).executeUpdate();
     }
 
     @Override
@@ -101,12 +104,12 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var deleteCriteria = builder.createCriteriaDelete(UserGroup.class);
         var deleteRoot = deleteCriteria.from(UserGroup.class);
         deleteCriteria.where(builder.equal(deleteRoot.get("id").get("loginName"), loginName));
-        session.createQuery(deleteCriteria).executeUpdate();
+        session.createMutationQuery(deleteCriteria).executeUpdate();
 
         // Insert new mappings
         if (groups != null) {
             for (Group group : groups) {
-                session.save(new UserGroup(loginName, group.getId()));
+                session.persist(new UserGroup(loginName, group.getId()));
             }
         }
     }

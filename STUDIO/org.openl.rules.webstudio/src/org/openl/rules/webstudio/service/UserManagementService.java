@@ -164,16 +164,7 @@ public class UserManagementService {
 
     @Transactional
     public void updateAuthorities(String user, Set<String> authorities) {
-        Set<Group> groups = new HashSet<>();
-        if (authorities != null) {
-            for (String auth : authorities) {
-                Group group = groupDao.getGroupByName(auth);
-                if (group != null) {
-                    groups.add(group);
-                }
-            }
-        }
-        userDao.updateGroupsForUser(user, groups);
+        doUpdateAuthorities(user, authorities);
     }
 
     @Transactional
@@ -184,7 +175,20 @@ public class UserManagementService {
             Set<String> currentAdminGroups = getCurrentAdminGroups(currentGroups);
             fullAuthorities.addAll(currentAdminGroups);
         }
-        updateAuthorities(user, fullAuthorities);
+        doUpdateAuthorities(user, fullAuthorities);
+    }
+
+    private void doUpdateAuthorities(String user, Set<String> authorities) {
+        Set<Group> groups = new HashSet<>();
+        if (authorities != null) {
+            for (String auth : authorities) {
+                Group group = groupDao.getGroupByName(auth);
+                if (group != null) {
+                    groups.add(group);
+                }
+            }
+        }
+        userDao.updateGroupsForUser(user, groups);
     }
 
     public Set<String> getCurrentAdminGroups(final Set<Group> groups) {

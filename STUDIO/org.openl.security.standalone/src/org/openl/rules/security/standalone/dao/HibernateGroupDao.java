@@ -56,9 +56,12 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Override
     @Transactional
     public void deleteGroupById(final Long id) {
-        getSession().createNativeQuery("delete from OpenL_Groups where id = :id")
-                .setParameter("id", id)
-                .executeUpdate();
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var delete = cb.createCriteriaDelete(Group.class);
+        var root = delete.from(Group.class);
+        delete.where(cb.equal(root.get("id"), id));
+        session.createMutationQuery(delete).executeUpdate();
     }
 
     @Override
@@ -104,6 +107,6 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
         var criteria = builder.createCriteriaDelete(Group.class);
         var root = criteria.from(Group.class);
         criteria.where(builder.equal(root.get("name"), name));
-        getSession().createQuery(criteria).executeUpdate();
+        getSession().createMutationQuery(criteria).executeUpdate();
     }
 }
