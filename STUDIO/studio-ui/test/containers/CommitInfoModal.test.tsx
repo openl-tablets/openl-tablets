@@ -194,7 +194,12 @@ describe('CommitInfoModal', () => {
 
         const { props } = await renderModal()
 
-        await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+        const saveButton = getSaveButton()
+        const cancelButton = screen
+            .getAllByRole('button')
+            .find(button => button !== saveButton && button.getAttribute('aria-label') !== 'Close')
+        expect(cancelButton).toBeDefined()
+        await userEvent.click(cancelButton as HTMLElement)
 
         expect(props.onCancel).toHaveBeenCalled()
     })

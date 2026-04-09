@@ -351,30 +351,33 @@ describe('MergeModal', () => {
         })
 
         it('calls callback directly when no username in profile', async () => {
-            // Re-mock store with null username for this test only
             const storeModule = require('store')
-            const original = storeModule.useUserStore
-            storeModule.useUserStore = () => ({ userProfile: { username: null } })
+            const useUserStoreSpy = jest
+                .spyOn(storeModule, 'useUserStore')
+                .mockReturnValue({ userProfile: { username: null } })
+            let unmount: (() => void) | undefined
+            try {
+                mockApiCall.mockRejectedValue(new MockNotFoundError())
+                ;({ unmount } = render(<MergeModal />))
+                await dispatchOpenModal(createDetail())
 
-            mockApiCall.mockRejectedValue(new MockNotFoundError())
+                await waitFor(() => {
+                    expect(mergeBranchesStepProps).toHaveBeenCalled()
+                })
 
-            const { unmount } = render(<MergeModal />)
-            await dispatchOpenModal(createDetail())
+                const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
+                const callback = jest.fn()
+                await act(async () => {
+                    await onCheckCommitInfo(callback)
+                })
 
-            await waitFor(() => {
-                expect(mergeBranchesStepProps).toHaveBeenCalled()
-            })
-
-            const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
-            const callback = jest.fn()
-            await act(async () => {
-                await onCheckCommitInfo(callback)
-            })
-
-            expect(callback).toHaveBeenCalled()
-
-            unmount()
-            storeModule.useUserStore = original
+                expect(callback).toHaveBeenCalled()
+            } finally {
+                if (unmount) {
+                    unmount()
+                }
+                useUserStoreSpy.mockRestore()
+            }
         })
     })
 
