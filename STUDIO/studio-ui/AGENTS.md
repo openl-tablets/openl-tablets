@@ -86,6 +86,8 @@ Tests live in `test/` (not co-located). Run all with `npm test`, or a specific f
 - **Per-test store overrides**: Use `jest.spyOn(storeModule, 'useUserStore').mockReturnValue(...)` with `mockRestore()` in a `finally` block. Do not mutate module exports directly — if the test throws before restoration, leaked state breaks subsequent tests
 - **Avoid hardcoded Ant Design default labels** (e.g., "OK", "Cancel") in assertions — they depend on AntD locale config. Select buttons by excluding known buttons (save, close) or by setting explicit `okText`/`cancelText` props
 - **Mock child components** to capture props via `jest.fn()` when testing a parent orchestrator (e.g., MergeModal). Use a `getLatestProps` helper that reads the last mock call — earlier calls may have stale closures after React re-renders
+- **Ant Design `Table` causes infinite `act()` loops in jsdom**: Components that render `Table`, `Descriptions`, or other heavy AntD components with async `useEffect` data loading will hang during `act()`. Mock `antd` entirely with simple HTML equivalents (`<table>`, `<dl>`, `<button>`, etc.) and flush async effects via `await act(async () => { render(...); await new Promise(r => setTimeout(r, 50)) })`. See `ConflictResolutionStep.test.tsx` for the full mock pattern
+- **Stable `react-i18next` mock**: Define the `t` function once inside the `jest.mock` factory, not inline in the return. A new `t` reference each render causes infinite `useCallback`/`useEffect` loops when `t` is in a dependency array
 
 ## Quality Rules
 
