@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Modal, notification } from 'antd'
+import { Modal, notification, Typography } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from '../../hooks'
@@ -164,16 +164,18 @@ export const MergeModal: React.FC = () => {
     return (
         <>
             <Modal
-                destroyOnClose
+                destroyOnHidden
                 footer={null}
-                maskClosable={currentStep === 'branches'}
+                mask={{ closable: currentStep === 'branches' }}
                 onCancel={handleClose}
                 open={visible}
                 width={modalWidth}
                 title={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <BranchesOutlined style={{ marginRight: 8 }} />
-                        {modalTitle}
+                    <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+                        <BranchesOutlined style={{ marginRight: 8, flexShrink: 0 }} />
+                        <Typography.Text ellipsis={{ tooltip: modalTitle }}>
+                            {modalTitle}
+                        </Typography.Text>
                     </div>
                 }
             >

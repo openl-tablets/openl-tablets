@@ -164,7 +164,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 wrapperCol={{ flex: 1 }}
             >
                 <Form.Item label={t('merge:branches.current')}>
-                    <Typography.Text strong>
+                    <Typography.Text ellipsis={{ tooltip: currentBranch }} strong>
                         <BranchesOutlined style={{ marginRight: 8 }} />
                         {currentBranch}
                     </Typography.Text>
@@ -191,7 +191,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             )}
             {isChecking && (
                 <div style={{ textAlign: 'center', padding: 16 }}>
-                    <Spin tip={t('merge:status.checking')} />
+                    <Spin description={t('merge:status.checking')} />
                 </div>
             )}
             {!isChecking && selectedBranch && (
