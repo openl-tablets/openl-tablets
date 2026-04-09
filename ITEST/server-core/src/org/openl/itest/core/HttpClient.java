@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
@@ -68,7 +67,7 @@ public class HttpClient implements AutoCloseable {
         this.client = builder.build();
     }
 
-    private HttpRequest.Builder requestBuilder(String url, String[] headers) throws URISyntaxException {
+    private HttpRequest.Builder requestBuilder(String url, String[] headers) {
         var uri = baseURL.resolve(url);
         var builder = HttpRequest.newBuilder().uri(uri);
 
@@ -299,6 +298,25 @@ public class HttpClient implements AutoCloseable {
         headers.add("Cookie", cookie.get());
 
         stompClient.connectAsync(webSocketBaseURL, headers, new StompHeaders(), handler);
+    }
+
+    public void tryWaitOK(String url) {
+        var req = requestBuilder(url, null).GET().build();
+        try {
+            for (int i = 0; i < 100; i++) {
+                try {
+                    var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+                    if (resp.statusCode() == 200) {
+                        break;
+                    }
+                } catch (IOException ignore) {
+                    // Ignore and retry
+                }
+                Thread.sleep(10);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

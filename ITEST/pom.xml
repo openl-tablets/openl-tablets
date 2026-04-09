@@ -73,6 +73,7 @@
                         <reuseForks>false</reuseForks>
                         <systemPropertyVariables>
                             <webservice-webapp>../../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp</webservice-webapp>
+                            <readiness-url>/admin/healthcheck/readiness</readiness-url>
                             <openl.config.location>file:./openl-repository/</openl.config.location>
                             <openl.config.name>application.properties, application-{profile}.properties</openl.config.name>
                             <server.responses>${project.build.directory}/responses/</server.responses>
