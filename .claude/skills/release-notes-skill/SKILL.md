@@ -6,7 +6,7 @@ description: Generate OpenL Tablets release notes by collecting Jira tickets and
 # OpenL Release Notes Generator Skill
 
 ## Template Reference
-**Template file:** `openl-tablets/.claude/agents/skills/release-notes-skill/templates/release-notes-template.md`
+**Template file:** `openl-tablets/.claude/skills/release-notes-skill/templates/release-notes-template.md`
 
 Always consult this template for exact structure, section ordering, and formatting. The template defines which sections to include and how to format each one.
 
