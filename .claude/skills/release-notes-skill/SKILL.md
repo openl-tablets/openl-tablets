@@ -276,7 +276,7 @@ This skill can also be used to validate and update existing release notes.
 - [ ] No Jira ticket numbers anywhere
 - [ ] Bullets start with action verbs
 - [ ] One line per improvement/fix (not paragraphs)
-- [ ] Features are 1-2 sentences + optional bullets
+- [ ] Features are 1-3 sentences + optional bullets
 - [ ] No vague phrases ("various improvements", "minor fixes")
 
 **Content:**
