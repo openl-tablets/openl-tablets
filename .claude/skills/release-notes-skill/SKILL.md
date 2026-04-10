@@ -49,7 +49,7 @@ Ask for version if not provided (format: X.Y.Z).
 
 **Version tag and GitHub URL format:**
 - For 5.x releases: version tag `openl-tablets-X.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/openl-tablets-X.Y.Z`
-- For 6.x and later releases: version tag `vX.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/X.Y.Z`
+- For 6.x and later releases: version tag `vX.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/vX.Y.Z`
 
 These are used to fill the `[{{version_tag}}]({{github_tag_url}}) on the GitHub` line in the template.
 
