@@ -4,7 +4,7 @@ OpenL Tablets – Release Notes content template (version-specific pages)
 AI filling rules (important):
 - Start the release notes with a 1–2 paragraph overview that summarizes what's most important in this release.
 - Include ONLY the sections that have content (tickets/changes). If no tickets exist for a category, omit the entire section.
-- The first section after the overview should be the first category that has items (e.g., New Features, Improvements, Fixed Bugs, Updated Libraries, or Runtime Dependencies).
+- The first section after the overview should be the first category that has items (e.g., New Features, Improvements, Bug Fixes, Security & Library Updates, Known Issues, or Migration Notes).
 - Keep labels/headers exactly (case, punctuation, colons) and keep bullet indentation consistent.
 - Use --- (horizontal rule) between individual items within a section to visually separate them. Omit the trailing --- after the last item in each section.
 - Use --- between subsections within Migration Notes. Omit the trailing --- after the last migration topic.
