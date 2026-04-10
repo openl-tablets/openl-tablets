@@ -247,7 +247,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             <Descriptions.Item label={label}>
                 {revision.exists ? (
                     <Tooltip title={t('merge:revisions.commit', { commit: revision.commit })}>
-                        <Space direction="vertical" size={0}>
+                        <Space orientation="vertical" size={0}>
                             <Typography.Text strong>{revision.branch}</Typography.Text>
                             {revision.author && (
                                 <Typography.Text type="secondary">
@@ -289,7 +289,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             key: 'compare',
             width: 200,
             render: (_: any, record: { filePath: string }) => (
-                <Space direction="vertical" size="small">
+                <Space orientation="vertical" size="small">
                     <Button
                         icon={<EyeOutlined />}
                         onClick={() => onCompare(record.filePath)}
@@ -334,12 +334,12 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 const isResolved = res?.resolution && (res.resolution !== 'CUSTOM' || res.customFile)
 
                 return (
-                    <Space direction="vertical" size="small">
+                    <Space orientation="vertical" size="small">
                         <Radio.Group
                             onChange={e => handleResolutionChange(record.filePath, e.target.value)}
                             value={res?.resolution}
                         >
-                            <Space direction="vertical">
+                            <Space orientation="vertical">
                                 <Radio value="OURS">{t('merge:resolution.use_yours')}</Radio>
                                 <Radio value="THEIRS">{t('merge:resolution.use_theirs')}</Radio>
                                 <Radio value="BASE">{t('merge:resolution.use_base')}</Radio>
