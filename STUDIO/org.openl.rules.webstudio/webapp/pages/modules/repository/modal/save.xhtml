@@ -91,7 +91,31 @@
     function onSaveComplete(mergeConflict, successful) {
       if (mergeConflict) {
         RichFaces.$('modalSave').hide();
-        openResolveConflictDialog(refreshRepositoryAfterSave);
+        var projectId = btoa('#{artefact.repository.id}' + ':' + '#{artefact.businessName}');
+        $j.get('#{contextPath}/web/projects/' + projectId).then(function(project) {
+          window.dispatchEvent(new CustomEvent('openMergeModal', {
+            detail: {
+              projectId: project.id,
+              projectName: project.name,
+              repositoryId: '#{artefact.repository.id}',
+              repositoryType: saveRepositoryType,
+              currentBranch: project.branch,
+              branches: [],
+              initialStep: 'conflicts',
+              onSuccess: refreshRepositoryAfterSave,
+              onCompare: function(filePath) {
+                var isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
+                if (isExcel) {
+                  openCompareRevisionsDialog(project.id, filePath);
+                } else if (typeof openCompareTextFilesDialog === 'function') {
+                  openCompareTextFilesDialog(project.id, filePath);
+                }
+              }
+            }
+          }));
+        }).catch(function() {
+          alert('Failed to open merge conflict dialog.');
+        });
       } else if (successful) {
         RichFaces.$('modalSave').hide();
       }

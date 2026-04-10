@@ -3,6 +3,7 @@ package org.openl.studio.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -24,6 +25,7 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
 import org.openl.studio.security.CurrentUserInfo;
 
@@ -61,7 +63,9 @@ public class ServiceApiConfig {
                                              PathFilter zipFilter,
                                              ZipCharsetDetector zipCharsetDetector,
                                              PropertyResolver propertyResolver,
-                                             DeploymentManager deploymentManager) {
+                                             DeploymentManager deploymentManager,
+                                             ApplicationEventPublisher eventPublisher,
+                                             ProjectsMergeConflictsSessionHolder conflictsSessionHolder) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
         rulesUserSession.setWorkspaceManager(workspaceManager);
@@ -76,7 +80,9 @@ public class ServiceApiConfig {
                 zipFilter,
                 zipCharsetDetector,
                 propertyResolver,
-                deploymentManager);
+                deploymentManager,
+                eventPublisher,
+                conflictsSessionHolder);
         rulesUserSession.setWebStudio(webStudio);
         return rulesUserSession;
     }

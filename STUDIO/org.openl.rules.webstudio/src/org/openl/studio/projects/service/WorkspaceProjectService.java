@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +50,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
-import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -72,6 +72,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
@@ -110,6 +111,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableWriterExecutor tableWriterExecutor;
     private final TableCreatorService tableCreatorService;
     private final TableWritersFactory tableWritersFactory;
+    private final ApplicationEventPublisher eventPublisher;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -122,7 +124,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             BeanValidationProvider validationProvider,
             TableCreatorService tableCreatorService,
             TableWriterExecutor tableWriterExecutor,
-            TableWritersFactory tableWritersFactory) {
+            TableWritersFactory tableWritersFactory,
+            ApplicationEventPublisher eventPublisher) {
         super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -134,6 +137,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableCreatorService = tableCreatorService;
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
+        this.eventPublisher = eventPublisher;
     }
 
     @Lookup
@@ -267,15 +271,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         project.getFileData().setComment(comment);
         try {
-            ConflictUtils.removeMergeConflict();
             getWebStudio().saveProject(project);
         } catch (ProjectException e) {
-            var cause = e.getCause();
-            if (cause instanceof MergeConflictException mergeConflictEx) {
-                ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+            if (e.getCause() instanceof MergeConflictException mergeConflictEx) {
+                var conflictInfo = MergeConflictInfo.builder()
                         .details(mergeConflictEx.getDetails())
                         .project(project)
-                        .build());
+                        .build();
+                eventPublisher.publishEvent(new SaveMergeConflictEvent(project, conflictInfo));
+                throw new ConflictException("project.save.merge.conflict.message");
             }
             throw e;
         }
