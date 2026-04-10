@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-15612",
+      "projectPath": "EPBDS-15612",
+      "files": [
+        "EPBDS-15612/Qwerty.xlsx"
+      ]
+    }
+  ],
+  "oursRevision": {
+    "commit": "*",
+    "author": "Admin",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "theirsRevision": {
+    "commit": "*",
+    "author": "EPBDS-15612 User1",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "baseRevision": {
+    "commit": "*",
+    "author": "Admin",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "defaultMessage": "*"
+}
