@@ -62,11 +62,17 @@ export const MergeModal: React.FC = () => {
         setVisible(hasDetails)
         if (hasDetails) {
             // Reset state when modal opens
-            const startStep = detail.initialStep ?? 'branches'
-            setCurrentStep(startStep)
+            setCurrentStep('branches')
             setConflictGroups([])
             // Check for existing unresolved conflicts
-            checkExistingConflicts(detail.projectId)
+            checkExistingConflicts(detail.projectId).then((hasConflicts) => {
+                if (!hasConflicts && detail.initialStep !== 'conflicts') {
+                    // No conflicts found — stay on branches step (already set)
+                } else if (!hasConflicts && detail.initialStep === 'conflicts') {
+                    // Was opened for conflict resolution but conflicts not found — close
+                    setVisible(false)
+                }
+            })
         }
     }, [detail, checkExistingConflicts])
 

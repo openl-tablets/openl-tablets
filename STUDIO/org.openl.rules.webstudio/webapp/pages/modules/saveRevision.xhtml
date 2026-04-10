@@ -83,9 +83,9 @@
       function onSaveComplete(mergeConflict, successful) {
         if (mergeConflict) {
           RichFaces.$('modalSave').hide();
-          var projectId = btoa('#{artefact.repository.id}' + ':' + '#{artefact.businessName}');
+          const projectId = btoa('#{artefact.repository.id}' + ':' + '#{artefact.businessName}');
           $j.get('#{contextPath}/web/projects/' + projectId).then(function(project) {
-            window.dispatchEvent(new CustomEvent('openMergeModal', {
+            globalThis.dispatchEvent(new CustomEvent('openMergeModal', {
               detail: {
                 projectId: project.id,
                 projectName: project.name,
@@ -96,7 +96,7 @@
                 initialStep: 'conflicts',
                 onSuccess: goToNewProject,
                 onCompare: function(filePath) {
-                  var isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
+                  const isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
                   if (isExcel) {
                     openCompareRevisionsDialog(project.id, filePath);
                   } else if (typeof openCompareTextFilesDialog === 'function') {
