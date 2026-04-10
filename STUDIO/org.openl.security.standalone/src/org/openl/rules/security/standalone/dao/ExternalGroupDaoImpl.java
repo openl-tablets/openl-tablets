@@ -27,12 +27,12 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public void deleteAll() {
-        getSession().createQuery("DELETE ExternalGroup").executeUpdate();
+        getSession().createMutationQuery("DELETE ExternalGroup").executeUpdate();
     }
 
     @Override
     public void deleteAllForUser(String loginName) {
-        getSession().createQuery("DELETE ExternalGroup ext where ext.loginName = :loginName")
+        getSession().createMutationQuery("DELETE ExternalGroup ext where ext.loginName = :loginName")
                 .setParameter("loginName", loginName)
                 .executeUpdate();
     }

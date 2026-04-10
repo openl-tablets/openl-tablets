@@ -1,3 +1,0 @@
-DELETE /rest/admin/management/groups?name=openl_mnt HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
-

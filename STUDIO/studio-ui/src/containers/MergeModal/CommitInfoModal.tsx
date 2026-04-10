@@ -86,7 +86,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
     return (
         <Modal
             closable={!isSaving}
-            maskClosable={!isSaving}
+            mask={{ closable: !isSaving }}
             okButtonProps={{ loading: isSaving, disabled: isLoading }}
             okText={t('merge:buttons.save')}
             onCancel={onCancel}
@@ -99,7 +99,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                     <Spin />
                 </div>
             ) : (
-                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
                     <Alert
                         showIcon
                         title={t('merge:commit_info.description')}

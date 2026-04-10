@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -9,16 +10,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.persistence.Group;
-import org.openl.rules.security.standalone.persistence.User;
 
 public final class PrivilegesEvaluator {
     private PrivilegesEvaluator() {
     }
 
-    public static Collection<GrantedAuthority> createPrivileges(User user) {
+    public static Collection<GrantedAuthority> createPrivileges(Set<Group> groups) {
+        if (groups == null || groups.isEmpty()) {
+            return Collections.emptyList();
+        }
         Collection<GrantedAuthority> grantedList = new ArrayList<>();
-
-        Set<Group> groups = user.getGroups();
         for (Group group : groups) {
             Collection<GrantedAuthority> privileges = createPrivileges(group);
             grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));

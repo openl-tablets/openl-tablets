@@ -146,10 +146,10 @@ public class UserManagementTest {
                 .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(5, queryCount.getSelect());
+        assertEquals(4, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getUpdate());
-        assertEquals(7, queryCount.getTotal());
+        assertEquals(6, queryCount.getTotal());
     }
 
     @Test
@@ -179,10 +179,10 @@ public class UserManagementTest {
                 .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(7, queryCount.getSelect());
+        assertEquals(6, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getUpdate());
-        assertEquals(9, queryCount.getTotal());
+        assertEquals(8, queryCount.getTotal());
     }
 
     @Test
@@ -211,10 +211,10 @@ public class UserManagementTest {
                 .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(7, queryCount.getSelect());
+        assertEquals(6, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getUpdate());
-        assertEquals(9, queryCount.getTotal());
+        assertEquals(8, queryCount.getTotal());
     }
 
     @Test

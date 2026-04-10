@@ -118,7 +118,13 @@ public class JettyServer {
             throw new IllegalStateException(e);
         }
         int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-        return new HttpClient(this, URI.create("http://localhost:" + port));
+        var httpClient = new HttpClient(this, URI.create("http://localhost:" + port));
+        var readiness = System.getProperty("readiness-url", "");
+        if (!readiness.isBlank()) {
+            httpClient.tryWaitOK(readiness);
+        }
+
+        return httpClient;
     }
 
     /**

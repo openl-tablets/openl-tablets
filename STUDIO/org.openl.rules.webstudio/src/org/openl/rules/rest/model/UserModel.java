@@ -151,7 +151,7 @@ public class UserModel extends UserCreateModel {
         return (UserModel) super.setGroups(groups);
     }
 
-    public long getNotMatchedExternalGroupsCount() {
+    public Long getNotMatchedExternalGroupsCount() {
         return notMatchedExternalGroupsCount;
     }
 

@@ -18,11 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -110,7 +108,11 @@ public class RulesInFolderTestRunner {
                     compiledOpenClass = validate(compiledOpenClass,
                             engineFactory.getProjectDescriptor(),
                             engineFactory.getRulesInstantiationStrategy());
-                } catch (ProjectResolvingException | RulesInstantiationException e) {
+                    if (!compiledOpenClass.hasErrors() && engineFactory.newInstance() == null) {
+                        // To cover interface generation functionality
+                        throw new IllegalStateException("Failed to create an instance of the rules engine.");
+                    }
+                } catch (Exception e) {
                     error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
                     continue;

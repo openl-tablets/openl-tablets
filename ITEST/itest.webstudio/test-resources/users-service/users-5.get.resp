@@ -8,20 +8,13 @@ Content-Type: application/json
     "superUser": true,
     "unsafePassword": true,
     "externalFlags": {
-      "lastNameExternal": false,
       "emailExternal": false,
+      "emailVerified": false,
       "displayNameExternal": false,
       "firstNameExternal": false,
-      "emailVerified": false
+      "lastNameExternal": false
     },
-    "notMatchedExternalGroupsCount": 0,
-    "online": false,
-    "userGroups": [
-      {
-        "name": "Administrators",
-        "type": "ADMIN"
-      }
-    ]
+    "online": false
   },
   {
     "email": "jsmith@email",
@@ -33,23 +26,12 @@ Content-Type: application/json
     "superUser": false,
     "unsafePassword": false,
     "externalFlags": {
-      "lastNameExternal": false,
       "emailExternal": false,
+      "emailVerified": false,
       "displayNameExternal": false,
       "firstNameExternal": false,
-      "emailVerified": false
+      "lastNameExternal": false
     },
-    "notMatchedExternalGroupsCount": 0,
-    "online": false,
-    "userGroups": [
-      {
-        "name": "Administrators",
-        "type": "ADMIN"
-      }, {
-        "name": "Admiral Nelson",
-        "type": "ADMIN"
-      }
-    ]
+    "online": false
   }
 ]
-

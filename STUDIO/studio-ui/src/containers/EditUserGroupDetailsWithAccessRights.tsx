@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, ReactNode } from 'react'
+import React, { useContext, useMemo, useEffect, useState, ReactNode } from 'react'
 import { Form, Tabs, TabsProps, notification, Divider, Button, Drawer } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, RepositoryType, Role, ROOT_REPOSITORY_ID_MAP } from 'constants/'
@@ -16,6 +16,7 @@ import { UserDetails } from '../types/user'
 import { SelectedGroup } from './users/RenderGroupCell'
 import { runSequentialCollectErrors } from '../utils/async'
 import { useUserStore } from '../store'
+import { SystemContext } from '../contexts'
 
 interface EditUserGroupDetailsWithAccessRightsProps {
     isOpenFromParent?: boolean
@@ -78,6 +79,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     newUser
 }) => {
     const { t } = useTranslation()
+    const { isGroupsManagementEnabled } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
     const [form] = Form.useForm()
     const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
@@ -516,7 +518,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             firstName: userData.firstName,
             lastName: userData.lastName,
             password: userData.password,
-            groups: userGroups,
+            groups: isGroupsManagementEnabled ? userGroups : undefined,
         }
 
         if (isNewUser) {

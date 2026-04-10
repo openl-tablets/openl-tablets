@@ -25,7 +25,7 @@ import org.openl.spring.env.DefaultPropertySource;
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
-    @Autowired
+    @Autowired(required = false)
     private DeployClasspathJarsBean deployClasspathJarService;
 
     @Autowired
@@ -90,7 +90,7 @@ public class AdminRestController {
     @GET
     @Path("/healthcheck/readiness")
     public Response readiness() {
-        if (!deployClasspathJarService.isDone()) {
+        if (deployClasspathJarService != null && !deployClasspathJarService.isDone()) {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();

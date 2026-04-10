@@ -1,0 +1,8 @@
+PATCH /rest/projects/{PROJECT_ID} HTTP/1.1
+Authorization: Bearer ${EPBDS15621_USER_TOKEN}
+Content-Type: application/json
+Cookie: NO_JSESSIONID=noAuth
+
+{
+  "comment": "Save changes"
+}

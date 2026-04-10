@@ -197,7 +197,6 @@ public final class WizardUtils {
                         break;
                     case "jar":
                     case "zip": // Used by BEA WebLogic Server
-                    case "wsjar": // Used by IBM WebSphere
                         loadFromJar(classes, packageName, classLoader, resource);
                         break;
                     default:

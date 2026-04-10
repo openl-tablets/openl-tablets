@@ -2,27 +2,20 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "displayName": "js",
   "email": "js@email",
+  "displayName": "js",
   "firstName": "J",
   "lastName": "S",
-  "userGroups":[
-    {
-      "name":"Developers",
-      "type":"DEFAULT"
-    }
-  ],
   "username": "jsmith",
-  "externalFlags": {
-    "emailVerified": false,
-    "lastNameExternal": false,
-    "emailExternal": false,
-    "firstNameExternal": false,
-    "displayNameExternal": false
-  },
-  "notMatchedExternalGroupsCount": 0,
-  "online": false,
   "currentUser": false,
   "superUser": false,
-  "unsafePassword": false
+  "unsafePassword": false,
+  "externalFlags": {
+    "emailExternal": false,
+    "emailVerified": false,
+    "displayNameExternal": false,
+    "firstNameExternal": false,
+    "lastNameExternal": false
+  },
+  "online": false
 }

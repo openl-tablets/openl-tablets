@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "email": "epbds14670_contributor@example.com",
+  "displayName": "John Doe",
+  "firstName": "John",
+  "lastName": "Doe",
+  "showHeader": true,
+  "showFormulas": false,
+  "testsPerPage": 5,
+  "testsFailuresOnly": false,
+  "testsFailuresPerTest": 5,
+  "showComplexResult": false,
+  "showRealNumbers": false,
+  "treeView": "excelSheet",
+  "username": "epbds14670_contributor",
+  "externalFlags": {
+    "emailExternal": true,
+    "emailVerified": true,
+    "displayNameExternal": true,
+    "firstNameExternal": true,
+    "lastNameExternal": true
+  },
+  "profiles": [
+    {
+      "displayName": "By Type",
+      "description": "Organize projects by component type",
+      "name": "type"
+    },
+    {
+      "displayName": "By Excel Sheet",
+      "description": "Organize projects by physical file structure",
+      "name": "excelSheet"
+    },
+    {
+      "displayName": "By Category",
+      "description": "Provides categorized view",
+      "name": "category"
+    },
+    {
+      "displayName": "By Category Detailed",
+      "description": "Provides more detailed categorized view",
+      "name": "categoryDetailed"
+    },
+    {
+      "displayName": "By Category Inversed",
+      "description": "Provides inversed categorized view",
+      "name": "categoryInversed"
+    }
+  ],
+  "administrator": false
+}

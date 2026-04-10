@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: Bearer ${EPBDS14670R_CONTRIBUTOR_TOKEN}
+

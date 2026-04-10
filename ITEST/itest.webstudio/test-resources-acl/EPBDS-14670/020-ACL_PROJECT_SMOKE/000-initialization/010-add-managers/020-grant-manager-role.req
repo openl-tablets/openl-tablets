@@ -1,4 +1,4 @@
-PUT /rest/acls/projects/ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=?sid=openl_mnt HTTP/1.1
+PUT /rest/acls/projects/ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=?sid=jsmith&principal=true HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

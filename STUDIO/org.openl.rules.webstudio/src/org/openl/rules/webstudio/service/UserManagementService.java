@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -49,12 +50,21 @@ public class UserManagementService {
         this.aclService = aclService;
     }
 
+    @Transactional(readOnly = true)
     public List<org.openl.rules.security.User> getAllUsers() {
         return userDao.getAllUsers().stream().map(this::createSecurityUser).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public org.openl.rules.security.User getUser(String username) {
         return Optional.ofNullable(userDao.getUserByName(username)).map(this::createSecurityUser).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public org.openl.rules.security.User getUserWithoutGroups(String username) {
+        return Optional.ofNullable(userDao.getUserByName(username))
+                .map(user -> createSecurityUser(user, Collections.emptySet()))
+                .orElse(null);
     }
 
     @Transactional
@@ -152,28 +162,33 @@ public class UserManagementService {
         userDao.update(persistUser);
     }
 
+    @Transactional
     public void updateAuthorities(String user, Set<String> authorities) {
-        User persistUser = userDao.getUserByName(user);
-        Set<Group> groups = new HashSet<>();
-        if (authorities != null) {
-            for (String auth : authorities) {
-                groups.add(groupDao.getGroupByName(auth));
-            }
-        }
-        persistUser.setGroups(groups);
-
-        userDao.update(persistUser);
+        doUpdateAuthorities(user, authorities);
     }
 
+    @Transactional
     public void updateAuthorities(final String user, final Set<String> authorities, final boolean leaveAdminGroups) {
         Set<String> fullAuthorities = new HashSet<>(authorities);
         if (leaveAdminGroups) {
-            User persistUser = userDao.getUserByName(user);
-            Set<Group> currentGroups = persistUser.getGroups();
+            Set<Group> currentGroups = userDao.getGroupsForUser(user);
             Set<String> currentAdminGroups = getCurrentAdminGroups(currentGroups);
             fullAuthorities.addAll(currentAdminGroups);
         }
-        updateAuthorities(user, fullAuthorities);
+        doUpdateAuthorities(user, fullAuthorities);
+    }
+
+    private void doUpdateAuthorities(String user, Set<String> authorities) {
+        Set<Group> groups = new HashSet<>();
+        if (authorities != null) {
+            for (String auth : authorities) {
+                Group group = groupDao.getGroupByName(auth);
+                if (group != null) {
+                    groups.add(group);
+                }
+            }
+        }
+        userDao.updateGroupsForUser(user, groups);
     }
 
     public Set<String> getCurrentAdminGroups(final Set<Group> groups) {
@@ -223,12 +238,17 @@ public class UserManagementService {
     }
 
     private org.openl.rules.security.User createSecurityUser(User user) {
+        Set<Group> groups = userDao.getGroupsForUser(user.getLoginName());
+        return createSecurityUser(user, groups);
+    }
+
+    private org.openl.rules.security.User createSecurityUser(User user, Set<Group> groups) {
         return SimpleUser.builder()
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getSurname())
                 .setUsername(user.getLoginName())
                 .setPasswordHash(user.getPasswordHash())
-                .setPrivileges(PrivilegesEvaluator.createPrivileges(user))
+                .setPrivileges(PrivilegesEvaluator.createPrivileges(groups))
                 .setEmail(user.getEmail())
                 .setDisplayName(user.getDisplayName())
                 .setExternalFlags(user.getUserExternalFlags())

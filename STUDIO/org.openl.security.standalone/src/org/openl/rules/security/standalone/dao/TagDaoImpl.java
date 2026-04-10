@@ -77,8 +77,11 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Transactional
     @Override
     public boolean deleteById(Long id) {
-        return getSession().createNativeQuery("delete from OpenL_Tags where id = :id")
-                .setParameter("id", id)
-                .executeUpdate() > 0;
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var delete = cb.createCriteriaDelete(Tag.class);
+        var root = delete.from(Tag.class);
+        delete.where(cb.equal(root.get("id"), id));
+        return session.createMutationQuery(delete).executeUpdate() > 0;
     }
 }

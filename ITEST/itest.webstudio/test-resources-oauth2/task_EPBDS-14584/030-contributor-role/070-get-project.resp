@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q=",
+  "name": "EPBDS_14584_Project",
+  "status": "CLOSED",
+  "repository": "design",
+  "modifiedBy": "epbds14584_manager",
+  "modifiedAt": "*",
+  "revision": "*",
+  "comment": "contributor saved the project"
+}

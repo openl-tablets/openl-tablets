@@ -44,9 +44,13 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
     @Override
     @Transactional
     public void removeProperty(String login, String key) {
-        getSession().createNativeQuery("delete from OpenL_UserSettings where loginName = :name and settingKey = :key")
-                .setParameter("name", login)
-                .setParameter("key", key)
-                .executeUpdate();
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var delete = cb.createCriteriaDelete(UserSetting.class);
+        var root = delete.from(UserSetting.class);
+        delete.where(cb.and(
+                cb.equal(root.get("id").get("loginName"), login),
+                cb.equal(root.get("id").get("settingKey"), key)));
+        session.createMutationQuery(delete).executeUpdate();
     }
 }

@@ -6,25 +6,6 @@ Content-Type: application/json
   "resources": [
     {
       "resourceRef": {
-        "repositoryType": "DESIGN"
-      },
-      "aces": [
-        {
-          "role": "MANAGER",
-          "sub": {
-            "sid": "openl_mnt"
-          }
-        },
-        {
-          "role": "VIEWER",
-          "sub": {
-            "sid": "Viewers"
-          }
-        }
-      ]
-    },
-    {
-      "resourceRef": {
         "repositoryType": "DESIGN",
         "repositoryId": "design"
       },
@@ -48,31 +29,6 @@ Content-Type: application/json
           "sub": {
             "sid": "EPBDS_14584_3",
             "principal": true
-          }
-        },
-        {
-          "role": "VIEWER",
-          "sub": {
-            "sid": "openl_r"
-          }
-        },
-        {
-          "role": "CONTRIBUTOR",
-          "sub": {
-            "sid": "openl_rw"
-          }
-        }
-      ]
-    },
-    {
-      "resourceRef": {
-        "repositoryType": "PROD"
-      },
-      "aces": [
-        {
-          "role": "VIEWER",
-          "sub": {
-            "sid": "Viewers"
           }
         }
       ]

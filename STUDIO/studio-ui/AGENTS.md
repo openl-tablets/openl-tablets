@@ -82,6 +82,12 @@ Tests live in `test/` (not co-located). Run all with `npm test`, or a specific f
 - `setupTests.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia` for jsdom — but the `MessageChannel` polyfill is a no-op stub, which breaks `Form.useWatch` value propagation
 - **`Form.useWatch` does not work in tests** — the Ant Design form state synchronization relies on `MessageChannel` internally, and the jsdom polyfill does not deliver messages. Do not use `Form.useWatch` to drive component logic that needs testing. Instead, use local `useState` set from the field's `onChange` callback, and mock `components/form` in the test to render a native `<select>`/`<input>` that triggers the same `onChange` prop
 - When component state is updated from async callbacks (e.g., API results inside `onChange`), wrap the triggering interaction in `act()` so React flushes the state updates
+- **Ant Design Modal in jsdom**: Modal uses CSS animations (`ant-zoom-appear`) that prevent body content from rendering synchronously. Wrap the initial `render()` in `await act(async () => { ... })` to flush async effects (e.g., API loads in `useEffect`), or use `waitFor` to wait for content to appear
+- **Per-test store overrides**: Use `jest.spyOn(storeModule, 'useUserStore').mockReturnValue(...)` with `mockRestore()` in a `finally` block. Do not mutate module exports directly — if the test throws before restoration, leaked state breaks subsequent tests
+- **Avoid hardcoded Ant Design default labels** (e.g., "OK", "Cancel") in assertions — they depend on AntD locale config. Select buttons by excluding known buttons (save, close) or by setting explicit `okText`/`cancelText` props
+- **Mock child components** to capture props via `jest.fn()` when testing a parent orchestrator (e.g., MergeModal). Use a `getLatestProps` helper that reads the last mock call — earlier calls may have stale closures after React re-renders
+- **Ant Design `Table` causes infinite `act()` loops in jsdom**: Components that render `Table`, `Descriptions`, or other heavy AntD components with async `useEffect` data loading will hang during `act()`. Mock `antd` entirely with simple HTML equivalents (`<table>`, `<dl>`, `<button>`, etc.) and flush async effects via `await act(async () => { render(...); await new Promise(r => setTimeout(r, 50)) })`. See `ConflictResolutionStep.test.tsx` for the full mock pattern
+- **Stable `react-i18next` mock**: Define the `t` function once inside the `jest.mock` factory, not inline in the return. A new `t` reference each render causes infinite `useCallback`/`useEffect` loops when `t` is in a dependency array
 
 ## Quality Rules
 
@@ -90,3 +96,8 @@ Tests live in `test/` (not co-located). Run all with `npm test`, or a specific f
 - Add translations from day one — no hardcoded strings
 - Prefer Zustand selectors over full store subscriptions
 - Unsubscribe WebSocket listeners or use `cleanupWebSocket` to prevent duplicates
+- Use current Ant Design API — avoid deprecated props:
+  - `Spin`: use `description` instead of `tip`
+  - `Modal`: use `destroyOnHidden` instead of `destroyOnClose`, `mask={{ closable }}` instead of `maskClosable`
+  - `Space`: use `orientation` instead of `direction`
+  - `Typography.Text`: use `ellipsis={{ tooltip: text }}` for conditional truncation tooltips (only shows on overflow)

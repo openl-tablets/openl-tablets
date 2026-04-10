@@ -5,9 +5,10 @@ import { Select } from '../../components'
 
 interface InitialUsersProps {
     userGroups: { label: string; value: string }[]
+    showDefaultGroup?: boolean
 }
 
-export const InitialUsers: FC<InitialUsersProps> = ({ userGroups }) => {
+export const InitialUsers: FC<InitialUsersProps> = ({ userGroups, showDefaultGroup = true }) => {
     const { t } = useTranslation()
     return (
         <div>
@@ -25,7 +26,9 @@ export const InitialUsers: FC<InitialUsersProps> = ({ userGroups }) => {
                 suffixIcon={null}
                 tokenSeparators={[',']}
             />
-            <Select label={t('security:default_group')} name="defaultGroup" options={userGroups} />
+            {showDefaultGroup && (
+                <Select label={t('security:default_group')} name="defaultGroup" options={userGroups} />
+            )}
         </div>
     )
 }

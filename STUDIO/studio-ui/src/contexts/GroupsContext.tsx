@@ -3,6 +3,7 @@ import { GroupItem, GroupList } from '../types/group'
 import { apiCall } from '../services'
 import { UserGroupType } from '../constants'
 import { PermissionContext } from './PermissionContext'
+import { SystemContext } from './SystemContext'
 
 type GroupsContextType = {
     groups: GroupItem[]
@@ -26,12 +27,13 @@ export const GroupsContext = createContext<GroupsContextType>(defaultValue)
  */
 export const GroupsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { hasAdminPermission } = useContext(PermissionContext)
+    const { isGroupsManagementEnabled } = useContext(SystemContext)
     const [groups, setGroups] = useState<GroupItem[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<Error | null>(null)
 
     const fetchGroups = useCallback(async () => {
-        if (!hasAdminPermission()) {
+        if (!isGroupsManagementEnabled || !hasAdminPermission()) {
             setGroups([])
             setError(null)
             setLoading(false)
@@ -56,13 +58,13 @@ export const GroupsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         } finally {
             setLoading(false)
         }
-    }, [hasAdminPermission])
+    }, [hasAdminPermission, isGroupsManagementEnabled])
 
     const isAdmin = hasAdminPermission()
 
     useEffect(() => {
         fetchGroups()
-    }, [fetchGroups, isAdmin])
+    }, [fetchGroups, isAdmin, isGroupsManagementEnabled])
 
     const reloadGroups = useCallback(async () => {
         await fetchGroups()

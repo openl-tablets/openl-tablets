@@ -4,7 +4,6 @@ Content-Type: application/json
 
 {
   "displayName": "John Smith",
-  "groups": ["Administrators", "Admiral Nelson"],
   "username": "jsmith",
   "internalPassword": {
     "password": "pass"

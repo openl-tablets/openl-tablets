@@ -11,11 +11,11 @@ Content-Type: application/json
   "superUser": false,
   "unsafePassword": false,
   "externalFlags": {
+    "emailExternal": true,
+    "emailVerified": true,
     "displayNameExternal": true,
     "firstNameExternal": true,
-    "lastNameExternal": true,
-    "emailExternal": true,
-    "emailVerified": true
+    "lastNameExternal": true
   },
   "notMatchedExternalGroupsCount": 1,
   "online": false,

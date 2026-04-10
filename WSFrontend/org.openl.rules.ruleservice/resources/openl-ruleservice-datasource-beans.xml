@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
        default-lazy-init="true">
 
     <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
@@ -13,20 +14,13 @@
         <constructor-arg name="properties" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
     </bean>
 
-    <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
-        <constructor-arg name="rulesDeployerService" ref="rulesDeployerService"/>
-        <constructor-arg name="deployStrategy"
-                         value="#{T(org.openl.rules.ruleservice.loader.DeployStrategy).fromString('${ruleservice.datasource.deploy.classpath.jars}')}"/>
-        <constructor-arg name="propertyResolver" ref="environment"/>
-        <property name="retryPeriod" value="${ruleservice.datasource.deploy.classpath.retry-period}"/>
-    </bean>
+    <context:component-scan base-package="org.openl.rules.ruleservice.loader"/>
 
     <!-- Data source storage that provides information about deployments, projects
         and their properties and version -->
     <!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
     Contains own storage for all projects that is used in services. -->
-    <bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.loader.RuleServiceLoaderImpl"
-          depends-on="deployClasspathJarsBean">
+    <bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.loader.RuleServiceLoaderImpl">
         <constructor-arg name="repository" ref="repository"/>
         <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>

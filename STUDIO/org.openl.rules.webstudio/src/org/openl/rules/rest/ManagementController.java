@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -43,6 +44,7 @@ import org.openl.util.StringUtils;
 @RestController
 @RequestMapping(value = "/admin/management", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Management")
+@ConditionalOnExpression("'${user.mode}' != 'multi' and '${user.mode}' != 'single'")
 public class ManagementController {
 
     private final GroupDao groupDao;
