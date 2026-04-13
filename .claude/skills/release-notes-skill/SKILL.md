@@ -48,8 +48,7 @@ Write each item as a unified description — do not split features by audience o
 Ask for version if not provided (format: X.Y.Z).
 
 **Version tag and GitHub URL format:**
-- For 5.x releases: version tag `openl-tablets-X.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/openl-tablets-X.Y.Z`
-- For 6.x and later releases: version tag `vX.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/vX.Y.Z`
+- Version tag `X.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/X.Y.Z`
 
 These are used to fill the `[{{version_tag}}]({{github_tag_url}}) on the GitHub` line in the template.
 
@@ -257,7 +256,7 @@ This skill can also be used to validate and update existing release notes.
 
 **Structure (compare against template):**
 - [ ] Starts with `## Release Notes` header
-- [ ] Version tag link is present and correctly formatted (vX.Y.Z for 6.x+, openl-tablets-X.Y.Z for 5.x)
+- [ ] Version tag link is present and correctly formatted (X.Y.Z)
 - [ ] Overview is 1-2 paragraphs max
 - [ ] Only sections with content are included
 - [ ] Sections appear in correct order per template: New Features → Improvements → Breaking Changes → Bug Fixes → Security & Library Updates → Known Issues → Migration Notes
