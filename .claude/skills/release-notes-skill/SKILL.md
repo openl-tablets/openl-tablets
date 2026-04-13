@@ -65,7 +65,7 @@ StartAt: 0
 ```
 
 **Important:**
-- Fix version names in EPBDS follow the format `OpenL X.Y.Z` (e.g. `OpenL 6.1.0`) — always prefix the version with `OpenL` (note the trailing space before the version number)
+- Fix version names in EPBDS follow the format `OpenL X.Y.Z` (e.g. `OpenL 6.1.0`) — always prefix the version with `OpenL`
 - If the search returns 0 results, verify the exact fix version name using `jira_get_project_versions` for the EPBDS project and retry with the correct name
 - Only use `jira:jira_search` MCP tool to retrieve tickets
 - Paginate using `startAt` increments of 100 until the returned list is smaller than `maxResults`
