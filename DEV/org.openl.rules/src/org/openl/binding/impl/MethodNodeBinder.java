@@ -20,6 +20,7 @@ import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
+import org.openl.domain.EnumDomain;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -33,6 +34,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.DomainUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -80,7 +82,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
-                    validateMethodArguments(methodCaller, children, node, bindingContext);
+                    validateMethodArguments(methodCaller, children, bindingContext);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, argumentTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);
@@ -169,158 +171,159 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private void validateMethodArguments(IMethodCaller methodCaller,
                                          IBoundNode[] methodArguments,
-                                         ISyntaxNode methodInvocationNode,
                                          IBindingContext bindingContext) {
         var parameterTypes = methodCaller.getMethod().getSignature().getParameterTypes();
         var childrenAmount = methodArguments.length;
         var parametersAmount = Math.min(parameterTypes.length, childrenAmount);
         for (var index = 0; index < parametersAmount; index++) {
-            validateArgument(methodArguments[index], parameterTypes[index], methodInvocationNode, bindingContext);
+            validateArgument(methodArguments[index], parameterTypes[index], bindingContext);
         }
         // In case if last parameter is var args
         if (childrenAmount > parametersAmount) {
             for (var j = parametersAmount; j < childrenAmount; j++) {
-                validateArgument(methodArguments[j], parameterTypes[parametersAmount - 1], methodInvocationNode, bindingContext);
+                validateArgument(methodArguments[j], parameterTypes[parametersAmount - 1], bindingContext);
             }
         }
     }
 
     private void validateArgument(IBoundNode methodArgumentNode,
                                   IOpenClass parameterType,
-                                  ISyntaxNode methodInvocationNode,
                                   IBindingContext bindingContext) {
-        if (parameterType instanceof DomainOpenClass && canBeValidated(methodArgumentNode)) {
+        if (parameterType instanceof DomainOpenClass && isLiteralExpression(methodArgumentNode)) {
             if (parameterType.isArray()) {
-                validateArgumentForArrayParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
+                validateArgumentForArrayParameter(methodArgumentNode, parameterType, bindingContext);
             } else {
-                validateArgumentForLiteralParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
+                validateArgumentForLiteralParameter(methodArgumentNode, parameterType, bindingContext);
             }
         }
     }
 
-    private boolean canBeValidated(IBoundNode methodArgumentNode) {
-        return (methodArgumentNode instanceof LiteralBoundNode
-                || methodArgumentNode instanceof ArrayInitializerNode
-                || methodArgumentNode instanceof ConstructorNamedParamsNode)
-                && containsLiteralValue(methodArgumentNode);
-    }
-
-    private boolean containsLiteralValue(IBoundNode methodArgumentNode) {
-        if (methodArgumentNode instanceof LiteralBoundNode) {
+    /**
+     * Checks if the node is a literal expression that can be validated at compile time.
+     * Only literal values and data-structure wrappers (arrays, casts around literals) are considered.
+     * Method calls and field accesses are opaque — their internal literals belong to different
+     * argument contexts and must not be validated here.
+     */
+    private boolean isLiteralExpression(IBoundNode node) {
+        if (node instanceof LiteralBoundNode) {
             return true;
         }
-
-        IBoundNode[] children = methodArgumentNode.getChildren();
-        for (IBoundNode child : children) {
-            if (containsLiteralValue(child)) {
-                return true;
+        if (node instanceof ArrayInitializerNode || node instanceof CastNode) {
+            IBoundNode[] children = node.getChildren();
+            if (children != null) {
+                for (IBoundNode child : children) {
+                    if (isLiteralExpression(child)) {
+                        return true;
+                    }
+                }
             }
         }
-
         return false;
     }
 
     private void validateArgumentForLiteralParameter(IBoundNode methodArgumentNode,
                                                      IOpenClass parameterType,
-                                                     ISyntaxNode methodInvocationNode,
                                                      IBindingContext bindingContext) {
         if (methodArgumentNode instanceof LiteralBoundNode literalBoundNode) {
-            tryCastLiteralArgument(literalBoundNode, parameterType, methodInvocationNode, bindingContext);
-        } else {
+            tryCastLiteralArgument(literalBoundNode, parameterType, bindingContext);
+        } else if ((methodArgumentNode instanceof ArrayInitializerNode || methodArgumentNode instanceof CastNode)
+                && methodArgumentNode.getChildren() != null) {
             for (IBoundNode child : methodArgumentNode.getChildren()) {
-                validateArgumentForLiteralParameter(child, parameterType, methodInvocationNode, bindingContext);
+                validateArgumentForLiteralParameter(child, parameterType, bindingContext);
             }
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void validateArgumentForArrayParameter(IBoundNode methodArgumentNode,
                                                    IOpenClass parameterType,
-                                                   ISyntaxNode methodInvocationNode,
                                                    IBindingContext bindingContext) {
-        // TODO: 1. count dim for parameter type
-        //  2. get argument on the same dim
-        //  convert
+        var domain = parameterType.getDomain();
+        if (!(domain instanceof EnumDomain<?> enumDomain)) {
+            return;
+        }
+        var allObjects = ((EnumDomain<Object>) enumDomain).getAllObjects();
+
         if (methodArgumentNode instanceof LiteralBoundNode literalBoundNode) {
-            tryCastLiteralArgument(literalBoundNode, parameterType, methodInvocationNode, bindingContext);
-        } else if (methodArgumentNode.getChildren().length > 0) {
-            if (methodArgumentNode.getChildren()[0] instanceof LiteralBoundNode) { // if we reached array of literals
-                tryCastArrayArgument(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
-            } else if (!(methodArgumentNode.getChildren()[0] instanceof LiteralBoundNode)) { // if an array wrapped by other nodes
-                for (IBoundNode argumentNodeChild : methodArgumentNode.getChildren()) {
-                    validateArgumentForArrayParameter(argumentNodeChild, parameterType, methodInvocationNode, bindingContext);
+            // Single literal for array domain - validate as single entry
+            if (literalBoundNode.getValue() != null) {
+                validateValueAgainstArrayDomain(literalBoundNode.getValue().toString(),
+                        allObjects, parameterType, literalBoundNode, bindingContext);
+            }
+        } else if (methodArgumentNode.getChildren() != null && methodArgumentNode.getChildren().length > 0) {
+            IBoundNode[] children = methodArgumentNode.getChildren();
+            if (children[0] instanceof LiteralBoundNode literalBoundNode) {
+                // Flat array of literals — treat as one domain entry
+                var values = collectNonNullLiteralValues(methodArgumentNode);
+                if (!values.isEmpty()) {
+                    var key = StringUtils.join(values.toArray(), ",");
+                    validateValueAgainstArrayDomain(key, allObjects, parameterType, methodArgumentNode, bindingContext);
+                }
+            } else {
+                // Nested array (e.g., Country[]) — validate each child separately
+                for (IBoundNode child : children) {
+                    validateArgumentForArrayParameter(child, parameterType, bindingContext);
                 }
             }
-        } else {
-            // passed argument doesn't have literal value to validate
-//            throw new RuntimeException("Passed argument doesn't have literal value to validate though I'll keep the exception so far");
         }
     }
 
-    private void tryCastArrayArgument(IBoundNode methodArgumentNode, IOpenClass parameterType, ISyntaxNode methodInvocationNode, IBindingContext bindingContext) {
-        Object[] values = buildArrayOfArgumentValues(methodArgumentNode);
-        try {
-            IOpenCast methodParameterCast = getCast(methodArgumentNode, parameterType, bindingContext);
-            if (methodParameterCast != null) {
-                methodParameterCast.convert(values);
-            }
-        } catch (OutsideOfValidDomainException e) {
-            BindHelper.processError(String.format("Object '%s' is outside of a valid domain '%s'. Valid values: %s",
-                            StringUtils.join(values, ","),
-                            parameterType,
+    private void validateValueAgainstArrayDomain(String key,
+                                                 Object[] allObjects,
+                                                 IOpenClass parameterType,
+                                                 IBoundNode methodArgumentNode,
+                                                 IBindingContext bindingContext) {
+        if (!OpenClassUtils.belongsToEnum(allObjects, key)) {
+            BindHelper.processError(
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            key,
+                            parameterType.getName(),
                             DomainUtils.toString(parameterType.getDomain())),
-                    methodInvocationNode, bindingContext);
-        } catch (TypeCastException e) {
-            BindHelper.processError(String.format("An error occurred while casting an argument '%s' into '%s': %s",
-                            StringUtils.join(values, ","),
-                            parameterType,
-                            e.getMessage()),
-                    methodInvocationNode, bindingContext);
+                    methodArgumentNode.getSyntaxNode(),
+                    bindingContext);
+        }
+    }
+
+    private List<Object> collectNonNullLiteralValues(IBoundNode node) {
+        var objects = new ArrayList<>();
+        collectNonNullLiteralValues(node, objects);
+        return objects;
+    }
+
+    private void collectNonNullLiteralValues(IBoundNode node, List<Object> objects) {
+        if (node instanceof LiteralBoundNode literalBoundNode) {
+            if (literalBoundNode.getValue() != null) {
+                objects.add(literalBoundNode.getValue());
+            }
+        } else if (node.getChildren() != null) {
+            for (IBoundNode child : node.getChildren()) {
+                collectNonNullLiteralValues(child, objects);
+            }
         }
     }
 
     private void tryCastLiteralArgument(LiteralBoundNode literalArgumentNode,
                                         IOpenClass parameterType,
-                                        ISyntaxNode methodInvocationNode,
                                         IBindingContext bindingContext) {
+        IOpenClass fromType = literalArgumentNode.getType();
+        if (fromType == null || fromType.equals(parameterType)) {
+            return;
+        }
+        // Allow both implicit and explicit casts for literal values
+        IOpenCast cast = bindingContext.getCast(fromType, parameterType);
+        if (cast == null) {
+            return;
+        }
         try {
-            IOpenCast methodParameterCast = getCast(literalArgumentNode, parameterType, bindingContext);
-            if (methodParameterCast != null) {
-                methodParameterCast.convert(literalArgumentNode.getValue());
-            }
+            cast.convert(literalArgumentNode.getValue());
         } catch (OutsideOfValidDomainException exception) {
-            BindHelper.processError(String.format("Object '%s' is outside of a valid domain '%s'. Valid values: %s",
+            BindHelper.processError(
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
                             literalArgumentNode.getValue(),
-                            parameterType,
+                            parameterType.getName(),
                             DomainUtils.toString(parameterType.getDomain())),
-                    methodInvocationNode, bindingContext);
-        } catch (TypeCastException e) {
-            BindHelper.processError(String.format("An error occurred while casting an argument '%s' into '%s': %s",
-                            literalArgumentNode.getValue(),
-                            parameterType,
-                            e.getMessage()),
-                    methodInvocationNode, bindingContext);
-        }
-    }
-
-    private Object[] buildArrayOfArgumentValues(IBoundNode methodArgumentNode) {
-        var objects = new ArrayList<>();
-        for (IBoundNode child : methodArgumentNode.getChildren()) {
-            collectAllLiteralValues(child, objects);
-        }
-
-        return objects.toArray();
-    }
-
-    private void collectAllLiteralValues(IBoundNode node, List<Object> objects) {
-        if (node instanceof LiteralBoundNode literalBoundNode) {
-            objects.add(literalBoundNode.getValue());
-        } else {
-            if (node.getChildren() != null) {
-                node.getChildren();
-                for (IBoundNode nodeChild : node.getChildren()) {
-                    collectAllLiteralValues(nodeChild, objects);
-                }
-            }
+                    literalArgumentNode.getSyntaxNode(),
+                    bindingContext);
         }
     }
 
