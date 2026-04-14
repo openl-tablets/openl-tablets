@@ -45,6 +45,7 @@ import org.openl.util.StringUtils;
 @RequestMapping(value = "/admin/management", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Management")
 @ConditionalOnExpression("'${user.mode}' != 'multi' and '${user.mode}' != 'single'")
+@AdminPrivilege
 public class ManagementController {
 
     private final GroupDao groupDao;
@@ -68,7 +69,6 @@ public class ManagementController {
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
     @GetMapping("/groups")
-    @AdminPrivilege
     public Map<String, UIGroup> getGroups() {
         return groupDao.getAllGroups().stream()
                 .collect(StreamUtils.toLinkedMap(Group::getName, group -> {
@@ -88,7 +88,6 @@ public class ManagementController {
     @DeleteMapping(value = "/groups/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
-    @AdminPrivilege
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         Group group = groupDao.getGroupById(id);
         groupManagementService.deleteGroup(id);
@@ -100,7 +99,6 @@ public class ManagementController {
     @DeleteMapping(value = "/groups")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
-    @AdminPrivilege
     @Hidden // for testing purposes
     public void deleteGroupByName(@RequestParam("name") final String name) {
         Group group = groupDao.getGroupByName(name);
@@ -116,7 +114,6 @@ public class ManagementController {
     @PostMapping(value = "/groups", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
-    @AdminPrivilege
     public void saveGroup(
             @Parameter(description = "mgmt.schema.group.old-name") @RequestParam(value = "oldName", required = false) final String oldName,
             @Parameter(description = "mgmt.schema.group.name", required = true) @RequestParam("name") final String name,
@@ -154,7 +151,6 @@ public class ManagementController {
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
     @GetMapping("/groups/external")
-    @AdminPrivilege
     public Set<String> searchExternalGroup(
             @Parameter(description = "mgmt.search-external-groups.param.search") @RequestParam("search") String searchTerm,
             @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {

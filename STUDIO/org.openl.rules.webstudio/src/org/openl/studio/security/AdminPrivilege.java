@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
  * @author Vladyslav Pikus
  * @see org.springframework.security.access.prepost.PreAuthorize
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("""
         hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority())

@@ -51,6 +51,7 @@ import org.openl.util.StringUtils;
 @RequestMapping(value = "/admin/tag-config")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
 @Slf4j
+@AdminPrivilege
 public class TagConfigController {
 
 
@@ -74,14 +75,12 @@ public class TagConfigController {
 
     @Operation(summary = "tags.get-types.summary", description = "tags.get-types.desc")
     @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     public List<TagTypeDTO> getTypes() {
         return tagTypeService.getAll();
     }
 
     @Operation(summary = "tags.delete-tag-type.summary", description = "tags.delete-tag-type.desc")
     @DeleteMapping(value = "/types/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTagType(@Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id) {
         if (!tagTypeService.delete(id)) {
@@ -92,7 +91,6 @@ public class TagConfigController {
     @Operation(summary = "tags.delete-tag.summary", description = "tags.delete-tag.desc")
     @DeleteMapping("/types/{tagTypeId}/tags/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @AdminPrivilege
     public void deleteTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @Parameter(description = "tags.tag.id.desc") @PathVariable("id") final Long id) {
@@ -108,7 +106,6 @@ public class TagConfigController {
     @Operation(summary = "tags.add-tag-type.summary", description = "tags.add-tag-type.desc")
     @PostMapping(value = "/types", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
-    @AdminPrivilege
     public ResponseEntity<Void> addTagType(@JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO,
                                            HttpServletRequest request) {
         return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), request);
@@ -117,7 +114,6 @@ public class TagConfigController {
     @Operation(summary = "tags.update-tag-type.summary", description = "tags.update-tag-type.desc")
     @PutMapping(value = "/types/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "204", description = "Updated")
-    @AdminPrivilege
     public ResponseEntity<Void> updateTagType(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id,
             @JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO) {
@@ -174,7 +170,6 @@ public class TagConfigController {
     @Operation(summary = "tags.add-tag.summary", description = "tags.add-tag.desc")
     @PostMapping(value = "/types/{tagTypeId}/tags", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
-    @AdminPrivilege
     public ResponseEntity<Void> addTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @RequestBody final String name,
@@ -185,7 +180,6 @@ public class TagConfigController {
     @Operation(summary = "tags.update-tag.summary", description = "tags.update-tag.desc")
     @PutMapping(value = "/types/{tagTypeId}/tags/{tagId}", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponse(responseCode = "204", description = "Updated")
-    @AdminPrivilege
     public ResponseEntity<Void> updateTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @Parameter(description = "tags.tag.id.desc") @PathVariable("tagId") final Long tagId,
@@ -238,7 +232,6 @@ public class TagConfigController {
 
     @Operation(summary = "tags.get-templates.summary", description = "tags.get-templates.desc")
     @GetMapping(value = "/templates", produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     public List<String> getTemplates() {
         return tagTemplateService.getTemplates();
     }
@@ -246,7 +239,6 @@ public class TagConfigController {
     @Operation(summary = "tags.save-templates.summary", description = "tags.save-templates.desc")
     @PutMapping(value = "/templates", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @AdminPrivilege
     public void saveTemplates(@RequestBody List<String> templates) {
         for (String template : templates) {
             if (StringUtils.isNotBlank(template)) {
@@ -262,7 +254,6 @@ public class TagConfigController {
     @Operation(summary = "tags.fill-tags.summary", description = "tags.fill-tags.desc")
     @PostMapping(value = "/fill", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    @AdminPrivilege
     public Map<String, Integer> fillTagsForProjects() {
         var workspace = getUserWorkspace();
         int updated = 0;

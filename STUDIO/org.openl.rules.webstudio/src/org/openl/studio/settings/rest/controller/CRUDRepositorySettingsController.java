@@ -27,6 +27,7 @@ import org.openl.studio.settings.model.repositories.CURepositoryConfigurationMod
 import org.openl.studio.settings.model.repositories.CreateRepositoryTemplateModel;
 import org.openl.studio.settings.service.repositories.RepositorySettingsService;
 
+@AdminPrivilege
 public abstract class CRUDRepositorySettingsController {
 
     protected final SettingsService settingsService;
@@ -40,7 +41,6 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.get-all.desc", summary = "msg.repository-settings.get-all.summary")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = RepositoryConfiguration.class))))
     public MappingJacksonValue getRepositoryConfigurations() {
         var result = new MappingJacksonValue(repositoryConfigurationService.getConfigurations());
@@ -50,7 +50,6 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.template.desc", summary = "msg.repository-settings.template.summary")
     @PostMapping(value = "/template", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     @ApiResponse(content = @Content(schema = @Schema(implementation = RepositoryConfiguration.class)))
     public MappingJacksonValue getConfigurationTemplate(@RequestBody @Valid CreateRepositoryTemplateModel request) {
         var result = new MappingJacksonValue(repositoryConfigurationService.initialize(request.getType()));
@@ -60,7 +59,6 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.validate.desc", summary = "msg.repository-settings.validate.summary")
     @PostMapping(value = "/validate", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void validateConfiguration(@RequestBody @Valid CURepositoryConfigurationModel request) throws RepositoryValidationException, IOException {
         var configuration = repositoryConfigurationService.transform(request);
@@ -69,7 +67,6 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.create-or-update.desc", summary = "msg.repository-settings.create-or-update.summary")
     @PatchMapping(consumes = "application/merge-patch+json")
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void createOrUpdateConfiguration(@RequestBody @Valid CURepositoryConfigurationModel request) throws IOException, RepositoryValidationException {
         var configuration = repositoryConfigurationService.transform(request);
@@ -80,7 +77,6 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.delete.desc", summary = "msg.repository-settings.delete.summary")
     @DeleteMapping("/{repo-id}")
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteConfiguration(@PathVariable("repo-id") String id) throws IOException {
         repositoryConfigurationService.delete(id);
@@ -89,7 +85,6 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.revert.desc", summary = "msg.repository-settings.revert.summary")
     @DeleteMapping
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revertConfiguration() throws IOException {
         repositoryConfigurationService.revert();

@@ -42,6 +42,7 @@ import org.openl.util.CollectionUtils;
 @RequestMapping("/acls")
 @Tag(name = "ACL Management", description = "ACL Management Bulk API")
 @ConditionalOnExpression("'${user.mode}' != 'single'")
+@AdminPrivilege
 public class AclController {
 
     private final RepositoryAclServiceProvider aclServiceProvider;
@@ -60,7 +61,6 @@ public class AclController {
     }
 
     @GetMapping
-    @AdminPrivilege
     @Operation(summary = "Get ACL configuration for all resources")
     public List<AclResourceAccess> getAclResourceAccess() {
         var roots = Stream.of(convertRootToResourceAccess(AclRepositoryType.DESIGN),
@@ -149,7 +149,6 @@ public class AclController {
     }
 
     @PostMapping
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Overwrite ACL configuration for resources in bulk")
     public void overwriteAcl(@Valid @RequestBody BulkAclOverwriteRequest request) {

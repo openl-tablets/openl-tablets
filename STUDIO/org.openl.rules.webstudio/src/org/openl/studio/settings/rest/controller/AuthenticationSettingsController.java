@@ -18,7 +18,6 @@ import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.rules.webstudio.web.admin.security.AuthenticationSettings;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.settings.model.auth.CreateAuthenticationTemplateModel;
 import org.openl.studio.settings.service.auth.AuthenticationSettingsFactory;
 
@@ -40,7 +39,6 @@ public class AuthenticationSettingsController extends CRUDSettingsController<Aut
 
     @Operation(description = "msg.settings.template.desc", summary = "msg.settings.template.summary")
     @PostMapping(value = "/template", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     public AuthenticationSettings getConfigurationTemplate(@RequestBody @Valid CreateAuthenticationTemplateModel request) {
         var settings = authenticationSettingsFactory.create(request.getUserMode());
         settingsService.load(settings);
