@@ -20,6 +20,7 @@ import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.security.AdminPrivilege;
 
+@AdminPrivilege
 public abstract class CRUDSettingsController<E extends SettingsHolder> {
 
     private final ObjectMapper objectMapper;
@@ -35,7 +36,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
         this.objectMapper = objectMapper;
     }
 
-    @AdminPrivilege
     @GetMapping
     @Operation(summary = "msg.settings.get-all.summary", description = "msg.settings.get-all.desc")
     public E getSettings() {
@@ -48,7 +48,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
         return settings;
     }
 
-    @AdminPrivilege
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "msg.settings.post-all.summary", description = "msg.settings.post-all.desc")
@@ -57,7 +56,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
         settingsService.commit();
     }
 
-    @AdminPrivilege
     @PatchMapping(consumes = "application/merge-patch+json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "msg.settings.patch-merge.summary", description = "msg.settings.patch-merge.desc")
@@ -73,7 +71,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
         return objectMapper.readerForUpdating(originalSettings).<E>readValue(patch);
     }
 
-    @AdminPrivilege
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "msg.settings.delete-all.summary", description = "msg.settings.delete-all.desc")

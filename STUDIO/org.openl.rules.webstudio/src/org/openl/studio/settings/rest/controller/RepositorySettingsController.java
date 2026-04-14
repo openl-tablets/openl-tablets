@@ -27,6 +27,7 @@ import org.openl.studio.settings.service.repositories.RepositorySettingsService;
 @RequestMapping("/admin/settings/repos")
 @Tag(name = "Settings: Repositories")
 @Validated
+@AdminPrivilege
 public class RepositorySettingsController {
 
     private final DesignRepositorySettingsService designRepositorySettingsService;
@@ -43,7 +44,6 @@ public class RepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.batch-update.desc", summary = "msg.repository-settings.batch-update.summary")
     @PostMapping(value = "/batch", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void batchUpdate(@RequestBody RepositoriesBatchRequest request) throws IOException, RepositoryValidationException {
         processBatchRepository(request.getDesign(), designRepositorySettingsService);
@@ -73,7 +73,6 @@ public class RepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.revert.desc", summary = "msg.repository-settings.revert.summary")
     @DeleteMapping
-    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revertConfiguration() throws IOException {
         designRepositorySettingsService.revert();
