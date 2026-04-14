@@ -109,7 +109,6 @@ public class ProjectManagementController {
      * @param name project name.
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/close")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Hidden
     public void close(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         var webstudio = getWebStudio();
@@ -129,7 +128,6 @@ public class ProjectManagementController {
      * @param name project name.
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/open")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Hidden
     public void open(@DesignRepository("repo-name") Repository repo,
                      @PathVariable("proj-name") String name,

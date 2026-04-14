@@ -194,7 +194,6 @@ public class ProjectsTraceController {
     @Operation(summary = "trace.cancel.summary", description = "trace.cancel.desc")
     @ApiResponse(responseCode = "204", description = "trace.cancel.204.desc")
     @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelTrace(@ProjectId @PathVariable("projectId") RulesProject project) {
         traceResultRegistry.clear();
         parameterRegistry.clear();

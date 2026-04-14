@@ -8,14 +8,12 @@ import jakarta.servlet.http.HttpSession;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -45,7 +43,6 @@ public class ProjectHistoryController {
 
     @Operation(summary = "history.restore.summary", description = "history.restore.desc")
     @PostMapping(value = "/restore", consumes = MediaType.TEXT_PLAIN_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void restore(@Parameter(description = "history.restore.req-body.desc") @RequestBody String versionToRestore,
                         HttpSession session) throws Exception {
         var webStudio = WebStudioUtils.getWebStudio(session);
@@ -57,7 +54,6 @@ public class ProjectHistoryController {
 
     @Operation(summary = "history.delete-all-history.summary", description = "history.delete-all-history.desc")
     @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllHistory() throws IOException {
         projectHistoryService.deleteAllHistory();
     }

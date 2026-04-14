@@ -92,7 +92,6 @@ public class PersonalAccessTokenController {
     @Operation(summary = "pat.delete.summary", description = "pat.delete.desc")
     @ApiResponse(responseCode = "204", description = "pat.delete.204.desc")
     @DeleteMapping("/{publicId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteToken(
             @Parameter(description = "pat.param.public-id.desc")
             @PathVariable String publicId) {

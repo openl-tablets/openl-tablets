@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.security.Privileges;
@@ -86,7 +84,6 @@ public class ManagementController {
 
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
     @DeleteMapping(value = "/groups/{id}")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         Group group = groupDao.getGroupById(id);
@@ -97,7 +94,6 @@ public class ManagementController {
     }
 
     @DeleteMapping(value = "/groups")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
     @Hidden // for testing purposes
     public void deleteGroupByName(@RequestParam("name") final String name) {
@@ -112,7 +108,6 @@ public class ManagementController {
 
     @Operation(description = "mgmt.save-group.desc", summary = "mgmt.save-group.summary")
     @PostMapping(value = "/groups", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
     public void saveGroup(
             @Parameter(description = "mgmt.schema.group.old-name") @RequestParam(value = "oldName", required = false) final String oldName,

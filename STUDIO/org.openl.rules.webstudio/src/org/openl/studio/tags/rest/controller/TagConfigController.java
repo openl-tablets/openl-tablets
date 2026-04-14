@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -81,7 +79,6 @@ public class TagConfigController {
 
     @Operation(summary = "tags.delete-tag-type.summary", description = "tags.delete-tag-type.desc")
     @DeleteMapping(value = "/types/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTagType(@Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id) {
         if (!tagTypeService.delete(id)) {
             throw new NotFoundException("tag-type.message");
@@ -90,7 +87,6 @@ public class TagConfigController {
 
     @Operation(summary = "tags.delete-tag.summary", description = "tags.delete-tag.desc")
     @DeleteMapping("/types/{tagTypeId}/tags/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @Parameter(description = "tags.tag.id.desc") @PathVariable("id") final Long id) {
@@ -238,7 +234,6 @@ public class TagConfigController {
 
     @Operation(summary = "tags.save-templates.summary", description = "tags.save-templates.desc")
     @PutMapping(value = "/templates", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void saveTemplates(@RequestBody List<String> templates) {
         for (String template : templates) {
             if (StringUtils.isNotBlank(template)) {
@@ -253,7 +248,6 @@ public class TagConfigController {
 
     @Operation(summary = "tags.fill-tags.summary", description = "tags.fill-tags.desc")
     @PostMapping(value = "/fill", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public Map<String, Integer> fillTagsForProjects() {
         var workspace = getUserWorkspace();
         int updated = 0;
