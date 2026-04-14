@@ -1,16 +1,12 @@
 package org.openl.studio.settings.rest.controller;
 
 import java.io.IOException;
+import java.util.List;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,20 +37,14 @@ public abstract class CRUDRepositorySettingsController {
 
     @Operation(description = "msg.repository-settings.get-all.desc", summary = "msg.repository-settings.get-all.summary")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = RepositoryConfiguration.class))))
-    public MappingJacksonValue getRepositoryConfigurations() {
-        var result = new MappingJacksonValue(repositoryConfigurationService.getConfigurations());
-        result.setSerializationView(getViewClass());
-        return result;
+    public List<RepositoryConfiguration> getRepositoryConfigurations() {
+        return repositoryConfigurationService.getConfigurations();
     }
 
     @Operation(description = "msg.repository-settings.template.desc", summary = "msg.repository-settings.template.summary")
     @PostMapping(value = "/template", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponse(content = @Content(schema = @Schema(implementation = RepositoryConfiguration.class)))
-    public MappingJacksonValue getConfigurationTemplate(@RequestBody @Valid CreateRepositoryTemplateModel request) {
-        var result = new MappingJacksonValue(repositoryConfigurationService.initialize(request.getType()));
-        result.setSerializationView(getViewClass());
-        return result;
+    public RepositoryConfiguration getConfigurationTemplate(@RequestBody @Valid CreateRepositoryTemplateModel request) {
+        return repositoryConfigurationService.initialize(request.getType());
     }
 
     @Operation(description = "msg.repository-settings.validate.desc", summary = "msg.repository-settings.validate.summary")
@@ -90,7 +80,4 @@ public abstract class CRUDRepositorySettingsController {
         repositoryConfigurationService.revert();
         settingsService.commit();
     }
-
-    protected abstract Class<?> getViewClass();
-
 }

@@ -1905,20 +1905,6 @@ Content-Type: application/json
           "type"
         ]
       },
-      "FilterProvider": {
-        "type": "object"
-      },
-      "MappingJacksonValue": {
-        "type": "object",
-        "properties": {
-          "filters": {
-            "$ref": "#/components/schemas/FilterProvider"
-          },
-          "value": {
-            "type": "object"
-          }
-        }
-      },
       "JsonNode": {
         "type": "object"
       },
@@ -7468,7 +7454,8 @@ Content-Type: application/json
                   }
                 }
               }
-            }
+            },
+            "description": "***"
           }
         },
         "summary": "***",
@@ -7642,7 +7629,8 @@ Content-Type: application/json
                   "$ref": "#/components/schemas/RepositoryConfiguration"
                 }
               }
-            }
+            },
+            "description": "***"
           }
         },
         "summary": "***",
@@ -7969,7 +7957,8 @@ Content-Type: application/json
                   }
                 }
               }
-            }
+            },
+            "description": "***"
           }
         },
         "summary": "***",
@@ -8252,7 +8241,8 @@ Content-Type: application/json
                   "$ref": "#/components/schemas/RepositoryConfiguration"
                 }
               }
-            }
+            },
+            "description": "***"
           }
         },
         "summary": "***",
