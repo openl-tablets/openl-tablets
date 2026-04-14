@@ -87,7 +87,6 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
-import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -119,6 +118,7 @@ import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -315,7 +315,6 @@ public class RepositoryTreeController {
     public String saveProject() {
         UserWorkspaceProject project = null;
         try {
-            ConflictUtils.removeMergeConflict();
             project = repositoryTreeState.getSelectedProject();
             if (!project.isModified()) {
                 log.warn("Tried to save a project without any changes.");
@@ -335,10 +334,11 @@ public class RepositoryTreeController {
             if (cause instanceof MergeConflictException mergeConflictEx) {
                 log.debug("Failed to save the project because of merge conflict.", cause);
                 if (project instanceof RulesProject rulesProject) {
-                    ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                    var conflictInfo = MergeConflictInfo.builder()
                             .details(mergeConflictEx.getDetails())
                             .project(rulesProject)
-                            .build());
+                            .build();
+                    eventPublisher.publishEvent(new SaveMergeConflictEvent(rulesProject, conflictInfo));
                 }
             } else {
                 String msg = e.getMessage();

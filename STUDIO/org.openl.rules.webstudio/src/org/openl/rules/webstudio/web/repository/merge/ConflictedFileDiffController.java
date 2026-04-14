@@ -69,10 +69,9 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 return;
             }
 
-            // Try new projectId-based storage first, fall back to legacy ConflictUtils for backward compatibility
             MergeConflictInfo mergeConflict = projectId != null
                     ? conflictsSessionHolder.getConflictInfo(projectId)
-                    : ConflictUtils.getMergeConflict();
+                    : null;
             if (mergeConflict != null) {
                 var conflictDetails = mergeConflict.details();
                 String userName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -91,7 +90,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 File ourFile;
 
                 FileItem our;
-                if (mergeConflict.isMerging()) {
+                if (mergeConflict.isMerging() || conflictDetails.yourCommit() != null) {
                     our = userWorkspace.getDesignTimeRepository()
                             .getRepository(repositoryId)
                             .readHistory(conflictedFile, conflictDetails.yourCommit());
@@ -161,10 +160,9 @@ public class ConflictedFileDiffController extends ExcelDiffController {
             return null;
         }
 
-        // Try new projectId-based storage first, fall back to legacy ConflictUtils for backward compatibility
         MergeConflictInfo mergeConflict = projectId != null
                 ? conflictsSessionHolder.getConflictInfo(projectId)
-                : ConflictUtils.getMergeConflict();
+                : null;
         if (mergeConflict != null) {
             var conflictDetails = mergeConflict.details();
             return conflictDetails.diffs().get(conflictedFile);

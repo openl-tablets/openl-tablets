@@ -1,0 +1,15 @@
+POST /rest/projects/{PROJECT_ID}/merge/conflicts/resolve HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].strategy"
+Content-Type: text/plain
+
+OURS
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].filePath"
+Content-Type: text/plain
+
+EPBDS-15612/Qwerty.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

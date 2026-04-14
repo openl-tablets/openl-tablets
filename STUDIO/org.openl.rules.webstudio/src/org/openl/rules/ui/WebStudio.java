@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.richfaces.event.FileUploadEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
@@ -71,7 +72,6 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
@@ -94,6 +94,8 @@ import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
+import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -180,6 +182,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final Set<String> frozenProjects = Collections.synchronizedSet(new HashSet<>());
     private boolean needRedirect;
 
+    private final ApplicationEventPublisher eventPublisher;
+    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
                      UserSettingManagementService userSettingManagementService,
@@ -189,7 +194,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      PathFilter zipFilter,
                      ZipCharsetDetector zipCharsetDetector,
                      PropertyResolver propertyResolver,
-                     DeploymentManager deploymentManager
+                     DeploymentManager deploymentManager,
+                     ApplicationEventPublisher eventPublisher,
+                     ProjectsMergeConflictsSessionHolder conflictsSessionHolder
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -202,6 +209,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.rulesUserSession = rulesUserSession;
         this.propertyResolver = propertyResolver;
         this.deploymentManager = deploymentManager;
+        this.eventPublisher = eventPublisher;
+        this.conflictsSessionHolder = conflictsSessionHolder;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
@@ -248,7 +257,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void saveProject(HttpSession session) {
         RulesProject project = null;
         try {
-            ConflictUtils.removeMergeConflict();
             project = getCurrentProject();
             if (project == null) {
                 return;
@@ -265,10 +273,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
                 log.debug(msg, e);
             } else if (cause instanceof MergeConflictException mergeConflictEx) {
-                ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                var conflictInfo = MergeConflictInfo.builder()
                         .details(mergeConflictEx.getDetails())
                         .project(project)
-                        .build());
+                        .build();
+                eventPublisher.publishEvent(new SaveMergeConflictEvent(project, conflictInfo));
                 msg = "Failed to save the project because of merge conflict.";
                 log.debug(msg, e);
                 return;
@@ -282,7 +291,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public boolean isMergeConflict() {
-        return ConflictUtils.getMergeConflict() != null;
+        return conflictsSessionHolder.hasAnyConflictInfo();
     }
 
     public boolean isRenamed(RulesProject project) {

@@ -446,7 +446,7 @@ describe('MergeModal', () => {
     })
 
     describe('modal reset on reopen', () => {
-        it('resets to branches step when reopened', async () => {
+        it('resets to branches step when reopened without initialStep', async () => {
             // First open: go to conflicts
             mockApiCall.mockResolvedValueOnce({
                 conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
@@ -471,6 +471,78 @@ describe('MergeModal', () => {
 
             await waitFor(() => {
                 expect(screen.getByTestId('merge-branches-step')).toBeInTheDocument()
+            })
+        })
+    })
+
+    describe('initialStep support (save merge conflicts)', () => {
+        it('opens directly in conflicts step when initialStep is conflicts', async () => {
+            mockApiCall.mockResolvedValue({
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
+            })
+
+            render(<MergeModal />)
+            await dispatchOpenModal(createDetail({ initialStep: 'conflicts' }))
+
+            await waitFor(() => {
+                expect(screen.getByTestId('conflict-resolution-step')).toBeInTheDocument()
+            })
+            expect(screen.queryByTestId('merge-branches-step')).not.toBeInTheDocument()
+        })
+
+        it('shows conflicts title when opened with initialStep conflicts', async () => {
+            mockApiCall.mockResolvedValue({
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
+            })
+
+            render(<MergeModal />)
+            await dispatchOpenModal(createDetail({ initialStep: 'conflicts' }))
+
+            await waitFor(() => {
+                expect(screen.getByText('merge:conflicts.title')).toBeInTheDocument()
+            })
+        })
+
+        it('defaults to branches step when initialStep is not provided', async () => {
+            mockApiCall.mockRejectedValue(new MockNotFoundError())
+
+            render(<MergeModal />)
+            await dispatchOpenModal(createDetail())
+
+            await waitFor(() => {
+                expect(screen.getByTestId('merge-branches-step')).toBeInTheDocument()
+            })
+            expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
+        })
+
+        it('passes conflict groups to ConflictResolutionStep when opened with initialStep', async () => {
+            const conflictGroups = [
+                { projectName: 'MyProject', projectPath: 'test', files: ['Bank Rating.xlsx'] },
+            ]
+            mockApiCall.mockResolvedValue({ conflictGroups })
+
+            render(<MergeModal />)
+            await dispatchOpenModal(createDetail({ initialStep: 'conflicts' }))
+
+            await waitFor(() => {
+                expect(conflictResolutionStepProps).toHaveBeenCalled()
+            })
+
+            const props = getLatestProps(conflictResolutionStepProps)
+            expect(props.projectId).toBe('proj-1')
+            expect(props.conflictGroups).toEqual(conflictGroups)
+        })
+
+        it('opens with empty branches array for save conflicts', async () => {
+            mockApiCall.mockResolvedValue({
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
+            })
+
+            render(<MergeModal />)
+            await dispatchOpenModal(createDetail({ initialStep: 'conflicts', branches: [] }))
+
+            await waitFor(() => {
+                expect(screen.getByTestId('conflict-resolution-step')).toBeInTheDocument()
             })
         })
     })

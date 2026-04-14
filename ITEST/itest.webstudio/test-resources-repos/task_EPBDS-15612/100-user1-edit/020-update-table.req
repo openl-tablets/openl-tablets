@@ -1,0 +1,15 @@
+PUT /rest/projects/{PROJECT_ID}/tables/{TABLE_ID} HTTP/1.1
+Authorization: ${USER1_AUTH}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Foo",
+  "fields": [
+    {
+      "name": "user1Field",
+      "type": "String"
+    }
+  ]
+}

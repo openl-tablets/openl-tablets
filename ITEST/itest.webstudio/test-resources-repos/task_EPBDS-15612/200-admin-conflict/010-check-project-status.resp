@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "name": "EPBDS-15612",
+  "branch": "master",
+  "status": "VIEWING_VERSION",
+  "repository": "design-flat",
+  "modifiedBy": "*",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15612",
+  "comment": "*",
+  "selectedBranches": ["master"]
+}

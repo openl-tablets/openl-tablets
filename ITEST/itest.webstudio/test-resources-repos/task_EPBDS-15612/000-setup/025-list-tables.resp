@@ -1,0 +1,29 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "3bcd2652018fc0a2327bcaf4d7aeef8a",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Foo",
+      "file": "EPBDS-15612/Qwerty.xlsx",
+      "pos": "B7:C8"
+    },
+    {
+      "id": "*",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "EPBDS-15612/Main.xlsx",
+      "pos": "B3:E11"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
