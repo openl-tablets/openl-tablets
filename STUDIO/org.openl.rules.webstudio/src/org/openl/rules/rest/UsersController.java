@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,7 +35,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -142,7 +140,6 @@ public class UsersController {
 
     @Operation(description = "users.add-user.desc", summary = "users.add-user.summary")
     @PutMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @AdminPrivilege
     public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
         validationProvider.validate(userModel);
@@ -163,7 +160,6 @@ public class UsersController {
 
     @Operation(description = "users.edit-user.desc", summary = "users.edit-user.summary")
     @PutMapping("/{username}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @OwnerOrAdminPrivilege
     public void editUser(HttpServletRequest request,
                          @RequestBody UserEditModel userModel,
@@ -194,7 +190,6 @@ public class UsersController {
 
     @Operation(description = "users.edit-user-info.desc", summary = "users.edit-user-info.summary")
     @PutMapping("/info")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
@@ -215,7 +210,6 @@ public class UsersController {
 
     @Operation(description = "users.edit-user-profile.desc", summary = "users.edit-user-profile.summary")
     @PutMapping("/profile")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editUserProfile(HttpServletRequest request, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
@@ -308,7 +302,6 @@ public class UsersController {
     @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")
     @DeleteMapping("/{username}")
     @AdminPrivilege
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@Parameter(description = "users.field.username") @PathVariable("username") String username) {
         checkUserExists(username);
         checkCanDeleteUser(username);

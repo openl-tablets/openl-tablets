@@ -13176,7 +13176,7 @@ Content-Type: application/json
           "required": true
         },
         "responses": {
-          "200": {
+          "204": {
             "description": "default response"
           },
           "400": {
@@ -13280,7 +13280,7 @@ Content-Type: application/json
           "required": true
         },
         "responses": {
-          "200": {
+          "204": {
             "description": "default response"
           },
           "400": {
@@ -13942,6 +13942,9 @@ Content-Type: application/json
                 "style": "simple"
               }
             }
+          },
+          "204": {
+            "description": "default response"
           }
         },
         "summary": "***",

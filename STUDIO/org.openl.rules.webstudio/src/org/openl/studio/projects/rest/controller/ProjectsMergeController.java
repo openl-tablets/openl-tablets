@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
@@ -276,7 +274,6 @@ public class ProjectsMergeController {
     @DeleteMapping("/conflicts")
     @Operation(summary = "projects.merge.cancel-conflicts.summary", description = "projects.merge.cancel-conflicts.desc")
     @ApiResponse(responseCode = "204", description = "projects.merge.cancel-conflicts.204.desc")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelMergeConflicts(@ProjectId @PathVariable("projectId") RulesProject project) {
         var projectId = projectService.resolveProjectId(project);
         if (!conflictsSessionHolder.hasConflictInfo(projectId)) {

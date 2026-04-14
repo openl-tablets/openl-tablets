@@ -36,9 +36,6 @@
           },
           "404": {
             "description": "Token not found"
-          },
-          "200": {
-            "description": "default response"
           }
         },
         "summary": "Delete token",

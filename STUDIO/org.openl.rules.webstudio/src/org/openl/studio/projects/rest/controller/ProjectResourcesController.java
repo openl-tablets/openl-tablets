@@ -137,7 +137,6 @@ public class ProjectResourcesController {
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "projects.resources.update.summary", description = "projects.resources.update.desc")
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
@@ -165,7 +164,6 @@ public class ProjectResourcesController {
     }
 
     @PostMapping("/move/{*path}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "projects.resources.move.summary", description = "projects.resources.move.desc")
     public void moveResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
@@ -179,7 +177,6 @@ public class ProjectResourcesController {
     }
 
     @DeleteMapping("/{*path}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "projects.resources.delete.summary", description = "projects.resources.delete.desc")
     public void deleteResource(
             @ProjectId @PathVariable("projectId") RulesProject project,

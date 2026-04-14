@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -90,7 +88,6 @@ public class AclProjectsController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @ProjectManagementPermission
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/{project-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid,
@@ -109,7 +106,6 @@ public class AclProjectsController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @ProjectManagementPermission
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{project-id}")
     public void deleteAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid) {

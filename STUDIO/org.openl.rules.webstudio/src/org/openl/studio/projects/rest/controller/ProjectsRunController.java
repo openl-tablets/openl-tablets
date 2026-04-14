@@ -142,7 +142,6 @@ public class ProjectsRunController {
             }
     )
     @GetMapping(value = "/result", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> getResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
@@ -182,7 +181,6 @@ public class ProjectsRunController {
     @Operation(summary = "run.cancel.summary", description = "run.cancel.desc")
     @ApiResponse(responseCode = "204", description = "run.cancel.204.desc")
     @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelRun(@ProjectId @PathVariable("projectId") RulesProject project) {
         runResultRegistry.clear();
     }

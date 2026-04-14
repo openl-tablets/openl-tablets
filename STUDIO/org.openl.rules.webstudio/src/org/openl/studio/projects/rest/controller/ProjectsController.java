@@ -171,7 +171,6 @@ public class ProjectsController {
     }
 
     @PatchMapping("/{projectId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update project status (BETA)")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                     @RequestBody ProjectStatusUpdateModel request) {
@@ -193,7 +192,6 @@ public class ProjectsController {
     }
 
     @PostMapping("/{projectId}/branches")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Create branch (BETA)")
     public void createBranch(@ProjectId @PathVariable("projectId") RulesProject project,
                              @RequestBody CreateBranchModel request) {
@@ -371,7 +369,6 @@ public class ProjectsController {
             }
     )
     @GetMapping(value = "/{projectId}/tests/summary", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> getTestsSummary(@ProjectId @PathVariable("projectId") RulesProject project,
                                              @RequestParam(value = "failuresOnly", defaultValue = "false")
                                              @Parameter(description = "Whether to include only failed test units in the summary")

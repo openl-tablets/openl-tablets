@@ -36,7 +36,7 @@ public class HelloController {
 
     @Operation(summary = "Say Hello")
     @RequestBody(description = "Name", required = true, content = @Content(schema = @Schema(implementation = String.class)))
-    @ApiResponse(description = "OK", responseCode = "200")
+    @ApiResponse(description = "OK", responseCode = "204")
     @PostMapping("/sayHello")
     public void sayHello(String name) {
 

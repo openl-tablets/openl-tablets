@@ -7,13 +7,11 @@ import jakarta.validation.Valid;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
 import org.openl.rules.webstudio.web.admin.SettingsService;
@@ -49,7 +47,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "msg.settings.post-all.summary", description = "msg.settings.post-all.desc")
     public void saveSettings(@Valid @RequestBody E settings) throws IOException {
         settingsService.store(settings);
@@ -57,7 +54,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
     }
 
     @PatchMapping(consumes = "application/merge-patch+json")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "msg.settings.patch-merge.summary", description = "msg.settings.patch-merge.desc")
     public void mergePatchSettings(@RequestBody JsonNode patch) throws IOException {
         var originalSettings = loadSettings();
@@ -72,7 +68,6 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
     }
 
     @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "msg.settings.delete-all.summary", description = "msg.settings.delete-all.desc")
     public void revertSettings() throws IOException {
         settingsService.revert(settingsFactory.get());

@@ -124,7 +124,6 @@ public class ProjectModulesController {
     @Operation(summary = "projects.modules.remove.summary", description = "projects.modules.remove.desc")
     @ApiResponse(responseCode = "204", description = "projects.modules.remove.204.desc")
     @DeleteMapping("/{moduleName}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeModule(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(description = "projects.modules.remove.param.moduleName.desc")

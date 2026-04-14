@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.acl.model.AclRepositoryId;
@@ -95,7 +93,6 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @RepositoryManagementPermission
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/{repo-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid,
@@ -114,7 +111,6 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @RepositoryManagementPermission
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{repo-id}")
     public void deleteAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
@@ -142,7 +138,6 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @AdminPrivilege
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/roots/{root-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
                                                 @Valid @RequestBody SetAclRoleModel requestBody,
@@ -161,7 +156,6 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @AdminPrivilege
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/roots/{root-id}")
     public void deleteAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {

@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.model.MailConfigModel;
@@ -68,7 +66,6 @@ public class MailController {
 
     @Operation(summary = "mail.verify.summary", description = "mail.verify.desc")
     @GetMapping("/verify/{token}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void verify(@Parameter(description = "mail.verify.param.token") @PathVariable("token") String token) {
         String username = currentUserInfo.getUserName();
         User user = userManagementService.getUser(username);
@@ -112,7 +109,6 @@ public class MailController {
 
     @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")
     @PutMapping("/settings")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @AdminPrivilege
     @Deprecated(forRemoval = true)
     public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
