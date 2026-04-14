@@ -178,10 +178,12 @@ public class MethodNodeBinder extends ANodeBinder {
         for (var index = 0; index < parametersAmount; index++) {
             validateArgument(methodArguments[index], parameterTypes[index], bindingContext);
         }
-        // In case if last parameter is var args
+        // In case if last parameter is var args, validate extra arguments against the component type
         if (childrenAmount > parametersAmount) {
+            var lastParamType = parameterTypes[parametersAmount - 1];
+            var varargType = lastParamType.isArray() ? lastParamType.getComponentClass() : lastParamType;
             for (var j = parametersAmount; j < childrenAmount; j++) {
-                validateArgument(methodArguments[j], parameterTypes[parametersAmount - 1], bindingContext);
+                validateArgument(methodArguments[j], varargType, bindingContext);
             }
         }
     }
@@ -250,8 +252,11 @@ public class MethodNodeBinder extends ANodeBinder {
                 validateValueAgainstArrayDomain(literalBoundNode.getValue().toString(),
                         allObjects, parameterType, literalBoundNode, bindingContext);
             }
-        } else if (methodArgumentNode.getChildren() != null && methodArgumentNode.getChildren().length > 0) {
+        } else {
             IBoundNode[] children = methodArgumentNode.getChildren();
+            if (children == null || children.length == 0) {
+                return;
+            }
             if (children[0] instanceof LiteralBoundNode literalBoundNode) {
                 // Flat array of literals — treat as one domain entry
                 var values = collectNonNullLiteralValues(methodArgumentNode);
