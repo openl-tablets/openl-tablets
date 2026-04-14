@@ -443,19 +443,11 @@ public final class RuleRowHelper {
                 setMetaInfo(holder, cell, paramName, ruleName, bindingContext);
             }
 
-            try {
-                var validationMessage = OpenClassUtils.isValidValue(result, paramType);
-                if (validationMessage != null) {
-                    IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                            bindingContext);
-                    BindHelper.processError(validationMessage, cellSourceCodeModule, bindingContext);
-                }
-            } catch (Exception e) {
-                String message = "Invalid cell value '%s'".formatted(source);
+            var validationMessage = OpenClassUtils.isValidValue(result, paramType);
+            if (validationMessage != null) {
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                         bindingContext);
-
-                BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);
+                BindHelper.processError(validationMessage, cellSourceCodeModule, bindingContext);
             }
 
             return result;

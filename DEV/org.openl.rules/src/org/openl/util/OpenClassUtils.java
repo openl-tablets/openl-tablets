@@ -80,10 +80,9 @@ public final class OpenClassUtils {
                 var element = Array.get(value, i);
                 validationMessage = validateDomain(element, domain, paramType);
             }
-        } else if (value instanceof Iterable) {
-            var list = (Iterable) value;
+        } else if (value instanceof Iterable<?> list) {
             for (var iterator = list.iterator(); iterator.hasNext() && validationMessage == null; ) {
-                var element = iterator.next();
+                Object element = iterator.next();
                 validationMessage = validateDomain(element, domain, paramType);
             }
         } else {
@@ -92,8 +91,8 @@ public final class OpenClassUtils {
             // RuntimeException when value doesn`t belong to domain.
             //
             var contains = true;
-            if (domain instanceof EnumDomain) {
-                contains = belongsToEnum(((EnumDomain) domain).getAllObjects(), value.toString());
+            if (domain instanceof EnumDomain<?> enumDomain) {
+                contains = belongsToEnum(enumDomain.getAllObjects(), value.toString());
             } else {
                 contains = domain.selectObject(value);
             }
@@ -110,16 +109,21 @@ public final class OpenClassUtils {
 
 
     public static boolean belongsToEnum(Object[] arrayEnum, String inputKey) {
-        String generatedEnumKey = null;
-        for (int i = 0; i < arrayEnum.length && !inputKey.equals(generatedEnumKey); i++) {
-            if (arrayEnum[i] instanceof Object[]) {
-                var arrayExtracted = (Object[]) arrayEnum[i];
-                generatedEnumKey = generateKey(arrayExtracted);
+        for (Object entry : arrayEnum) {
+            if (entry == null) {
+                continue;
+            }
+            String generatedEnumKey;
+            if (entry instanceof Object[] arrayEntry) {
+                generatedEnumKey = generateKey(arrayEntry);
             } else {
-                generatedEnumKey = arrayEnum[i].toString();
+                generatedEnumKey = entry.toString();
+            }
+            if (inputKey.equals(generatedEnumKey)) {
+                return true;
             }
         }
-        return inputKey.equals(generatedEnumKey);
+        return false;
     }
 
     public static String generateKey(Object[] array) {
