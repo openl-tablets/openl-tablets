@@ -293,28 +293,36 @@ public final class BindHelper {
             return;
         }
         var allObjects = ((EnumDomain<Object>) enumDomain).getAllObjects();
+        validateNodeAgainstArrayDomain(node, allObjects, parameterType, bindingContext);
+    }
 
+    private static void validateNodeAgainstArrayDomain(IBoundNode node,
+                                                       Object[] allObjects,
+                                                       IOpenClass parameterType,
+                                                       IBindingContext bindingContext) {
         if (node instanceof LiteralBoundNode literalBoundNode) {
             if (literalBoundNode.getValue() != null) {
                 validateKeyAgainstArrayDomain(literalBoundNode.getValue().toString(),
                         allObjects, parameterType, node, bindingContext);
             }
-        } else {
-            IBoundNode[] children = node.getChildren();
-            if (children == null || children.length == 0) {
-                return;
+            return;
+        }
+        IBoundNode[] children = node.getChildren();
+        if (children == null || children.length == 0) {
+            return;
+        }
+        if (children[0] instanceof LiteralBoundNode) {
+            // Flat array of literals — treat as one domain entry
+            var values = new ArrayList<>();
+            collectNonNullLiteralValues(node, values);
+            if (!values.isEmpty()) {
+                var key = StringUtils.join(values.toArray(), ",");
+                validateKeyAgainstArrayDomain(key, allObjects, parameterType, node, bindingContext);
             }
-            if (children[0] instanceof LiteralBoundNode) {
-                var values = new ArrayList<>();
-                collectNonNullLiteralValues(node, values);
-                if (!values.isEmpty()) {
-                    var key = StringUtils.join(values.toArray(), ",");
-                    validateKeyAgainstArrayDomain(key, allObjects, parameterType, node, bindingContext);
-                }
-            } else {
-                for (IBoundNode child : children) {
-                    validateForArrayDomain(child, parameterType, bindingContext);
-                }
+        } else {
+            // Nested array — validate each child separately
+            for (IBoundNode child : children) {
+                validateNodeAgainstArrayDomain(child, allObjects, parameterType, bindingContext);
             }
         }
     }
