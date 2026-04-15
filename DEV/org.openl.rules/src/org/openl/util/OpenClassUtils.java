@@ -80,7 +80,7 @@ public final class OpenClassUtils {
                 var element = Array.get(value, i);
                 validationMessage = validateDomain(element, domain, paramType);
             }
-        } else if (value instanceof Iterable<?> list) {
+        } else if (value instanceof Iterable<?> list && !(value instanceof org.openl.rules.helpers.INumberRange)) {
             for (var iterator = list.iterator(); iterator.hasNext() && validationMessage == null; ) {
                 Object element = iterator.next();
                 validationMessage = validateDomain(element, domain, paramType);
