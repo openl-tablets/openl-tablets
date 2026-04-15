@@ -76,6 +76,9 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             }
         }
 
+        // Validate literal values against domain type at compile time
+        BindHelper.validateDomainValue(source, targetType, bindingContext);
+
         /*
          * target = source - simple assign target += source - assign with operation through methodCaller
          */
