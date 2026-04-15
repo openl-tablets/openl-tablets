@@ -91,7 +91,7 @@
 
         <!-- Security -->
         <spring.security.version>6.5.9</spring.security.version>
-        <opensaml.version>5.2.0</opensaml.version>
+        <opensaml.version>5.2.1</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
@@ -1272,6 +1272,15 @@
             <id>shibboleth-releases</id>
             <name>Shibboleth Repository</name>
             <url>https://build.shibboleth.net/maven/releases/</url>
+        </repository>
+        <repository>
+            <!-- as a mirror for the Shibboleth Repository -->
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jboss-releases</id>
+            <name>JBoss Repository</name>
+            <url>https://repository.jboss.org/</url>
         </repository>
     </repositories>
     <build>
