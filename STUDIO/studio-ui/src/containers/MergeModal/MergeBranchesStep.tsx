@@ -164,7 +164,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 wrapperCol={{ flex: 1 }}
             >
                 <Form.Item label={t('merge:branches.current')}>
-                    <Typography.Text ellipsis={{ tooltip: currentBranch }} strong>
+                    <Typography.Text strong ellipsis={{ tooltip: currentBranch }}>
                         <BranchesOutlined style={{ marginRight: 8 }} />
                         {currentBranch}
                     </Typography.Text>
