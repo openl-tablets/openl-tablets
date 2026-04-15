@@ -44,7 +44,7 @@ public final class OpenClassUtils {
      * otherwise returns provided object as input parameter.
      *
      * @param openClass the open class
-     * @return
+     * @return wrapper class for the provided primitive class or provided object as input parameter
      */
     public static IOpenClass toWrapperIfPrimitive(IOpenClass openClass) {
         if (openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive()) {
@@ -70,10 +70,10 @@ public final class OpenClassUtils {
     private static String validateDomain(Object value,
                                          IDomain<Object> domain,
                                          IOpenClass paramType) {
-        String validationMessage = null;
         if (value == null) {
-            return validationMessage;
+            return null;
         }
+        String validationMessage = null;
         if (value.getClass().isArray()) {
             int length = Array.getLength(value);
             for (int i = 0; i < length && validationMessage == null; i++) {

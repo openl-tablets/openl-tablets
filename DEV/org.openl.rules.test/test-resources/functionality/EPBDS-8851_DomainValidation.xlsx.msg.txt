@@ -1,0 +1,3 @@
+ERROR: Object 'AR' is outside of valid domain 'Area'. Valid values: [AS, DS]
+WARN: '_res_' column is missing.
+WARN: '_res_' column is missing.

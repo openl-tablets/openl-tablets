@@ -5,13 +5,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
+import org.openl.domain.EnumDomain;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -23,10 +29,14 @@ import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenField;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.DomainUtils;
+import org.openl.util.OpenClassUtils;
+import org.openl.util.StringUtils;
 
 public final class BindHelper {
 
@@ -192,16 +202,12 @@ public final class BindHelper {
                 if (left.getTargetNode() == right.getTargetNode()) {
                     return true;
                 }
-                if (isSame(left.getTargetNode(), right.getTargetNode())) {
-                    return true;
-                }
+                return isSame(left.getTargetNode(), right.getTargetNode());
             }
         } else if (left instanceof LiteralBoundNode node && right instanceof LiteralBoundNode node1) {
             Object leftValue = node.getValue();
             Object rightValue = node1.getValue();
-            if (leftValue == rightValue || (leftValue != null && leftValue.equals(rightValue))) {
-                return true;
-            }
+            return Objects.equals(leftValue, rightValue);
         }
 
         return false;
@@ -220,7 +226,149 @@ public final class BindHelper {
      */
     private static boolean isBooleanType(IOpenClass type) {
         return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
+    }
 
+    /**
+     * Validates a bound node against a domain type at compile time.
+     * Only literal expressions (literals, arrays of literals, casts around literals) are validated.
+     * Method calls and field accesses are skipped as their values are only known at runtime.
+     */
+    public static void validateDomainValue(IBoundNode boundNode,
+                                           IOpenClass type,
+                                           IBindingContext bindingContext) {
+        if (type instanceof DomainOpenClass && isLiteralExpression(boundNode)) {
+            if (type.isArray()) {
+                validateForArrayDomain(boundNode, type, bindingContext);
+            } else {
+                validateForScalarDomain(boundNode, type, bindingContext);
+            }
+        }
+    }
+
+    private static boolean isLiteralExpression(IBoundNode node) {
+        if (node instanceof LiteralBoundNode) {
+            return true;
+        }
+        if (isTransparentNode(node)) {
+            IBoundNode[] children = node.getChildren();
+            if (children != null) {
+                for (IBoundNode child : children) {
+                    if (isLiteralExpression(child)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Node types that are data-structure wrappers and safe to recurse through for validation.
+     * Method calls, field accesses, and binary operations are NOT safe — they are runtime-computed.
+     */
+    private static boolean isTransparentNode(IBoundNode node) {
+        return node instanceof ArrayInitializerNode
+                || node instanceof CastNode
+                || node instanceof BlockNode;
+    }
+
+    private static void validateForScalarDomain(IBoundNode node,
+                                                IOpenClass parameterType,
+                                                IBindingContext bindingContext) {
+        if (node instanceof LiteralBoundNode literalBoundNode) {
+            validateLiteralAgainstDomain(literalBoundNode, parameterType, bindingContext);
+        } else if (isTransparentNode(node) && node.getChildren() != null) {
+            for (IBoundNode child : node.getChildren()) {
+                validateForScalarDomain(child, parameterType, bindingContext);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void validateForArrayDomain(IBoundNode node,
+                                               IOpenClass parameterType,
+                                               IBindingContext bindingContext) {
+        var domain = parameterType.getDomain();
+        if (!(domain instanceof EnumDomain<?> enumDomain)) {
+            return;
+        }
+        var allObjects = ((EnumDomain<Object>) enumDomain).getAllObjects();
+
+        if (node instanceof LiteralBoundNode literalBoundNode) {
+            if (literalBoundNode.getValue() != null) {
+                validateKeyAgainstArrayDomain(literalBoundNode.getValue().toString(),
+                        allObjects, parameterType, node, bindingContext);
+            }
+        } else {
+            IBoundNode[] children = node.getChildren();
+            if (children == null || children.length == 0) {
+                return;
+            }
+            if (children[0] instanceof LiteralBoundNode) {
+                var values = new ArrayList<>();
+                collectNonNullLiteralValues(node, values);
+                if (!values.isEmpty()) {
+                    var key = StringUtils.join(values.toArray(), ",");
+                    validateKeyAgainstArrayDomain(key, allObjects, parameterType, node, bindingContext);
+                }
+            } else {
+                for (IBoundNode child : children) {
+                    validateForArrayDomain(child, parameterType, bindingContext);
+                }
+            }
+        }
+    }
+
+    private static void validateKeyAgainstArrayDomain(String key,
+                                                      Object[] allObjects,
+                                                      IOpenClass parameterType,
+                                                      IBoundNode node,
+                                                      IBindingContext bindingContext) {
+        if (!OpenClassUtils.belongsToEnum(allObjects, key)) {
+            processError(
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            key,
+                            parameterType.getName(),
+                            DomainUtils.toString(parameterType.getDomain())),
+                    node.getSyntaxNode(),
+                    bindingContext);
+        }
+    }
+
+    private static void validateLiteralAgainstDomain(LiteralBoundNode literalNode,
+                                                     IOpenClass parameterType,
+                                                     IBindingContext bindingContext) {
+        IOpenClass fromType = literalNode.getType();
+        if (fromType == null || fromType.equals(parameterType)) {
+            return;
+        }
+        IOpenCast cast = bindingContext.getCast(fromType, parameterType);
+        if (cast == null) {
+            return;
+        }
+        try {
+            cast.convert(literalNode.getValue());
+        } catch (OutsideOfValidDomainException exception) {
+            processError(
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            literalNode.getValue(),
+                            parameterType.getName(),
+                            DomainUtils.toString(parameterType.getDomain())),
+                    literalNode.getSyntaxNode(),
+                    bindingContext);
+        }
+    }
+
+    private static void collectNonNullLiteralValues(IBoundNode node, List<Object> objects) {
+        if (node instanceof LiteralBoundNode literalBoundNode) {
+            if (literalBoundNode.getValue() != null) {
+                objects.add(literalBoundNode.getValue());
+            }
+        } else if (node.getChildren() != null) {
+            for (IBoundNode child : node.getChildren()) {
+                collectNonNullLiteralValues(child, objects);
+            }
+        }
     }
 
 }
