@@ -84,6 +84,10 @@ public class NewNodeBinder extends ANodeBinder {
                 var constructor = MethodUtil.printMethod(type.getName(), paramTypes);
                 return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
             }
+            var constructorParamTypes = methodCaller.getMethod().getSignature().getParameterTypes();
+            for (int i = 0; i < Math.min(constructorParamTypes.length, children.length); i++) {
+                BindHelper.validateDomainValue(children[i], constructorParamTypes[i], bindingContext);
+            }
             return new ConstructorParamsNode(new MethodBoundNode(typeNode, methodCaller, children));
         } finally {
             if (!sugarConstructor) {
