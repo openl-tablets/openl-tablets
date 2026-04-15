@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
 
+import lombok.Getter;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
@@ -21,6 +22,7 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -64,10 +66,10 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
@@ -90,6 +92,7 @@ public class SpreadsheetStructureBuilder {
 
     private final XlsModuleOpenClass xlsModuleOpenClass;
 
+    @Getter
     private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
             this);
 
@@ -99,11 +102,9 @@ public class SpreadsheetStructureBuilder {
      * tableSyntaxNode of the spreadsheet
      **/
     private final TableSyntaxNode tableSyntaxNode;
-    private final ILogicalTable tableBody;
 
-    public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
-        return spreadsheetStructureBuilderHolder;
-    }
+    @Getter
+    private final ILogicalTable tableBody;
 
     public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext,
                                        IOpenMethodHeader spreadsheetHeader,
@@ -334,7 +335,7 @@ public class SpreadsheetStructureBuilder {
             OpenL openl = columnBindingContext.getOpenL();
             // columnBindingContext - is never null
             try {
-                IOpenMethod method;
+                CompositeMethod method;
                 if (header.getType() == null) {
                     method = OpenLManager.makeMethodWithUnknownType(openl,
                             srcCode,
@@ -347,6 +348,15 @@ public class SpreadsheetStructureBuilder {
                     method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
                 spreadsheetCell.setValue(method);
+                // Validate literal expressions against domain type
+                if (type instanceof DomainOpenClass) {
+                    IBoundMethodNode bodyNode = method.getMethodBodyBoundNode();
+                    if (bodyNode != null && bodyNode.getChildren() != null) {
+                        for (var child : bodyNode.getChildren()) {
+                            BindHelper.validateDomainValue(child, type, columnBindingContext);
+                        }
+                    }
+                }
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setType(NullOpenClass.the);
                 String message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
@@ -663,10 +673,6 @@ public class SpreadsheetStructureBuilder {
         return buildArrayForHeaders(columnHeaders.values().toArray(EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY), e -> true);
     }
 
-    public ILogicalTable getTableBody() {
-        return tableBody;
-    }
-
     private String[] buildArrayForHeaders(SpreadsheetHeaderDefinition[] headers,
                                           Predicate<SpreadsheetHeaderDefinition> predicate) {
 
@@ -843,12 +849,10 @@ public class SpreadsheetStructureBuilder {
 
     private void addMetaInfo(SpreadsheetHeaderDefinition headerDefinition, ICell cell) {
         if (!bindingContext.isExecutionMode() && tableSyntaxNode
-                .getMetaInfoReader() instanceof SpreadsheetMetaInfoReader) {
+                .getMetaInfoReader() instanceof SpreadsheetMetaInfoReader metaInfoReader) {
             IOpenClass headerType = headerDefinition.getType();
             SymbolicTypeDefinition symbolicTypeDefinition = headerDefinition.getDefinition();
             IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
-            SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) tableSyntaxNode
-                    .getMetaInfoReader();
             List<NodeUsage> nodeUsages = new ArrayList<>();
             if (headerDefinition.getDefinition().isAsteriskPresented()) {
                 String s = JavaKeywordUtils.toJavaIdentifier(headerDefinition.getDefinitionName());
@@ -1120,4 +1124,5 @@ public class SpreadsheetStructureBuilder {
             super(cell.getStringValue(), table.getSource().getUri(cell.getColumn(), cell.getRow() - 1));
         }
     }
+
 }
