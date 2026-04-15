@@ -16,8 +16,8 @@ Generate release notes for OpenL Tablets versions. Output matches the official O
 ## Core Rules
 1. **NO Jira ticket numbers** in output
 2. **Follow the template structure exactly** - only include sections with content
-3. **Keep descriptions concise** - one sentence per item unless truly complex
-4. **Bullet-first approach** - prefer bullet points over paragraphs
+3. **Keep descriptions concise** - New Features: 1-3 sentences; Improvements and Bug Fixes: 1 line each
+4. **Prose-first for features, bullets for lists** - New Features use sentences; bullet lists are optional additions, not replacements
 5. **Output format:** Markdown (.md)
 6. **Use `---` horizontal rules** between individual items within each section (between features, between improvement areas, between breaking changes, between migration topics) — **omit the trailing `---` after the last item in each section**
 7. **Bold section headings** - use `## **Section Name**` for top-level sections, `### **Item Title**` for items within sections
@@ -58,15 +58,16 @@ These are used to fill the `[{{version_tag}}]({{github_tag_url}}) on the GitHub`
 
 ```
 Tool: jira:jira_search
-JQL: project = EPBDS AND fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true AND status in (Closed, Resolved, "In Testing")
+JQL: project = EPBDS AND fixVersion = "OpenL [VERSION]" AND cf[12243] = "Yes, include ticket in Release Notes" AND status in (Closed, Resolved, "In Testing")
 Fields: summary, description, issuetype, priority, labels
 MaxResults: 100
 StartAt: 0
 ```
 
 **Important:**
+- Fix version names in EPBDS follow the format `OpenL X.Y.Z` (e.g. `OpenL 6.1.0`) — always prefix the version with `OpenL`
+- If the search returns 0 results, verify the exact fix version name using `jira_get_project_versions` for the EPBDS project and retry with the correct name
 - Only use `jira:jira_search` MCP tool to retrieve tickets
-- Only include tickets where `"Exclude from Release Notes" != true`
 - Paginate using `startAt` increments of 100 until the returned list is smaller than `maxResults`
 
 ### Step 3: Categorize & Write
