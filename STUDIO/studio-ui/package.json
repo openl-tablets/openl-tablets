@@ -50,7 +50,7 @@
     "sass-loader": "^16.0.7",
     "serve": "^14.2.6",
     "style-loader": "^4.0.0",
-    "stylelint": "^17.5.0",
+    "stylelint": "^17.8.0",
     "stylelint-config-standard": "^40.0.0",
     "ts-jest": "^29.4.6",
     "tsconfig-paths-webpack-plugin": "4.2.0",
