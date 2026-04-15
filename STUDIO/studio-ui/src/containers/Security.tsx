@@ -167,7 +167,7 @@ export const Security = () => {
             />
             {Component}
             {userMode && userMode !== SecurityUserMode.SINGLE && (
-                <InitialUsers userGroups={userGroups} showDefaultGroup={userMode !== SecurityUserMode.MULTI} />
+                <InitialUsers showDefaultGroup={userMode !== SecurityUserMode.MULTI} userGroups={userGroups} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
             <Row justify="end">
