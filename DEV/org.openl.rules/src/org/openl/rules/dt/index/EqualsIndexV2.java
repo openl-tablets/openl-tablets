@@ -39,7 +39,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         int[] result = null;
         if (value != null) {
             value = conditionCasts.castToConditionType(value);
-            result = index.get(value);
+            result = index.get(ArrayKey.wrapIfArray(value));
         }
         return result == null ? EMPTY_ARRAY : result;
     }
@@ -163,7 +163,8 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         }
 
         public void putValueToRule(Object value, int ruleN) {
-            if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
+            Object key = ArrayKey.wrapIfArray(value);
+            if (comparatorBasedMap && !(key instanceof Comparable<?>)) {
                 throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
@@ -182,7 +183,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
                 }
             }
 
-            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value, e -> new DecisionTableRuleNodeBuilder());
+            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(key, e -> new DecisionTableRuleNodeBuilder());
 
             builder.addRule(ruleN);
         }

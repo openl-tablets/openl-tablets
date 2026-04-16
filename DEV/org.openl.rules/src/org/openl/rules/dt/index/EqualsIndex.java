@@ -28,7 +28,7 @@ public class EqualsIndex extends ARuleIndex {
     @Override
     DecisionTableRuleNode findNodeInIndex(Object value) {
         if (value != null) {
-            return valueNodes.get(value);
+            return valueNodes.get(ArrayKey.wrapIfArray(value));
         }
         return null;
     }
@@ -59,7 +59,8 @@ public class EqualsIndex extends ARuleIndex {
         }
 
         public void putValueToRule(Object value, int ruleN) {
-            if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
+            Object key = ArrayKey.wrapIfArray(value);
+            if (comparatorBasedMap && !(key instanceof Comparable<?>)) {
                 throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
@@ -78,7 +79,7 @@ public class EqualsIndex extends ARuleIndex {
                 }
             }
 
-            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
+            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(key,
                     e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
 
             builder.addRule(ruleN);
