@@ -13,4 +13,4 @@ ERROR: Object 'F6' is outside of valid domain 'Gender'. Valid values: [Male, Fem
 ERROR: Object 'M6' is outside of valid domain 'Gender'. Valid values: [Male, Female]
 ERROR: Object '136' is outside of valid domain 'Level'. Valid values: [100, 200, 300]
 ERROR: Object '356' is outside of valid domain 'Level'. Valid values: [100, 200, 300]
-ERROR: Object 'NJ,NY' is outside of valid domain 'Country[]'. Valid values: [[NY, NJ], [CA]]
+ERROR: Object 'NJ,NY' is outside of valid domain 'Country'. Valid values: [[NY, NJ], [CA]]

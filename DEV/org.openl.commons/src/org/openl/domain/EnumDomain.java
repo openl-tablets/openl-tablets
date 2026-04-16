@@ -11,12 +11,16 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import lombok.Getter;
+
 /**
  * @author snshor
  */
 public class EnumDomain<T> implements IDomain<T> {
 
     private final LinkedHashSet<T> index;
+
+    @Getter
     private final Class<?> componentType;
 
     public EnumDomain(T[] elements) {
@@ -44,6 +48,16 @@ public class EnumDomain<T> implements IDomain<T> {
 
     @Override
     public boolean selectObject(T obj) {
+        if (obj != null && obj.getClass().isArray()) {
+            // Arrays need deep comparison since LinkedHashSet uses Object.equals()
+            // which is identity comparison for arrays
+            for (T entry : index) {
+                if (java.util.Objects.deepEquals(obj, entry)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         return contains(obj);
     }
 

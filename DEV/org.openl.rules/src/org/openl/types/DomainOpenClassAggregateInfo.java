@@ -25,6 +25,12 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
                 componentType.getMetaInfo());
     }
 
+    @Override
+    public boolean isAggregate(IOpenClass type) {
+        // Use isArray() which checks the name for "[]", not the base class
+        return type.isArray();
+    }
+
     /**
      * Overridden to return component type based on the domain
      */

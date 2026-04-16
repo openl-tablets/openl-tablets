@@ -869,7 +869,13 @@ public class CastFactory implements ICastFactory {
      * @return alias cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
-        if (!from.isArray() && !to.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
+        boolean isDomainRelated = from instanceof DomainOpenClass || to instanceof DomainOpenClass;
+        boolean bothNonArray = !from.isArray() && !to.isArray();
+        // Also allow when from matches the base class of a domain target (e.g. String[] -> Country<String[]>)
+        boolean baseMatchesDomain = isDomainRelated
+                && (to instanceof DomainOpenClass td && from.equals(td.getBaseClass())
+                || from instanceof DomainOpenClass fd && to.equals(fd.getBaseClass()));
+        if ((bothNonArray || baseMatchesDomain) && isDomainRelated) {
             if (from instanceof DomainOpenClass fromDomainOpenClass && to instanceof DomainOpenClass toDomainOpenClass && from != to) {
                 IOpenCast openCast = getCast(fromDomainOpenClass.getBaseClass(), toDomainOpenClass.getBaseClass());
                 if (openCast != null) {

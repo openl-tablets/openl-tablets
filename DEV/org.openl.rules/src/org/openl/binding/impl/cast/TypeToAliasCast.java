@@ -1,6 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import org.openl.domain.IDomain;
 import org.openl.types.IOpenClass;
@@ -75,9 +76,12 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
         // If object does not belong to domain throw runtime exception with
         // appropriate message.
         if (!isInDomain) {
+            String valueStr = from != null && from.getClass().isArray()
+                    ? Arrays.deepToString((Object[]) from)
+                    : String.valueOf(from);
             throw new OutsideOfValidDomainException(
                     "Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
-                            from,
+                            valueStr,
                             toClass.getName(),
                             DomainUtils.toString(domain)));
         }

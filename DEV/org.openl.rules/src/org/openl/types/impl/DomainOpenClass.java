@@ -194,7 +194,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public boolean isArray() {
-        return baseClass.isArray();
+        return name.endsWith("[]");
     }
 
     @Override

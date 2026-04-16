@@ -237,7 +237,7 @@ public final class BindHelper {
                                            IOpenClass type,
                                            IBindingContext bindingContext) {
         if (type instanceof DomainOpenClass && isLiteralExpression(boundNode)) {
-            if (type.isArray()) {
+            if (type.isArray() || hasArrayDomainEntries(type)) {
                 validateForArrayDomain(boundNode, type, bindingContext);
             } else {
                 validateForScalarDomain(boundNode, type, bindingContext);
@@ -270,6 +270,11 @@ public final class BindHelper {
         return node instanceof ArrayInitializerNode
                 || node instanceof CastNode
                 || node instanceof BlockNode;
+    }
+
+    private static boolean hasArrayDomainEntries(IOpenClass type) {
+        return type.getDomain() instanceof EnumDomain<?> enumDomain
+                && OpenClassUtils.hasArrayEntries(enumDomain);
     }
 
     private static void validateForScalarDomain(IBoundNode node,

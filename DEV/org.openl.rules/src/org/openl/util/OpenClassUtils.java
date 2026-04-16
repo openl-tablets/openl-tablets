@@ -75,10 +75,25 @@ public final class OpenClassUtils {
         }
         String validationMessage = null;
         if (value.getClass().isArray()) {
-            int length = Array.getLength(value);
-            for (int i = 0; i < length && validationMessage == null; i++) {
-                var element = Array.get(value, i);
-                validationMessage = validateDomain(element, domain, paramType);
+            // When domain entries are arrays (e.g. Country<String[]>), validate the whole array as one entry
+            if (domain instanceof EnumDomain<?> ed && hasArrayEntries(ed)) {
+                if (!domain.selectObject(value)) {
+                    int length = Array.getLength(value);
+                    Object[] arr = new Object[length];
+                    for (int i = 0; i < length; i++) {
+                        arr[i] = Array.get(value, i);
+                    }
+                    validationMessage = String.format("The value '%s' is outside of valid domain '%s'. Valid values: %s",
+                            generateKey(arr),
+                            paramType.getName(),
+                            DomainUtils.toString(domain));
+                }
+            } else {
+                int length = Array.getLength(value);
+                for (int i = 0; i < length && validationMessage == null; i++) {
+                    var element = Array.get(value, i);
+                    validationMessage = validateDomain(element, domain, paramType);
+                }
             }
         } else if (value instanceof Iterable<?> list && !(value instanceof org.openl.rules.helpers.INumberRange)) {
             for (var iterator = list.iterator(); iterator.hasNext() && validationMessage == null; ) {
@@ -129,7 +144,15 @@ public final class OpenClassUtils {
     public static String generateKey(Object[] array) {
         return Arrays.stream(array)
                 .filter(Objects::nonNull)
-                .map(Object::toString)  // Convert each element to a string
+                .map(Object::toString)
                 .collect(Collectors.joining(","));
+    }
+
+    /**
+     * Checks if the domain entries are arrays (e.g. Country&lt;String[]&gt; domain with String[] entries).
+     */
+    public static boolean hasArrayEntries(EnumDomain<?> enumDomain) {
+        Object[] allObjects = enumDomain.getAllObjects();
+        return allObjects.length > 0 && allObjects[0] instanceof Object[];
     }
 }

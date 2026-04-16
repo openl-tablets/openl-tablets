@@ -415,14 +415,22 @@ public final class RuleRowHelper {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
                     }
                 } else {
+                    // Strip enclosing brackets for array-typed values, e.g. "[NY,NJ]" -> "NY,NJ"
+                    String parseSource = source;
+                    if (expectedType.isArray()) {
+                        String stripped = source.strip();
+                        if (stripped.length() >= 2 && stripped.charAt(0) == '[' && stripped.charAt(stripped.length() - 1) == ']') {
+                            parseSource = stripped.substring(1, stripped.length() - 1);
+                        }
+                    }
                     if (String.class == paramType.getInstanceClass()) {
-                        result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                        result = String2DataConvertorFactory.parse(expectedType, parseSource, bindingContext);
                     } else {
                         if (theValueCell.hasNativeType()) {
                             result = loadNativeValue(paramType, paramName, ruleName, cell, openlAdaptor, theValueCell);
                         }
                         if (result == null) {
-                            result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                            result = String2DataConvertorFactory.parse(expectedType, parseSource, bindingContext);
                         }
                     }
                 }
