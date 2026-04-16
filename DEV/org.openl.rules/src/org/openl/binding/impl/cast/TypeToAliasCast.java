@@ -1,11 +1,11 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 import org.openl.domain.IDomain;
 import org.openl.types.IOpenClass;
 import org.openl.util.DomainUtils;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Class provides feature to convert alias data type to underlying type.
@@ -77,7 +77,7 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
         // appropriate message.
         if (!isInDomain) {
             String valueStr = from != null && from.getClass().isArray()
-                    ? Arrays.deepToString((Object[]) from)
+                    ? OpenClassUtils.generateKey((Object[]) from)
                     : String.valueOf(from);
             throw new OutsideOfValidDomainException(
                     "Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
