@@ -12,12 +12,30 @@ The vocabulary data type is created as follows:
 
     The values can be of the indicated predefined data type only.
 
+###### Supported Base Types
+
+The base type specified in the angle brackets can be any non-array scalar type available in the OpenL binding context, including:
+
+- Text types, such as **String** and **Character**
+- Numeric types, both primitive and boxed, such as **int**/**Integer**, **double**/**Double**, **long**/**Long**, **short**/**Short**, **byte**/**Byte**, **float**/**Float**, **BigDecimal**, and **BigInteger**
+- **Boolean** / **boolean**
+- **Date**
+- Range types, such as **IntRange**, **DoubleRange**, **DateRange**
+- User-defined vocabulary or datatype names from the same or imported module
+
+Array types are not allowed as the base type. For example, `Datatype MyType <String[]>` is rejected with an error.
+
+###### Example
+
 In the example described in [Introducing Datatype Tables](01-introducing-datatype-tables.md#introducing-datatype-tables), the data type **Person** has an attribute **gender** of the **Gender** data type which is the following vocabulary data type.
 
-![](../../../ref-guide-images/exampleVocabularyDatatypeTableStringParameters.png)
+| Datatype Gender \<String\> |
+|---------------------------|
+| Male                      |
+| Female                    |
 
 *Example of vocabulary datatype table with String parameters*
 
 Thus, data of Gender data type can only be **Male** or **Female**.
 
-OpenL Tablets checks all data of the vocabulary data type one whether its value is in the defined list of possible values. If the value is outside of the valid domain, or defined vocabulary, OpenL Tablets displays an appropriate error. Usage of vocabulary data types provides data integrity and allows users to avoid accidental mistakes in rules.
+OpenL Tablets checks all data of the vocabulary data type on whether its value is in the defined list of possible values. If the value is outside of the valid domain, or defined vocabulary, OpenL Tablets displays an appropriate error. Usage of vocabulary data types provides data integrity and allows users to avoid accidental mistakes in rules.
