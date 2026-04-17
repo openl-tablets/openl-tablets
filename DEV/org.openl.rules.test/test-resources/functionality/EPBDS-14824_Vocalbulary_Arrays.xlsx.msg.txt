@@ -1,0 +1,23 @@
+ERROR: Alias data type cannot be array: String[].
+ERROR: Type 'Countries' is not found.
+ERROR: Type 'Countries' is not found.
+ERROR: Type 'Person' is defined with errors.
+ERROR: Type 'Person' is defined with errors.
+ERROR: Cannot parse cell value 'Peter'. Undefined cell type.
+ERROR: Cannot parse cell value 'DE, PL'. Undefined cell type.
+ERROR: Type 'Companies' is defined with errors.
+ERROR: Type 'null-Class' is defined with errors.
+ERROR: Cannot parse cell value 'BE, NY' to the necessary type.
+ERROR: Identifier 'DataPerson' is not found.
+ERROR: Type 'Countries' is not found.
+ERROR: Type 'Countries' is not found.
+ERROR: Cannot parse cell value 'BE, NY'. Undefined cell type.
+ERROR: Cannot parse cell value 'BE, NY'. Undefined cell type.
+ERROR: Cannot parse cell value 'BE, NY'. Undefined cell type.
+ERROR: Cannot parse cell value 'DE, PL'. Undefined cell type.
+ERROR: Cannot parse cell value 'DE, PL'. Undefined cell type.
+ERROR: Cannot parse cell value 'DE, PL'. Undefined cell type.
+ERROR: Cannot parse cell value 'DE, PL'. Undefined cell type.
+ERROR: Field 'countries' is not found in type 'null-Class'.
+ERROR: Field 'countries' is not found in type 'null-Class'.
+ERROR: Cannot parse cell value 'BE, NY'. Undefined cell type.

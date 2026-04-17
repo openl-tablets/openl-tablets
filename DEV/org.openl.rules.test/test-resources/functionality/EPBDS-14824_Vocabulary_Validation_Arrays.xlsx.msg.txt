@@ -1,0 +1,4 @@
+ERROR: Alias data type cannot be array: String[].
+ERROR: Method 'check(java.lang.String[])' is not found.
+ERROR: Type 'Country' is not found.
+ERROR: Field '$Result' is not found in type 'null-Class'.
