@@ -7,7 +7,6 @@ package org.openl.rules.datatype.binding;
 import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -107,8 +106,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             try {
                 bindingContext.pushErrors();
                 bindingContext.pushMessages();
-                baseOpenClass = OpenLManager
-                        .makeType(((IBindingContext) bindingContext).getOpenL(), type, tableSource, bindingContext);
+                baseOpenClass = OpenLManager.makeType(bindingContext.getOpenL(), type, tableSource, bindingContext);
                 // Prevent NPE if type is not found
                 if (bindingContext.getErrors().length > 0) {
                     if (bindingContext.getErrors().length == 1) {
@@ -122,6 +120,11 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             } finally {
                 bindingContext.popErrors();
                 bindingContext.popMessages();
+            }
+
+            if (baseOpenClass.isArray()) {
+                String message = "Alias data type cannot be array: %s.".formatted(type);
+                throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[2]);
             }
 
             // Create appropriate domain object.

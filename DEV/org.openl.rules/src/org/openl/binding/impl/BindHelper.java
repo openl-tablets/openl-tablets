@@ -5,11 +5,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
@@ -36,7 +34,6 @@ import org.openl.types.java.JavaOpenField;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.DomainUtils;
 import org.openl.util.OpenClassUtils;
-import org.openl.util.StringUtils;
 
 public final class BindHelper {
 
@@ -308,22 +305,11 @@ public final class BindHelper {
             return;
         }
         IBoundNode[] children = node.getChildren();
-        if (children == null || children.length == 0) {
+        if (children == null) {
             return;
         }
-        if (children[0] instanceof LiteralBoundNode) {
-            // Flat array of literals — treat as one domain entry
-            var values = new ArrayList<>();
-            collectNonNullLiteralValues(node, values);
-            if (!values.isEmpty()) {
-                var key = StringUtils.join(values.toArray(), ",");
-                validateKeyAgainstArrayDomain(key, allObjects, parameterType, node, bindingContext);
-            }
-        } else {
-            // Nested array — validate each child separately
-            for (IBoundNode child : children) {
-                validateNodeAgainstArrayDomain(child, allObjects, parameterType, bindingContext);
-            }
+        for (IBoundNode child : children) {
+            validateNodeAgainstArrayDomain(child, allObjects, parameterType, bindingContext);
         }
     }
 
@@ -364,18 +350,6 @@ public final class BindHelper {
                             DomainUtils.toString(parameterType.getDomain())),
                     literalNode.getSyntaxNode(),
                     bindingContext);
-        }
-    }
-
-    private static void collectNonNullLiteralValues(IBoundNode node, List<Object> objects) {
-        if (node instanceof LiteralBoundNode literalBoundNode) {
-            if (literalBoundNode.getValue() != null) {
-                objects.add(literalBoundNode.getValue());
-            }
-        } else if (node.getChildren() != null) {
-            for (IBoundNode child : node.getChildren()) {
-                collectNonNullLiteralValues(child, objects);
-            }
         }
     }
 
