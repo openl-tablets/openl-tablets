@@ -11,7 +11,7 @@
     "@ant-design/icons": "^6.1.0",
     "@eslint/js": "^9.39.4",
     "@stomp/stompjs": "^7.3.0",
-    "antd": "^6.3.4",
+    "antd": "^6.3.6",
     "dompurify": "^3.3.3",
     "i18next": "^26.0.5",
     "path-browserify": "^1.0.1",
