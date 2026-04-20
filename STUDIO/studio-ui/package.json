@@ -13,7 +13,7 @@
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.4",
     "dompurify": "^3.3.3",
-    "i18next": "^26.0.5",
+    "i18next": "^26.0.6",
     "path-browserify": "^1.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
