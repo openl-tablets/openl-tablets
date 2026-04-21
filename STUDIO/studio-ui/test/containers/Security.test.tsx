@@ -17,7 +17,7 @@ jest.mock('react-i18next', () => ({
 }))
 
 // Track the current mock value for Form.useWatch
-let mockUserMode: string | undefined = undefined
+let mockUserMode: string | { value: string, readOnly: boolean } | undefined = undefined
 
 jest.mock('antd', () => {
     const actual = jest.requireActual('antd')
@@ -100,21 +100,11 @@ const defaultSettings = {
     administrators: ['admin'],
 }
 
-// Mock window.location.reload for save tests
-const originalLocation = window.location
-
-beforeAll(() => {
-    // @ts-ignore
-    delete (window as any).location
-    window.location = { reload: jest.fn() } as any
-})
-
-afterAll(() => {
-    // @ts-ignore
-    delete (window as any).location
-    // @ts-ignore
-    window.location = originalLocation
-})
+// Note: jsdom emits "Error: Not implemented: navigation (except hash changes)"
+// when Security.tsx calls `window.location.reload()` on save. Location is
+// non-configurable in jsdom, so reload cannot be stubbed at the API layer.
+// The error is silenced globally in src/setupTests.ts via jest-fail-on-console's
+// silenceMessage option.
 
 describe('Security', () => {
     beforeEach(() => {
@@ -246,10 +236,56 @@ describe('Security', () => {
         })
     })
 
-    it('fetches user groups for external auth modes', async () => {
+    it('renders SingleMode and hides InitialUsers when wrapped userMode is read-only single', async () => {
+        mockUserMode = { value: SecurityUserMode.SINGLE, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('single-mode')).toBeInTheDocument()
+        })
+        expect(screen.queryByTestId('initial-users')).not.toBeInTheDocument()
+    })
+
+    it('renders InitialUsers without default group when wrapped userMode is read-only multi', async () => {
+        mockUserMode = { value: SecurityUserMode.MULTI, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('initial-users')).toBeInTheDocument()
+        })
+        expect(screen.getByTestId('initial-users')).toHaveAttribute('data-show-default-group', 'false')
+    })
+
+    it('renders AD mode and InitialUsers with default group when wrapped userMode is read-only ad', async () => {
+        const adSettings = { ...defaultSettings, userMode: 'ad' }
+        const groupsResponse = { Admins: {} }
+        mockApiCall
+            .mockResolvedValueOnce(adSettings)
+            .mockResolvedValueOnce(groupsResponse)
+        mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('ad-mode')).toBeInTheDocument()
+            expect(screen.getByTestId('initial-users')).toBeInTheDocument()
+        })
+        expect(screen.getByTestId('initial-users')).toHaveAttribute('data-show-default-group', 'true')
+    })
+
+    it('fetches user groups when backend mode already supports the groups endpoint', async () => {
+        const adSettings = { ...defaultSettings, userMode: 'ad' }
         const groupsResponse = { Admins: {}, Viewers: {} }
         mockApiCall
-            .mockResolvedValueOnce(defaultSettings) // fetchSecuritySettings
+            .mockResolvedValueOnce(adSettings) // fetchSecuritySettings
             .mockResolvedValueOnce(groupsResponse)  // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
 
@@ -258,7 +294,60 @@ describe('Security', () => {
         })
 
         await waitFor(() => {
-            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups')
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups', undefined, expect.objectContaining({
+                throwError: true,
+                suppressErrorPages: true,
+            }))
+        })
+    })
+
+    it('does not fetch user groups when UI selects AD but backend is still multi', async () => {
+        // Endpoint is only registered when active backend user.mode is not single/multi.
+        // Switching the radio before clicking Apply must not trigger the fetch (which would 404 and redirect).
+        mockApiCall.mockResolvedValueOnce(defaultSettings)
+        mockUserMode = SecurityUserMode.AD
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
+        })
+        expect(mockApiCall).not.toHaveBeenCalledWith('/admin/management/groups', expect.anything(), expect.anything())
+    })
+
+    it('does not fetch user groups for read-only multi mode (wrapped userMode)', async () => {
+        mockApiCall.mockResolvedValueOnce(defaultSettings)
+        mockUserMode = { value: SecurityUserMode.MULTI, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
+        })
+        expect(mockApiCall).not.toHaveBeenCalledWith('/admin/management/groups', expect.anything(), expect.anything())
+    })
+
+    it('fetches user groups for read-only external auth mode (wrapped userMode)', async () => {
+        const adSettings = { ...defaultSettings, userMode: { value: 'ad', readOnly: true } }
+        const groupsResponse = { Admins: {}, Viewers: {} }
+        mockApiCall
+            .mockResolvedValueOnce(adSettings)
+            .mockResolvedValueOnce(groupsResponse)
+        mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups', undefined, expect.objectContaining({
+                throwError: true,
+                suppressErrorPages: true,
+            }))
         })
     })
 

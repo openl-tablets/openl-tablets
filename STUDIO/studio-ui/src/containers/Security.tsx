@@ -43,6 +43,10 @@ export const Security = () => {
     const [userGroups, setUserGroups] = React.useState<{label: string, value: string}[]>([])
     const [loadingUserGroups, setLoadingUserGroups] = React.useState<boolean>(false)
     const userMode = Form.useWatch('userMode', form)
+    const mode = typeof userMode === 'object' ? userMode?.value : userMode
+    const settingsMode = typeof securitySettings?.userMode === 'object'
+        ? securitySettings?.userMode?.value
+        : securitySettings?.userMode
 
     const userModeOptions = [
         { label: t('security:user_modes.single'), value: SecurityUserMode.SINGLE },
@@ -59,7 +63,8 @@ export const Security = () => {
     }
 
     const saveSecuritySettings = async (values: any) => {
-        const requestMethod = values.userMode === securitySettings?.userMode ? 'PATCH' : 'POST'
+        const submittedMode = typeof values.userMode === 'object' ? values.userMode?.value : values.userMode
+        const requestMethod = submittedMode === settingsMode ? 'PATCH' : 'POST'
 
         await apiCall('/admin/settings/authentication', {
             method: requestMethod,
@@ -82,24 +87,31 @@ export const Security = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userMode }),
+            body: JSON.stringify({ userMode: mode }),
         })
         form.setFieldsValue(response)
     }
 
     const fetchUserGroups = async () => {
         setLoadingUserGroups(true)
-        const response = await apiCall('/admin/management/groups').finally(() => {
+        try {
+            const response = await apiCall('/admin/management/groups', undefined, {
+                throwError: true,
+                suppressErrorPages: true,
+            })
+            if (response && Object.keys(response).length) {
+                const groups = Object.keys(response).map(group => ({
+                    label: group,
+                    value: group,
+                }))
+                groups.unshift({ label: t('common:none'), value: '' })
+                setUserGroups(groups)
+            }
+        } catch {
+            // Endpoint is only registered when active backend user.mode is not single/multi.
+            // Switching the UI does not reconfigure the backend until Apply — silently skip.
+        } finally {
             setLoadingUserGroups(false)
-        })
-        if (response && Object.keys(response).length) {
-            const userGroups = Object.keys(response).map(group => ({
-                label: group,
-                value: group,
-            }))
-            // Add None option for empty group
-            userGroups.unshift({ label: t('common:none'), value: '' })
-            setUserGroups(userGroups)
         }
     }
 
@@ -118,7 +130,7 @@ export const Security = () => {
     }, [])
 
     useEffect(() => {
-        if (typeof userMode !== 'object' && (userMode !== securitySettings?.userMode && userMode !== securitySettings?.userMode?.value)) {
+        if (typeof userMode !== 'object' && mode !== settingsMode) {
             fetchSecuritySettingsTemplate()
         } else if (!securitySettings?.userMode?.readOnly) {
             form.resetFields()
@@ -126,13 +138,18 @@ export const Security = () => {
     }, [userMode])
 
     useEffect(() => {
-        if (!loadingUserGroups && (userMode && userMode !== SecurityUserMode.SINGLE && userMode !== SecurityUserMode.MULTI && userGroups.length === 0)) {
+        const endpointAvailable = settingsMode
+            && settingsMode !== SecurityUserMode.SINGLE
+            && settingsMode !== SecurityUserMode.MULTI
+        if (endpointAvailable && !loadingUserGroups
+            && mode && mode !== SecurityUserMode.SINGLE && mode !== SecurityUserMode.MULTI
+            && userGroups.length === 0) {
             fetchUserGroups()
         }
-    }, [userMode])
+    }, [userMode, settingsMode])
 
     const Component = useMemo(() => {
-        switch (userMode) {
+        switch (mode) {
             case SecurityUserMode.SINGLE:
                 return <SingleMode />
             case SecurityUserMode.AD:
@@ -144,7 +161,7 @@ export const Security = () => {
             default:
                 return null
         }
-    }, [userMode])
+    }, [mode])
 
     return (
         <Form
@@ -166,8 +183,8 @@ export const Security = () => {
                 tooltip={{ icon: UserModeModal }}
             />
             {Component}
-            {userMode && userMode !== SecurityUserMode.SINGLE && (
-                <InitialUsers showDefaultGroup={userMode !== SecurityUserMode.MULTI} userGroups={userGroups} />
+            {mode && mode !== SecurityUserMode.SINGLE && (
+                <InitialUsers showDefaultGroup={mode !== SecurityUserMode.MULTI} userGroups={userGroups} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
             <Row justify="end">
