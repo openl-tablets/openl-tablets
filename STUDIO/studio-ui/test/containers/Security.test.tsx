@@ -100,21 +100,11 @@ const defaultSettings = {
     administrators: ['admin'],
 }
 
-// Mock window.location.reload for save tests
-const originalLocation = window.location
-
-beforeAll(() => {
-    // @ts-ignore
-    delete (window as any).location
-    window.location = { reload: jest.fn() } as any
-})
-
-afterAll(() => {
-    // @ts-ignore
-    delete (window as any).location
-    // @ts-ignore
-    window.location = originalLocation
-})
+// Note: jsdom emits "Error: Not implemented: navigation (except hash changes)"
+// when Security.tsx calls `window.location.reload()` on save. Location is
+// non-configurable in jsdom, so reload cannot be stubbed at the API layer.
+// The error is silenced globally in src/setupTests.ts via jest-fail-on-console's
+// silenceMessage option.
 
 describe('Security', () => {
     beforeEach(() => {
