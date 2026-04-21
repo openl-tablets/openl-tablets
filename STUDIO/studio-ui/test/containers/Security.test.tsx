@@ -246,6 +246,50 @@ describe('Security', () => {
         })
     })
 
+    it('renders SingleMode and hides InitialUsers when wrapped userMode is read-only single', async () => {
+        mockUserMode = { value: SecurityUserMode.SINGLE, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('single-mode')).toBeInTheDocument()
+        })
+        expect(screen.queryByTestId('initial-users')).not.toBeInTheDocument()
+    })
+
+    it('renders InitialUsers without default group when wrapped userMode is read-only multi', async () => {
+        mockUserMode = { value: SecurityUserMode.MULTI, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('initial-users')).toBeInTheDocument()
+        })
+        expect(screen.getByTestId('initial-users')).toHaveAttribute('data-show-default-group', 'false')
+    })
+
+    it('renders AD mode and InitialUsers with default group when wrapped userMode is read-only ad', async () => {
+        const groupsResponse = { Admins: {} }
+        mockApiCall
+            .mockResolvedValueOnce(defaultSettings)
+            .mockResolvedValueOnce(groupsResponse)
+        mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('ad-mode')).toBeInTheDocument()
+            expect(screen.getByTestId('initial-users')).toBeInTheDocument()
+        })
+        expect(screen.getByTestId('initial-users')).toHaveAttribute('data-show-default-group', 'true')
+    })
+
     it('fetches user groups for external auth modes', async () => {
         const groupsResponse = { Admins: {}, Viewers: {} }
         mockApiCall

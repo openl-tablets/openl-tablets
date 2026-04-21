@@ -43,6 +43,10 @@ export const Security = () => {
     const [userGroups, setUserGroups] = React.useState<{label: string, value: string}[]>([])
     const [loadingUserGroups, setLoadingUserGroups] = React.useState<boolean>(false)
     const userMode = Form.useWatch('userMode', form)
+    const mode = typeof userMode === 'object' ? userMode?.value : userMode
+    const settingsMode = typeof securitySettings?.userMode === 'object'
+        ? securitySettings?.userMode?.value
+        : securitySettings?.userMode
 
     const userModeOptions = [
         { label: t('security:user_modes.single'), value: SecurityUserMode.SINGLE },
@@ -59,7 +63,8 @@ export const Security = () => {
     }
 
     const saveSecuritySettings = async (values: any) => {
-        const requestMethod = values.userMode === securitySettings?.userMode ? 'PATCH' : 'POST'
+        const submittedMode = typeof values.userMode === 'object' ? values.userMode?.value : values.userMode
+        const requestMethod = submittedMode === settingsMode ? 'PATCH' : 'POST'
 
         await apiCall('/admin/settings/authentication', {
             method: requestMethod,
@@ -82,7 +87,7 @@ export const Security = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userMode }),
+            body: JSON.stringify({ userMode: mode }),
         })
         form.setFieldsValue(response)
     }
@@ -118,7 +123,7 @@ export const Security = () => {
     }, [])
 
     useEffect(() => {
-        if (typeof userMode !== 'object' && (userMode !== securitySettings?.userMode && userMode !== securitySettings?.userMode?.value)) {
+        if (typeof userMode !== 'object' && mode !== settingsMode) {
             fetchSecuritySettingsTemplate()
         } else if (!securitySettings?.userMode?.readOnly) {
             form.resetFields()
@@ -126,14 +131,13 @@ export const Security = () => {
     }, [userMode])
 
     useEffect(() => {
-        const mode = typeof userMode === 'object' ? userMode?.value : userMode
         if (!loadingUserGroups && mode && mode !== SecurityUserMode.SINGLE && mode !== SecurityUserMode.MULTI && userGroups.length === 0) {
             fetchUserGroups()
         }
     }, [userMode])
 
     const Component = useMemo(() => {
-        switch (userMode) {
+        switch (mode) {
             case SecurityUserMode.SINGLE:
                 return <SingleMode />
             case SecurityUserMode.AD:
@@ -145,7 +149,7 @@ export const Security = () => {
             default:
                 return null
         }
-    }, [userMode])
+    }, [mode])
 
     return (
         <Form
@@ -167,8 +171,8 @@ export const Security = () => {
                 tooltip={{ icon: UserModeModal }}
             />
             {Component}
-            {userMode && userMode !== SecurityUserMode.SINGLE && (
-                <InitialUsers showDefaultGroup={userMode !== SecurityUserMode.MULTI} userGroups={userGroups} />
+            {mode && mode !== SecurityUserMode.SINGLE && (
+                <InitialUsers showDefaultGroup={mode !== SecurityUserMode.MULTI} userGroups={userGroups} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
             <Row justify="end">
