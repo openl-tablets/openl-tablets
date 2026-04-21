@@ -94,17 +94,24 @@ export const Security = () => {
 
     const fetchUserGroups = async () => {
         setLoadingUserGroups(true)
-        const response = await apiCall('/admin/management/groups').finally(() => {
+        try {
+            const response = await apiCall('/admin/management/groups', undefined, {
+                throwError: true,
+                suppressErrorPages: true,
+            })
+            if (response && Object.keys(response).length) {
+                const groups = Object.keys(response).map(group => ({
+                    label: group,
+                    value: group,
+                }))
+                groups.unshift({ label: t('common:none'), value: '' })
+                setUserGroups(groups)
+            }
+        } catch {
+            // Endpoint is only registered when active backend user.mode is not single/multi.
+            // Switching the UI does not reconfigure the backend until Apply — silently skip.
+        } finally {
             setLoadingUserGroups(false)
-        })
-        if (response && Object.keys(response).length) {
-            const userGroups = Object.keys(response).map(group => ({
-                label: group,
-                value: group,
-            }))
-            // Add None option for empty group
-            userGroups.unshift({ label: t('common:none'), value: '' })
-            setUserGroups(userGroups)
         }
     }
 
@@ -131,10 +138,15 @@ export const Security = () => {
     }, [userMode])
 
     useEffect(() => {
-        if (!loadingUserGroups && mode && mode !== SecurityUserMode.SINGLE && mode !== SecurityUserMode.MULTI && userGroups.length === 0) {
+        const endpointAvailable = settingsMode
+            && settingsMode !== SecurityUserMode.SINGLE
+            && settingsMode !== SecurityUserMode.MULTI
+        if (endpointAvailable && !loadingUserGroups
+            && mode && mode !== SecurityUserMode.SINGLE && mode !== SecurityUserMode.MULTI
+            && userGroups.length === 0) {
             fetchUserGroups()
         }
-    }, [userMode])
+    }, [userMode, settingsMode])
 
     const Component = useMemo(() => {
         switch (mode) {

@@ -273,9 +273,10 @@ describe('Security', () => {
     })
 
     it('renders AD mode and InitialUsers with default group when wrapped userMode is read-only ad', async () => {
+        const adSettings = { ...defaultSettings, userMode: 'ad' }
         const groupsResponse = { Admins: {} }
         mockApiCall
-            .mockResolvedValueOnce(defaultSettings)
+            .mockResolvedValueOnce(adSettings)
             .mockResolvedValueOnce(groupsResponse)
         mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
 
@@ -290,10 +291,11 @@ describe('Security', () => {
         expect(screen.getByTestId('initial-users')).toHaveAttribute('data-show-default-group', 'true')
     })
 
-    it('fetches user groups for external auth modes', async () => {
+    it('fetches user groups when backend mode already supports the groups endpoint', async () => {
+        const adSettings = { ...defaultSettings, userMode: 'ad' }
         const groupsResponse = { Admins: {}, Viewers: {} }
         mockApiCall
-            .mockResolvedValueOnce(defaultSettings) // fetchSecuritySettings
+            .mockResolvedValueOnce(adSettings) // fetchSecuritySettings
             .mockResolvedValueOnce(groupsResponse)  // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
 
@@ -302,8 +304,27 @@ describe('Security', () => {
         })
 
         await waitFor(() => {
-            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups')
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups', undefined, expect.objectContaining({
+                throwError: true,
+                suppressErrorPages: true,
+            }))
         })
+    })
+
+    it('does not fetch user groups when UI selects AD but backend is still multi', async () => {
+        // Endpoint is only registered when active backend user.mode is not single/multi.
+        // Switching the radio before clicking Apply must not trigger the fetch (which would 404 and redirect).
+        mockApiCall.mockResolvedValueOnce(defaultSettings)
+        mockUserMode = SecurityUserMode.AD
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
+        })
+        expect(mockApiCall).not.toHaveBeenCalledWith('/admin/management/groups', expect.anything(), expect.anything())
     })
 
     it('does not fetch user groups for read-only multi mode (wrapped userMode)', async () => {
@@ -317,13 +338,14 @@ describe('Security', () => {
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
         })
-        expect(mockApiCall).not.toHaveBeenCalledWith('/admin/management/groups')
+        expect(mockApiCall).not.toHaveBeenCalledWith('/admin/management/groups', expect.anything(), expect.anything())
     })
 
     it('fetches user groups for read-only external auth mode (wrapped userMode)', async () => {
+        const adSettings = { ...defaultSettings, userMode: { value: 'ad', readOnly: true } }
         const groupsResponse = { Admins: {}, Viewers: {} }
         mockApiCall
-            .mockResolvedValueOnce(defaultSettings)
+            .mockResolvedValueOnce(adSettings)
             .mockResolvedValueOnce(groupsResponse)
         mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
 
@@ -332,7 +354,10 @@ describe('Security', () => {
         })
 
         await waitFor(() => {
-            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups')
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups', undefined, expect.objectContaining({
+                throwError: true,
+                suppressErrorPages: true,
+            }))
         })
     })
 
