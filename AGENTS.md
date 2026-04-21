@@ -7,7 +7,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
 - Use Java 21+ features where appropriate
-- Check module-specific `AGENTS.md` before modifying any module
+- Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
 - No HTML in Markdown when equivalents exist (see Markdown Rules below)
@@ -63,6 +63,10 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
 ## Markdown Rules
 
 - No HTML when Markdown equivalents exist
+- GFM style only
 - Single located images MUST have descriptive title text
 - Prefer bullet lists over dense prose
 - Tables only when both columns are short or 3+ columns; otherwise use `- **label** — description`
+- No version stamp in headings
+- Mermaid for structural diagrams
+- Admonitions: `> [Note:]` (single blockquote level only without title and nesting)

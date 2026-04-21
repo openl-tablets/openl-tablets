@@ -2,6 +2,14 @@
 
 Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy, being replaced).
 
+## Key Conventions
+
+- **JSF pages** (`org.openl.rules.webstudio/src/main/webapp/`): Explicit bug fixes only. Do NOT improve legacy code or possible bugs. New features must go in React frontend.
+- **New features** → React in `studio-ui/`
+- **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
+- **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
+- **API documentation**: Use OpenAPI annotations on REST controllers
+
 ## Submodules
 
 **Core application**:
@@ -48,11 +56,3 @@ org.openl.studio
 ├── socket/          # WebSocket endpoints
 └── common/          # Shared utilities
 ```
-
-## Key Conventions
-
-- **JSF pages** (`org.openl.rules.webstudio/src/main/webapp/`): Bug fixes only. Do NOT add features.
-- **New features** → React in `studio-ui/`
-- **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/{postgresql,h2,oracle}/`
-- **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
-- **API documentation**: Use OpenAPI annotations on REST controllers
