@@ -91,7 +91,7 @@
     function onSaveComplete(mergeConflict, successful) {
       if (mergeConflict) {
         RichFaces.$('modalSave').hide();
-        const projectId = btoa('#{artefact.repository.id}' + ':' + '#{artefact.businessName}');
+        const projectId = btoa('#{artefact.repository.id}' + ':' + '#{artefact.project.businessName}');
         $j.get('#{contextPath}/web/projects/' + projectId).then(function(project) {
           globalThis.dispatchEvent(new CustomEvent('openMergeModal', {
             detail: {
