@@ -197,7 +197,7 @@
 
         <!-- Static analysis -->
         <errorprone.version>2.48.0</errorprone.version>
-        <nullaway.version>0.13.3</nullaway.version>
+        <nullaway.version>0.13.4</nullaway.version>
         <jspecify.version>1.0.0</jspecify.version>
         <lombok.version>1.18.44</lombok.version>
 
