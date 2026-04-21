@@ -126,7 +126,8 @@ export const Security = () => {
     }, [userMode])
 
     useEffect(() => {
-        if (!loadingUserGroups && (userMode && userMode !== SecurityUserMode.SINGLE && userMode !== SecurityUserMode.MULTI && userGroups.length === 0)) {
+        const mode = typeof userMode === 'object' ? userMode?.value : userMode
+        if (!loadingUserGroups && mode && mode !== SecurityUserMode.SINGLE && mode !== SecurityUserMode.MULTI && userGroups.length === 0) {
             fetchUserGroups()
         }
     }, [userMode])

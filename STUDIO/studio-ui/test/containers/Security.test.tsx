@@ -17,7 +17,7 @@ jest.mock('react-i18next', () => ({
 }))
 
 // Track the current mock value for Form.useWatch
-let mockUserMode: string | undefined = undefined
+let mockUserMode: string | { value: string, readOnly: boolean } | undefined = undefined
 
 jest.mock('antd', () => {
     const actual = jest.requireActual('antd')
@@ -252,6 +252,36 @@ describe('Security', () => {
             .mockResolvedValueOnce(defaultSettings) // fetchSecuritySettings
             .mockResolvedValueOnce(groupsResponse)  // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups')
+        })
+    })
+
+    it('does not fetch user groups for read-only multi mode (wrapped userMode)', async () => {
+        mockApiCall.mockResolvedValueOnce(defaultSettings)
+        mockUserMode = { value: SecurityUserMode.MULTI, readOnly: true }
+
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
+        })
+        expect(mockApiCall).not.toHaveBeenCalledWith('/admin/management/groups')
+    })
+
+    it('fetches user groups for read-only external auth mode (wrapped userMode)', async () => {
+        const groupsResponse = { Admins: {}, Viewers: {} }
+        mockApiCall
+            .mockResolvedValueOnce(defaultSettings)
+            .mockResolvedValueOnce(groupsResponse)
+        mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
 
         await act(async () => {
             render(<Security />)
