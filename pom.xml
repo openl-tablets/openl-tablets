@@ -199,7 +199,7 @@
         <errorprone.version>2.48.0</errorprone.version>
         <nullaway.version>0.13.4</nullaway.version>
         <jspecify.version>1.0.0</jspecify.version>
-        <lombok.version>1.18.44</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
 
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
         <node.version>v24.14.1</node.version>
