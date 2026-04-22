@@ -22,18 +22,6 @@ failOnConsole({
         // still link to react.dev/link/* for docs. Match that canonical link to keep
         // the silence specific to official React advisory warnings.
         if (message.includes('react.dev/link/')) return true
-        // Additional React 19 advisory messages without react.dev links.
-        if (/^`\w+` prop on `\w+` should not be null/.test(message)) return true
-        if (message.startsWith('Cannot update a component')) return true
-        if (message.startsWith('Cannot update during an existing state transition')) return true
-        // React 19 + @testing-library/react 16 act() timing quirks. TL toggles
-        // IS_REACT_ACT_ENVIRONMENT per call, and state updates scheduled by detached
-        // promise chains (reload onClick, handleSave after await apiCall, etc.) land
-        // in narrow windows where React emits these advisory warnings — tests still
-        // commit and assert correctly.
-        // See https://github.com/testing-library/react-testing-library/issues/1061
-        if (message.includes('not configured to support act(')) return true
-        if (/An update to .* inside a test was not wrapped in act\(/.test(message)) return true
         // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
         // console.error whenever `window.location.reload()` / href assignment is
         // reached (e.g. Security.tsx save flow). Location is non-configurable in
