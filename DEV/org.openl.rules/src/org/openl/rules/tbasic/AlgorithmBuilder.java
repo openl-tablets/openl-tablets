@@ -44,28 +44,198 @@ public class AlgorithmBuilder {
     private static final String UNDERSCORE = "_";
 
     private static final TableParserSpecificationBean[] algSpecifications = new TableParserSpecificationBean[]{
-            new TableParserSpecificationBean("RETURN", false, OPTIONAL, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null),
-            new TableParserSpecificationBean("SET", false, PROHIBITED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
-            new TableParserSpecificationBean("VAR", false, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
-            new TableParserSpecificationBean("IF", false, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
-            new TableParserSpecificationBean("IF", true, REQUIRED, PROHIBITED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
-            new TableParserSpecificationBean("ELSE", false, PROHIBITED, REQUIRED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"IF"}),
-            new TableParserSpecificationBean("ELSE", true, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"IF"}),
-            new TableParserSpecificationBean("END IF", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"IF", "ELSE"}),
-            new TableParserSpecificationBean("WHILE", false, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, true, null),
-            new TableParserSpecificationBean("WHILE", true, REQUIRED, PROHIBITED, OPTIONAL, OPTIONAL, OPTIONAL, true, null),
-            new TableParserSpecificationBean("END WHILE", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"WHILE"}),
-            new TableParserSpecificationBean("FOR EACH", true, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, true, null),
-            new TableParserSpecificationBean("END FOR EACH", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"FOR EACH"}),
-            new TableParserSpecificationBean("SUB", false, PROHIBITED, REQUIRED, REQUIRED, PROHIBITED, REQUIRED, false, null),
-            new TableParserSpecificationBean("SUB", true, PROHIBITED, PROHIBITED, REQUIRED, PROHIBITED, REQUIRED, false, null),
-            new TableParserSpecificationBean("END SUB", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"SUB"}),
-            new TableParserSpecificationBean("FUNCTION", false, PROHIBITED, REQUIRED, REQUIRED, PROHIBITED, REQUIRED, false, null),
-            new TableParserSpecificationBean("FUNCTION", true, PROHIBITED, PROHIBITED, REQUIRED, PROHIBITED, REQUIRED, false, null),
-            new TableParserSpecificationBean("END FUNCTION", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"FUNCTION"}),
-            new TableParserSpecificationBean("GOTO", false, REQUIRED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null),
-            new TableParserSpecificationBean("BREAK", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null),
-            new TableParserSpecificationBean("CONTINUE", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null)
+            TableParserSpecificationBean.builder()
+                    .keyword("RETURN")
+                    .condition(OPTIONAL)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("SET")
+                    .condition(PROHIBITED)
+                    .action(REQUIRED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("VAR")
+                    .condition(REQUIRED)
+                    .action(REQUIRED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("IF")
+                    .condition(REQUIRED)
+                    .action(REQUIRED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("IF")
+                    .multiline(true)
+                    .condition(REQUIRED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("ELSE")
+                    .condition(PROHIBITED)
+                    .action(REQUIRED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"IF"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("ELSE")
+                    .multiline(true)
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"IF"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("END IF")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"IF", "ELSE"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("WHILE")
+                    .condition(REQUIRED)
+                    .action(REQUIRED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .loopOperation(true)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("WHILE")
+                    .multiline(true)
+                    .condition(REQUIRED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .loopOperation(true)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("END WHILE")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"WHILE"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("FOR EACH")
+                    .multiline(true)
+                    .condition(REQUIRED)
+                    .action(REQUIRED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(OPTIONAL)
+                    .topLevel(OPTIONAL)
+                    .loopOperation(true)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("END FOR EACH")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"FOR EACH"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("SUB")
+                    .condition(PROHIBITED)
+                    .action(REQUIRED)
+                    .label(REQUIRED)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(REQUIRED)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("SUB")
+                    .multiline(true)
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(REQUIRED)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(REQUIRED)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("END SUB")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"SUB"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("FUNCTION")
+                    .condition(PROHIBITED)
+                    .action(REQUIRED)
+                    .label(REQUIRED)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(REQUIRED)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("FUNCTION")
+                    .multiline(true)
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(REQUIRED)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(REQUIRED)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("END FUNCTION")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .predecessorOperations(new String[]{"FUNCTION"})
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("GOTO")
+                    .condition(REQUIRED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("BREAK")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .build(),
+            TableParserSpecificationBean.builder()
+                    .keyword("CONTINUE")
+                    .condition(PROHIBITED)
+                    .action(PROHIBITED)
+                    .label(OPTIONAL)
+                    .beforeAndAfter(PROHIBITED)
+                    .topLevel(OPTIONAL)
+                    .build()
     };
 
     // Section Description Operation Condition Action Before After
@@ -144,7 +314,8 @@ public class AlgorithmBuilder {
     private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
         List<AlgorithmRow> result = new ArrayList<>();
 
-        IGridTable grid = tableBody.getRows(2).getSource();
+        IGridTable grid = tableBody.getRows(2)
+                    .getSource();
         for (int r = 0; r < grid.getHeight(); r++) {
 
             AlgorithmRow aRow = new AlgorithmRow();
@@ -162,7 +333,8 @@ public class AlgorithmBuilder {
                 IGridTable valueTable = rowTable.getColumn(c);
                 aRow.setValueGridRegion(column.id, valueTable.getRegion());
 
-                String value = grid.getCell(c, r).getStringValue();
+                String value = grid.getCell(c, r)
+                    .getStringValue();
 
                 if (value == null) {
                     value = StringUtils.EMPTY;
@@ -175,14 +347,17 @@ public class AlgorithmBuilder {
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
-                    ICellStyle cellStyle = grid.getCell(c, r).getStyle();
+                    ICellStyle cellStyle = grid.getCell(c, r)
+                    .getStyle();
                     int i = cellStyle == null ? 0 : cellStyle.getIndent();
                     aRow.setOperationLevel(i);
 
                     if (!bindingContext.isExecutionMode() && tsn
                             .getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
-                        int operationColumn = grid.getCell(c, r).getAbsoluteColumn();
-                        ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader()).setOperationColumn(operationColumn);
+                        int operationColumn = grid.getCell(c, r)
+                    .getAbsoluteColumn();
+                        ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader())
+                    .setOperationColumn(operationColumn);
                     }
                 }
             }
@@ -200,7 +375,10 @@ public class AlgorithmBuilder {
 
         // parse ids, row=0
         for (int c = 0; c < ids.getWidth(); c++) {
-            String id = safeId(ids.getColumn(c).getSource().getCell(0, 0).getStringValue());
+            String id = safeId(ids.getColumn(c)
+                    .getSource()
+                    .getCell(0, 0)
+                    .getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;
@@ -218,7 +396,8 @@ public class AlgorithmBuilder {
     private static String safeId(String s) {
         String id = "";
         if (s != null) {
-            id = s.trim().toLowerCase();
+            id = s.trim()
+                    .toLowerCase();
         }
         return id;
     }
