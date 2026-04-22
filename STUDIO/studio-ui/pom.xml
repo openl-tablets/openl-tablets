@@ -15,6 +15,10 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
+    <properties>
+        <!-- Tests are co-located with sources under src/; sonar.test.inclusions reclassifies them as tests. -->
+        <sonar.tests>src</sonar.tests>
+    </properties>
 
     <build>
         <resources>
@@ -95,15 +99,10 @@
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/classes/META-INF/resources</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/resources</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/dist</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                                <resource>
-                                    <directory>${project.basedir}/public</directory>
-                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                         </configuration>

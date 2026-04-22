@@ -5,19 +5,20 @@ import * as services from 'services'
 import { PermissionContext } from 'contexts/PermissionContext'
 import { SystemContext } from 'contexts/SystemContext'
 import { GroupsContext, GroupsProvider } from 'contexts/GroupsContext'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
     }),
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
 const mockGroupsResponse = {
     Admins: {
@@ -42,7 +43,7 @@ const Consumer: React.FC = () => {
             <span data-testid="error">{error?.message ?? 'none'}</span>
             <span data-testid="count">{groups.length}</span>
             {groups.map((g) => (
-                <span data-testid="group" key={g.name}>{g.name}</span>
+                <span key={g.name} data-testid="group">{g.name}</span>
             ))}
             <button onClick={reloadGroups}>reload</button>
         </div>
@@ -75,7 +76,7 @@ const renderWithProviders = (opts: { hasAdmin?: boolean; groupsEnabled?: boolean
 
 describe('GroupsProvider', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
     })
 
     it('fetches and maps groups for admin user', async () => {

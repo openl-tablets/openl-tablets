@@ -1,12 +1,13 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { SystemContext } from 'contexts/SystemContext'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
@@ -14,22 +15,20 @@ jest.mock('react-i18next', () => ({
     Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
 }))
 
-jest.mock('hooks/useDefaultGroup', () => ({
-    useDefaultGroup: jest.fn(),
+vi.mock('hooks/useDefaultGroup', () => ({
+    useDefaultGroup: vi.fn(),
 }))
 
-jest.mock('containers/groups/useGroups', () => ({
-    useGroups: jest.fn(),
+vi.mock('containers/groups/useGroups', () => ({
+    useGroups: vi.fn(),
 }))
 
 import { useDefaultGroup } from 'hooks/useDefaultGroup'
 import { useGroups } from 'containers/groups/useGroups'
+import { DefaultGroupInfo } from 'components/DefaultGroupInfo'
 
-const mockUseDefaultGroup = useDefaultGroup as jest.MockedFunction<typeof useDefaultGroup>
-const mockUseGroups = useGroups as jest.MockedFunction<typeof useGroups>
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { DefaultGroupInfo } = require('components/DefaultGroupInfo')
+const mockUseDefaultGroup = useDefaultGroup as MockedFunction<typeof useDefaultGroup>
+const mockUseGroups = useGroups as MockedFunction<typeof useGroups>
 
 const renderWithContext = (overrides: Partial<React.ContextType<typeof SystemContext>> = {}) => {
     const defaultCtx = {
@@ -48,12 +47,12 @@ const renderWithContext = (overrides: Partial<React.ContextType<typeof SystemCon
 
 describe('DefaultGroupInfo', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockUseGroups.mockReturnValue({
             groups: [{ name: 'Viewers', admin: false, id: 1, description: '', numberOfMembers: 2 }],
             loading: false,
             error: null,
-            reloadGroups: jest.fn(),
+            reloadGroups: vi.fn(),
         })
     })
 
@@ -87,7 +86,7 @@ describe('DefaultGroupInfo', () => {
             groups: [],
             loading: false,
             error: null,
-            reloadGroups: jest.fn(),
+            reloadGroups: vi.fn(),
         })
         renderWithContext()
         expect(screen.getByText('Deleted')).toBeInTheDocument()

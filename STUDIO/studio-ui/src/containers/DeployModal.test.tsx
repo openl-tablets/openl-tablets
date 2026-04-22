@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event'
 import { App as AntApp } from 'antd'
 import { DeployModal } from 'containers/DeployModal'
 import * as services from 'services'
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+import type { MockedFunction } from 'vitest'
+vi.mock('services', async () => ({
+    apiCall: vi.fn(),
     ForbiddenError: class ForbiddenError extends Error {
         constructor(message?: string) {
             super(message)
@@ -14,15 +15,15 @@ jest.mock('services', () => ({
     },
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
     }),
 }))
 
-jest.mock('antd', () => {
-    const actual = jest.requireActual('antd')
+vi.mock('antd', async () => {
+    const actual = await vi.importActual('antd')
     const MockModal = ({ open, children, title, footer, ...props }: {
         open?: boolean
         children: React.ReactNode
@@ -40,14 +41,14 @@ jest.mock('antd', () => {
         ...actual,
         Modal: MockModal,
         notification: {
-            success: jest.fn(),
-            error: jest.fn(),
-            warning: jest.fn(),
+            success: vi.fn(),
+            error: vi.fn(),
+            warning: vi.fn(),
         },
     }
 })
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
 const openModal = async (detail: Record<string, unknown>) => {
     await act(async () => {
@@ -77,7 +78,7 @@ const renderDeployModal = () =>
 
 describe('DeployModal', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockApiCall
             .mockResolvedValueOnce([
                 { id: 'repo-1', name: 'Production' },

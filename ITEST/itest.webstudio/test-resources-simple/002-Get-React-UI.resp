@@ -4,8 +4,9 @@ Content-Type: text/html;charset=utf-8
 <!DOCTYPE html>
 <html lang="en">
 ***
-  <base href="/"/>
+    <base href="/"/>
 ***
-<script src="js/main.js" type="module"></script>
+    <script type="module" crossorigin src="./assets/index-***.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-***.css">
 ***
 </html>

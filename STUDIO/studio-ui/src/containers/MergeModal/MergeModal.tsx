@@ -77,8 +77,12 @@ export const MergeModal: React.FC = () => {
     }, [detail, checkExistingConflicts])
 
     const handleClose = useCallback(() => {
-        setVisible(false)
-        // Dispatch event to notify RichFaces
+        // Dispatch event to notify RichFaces. The same event is consumed by
+        // `useGlobalEvents` above, which resets `detail` to null; that drives
+        // the close-effect (sets `visible` to false). Resetting `detail` before
+        // `visible` avoids rendering stale step content inside Ant Design's
+        // leave animation (visible to users in unit tests where CSS animations
+        // don't tick and the motion never "ends").
         window.dispatchEvent(new CustomEvent('openMergeModal', { detail: null }))
     }, [])
 

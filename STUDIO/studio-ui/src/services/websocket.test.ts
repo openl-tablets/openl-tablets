@@ -3,9 +3,9 @@ describe('webSocketService', () => {
     const originalBaseUriDescriptor = Object.getOwnPropertyDescriptor(document, 'baseURI')
 
     beforeEach(() => {
-        jest.resetModules()
-        jest.useFakeTimers()
-        jest.clearAllMocks()
+        vi.resetModules()
+        vi.useFakeTimers()
+        vi.clearAllMocks()
         Object.defineProperty(document, 'baseURI', {
             configurable: true,
             value: 'http://localhost:8080/webstudio/',
@@ -13,7 +13,7 @@ describe('webSocketService', () => {
     })
 
     afterEach(() => {
-        jest.useRealTimers()
+        vi.useRealTimers()
         if (hadOwnBaseUri && originalBaseUriDescriptor) {
             Object.defineProperty(document, 'baseURI', originalBaseUriDescriptor)
         } else {
@@ -22,17 +22,17 @@ describe('webSocketService', () => {
         }
     })
 
-    const loadService = () => {
+    const loadService = async () => {
         let latestConfig: any
         let latestClient: any
 
-        jest.doMock('@stomp/stompjs', () => {
+        vi.doMock('@stomp/stompjs', () => {
             class MockClient {
                 config: any
-                activate = jest.fn()
-                deactivate = jest.fn()
-                subscribe = jest.fn(() => ({ unsubscribe: jest.fn() }))
-                publish = jest.fn()
+                activate = vi.fn()
+                deactivate = vi.fn()
+                subscribe = vi.fn(() => ({ unsubscribe: vi.fn() }))
+                publish = vi.fn()
 
                 constructor(config: any) {
                     this.config = config
@@ -46,13 +46,9 @@ describe('webSocketService', () => {
             }
         })
 
-        let webSocketService: any
-        let WebSocketConnectionTimeoutError: any
-        jest.isolateModules(() => {
-            const mod = require('services/websocket')
-            webSocketService = mod.webSocketService
-            WebSocketConnectionTimeoutError = mod.WebSocketConnectionTimeoutError
-        })
+        const mod = await import('services/websocket')
+        const webSocketService = mod.webSocketService
+        const WebSocketConnectionTimeoutError = mod.WebSocketConnectionTimeoutError
 
         return {
             webSocketService,
@@ -62,26 +58,26 @@ describe('webSocketService', () => {
         }
     }
 
-    it('builds websocket URL from base URI', () => {
-        const { latestConfig } = loadService()
+    it('builds websocket URL from base URI', async () => {
+        const { latestConfig } = await loadService()
 
         expect(latestConfig().brokerURL).toBe('ws://localhost:8080/webstudio/web/ws')
     })
 
     it('rejects connect with timeout error when never connected', async () => {
-        const { webSocketService, WebSocketConnectionTimeoutError, latestClient } = loadService()
+        const { webSocketService, WebSocketConnectionTimeoutError, latestClient } = await loadService()
 
         const connectPromise = webSocketService.connect(50)
         const timeoutAssertion = expect(connectPromise).rejects.toBeInstanceOf(WebSocketConnectionTimeoutError)
 
         expect(latestClient().activate).toHaveBeenCalledTimes(1)
-        await jest.advanceTimersByTimeAsync(150)
+        await vi.advanceTimersByTimeAsync(150)
         await timeoutAssertion
     })
 
-    it('queues subscription and re-subscribes on connect callback', () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
-        const callback = jest.fn()
+    it('queues subscription and re-subscribes on connect callback', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        const callback = vi.fn()
 
         webSocketService.subscribe('/topic/progress', callback, 'sub-1')
         expect(latestClient().subscribe).not.toHaveBeenCalled()
@@ -96,32 +92,31 @@ describe('webSocketService', () => {
     })
 
     it('handles failed reconnect attempts without unhandled rejection', async () => {
-        const { webSocketService, latestConfig } = loadService()
-        const connectSpy = jest
-            .spyOn(webSocketService, 'connect')
+        const { webSocketService, latestConfig } = await loadService()
+        const connectSpy = vi.spyOn(webSocketService, 'connect')
             .mockRejectedValue(new Error('reconnect failed'))
 
         latestConfig().onStompError(new Error('stomp error'))
         // If the service failed to catch the rejection here, Jest would flag an
         // unhandled promise rejection for the worker when timers advance.
-        await jest.advanceTimersByTimeAsync(5000)
+        await vi.advanceTimersByTimeAsync(5000)
 
         expect(connectSpy).toHaveBeenCalled()
 
         connectSpy.mockRestore()
     })
 
-    it('builds wss URL when document is served over https', () => {
+    it('builds wss URL when document is served over https', async () => {
         Object.defineProperty(document, 'baseURI', {
             configurable: true,
             value: 'https://example.com/app/',
         })
-        const { latestConfig } = loadService()
+        const { latestConfig } = await loadService()
         expect(latestConfig().brokerURL).toBe('wss://example.com/app/web/ws')
     })
 
     it('resolves connect immediately when already connected', async () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
+        const { webSocketService, latestConfig, latestClient } = await loadService()
 
         latestConfig().onConnect()
         await expect(webSocketService.connect()).resolves.toBeUndefined()
@@ -130,28 +125,28 @@ describe('webSocketService', () => {
     })
 
     it('resolves connect once onConnect fires within the timeout window', async () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
+        const { webSocketService, latestConfig, latestClient } = await loadService()
 
         const connectPromise = webSocketService.connect(500)
         expect(latestClient().activate).toHaveBeenCalledTimes(1)
 
         // Simulate STOMP connecting mid-poll, then advance past the 100ms poll interval.
-        await jest.advanceTimersByTimeAsync(150)
+        await vi.advanceTimersByTimeAsync(150)
         latestConfig().onConnect()
-        await jest.advanceTimersByTimeAsync(150)
+        await vi.advanceTimersByTimeAsync(150)
         await expect(connectPromise).resolves.toBeUndefined()
     })
 
     it('rejects connect when the client is not initialized', async () => {
-        const { webSocketService } = loadService()
+        const { webSocketService } = await loadService()
         // Mirror the guard: null client → immediate rejection.
         ;(webSocketService as { client: unknown }).client = null
 
         await expect(webSocketService.connect()).rejects.toThrow('WebSocket client not initialized')
     })
 
-    it('onDisconnect flips connection status to false', () => {
-        const { webSocketService, latestConfig } = loadService()
+    it('onDisconnect flips connection status to false', async () => {
+        const { webSocketService, latestConfig } = await loadService()
 
         latestConfig().onConnect()
         expect(webSocketService.getConnectionStatus()).toBe(true)
@@ -161,28 +156,27 @@ describe('webSocketService', () => {
     })
 
     it('stops scheduling retries after max reconnect attempts', async () => {
-        const { webSocketService, latestConfig } = loadService()
-        const connectSpy = jest
-            .spyOn(webSocketService, 'connect')
+        const { webSocketService, latestConfig } = await loadService()
+        const connectSpy = vi.spyOn(webSocketService, 'connect')
             .mockRejectedValue(new Error('still failing'))
 
         // Service caps at 5 reconnect attempts; a 6th onStompError must not schedule one.
         for (let i = 0; i < 5; i++) {
             latestConfig().onStompError(new Error(`attempt ${i + 1}`))
-            await jest.advanceTimersByTimeAsync(5000 * (i + 1))
+            await vi.advanceTimersByTimeAsync(5000 * (i + 1))
         }
         expect(connectSpy).toHaveBeenCalledTimes(5)
 
         connectSpy.mockClear()
         latestConfig().onStompError(new Error('one-too-many'))
-        await jest.advanceTimersByTimeAsync(60_000)
+        await vi.advanceTimersByTimeAsync(60_000)
         expect(connectSpy).not.toHaveBeenCalled()
 
         connectSpy.mockRestore()
     })
 
-    it('disconnect only deactivates an active client', () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
+    it('disconnect only deactivates an active client', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
 
         // Not connected — deactivate should be skipped.
         webSocketService.disconnect()
@@ -193,9 +187,9 @@ describe('webSocketService', () => {
         expect(latestClient().deactivate).toHaveBeenCalledTimes(1)
     })
 
-    it('subscribes immediately when connected and forwards STOMP messages via callback', () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
-        const callback = jest.fn()
+    it('subscribes immediately when connected and forwards STOMP messages via callback', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        const callback = vi.fn()
 
         latestConfig().onConnect()
         const id = webSocketService.subscribe('/topic/events', callback, 'sub-x')
@@ -225,9 +219,9 @@ describe('webSocketService', () => {
         })
     })
 
-    it('forwards STOMP messages delivered after onConnect re-subscription', () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
-        const callback = jest.fn()
+    it('forwards STOMP messages delivered after onConnect re-subscription', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
+        const callback = vi.fn()
 
         webSocketService.subscribe('/topic/progress', callback, 'sub-resub')
         latestConfig().onConnect()
@@ -248,18 +242,18 @@ describe('webSocketService', () => {
         })
     })
 
-    it('auto-generates a subscription id when none is supplied', () => {
-        const { webSocketService } = loadService()
-        const id = webSocketService.subscribe('/topic/auto', jest.fn())
+    it('auto-generates a subscription id when none is supplied', async () => {
+        const { webSocketService } = await loadService()
+        const id = webSocketService.subscribe('/topic/auto', vi.fn())
         expect(id).toMatch(/^sub_\d+_[a-z0-9]+$/)
         expect(webSocketService.getSubscriptions()).toHaveLength(1)
     })
 
-    it('unsubscribe calls the STOMP subscription and removes it from the map', () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
+    it('unsubscribe calls the STOMP subscription and removes it from the map', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
 
         latestConfig().onConnect()
-        webSocketService.subscribe('/topic/x', jest.fn(), 'sub-unsub')
+        webSocketService.subscribe('/topic/x', vi.fn(), 'sub-unsub')
         expect(webSocketService.getSubscriptions()).toHaveLength(1)
 
         const stompSub = latestClient().subscribe.mock.results[0].value
@@ -268,14 +262,14 @@ describe('webSocketService', () => {
         expect(webSocketService.getSubscriptions()).toHaveLength(0)
     })
 
-    it('unsubscribe is a no-op for unknown ids', () => {
-        const { webSocketService, latestClient } = loadService()
+    it('unsubscribe is a no-op for unknown ids', async () => {
+        const { webSocketService, latestClient } = await loadService()
         webSocketService.unsubscribe('never-registered')
         expect(latestClient().subscribe).not.toHaveBeenCalled()
     })
 
-    it('send publishes via the STOMP client when connected', () => {
-        const { webSocketService, latestConfig, latestClient } = loadService()
+    it('send publishes via the STOMP client when connected', async () => {
+        const { webSocketService, latestConfig, latestClient } = await loadService()
 
         latestConfig().onConnect()
         webSocketService.send('/topic/out', 'hello', { 'x-foo': 'bar' })
@@ -287,16 +281,16 @@ describe('webSocketService', () => {
         })
     })
 
-    it('send is a no-op when not connected', () => {
-        const { webSocketService, latestClient } = loadService()
+    it('send is a no-op when not connected', async () => {
+        const { webSocketService, latestClient } = await loadService()
         webSocketService.send('/topic/out', 'hello')
         expect(latestClient().publish).not.toHaveBeenCalled()
     })
 
-    it('getSubscriptions returns the live list of subscriptions', () => {
-        const { webSocketService } = loadService()
-        webSocketService.subscribe('/topic/a', jest.fn(), 'a')
-        webSocketService.subscribe('/topic/b', jest.fn(), 'b')
+    it('getSubscriptions returns the live list of subscriptions', async () => {
+        const { webSocketService } = await loadService()
+        webSocketService.subscribe('/topic/a', vi.fn(), 'a')
+        webSocketService.subscribe('/topic/b', vi.fn(), 'b')
 
         const subs = webSocketService.getSubscriptions()
         expect(subs.map((s: { id: string }) => s.id)).toEqual(['a', 'b'])

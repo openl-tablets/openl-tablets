@@ -1,27 +1,30 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { notification } from 'antd'
+import { runSequentialCollectErrors } from 'utils/async'
 import * as services from 'services'
 import { SystemContext } from 'contexts/SystemContext'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', async () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
     }),
 }))
 
-jest.mock('../../src/i18n', () => ({
+vi.mock('../../src/i18n', async () => ({
     __esModule: true,
     default: { t: (key: string) => key },
 }))
 
-jest.mock('antd', () => {
-    const actual = jest.requireActual('antd')
+vi.mock('antd', async () => {
+    const actual = await vi.importActual('antd')
     return {
         ...actual,
         Drawer: ({ open, title, extra, children, onClose }: any) => {
@@ -35,17 +38,17 @@ jest.mock('antd', () => {
             )
         },
         notification: {
-            success: jest.fn(),
-            error: jest.fn(),
+            success: vi.fn(),
+            error: vi.fn(),
         },
     }
 })
 
-jest.mock('components/accessManagement', () => {
+vi.mock('components/accessManagement', async () => {
     // initialValue on these Form.Items is omitted — the parent Form already seeds
     // designRepos/deployRepos/projects/designRootRole/deployRootRole via its
     // `initialValues` prop, and AntD warns if both sides try to seed the same path.
-    const { Form } = jest.requireActual('antd')
+    const { Form } = await vi.importActual('antd')
     return {
         DesignRepositoriesTab: () => (
             <div data-testid="design-repos-tab">
@@ -67,8 +70,8 @@ jest.mock('components/accessManagement', () => {
     }
 })
 
-jest.mock('containers/groups/EditGroupDetails', () => {
-    const { Form } = jest.requireActual('antd')
+vi.mock('containers/groups/EditGroupDetails', async () => {
+    const { Form } = await vi.importActual('antd')
     return {
         EditGroupDetails: () => (
             <div data-testid="edit-group-details">
@@ -79,8 +82,8 @@ jest.mock('containers/groups/EditGroupDetails', () => {
     }
 })
 
-jest.mock('containers/users/UserDatailsTab', () => {
-    const { Form } = jest.requireActual('antd')
+vi.mock('containers/users/UserDatailsTab', async () => {
+    const { Form } = await vi.importActual('antd')
     return {
         UserDetailsTab: () => (
             <div data-testid="user-details-tab">
@@ -95,29 +98,28 @@ jest.mock('containers/users/UserDatailsTab', () => {
     }
 })
 
-jest.mock('containers/users/EditUserModal', () => ({
+vi.mock('containers/users/EditUserModal', async () => ({
     __esModule: true,
 }))
 
-jest.mock('containers/users/RenderGroupCell', () => ({
+vi.mock('containers/users/RenderGroupCell', async () => ({
     __esModule: true,
 }))
 
-jest.mock('utils/async', () => ({
-    runSequentialCollectErrors: jest.fn().mockResolvedValue([]),
+vi.mock('utils/async', async () => ({
+    runSequentialCollectErrors: vi.fn().mockResolvedValue([]),
 }))
 
-jest.mock('store', () => ({
+vi.mock('store', async () => ({
     useUserStore: () => ({
         userProfile: { username: 'admin' },
-        fetchUserProfile: jest.fn(),
+        fetchUserProfile: vi.fn(),
     }),
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { EditUserGroupDetailsWithAccessRights } = require('containers/EditUserGroupDetailsWithAccessRights')
+import { EditUserGroupDetailsWithAccessRights } from 'containers/EditUserGroupDetailsWithAccessRights'
 
 const defaultSystemCtx = {
     isExternalAuthSystem: false,
@@ -133,7 +135,7 @@ const renderComponent = (props: any = {}) => {
     const defaultProps = {
         isOpenFromParent: false,
         isPrincipal: true,
-        onClose: jest.fn(),
+        onClose: vi.fn(),
         newUser: false,
         ...props,
     }
@@ -146,7 +148,7 @@ const renderComponent = (props: any = {}) => {
 
 describe('EditUserGroupDetailsWithAccessRights', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         // Default: /repos returns non-empty array; other endpoints return empty arrays
         mockApiCall.mockImplementation((url: string) => {
             if (url === '/repos') return Promise.resolve([mockDesignRepo])
@@ -322,7 +324,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
     })
 
     it('calls onClose when Cancel is clicked', async () => {
-        const onClose = jest.fn()
+        const onClose = vi.fn()
         await act(async () => {
             renderComponent({ isOpenFromParent: true, newUser: true, onClose })
         })
@@ -453,8 +455,8 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
     })
 
     it('calls reloadUsers and reloadGroups after successful save', async () => {
-        const reloadUsers = jest.fn().mockResolvedValue(undefined)
-        const reloadGroups = jest.fn().mockResolvedValue(undefined)
+        const reloadUsers = vi.fn().mockResolvedValue(undefined)
+        const reloadGroups = vi.fn().mockResolvedValue(undefined)
         const user = {
             username: 'existinguser',
             email: 'test@test.com',
@@ -489,7 +491,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
     })
 
     it('closes drawer after successful save', async () => {
-        const onClose = jest.fn()
+        const onClose = vi.fn()
         const user = {
             username: 'existinguser',
             email: 'test@test.com',
@@ -528,7 +530,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             return Promise.resolve([])
         })
 
-        const onClose = jest.fn()
+        const onClose = vi.fn()
         await act(async () => {
             renderComponent({ isOpenFromParent: true, newUser: true, sid: undefined, onClose })
         })
@@ -542,7 +544,6 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
     })
 
     it('handles fetchRootRepositoryRoles error gracefully', async () => {
-        const { notification } = jest.requireMock('antd')
         const user = {
             username: 'testuser',
             email: 'test@test.com',
@@ -670,7 +671,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             return Promise.resolve([])
         })
 
-        const onClose = jest.fn()
+        const onClose = vi.fn()
         await act(async () => {
             renderComponent({ isOpenFromParent: true, group, newUser: undefined, onClose })
         })
@@ -753,8 +754,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         }
 
         // Make the save succeed but a subsequent role save fail
-        const { runSequentialCollectErrors } = jest.requireMock('utils/async')
-        runSequentialCollectErrors.mockResolvedValueOnce([{ error: new Error('Role save fail') }])
+        vi.mocked(runSequentialCollectErrors).mockResolvedValueOnce([{ error: new Error('Role save fail') }])
 
         mockApiCall.mockImplementation((url: string) => {
             if (url === '/repos') return Promise.resolve([mockDesignRepo])
@@ -762,7 +762,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             return Promise.resolve([])
         })
 
-        const onClose = jest.fn()
+        const onClose = vi.fn()
         await act(async () => {
             renderComponent({ isOpenFromParent: true, user, sid: 'testuser', onClose })
         })

@@ -3,15 +3,15 @@ import { useWebSocket } from 'hooks/useWebSocket'
 import { webSocketService } from 'services/websocket'
 
 describe('useWebSocket', () => {
-    const connectSpy = jest.spyOn(webSocketService, 'connect')
-    const disconnectSpy = jest.spyOn(webSocketService, 'disconnect')
-    const subscribeSpy = jest.spyOn(webSocketService, 'subscribe')
-    const unsubscribeSpy = jest.spyOn(webSocketService, 'unsubscribe')
-    const sendSpy = jest.spyOn(webSocketService, 'send')
-    const getConnectionStatusSpy = jest.spyOn(webSocketService, 'getConnectionStatus')
+    const connectSpy = vi.spyOn(webSocketService, 'connect')
+    const disconnectSpy = vi.spyOn(webSocketService, 'disconnect')
+    const subscribeSpy = vi.spyOn(webSocketService, 'subscribe')
+    const unsubscribeSpy = vi.spyOn(webSocketService, 'unsubscribe')
+    const sendSpy = vi.spyOn(webSocketService, 'send')
+    const getConnectionStatusSpy = vi.spyOn(webSocketService, 'getConnectionStatus')
 
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         connectSpy.mockResolvedValue()
         getConnectionStatusSpy.mockReturnValue(false)
     })
@@ -27,7 +27,7 @@ describe('useWebSocket', () => {
 
     it('swallows autoConnect rejection and calls onError callback', async () => {
         const error = new Error('connect failed')
-        const onError = jest.fn()
+        const onError = vi.fn()
         connectSpy.mockRejectedValueOnce(error)
 
         renderHook(() => useWebSocket({ autoConnect: true, onError }))
@@ -52,7 +52,7 @@ describe('useWebSocket', () => {
         const { result } = renderHook(() => useWebSocket({ autoConnect: false }))
 
         act(() => {
-            result.current.subscribe('/topic/test', jest.fn(), 'sub-1')
+            result.current.subscribe('/topic/test', vi.fn(), 'sub-1')
         })
         expect(result.current.subscriptions).toEqual(['sub-1'])
 

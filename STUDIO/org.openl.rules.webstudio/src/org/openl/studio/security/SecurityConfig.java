@@ -41,6 +41,7 @@ public class SecurityConfig {
                         "/images/**",
                         "/javascript/**",
                         "/js/**",
+                        "/assets/**",
                         "/.well-known/**",
                         "/faces/jakarta.faces.resource/**",
                         "/faces/rfRes/**",

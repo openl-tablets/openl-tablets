@@ -2,18 +2,18 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { Form } from 'antd'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
     }),
 }))
 
-jest.mock('components', () => ({
+vi.mock('components', () => ({
     Select: ({ label, name, mode, options, ...rest }: any) => (
         <div data-testid={`select-${name}`}>
             <label>{label}</label>
@@ -30,8 +30,7 @@ jest.mock('components', () => ({
     ),
 }))
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { InitialUsers } = require('containers/security/InitialUsers')
+import { InitialUsers } from 'containers/security/InitialUsers'
 
 const userGroups = [
     { label: 'None', value: '' },

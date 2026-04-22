@@ -611,8 +611,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 destroyOnHidden
                 onClose={handleCloseDrawer}
                 open={isOpenFromParent || isOpen}
-                title={title}
                 size={800}
+                title={title}
                 extra={
                     <>
                         <Button key="back" onClick={handleCloseDrawer} style={{ marginRight: 20 }}>

@@ -3,13 +3,14 @@ import apiCall, {
     NotFoundError,
     isApiHttpError,
 } from 'services/apiCall'
+import * as storeModule from 'store'
 
-jest.mock('store', () => {
+vi.mock('store', () => {
     const appStoreState = {
-        setShowLogin: jest.fn(),
-        setShowForbidden: jest.fn(),
-        setShowNotFound: jest.fn(),
-        setShowServerError: jest.fn(),
+        setShowLogin: vi.fn(),
+        setShowForbidden: vi.fn(),
+        setShowNotFound: vi.fn(),
+        setShowServerError: vi.fn(),
     }
     return {
         __appStoreState: appStoreState,
@@ -19,25 +20,25 @@ jest.mock('store', () => {
     }
 })
 
-jest.mock('services/config', () => ({
+vi.mock('services/config', () => ({
     __esModule: true,
     default: { CONTEXT: '/ctx' },
 }))
 
-jest.mock('antd', () => ({
+vi.mock('antd', () => ({
     notification: {
-        error: jest.fn(),
-        warning: jest.fn(),
-        success: jest.fn(),
+        error: vi.fn(),
+        warning: vi.fn(),
+        success: vi.fn(),
     },
 }))
 
 describe('apiCall', () => {
-    const fetchMock = jest.fn()
-    const { __appStoreState } = require('store')
+    const fetchMock = vi.fn()
+    const { __appStoreState } = storeModule as unknown as { __appStoreState: Record<string, ReturnType<typeof vi.fn>> }
 
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         ;(global as any).fetch = fetchMock
     })
 
@@ -57,8 +58,8 @@ describe('apiCall', () => {
             headers: {
                 get: (name: string) => (name === 'Content-Type' ? contentType : null),
             },
-            json: jest.fn().mockResolvedValue(jsonData),
-            text: jest.fn().mockResolvedValue(textData),
+            json: vi.fn().mockResolvedValue(jsonData),
+            text: vi.fn().mockResolvedValue(textData),
         }) as unknown as Response
 
     it('throws ApiHttpError with status and payload for 500 JSON errors', async () => {
