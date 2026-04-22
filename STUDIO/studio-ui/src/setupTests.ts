@@ -8,8 +8,13 @@ import { TextEncoder, TextDecoder } from 'util'
 
 
 failOnConsole({
-    shouldFailOnWarn: false,
-    silenceMessage: (message) => {
+    // shouldFailOnWarn stays on so jest-fail-on-console wraps `console.warn`; the
+    // `silenceMessage` branch below drops every warn (no failure, no console noise).
+    // With shouldFailOnWarn: false the wrapper is skipped entirely and silenceMessage
+    // is never invoked for warns, so they would leak through to the real console.
+    silenceMessage: (message, methodName) => {
+        // ignore warnings
+        if (methodName === 'warn') return true
         // Ant Design deprecation warnings: "Warning: [antd: <Component>] `<prop>`
         // is deprecated. Please use `<other>` instead."
         // Character classes exclude their own terminator plus `\r\n` (tightens the
