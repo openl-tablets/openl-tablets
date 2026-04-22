@@ -391,7 +391,13 @@ describe('ConflictResolutionStep', () => {
                     true
                 )
             })
-            expect(props.onResolveSuccess).toHaveBeenCalled()
+            // onResolveSuccess fires AFTER `await apiCall(...)` resolves inside
+            // handleSave — the mockApiCall assertion above passes at call time,
+            // which is one microtask earlier than the success callback. Wait for
+            // the callback itself to avoid a timing race.
+            await waitFor(() => {
+                expect(props.onResolveSuccess).toHaveBeenCalled()
+            })
         })
 
         it('sends FormData with resolution entries', async () => {

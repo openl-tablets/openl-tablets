@@ -84,12 +84,12 @@ jest.mock('containers/users/UserDatailsTab', () => {
     return {
         UserDetailsTab: () => (
             <div data-testid="user-details-tab">
-                <Form.Item name="username"><input /></Form.Item>
-                <Form.Item name="email"><input /></Form.Item>
-                <Form.Item name="firstName"><input /></Form.Item>
-                <Form.Item name="lastName"><input /></Form.Item>
-                <Form.Item name="displayName"><input /></Form.Item>
-                <Form.Item name="password"><input /></Form.Item>
+                <Form.Item name="username"><input data-testid="input-username" /></Form.Item>
+                <Form.Item name="email"><input data-testid="input-email" /></Form.Item>
+                <Form.Item name="firstName"><input data-testid="input-firstName" /></Form.Item>
+                <Form.Item name="lastName"><input data-testid="input-lastName" /></Form.Item>
+                <Form.Item name="displayName"><input data-testid="input-displayName" /></Form.Item>
+                <Form.Item name="password"><input data-testid="input-password" /></Form.Item>
             </div>
         ),
     }
@@ -808,5 +808,63 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/users/testuser', expect.objectContaining({ method: 'PUT' }))
         })
+    })
+
+    it('preserves typed entity field value while ACL endpoints are still in flight', async () => {
+        // Regression for the case where async ACL responses (/acls/repositories,
+        // /acls/projects, /acls/repositories/roots) re-trigger the initialValues
+        // memo and a blanket form.setFieldsValue(...) wipes out what the user
+        // just typed into an entity field.
+        const user = {
+            username: 'testuser',
+            email: 'original@test.com',
+            firstName: 'Original',
+            lastName: 'Last',
+            displayName: 'Original Last',
+            userGroups: [],
+        }
+
+        // Hold the ACL responses until the test chooses to resolve them.
+        let resolveReposRoles: (value: unknown) => void = () => undefined
+        let resolveProjectRoles: (value: unknown) => void = () => undefined
+        let resolveRootRoles: (value: unknown) => void = () => undefined
+        const reposRolesDeferred = new Promise((resolve) => { resolveReposRoles = resolve })
+        const projectRolesDeferred = new Promise((resolve) => { resolveProjectRoles = resolve })
+        const rootRolesDeferred = new Promise((resolve) => { resolveRootRoles = resolve })
+
+        mockApiCall.mockImplementation((url: string) => {
+            if (url === '/repos') return Promise.resolve([mockDesignRepo])
+            if (url.includes('/acls/repositories?sid=')) return reposRolesDeferred
+            if (url.includes('/acls/projects?sid=')) return projectRolesDeferred
+            if (url.includes('/acls/repositories/roots?sid=')) return rootRolesDeferred
+            return Promise.resolve([])
+        })
+
+        await act(async () => {
+            renderComponent({ isOpenFromParent: true, user, sid: 'testuser' })
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('user-details-tab')).toBeInTheDocument()
+        })
+
+        // Type into firstName while ACL endpoints are still pending.
+        const firstNameInput = screen.getByTestId('input-firstName') as HTMLInputElement
+        await userEvent.clear(firstNameInput)
+        await userEvent.type(firstNameInput, 'EditedName')
+        expect(firstNameInput.value).toBe('EditedName')
+
+        // Now resolve all ACL responses — previously this would re-seed the whole
+        // form via setFieldsValue and overwrite the typed value.
+        await act(async () => {
+            resolveReposRoles([])
+            resolveProjectRoles([])
+            resolveRootRoles([])
+            await reposRolesDeferred
+            await projectRolesDeferred
+            await rootRolesDeferred
+        })
+
+        expect((screen.getByTestId('input-firstName') as HTMLInputElement).value).toBe('EditedName')
     })
 })
