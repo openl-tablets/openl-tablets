@@ -38,6 +38,11 @@ const getEmailInput = () => screen.getByRole('textbox', { name: 'merge:commit_in
 const getSaveButton = () => screen.getByRole('button', { name: 'merge:buttons.save' })
 
 describe('CommitInfoModal', () => {
+    // delay: null skips inter-keystroke setTimeout(0) hops — AntD Form's async email
+    // validator + React's MessageChannel-polyfilled scheduler otherwise make each
+    // character cost several macrotasks, pushing typing-heavy cases past 5s on CI.
+    const user = userEvent.setup({ delay: null })
+
     beforeEach(() => {
         vi.clearAllMocks()
     })
@@ -121,10 +126,10 @@ describe('CommitInfoModal', () => {
 
         const { props } = await renderModal()
 
-        await userEvent.type(getDisplayNameInput(), 'Jane Doe')
-        await userEvent.type(getEmailInput(), 'jane@example.com')
+        await user.type(getDisplayNameInput(), 'Jane Doe')
+        await user.type(getEmailInput(), 'jane@example.com')
 
-        await userEvent.click(getSaveButton())
+        await user.click(getSaveButton())
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -150,10 +155,10 @@ describe('CommitInfoModal', () => {
 
         await renderModal()
 
-        await userEvent.type(getDisplayNameInput(), 'Jane')
-        await userEvent.type(getEmailInput(), 'jane@example.com')
+        await user.type(getDisplayNameInput(), 'Jane')
+        await user.type(getEmailInput(), 'jane@example.com')
 
-        await userEvent.click(getSaveButton())
+        await user.click(getSaveButton())
 
         await waitFor(() => {
             expect(screen.getByText('Save failed')).toBeInTheDocument()
@@ -167,10 +172,10 @@ describe('CommitInfoModal', () => {
 
         await renderModal()
 
-        await userEvent.type(getDisplayNameInput(), 'Jane')
-        await userEvent.type(getEmailInput(), 'jane@example.com')
+        await user.type(getDisplayNameInput(), 'Jane')
+        await user.type(getEmailInput(), 'jane@example.com')
 
-        await userEvent.click(getSaveButton())
+        await user.click(getSaveButton())
 
         await waitFor(() => {
             expect(screen.getByText('merge:errors.commit_info_failed')).toBeInTheDocument()
@@ -187,7 +192,7 @@ describe('CommitInfoModal', () => {
             .getAllByRole('button')
             .find(button => button !== saveButton && button.getAttribute('aria-label') !== 'Close')
         expect(cancelButton).toBeDefined()
-        await userEvent.click(cancelButton as HTMLElement)
+        await user.click(cancelButton as HTMLElement)
 
         expect(props.onCancel).toHaveBeenCalled()
     })
@@ -212,7 +217,7 @@ describe('CommitInfoModal', () => {
 
         const { props } = await renderModal()
 
-        await userEvent.click(getSaveButton())
+        await user.click(getSaveButton())
 
         // Only the load call should have been made, not a save call
         expect(mockApiCall).toHaveBeenCalledTimes(1)
