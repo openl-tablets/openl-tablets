@@ -1,10 +1,10 @@
 package org.openl.rules.tbasic.compile;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@Builder
 class ConversionRuleStep {
 
     private String operationType;

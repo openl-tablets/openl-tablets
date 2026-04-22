@@ -147,11 +147,11 @@ public class AlgoritmNodesCompiler {
         RuntimeOperation operation = null;
 
         if (content.getValue() != null && !content.getValue().trim().isEmpty()) {
-            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform",
-                    param,
-                    null,
-                    null,
-                    fieldName + " execution");
+            ConversionRuleStep conversionStep = ConversionRuleStep.builder()
+                    .operationType("Perform")
+                    .operationParam1(param)
+                    .nameForDebug(fieldName + " execution")
+                    .build();
             operation = operationFactory.createOperation(nodesToCompile, conversionStep, bindingContext);
         }
 
