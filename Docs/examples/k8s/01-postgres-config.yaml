@@ -1,0 +1,127 @@
+# 01-postgres.yaml — PostgreSQL instance for OpenL Studio (multi-user mode)
+#
+# Apply this file FIRST:
+#   kubectl apply -f 01-postgres-config.yaml
+#   kubectl apply -f 02-openl-studio.yaml
+#
+# The Secret defined here is referenced by both this file and openl-studio.yaml.
+# In production, replace plain-text values with an external secrets manager
+# (e.g., Vault, External Secrets Operator, Sealed Secrets).
+
+---
+# Credentials shared between PostgreSQL and OpenL Studio.
+# Both Deployments reference this Secret by name ("openl-db-credentials").
+# stringData values are base64-encoded automatically by Kubernetes.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openl-db-credentials
+type: Opaque
+stringData:
+  db-name: openl
+  db-user: openl
+  db-password: openl_secret
+
+---
+# PVC for the PostgreSQL data directory.
+# ReadWriteOnce is sufficient — only the single Postgres pod writes here.
+# Adjust storage size based on the expected number of users and audit history.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            # Pull credentials from the Secret — avoids embedding sensitive values
+            # in the Deployment manifest and allows credential rotation without
+            # redeploying the application.
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: openl-db-credentials
+                  key: db-name
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: openl-db-credentials
+                  key: db-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-db-credentials
+                  key: db-password
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # pg_isready exits 0 when the server is ready to accept connections.
+          # -U $POSTGRES_USER is required — without it pg_isready defaults to the
+          # OS user running the exec probe (root), which doesn't exist as a PG role.
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+
+---
+# ClusterIP — Postgres is only reachable within the cluster.
+# OpenL Studio connects using "postgres" as the hostname, which resolves via
+# K8s DNS to this Service (format: <service-name>.<namespace>.svc.cluster.local).
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

@@ -1,0 +1,222 @@
+# 02-openl-studio.yaml — OpenL Studio v6.0.0 (multi-user, PostgreSQL-backed)
+#
+# Prerequisites: apply 01-postgres.yaml first so the Secret and DB are ready.
+#
+# Apply order:
+#   kubectl apply -f 01-postgres-config.yaml
+#   kubectl apply -f 02-openl-studio.yaml
+#
+# Tested with Rancher Desktop on macOS — Studio becomes available at http://localhost:8080.
+# On a cloud cluster the LoadBalancer Service gets an external IP automatically.
+
+---
+# PVC for OpenL Studio local workspace (project metadata, per-instance data).
+# Maps to OPENL_HOME (/opt/openl/local) inside the container.
+# ReadWriteOnce is safe here because only one Studio pod runs at a time.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openl-local-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# PVC for the shared workspace (rule projects visible to all users).
+# Maps to OPENL_HOME_SHARED (/opt/openl/shared) inside the container.
+# Increase storage based on the size and number of rule projects.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openl-shared-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openl-studio
+  labels:
+    app: openl-studio
+spec:
+  # Must be exactly 1. OpenL Studio stores session state in Jetty's in-memory
+  # session store. Running multiple replicas without a distributed session backend
+  # causes random authentication failures and data corruption.
+  replicas: 1
+  # Recreate ensures the old pod is fully terminated before the new one starts.
+  # This prevents "Multi-Attach" errors on ReadWriteOnce PVCs and avoids two
+  # processes writing to /opt/openl/local or /opt/openl/shared simultaneously.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: openl-studio
+  template:
+    metadata:
+      labels:
+        app: openl-studio
+    spec:
+      # Pod-level security context — applies to all containers in the pod.
+      # runAsUser/runAsGroup 1000 matches the "openl" system user created in
+      # the Docker image (see Dockerfile: adduser -u 1000 openl).
+      # fsGroup 1000 causes Kubernetes to chown PVC mount points so that
+      # the non-root "openl" user can read and write persisted data.
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        runAsNonRoot: true
+
+      initContainers:
+        # Downloads the PostgreSQL JDBC driver before the main container starts.
+        # The jar is placed in the "jdbc-volume" emptyDir shared with the main container.
+        # Jetty picks it up via --lib=/opt/openl/lib/*.jar (configured in start.sh).
+        #
+        # NOTE: the init container requires outbound HTTPS to jdbc.postgresql.org.
+        # In air-gapped clusters, host the jar in an internal registry and update
+        # the URL below. To upgrade the driver, change the version in the URL.
+        - name: download-jdbc
+          image: busybox:stable
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Downloading PostgreSQL JDBC driver..."
+              wget -q -O /jdbc/jdbc.jar \
+                https://jdbc.postgresql.org/download/postgresql-42.7.3.jar
+              echo "Done: $(ls -lh /jdbc/jdbc.jar)"
+          volumeMounts:
+            - name: jdbc-volume
+              mountPath: /jdbc
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+
+      containers:
+        - name: openl-studio
+          image: openltablets/webstudio:6.0.0
+          ports:
+            - containerPort: 8080
+          env:
+            # Application properties are set via environment variables using Spring Boot's
+            # relaxed binding: dots become underscores and names are uppercased.
+            # Example: user.mode -> USER_MODE, db.url -> DB_URL
+            #
+            # JAVA_OPTS is intentionally NOT overridden here. The Docker image default
+            # (-Xms32m -XX:MaxRAMPercentage=90.0) is correct for containerized use —
+            # the JVM heap grows up to 90% of the K8s memory limit set below.
+
+            # Enable multi-user mode: user accounts and groups are stored in PostgreSQL.
+            - name: USER_MODE
+              value: "multi"
+
+            - name: SECURITY_ADMINISTRATORS
+              value: "admin" # Comma-separated list of initial admin users (e.g. "admin,alice,bob")
+
+            # JDBC URL for the PostgreSQL Service.
+            # "postgres" is resolved by K8s DNS to the ClusterIP Service defined
+            # in 01-postgres.yaml (no hardcoded IP needed).
+            - name: DB_URL
+              value: "jdbc:postgresql://postgres:5432/openl"
+
+            # DB credentials from the shared Secret in 01-postgres.yaml.
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: openl-db-credentials
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-db-credentials
+                  key: db-password
+
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              # Raise the memory limit for large or complex rule sets.
+              # The JVM heap adjusts automatically via -XX:MaxRAMPercentage=90.0.
+              cpu: "1"
+              memory: 2Gi
+
+          # Allow extra time for JVM startup and Jetty WAR deployment before
+          # the liveness probe starts checking.
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 4
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # Container-level hardening — complements the pod-level securityContext.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            # JDBC driver: subPath mounts only this single jar into /opt/openl/lib/
+            # without replacing the rest of the directory or conflicting with other libs.
+            - name: jdbc-volume
+              mountPath: /opt/openl/lib/jdbc.jar
+              subPath: jdbc.jar
+
+            # Local workspace — persists project metadata and instance-specific data.
+            # Corresponds to the OPENL_HOME environment variable in the Docker image.
+            - name: local-volume
+              mountPath: /opt/openl/local
+
+            # Shared workspace — persists rule projects accessible to all users.
+            # Corresponds to the OPENL_HOME_SHARED environment variable in the Docker image.
+            - name: shared-volume
+              mountPath: /opt/openl/shared
+
+      volumes:
+        # Temporary shared volume between the init container (write) and the main
+        # container (read). Lifecycle is tied to the pod — no data persisted here.
+        - name: jdbc-volume
+          emptyDir: {}
+        - name: local-volume
+          persistentVolumeClaim:
+            claimName: openl-local-pvc
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: openl-shared-pvc
+
+---
+# Exposes Studio on port 8080.
+# LoadBalancer type:
+#   - Rancher Desktop (macOS): Traefik assigns localhost:8080 automatically.
+#   - Cloud cluster: the cloud provider assigns an external IP.
+# For Ingress-based routing (TLS termination, custom domain), change type to
+# ClusterIP and add a separate Ingress resource pointing to this Service.
+apiVersion: v1
+kind: Service
+metadata:
+  name: openl-studio
+spec:
+  type: LoadBalancer
+  selector:
+    app: openl-studio
+  ports:
+    - port: 8080
+      targetPort: 8080
