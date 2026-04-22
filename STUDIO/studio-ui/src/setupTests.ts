@@ -16,8 +16,8 @@ failOnConsole({
         // land without waiting on the rebuild.
         /EditUserGroupDetailsWithAccessRights\.test\.tsx$/.test(testPath),
     silenceMessage: (message) => {
-        // React 18-style dev warnings — prefixed "Warning:".
-        if (message.startsWith('Warning:')) return true
+        // Matches Ant Design deprecation warnings, capturing any component, deprecated prop, and its suggested replacement.
+        if (/^Warning:\s*\[antd:\s*[^\]]+]\s*`[^`]+`\s*is deprecated\.\s*Please use\s*`[^`]+`\s*instead\.?$/.test(message)) return true
         // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
         // console.error whenever `window.location.reload()` / href assignment is
         // reached (e.g. Security.tsx save flow). Location is non-configurable in
