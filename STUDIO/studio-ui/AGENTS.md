@@ -79,15 +79,31 @@ Maven: `mvn clean install` runs `npm install` + `npm run build` + `npm run test`
 Tests live in `test/` (not co-located). Run all with `npm test`, or a specific file with `npm test -- <path>`.
 
 - Mock `services` module for API calls, `react-i18next` for translations
-- `setupTests.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia` for jsdom — but the `MessageChannel` polyfill is a no-op stub, which breaks `Form.useWatch` value propagation
-- **`Form.useWatch` does not work in tests** — the Ant Design form state synchronization relies on `MessageChannel` internally, and the jsdom polyfill does not deliver messages. Do not use `Form.useWatch` to drive component logic that needs testing. Instead, use local `useState` set from the field's `onChange` callback, and mock `components/form` in the test to render a native `<select>`/`<input>` that triggers the same `onChange` prop
-- When component state is updated from async callbacks (e.g., API results inside `onChange`), wrap the triggering interaction in `act()` so React flushes the state updates
+- `setupTests.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia` for jsdom. The `MessageChannel` polyfill delivers messages via `setTimeout(0)` — required for React's scheduler to commit async-scheduled state updates
+- **Fixing "current testing environment is not configured to support act(...)"**: this warning fires when a component's async callback chain schedules a `setState` after an outer `act(async () => { await userEvent.click(...) })` wrapper has already closed — the late update lands outside any active act scope. The fix is to **remove** the outer `act` wrapper. `userEvent` already wraps clicks in act internally, and the following `waitFor(...)` retries each run inside their own act scope, catching detached promise-tail updates. Example:
+
+    ```tsx
+    // ❌ wrong — outer act closes before the async onFinish chain reaches setState
+    await act(async () => {
+        await userEvent.click(screen.getByText('Save'))
+    })
+    await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(...))
+
+    // ✅ right — userEvent's internal act covers the sync part,
+    // waitFor's retries cover the detached async tail
+    await userEvent.click(screen.getByText('Save'))
+    await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(...))
+    ```
+
+    For the initial `render()` it's still fine to wrap in `await act(async () => { render(...) })` so mount-time effects flush before the first assertion — the issue is only with wrapping `userEvent` interactions.
 - **Ant Design Modal in jsdom**: Modal uses CSS animations (`ant-zoom-appear`) that prevent body content from rendering synchronously. Wrap the initial `render()` in `await act(async () => { ... })` to flush async effects (e.g., API loads in `useEffect`), or use `waitFor` to wait for content to appear
 - **Per-test store overrides**: Use `jest.spyOn(storeModule, 'useUserStore').mockReturnValue(...)` with `mockRestore()` in a `finally` block. Do not mutate module exports directly — if the test throws before restoration, leaked state breaks subsequent tests
 - **Avoid hardcoded Ant Design default labels** (e.g., "OK", "Cancel") in assertions — they depend on AntD locale config. Select buttons by excluding known buttons (save, close) or by setting explicit `okText`/`cancelText` props
 - **Mock child components** to capture props via `jest.fn()` when testing a parent orchestrator (e.g., MergeModal). Use a `getLatestProps` helper that reads the last mock call — earlier calls may have stale closures after React re-renders
 - **Ant Design `Table` causes infinite `act()` loops in jsdom**: Components that render `Table`, `Descriptions`, or other heavy AntD components with async `useEffect` data loading will hang during `act()`. Mock `antd` entirely with simple HTML equivalents (`<table>`, `<dl>`, `<button>`, etc.) and flush async effects via `await act(async () => { render(...); await new Promise(r => setTimeout(r, 50)) })`. See `ConflictResolutionStep.test.tsx` for the full mock pattern
 - **Stable `react-i18next` mock**: Define the `t` function once inside the `jest.mock` factory, not inline in the return. A new `t` reference each render causes infinite `useCallback`/`useEffect` loops when `t` is in a dependency array
+- **Do not spy on or mock `console.*` in tests.** `jest-fail-on-console` is wired into `setupTests.ts` and fails any test that logs `console.error`. If a test trips it, fix the source — remove redundant logging or demote to `console.warn` (which does not fail tests per `shouldFailOnWarn: false`). Per-test `jest.spyOn(console, 'error').mockImplementation(...)` is forbidden; it hides real regressions and interacts poorly with `jest-fail-on-console`'s per-test re-wrap
+- **Do not edit `failOnConsole` options in `setupTests.ts`.** Don't add new `silenceMessage` patterns, `skipTest` entries, or widen the existing ones to make a failing test pass. The existing silences are reserved for jsdom/framework limitations that have no source-level fix (e.g., `Not implemented: navigation`, rc-form's orphan `useForm` warning). Any other noise must be fixed at the source
 
 ## Quality Rules
 
@@ -96,6 +112,7 @@ Tests live in `test/` (not co-located). Run all with `npm test`, or a specific f
 - Add translations from day one — no hardcoded strings
 - Prefer Zustand selectors over full store subscriptions
 - Unsubscribe WebSocket listeners or use `cleanupWebSocket` to prevent duplicates
+- **Do not call `console.error` from components, hooks, or services.** Propagate errors via callbacks, thrown exceptions, or explicit state so callers (error boundaries, `notification.error`, future global logger) decide how to surface them. `console.warn` is allowed for transient recoverable signals (reconnect attempts, queued work, disconnected sends) — `jest-fail-on-console` is configured with `shouldFailOnWarn: false` so warnings stay visible without breaking CI
 - Use current Ant Design API — avoid deprecated props:
   - `Spin`: use `description` instead of `tip`
   - `Modal`: use `destroyOnHidden` instead of `destroyOnClose`, `mask={{ closable }}` instead of `maskClosable`
