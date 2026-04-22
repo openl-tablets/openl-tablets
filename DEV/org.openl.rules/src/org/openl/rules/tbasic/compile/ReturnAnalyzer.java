@@ -6,7 +6,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
-import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
@@ -130,7 +129,7 @@ public class ReturnAnalyzer {
 
     private boolean canBeGrouped(AlgorithmTreeNode nodeToAnalyze) {
         String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
-        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance()
+        String[] operationNamesToGroup = AlgorithmCompilerTool
                 .whatOperationsToGroup(currentNodeKeyword);
         return operationNamesToGroup != null;
     }
