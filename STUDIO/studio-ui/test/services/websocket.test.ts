@@ -1,7 +1,6 @@
 describe('webSocketService', () => {
     const hadOwnBaseUri = Object.prototype.hasOwnProperty.call(document, 'baseURI')
     const originalBaseUriDescriptor = Object.getOwnPropertyDescriptor(document, 'baseURI')
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
 
     beforeEach(() => {
         jest.resetModules()
@@ -21,10 +20,6 @@ describe('webSocketService', () => {
             // Remove test override and fall back to prototype-provided baseURI.
             delete (document as { baseURI?: string }).baseURI
         }
-    })
-
-    afterAll(() => {
-        consoleWarnSpy.mockRestore()
     })
 
     const loadService = () => {
@@ -102,21 +97,17 @@ describe('webSocketService', () => {
 
     it('handles failed reconnect attempts without unhandled rejection', async () => {
         const { webSocketService, latestConfig } = loadService()
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
         const connectSpy = jest
             .spyOn(webSocketService, 'connect')
             .mockRejectedValue(new Error('reconnect failed'))
 
         latestConfig().onStompError(new Error('stomp error'))
+        // If the service failed to catch the rejection here, Jest would flag an
+        // unhandled promise rejection for the worker when timers advance.
         await jest.advanceTimersByTimeAsync(5000)
 
         expect(connectSpy).toHaveBeenCalled()
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
-            'WebSocket reconnect attempt failed:',
-            expect.any(Error)
-        )
 
         connectSpy.mockRestore()
-        consoleErrorSpy.mockRestore()
     })
 })

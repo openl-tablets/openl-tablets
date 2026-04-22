@@ -77,18 +77,18 @@ class WebSocketService {
     }
 
     private onError(error: any) {
-        console.error('WebSocket Error:', error)
+        console.warn('WebSocket Error:', error)
         this.isConnected = false
 
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++
             setTimeout(() => {
                 this.connect().catch((connectError) => {
-                    console.error('WebSocket reconnect attempt failed:', connectError)
+                    console.warn('WebSocket reconnect attempt failed:', connectError)
                 })
             }, this.reconnectDelay * this.reconnectAttempts)
         } else {
-            console.error('Max reconnection attempts reached')
+            console.warn('Max reconnection attempts reached')
         }
     }
 
@@ -185,7 +185,7 @@ class WebSocketService {
 
     public send(destination: string, body: string, headers?: { [key: string]: string }) {
         if (!this.client || !this.isConnected) {
-            console.error('WebSocket not connected, cannot send message')
+            console.warn('WebSocket not connected, cannot send message')
             return
         }
 
