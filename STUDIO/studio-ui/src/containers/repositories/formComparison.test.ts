@@ -1,4 +1,4 @@
-/// <reference types="jest" />
+/// <reference types="vitest/globals" />
 import { isFormValuesEqual, SENSITIVE_EMPTY_FIELDS } from 'containers/repositories/formComparison'
 
 describe('isFormValuesEqual', () => {
@@ -122,41 +122,41 @@ describe('isFormValuesEqual', () => {
     })
 
     it('treats distinct arrays with the same elements as equal', () => {
-        expect(isFormValuesEqual({ tags: ['a', 'b'] }, { tags: ['a', 'b'] })).toBe(true)
+        expect(isFormValuesEqual({ tags: ['a', 'b']}, { tags: ['a', 'b']})).toBe(true)
     })
 
     it('treats arrays with different elements as NOT equal', () => {
-        expect(isFormValuesEqual({ tags: ['a', 'b'] }, { tags: ['a', 'c'] })).toBe(false)
+        expect(isFormValuesEqual({ tags: ['a', 'b']}, { tags: ['a', 'c']})).toBe(false)
     })
 
     it('treats arrays with different lengths as NOT equal', () => {
-        expect(isFormValuesEqual({ tags: ['a', 'b'] }, { tags: ['a'] })).toBe(false)
+        expect(isFormValuesEqual({ tags: ['a', 'b']}, { tags: ['a']})).toBe(false)
     })
 
     it('treats array and non-array as NOT equal', () => {
-        expect(isFormValuesEqual({ tags: ['a'] }, { tags: 'a' })).toBe(false)
+        expect(isFormValuesEqual({ tags: ['a']}, { tags: 'a' })).toBe(false)
     })
 
     it('treats empty arrays as equal', () => {
-        expect(isFormValuesEqual({ tags: [] }, { tags: [] })).toBe(true)
+        expect(isFormValuesEqual({ tags: []}, { tags: []})).toBe(true)
     })
 
     it('compares nested arrays recursively', () => {
-        expect(isFormValuesEqual({ items: [['a'], ['b']] }, { items: [['a'], ['b']] })).toBe(true)
-        expect(isFormValuesEqual({ items: [['a'], ['b']] }, { items: [['a'], ['c']] })).toBe(false)
+        expect(isFormValuesEqual({ items: [['a'], ['b']]}, { items: [['a'], ['b']]})).toBe(true)
+        expect(isFormValuesEqual({ items: [['a'], ['b']]}, { items: [['a'], ['c']]})).toBe(false)
     })
 
     it('compares arrays with nested objects', () => {
         expect(
             isFormValuesEqual(
-                { regions: [{ id: '1', description: 'US' }] },
-                { regions: [{ id: '1', description: 'US' }] }
+                { regions: [{ id: '1', description: 'US' }]},
+                { regions: [{ id: '1', description: 'US' }]}
             )
         ).toBe(true)
         expect(
             isFormValuesEqual(
-                { regions: [{ id: '1', description: 'US' }] },
-                { regions: [{ id: '1', description: 'EU' }] }
+                { regions: [{ id: '1', description: 'US' }]},
+                { regions: [{ id: '1', description: 'EU' }]}
             )
         ).toBe(false)
     })

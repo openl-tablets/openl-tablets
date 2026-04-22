@@ -35,6 +35,7 @@ public class StaticResourcesServlet extends HttpServlet {
         var path = req.getPathInfo();
         // Check if the request is for a static resource
         if (path.startsWith("/css/")
+                || path.startsWith("/assets/")
                 || path.startsWith("/js/")
                 || path.startsWith("/javascript/")
                 || path.startsWith("/images/")
@@ -51,11 +52,6 @@ public class StaticResourcesServlet extends HttpServlet {
 
         // Handling index.html for the React application
         var out = htmlTemplate.replace("base href=\"/", "base href=\"" + req.getContextPath() + "/");
-
-        var reactUiRoot = System.getenv("_REACT_UI_ROOT_");
-        if (reactUiRoot != null) {
-            out = out.replace("script src=\"js/", "script src=\"" + reactUiRoot + "/");
-        }
 
         resp.setContentType("text/html");
         resp.setCharacterEncoding("UTF-8");

@@ -1,30 +1,31 @@
 import traceService from 'services/traceService'
 import apiCall, { ApiHttpError } from 'services/apiCall'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services/apiCall', () => {
-    const actual = jest.requireActual('services/apiCall')
+vi.mock('services/apiCall', async () => {
+    const actual = await vi.importActual<typeof import('services/apiCall')>('services/apiCall')
     return {
         __esModule: true,
         ...actual,
-        default: jest.fn(),
+        default: vi.fn(),
     }
 })
 
-jest.mock('services/config', () => ({
+vi.mock('services/config', () => ({
     __esModule: true,
     default: { CONTEXT: '/ctx' },
 }))
 
 describe('traceService retry behavior', () => {
-    const mockApiCall = apiCall as jest.MockedFunction<typeof apiCall>
+    const mockApiCall = apiCall as MockedFunction<typeof apiCall>
 
     beforeEach(() => {
-        jest.clearAllMocks()
-        jest.useFakeTimers()
+        vi.clearAllMocks()
+        vi.useFakeTimers()
     })
 
     afterEach(() => {
-        jest.useRealTimers()
+        vi.useRealTimers()
     })
 
     it('retries transient ApiHttpError (503) and succeeds', async () => {
@@ -33,7 +34,7 @@ describe('traceService retry behavior', () => {
             .mockResolvedValueOnce([{ key: 1, title: 'root' }] as any)
 
         const promise = traceService.getNodeChildren('project-1')
-        await jest.advanceTimersByTimeAsync(600)
+        await vi.advanceTimersByTimeAsync(600)
         const result = await promise
 
         expect(result).toEqual([{ key: 1, title: 'root' }])

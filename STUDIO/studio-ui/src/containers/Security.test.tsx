@@ -1,14 +1,16 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Modal, notification } from 'antd'
 import * as services from 'services'
 import { SecurityUserMode } from 'constants/security'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', async () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
@@ -19,8 +21,8 @@ jest.mock('react-i18next', () => ({
 // Track the current mock value for Form.useWatch
 let mockUserMode: string | { value: string, readOnly: boolean } | undefined = undefined
 
-jest.mock('antd', () => {
-    const actual = jest.requireActual('antd')
+vi.mock('antd', async () => {
+    const actual = await vi.importActual('antd')
     return {
         ...actual,
         Form: {
@@ -31,18 +33,16 @@ jest.mock('antd', () => {
         },
         Modal: {
             ...actual.Modal,
-            confirm: jest.fn(),
+            confirm: vi.fn(),
         },
         notification: {
-            success: jest.fn(),
-            error: jest.fn(),
+            success: vi.fn(),
+            error: vi.fn(),
         },
     }
 })
 
-const { Modal } = jest.requireMock('antd')
-
-jest.mock('components/form', () => ({
+vi.mock('components/form', async () => ({
     Checkbox: ({ label, name }: any) => (
         <label>
             <input data-testid={`checkbox-${name}`} name={name} type="checkbox" />
@@ -62,37 +62,36 @@ jest.mock('components/form', () => ({
     ),
 }))
 
-jest.mock('containers/security/InitialUsers', () => ({
+vi.mock('containers/security/InitialUsers', async () => ({
     InitialUsers: ({ showDefaultGroup }: any) => (
-        <div data-testid="initial-users" data-show-default-group={String(showDefaultGroup)} />
+        <div data-show-default-group={String(showDefaultGroup)} data-testid="initial-users" />
     ),
 }))
 
-jest.mock('containers/security/ActiveDirectoryMode', () => ({
+vi.mock('containers/security/ActiveDirectoryMode', async () => ({
     ActiveDirectoryMode: () => <div data-testid="ad-mode" />,
 }))
 
-jest.mock('containers/security/SAMLMode', () => ({
+vi.mock('containers/security/SAMLMode', async () => ({
     SAMLMode: () => <div data-testid="saml-mode" />,
 }))
 
-jest.mock('containers/security/OAuth2Mode', () => ({
+vi.mock('containers/security/OAuth2Mode', async () => ({
     OAuth2Mode: () => <div data-testid="oauth2-mode" />,
 }))
 
-jest.mock('containers/security/SingleMode', () => ({
+vi.mock('containers/security/SingleMode', async () => ({
     SingleMode: () => <div data-testid="single-mode" />,
 }))
 
-jest.mock('components/modal/InfoFieldModal', () => ({
+vi.mock('components/modal/InfoFieldModal', async () => ({
     __esModule: true,
     default: () => <span data-testid="info-modal" />,
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Security } = require('containers/Security')
+import { Security } from 'containers/Security'
 
 const defaultSettings = {
     userMode: 'multi',
@@ -108,7 +107,7 @@ const defaultSettings = {
 
 describe('Security', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockUserMode = undefined
         mockApiCall.mockResolvedValue(defaultSettings)
     })
@@ -420,7 +419,6 @@ describe('Security', () => {
     })
 
     it('shows error notification on save failure', async () => {
-        const { notification } = jest.requireMock('antd')
         mockUserMode = SecurityUserMode.MULTI
 
         let saveCallCount = 0

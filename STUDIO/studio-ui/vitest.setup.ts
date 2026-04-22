@@ -2,9 +2,10 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom'
-import failOnConsole from 'jest-fail-on-console'
+import '@testing-library/jest-dom/vitest'
+import failOnConsole from 'vitest-fail-on-console'
 import { TextEncoder, TextDecoder } from 'util'
+import { vi } from 'vitest'
 
 
 failOnConsole({
@@ -33,6 +34,11 @@ failOnConsole({
         // reached (e.g. Security.tsx save flow). Location is non-configurable in
         // jsdom, so the call cannot be stubbed at the API layer.
         if (/Not implemented: navigation/.test(message)) return true
+        // jsdom's CSSOM parser rejects modern CSS (container queries, @layer,
+        // `:where`/`:is` with complex selectors) that Ant Design's CSS-in-JS emits
+        // into <style> tags at runtime. No source-level fix: the parse runs inside
+        // jsdom internals, not in component code.
+        if (/Could not parse CSS stylesheet/.test(message)) return true
         return false
     },
 })
@@ -72,23 +78,23 @@ if (typeof globalThis.MessageChannel === 'undefined') {
 
 // jsdom doesn't implement ResizeObserver (used by @rc-component/resize-observer via Ant Design)
 global.ResizeObserver = class ResizeObserver {
-    observe = jest.fn()
-    unobserve = jest.fn()
-    disconnect = jest.fn()
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
 }
 
 // jsdom doesn't implement matchMedia (used by Ant Design responsiveObserver)
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: jest.fn().mockImplementation((query: string) => ({
-        addListener: jest.fn(),
-        addEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
+    value: vi.fn().mockImplementation((query: string) => ({
+        addListener: vi.fn(),
+        addEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
         matches: false,
         media: query,
         onchange: null,
-        removeListener: jest.fn(),
-        removeEventListener: jest.fn(),
+        removeListener: vi.fn(),
+        removeEventListener: vi.fn(),
     })),
 })
 

@@ -4,13 +4,14 @@ import userEvent from '@testing-library/user-event'
 import { ConflictResolutionStep } from 'containers/MergeModal/ConflictResolutionStep'
 import * as services from 'services'
 import { ConflictDetails, ConflictGroup } from 'containers/MergeModal/types'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', () => ({
+    apiCall: vi.fn(),
     CONFIG: { CONTEXT: '' },
 }))
 
-jest.mock('react-i18next', () => {
+vi.mock('react-i18next', () => {
     const t = (key: string, params?: Record<string, string>) => {
         if (params) {
             return Object.entries(params).reduce(
@@ -27,14 +28,13 @@ jest.mock('react-i18next', () => {
 
 // Ant Design Table causes infinite update loops in jsdom during act() flushes.
 // Mock heavy components with simple HTML equivalents to avoid this.
-jest.mock('antd', () => {
-    const React = require('react')
+vi.mock('antd', () => {
     return {
         Space: ({ children }: any) => <div>{children}</div>,
         Button: ({ children, onClick, disabled, loading, icon, size, type: _, ...rest }: any) => (
-            <button onClick={onClick} disabled={disabled || loading}>{icon}{children}</button>
+            <button disabled={disabled || loading} onClick={onClick}>{icon}{children}</button>
         ),
-        Alert: ({ title, type }: any) => <div role="alert" data-type={type}>{title}</div>,
+        Alert: ({ title, type }: any) => <div data-type={type} role="alert">{title}</div>,
         Radio: Object.assign(
             ({ children, value, ...rest }: any) => (
                 <label>
@@ -45,9 +45,9 @@ jest.mock('antd', () => {
             {
                 Group: ({ children, onChange, value }: any) => (
                     <div
-                        role="radiogroup"
                         data-value={value}
                         onChange={(e: any) => onChange?.({ target: { value: e.target.value } })}
+                        role="radiogroup"
                     >
                         {children}
                     </div>
@@ -64,9 +64,9 @@ jest.mock('antd', () => {
             {
                 TextArea: ({ value, onChange, placeholder, autoSize, ...rest }: any) => (
                     <textarea
-                        value={value}
                         onChange={onChange}
                         placeholder={placeholder}
+                        value={value}
                     />
                 ),
             }
@@ -105,23 +105,22 @@ jest.mock('antd', () => {
         ),
         Spin: ({ children, size }: any) => <div data-testid="spin">{children}</div>,
         notification: {
-            success: jest.fn(),
-            warning: jest.fn(),
-            info: jest.fn(),
+            success: vi.fn(),
+            warning: vi.fn(),
+            info: vi.fn(),
         },
     }
 })
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
-const { notification } = require('antd')
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
 const conflictGroups: ConflictGroup[] = [
-    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx'] },
+    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx']},
 ]
 
 const multiFileGroups: ConflictGroup[] = [
-    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx', 'rules/Helper.xlsx'] },
-    { projectName: 'Project B', projectPath: 'projectB', files: ['config/Settings.xml'] },
+    { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx', 'rules/Helper.xlsx']},
+    { projectName: 'Project B', projectPath: 'projectB', files: ['config/Settings.xml']},
 ]
 
 const conflictDetails: ConflictDetails = {
@@ -153,9 +152,9 @@ const conflictDetails: ConflictDetails = {
 const defaultProps = () => ({
     projectId: 'proj-1',
     conflictGroups,
-    onResolveSuccess: jest.fn(),
-    onCancel: jest.fn(),
-    onCompare: jest.fn(),
+    onResolveSuccess: vi.fn(),
+    onCancel: vi.fn(),
+    onCompare: vi.fn(),
 })
 
 /**
@@ -174,7 +173,7 @@ const renderAndLoad = async (props = defaultProps(), details: ConflictDetails = 
 
 describe('ConflictResolutionStep', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
     })
 
     describe('loading state', () => {
@@ -313,7 +312,7 @@ describe('ConflictResolutionStep', () => {
         })
 
         it('opens download URL for OURS version', async () => {
-            const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+            const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
             try {
                 await renderAndLoad()
 
@@ -329,7 +328,7 @@ describe('ConflictResolutionStep', () => {
         })
 
         it('opens download URL for THEIRS version', async () => {
-            const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+            const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
             try {
                 await renderAndLoad()
 
@@ -345,7 +344,7 @@ describe('ConflictResolutionStep', () => {
         })
 
         it('opens download URL for BASE version', async () => {
-            const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+            const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
             try {
                 await renderAndLoad()
 

@@ -3,10 +3,11 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import { MergeModal } from 'containers/MergeModal/MergeModal'
 import * as services from 'services'
 import { MergeModalDetail } from 'containers/MergeModal/types'
+import type { MockedFunction, Mock } from 'vitest'
 
 // --- Mocks ---
 
-jest.mock('services', () => {
+vi.mock('services', () => {
     class MockNotFoundError extends Error {
         status = 404
         constructor(message = 'Not Found') {
@@ -15,16 +16,16 @@ jest.mock('services', () => {
         }
     }
     return {
-        apiCall: jest.fn(),
+        apiCall: vi.fn(),
         NotFoundError: MockNotFoundError,
     }
 })
 
-jest.mock('store', () => ({
+vi.mock('store', () => ({
     useUserStore: () => ({ userProfile: { username: 'testuser' } }),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string, params?: Record<string, string>) => {
             if (params?.projectName) return `${key}:${params.projectName}`
@@ -35,34 +36,34 @@ jest.mock('react-i18next', () => ({
 }))
 
 // Capture props passed to child components
-const mergeBranchesStepProps = jest.fn()
-const conflictResolutionStepProps = jest.fn()
+const mergeBranchesStepProps = vi.fn()
+const conflictResolutionStepProps = vi.fn()
 
-jest.mock('containers/MergeModal/MergeBranchesStep', () => ({
+vi.mock('containers/MergeModal/MergeBranchesStep', () => ({
     MergeBranchesStep: (props: any) => {
         mergeBranchesStepProps(props)
         return <div data-testid="merge-branches-step" />
     },
 }))
 
-jest.mock('containers/MergeModal/ConflictResolutionStep', () => ({
+vi.mock('containers/MergeModal/ConflictResolutionStep', () => ({
     ConflictResolutionStep: (props: any) => {
         conflictResolutionStepProps(props)
         return <div data-testid="conflict-resolution-step" />
     },
 }))
 
-jest.mock('containers/MergeModal/CommitInfoModal', () => ({
+vi.mock('containers/MergeModal/CommitInfoModal', () => ({
     CommitInfoModal: (props: any) => (
         <div
             data-testid="commit-info-modal"
-            data-visible={props.visible}
             data-username={props.username}
+            data-visible={props.visible}
         />
     ),
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const MockNotFoundError = (services as any).NotFoundError
 
 // --- Helpers ---
@@ -77,8 +78,8 @@ const createDetail = (overrides?: Partial<MergeModalDetail>): MergeModalDetail =
         { name: 'main', protected: false },
         { name: 'feature', protected: false },
     ],
-    onSuccess: jest.fn(),
-    onCompare: jest.fn(),
+    onSuccess: vi.fn(),
+    onCompare: vi.fn(),
     ...overrides,
 })
 
@@ -88,14 +89,14 @@ const dispatchOpenModal = async (detail: MergeModalDetail | null) => {
     })
 }
 
-const getLatestProps = (spy: jest.Mock) =>
+const getLatestProps = (spy: Mock) =>
     spy.mock.calls[spy.mock.calls.length - 1][0]
 
 // --- Tests ---
 
 describe('MergeModal', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         // Default: no existing conflicts (404)
         mockApiCall.mockRejectedValue(new MockNotFoundError())
     })
@@ -173,7 +174,7 @@ describe('MergeModal', () => {
     it('shows ConflictResolutionStep when existing conflicts found', async () => {
         mockApiCall.mockResolvedValue({
             conflictGroups: [
-                { projectName: 'MyProject', projectPath: 'test', files: ['Main.xlsx'] },
+                { projectName: 'MyProject', projectPath: 'test', files: ['Main.xlsx']},
             ],
         })
 
@@ -188,7 +189,7 @@ describe('MergeModal', () => {
 
     it('shows conflicts title when in conflict step', async () => {
         mockApiCall.mockResolvedValue({
-            conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
+            conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
         })
 
         render(<MergeModal />)
@@ -212,7 +213,7 @@ describe('MergeModal', () => {
     })
 
     it('stays on branches step when conflict check returns empty groups', async () => {
-        mockApiCall.mockResolvedValue({ conflictGroups: [] })
+        mockApiCall.mockResolvedValue({ conflictGroups: []})
 
         render(<MergeModal />)
         await dispatchOpenModal(createDetail())
@@ -246,7 +247,7 @@ describe('MergeModal', () => {
             act(() => {
                 onMergeConflicts({
                     status: 'conflicts',
-                    conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['a.xlsx'] }],
+                    conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['a.xlsx']}],
                 })
             })
 
@@ -291,7 +292,7 @@ describe('MergeModal', () => {
             })
 
             const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
-            const callback = jest.fn()
+            const callback = vi.fn()
             await act(async () => {
                 await onCheckCommitInfo(callback)
             })
@@ -312,7 +313,7 @@ describe('MergeModal', () => {
             })
 
             const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
-            const callback = jest.fn()
+            const callback = vi.fn()
             await act(async () => {
                 await onCheckCommitInfo(callback)
             })
@@ -334,7 +335,7 @@ describe('MergeModal', () => {
             })
 
             const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
-            const callback = jest.fn()
+            const callback = vi.fn()
             await act(async () => {
                 await onCheckCommitInfo(callback)
             })
@@ -344,10 +345,10 @@ describe('MergeModal', () => {
         })
 
         it('calls callback directly when no username in profile', async () => {
-            const storeModule = require('store')
-            const useUserStoreSpy = jest
+            const storeModule = await import('store')
+            const useUserStoreSpy = vi
                 .spyOn(storeModule, 'useUserStore')
-                .mockReturnValue({ userProfile: { username: null } })
+                .mockReturnValue({ userProfile: { username: null } } as ReturnType<typeof storeModule.useUserStore>)
             let unmount: (() => void) | undefined
             try {
                 mockApiCall.mockRejectedValue(new MockNotFoundError())
@@ -359,7 +360,7 @@ describe('MergeModal', () => {
                 })
 
                 const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
-                const callback = jest.fn()
+                const callback = vi.fn()
                 await act(async () => {
                     await onCheckCommitInfo(callback)
                 })
@@ -388,7 +389,7 @@ describe('MergeModal', () => {
     describe('conflict resolution callbacks', () => {
         const openWithConflicts = async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
             })
             const detail = createDetail()
             render(<MergeModal />)
@@ -442,7 +443,7 @@ describe('MergeModal', () => {
         it('resets to branches step when reopened without initialStep', async () => {
             // First open: go to conflicts
             mockApiCall.mockResolvedValueOnce({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f'] }],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
             })
 
             render(<MergeModal />)
@@ -471,7 +472,7 @@ describe('MergeModal', () => {
     describe('initialStep support (save merge conflicts)', () => {
         it('opens directly in conflicts step when initialStep is conflicts', async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx']}],
             })
 
             render(<MergeModal />)
@@ -485,7 +486,7 @@ describe('MergeModal', () => {
 
         it('shows conflicts title when opened with initialStep conflicts', async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx']}],
             })
 
             render(<MergeModal />)
@@ -510,7 +511,7 @@ describe('MergeModal', () => {
 
         it('passes conflict groups to ConflictResolutionStep when opened with initialStep', async () => {
             const conflictGroups = [
-                { projectName: 'MyProject', projectPath: 'test', files: ['Bank Rating.xlsx'] },
+                { projectName: 'MyProject', projectPath: 'test', files: ['Bank Rating.xlsx']},
             ]
             mockApiCall.mockResolvedValue({ conflictGroups })
 
@@ -528,11 +529,11 @@ describe('MergeModal', () => {
 
         it('opens with empty branches array for save conflicts', async () => {
             mockApiCall.mockResolvedValue({
-                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx'] }],
+                conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f.xlsx']}],
             })
 
             render(<MergeModal />)
-            await dispatchOpenModal(createDetail({ initialStep: 'conflicts', branches: [] }))
+            await dispatchOpenModal(createDetail({ initialStep: 'conflicts', branches: []}))
 
             await waitFor(() => {
                 expect(screen.getByTestId('conflict-resolution-step')).toBeInTheDocument()

@@ -3,25 +3,26 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CommitInfoModal } from 'containers/MergeModal/CommitInfoModal'
 import * as services from 'services'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
     }),
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
 const defaultProps = () => ({
     visible: true,
     username: 'testuser',
-    onSave: jest.fn(),
-    onCancel: jest.fn(),
+    onSave: vi.fn(),
+    onCancel: vi.fn(),
 })
 
 const renderModal = async (props = defaultProps()) => {
@@ -38,7 +39,7 @@ const getSaveButton = () => screen.getByRole('button', { name: 'merge:buttons.sa
 
 describe('CommitInfoModal', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
     })
 
     it('renders modal with title and form fields', async () => {

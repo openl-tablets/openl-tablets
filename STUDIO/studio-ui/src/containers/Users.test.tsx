@@ -1,16 +1,18 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Modal } from 'antd'
 import * as services from 'services'
 import { SystemContext } from 'contexts/SystemContext'
 import { GroupsContext } from 'contexts/GroupsContext'
 import { UserGroupType } from 'constants/users'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', async () => ({
+    apiCall: vi.fn(),
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
@@ -18,41 +20,40 @@ jest.mock('react-i18next', () => ({
     Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
 }))
 
-jest.mock('antd', () => {
-    const actual = jest.requireActual('antd')
+vi.mock('antd', async () => {
+    const actual = await vi.importActual('antd')
     return {
         ...actual,
         Modal: {
             ...actual.Modal,
-            confirm: jest.fn(),
+            confirm: vi.fn(),
         },
         notification: {
-            success: jest.fn(),
-            error: jest.fn(),
+            success: vi.fn(),
+            error: vi.fn(),
         },
     }
 })
 
-jest.mock('containers/EditUserGroupDetailsWithAccessRights', () => ({
+vi.mock('containers/EditUserGroupDetailsWithAccessRights', async () => ({
     EditUserGroupDetailsWithAccessRights: (props: any) => (
-        <div data-testid="edit-drawer" data-open={props.isOpenFromParent} data-sid={props.sid} />
+        <div data-open={props.isOpenFromParent} data-sid={props.sid} data-testid="edit-drawer" />
     ),
 }))
 
-jest.mock('components/DefaultGroupInfo', () => ({
+vi.mock('components/DefaultGroupInfo', async () => ({
     DefaultGroupInfo: () => <div data-testid="default-group-info" />,
 }))
 
-jest.mock('containers/users/RenderGroupCell', () => ({
+vi.mock('containers/users/RenderGroupCell', async () => ({
     RenderGroupCell: ({ userGroups }: any) => (
         <span data-testid="group-cell">{userGroups?.map((g: any) => g.name).join(', ')}</span>
     ),
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Users } = require('containers/Users')
+import { Users } from 'containers/Users'
 
 const mockUsers = [
     {
@@ -99,7 +100,7 @@ const renderUsers = (overrides: any = {}) => {
         groups: mockGroups,
         loading: false,
         error: null,
-        reloadGroups: jest.fn(),
+        reloadGroups: vi.fn(),
         ...overrides.groups,
     }
     return render(
@@ -113,7 +114,7 @@ const renderUsers = (overrides: any = {}) => {
 
 describe('Users', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockApiCall.mockResolvedValue(mockUsers)
     })
 
@@ -207,7 +208,7 @@ describe('Users', () => {
     })
 
     it('shows groups error alert with retry button', async () => {
-        const reloadGroups = jest.fn()
+        const reloadGroups = vi.fn()
         await act(async () => {
             renderUsers({ groups: { error: new Error('fail'), reloadGroups } })
         })
@@ -252,7 +253,6 @@ describe('Users', () => {
     })
 
     it('shows confirm modal when delete button is clicked', async () => {
-        const { Modal } = jest.requireMock('antd')
         await act(async () => {
             renderUsers()
         })
@@ -277,7 +277,6 @@ describe('Users', () => {
     })
 
     it('calls delete API and refreshes users on confirm', async () => {
-        const { Modal } = jest.requireMock('antd')
         mockApiCall
             .mockResolvedValueOnce(mockUsers)     // initial fetchUsers
             .mockResolvedValueOnce(undefined)       // DELETE /users/viewer

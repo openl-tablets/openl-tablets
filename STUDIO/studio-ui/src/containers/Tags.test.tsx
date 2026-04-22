@@ -1,10 +1,11 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { notification } from 'antd'
 import * as services from 'services'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('antd/es/input/TextArea', () => {
-    const React = require('react')
+vi.mock('antd/es/input/TextArea', async () => {
     return {
         __esModule: true,
         default: React.forwardRef((props: React.TextareaHTMLAttributes<HTMLTextAreaElement>, ref: React.Ref<HTMLTextAreaElement>) =>
@@ -13,15 +14,13 @@ jest.mock('antd/es/input/TextArea', () => {
     }
 })
 
-jest.mock('services', () => ({
-    apiCall: jest.fn(),
+vi.mock('services', async () => ({
+    apiCall: vi.fn(),
 }))
 
-// Must import Tags after mocks are set up
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Tags } = require('containers/Tags')
+import { Tags } from 'containers/Tags'
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string, opts?: Record<string, unknown>) => {
             if (opts?.count !== undefined) return `${key} (${opts.count})`
@@ -32,20 +31,19 @@ jest.mock('react-i18next', () => ({
     Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
 }))
 
-jest.mock('antd', () => {
-    const actual = jest.requireActual('antd')
+vi.mock('antd', async () => {
+    const actual = await vi.importActual('antd')
     return {
         ...actual,
         notification: {
-            success: jest.fn(),
-            error: jest.fn(),
-            warning: jest.fn(),
+            success: vi.fn(),
+            error: vi.fn(),
+            warning: vi.fn(),
         },
     }
 })
 
-const { notification } = jest.requireMock('antd')
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
 const mockTagTypes = [
     {
@@ -59,7 +57,7 @@ const mockTagTypes = [
 
 describe('Tags', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockApiCall
             .mockResolvedValueOnce(mockTagTypes)   // fetchTagTypes
             .mockResolvedValueOnce(['%Domain%-*'])  // fetchTemplates

@@ -4,13 +4,13 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { Repositories } from 'containers/Repositories'
 
-const mockNavigate = jest.fn()
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => ({
+    ...await vi.importActual('react-router-dom'),
     useNavigate: () => mockNavigate,
 }))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
@@ -18,7 +18,7 @@ jest.mock('react-i18next', () => ({
 }))
 
 let mockHasUnsavedChanges = false
-jest.mock('containers/repositories/DesignRepositoriesConfiguration', () => ({
+vi.mock('containers/repositories/DesignRepositoriesConfiguration', async () => ({
     DesignRepositoriesConfiguration: React.forwardRef(
         (
             _props: { repositoryDataType: string; onEditingStateChange?: (v: boolean) => void },
@@ -35,9 +35,9 @@ jest.mock('containers/repositories/DesignRepositoriesConfiguration', () => ({
     ),
 }))
 
-const mockConfirm = jest.fn()
-jest.mock('antd', () => {
-    const actual = jest.requireActual('antd')
+const mockConfirm = vi.fn()
+vi.mock('antd', async () => {
+    const actual = await vi.importActual('antd')
     return {
         ...actual,
         Modal: {
@@ -54,14 +54,14 @@ const renderRepositories = (initialRoute = '/administration/repositories/design'
     render(
         <MemoryRouter initialEntries={[initialRoute]}>
             <Routes>
-                <Route path="/administration/repositories/:repositoryTab" element={<Repositories />} />
+                <Route element={<Repositories />} path="/administration/repositories/:repositoryTab" />
             </Routes>
         </MemoryRouter>
     )
 
 describe('Repositories', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
         mockHasUnsavedChanges = false
     })
 

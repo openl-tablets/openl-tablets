@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event'
 import { MergeBranchesStep } from 'containers/MergeModal/MergeBranchesStep'
 import * as services from 'services'
 import { BranchInfo, CheckMergeResult, MergeResultResponse } from 'containers/MergeModal/types'
+import type { MockedFunction } from 'vitest'
 
-jest.mock('services', () => {
+vi.mock('services', () => {
     class MockApiHttpError extends Error {
         status: number
         payload?: unknown
@@ -17,13 +18,13 @@ jest.mock('services', () => {
         }
     }
     return {
-        apiCall: jest.fn(),
-        isApiHttpError: jest.fn((err: unknown) => err instanceof MockApiHttpError),
+        apiCall: vi.fn(),
+        isApiHttpError: vi.fn((err: unknown) => err instanceof MockApiHttpError),
         ApiHttpError: MockApiHttpError,
     }
 })
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string) => key,
         i18n: { language: 'en' },
@@ -32,7 +33,7 @@ jest.mock('react-i18next', () => ({
 
 // Mock the custom Select to render a native <select> that properly triggers onChange.
 // Ant Design's Form.useWatch + MessageChannel does not work in jsdom.
-jest.mock('components/form', () => ({
+vi.mock('components/form', () => ({
     // Drop AntD-only props that React warns about if spread onto a native <select>;
     // forward everything else (className, style, disabled, value, data-*, aria-*, …)
     // so tests keep fidelity on accessibility and custom attributes.
@@ -44,7 +45,7 @@ jest.mock('components/form', () => ({
         placeholder,
         // AntD-only — extend this list if the component under test starts passing
         // more AntD-specific props (e.g. `mode`, `showSearch`).
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         suffixIcon,
         ...rest
     }: any) => (
@@ -66,7 +67,7 @@ jest.mock('components/form', () => ({
     ),
 }))
 
-const mockApiCall = services.apiCall as jest.MockedFunction<typeof services.apiCall>
+const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
 const branches: BranchInfo[] = [
     { name: 'main', protected: false },
@@ -80,9 +81,9 @@ const defaultProps = () => ({
     repositoryType: 'repo-git',
     currentBranch: 'main',
     branches,
-    onMergeSuccess: jest.fn(),
-    onMergeConflicts: jest.fn(),
-    onCheckCommitInfo: jest.fn((cb: () => void) => cb()),
+    onMergeSuccess: vi.fn(),
+    onMergeConflicts: vi.fn(),
+    onCheckCommitInfo: vi.fn((cb: () => void) => cb()),
 })
 
 const mergeableResult = (source: string, target: string): CheckMergeResult => ({
@@ -109,7 +110,7 @@ const getButton = (name: RegExp) => screen.getByRole('button', { name })
 
 describe('MergeBranchesStep', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
     })
 
     it('renders branch selector with current branch', () => {
@@ -283,7 +284,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
+            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
@@ -301,7 +302,7 @@ describe('MergeBranchesStep', () => {
 
             const conflictResponse: MergeResultResponse = {
                 status: 'conflicts',
-                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx'] }],
+                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
             }
             mockApiCall.mockResolvedValueOnce(conflictResponse)
             await userEvent.click(getButton(/merge:actions.send/i))
@@ -353,7 +354,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
+            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onCheckCommitInfo).toHaveBeenCalled())
@@ -370,7 +371,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: [] })
+            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())

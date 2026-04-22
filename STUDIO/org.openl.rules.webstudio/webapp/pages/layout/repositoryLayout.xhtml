@@ -27,6 +27,8 @@
         <link href="css/jquery.multiselect.css" rel="stylesheet" />
         <link href="css/jquery-editable-select.min.css" rel="stylesheet" />
 
+        <h:outputText value="#{viteAssets.html}" escape="false" />
+
         <script src="javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
         <script src="javascript/vendor/jquery-3.7.1.min.js"></script>
         <script src="javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
@@ -217,7 +219,6 @@
 
     <h:body style="visibility: hidden">
         <div id="appRoot" style="min-height: 48.5px"></div>
-        <script src="#{environment.getProperty('_REACT_UI_ROOT_', request.contextPath.concat('/js'))}/main.js"></script>
 
         <h:form id="mainForm" prependId="false">
             <div id="top">
