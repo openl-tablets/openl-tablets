@@ -18,10 +18,6 @@ failOnConsole({
     silenceMessage: (message) => {
         // React 18-style dev warnings — prefixed "Warning:".
         if (message.startsWith('Warning:')) return true
-        // React 19 dropped the "Warning:" prefix from many dev-mode messages; they
-        // still link to react.dev/link/* for docs. Match that canonical link to keep
-        // the silence specific to official React advisory warnings.
-        if (message.includes('react.dev/link/')) return true
         // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
         // console.error whenever `window.location.reload()` / href assignment is
         // reached (e.g. Security.tsx save flow). Location is non-configurable in
