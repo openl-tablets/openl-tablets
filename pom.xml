@@ -105,7 +105,7 @@
 
         <!-- Open Telemetry -->
         <!-- !!! also in the Dockerfile !!! -->
-        <opentelemetry.version>2.26.1</opentelemetry.version>
+        <opentelemetry.version>2.27.0</opentelemetry.version>
 
         <!-- REST -->
         <jackson.version>2.21.2</jackson.version>
