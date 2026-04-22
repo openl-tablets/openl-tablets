@@ -60,15 +60,9 @@ const renderRepositories = (initialRoute = '/administration/repositories/design'
     )
 
 describe('Repositories', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
         mockHasUnsavedChanges = false
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
     })
 
     it('renders Design and Deployment tabs', () => {

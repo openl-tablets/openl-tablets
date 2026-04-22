@@ -173,15 +173,8 @@ const renderAndLoad = async (props = defaultProps(), details: ConflictDetails = 
 }
 
 describe('ConflictResolutionStep', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
     })
 
     describe('loading state', () => {
@@ -389,18 +382,22 @@ describe('ConflictResolutionStep', () => {
             mockApiCall.mockResolvedValueOnce({}) // resolve
 
             await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.resolve'))
-                await new Promise(r => setTimeout(r, 50))
+            await waitFor(() => {
+                expect(mockApiCall).toHaveBeenCalledWith(
+                    '/projects/proj-1/merge/conflicts/resolve',
+                    expect.objectContaining({ method: 'POST' }),
+                    true
+                )
             })
-
-            expect(mockApiCall).toHaveBeenCalledWith(
-                '/projects/proj-1/merge/conflicts/resolve',
-                expect.objectContaining({ method: 'POST' }),
-                true
-            )
-            expect(props.onResolveSuccess).toHaveBeenCalled()
+            // onResolveSuccess fires AFTER `await apiCall(...)` resolves inside
+            // handleSave — the mockApiCall assertion above passes at call time,
+            // which is one microtask earlier than the success callback. Wait for
+            // the callback itself to avoid a timing race.
+            await waitFor(() => {
+                expect(props.onResolveSuccess).toHaveBeenCalled()
+            })
         })
 
         it('sends FormData with resolution entries', async () => {
@@ -409,16 +406,18 @@ describe('ConflictResolutionStep', () => {
             mockApiCall.mockResolvedValueOnce({}) // resolve
 
             await userEvent.click(screen.getByDisplayValue('THEIRS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.resolve'))
-                await new Promise(r => setTimeout(r, 50))
+            await waitFor(() => {
+                expect(mockApiCall).toHaveBeenCalledWith(
+                    '/projects/proj-1/merge/conflicts/resolve',
+                    expect.anything(),
+                    true
+                )
             })
-
             const resolveCall = mockApiCall.mock.calls.find(
                 call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
             )
-            expect(resolveCall).toBeDefined()
             const formData = resolveCall![1].body as FormData
             expect(formData.get('resolutions[0].filePath')).toBe('rules/Main.xlsx')
             expect(formData.get('resolutions[0].strategy')).toBe('THEIRS')
@@ -434,12 +433,15 @@ describe('ConflictResolutionStep', () => {
             await userEvent.type(textarea, 'Custom merge message')
 
             await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.resolve'))
-                await new Promise(r => setTimeout(r, 50))
+            await waitFor(() => {
+                expect(mockApiCall).toHaveBeenCalledWith(
+                    '/projects/proj-1/merge/conflicts/resolve',
+                    expect.anything(),
+                    true
+                )
             })
-
             const resolveCall = mockApiCall.mock.calls.find(
                 call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
             )
@@ -453,12 +455,15 @@ describe('ConflictResolutionStep', () => {
             mockApiCall.mockResolvedValueOnce({}) // resolve
 
             await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.resolve'))
-                await new Promise(r => setTimeout(r, 50))
+            await waitFor(() => {
+                expect(mockApiCall).toHaveBeenCalledWith(
+                    '/projects/proj-1/merge/conflicts/resolve',
+                    expect.anything(),
+                    true
+                )
             })
-
             const resolveCall = mockApiCall.mock.calls.find(
                 call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
             )
@@ -472,13 +477,11 @@ describe('ConflictResolutionStep', () => {
             mockApiCall.mockRejectedValueOnce(new Error('Resolve failed'))
 
             await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.resolve'))
-                await new Promise(r => setTimeout(r, 50))
+            await waitFor(() => {
+                expect(screen.getByText('Resolve failed')).toBeInTheDocument()
             })
-
-            expect(screen.getByText('Resolve failed')).toBeInTheDocument()
         })
 
         it('shows generic error when resolve fails without message', async () => {
@@ -487,13 +490,11 @@ describe('ConflictResolutionStep', () => {
             mockApiCall.mockRejectedValueOnce({})
 
             await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.resolve'))
-                await new Promise(r => setTimeout(r, 50))
+            await waitFor(() => {
+                expect(screen.getByText('merge:errors.resolve_failed')).toBeInTheDocument()
             })
-
-            expect(screen.getByText('merge:errors.resolve_failed')).toBeInTheDocument()
         })
     })
 

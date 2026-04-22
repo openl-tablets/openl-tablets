@@ -43,6 +43,7 @@
     "husky": "^9.1.7",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
+    "jest-fail-on-console": "^3.3.4",
     "license-checker-rseidelsohn": "^4.4.2",
     "path-browserify": "^1.0.1",
     "postcss-scss": "^4.0.9",

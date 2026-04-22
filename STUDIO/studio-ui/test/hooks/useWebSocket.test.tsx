@@ -9,7 +9,6 @@ describe('useWebSocket', () => {
     const unsubscribeSpy = jest.spyOn(webSocketService, 'unsubscribe')
     const sendSpy = jest.spyOn(webSocketService, 'send')
     const getConnectionStatusSpy = jest.spyOn(webSocketService, 'getConnectionStatus')
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     beforeEach(() => {
         jest.clearAllMocks()
@@ -24,7 +23,6 @@ describe('useWebSocket', () => {
         unsubscribeSpy.mockRestore()
         sendSpy.mockRestore()
         getConnectionStatusSpy.mockRestore()
-        consoleErrorSpy.mockRestore()
     })
 
     it('swallows autoConnect rejection and calls onError callback', async () => {

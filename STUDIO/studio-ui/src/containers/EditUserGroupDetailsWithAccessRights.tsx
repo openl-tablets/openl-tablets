@@ -125,10 +125,9 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             } else {
                 setRootRepositoryRoles({})
             }
-        } catch (error) {
-            console.error('Failed to fetch root repository roles:', error)
+        } catch {
             notification.error({
-                message: t('common:error'),
+                title: t('common:error'),
                 description: t('users:failed_to_load_root_repository_roles')
             })
             setRootRepositoryRoles({})
@@ -198,12 +197,10 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return DisplayUserName.Other
         }
 
-        setUserGroups(user?.userGroups?.map((group) => group.name) || [])
-
         return {
             username: user?.username || '',
             email: user?.email,
-            password: null,
+            password: '',
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             displayName: user?.displayName,
@@ -211,34 +208,54 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         }
     }
 
-    const initialValues = useMemo(() => {
+    // Entity fields (name, email, etc.) come from the already-resolved props
+    // `user`/`group`. They are seeded once on mount and re-seeded only when the
+    // entity identity changes — never when async ACL responses arrive. Keeping
+    // this split from the access-rights memo prevents late ACL fetches from
+    // clobbering values the user has typed in the entity fields.
+    const entityInitialValues = useMemo(() => {
+        if (isUser) {
+            return getUserInitialValues()
+        }
+        return {
+            name: group?.name || '',
+            description: group?.description,
+            admin: group?.admin,
+        }
+    }, [isUser, newUser, user, group])
+
+    const accessRightsInitialValues = useMemo(() => {
         const designRootRole = (rootRepositoryRoles[RepositoryType.DESIGN]?.role ?? NONE_ROLE_VALUE) as RootRoleFormValue
         const deployRootRole = (rootRepositoryRoles[RepositoryType.PROD]?.role ?? NONE_ROLE_VALUE) as RootRoleFormValue
-        let initialValues: UserFormValues | GroupFormValues
-        if (isUser) {
-            initialValues = {
-                ...getUserInitialValues(),
-                designRepos,
-                deployRepos,
-                projects,
-                designRootRole,
-                deployRootRole
-            }
-        } else {
-            initialValues = {
-                name: group?.name || '',
-                description: group?.description,
-                admin: group?.admin,
-                designRepos,
-                deployRepos,
-                projects,
-                designRootRole,
-                deployRootRole
-            }
+        return {
+            designRepos,
+            deployRepos,
+            projects,
+            designRootRole,
+            deployRootRole,
         }
-        form.setFieldsValue(initialValues)
-        return initialValues
-    }, [isUser, newUser, user, group, designRepos, deployRepos, projects, rootRepositoryRoles])
+    }, [designRepos, deployRepos, projects, rootRepositoryRoles])
+
+    // Merged for the Form's mount-time `initialValues` prop only — setFieldsValue
+    // is driven by the two split effects below.
+    const initialValues = useMemo(
+        () => ({ ...entityInitialValues, ...accessRightsInitialValues }),
+        [entityInitialValues, accessRightsInitialValues]
+    )
+
+    useEffect(() => {
+        form.setFieldsValue(entityInitialValues)
+    }, [entityInitialValues, form])
+
+    useEffect(() => {
+        form.setFieldsValue(accessRightsInitialValues)
+    }, [accessRightsInitialValues, form])
+
+    useEffect(() => {
+        if (isUser) {
+            setUserGroups(user?.userGroups?.map((g) => g.name) || [])
+        }
+    }, [isUser, user])
 
     const saveReposRoles = async (repositories: RepositoryRole[], repoType: RepositoryType, sid: string) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
@@ -282,7 +299,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         const totalFailures = deleteFailures.length + addFailures.length + updateFailures.length
         if (totalFailures > 0) {
             notification.error({
-                message: t('common:error'),
+                title: t('common:error'),
                 description: t('users:some_role_operations_failed', { count: totalFailures })
             })
             throw new Error(`Repository roles: ${totalFailures} operation(s) failed`)
@@ -346,9 +363,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
         }
         if (failures.length > 0) {
-            console.error('Failed to save root repository roles:', failures)
             notification.error({
-                message: t('common:error'),
+                title: t('common:error'),
                 description: t('users:failed_to_save_root_repository_roles')
             })
             throw new Error(`Root repository roles: ${failures.length} operation(s) failed`)
@@ -400,7 +416,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         const totalFailures = deleteFailures.length + addFailures.length + updateFailures.length
         if (totalFailures > 0) {
             notification.error({
-                message: t('common:error'),
+                title: t('common:error'),
                 description: t('users:some_role_operations_failed', { count: totalFailures })
             })
             throw new Error(`Project roles: ${totalFailures} operation(s) failed`)
@@ -468,8 +484,19 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
 
             handleCloseDrawer()
         } catch (error) {
-            console.error('Failed to save user/group details:', error)
-            // Error notifications are handled in individual save functions
+            // Nested save functions (saveReposRoles / saveRootRepositoriesRoles /
+            // saveProjectRoles) call notification.error before throwing, and
+            // apiCall itself notifies on rejection. This fallback guards the edge
+            // case where onFinish is interrupted by an error that reached here
+            // without a prior notification — surface whatever we have so the user
+            // isn't left staring at a silent drawer.
+            const description = error instanceof Error && error.message
+                ? error.message
+                : String(error ?? 'Unknown error')
+            notification.error({
+                title: t('common:error'),
+                description,
+            })
         }
     }
 
@@ -482,7 +509,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return acc
         }, {} as TabKeys[])
         setHasErrorOnTab(tabsWithErrors)
-        notification.error({ message: t('common:please_fix_errors_on_highlighted_tabs_before_saving') })
+        notification.error({ title: t('common:please_fix_errors_on_highlighted_tabs_before_saving') })
     }
 
     const onValuesChange = (changedValues: any, allValues: FormValues) => {
@@ -512,41 +539,40 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }, [isUser, newUser, isNewGroup, t])
 
     const saveUser = async (userData: any) => {
+        // Form seeds `password` to '' (empty string — React-safe for controlled inputs);
+        // coerce back to null before hitting the API so the "no password change"
+        // wire contract is preserved.
+        const password = userData.password || null
         const updatedUser: UpdatedUserRequest = {
             email: userData.email,
             displayName: userData.displayName,
             firstName: userData.firstName,
             lastName: userData.lastName,
-            password: userData.password,
+            password,
             groups: isGroupsManagementEnabled ? userGroups : undefined,
         }
 
         if (isNewUser) {
             updatedUser.username = userData.username
             updatedUser.internalPassword = {
-                password: userData.password
+                password
             }
         }
 
-        try {
-            const url = isNewUser ? '/users' : `/users/${userData.username}`
+        const url = isNewUser ? '/users' : `/users/${userData.username}`
 
-            const response = await apiCall(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedUser),
-            })
+        const response = await apiCall(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedUser),
+        })
 
-            if (response) {
-                return userData.username
-            } else {
-                throw new Error('Error updating user')
-            }
-        } catch (error) {
-            console.error('Error updating user:', error)
-        }
+        // apiCall resolves to undefined when the backend rejected the request and
+        // has already shown a specific notification (e.g. "username already exists").
+        // Return undefined so onFinish can early-exit without duplicating the message.
+        return response ? userData.username : undefined
     }
 
     const saveGroup = async (values: GroupFormValues) => {
@@ -565,24 +591,17 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         // @ts-ignore
         const encodedBody = new URLSearchParams(updatedGroup).toString()
 
-        try {
-            const headers = new Headers()
-            headers.append('Content-Type', 'application/x-www-form-urlencoded')
-            headers.append('Accept', 'application/json')
+        const headers = new Headers()
+        headers.append('Content-Type', 'application/x-www-form-urlencoded')
+        headers.append('Accept', 'application/json')
 
-            const response = await apiCall('/admin/management/groups', {
-                method: 'POST',
-                headers,
-                body: encodedBody,
-            })
-            if (response) {
-                return updatedGroup.name
-            } else {
-                throw new Error('Error updating group')
-            }
-        } catch (error) {
-            console.error('Error updating group:', error)
-        }
+        const response = await apiCall('/admin/management/groups', {
+            method: 'POST',
+            headers,
+            body: encodedBody,
+        })
+        // See saveUser: undefined means apiCall already surfaced a specific error.
+        return response ? updatedGroup.name : undefined
     }
 
     return (
@@ -593,7 +612,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 onClose={handleCloseDrawer}
                 open={isOpenFromParent || isOpen}
                 title={title}
-                width={800}
+                size={800}
                 extra={
                     <>
                         <Button key="back" onClick={handleCloseDrawer} style={{ marginRight: 20 }}>

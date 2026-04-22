@@ -76,11 +76,8 @@ const renderDeployModal = () =>
     )
 
 describe('DeployModal', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
         mockApiCall
             .mockResolvedValueOnce([
                 { id: 'repo-1', name: 'Production' },
@@ -134,7 +131,4 @@ describe('DeployModal', () => {
         )
     })
 
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
-    })
 })

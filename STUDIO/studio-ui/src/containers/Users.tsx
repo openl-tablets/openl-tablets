@@ -72,12 +72,12 @@ export const Users: React.FC = () => {
                 key: 'username',
                 render: ({ username, online, userGroups, unsafePassword }) => {
                     const userNameComponent = Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)
-                        ? [<Typography.Text strong>{username}</Typography.Text>]
+                        ? [<Typography.Text key="name" strong>{username}</Typography.Text>]
                         : [username]
 
                     if (unsafePassword) {
                         userNameComponent.push(
-                            <Tooltip title={t('users:unsafe_default_password')}>
+                            <Tooltip key="unsafe-password" title={t('users:unsafe_default_password')}>
                                 <ExclamationCircleOutlined style={{ color: 'red', marginLeft: 6 }} />
                             </Tooltip>
                         )

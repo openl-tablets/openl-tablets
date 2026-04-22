@@ -3,7 +3,39 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import failOnConsole from 'jest-fail-on-console'
 import { TextEncoder, TextDecoder } from 'util'
+
+
+failOnConsole({
+    // shouldFailOnWarn stays on so jest-fail-on-console wraps `console.warn`; the
+    // `silenceMessage` branch below drops every warn (no failure, no console noise).
+    // With shouldFailOnWarn: false the wrapper is skipped entirely and silenceMessage
+    // is never invoked for warns, so they would leak through to the real console.
+    silenceMessage: (message, methodName) => {
+        // ignore warnings
+        if (methodName === 'warn') return true
+        // Ant Design deprecation warnings: "Warning: [antd: <Component>] `<prop>`
+        // is deprecated. Please use `<other>` instead."
+        // Character classes exclude their own terminator plus `\r\n` (tightens the
+        // match to a single line). Bounded quantifiers `{1,100}` make the worst
+        // case linear — JS has no native possessive quantifiers (`++`/`*+` are
+        // syntax errors), and the bounded form avoids both the backtracking Sonar
+        // flags as super-linear and the lookahead/backref pattern Sonar flags as
+        // "group and backref in different branches".
+        if (/^Warning:\s*\[antd:\s*[^\]\r\n]{1,100}]\s*`[^`\r\n]{1,100}`\s*is deprecated\.\s*Please use\s*`[^`\r\n]{1,100}`\s*instead\.?$/.test(message)) return true
+        // rc-form warns when Form.useForm() runs but no <Form> is mounted — structurally
+        // expected for drawers/modals that lazy-mount their <Form> via destroyOnHidden.
+        // Fires in production too; not a test-only artefact.
+        if (/^Warning: Instance created by `useForm` is not connected to any Form element/.test(message)) return true
+        // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
+        // console.error whenever `window.location.reload()` / href assignment is
+        // reached (e.g. Security.tsx save flow). Location is non-configurable in
+        // jsdom, so the call cannot be stubbed at the API layer.
+        if (/Not implemented: navigation/.test(message)) return true
+        return false
+    },
+})
 
 // react-router-dom uses TextEncoder (not defined in jsdom)
 if (typeof globalThis.TextEncoder === 'undefined') {
@@ -11,12 +43,31 @@ if (typeof globalThis.TextEncoder === 'undefined') {
     globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder
 }
 
-// MessageChannel is used by @rc-component/form (Ant Design Form) but is not available in jsdom
+// MessageChannel is used by React's scheduler, Ant Design Form (@rc-component/form),
+// and others, but jsdom does not implement it. A no-op polyfill silently drops
+// messages, which makes React's concurrent scheduler never fire — scheduled state
+// updates from async callbacks are queued but never committed, producing
+// "The current testing environment is not configured to support act(...)" and
+// waitFor timeouts. Deliver messages on the next macrotask instead.
 if (typeof globalThis.MessageChannel === 'undefined') {
-    globalThis.MessageChannel = class MessageChannel {
-        port1 = { onmessage: null, postMessage: () => {} }
-        port2 = { onmessage: null, postMessage: () => {} }
+    class FakeMessagePort {
+        onmessage: ((event: { data: unknown }) => void) | null = null
+        otherPort!: FakeMessagePort
+        postMessage(data: unknown) {
+            const target = this.otherPort
+            setTimeout(() => target.onmessage?.({ data }), 0)
+        }
     }
+    globalThis.MessageChannel = class {
+        port1: FakeMessagePort
+        port2: FakeMessagePort
+        constructor() {
+            this.port1 = new FakeMessagePort()
+            this.port2 = new FakeMessagePort()
+            this.port1.otherPort = this.port2
+            this.port2.otherPort = this.port1
+        }
+    } as typeof MessageChannel
 }
 
 // jsdom doesn't implement ResizeObserver (used by @rc-component/resize-observer via Ant Design)

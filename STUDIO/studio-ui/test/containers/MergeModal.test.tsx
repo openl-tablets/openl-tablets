@@ -94,17 +94,10 @@ const getLatestProps = (spy: jest.Mock) =>
 // --- Tests ---
 
 describe('MergeModal', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
         // Default: no existing conflicts (404)
         mockApiCall.mockRejectedValue(new MockNotFoundError())
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
     })
 
     it('does not render modal content when no event dispatched', () => {

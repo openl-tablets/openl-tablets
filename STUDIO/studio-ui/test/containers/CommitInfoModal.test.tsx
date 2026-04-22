@@ -37,15 +37,8 @@ const getEmailInput = () => screen.getByRole('textbox', { name: 'merge:commit_in
 const getSaveButton = () => screen.getByRole('button', { name: 'merge:buttons.save' })
 
 describe('CommitInfoModal', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
     })
 
     it('renders modal with title and form fields', async () => {
@@ -130,9 +123,7 @@ describe('CommitInfoModal', () => {
         await userEvent.type(getDisplayNameInput(), 'Jane Doe')
         await userEvent.type(getEmailInput(), 'jane@example.com')
 
-        await act(async () => {
-            await userEvent.click(getSaveButton())
-        })
+        await userEvent.click(getSaveButton())
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -161,9 +152,7 @@ describe('CommitInfoModal', () => {
         await userEvent.type(getDisplayNameInput(), 'Jane')
         await userEvent.type(getEmailInput(), 'jane@example.com')
 
-        await act(async () => {
-            await userEvent.click(getSaveButton())
-        })
+        await userEvent.click(getSaveButton())
 
         await waitFor(() => {
             expect(screen.getByText('Save failed')).toBeInTheDocument()
@@ -180,9 +169,7 @@ describe('CommitInfoModal', () => {
         await userEvent.type(getDisplayNameInput(), 'Jane')
         await userEvent.type(getEmailInput(), 'jane@example.com')
 
-        await act(async () => {
-            await userEvent.click(getSaveButton())
-        })
+        await userEvent.click(getSaveButton())
 
         await waitFor(() => {
             expect(screen.getByText('merge:errors.commit_info_failed')).toBeInTheDocument()
@@ -224,9 +211,7 @@ describe('CommitInfoModal', () => {
 
         const { props } = await renderModal()
 
-        await act(async () => {
-            await userEvent.click(getSaveButton())
-        })
+        await userEvent.click(getSaveButton())
 
         // Only the load call should have been made, not a save call
         expect(mockApiCall).toHaveBeenCalledTimes(1)

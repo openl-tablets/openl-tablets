@@ -42,23 +42,26 @@ jest.mock('antd', () => {
 })
 
 jest.mock('components/accessManagement', () => {
+    // initialValue on these Form.Items is omitted — the parent Form already seeds
+    // designRepos/deployRepos/projects/designRootRole/deployRootRole via its
+    // `initialValues` prop, and AntD warns if both sides try to seed the same path.
     const { Form } = jest.requireActual('antd')
     return {
         DesignRepositoriesTab: () => (
             <div data-testid="design-repos-tab">
-                <Form.Item name="designRepos" initialValue={[]}><input /></Form.Item>
-                <Form.Item name="designRootRole" initialValue="NONE"><input /></Form.Item>
+                <Form.Item name="designRepos"><input /></Form.Item>
+                <Form.Item name="designRootRole"><input /></Form.Item>
             </div>
         ),
         DeployRepositoriesTab: () => (
             <div data-testid="deploy-repos-tab">
-                <Form.Item name="deployRepos" initialValue={[]}><input /></Form.Item>
-                <Form.Item name="deployRootRole" initialValue="NONE"><input /></Form.Item>
+                <Form.Item name="deployRepos"><input /></Form.Item>
+                <Form.Item name="deployRootRole"><input /></Form.Item>
             </div>
         ),
         ProjectsTab: () => (
             <div data-testid="projects-tab">
-                <Form.Item name="projects" initialValue={[]}><input /></Form.Item>
+                <Form.Item name="projects"><input /></Form.Item>
             </div>
         ),
     }
@@ -81,12 +84,12 @@ jest.mock('containers/users/UserDatailsTab', () => {
     return {
         UserDetailsTab: () => (
             <div data-testid="user-details-tab">
-                <Form.Item name="username"><input /></Form.Item>
-                <Form.Item name="email"><input /></Form.Item>
-                <Form.Item name="firstName"><input /></Form.Item>
-                <Form.Item name="lastName"><input /></Form.Item>
-                <Form.Item name="displayName"><input /></Form.Item>
-                <Form.Item name="password"><input /></Form.Item>
+                <Form.Item name="username"><input data-testid="input-username" /></Form.Item>
+                <Form.Item name="email"><input data-testid="input-email" /></Form.Item>
+                <Form.Item name="firstName"><input data-testid="input-firstName" /></Form.Item>
+                <Form.Item name="lastName"><input data-testid="input-lastName" /></Form.Item>
+                <Form.Item name="displayName"><input data-testid="input-displayName" /></Form.Item>
+                <Form.Item name="password"><input data-testid="input-password" /></Form.Item>
             </div>
         ),
     }
@@ -354,9 +357,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.save')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Form submits with empty values — saveUser is called with /users endpoint
         await waitFor(() => {
@@ -390,9 +391,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.save')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -417,9 +416,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.invite')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.invite'))
-        })
+        await userEvent.click(screen.getByText('common:btn.invite'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -445,9 +442,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.save')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -485,9 +480,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(reloadUsers).toHaveBeenCalled()
@@ -521,9 +514,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(onClose).toHaveBeenCalled()
@@ -542,9 +533,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, newUser: true, sid: undefined, onClose })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // onClose should NOT be called when save fails
         await waitFor(() => {
@@ -662,9 +651,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         })
 
         // Click save to trigger the full save flow
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Verify saveUser was called
         await waitFor(() => {
@@ -688,9 +675,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, group, newUser: undefined, onClose })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Verify that the API was called
         await waitFor(() => {
@@ -723,9 +708,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, user, sid: 'admin' })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // fetchUserProfile should have been called because sid matches current user
         await waitFor(() => {
@@ -784,9 +767,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, user, sid: 'testuser', onClose })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Save was called
         await waitFor(() => {
@@ -822,12 +803,68 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         })
 
         // Save triggers root role sync
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/users/testuser', expect.objectContaining({ method: 'PUT' }))
         })
+    })
+
+    it('preserves typed entity field value while ACL endpoints are still in flight', async () => {
+        // Regression for the case where async ACL responses (/acls/repositories,
+        // /acls/projects, /acls/repositories/roots) re-trigger the initialValues
+        // memo and a blanket form.setFieldsValue(...) wipes out what the user
+        // just typed into an entity field.
+        const user = {
+            username: 'testuser',
+            email: 'original@test.com',
+            firstName: 'Original',
+            lastName: 'Last',
+            displayName: 'Original Last',
+            userGroups: [],
+        }
+
+        // Hold the ACL responses until the test chooses to resolve them.
+        let resolveReposRoles: (value: unknown) => void = () => undefined
+        let resolveProjectRoles: (value: unknown) => void = () => undefined
+        let resolveRootRoles: (value: unknown) => void = () => undefined
+        const reposRolesDeferred = new Promise((resolve) => { resolveReposRoles = resolve })
+        const projectRolesDeferred = new Promise((resolve) => { resolveProjectRoles = resolve })
+        const rootRolesDeferred = new Promise((resolve) => { resolveRootRoles = resolve })
+
+        mockApiCall.mockImplementation((url: string) => {
+            if (url === '/repos') return Promise.resolve([mockDesignRepo])
+            if (url.includes('/acls/repositories?sid=')) return reposRolesDeferred
+            if (url.includes('/acls/projects?sid=')) return projectRolesDeferred
+            if (url.includes('/acls/repositories/roots?sid=')) return rootRolesDeferred
+            return Promise.resolve([])
+        })
+
+        await act(async () => {
+            renderComponent({ isOpenFromParent: true, user, sid: 'testuser' })
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('user-details-tab')).toBeInTheDocument()
+        })
+
+        // Type into firstName while ACL endpoints are still pending.
+        const firstNameInput = screen.getByTestId('input-firstName') as HTMLInputElement
+        await userEvent.clear(firstNameInput)
+        await userEvent.type(firstNameInput, 'EditedName')
+        expect(firstNameInput.value).toBe('EditedName')
+
+        // Now resolve all ACL responses — previously this would re-seed the whole
+        // form via setFieldsValue and overwrite the typed value.
+        await act(async () => {
+            resolveReposRoles([])
+            resolveProjectRoles([])
+            resolveRootRoles([])
+            await reposRolesDeferred
+            await projectRolesDeferred
+            await rootRolesDeferred
+        })
+
+        expect((screen.getByTestId('input-firstName') as HTMLInputElement).value).toBe('EditedName')
     })
 })
