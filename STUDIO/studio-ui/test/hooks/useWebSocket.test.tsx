@@ -9,12 +9,15 @@ describe('useWebSocket', () => {
     const unsubscribeSpy = jest.spyOn(webSocketService, 'unsubscribe')
     const sendSpy = jest.spyOn(webSocketService, 'send')
     const getConnectionStatusSpy = jest.spyOn(webSocketService, 'getConnectionStatus')
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     beforeEach(() => {
         jest.clearAllMocks()
         connectSpy.mockResolvedValue()
         getConnectionStatusSpy.mockReturnValue(false)
+        // jest-fail-on-console re-wraps console.error in its own beforeEach, so the
+        // spy must be re-installed per test (after that wrap runs) rather than once
+        // at describe level.
+        jest.spyOn(console, 'error').mockImplementation(() => {})
     })
 
     afterAll(() => {
@@ -24,7 +27,6 @@ describe('useWebSocket', () => {
         unsubscribeSpy.mockRestore()
         sendSpy.mockRestore()
         getConnectionStatusSpy.mockRestore()
-        consoleErrorSpy.mockRestore()
     })
 
     it('swallows autoConnect rejection and calls onError callback', async () => {

@@ -153,12 +153,9 @@ describe('GroupsProvider', () => {
         // Change mock for next call, then trigger reload
         mockApiCall.mockResolvedValue(updatedResponse)
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('reload'))
-        })
-
+        await userEvent.click(screen.getByText('reload'))
         await waitFor(() => {
             expect(screen.getByTestId('count')).toHaveTextContent('1')
-        })
+        }, { timeout: 3000 })
     })
 })

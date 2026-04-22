@@ -33,13 +33,16 @@ jest.mock('react-i18next', () => ({
 // Mock the custom Select to render a native <select> that properly triggers onChange.
 // Ant Design's Form.useWatch + MessageChannel does not work in jsdom.
 jest.mock('components/form', () => ({
-    Select: ({ name, label, options, onChange, placeholder, ...rest }: any) => (
+    // Drop AntD-specific props (`suffixIcon`, etc.) that React warns about if spread
+    // onto a native <select>. Only forward DOM-valid attributes.
+    Select: ({ name, label, options, onChange, placeholder, disabled, value }: any) => (
         <div>
             <label htmlFor={name}>{label}</label>
             <select
+                disabled={disabled}
                 id={name}
+                value={value}
                 onChange={(e) => onChange?.(e.target.value)}
-                {...rest}
             >
                 <option value="">{placeholder}</option>
                 {options?.map((opt: any) => (
@@ -88,23 +91,17 @@ const createApiError = (status: number, message: string) =>
 
 const selectBranch = async (branchValue: string) => {
     const select = screen.getByLabelText('merge:branches.target')
-    await act(async () => {
-        await userEvent.selectOptions(select, branchValue)
-    })
+    await userEvent.selectOptions(select, branchValue)
 }
 
 const getButton = (name: RegExp) => screen.getByRole('button', { name })
 
 describe('MergeBranchesStep', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
+        // jest-fail-on-console re-wraps console.error per test, so the spy must be
+        // re-installed in beforeEach rather than once at describe level.
+        jest.spyOn(console, 'error').mockImplementation(() => {})
     })
 
     it('renders branch selector with current branch', () => {
