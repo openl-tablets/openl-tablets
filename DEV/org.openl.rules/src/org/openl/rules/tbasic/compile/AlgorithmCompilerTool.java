@@ -10,7 +10,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmRow;
-import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
@@ -142,8 +141,7 @@ public final class AlgorithmCompilerTool {
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
         String currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
 
-        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance()
-                .whatOperationsToGroup(currentNodeKeyword);
+        String[] operationNamesToGroup = whatOperationsToGroup(currentNodeKeyword);
 
         if (operationNamesToGroup != null) {
             List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
@@ -209,4 +207,14 @@ public final class AlgorithmCompilerTool {
         return isInstruction;
     }
 
+    public static String[] whatOperationsToGroup(String keyword) {
+        return switch (keyword) {
+            case "IF" -> new String[]{"ELSE", "END IF"};
+            case "WHILE" -> new String[]{"END WHILE"};
+            case "FOR EACH" -> new String[]{"END FOR EACH"};
+            case "SUB" -> new String[]{"END SUB"};
+            case "FUNCTION" -> new String[]{"END FUNCTION"};
+            default -> null;
+        };
+    }
 }

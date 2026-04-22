@@ -333,7 +333,7 @@ public class AlgorithmCompiler {
     private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile, IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
 
-        ConversionRuleBean conversionRule = ConversionRulesController.getInstance()
+        ConversionRuleBean conversionRule = ConversionRulesController
                 .getConvertionRule(nodesToCompile, bindingContext);
         if (conversionRule == null) {
             return;

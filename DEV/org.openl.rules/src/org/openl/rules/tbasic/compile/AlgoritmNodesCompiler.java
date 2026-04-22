@@ -88,7 +88,7 @@ public class AlgoritmNodesCompiler {
 
         List<RuntimeOperation> emittedOperations = new ArrayList<>();
 
-        ConversionRuleBean conversionRule = ConversionRulesController.getInstance()
+        ConversionRuleBean conversionRule = ConversionRulesController
                 .getConvertionRule(nodesToCompile, bindingContext);
         if (conversionRule == null) {
             return Collections.emptyList();
@@ -98,7 +98,9 @@ public class AlgoritmNodesCompiler {
         boolean isLoopOperation = nodesToCompile.getFirst().getSpecification().isLoopOperation();
         labelManager.startOperationsSet(isLoopOperation);
 
-        labelManager.generateAllLabels(conversionRule.getLabel());
+        for (var step : conversionRule.getConvertionSteps()) {
+            labelManager.generateAllLabels(new String[]{step.getLabelInstruction()});
+        }
 
         // compile before statement
         RuntimeOperation beforeOperation = createOperationForFirstNodeField(nodesToCompile, "before", bindingContext);

@@ -1,5 +1,9 @@
 package org.openl.rules.tbasic;
 
+import static org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity.OPTIONAL;
+import static org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity.PROHIBITED;
+import static org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity.REQUIRED;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -39,6 +43,31 @@ public class AlgorithmBuilder {
     private static final String CELL = "cell";
     private static final String UNDERSCORE = "_";
 
+    private static final TableParserSpecificationBean[] algSpecifications = new TableParserSpecificationBean[]{
+            new TableParserSpecificationBean("RETURN", false, OPTIONAL, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null),
+            new TableParserSpecificationBean("SET", false, PROHIBITED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
+            new TableParserSpecificationBean("VAR", false, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
+            new TableParserSpecificationBean("IF", false, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
+            new TableParserSpecificationBean("IF", true, REQUIRED, PROHIBITED, OPTIONAL, OPTIONAL, OPTIONAL, false, null),
+            new TableParserSpecificationBean("ELSE", false, PROHIBITED, REQUIRED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"IF"}),
+            new TableParserSpecificationBean("ELSE", true, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"IF"}),
+            new TableParserSpecificationBean("END IF", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"IF", "ELSE"}),
+            new TableParserSpecificationBean("WHILE", false, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, true, null),
+            new TableParserSpecificationBean("WHILE", true, REQUIRED, PROHIBITED, OPTIONAL, OPTIONAL, OPTIONAL, true, null),
+            new TableParserSpecificationBean("END WHILE", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"WHILE"}),
+            new TableParserSpecificationBean("FOR EACH", true, REQUIRED, REQUIRED, OPTIONAL, OPTIONAL, OPTIONAL, true, null),
+            new TableParserSpecificationBean("END FOR EACH", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"FOR EACH"}),
+            new TableParserSpecificationBean("SUB", false, PROHIBITED, REQUIRED, REQUIRED, PROHIBITED, REQUIRED, false, null),
+            new TableParserSpecificationBean("SUB", true, PROHIBITED, PROHIBITED, REQUIRED, PROHIBITED, REQUIRED, false, null),
+            new TableParserSpecificationBean("END SUB", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"SUB"}),
+            new TableParserSpecificationBean("FUNCTION", false, PROHIBITED, REQUIRED, REQUIRED, PROHIBITED, REQUIRED, false, null),
+            new TableParserSpecificationBean("FUNCTION", true, PROHIBITED, PROHIBITED, REQUIRED, PROHIBITED, REQUIRED, false, null),
+            new TableParserSpecificationBean("END FUNCTION", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, new String[]{"FUNCTION"}),
+            new TableParserSpecificationBean("GOTO", false, REQUIRED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null),
+            new TableParserSpecificationBean("BREAK", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null),
+            new TableParserSpecificationBean("CONTINUE", false, PROHIBITED, PROHIBITED, OPTIONAL, PROHIBITED, OPTIONAL, false, null)
+    };
+
     // Section Description Operation Condition Action Before After
     private static final class AlgorithmColumn {
         private final String id;
@@ -56,9 +85,6 @@ public class AlgorithmBuilder {
 
     static {
         try {
-            AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.getInstance();
-            TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
-
             Set<String> algorithmOperations = new LinkedHashSet<>();
 
             for (TableParserSpecificationBean specification : algSpecifications) {
@@ -107,8 +133,7 @@ public class AlgorithmBuilder {
         // parse data, row=2..*
         List<AlgorithmRow> algorithmRows = buildRows(tableBody);
 
-        RowParser rowParser = new RowParser(algorithmRows,
-                AlgorithmTableParserManager.getInstance().getAlgorithmSpecification());
+        RowParser rowParser = new RowParser(algorithmRows, algSpecifications);
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
