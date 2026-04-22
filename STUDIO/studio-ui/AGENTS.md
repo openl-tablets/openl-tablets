@@ -76,7 +76,7 @@ Maven: `mvn clean install` runs `npm install` + `npm run build` + `npm run test`
 
 ## Testing
 
-Tests live in `test/` (not co-located). Run all with `npm test`, or a specific file with `npm test -- <path>`.
+Tests are co-located with their source files (e.g. `src/containers/DeployModal.test.tsx` alongside `DeployModal.tsx`). Run all with `npm test`, or a specific file with `npm test -- <path>`.
 
 - Mock `services` module for API calls, `react-i18next` for translations
 - `setupTests.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia` for jsdom. The `MessageChannel` polyfill delivers messages via `setTimeout(0)` — required for React's scheduler to commit async-scheduled state updates
