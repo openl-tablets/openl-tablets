@@ -173,15 +173,8 @@ const renderAndLoad = async (props = defaultProps(), details: ConflictDetails = 
 }
 
 describe('ConflictResolutionStep', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
     })
 
     describe('loading state', () => {

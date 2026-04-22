@@ -42,23 +42,26 @@ jest.mock('antd', () => {
 })
 
 jest.mock('components/accessManagement', () => {
+    // initialValue on these Form.Items is omitted — the parent Form already seeds
+    // designRepos/deployRepos/projects/designRootRole/deployRootRole via its
+    // `initialValues` prop, and AntD warns if both sides try to seed the same path.
     const { Form } = jest.requireActual('antd')
     return {
         DesignRepositoriesTab: () => (
             <div data-testid="design-repos-tab">
-                <Form.Item name="designRepos" initialValue={[]}><input /></Form.Item>
-                <Form.Item name="designRootRole" initialValue="NONE"><input /></Form.Item>
+                <Form.Item name="designRepos"><input /></Form.Item>
+                <Form.Item name="designRootRole"><input /></Form.Item>
             </div>
         ),
         DeployRepositoriesTab: () => (
             <div data-testid="deploy-repos-tab">
-                <Form.Item name="deployRepos" initialValue={[]}><input /></Form.Item>
-                <Form.Item name="deployRootRole" initialValue="NONE"><input /></Form.Item>
+                <Form.Item name="deployRepos"><input /></Form.Item>
+                <Form.Item name="deployRootRole"><input /></Form.Item>
             </div>
         ),
         ProjectsTab: () => (
             <div data-testid="projects-tab">
-                <Form.Item name="projects" initialValue={[]}><input /></Form.Item>
+                <Form.Item name="projects"><input /></Form.Item>
             </div>
         ),
     }
@@ -354,9 +357,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.save')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Form submits with empty values — saveUser is called with /users endpoint
         await waitFor(() => {
@@ -390,9 +391,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.save')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -417,9 +416,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.invite')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.invite'))
-        })
+        await userEvent.click(screen.getByText('common:btn.invite'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -445,9 +442,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             expect(screen.getByText('common:btn.save')).toBeInTheDocument()
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
@@ -485,9 +480,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(reloadUsers).toHaveBeenCalled()
@@ -521,9 +514,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(onClose).toHaveBeenCalled()
@@ -542,9 +533,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, newUser: true, sid: undefined, onClose })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // onClose should NOT be called when save fails
         await waitFor(() => {
@@ -662,9 +651,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         })
 
         // Click save to trigger the full save flow
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Verify saveUser was called
         await waitFor(() => {
@@ -688,9 +675,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, group, newUser: undefined, onClose })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Verify that the API was called
         await waitFor(() => {
@@ -723,9 +708,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, user, sid: 'admin' })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // fetchUserProfile should have been called because sid matches current user
         await waitFor(() => {
@@ -784,9 +767,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             renderComponent({ isOpenFromParent: true, user, sid: 'testuser', onClose })
         })
 
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         // Save was called
         await waitFor(() => {
@@ -822,9 +803,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         })
 
         // Save triggers root role sync
-        await act(async () => {
-            await userEvent.click(screen.getByText('common:btn.save'))
-        })
+        await userEvent.click(screen.getByText('common:btn.save'))
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/users/testuser', expect.objectContaining({ method: 'PUT' }))

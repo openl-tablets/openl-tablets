@@ -37,15 +37,8 @@ const getEmailInput = () => screen.getByRole('textbox', { name: 'merge:commit_in
 const getSaveButton = () => screen.getByRole('button', { name: 'merge:buttons.save' })
 
 describe('CommitInfoModal', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
     beforeEach(() => {
         jest.clearAllMocks()
-        consoleErrorSpy.mockClear()
-    })
-
-    afterAll(() => {
-        consoleErrorSpy.mockRestore()
     })
 
     it('renders modal with title and form fields', async () => {

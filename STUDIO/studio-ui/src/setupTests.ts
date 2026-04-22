@@ -9,15 +9,13 @@ import { TextEncoder, TextDecoder } from 'util'
 
 failOnConsole({
     shouldFailOnWarn: false,
-    skipTest: ({ testPath }) =>
-        // EPBDS-15832 keeps this suite's fixes (act-wrapping, setFieldsValue move to
-        // useEffect, password mock, notification title rename, per-test spies)
-        // on a separate branch. Skip jest-fail-on-console here so this branch can
-        // land without waiting on the rebuild.
-        /EditUserGroupDetailsWithAccessRights\.test\.tsx$/.test(testPath),
     silenceMessage: (message) => {
         // Matches Ant Design deprecation warnings, capturing any component, deprecated prop, and its suggested replacement.
         if (/^Warning:\s*\[antd:\s*[^\]]+]\s*`[^`]+`\s*is deprecated\.\s*Please use\s*`[^`]+`\s*instead\.?$/.test(message)) return true
+        // rc-form warns when Form.useForm() runs but no <Form> is mounted — structurally
+        // expected for drawers/modals that lazy-mount their <Form> via destroyOnHidden.
+        // Fires in production too; not a test-only artefact.
+        if (/^Warning: Instance created by `useForm` is not connected to any Form element/.test(message)) return true
         // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
         // console.error whenever `window.location.reload()` / href assignment is
         // reached (e.g. Security.tsx save flow). Location is non-configurable in

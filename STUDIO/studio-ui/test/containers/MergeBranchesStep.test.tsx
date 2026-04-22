@@ -33,15 +33,26 @@ jest.mock('react-i18next', () => ({
 // Mock the custom Select to render a native <select> that properly triggers onChange.
 // Ant Design's Form.useWatch + MessageChannel does not work in jsdom.
 jest.mock('components/form', () => ({
-    // Drop AntD-specific props (`suffixIcon`, etc.) that React warns about if spread
-    // onto a native <select>. Only forward DOM-valid attributes.
-    Select: ({ name, label, options, onChange, placeholder, disabled, value }: any) => (
+    // Drop AntD-only props that React warns about if spread onto a native <select>;
+    // forward everything else (className, style, disabled, value, data-*, aria-*, …)
+    // so tests keep fidelity on accessibility and custom attributes.
+    Select: ({
+        name,
+        label,
+        options,
+        onChange,
+        placeholder,
+        // AntD-only — extend this list if the component under test starts passing
+        // more AntD-specific props (e.g. `mode`, `showSearch`).
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        suffixIcon,
+        ...rest
+    }: any) => (
         <div>
             <label htmlFor={name}>{label}</label>
             <select
-                disabled={disabled}
+                {...rest}
                 id={name}
-                value={value}
                 onChange={(e) => onChange?.(e.target.value)}
             >
                 <option value="">{placeholder}</option>
@@ -99,9 +110,6 @@ const getButton = (name: RegExp) => screen.getByRole('button', { name })
 describe('MergeBranchesStep', () => {
     beforeEach(() => {
         jest.clearAllMocks()
-        // jest-fail-on-console re-wraps console.error per test, so the spy must be
-        // re-installed in beforeEach rather than once at describe level.
-        jest.spyOn(console, 'error').mockImplementation(() => {})
     })
 
     it('renders branch selector with current branch', () => {
