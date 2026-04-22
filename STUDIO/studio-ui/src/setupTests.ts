@@ -10,8 +10,15 @@ import { TextEncoder, TextDecoder } from 'util'
 failOnConsole({
     shouldFailOnWarn: false,
     silenceMessage: (message) => {
-        // Matches Ant Design deprecation warnings, capturing any component, deprecated prop, and its suggested replacement.
-        if (/^Warning:\s*\[antd:\s*[^\]]+]\s*`[^`]+`\s*is deprecated\.\s*Please use\s*`[^`]+`\s*instead\.?$/.test(message)) return true
+        // Ant Design deprecation warnings: "Warning: [antd: <Component>] `<prop>`
+        // is deprecated. Please use `<other>` instead."
+        // Character classes exclude their own terminator plus `\r\n` (tightens the
+        // match to a single line). Bounded quantifiers `{1,100}` make the worst
+        // case linear — JS has no native possessive quantifiers (`++`/`*+` are
+        // syntax errors), and the bounded form avoids both the backtracking Sonar
+        // flags as super-linear and the lookahead/backref pattern Sonar flags as
+        // "group and backref in different branches".
+        if (/^Warning:\s*\[antd:\s*[^\]\r\n]{1,100}]\s*`[^`\r\n]{1,100}`\s*is deprecated\.\s*Please use\s*`[^`\r\n]{1,100}`\s*instead\.?$/.test(message)) return true
         // rc-form warns when Form.useForm() runs but no <Form> is mounted — structurally
         // expected for drawers/modals that lazy-mount their <Form> via destroyOnHidden.
         // Fires in production too; not a test-only artefact.
