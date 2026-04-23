@@ -135,6 +135,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProjectResolver projectResolver;
     private Map<String, List<ProjectDescriptor>> projects = null;
 
+    private RulesTreeView defaultTreeView;
     private RulesTreeView treeView;
     private String tableView;
     private boolean showRealNumbers;
@@ -240,7 +241,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void initUserSettings() {
         String userName = rulesUserSession.getUserName();
 
-        treeView = getTreeView(userSettingsManager.getStringProperty(userName, RULES_TREE_VIEW_DEFAULT));
+        defaultTreeView = getTreeView(userSettingsManager.getStringProperty(userName, RULES_TREE_VIEW_DEFAULT));
         tableView = userSettingsManager.getStringProperty(userName, TABLE_VIEW);
         showFormulas = userSettingsManager.getBooleanProperty(userName, TABLE_FORMULAS_SHOW);
         testsPerPage = userSettingsManager.getIntegerProperty(userName, TEST_TESTS_PERPAGE);
@@ -442,7 +443,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public RulesTreeView getTreeView() {
-        return treeView;
+        return treeView != null ? treeView : defaultTreeView;
     }
 
     public String getTableView() {
@@ -1120,6 +1121,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private void setDefaultTreeView(RulesTreeView treeView) {
+        this.defaultTreeView = treeView;
+        if (this.treeView == null) {
+            model.redraw();
+        }
         userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW_DEFAULT, treeView.getName());
     }
 
