@@ -3,6 +3,8 @@ package org.openl.rules.project.xml;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileInputStream;
 import java.nio.file.Path;
@@ -50,6 +52,11 @@ public class XmlProjectDescriptorSerializerTest {
 
         projectDescriptor.setPropertiesFileNamePatterns(new String[]{" {lob}"});
         projectDescriptor.setPropertiesFileNameProcessor(" default.DefaultProcessor");
+
+        var interfaceMethods = new MethodFilter();
+        interfaceMethods.addIncludePattern("get*", "calculate*");
+        interfaceMethods.addExcludePattern("internal*");
+        projectDescriptor.setInterfaceMethods(interfaceMethods);
 
         return projectDescriptor;
     }
@@ -99,6 +106,45 @@ public class XmlProjectDescriptorSerializerTest {
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
+    }
+
+    @Test
+    public void testDeserializeInterfaceMethods() throws Exception {
+        ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
+                .deserialize(new FileInputStream("test-resources/xml/rules-with-interface-methods.xml"));
+
+        assertNotNull(pd.getInterfaceMethods());
+        assertNotNull(pd.getInterfaceMethods().getIncludes());
+        assertEquals(2, pd.getInterfaceMethods().getIncludes().size());
+        assertTrue(pd.getInterfaceMethods().getIncludes().contains("get*"));
+        assertTrue(pd.getInterfaceMethods().getIncludes().contains("calculatePremium"));
+        assertNotNull(pd.getInterfaceMethods().getExcludes());
+        assertEquals(1, pd.getInterfaceMethods().getExcludes().size());
+        assertTrue(pd.getInterfaceMethods().getExcludes().contains("internal*"));
+    }
+
+    @Test
+    public void testDeserializeWithoutInterfaceMethods() throws Exception {
+        ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
+                .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
+
+        assertNull(pd.getInterfaceMethods());
+    }
+
+    @Test
+    public void testSerializeInterfaceMethodsRoundTrip() throws Exception {
+        ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
+                .deserialize(new FileInputStream("test-resources/xml/rules-with-interface-methods.xml"));
+
+        String xml = new XmlProjectDescriptorSerializer().serialize(pd);
+        ProjectDescriptor pd2 = new XmlProjectDescriptorSerializer().deserialize(IOUtils.toInputStream(xml));
+
+        assertNotNull(pd2.getInterfaceMethods());
+        assertEquals(pd.getInterfaceMethods().getIncludes().size(), pd2.getInterfaceMethods().getIncludes().size());
+        assertTrue(pd2.getInterfaceMethods().getIncludes().contains("get*"));
+        assertTrue(pd2.getInterfaceMethods().getIncludes().contains("calculatePremium"));
+        assertEquals(pd.getInterfaceMethods().getExcludes().size(), pd2.getInterfaceMethods().getExcludes().size());
+        assertTrue(pd2.getInterfaceMethods().getExcludes().contains("internal*"));
     }
 
     @Test

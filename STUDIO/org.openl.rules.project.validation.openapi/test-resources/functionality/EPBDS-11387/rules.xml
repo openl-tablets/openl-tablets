@@ -4,23 +4,23 @@
         <module>
             <name>Algorithms</name>
             <rules-root path="rules/Algorithms.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ PlanDetailsPUT\(.+\)</value>
-                    <value>.+ PlanDetailsGET\(.+\)</value>
-                    <value>.+ PlanDetailsPATCH\(.+\)</value>
-                    <value>.+ PlanDetailsHEAD\(.+\)</value>
-                    <value>.+ PlanDetailsPOST\(.+\)</value>
-                    <value>.+ PlanDetailsOPTIONS\(.+\)</value>
-                    <value>.+ PlanDetailsDELETE\(.+\)</value>
-                </includes>
-            </method-filter>
         </module>
         <module>
             <name>Models</name>
             <rules-root path="rules/Models.xlsx"/>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>PlanDetailsPUT</value>
+            <value>PlanDetailsGET</value>
+            <value>PlanDetailsPATCH</value>
+            <value>PlanDetailsHEAD</value>
+            <value>PlanDetailsPOST</value>
+            <value>PlanDetailsOPTIONS</value>
+            <value>PlanDetailsDELETE</value>
+        </includes>
+    </interface-methods>
     <classpath>
         <entry path="classes"/>
     </classpath>

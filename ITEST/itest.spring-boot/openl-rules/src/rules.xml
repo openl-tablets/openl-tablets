@@ -4,12 +4,12 @@
     <modules>
         <module>
             <rules-root path="rules/*.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ SayHello\(.+\)</value>
-                    <value>.+ ValidateVocabulary\(.+\)</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>SayHello</value>
+            <value>ValidateVocabulary</value>
+        </includes>
+    </interface-methods>
 </project>

@@ -14,11 +14,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
@@ -29,6 +33,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -109,6 +114,8 @@ public class ProjectBean {
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
+    private String interfaceMethodIncludes;
+    private String interfaceMethodExcludes;
     private String[] propertiesFileNamePatterns;
 
     private final Formats formats = WebStudioFormats.getInstance();
@@ -132,7 +139,7 @@ public class ProjectBean {
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
-    public String getModulePath(Module module) {
+    public static String getModulePath(Module module) {
         PathEntry modulePath = module == null ? null : module.getRulesRootPath();
         if (modulePath == null) {
             return null;
@@ -175,6 +182,44 @@ public class ProjectBean {
 
     public void setSources(String sources) {
         this.sources = sources;
+    }
+
+    public String getInterfaceMethodIncludes() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        MethodFilter filter = currentProject.getInterfaceMethods();
+        if (filter != null && filter.getIncludes() != null) {
+            var sb = new StringBuilder();
+            for (String include : filter.getIncludes()) {
+                sb.append(include).append(StringTool.NEW_LINE);
+            }
+            interfaceMethodIncludes = sb.toString();
+        } else {
+            interfaceMethodIncludes = "";
+        }
+        return interfaceMethodIncludes;
+    }
+
+    public void setInterfaceMethodIncludes(String interfaceMethodIncludes) {
+        this.interfaceMethodIncludes = interfaceMethodIncludes;
+    }
+
+    public String getInterfaceMethodExcludes() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        MethodFilter filter = currentProject.getInterfaceMethods();
+        if (filter != null && filter.getExcludes() != null) {
+            var sb = new StringBuilder();
+            for (String exclude : filter.getExcludes()) {
+                sb.append(exclude).append(StringTool.NEW_LINE);
+            }
+            interfaceMethodExcludes = sb.toString();
+        } else {
+            interfaceMethodExcludes = "";
+        }
+        return interfaceMethodExcludes;
+    }
+
+    public void setInterfaceMethodExcludes(String interfaceMethodExcludes) {
+        this.interfaceMethodExcludes = interfaceMethodExcludes;
     }
 
     public String getOpenAPIPath() {
@@ -940,6 +985,215 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
+    public void editInterfaceMethods() {
+        tryLockProject();
+
+        RulesProject currentProject = studio.getCurrentProject();
+        validatePermissionsForDescriptorFile(currentProject, true);
+
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        clean(newProjectDescriptor);
+
+        String[] includeArray = StringUtils.toLines(interfaceMethodIncludes);
+        String[] excludeArray = StringUtils.toLines(interfaceMethodExcludes);
+
+        boolean hasIncludes = CollectionUtils.isNotEmpty(includeArray);
+        boolean hasExcludes = CollectionUtils.isNotEmpty(excludeArray);
+
+        if (hasIncludes || hasExcludes) {
+            MethodFilter filter = new MethodFilter();
+            if (hasIncludes) {
+                filter.addIncludePattern(includeArray);
+            }
+            if (hasExcludes) {
+                filter.addExcludePattern(excludeArray);
+            }
+            newProjectDescriptor.setInterfaceMethods(filter);
+        } else {
+            newProjectDescriptor.setInterfaceMethods(null);
+        }
+
+        save(newProjectDescriptor);
+    }
+
+    public boolean isEmptyInterfaceMethods() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        MethodFilter filter = currentProject.getInterfaceMethods();
+        if (filter == null) {
+            return true;
+        }
+        if (filter.getIncludes() != null && !filter.getIncludes().isEmpty()) {
+            return false;
+        }
+        return filter.getExcludes() == null || filter.getExcludes().isEmpty();
+    }
+
+    public boolean isHasMethodFiltersToMigrate() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        for (Module module : currentProject.getModules()) {
+            if (!isEmptyMethodFilter(module)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void migrateMethodFilters() {
+        tryLockProject();
+
+        var currentProject = studio.getCurrentProject();
+        validatePermissionsForDescriptorFile(currentProject, true);
+
+        var projectDescriptor = studio.getCurrentProjectDescriptor();
+        var newProjectDescriptor = _migrateMethodFilters(projectDescriptor);
+
+        save(newProjectDescriptor);
+    }
+
+    /**
+     * Migrates module-level method-filter regex patterns to project-level interface-methods glob patterns.
+     * <p>
+     * For each module, converts its method-filter includes/excludes from regex to glob syntax,
+     * merges them with any existing interface-methods, clears the module-level filters,
+     * and sets the result on the project descriptor.
+     * <p>
+     * Invalid patterns that cannot match any method signature are silently ignored.
+     *
+     * @param projectDescriptor the project descriptor to migrate
+     * @return a new project descriptor with migrated filters (the original is not modified)
+     */
+    // package-private static for testing
+    static @NonNull ProjectDescriptor _migrateMethodFilters(@NonNull ProjectDescriptor projectDescriptor) {
+        var newProjectDescriptor = Cloner.clone(projectDescriptor);
+
+        clean(newProjectDescriptor);
+
+        // Collect all method-filter patterns from all modules
+        var allIncludes = new LinkedHashSet<String>();
+        var allExcludes = new LinkedHashSet<String>();
+        for (var module : newProjectDescriptor.getModules()) {
+            var mf = module.getMethodFilter();
+            if (mf != null) {
+                if (mf.getIncludes() != null) {
+                    for (var pattern : mf.getIncludes()) {
+                        var converted = convertRegexToGlob(pattern);
+                        if (StringUtils.isNotBlank(converted)) {
+                            allIncludes.add(converted);
+                        }
+                    }
+                }
+                if (mf.getExcludes() != null) {
+                    for (var pattern : mf.getExcludes()) {
+                        var converted = convertRegexToGlob(pattern);
+                        if (StringUtils.isNotBlank(converted)) {
+                            allExcludes.add(converted);
+                        }
+                    }
+                }
+                // Clear module-level method-filter
+                mf.setIncludes(null);
+                mf.setExcludes(null);
+            }
+        }
+
+        // Merge with existing interface-methods if present
+        MethodFilter existing = newProjectDescriptor.getInterfaceMethods();
+        if (existing != null) {
+            if (existing.getIncludes() != null) {
+                allIncludes.addAll(existing.getIncludes());
+            }
+            if (existing.getExcludes() != null) {
+                allExcludes.addAll(existing.getExcludes());
+            }
+        }
+
+        if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
+            MethodFilter filter = new MethodFilter();
+            if (!allIncludes.isEmpty()) {
+                filter.setIncludes(new HashSet<>(allIncludes));
+            }
+            if (!allExcludes.isEmpty()) {
+                filter.setExcludes(new HashSet<>(allExcludes));
+            }
+            newProjectDescriptor.setInterfaceMethods(filter);
+        }
+        return newProjectDescriptor;
+    }
+
+    /**
+     * Converts a method-filter regex pattern (matched against full method signature) to an
+     * interface-methods glob pattern (matched against method name only).
+     * <p>
+     * Method-filter patterns are regexps matched against method signatures in the format:
+     * {@code returnType methodName(ArgType1, ArgType2, ArgTypeN)}.
+     * If the pattern is not a valid regexp or cannot match any method signature, it is ignored.
+     * <p>
+     * Common regex patterns and their conversions:
+     * <ul>
+     *     <li>{@code .+ methodName\(.+\)} → {@code methodName}</li>
+     *     <li>{@code .* methodName\(.*\)} → {@code methodName}</li>
+     *     <li>{@code .+ methodName\(\)} → {@code methodName}</li>
+     *     <li>{@code .*methodName.*} → {@code methodName}</li>
+     *     <li>{@code .*} or {@code *} → {@code *}</li>
+     * </ul>
+     *
+     * @return the converted glob pattern, or {@code null} if the pattern should be ignored
+     */
+    static String convertRegexToGlob(String regex) {
+        if (regex == null || regex.isBlank()) {
+            return null;
+        }
+        regex = regex.trim();
+
+        // Validate that the pattern is a valid regexp and can match a method signature
+        try {
+            Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+            // Not a valid regex
+            return null;
+        }
+
+        var prefix = Pattern.compile("^[^ (]+ ");
+        var matcher = prefix.matcher(regex);
+        if (matcher.find()) {
+            // remove return type definition
+            regex = matcher.replaceFirst("");
+        } else if (!regex.matches("^[.][*+].*")) {
+            // does not match to return type definition of the method signature
+            return null;
+        }
+
+        // Pattern: <returnType> <methodName>(<params>)
+        // e.g., ".+ methodName\(.+\)" or ".* methodName\(.*\)" or ".+ methodName\(\)"
+        var signaturePattern = Pattern.compile("\\\\\\(.*\\\\\\)$");
+        var signatureMatcher = signaturePattern.matcher(regex);
+        if (signatureMatcher.find()) {
+            regex = signatureMatcher.replaceFirst("");
+        }
+
+        // Try to convert simple regex patterns in the name part to glob
+        // Replace .* and .+ with glob *, and . with ?
+        regex = regex.replace("(.*)", "*");
+        regex = regex.replace("(.+)", "*");
+        regex = regex.replace(".*", "*");
+        regex = regex.replace(".+", "*");
+        regex = regex.replace("?", "^"); // replace on the illegal symbol due conflict with Glob
+        regex = regex.replace(".", "?");
+
+        // check on the illegal symbols in the method name glob
+        for (int i = 0; i < regex.length(); i++) {
+            char c = regex.charAt(i);
+            if (c == '\\' || c == '[' || c == ']' || c == '(' || c == ')'
+                    || c == '{' || c == '}' || c == '|' || c == '^'
+                    || c == '+' || c == '.' || c == ' ') {
+                return null;
+            }
+        }
+        // If the result looks clean (no remaining regex metacharacters), return it
+        return regex;
+    }
+
     public void reconcileOpenAPI() {
         tryLockProject();
 
@@ -1206,11 +1460,11 @@ public class ProjectBean {
                     internalOpenAPIPath,
                     converter);
 
-            modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam)).findFirst().ifPresent(m -> {
-                MethodFilter filter = new MethodFilter();
-                filter.setIncludes(projectModel.getIncludeMethodFilter());
-                m.setMethodFilter(filter);
-            });
+            if (!projectModel.getIncludeMethodFilter().isEmpty()) {
+                var interfaceMethods = new MethodFilter();
+                interfaceMethods.setIncludes(projectModel.getIncludeMethodFilter());
+                currentProjectDescriptor.setInterfaceMethods(interfaceMethods);
+            }
 
             addDataTypesFile(modelModulePathParam, currentProject, projectModel);
 
@@ -1518,7 +1772,7 @@ public class ProjectBean {
         WebStudioUtils.getWebStudio().resetProjects();
     }
 
-    private void clean(ProjectDescriptor descriptor) {
+    private static void clean(ProjectDescriptor descriptor) {
         if (CollectionUtils.isEmpty(descriptor.getClasspath())) {
             descriptor.setClasspath(null);
         }
@@ -1696,7 +1950,7 @@ public class ProjectBean {
         // Multiple modules
         List<Module> modules = getModulesMatchingPathPattern(module);
 
-        return CollectionUtils.map(modules, this::getModulePath);
+        return CollectionUtils.map(modules, ProjectBean::getModulePath);
     }
 
     public void setNewFileName(String newFileName) {

@@ -374,6 +374,60 @@
                     </div>
                 </div>
             </h:panelGroup>
+
+            <h:panelGroup rendered="#{!projectBean.emptyInterfaceMethods or editable}">
+                <div class="block editable">
+                    <h3>
+                        <span>Interface Methods</span>
+                        <h:panelGroup rendered="#{editable}">
+                            <a href="javascript:void(0)" title="Manage Interface Methods" class="editable-link"
+                               onclick="manageInterfaceMethods()"><img
+                                    src="#{request.contextPath}/webresource/images/edit.png"
+                                    style="opacity:0.4"/></a>
+                        </h:panelGroup>
+                    </h3>
+                    <div class="block-content">
+                        <h:panelGroup rendered="#{editable and projectBean.emptyInterfaceMethods}">
+                            <a class="link-ref" href="javascript:void(0)"
+                               onclick="manageInterfaceMethods()">Click to manage interface methods</a>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not empty project.interfaceMethods.includes}">
+                            <div title="Included Methods">
+                                <img src="#{request.contextPath}/webresource/images/include.png"
+                                     style="opacity:0.6"/>
+                                <strong>Includes:</strong>
+                                <a4j:repeat value="#{project.interfaceMethods.includes.toArray()}"
+                                            var="include">
+                                    <div style="margin-left:15px">#{include}</div>
+                                </a4j:repeat>
+                            </div>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not empty project.interfaceMethods.excludes}">
+                            <div title="Excluded Methods" style="margin-top:4px">
+                                <img src="#{request.contextPath}/webresource/images/exclude.png"
+                                     style="opacity:0.6"/>
+                                <strong>Excludes:</strong>
+                                <a4j:repeat value="#{project.interfaceMethods.excludes.toArray()}"
+                                            var="exclude">
+                                    <div style="margin-left:15px">#{exclude}</div>
+                                </a4j:repeat>
+                            </div>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{editable and projectBean.hasMethodFiltersToMigrate}">
+                            <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee">
+                                <h:form prependId="false" id="migrateMethodFiltersForm" style="display:inline">
+                                    <a4j:commandButton id="migrateMethodFiltersBtn"
+                                                       value="Migrate Method Filters"
+                                                       action="#{projectBean.migrateMethodFilters}"
+                                                       styleClass="button-primary"
+                                                       onclick="if(!confirm('This will convert module-level method-filter patterns to project-level interface-methods and remove the original method-filter entries. Continue?')) return false;"
+                                                       oncomplete="ws.nav.reload()"/>
+                                </h:form>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </h:panelGroup>
         </div>
     </div>
 
@@ -561,6 +615,46 @@
             </h:form>
         </rich:popupPanel>
 
+        <rich:popupPanel id="manageInterfaceMethodsPopup" minWidth="440" autosized="true">
+            <f:facet name="header">
+                <h:outputText value="Manage Interface Methods"/>
+            </f:facet>
+
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close"
+                                onclick="ws.ui.hide('manageInterfaceMethodsPopup')" alt="Close"/>
+            </f:facet>
+
+            <h:form prependId="false" id="manageInterfaceMethodsForm">
+                <table class="properties properties-form wide">
+                    <tr>
+                        <td>Included Methods:</td>
+                        <td><h:inputTextarea id="interfaceMethodIncludes"
+                                             value="#{projectBean.interfaceMethodIncludes}"
+                                             style="width:310px;height:100px" styleClass="code"/></td>
+                    </tr>
+                    <tr>
+                        <td>Excluded Methods:</td>
+                        <td><h:inputTextarea id="interfaceMethodExcludes"
+                                             value="#{projectBean.interfaceMethodExcludes}"
+                                             style="width:310px;height:100px" styleClass="code"/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="color:#999; font-size:0.9em; padding-top:4px">
+                            One pattern per line. Supports wildcards: * (any characters), ? (one character).
+                        </td>
+                    </tr>
+                </table>
+                <footer>
+                    <a4j:commandButton id="editInterfaceMethodsBtn" value="Save"
+                                       action="#{projectBean.editInterfaceMethods}"
+                                       styleClass="button-primary"
+                                       oncomplete="ws.ui.hide('manageInterfaceMethodsPopup');ws.nav.reload()"/>
+                    <input type="button" value="Cancel"
+                           onclick="ws.ui.hide('manageInterfaceMethodsPopup');"/>
+                </footer>
+            </h:form>
+        </rich:popupPanel>
 
         <script>
             //<![CDATA[
@@ -573,6 +667,8 @@
             }).get();
 
             var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
+            var initInterfaceMethodIncludes = $j("#interfaceMethodIncludes").val();
+            var initInterfaceMethodExcludes = $j("#interfaceMethodExcludes").val();
             var initPropertiesFileNamePattern = $j("#propertiesFileNamePattern").val(); // Плохо, очень плохо!!!
             var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
@@ -687,6 +783,28 @@
                 $j("#sources").on("keyup", function () {
                     btn.prop("disabled", $j("#sources").val() === initSources);
                 })
+            }
+
+            function manageInterfaceMethods() {
+                if (!canOverwriteRevision()) {
+                    return false;
+                }
+
+                var btn = $j("#editInterfaceMethodsBtn");
+
+                btn.prop("disabled", true);
+                $j("#interfaceMethodIncludes").val(initInterfaceMethodIncludes);
+                $j("#interfaceMethodExcludes").val(initInterfaceMethodExcludes);
+
+                ws.ui.show("manageInterfaceMethodsPopup");
+
+                var updateButtonState = function () {
+                    btn.prop("disabled",
+                        $j("#interfaceMethodIncludes").val() === initInterfaceMethodIncludes &&
+                        $j("#interfaceMethodExcludes").val() === initInterfaceMethodExcludes);
+                };
+
+                $j("#interfaceMethodIncludes, #interfaceMethodExcludes").on("change keyup cut paste", updateButtonState);
             }
 
             function initExpandableLink(divWithLink, divToShow) {

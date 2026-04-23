@@ -84,31 +84,6 @@ public abstract class AProjectCreator {
         return createdProjectName;
     }
 
-    private String getErrorMessage(Exception e) {
-        String errorMessage = e.getMessage();
-
-        Throwable cause = e.getCause();
-        // add detailed information
-        if (cause != null) {
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-
-            if (cause.getMessage() != null && !cause.getMessage().equals(errorMessage)) {
-                errorMessage += " Cause: " + cause.getMessage();
-            }
-        }
-
-        if (errorMessage == null) {
-            if (cause instanceof MergeConflictException) {
-                errorMessage = "Merge conflict when create a project.";
-            } else {
-                errorMessage = "Error creating project.";
-            }
-        }
-        return errorMessage;
-    }
-
     protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws ProjectException {
         if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
             // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return

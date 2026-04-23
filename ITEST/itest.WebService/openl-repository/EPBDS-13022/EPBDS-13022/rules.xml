@@ -4,14 +4,14 @@
         <module>
             <name>module1</name>
             <rules-root path="module1.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ main1\(.*\)</value>
-                    <value>.+ main2\(.*\)</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>main1</value>
+            <value>main2</value>
+        </includes>
+    </interface-methods>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>
