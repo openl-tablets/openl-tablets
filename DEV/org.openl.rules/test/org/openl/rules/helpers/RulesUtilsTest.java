@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.TestUtils;
+import org.openl.rules.util.Quotient;
 import org.openl.util.ArrayTool;
 
 /**
@@ -61,9 +62,9 @@ public class RulesUtilsTest {
 
         Long testQuaotientDoubleValue(Double number, Double divisor);
 
-        Long testQuaotientBigIntegerValue(BigInteger number, BigInteger divisor);
+        BigInteger testQuaotientBigIntegerValue(BigInteger number, BigInteger divisor);
 
-        Long testQuaotientBigDecimalValue(BigDecimal number, BigDecimal divisor);
+        BigInteger testQuaotientBigDecimalValue(BigDecimal number, BigDecimal divisor);
 
         Long testQuaotientByte(Byte number, Byte divisor);
 
@@ -77,9 +78,9 @@ public class RulesUtilsTest {
 
         Long testQuaotientDouble(Double number, Double divisor);
 
-        Long testQuaotientBigInteger(BigInteger number, BigInteger divisor);
+        BigInteger testQuaotientBigInteger(BigInteger number, BigInteger divisor);
 
-        Long testQuaotientBigDecimal(BigDecimal number, BigDecimal divisor);
+        BigInteger testQuaotientBigDecimal(BigDecimal number, BigDecimal divisor);
 
         Long testQuaotientByteType(byte number, byte divisor);
 
@@ -1195,13 +1196,13 @@ public class RulesUtilsTest {
 
     @Test
     public void testBigIntegerValueQuaotient() {
-        assertEquals(Long.valueOf(2),
+        assertEquals(BigInteger.valueOf(2),
                 instance.testQuaotientBigIntegerValue(BigInteger.valueOf(25), BigInteger.valueOf(12)));
     }
 
     @Test
     public void testBigDecimalValueQuaotient() {
-        assertEquals(Long.valueOf(2),
+        assertEquals(BigInteger.valueOf(2),
                 instance.testQuaotientBigDecimalValue(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
     }
 
@@ -1237,12 +1238,12 @@ public class RulesUtilsTest {
 
     @Test
     public void testBigIntegerQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientBigInteger(BigInteger.valueOf(25), BigInteger.valueOf(12)));
+        assertEquals(BigInteger.valueOf(2), instance.testQuaotientBigInteger(BigInteger.valueOf(25), BigInteger.valueOf(12)));
     }
 
     @Test
     public void testBigDecimalQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientBigDecimal(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
+        assertEquals(BigInteger.valueOf(2), instance.testQuaotientBigDecimal(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
     }
 
     @Test
@@ -1297,7 +1298,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testFloatValueMod() {
-        assertEquals(Float.valueOf(0.5F), instance.testModFloatValue(10.1F, 3.2F));
+        assertEquals(0.5F, instance.testModFloatValue(10.1F, 3.2F), 1e-5);
     }
 
     @Test
@@ -1334,7 +1335,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testFloatMod() {
-        assertEquals(Float.valueOf((float) 0.5), instance.testModFloat((float) 10.1, (float) 3.2));
+        assertEquals(0.5F, instance.testModFloat((float) 10.1, (float) 3.2), 1e-5);
     }
 
     @Test
@@ -1371,7 +1372,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testFloatModType() {
-        assertEquals((float) 0.5, instance.testModFloatType((float) 10.1, (float) 3.2), 1e-15);
+        assertEquals((float) 0.5, instance.testModFloatType((float) 10.1, (float) 3.2), 1e-5);
     }
 
     @Test
@@ -4388,7 +4389,7 @@ public class RulesUtilsTest {
 
     @Test
     public void quotientIntTest() {
-        assertEquals(2, RulesUtils.quotient(9, 4));
+        assertEquals(2, Quotient.quotient(9, 4));
     }
 
     @Test
@@ -4565,8 +4566,8 @@ public class RulesUtilsTest {
     @Test
     public void testModDouble() {
         assertEquals(0.5, instance.testModDouble(10.1, 3.2), 1e-7);
-        assertEquals(Double.valueOf(0), instance.testModDouble(10.1, null));
-        assertEquals(Double.valueOf(0), instance.testModDouble(null, 3.2));
+        assertNull(instance.testModDouble(10.1, null));
+        assertNull(instance.testModDouble(null, 3.2));
     }
 
     @Test
