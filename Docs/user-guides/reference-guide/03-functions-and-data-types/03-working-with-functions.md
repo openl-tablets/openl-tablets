@@ -69,21 +69,20 @@ The following table lists math functions used in OpenL Tablets:
 
 #### Division and Modulo Functions
 
-OpenL Tablets provides four related functions for integer division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. They split into two families by rounding rule:
+OpenL Tablets provides four related functions for division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. They split into two families by rounding rule:
 
-- **Truncation toward zero** — `quotient` and `remainder` (Java's `/` and `%` semantics).
-- **Floor toward negative infinity** — `floorDiv` and `mod` (Excel's `QUOTIENT`-like integer part via `FLOOR`, and Excel's `MOD` respectively).
+- **Truncation toward zero** — `quotient` and `remainder` (Java `/` and `%` semantics).
+- **Floor toward negative infinity** — `floorDiv` and `mod` (Excel `MOD` semantics).
 
-Each family satisfies the division-algorithm identity:
+Each family satisfies the division identity:
 
-```
-a == b * quotient(a, b) + remainder(a, b)
-a == b * floorDiv(a, b) + mod(a, b)
-```
+$$a = b \cdot \mathrm{quotient}(a, b) + \mathrm{remainder}(a, b)$$
 
-The two families agree when the operands share a sign or when `a` is an exact multiple of `b`; they differ only when signs differ and there is a non-zero remainder:
+$$a = b \cdot \mathrm{floorDiv}(a, b) + \mathrm{mod}(a, b)$$
 
-| `a` | `b` | `quotient` | `remainder` | `floorDiv` | `mod` |
+The two families agree when the operands share a sign or when `a` is an exact multiple of `b`. They differ when the signs differ and the remainder is non-zero:
+
+| $a$ | $b$ | `quotient` | `remainder` | `floorDiv` | `mod` |
 |-----|-----|------------|-------------|------------|-------|
 | 10  | 3   | 3          | 1           | 3          | 1     |
 | -10 | 3   | -3         | -1          | -4         | 2     |
@@ -91,20 +90,25 @@ The two families agree when the operands share a sign or when `a` is an exact mu
 | -10 | -3  | 3          | -1          | 3          | -1    |
 | 12  | 3   | 4          | 0           | 4          | 0     |
 
-The relationship between the two "mod" variants is a normalization:
+The relationship between `remainder` and `mod` is normalization. Let $r = \mathrm{remainder}(a, b)$:
 
-- When `sign(remainder(a, b)) == sign(b)` (or the remainder is zero), `mod(a, b) == remainder(a, b)`.
-- Otherwise, `mod(a, b) == remainder(a, b) + b`.
+$$
+\mathrm{mod}(a, b) =
+\begin{cases}
+r & \text{if } r = 0 \text{ or } \mathrm{sign}(r) = \mathrm{sign}(b) \\
+r + b & \text{otherwise}
+\end{cases}
+$$
 
 **Formulas used per numeric type:**
 
-| Type                        | `quotient(a, b)`                                      | `remainder(a, b)`          | `floorDiv(a, b)`                          | `mod(a, b)`                                       |
-|-----------------------------|-------------------------------------------------------|----------------------------|-------------------------------------------|---------------------------------------------------|
-| `byte`, `short`, `int`      | `a / b`                                               | `a % b`                    | `Math.floorDiv(a, b)`                     | `Math.floorMod(a, b)`                             |
-| `long`                      | `a / b`                                               | `a % b`                    | `Math.floorDiv(a, b)`                     | `Math.floorMod(a, b)`                             |
-| `float`, `double`           | `val = a/b; (val >= 0) ? floor(val) : ceil(val)`      | `a % b` (IEEE 754)         | `Math.floor(a / b)`                       | `a - b * floor(a / b)`                            |
-| `BigInteger`                | `a.divide(b)`                                         | `a.remainder(b)`           | sign-aware `divideAndRemainder` fallback  | `a.remainder(b).add(b).remainder(b)`              |
-| `BigDecimal`                | `a.divideToIntegralValue(b)`                          | `a.remainder(b)`           | `a.divide(b, 0, RoundingMode.FLOOR)`      | sign-aware `remainder(b)` with divisor adjustment |
+| Type                   | `quotient(a, b)`                                                                        | `remainder(a, b)`                     | `floorDiv(a, b)`                           | `mod(a, b)`                           |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------|--------------------------------------------|---------------------------------------|
+| `byte`, `short`, `int` | truncate toward zero — Java `a / b`                                                     | Java `a % b`                          | `Math.floorDiv(a, b)`                      | `Math.floorMod(a, b)`                 |
+| `long`                 | truncate toward zero — Java `a / b`                                                     | Java `a % b`                          | `Math.floorDiv(a, b)`                      | `Math.floorMod(a, b)`                 |
+| `float`, `double`      | $v = a / b;\ v \ge 0 \Rightarrow \lfloor v \rfloor,\ v < 0 \Rightarrow \lceil v \rceil$ | $a - b \cdot \mathrm{quotient}(a, b)$ | $\lfloor a / b \rfloor$                    | $a - b \cdot \mathrm{floorDiv}(a, b)$ |
+| `BigInteger`           | `a.divide(b)`                                                                           | `a.remainder(b)`                      | sign-aware `divideAndRemainder` adjustment | sign-aware `remainder(b)` adjustment  |
+| `BigDecimal`           | `a.divideToIntegralValue(b)`                                                            | `a.remainder(b)`                      | `a.divide(b, 0, RoundingMode.FLOOR)`       | sign-aware `remainder(b)` adjustment  |
 
 **Contract for all four:**
 
@@ -113,7 +117,7 @@ The relationship between the two "mod" variants is a normalization:
 - Integer and `BigInteger`/`BigDecimal` divide-by-zero throws `ArithmeticException` — except for `mod(a, 0)` which returns `a` for rule-engine ergonomics.
 - `float`/`double` divide-by-zero follows IEEE 754: `x / 0.0` → `±Infinity`, `0.0 / 0.0` → `NaN`. `NaN` propagates through all four functions.
 
-> [Note:] `remainder` is truncated remainder and is not the same as `IEEEremainder`, which uses round-half-to-even rounding for the quotient and produces a signed remainder of minimum absolute magnitude.
+> `remainder` is truncated remainder and is not the same as `IEEEremainder`, which uses round-half-to-even rounding for the quotient and produces a signed remainder of minimum absolute magnitude.
 
 #### Round Function
 
