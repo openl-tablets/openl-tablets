@@ -69,28 +69,36 @@ The following table lists math functions used in OpenL Tablets:
 
 #### Division and Modulo Functions
 
-OpenL Tablets provides four related functions for division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. They split into two families by rounding rule:
+OpenL Tablets provides four related functions for division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. Given a dividend $a$ and a non-zero divisor $b$, each function produces a different answer to the question *"what integer multiple of $b$ fits into $a$, and what is left over?"*
 
-- **Truncation toward zero** — `quotient` and `remainder` (Java `/` and `%` semantics).
-- **Floor toward negative infinity** — `floorDiv` and `mod` (Excel `MOD` semantics).
+The four functions split into two families by the rounding rule applied to the quotient:
 
-Each family satisfies the division identity:
+- **Truncation toward zero** — drops the fractional part:
+
+$$\mathrm{quotient}(a, b) = \begin{cases} \lfloor a / b \rfloor & \text{if } a / b \ge 0 \\ \lceil a / b \rceil & \text{if } a / b < 0 \end{cases} \qquad \mathrm{remainder}(a, b) = a - b \cdot \mathrm{quotient}(a, b)$$
+
+- **Floor toward negative infinity** — rounds the quotient down on the number line:
+
+$$\mathrm{floorDiv}(a, b) = \lfloor a / b \rfloor \qquad \mathrm{mod}(a, b) = a - b \cdot \mathrm{floorDiv}(a, b)$$
+
+Each family therefore satisfies the division identity
 
 $$a = b \cdot \mathrm{quotient}(a, b) + \mathrm{remainder}(a, b)$$
 
 $$a = b \cdot \mathrm{floorDiv}(a, b) + \mathrm{mod}(a, b)$$
 
-The two families agree when the operands share a sign or when `a` is an exact multiple of `b`. They differ when the signs differ and the remainder is non-zero:
+and each remainder is bounded in magnitude by the divisor: $0 \le \lvert \mathrm{remainder}(a, b) \rvert < \lvert b \rvert$ and $0 \le \lvert \mathrm{mod}(a, b) \rvert < \lvert b \rvert$.
 
-| $a$ | $b$ | `quotient` | `remainder` | `floorDiv` | `mod` |
-|-----|-----|------------|-------------|------------|-------|
-| 10  | 3   | 3          | 1           | 3          | 1     |
-| -10 | 3   | -3         | -1          | -4         | 2     |
-| 10  | -3  | -3         | 1           | -4         | -2    |
-| -10 | -3  | 3          | -1          | 3          | -1    |
-| 12  | 3   | 4          | 0           | 4          | 0     |
+**Sign of the remainder:**
 
-The relationship between `remainder` and `mod` is normalization. Let $r = \mathrm{remainder}(a, b)$:
+- $\mathrm{remainder}(a, b)$ takes the sign of the dividend $a$.
+- $\mathrm{mod}(a, b)$ takes the sign of the divisor $b$.
+
+**When the two families agree:** the two rounding rules coincide whenever $a / b \ge 0$ or when $a$ is an exact multiple of $b$. They differ only when $a$ and $b$ have opposite signs *and* $a$ is not a multiple of $b$, in which case
+
+$$\mathrm{floorDiv}(a, b) = \mathrm{quotient}(a, b) - 1 \qquad \mathrm{mod}(a, b) = \mathrm{remainder}(a, b) + b$$
+
+Equivalently, letting $r = \mathrm{remainder}(a, b)$:
 
 $$
 \mathrm{mod}(a, b) =
@@ -100,31 +108,26 @@ r + b & \text{otherwise}
 \end{cases}
 $$
 
-**Formulas used per numeric type:**
+The table below illustrates the four sign combinations and the exact-divisibility case:
 
-| Type                   | `quotient(a, b)`                                                                        | `remainder(a, b)`                     | `floorDiv(a, b)`                           | `mod(a, b)`                           |
-|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------|--------------------------------------------|---------------------------------------|
-| `byte`, `short`, `int` | truncate toward zero — Java `a / b`                                                     | Java `a % b`                          | `Math.floorDiv(a, b)`                      | `Math.floorMod(a, b)`                 |
-| `long`                 | truncate toward zero — Java `a / b`                                                     | Java `a % b`                          | `Math.floorDiv(a, b)`                      | `Math.floorMod(a, b)`                 |
-| `float`, `double`      | $v = a / b;\ v \ge 0 \Rightarrow \lfloor v \rfloor,\ v < 0 \Rightarrow \lceil v \rceil$ | $a - b \cdot \mathrm{quotient}(a, b)$ | $\lfloor a / b \rfloor$                    | $a - b \cdot \mathrm{floorDiv}(a, b)$ |
-| `BigInteger`           | `a.divide(b)`                                                                           | `a.remainder(b)`                      | sign-aware `divideAndRemainder` adjustment | sign-aware `remainder(b)` adjustment  |
-| `BigDecimal`           | `a.divideToIntegralValue(b)`                                                            | `a.remainder(b)`                      | `a.divide(b, 0, RoundingMode.FLOOR)`       | sign-aware `remainder(b)` adjustment  |
+| $a$ | $b$ | $\mathrm{quotient}(a,b)$ | $\mathrm{remainder}(a,b)$ | $\mathrm{floorDiv}(a,b)$ | $\mathrm{mod}(a,b)$ |
+|-----|-----|--------------------------|---------------------------|--------------------------|---------------------|
+| 10  | 3   | 3                        | 1                         | 3                        | 1                   |
+| -10 | 3   | -3                       | -1                        | -4                       | 2                   |
+| 10  | -3  | -3                       | 1                         | -4                       | -2                  |
+| -10 | -3  | 3                        | -1                        | 3                        | -1                  |
+| 12  | 3   | 4                        | 0                         | 4                        | 0                   |
 
-**Contract for all four:**
+**Zero divisor ($b = 0$):**
 
-- Return types:
-  - `quotient` and `floorDiv` promote the smaller integer wrappers: `Byte`/`Short`/`Integer` → `Integer`, `Long` → `Long`, `Float` → `Float`, `Double` → `Double`, `BigInteger` → `BigInteger`, `BigDecimal` → `BigDecimal`. This matches the convention used elsewhere in `org.openl.rules.util` (e.g., `Sum.sum(Byte...) → Integer`).
-  - `remainder` and `mod` return the same type as the input (`Byte` → `Byte`, `Integer` → `Integer`, `BigDecimal` → `BigDecimal`, …). This is always safe because `|result| < |b|`, so it fits in the dividend's type.
-- Any `null` argument produces a `null` result.
-- Divide-by-zero behavior varies per function:
-  - Integer `quotient`/`floorDiv`/`remainder` (byte/short/int/long) throw `ArithmeticException` via Java's `/` and `%` operators.
-  - `BigInteger`/`BigDecimal` variants of all four functions throw `ArithmeticException` (inherited from `BigInteger.divide` / `BigDecimal.divide` / `.remainder`) — except **`mod`**, which short-circuits to return the dividend.
-  - Float/double `quotient` follows IEEE 754: `x / 0.0` → `±Infinity`, `0.0 / 0.0` → `NaN`; `floorDiv` likewise (via `Math.floor` of ±Infinity).
-  - Float/double `remainder` yields `NaN` (Java's `%` is NaN when the divisor is zero).
-  - Float/double `mod(a, 0.0)` returns the dividend `a` (rule-engine ergonomics, overrides IEEE 754).
-- `NaN` operands propagate to `NaN` for `quotient`/`floorDiv`/`remainder`/`mod` on float/double, except `quotient` on non-FP types (which throws or is unreachable).
+- $\mathrm{mod}(a, 0) = a$. This is a deliberate convenience so rules do not have to guard against $b = 0$.
+- $\mathrm{quotient}(a, 0)$, $\mathrm{floorDiv}(a, 0)$, and $\mathrm{remainder}(a, 0)$ are undefined — they raise an arithmetic error (integer operands) or yield the standard IEEE 754 special values $\pm\infty$ / $\mathrm{NaN}$ (floating-point operands).
 
-> `remainder` is truncated remainder and is not the same as `IEEEremainder`, which uses round-half-to-even rounding for the quotient and produces a signed remainder of minimum absolute magnitude.
+**Null handling:** if any argument is `null`, every function returns `null`.
+
+**Non-finite floating-point operands:** $\mathrm{NaN}$ propagates through all four functions; infinite operands produce the values dictated by the formulas above ($\pm\infty$ or $\mathrm{NaN}$).
+
+> [Note:] $\mathrm{remainder}$ defined here is *truncated remainder* (quotient rounded toward zero). It is not the same as **IEEEremainder**, which rounds the quotient to the nearest integer and therefore yields a signed remainder of minimum absolute magnitude.
 
 #### Round Function
 
