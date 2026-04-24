@@ -10,10 +10,10 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-public class RemainderTest {
+class RemainderTest {
 
     @Test
-    public void remainderInt() {
+    void remainderInt() {
         // Truncated remainder: same sign as dividend.
         assertEquals(1, Remainder.remainder(7, 3));
         assertEquals(-1, Remainder.remainder(-7, 3));
@@ -28,7 +28,7 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderQuotientIdentity() {
+    void remainderQuotientIdentity() {
         // a == n * quotient(a, n) + remainder(a, n)
         int[][] pairs = {{19, 5}, {-19, 5}, {19, -5}, {-19, -5}, {7, 3}, {-10, 3}, {10, -3}};
         for (int[] p : pairs) {
@@ -38,30 +38,30 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderIntByZero() {
+    void remainderIntByZero() {
         assertThrows(ArithmeticException.class, () -> Remainder.remainder(5, 0));
     }
 
     @Test
-    public void remainderIntOverflowEdgeCase() {
+    void remainderIntOverflowEdgeCase() {
         // Integer.MIN_VALUE % -1 returns 0 in Java.
         assertEquals(0, Remainder.remainder(Integer.MIN_VALUE, -1));
     }
 
     @Test
-    public void remainderLong() {
+    void remainderLong() {
         assertEquals(6L, Remainder.remainder(19L, 13L));
         assertEquals(-6L, Remainder.remainder(-19L, 13L));
         assertEquals(0L, Remainder.remainder(Long.MIN_VALUE, -1L));
     }
 
     @Test
-    public void remainderLongByZero() {
+    void remainderLongByZero() {
         assertThrows(ArithmeticException.class, () -> Remainder.remainder(5L, 0L));
     }
 
     @Test
-    public void remainderByte() {
+    void remainderByte() {
         assertEquals((byte) 6, Remainder.remainder((byte) 19, (byte) 13));
         assertEquals((byte) 6, Remainder.remainder((byte) 19, (byte) -13));
         assertEquals((byte) -6, Remainder.remainder((byte) -19, (byte) 13));
@@ -71,14 +71,14 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderShort() {
+    void remainderShort() {
         assertEquals((short) 6, Remainder.remainder((short) 19, (short) 13));
         assertEquals((short) -6, Remainder.remainder((short) -19, (short) 13));
         assertEquals((short) 9, Remainder.remainder(Short.MAX_VALUE, (short) 11));
     }
 
     @Test
-    public void remainderFloat() {
+    void remainderFloat() {
         assertEquals(1.47f, Remainder.remainder(3.22f, 1.75f), 0.001f);
         assertEquals(1.47f, Remainder.remainder(3.22f, -1.75f), 0.001f);
         assertEquals(-1.47f, Remainder.remainder(-3.22f, 1.75f), 0.001f);
@@ -88,7 +88,7 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderFloatByZero() {
+    void remainderFloatByZero() {
         // x rem 0.0f == NaN (IEEE 754)
         assertTrue(Float.isNaN(Remainder.remainder(3.22f, 0.0f)));
         assertTrue(Float.isNaN(Remainder.remainder(-3.22f, 0.0f)));
@@ -96,7 +96,7 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderFloatNanAndInfinity() {
+    void remainderFloatNanAndInfinity() {
         // NaN propagates via Java's %.
         assertTrue(Float.isNaN(Remainder.remainder(Float.NaN, 3.0f)));
         assertTrue(Float.isNaN(Remainder.remainder(3.0f, Float.NaN)));
@@ -109,7 +109,7 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderDouble() {
+    void remainderDouble() {
         assertEquals(1.47, Remainder.remainder(3.22, 1.75), 0.001);
         assertEquals(1.47, Remainder.remainder(3.22, -1.75), 0.001);
         assertEquals(-1.47, Remainder.remainder(-3.22, 1.75), 0.001);
@@ -118,14 +118,14 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderDoubleByZero() {
+    void remainderDoubleByZero() {
         assertTrue(Double.isNaN(Remainder.remainder(3.22, 0.0)));
         assertTrue(Double.isNaN(Remainder.remainder(-3.22, 0.0)));
         assertTrue(Double.isNaN(Remainder.remainder(0.0, 0.0)));
     }
 
     @Test
-    public void remainderDoubleNanAndInfinity() {
+    void remainderDoubleNanAndInfinity() {
         assertTrue(Double.isNaN(Remainder.remainder(Double.NaN, 3.0)));
         assertTrue(Double.isNaN(Remainder.remainder(3.0, Double.NaN)));
         assertEquals(3.0, Remainder.remainder(3.0, Double.POSITIVE_INFINITY), 0.0);
@@ -135,7 +135,7 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderBigInteger() {
+    void remainderBigInteger() {
         assertEquals(BigInteger.valueOf(6), Remainder.remainder(BigInteger.valueOf(19), BigInteger.valueOf(13)));
         assertEquals(BigInteger.valueOf(6), Remainder.remainder(BigInteger.valueOf(19), BigInteger.valueOf(-13)));
         assertEquals(BigInteger.valueOf(-6), Remainder.remainder(BigInteger.valueOf(-19), BigInteger.valueOf(13)));
@@ -145,7 +145,7 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderBigIntegerLarge() {
+    void remainderBigIntegerLarge() {
         BigInteger dividend = new BigInteger("203000745502000030060144252100");
         assertEquals(BigInteger.valueOf(59), Remainder.remainder(dividend, BigInteger.valueOf(97)));
         assertEquals(BigInteger.valueOf(59), Remainder.remainder(dividend, BigInteger.valueOf(-97)));
@@ -154,13 +154,13 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderBigIntegerByZero() {
+    void remainderBigIntegerByZero() {
         assertThrows(ArithmeticException.class,
                 () -> Remainder.remainder(BigInteger.valueOf(19), BigInteger.ZERO));
     }
 
     @Test
-    public void remainderBigDecimal() {
+    void remainderBigDecimal() {
         assertEquals(BigDecimal.valueOf(1.47), Remainder.remainder(BigDecimal.valueOf(3.22), BigDecimal.valueOf(1.75)));
         assertEquals(BigDecimal.valueOf(1.47), Remainder.remainder(BigDecimal.valueOf(3.22), BigDecimal.valueOf(-1.75)));
         assertEquals(BigDecimal.valueOf(-1.47), Remainder.remainder(BigDecimal.valueOf(-3.22), BigDecimal.valueOf(1.75)));
@@ -168,19 +168,19 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderBigDecimalLarge() {
+    void remainderBigDecimalLarge() {
         BigDecimal dividend = new BigDecimal("203000745502000030060144252100");
         assertEquals(BigDecimal.valueOf(59), Remainder.remainder(dividend, BigDecimal.valueOf(97)));
     }
 
     @Test
-    public void remainderBigDecimalByZero() {
+    void remainderBigDecimalByZero() {
         assertThrows(ArithmeticException.class,
                 () -> Remainder.remainder(BigDecimal.valueOf(19), BigDecimal.ZERO));
     }
 
     @Test
-    public void remainderBoxedNulls() {
+    void remainderBoxedNulls() {
         assertNull(Remainder.remainder(null, (byte) 13));
         assertNull(Remainder.remainder((byte) 13, null));
 
@@ -207,11 +207,11 @@ public class RemainderTest {
     }
 
     @Test
-    public void remainderBoxedHappyPath() {
-        assertEquals(Byte.valueOf((byte) 6), Remainder.remainder((byte) 19, (byte) 13));
-        assertEquals(Short.valueOf((short) 6), Remainder.remainder((short) 19, (short) 13));
-        assertEquals(Integer.valueOf(1), Remainder.remainder(7, 3));
-        assertEquals(Long.valueOf(1L), Remainder.remainder(7L, 3L));
+    void remainderBoxedHappyPath() {
+        assertEquals((byte) 6, Remainder.remainder((byte) 19, (byte) 13));
+        assertEquals((short) 6, Remainder.remainder((short) 19, (short) 13));
+        assertEquals(1, Remainder.remainder(7, 3));
+        assertEquals(1L, Remainder.remainder(7L, 3L));
         assertEquals(1.47f, Remainder.remainder(3.22f, 1.75f), 0.001f);
         assertEquals(1.47, Remainder.remainder(3.22, 1.75), 0.001);
     }

@@ -9,10 +9,10 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-public class ModularTest {
+class ModularTest {
 
     @Test
-    public void modInt() {
+    void modInt() {
         assertEquals(6, Modular.mod(19, 13));
         assertEquals(-7, Modular.mod(19, -13));
         assertEquals(7, Modular.mod(-19, 13));
@@ -25,7 +25,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modByteLarge() {
+    void modByteLarge() {
         // Boundary values never overflow the byte return because |remainder| < |divisor| <= 128.
         assertEquals((byte) 1, Modular.mod(Byte.MAX_VALUE, (byte) 7));
         assertEquals((byte) 5, Modular.mod(Byte.MIN_VALUE, (byte) 7));
@@ -36,7 +36,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modShortLarge() {
+    void modShortLarge() {
         assertEquals((short) 9, Modular.mod(Short.MAX_VALUE, (short) 11));
         assertEquals((short) 1, Modular.mod(Short.MIN_VALUE, (short) 11));
         assertEquals((short) -1, Modular.mod(Short.MAX_VALUE, Short.MIN_VALUE));
@@ -46,7 +46,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modFloatLarge() {
+    void modFloatLarge() {
         // 1e7 is exactly representable in float (< 2^24).
         assertEquals(3.0f, Modular.mod(1.0e7f, 7.0f), 0.0f);
         assertEquals(-4.0f, Modular.mod(1.0e7f, -7.0f), 0.0f);
@@ -64,22 +64,22 @@ public class ModularTest {
     }
 
     @Test
-    public void modIntOverflowEdgeCase() {
+    void modIntOverflowEdgeCase() {
         // Integer.MIN_VALUE % -1 returns 0 in Java (avoids the overflow of the division).
         assertEquals(0, Modular.mod(Integer.MIN_VALUE, -1));
         assertEquals(0, Modular.mod(Integer.MIN_VALUE, 1));
     }
 
     @Test
-    public void modIntByZero() {
+    void modIntByZero() {
         // x mod 0 == x (does not throw)
-        assertEquals(Integer.valueOf(5), Modular.mod(5, 0));
-        assertEquals(Integer.valueOf(-5), Modular.mod(-5, 0));
-        assertEquals(Integer.valueOf(0), Modular.mod(0, 0));
+        assertEquals(5, Modular.mod(5, 0));
+        assertEquals(-5, Modular.mod(-5, 0));
+        assertEquals(0, Modular.mod(0, 0));
     }
 
     @Test
-    public void modLong() {
+    void modLong() {
         assertEquals(6L, Modular.mod(19L, 13L));
         assertEquals(-7L, Modular.mod(19L, -13L));
         assertEquals(7L, Modular.mod(-19L, 13L));
@@ -90,13 +90,13 @@ public class ModularTest {
     }
 
     @Test
-    public void modLongByZero() {
-        assertEquals(Long.valueOf(5L), Modular.mod(5L, 0L));
-        assertEquals(Long.valueOf(-5L), Modular.mod(-5L, 0L));
+    void modLongByZero() {
+        assertEquals(5L, Modular.mod(5L, 0L));
+        assertEquals(-5L, Modular.mod(-5L, 0L));
     }
 
     @Test
-    public void modByte() {
+    void modByte() {
         assertEquals((byte) 6, Modular.mod((byte) 19, (byte) 13));
         assertEquals((byte) -7, Modular.mod((byte) 19, (byte) -13));
         assertEquals((byte) 7, Modular.mod((byte) -19, (byte) 13));
@@ -105,7 +105,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modShort() {
+    void modShort() {
         assertEquals((short) 6, Modular.mod((short) 19, (short) 13));
         assertEquals((short) -7, Modular.mod((short) 19, (short) -13));
         assertEquals((short) 7, Modular.mod((short) -19, (short) 13));
@@ -114,7 +114,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modFloat() {
+    void modFloat() {
         assertEquals(1.47f, Modular.mod(3.22f, 1.75f), 0.001f);
         assertEquals(-0.28f, Modular.mod(3.22f, -1.75f), 0.001f);
         assertEquals(0.28f, Modular.mod(-3.22f, 1.75f), 0.001f);
@@ -124,14 +124,14 @@ public class ModularTest {
     }
 
     @Test
-    public void modFloatByZero() {
+    void modFloatByZero() {
         assertEquals(3.22f, Modular.mod(3.22f, 0.0f), 0.0f);
         assertEquals(3.22f, Modular.mod(3.22f, -0.0f), 0.0f);
         assertEquals(-3.22f, Modular.mod(-3.22f, 0.0f), 0.0f);
     }
 
     @Test
-    public void modFloatNanAndInfinity() {
+    void modFloatNanAndInfinity() {
         // NaN propagates (IEEE 754).
         assertTrue(Float.isNaN(Modular.mod(Float.NaN, 3.0f)));
         assertTrue(Float.isNaN(Modular.mod(3.0f, Float.NaN)));
@@ -144,7 +144,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modDouble() {
+    void modDouble() {
         assertEquals(1.47, Modular.mod(3.22, 1.75), 0.001);
         assertEquals(-0.28, Modular.mod(3.22, -1.75), 0.001);
         assertEquals(0.28, Modular.mod(-3.22, 1.75), 0.001);
@@ -154,14 +154,14 @@ public class ModularTest {
     }
 
     @Test
-    public void modDoubleByZero() {
+    void modDoubleByZero() {
         assertEquals(3.22, Modular.mod(3.22, 0.0), 0.0);
         assertEquals(3.22, Modular.mod(3.22, -0.0), 0.0);
         assertEquals(-3.22, Modular.mod(-3.22, 0.0), 0.0);
     }
 
     @Test
-    public void modDoubleNanAndInfinity() {
+    void modDoubleNanAndInfinity() {
         assertTrue(Double.isNaN(Modular.mod(Double.NaN, 3.0)));
         assertTrue(Double.isNaN(Modular.mod(3.0, Double.NaN)));
         assertEquals(3.0, Modular.mod(3.0, Double.POSITIVE_INFINITY), 0.0);
@@ -171,7 +171,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modBigInteger() {
+    void modBigInteger() {
         assertEquals(BigInteger.valueOf(6), Modular.mod(BigInteger.valueOf(19), BigInteger.valueOf(13)));
         assertEquals(BigInteger.valueOf(-7), Modular.mod(BigInteger.valueOf(19), BigInteger.valueOf(-13)));
         assertEquals(BigInteger.valueOf(7), Modular.mod(BigInteger.valueOf(-19), BigInteger.valueOf(13)));
@@ -181,7 +181,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modBigIntegerLarge() {
+    void modBigIntegerLarge() {
         // quotient far exceeds Long.MAX_VALUE — verifies no silent long-truncation.
         BigInteger dividend = new BigInteger("203000745502000030060144252100");
         assertEquals(BigInteger.valueOf(59), Modular.mod(dividend, BigInteger.valueOf(97)));
@@ -191,20 +191,20 @@ public class ModularTest {
     }
 
     @Test
-    public void modBigIntegerByZero() {
+    void modBigIntegerByZero() {
         assertEquals(BigInteger.valueOf(19), Modular.mod(BigInteger.valueOf(19), BigInteger.ZERO));
         assertEquals(BigInteger.valueOf(-19), Modular.mod(BigInteger.valueOf(-19), BigInteger.ZERO));
     }
 
     @Test
-    public void modBigIntegerNull() {
+    void modBigIntegerNull() {
         assertNull(Modular.mod((BigInteger) null, BigInteger.valueOf(13)));
         assertNull(Modular.mod(BigInteger.valueOf(13), (BigInteger) null));
         assertNull(Modular.mod((BigInteger) null, (BigInteger) null));
     }
 
     @Test
-    public void modBigDecimal() {
+    void modBigDecimal() {
         assertEquals(BigDecimal.valueOf(1.47), Modular.mod(BigDecimal.valueOf(3.22), BigDecimal.valueOf(1.75)));
         assertEquals(BigDecimal.valueOf(-0.28), Modular.mod(BigDecimal.valueOf(3.22), BigDecimal.valueOf(-1.75)));
         assertEquals(BigDecimal.valueOf(0.28), Modular.mod(BigDecimal.valueOf(-3.22), BigDecimal.valueOf(1.75)));
@@ -214,7 +214,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modBigDecimalLarge() {
+    void modBigDecimalLarge() {
         BigDecimal dividend = new BigDecimal("203000745502000030060144252100");
         assertEquals(BigDecimal.valueOf(59), Modular.mod(dividend, BigDecimal.valueOf(97)));
         assertEquals(BigDecimal.valueOf(-38), Modular.mod(dividend, BigDecimal.valueOf(-97)));
@@ -223,56 +223,56 @@ public class ModularTest {
     }
 
     @Test
-    public void modBigDecimalByZero() {
+    void modBigDecimalByZero() {
         assertEquals(BigDecimal.valueOf(19), Modular.mod(BigDecimal.valueOf(19), BigDecimal.ZERO));
         assertEquals(BigDecimal.valueOf(-19), Modular.mod(BigDecimal.valueOf(-19), BigDecimal.ZERO));
     }
 
     @Test
-    public void modBigDecimalNull() {
+    void modBigDecimalNull() {
         assertNull(Modular.mod(null, BigDecimal.valueOf(13)));
         assertNull(Modular.mod(BigDecimal.valueOf(13), null));
         assertNull(Modular.mod(null, (BigDecimal) null));
     }
 
     @Test
-    public void modByteBoxed() {
-        assertEquals(Byte.valueOf((byte) 6), Modular.mod((byte) 19, (byte) 13));
-        assertEquals(Byte.valueOf((byte) -7), Modular.mod((byte) 19, (byte) -13));
+    void modByteBoxed() {
+        assertEquals((byte) 6, Modular.mod((byte) 19, (byte) 13));
+        assertEquals((byte) -7, Modular.mod((byte) 19, (byte) -13));
         assertNull(Modular.mod(null, (byte) 13));
         assertNull(Modular.mod((byte) 13, null));
         assertNull(Modular.mod(null, (Byte) null));
     }
 
     @Test
-    public void modShortBoxed() {
-        assertEquals(Short.valueOf((short) 6), Modular.mod((short) 19, (short) 13));
-        assertEquals(Short.valueOf((short) -7), Modular.mod((short) 19, (short) -13));
+    void modShortBoxed() {
+        assertEquals((short) 6, Modular.mod((short) 19, (short) 13));
+        assertEquals((short) -7, Modular.mod((short) 19, (short) -13));
         assertNull(Modular.mod(null, (short) 13));
         assertNull(Modular.mod((short) 13, null));
         assertNull(Modular.mod(null, (Short) null));
     }
 
     @Test
-    public void modIntegerBoxed() {
-        assertEquals(Integer.valueOf(6), Modular.mod(19, 13));
-        assertEquals(Integer.valueOf(-7), Modular.mod(19, -13));
+    void modIntegerBoxed() {
+        assertEquals(6, Modular.mod(19, 13));
+        assertEquals(-7, Modular.mod(19, -13));
         assertNull(Modular.mod(null, 13));
         assertNull(Modular.mod(13, null));
         assertNull(Modular.mod(null, (Integer) null));
     }
 
     @Test
-    public void modLongBoxed() {
-        assertEquals(Long.valueOf(6L), Modular.mod(19L, 13L));
-        assertEquals(Long.valueOf(-7L), Modular.mod(19L, -13L));
+    void modLongBoxed() {
+        assertEquals(6L, Modular.mod(19L, 13L));
+        assertEquals(-7L, Modular.mod(19L, -13L));
         assertNull(Modular.mod(null, 13L));
         assertNull(Modular.mod(13L, null));
         assertNull(Modular.mod(null, (Long) null));
     }
 
     @Test
-    public void modFloatBoxed() {
+    void modFloatBoxed() {
         assertEquals(1.47f, Modular.mod(3.22f, 1.75f), 0.001f);
         assertEquals(-0.28f, Modular.mod(3.22f, -1.75f), 0.001f);
         assertNull(Modular.mod(null, 1.75f));
@@ -281,7 +281,7 @@ public class ModularTest {
     }
 
     @Test
-    public void modDoubleBoxed() {
+    void modDoubleBoxed() {
         assertEquals(1.47, Modular.mod(3.22, 1.75), 0.001);
         assertEquals(-0.28, Modular.mod(3.22, -1.75), 0.001);
         assertNull(Modular.mod(null, 1.75));

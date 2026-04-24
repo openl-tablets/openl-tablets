@@ -29,7 +29,11 @@ import java.math.RoundingMode;
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  */
-public class FloorDiv {
+public final class FloorDiv {
+
+    private FloorDiv() {
+        // Utility class
+    }
 
     public static Integer floorDiv(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {

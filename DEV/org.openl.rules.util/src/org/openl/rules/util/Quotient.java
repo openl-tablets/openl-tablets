@@ -28,7 +28,11 @@ import java.math.BigInteger;
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  */
-public class Quotient {
+public final class Quotient {
+
+    private Quotient() {
+        // Utility class
+    }
 
     public static Integer quotient(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {

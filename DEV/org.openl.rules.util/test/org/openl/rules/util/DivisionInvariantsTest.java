@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.FieldSource;
  *       of {@code n}, MOD and REMAINDER differ; when signs match they coincide.</li>
  * </ul>
  */
-public class DivisionInvariantsTest {
+class DivisionInvariantsTest {
 
     // Sign matrix, exact divisibility, zero dividend, plus the Excel/Wikipedia canonical examples.
     static final Arguments[] INT_PAIRS = {
@@ -54,7 +54,7 @@ public class DivisionInvariantsTest {
         byte ab = (byte) a, nb = (byte) n;
         int q = Quotient.quotient(ab, nb);
         byte r = Remainder.remainder(ab, nb);
-        assertEquals((int) ab, nb * q + r);
+        assertEquals(ab, nb * q + r);
     }
 
     @ParameterizedTest(name = "short ({0}, {1})")
@@ -63,7 +63,7 @@ public class DivisionInvariantsTest {
         short as = (short) a, ns = (short) n;
         int q = Quotient.quotient(as, ns);
         short r = Remainder.remainder(as, ns);
-        assertEquals((int) as, ns * q + r);
+        assertEquals(as, ns * q + r);
     }
 
     @ParameterizedTest(name = "int ({0}, {1})")

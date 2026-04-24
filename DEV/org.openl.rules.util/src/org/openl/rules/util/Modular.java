@@ -23,7 +23,11 @@ import java.math.BigInteger;
  *   return r
  * }</pre>
  */
-public class Modular {
+public final class Modular {
+
+    private Modular() {
+        // Utility class
+    }
 
     public static Byte mod(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {

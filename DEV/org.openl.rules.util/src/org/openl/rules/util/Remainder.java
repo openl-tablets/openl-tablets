@@ -37,7 +37,11 @@ import java.math.BigInteger;
  *
  * @see <a href="https://en.wikipedia.org/wiki/Remainder">Remainder (Wikipedia)</a>
  */
-public class Remainder {
+public final class Remainder {
+
+    private Remainder() {
+        // Utility class
+    }
 
     public static Byte remainder(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {
