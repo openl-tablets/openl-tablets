@@ -22,6 +22,7 @@
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
 
     "stableTypeOrdering": true,
 

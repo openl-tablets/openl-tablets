@@ -98,7 +98,7 @@ export interface MergeModalDetail {
 export interface ConflictFileState {
     filePath: string
     resolution: ConflictResolutionStrategy | null
-    customFile?: File
+    customFile?: File | undefined
 }
 
 // Internal state: All conflicts grouped

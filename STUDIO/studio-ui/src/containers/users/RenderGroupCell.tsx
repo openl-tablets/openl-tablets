@@ -116,9 +116,9 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
                         renderButton={(onOpenEditDrawer) => (
                             <Tag
                                 key={group.name}
-                                color={group.color}
                                 onClick={() => onClickGroup(group, onOpenEditDrawer)}
                                 style={{ cursor: 'pointer', margin: '2px' }}
+                                {...(group.color !== undefined && { color: group.color })}
                             >
                                 {group.name}
                             </Tag>

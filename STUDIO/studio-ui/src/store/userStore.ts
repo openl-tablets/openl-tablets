@@ -3,8 +3,8 @@ import { apiCall } from '../services'
 import { UserDetails, UserProfile } from '../types/user'
 
 interface UserStore {
-    userProfile?: UserProfile
-    userDetails?: UserDetails
+    userProfile?: UserProfile | undefined
+    userDetails?: UserDetails | undefined
     loading: boolean
     error: any | null
     isLoggedIn: boolean

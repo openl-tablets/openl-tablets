@@ -7,7 +7,7 @@ import { useCopyToClipboard } from '../hooks/useCopyToClipboard'
 
 interface CopyJsonButtonProps {
     /** Single parameter (for result) or array of parameters */
-    data?: TraceParameterValue | TraceParameterValue[]
+    data?: TraceParameterValue | TraceParameterValue[] | undefined
     /** i18n key for tooltip: 'copy.parameters' or 'copy.result' */
     tooltipKey: string
 }

@@ -49,8 +49,18 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
     }, [value])
 
     return (
-        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdRadio.Group disabled={isDisabled} options={options} style={style} />
+        <Form.Item
+            label={label}
+            name={name}
+            rules={allRules}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
+            {...rest}
+        >
+            <AntdRadio.Group
+                options={options}
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
+                {...(style !== undefined && { style })}
+            />
         </Form.Item>
     )
 }

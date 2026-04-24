@@ -251,9 +251,9 @@ export const TraceExecutionModal: React.FC = () => {
             // 3. Call trace API
             await traceService.startTrace(projId, {
                 tableId: tblId,
-                testRanges: eventDetail.testRanges,
-                fromModule: eventDetail.fromModule,
-                inputJson: eventDetail.inputJson
+                ...(eventDetail.testRanges !== undefined && { testRanges: eventDetail.testRanges }),
+                ...(eventDetail.fromModule !== undefined && { fromModule: eventDetail.fromModule }),
+                ...(eventDetail.inputJson !== undefined && { inputJson: eventDetail.inputJson })
             })
 
             // Check if execution was cancelled during API call

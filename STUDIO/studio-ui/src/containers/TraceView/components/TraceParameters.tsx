@@ -241,11 +241,11 @@ const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
 }
 
 interface TraceParametersProps {
-    parameters?: TraceParameterValue[]
+    parameters?: TraceParameterValue[] | undefined
     title: string
-    emptyText?: string
+    emptyText?: string | undefined
     /** Optional copy button to display next to the title */
-    copyButton?: React.ReactNode
+    copyButton?: React.ReactNode | undefined
 }
 
 /**
@@ -296,11 +296,11 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
  * Component for displaying a single parameter value (e.g., context, result).
  */
 export const SingleParameter: React.FC<{
-    parameter?: TraceParameterValue
+    parameter?: TraceParameterValue | undefined
     title: string
-    emptyText?: string
+    emptyText?: string | undefined
     /** Optional copy button to display next to the title */
-    copyButton?: React.ReactNode
+    copyButton?: React.ReactNode | undefined
 }> = ({ parameter, title, emptyText, copyButton }) => {
     const { t } = useTranslation('trace')
 

@@ -2,13 +2,13 @@
 
 export interface ErrorInfo {
   message: string;
-  stack?: string;
-  componentStack?: string;
+  stack?: string | undefined;
+  componentStack?: string | undefined;
   timestamp: Date;
-  userId?: string;
-  sessionId?: string;
-  url?: string;
-  userAgent?: string;
+  userId?: string | undefined;
+  sessionId?: string | undefined;
+  url?: string | undefined;
+  userAgent?: string | undefined;
 }
 
 export class ErrorHandler {

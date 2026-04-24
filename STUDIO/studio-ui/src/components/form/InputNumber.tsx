@@ -59,10 +59,14 @@ const InputNumber: FC<InputNumberProps> = ({
             label={label}
             name={name}
             rules={allRules}
-            style={formItemStyle}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
             {...rest}
         >
-            <AntdInputNumber disabled={isDisabled} placeholder={placeholder} style={inputStyle} />
+            <AntdInputNumber
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
+                {...(placeholder !== undefined && { placeholder })}
+                style={inputStyle}
+            />
         </Form.Item>
     )
 }

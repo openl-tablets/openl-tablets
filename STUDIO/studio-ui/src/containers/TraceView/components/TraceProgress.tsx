@@ -17,9 +17,9 @@ import {
 
 interface TraceProgressProps {
     status: TraceExecutionStatus | null
-    message?: string
-    onCancel?: () => void
-    onDismiss?: () => void
+    message?: string | undefined
+    onCancel?: (() => void) | undefined
+    onDismiss?: (() => void) | undefined
     visible: boolean
 }
 
