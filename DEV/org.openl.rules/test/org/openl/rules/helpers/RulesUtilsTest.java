@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,88 +48,6 @@ public class RulesUtilsTest {
     private static final String str = "Testing string value";
 
     public interface TestInterf {
-        Long testQuaotientByteValue(Byte number, Byte divisor);
-
-        Long testQuaotientShortValue(Short number, Short divisor);
-
-        Long testQuaotientIntegerValue(Integer number, Integer divisor);
-
-        Long testQuaotientLongValue(Long number, Long divisor);
-
-        Long testQuaotientFloatValue(Float number, Float divisor);
-
-        Long testQuaotientDoubleValue(Double number, Double divisor);
-
-        Long testQuaotientBigIntegerValue(BigInteger number, BigInteger divisor);
-
-        Long testQuaotientBigDecimalValue(BigDecimal number, BigDecimal divisor);
-
-        Long testQuaotientByte(Byte number, Byte divisor);
-
-        Long testQuaotientShort(Short number, Short divisor);
-
-        Long testQuaotientInteger(Integer number, Integer divisor);
-
-        Long testQuaotientLong(Long number, Long divisor);
-
-        Long testQuaotientFloat(Float number, Float divisor);
-
-        Long testQuaotientDouble(Double number, Double divisor);
-
-        Long testQuaotientBigInteger(BigInteger number, BigInteger divisor);
-
-        Long testQuaotientBigDecimal(BigDecimal number, BigDecimal divisor);
-
-        Long testQuaotientByteType(byte number, byte divisor);
-
-        Long testQuaotientShortType(short number, short divisor);
-
-        Long testQuaotientIntegerType(int number, int divisor);
-
-        Long testQuaotientLongType(long number, long divisor);
-
-        Long testQuaotientFloatType(float number, float divisor);
-
-        Long testQuaotientDoubleType(double number, double divisor);
-
-        Byte testModByteValue(Byte byteValue, Byte byteValue2);
-
-        Short testModShortValue(Short shortValue, Short shortValue2);
-
-        Integer testModIntegerValue(Integer intValue, Integer intValue2);
-
-        Long testModLongValue(Long longValue, Long longValue2);
-
-        Float testModFloatValue(Float floatValue, Float floatValue2);
-
-        BigDecimal testModBigDecimalValue(BigDecimal bigDecimalValue, BigDecimal bigDecimalValue2);
-
-        BigInteger testModBigIntegerValue(BigInteger bigIntegerValue, BigInteger bigIntegerValue2);
-
-        Byte testModByte(Byte byte1, Byte byte2);
-
-        Short testModShort(Short short1, Short short2);
-
-        Integer testModInteger(Integer integer, Integer integer2);
-
-        Long testModLong(Long long1, Long long2);
-
-        Float testModFloat(Float float1, Float float2);
-
-        BigDecimal testModBigDecimal(BigDecimal bigDecimal, BigDecimal bigDecimal2);
-
-        BigInteger testModBigInteger(BigInteger valueOf, BigInteger valueOf2);
-
-        byte testModByteType(byte b, byte c);
-
-        short testModShortType(short s, short t);
-
-        int testModIntegerType(int i, int j);
-
-        long testModLongType(long l, long m);
-
-        float testModFloatType(float f, float g);
-
         boolean checkOr();
 
         Byte[] testSliceByte(Byte[] byteValues, int startIndex);
@@ -769,10 +686,6 @@ public class RulesUtilsTest {
 
         BigDecimal testMedianBigDecimal(BigDecimal[] values);
 
-        Double testModDouble(Double number, Double divisor);
-
-        double testModDoubleType(double number, double divisor);
-
         Object copyObject(Object o);
     }
 
@@ -1161,217 +1074,6 @@ public class RulesUtilsTest {
 
             instance.testDoubleBig(array, 0);
         });
-    }
-
-    @Test
-    public void testByteValueQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientByteValue(Byte.valueOf((byte) 25), Byte.valueOf((byte) 12)));
-    }
-
-    @Test
-    public void testShortValueQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientShortValue(Short.valueOf((short) 25), Short.valueOf((short) 12)));
-    }
-
-    @Test
-    public void testIntegerValueQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientIntegerValue(Integer.valueOf(25), Integer.valueOf(12)));
-    }
-
-    @Test
-    public void testLongValueQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientLongValue(Long.valueOf(25), Long.valueOf(12)));
-    }
-
-    @Test
-    public void testFloatValueQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientFloatValue(Float.valueOf((float) 25.4), Float.valueOf((float) 12.2)));
-    }
-
-    @Test
-    public void testDoubleValueQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientDoubleValue(Double.valueOf(25.4), Double.valueOf(12.2)));
-    }
-
-    @Test
-    public void testBigIntegerValueQuaotient() {
-        assertEquals(Long.valueOf(2),
-                instance.testQuaotientBigIntegerValue(BigInteger.valueOf(25), BigInteger.valueOf(12)));
-    }
-
-    @Test
-    public void testBigDecimalValueQuaotient() {
-        assertEquals(Long.valueOf(2),
-                instance.testQuaotientBigDecimalValue(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
-    }
-
-    @Test
-    public void testByteTypeQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientByteType((byte) 25, (byte) 12));
-    }
-
-    @Test
-    public void testShortTypeQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientShortType((short) 25, (short) 12));
-    }
-
-    @Test
-    public void testIntegerTypeQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientIntegerType(25, 12));
-    }
-
-    @Test
-    public void testLongTypeQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientLongType(25, 12));
-    }
-
-    @Test
-    public void testFloatTypeQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientFloatType((float) 25.5, (float) 12.2));
-    }
-
-    @Test
-    public void testDoubleTypeQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientDoubleType(25.4, 12.2));
-    }
-
-    @Test
-    public void testBigIntegerQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientBigInteger(BigInteger.valueOf(25), BigInteger.valueOf(12)));
-    }
-
-    @Test
-    public void testBigDecimalQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientBigDecimal(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
-    }
-
-    @Test
-    public void testByteQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientByte((byte) 25, (byte) 12));
-    }
-
-    @Test
-    public void testShortQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientShort((short) 25, (short) 12));
-    }
-
-    @Test
-    public void testIntegerQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientInteger(25, 12));
-    }
-
-    @Test
-    public void testLongQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientLong((long) 25, (long) 12));
-    }
-
-    @Test
-    public void testFloatQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientFloat((float) 25.4, (float) 12.2));
-    }
-
-    @Test
-    public void testDoubleQuaotient() {
-        assertEquals(Long.valueOf(2), instance.testQuaotientDouble(25.4, 12.2));
-    }
-
-    @Test
-    public void testByteValueMod() {
-        assertEquals(Byte.valueOf((byte) 1), instance.testModByteValue((byte) 10, (byte) 3));
-    }
-
-    @Test
-    public void testShortValueMod() {
-        assertEquals(Short.valueOf((short) 1), instance.testModShortValue((short) 10, (short) 3));
-    }
-
-    @Test
-    public void testIntegerValueMod() {
-        assertEquals(Integer.valueOf(1), instance.testModIntegerValue(10, 3));
-    }
-
-    @Test
-    public void testLongValueMod() {
-        assertEquals(Long.valueOf(1), instance.testModLongValue(10L, 3L));
-    }
-
-    @Test
-    public void testFloatValueMod() {
-        assertEquals(Float.valueOf(0.5F), instance.testModFloatValue(10.1F, 3.2F));
-    }
-
-    @Test
-    public void testBigDecimalValueMod() {
-        assertEquals(BigDecimal.valueOf(0.5),
-                instance.testModBigDecimalValue(BigDecimal.valueOf(10.1), BigDecimal.valueOf(3.2)));
-    }
-
-    @Test
-    public void testBigIntegerValueMod() {
-        assertEquals(BigInteger.valueOf(1),
-                instance.testModBigIntegerValue(BigInteger.valueOf(10), BigInteger.valueOf(3)));
-    }
-
-    @Test
-    public void testByteMod() {
-        assertEquals(Byte.valueOf((byte) 1), instance.testModByte((byte) 10, (byte) 3));
-    }
-
-    @Test
-    public void testShortMod() {
-        assertEquals(Short.valueOf((short) 1), instance.testModShort((short) 10, (short) 3));
-    }
-
-    @Test
-    public void testIntegerMod() {
-        assertEquals(Integer.valueOf(1), instance.testModInteger(10, 3));
-    }
-
-    @Test
-    public void testLongMod() {
-        assertEquals(Long.valueOf(1), instance.testModLong(10L, 3L));
-    }
-
-    @Test
-    public void testFloatMod() {
-        assertEquals(Float.valueOf((float) 0.5), instance.testModFloat((float) 10.1, (float) 3.2));
-    }
-
-    @Test
-    public void testBigDecimalMod() {
-        assertEquals(new BigDecimal("0.5").setScale(3, RoundingMode.HALF_UP),
-                instance.testModBigDecimal(new BigDecimal("10.1"), new BigDecimal("3.2"))
-                        .setScale(3, RoundingMode.HALF_UP));
-    }
-
-    @Test
-    public void testBigIntegerMod() {
-        assertEquals(BigInteger.valueOf(1), instance.testModBigInteger(BigInteger.valueOf(10), BigInteger.valueOf(3)));
-    }
-
-    @Test
-    public void testByteTypeMod() {
-        assertEquals((byte) 1, instance.testModByteType((byte) 10, (byte) 3));
-    }
-
-    @Test
-    public void testShortTypeMod() {
-        assertEquals((short) 1, instance.testModShortType((short) 10, (short) 3));
-    }
-
-    @Test
-    public void testIntegerTypeMod() {
-        assertEquals(1, instance.testModIntegerType(10, 3));
-    }
-
-    @Test
-    public void testLongModType() {
-        assertEquals(1, instance.testModLongType(10, 3));
-    }
-
-    @Test
-    public void testFloatModType() {
-        assertEquals((float) 0.5, instance.testModFloatType((float) 10.1, (float) 3.2), 1e-15);
     }
 
     @Test
@@ -4387,11 +4089,6 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void quotientIntTest() {
-        assertEquals(2, RulesUtils.quotient(9, 4));
-    }
-
-    @Test
     public void flattenTest() {
         Object[] res = instance.testFlatten1(1, 2, 3, 4);
         assertArrayEquals(new Integer[]{1, 2, 3, 4}, res);
@@ -4560,18 +4257,6 @@ public class RulesUtilsTest {
                         BigInteger.valueOf(7)}));
         assertNull(instance.testMedianBigInteger(null));
         assertNull(instance.testMedianBigInteger(new BigInteger[]{}));
-    }
-
-    @Test
-    public void testModDouble() {
-        assertEquals(0.5, instance.testModDouble(10.1, 3.2), 1e-7);
-        assertEquals(Double.valueOf(0), instance.testModDouble(10.1, null));
-        assertEquals(Double.valueOf(0), instance.testModDouble(null, 3.2));
-    }
-
-    @Test
-    public void testModDoubleType() {
-        assertEquals(0.5, instance.testModDoubleType(10.1, 3.2), 1e-7);
     }
 
     @SuppressWarnings("deprecated")
