@@ -36,7 +36,7 @@ public final class Modular {
         if (divisor == 0) {
             return dividend;
         }
-        return (byte) modInt(dividend, divisor);
+        return (byte) Math.floorMod((int) dividend, (int) divisor);
     }
 
     public static Short mod(Short dividend, Short divisor) {
@@ -46,7 +46,7 @@ public final class Modular {
         if (divisor == 0) {
             return dividend;
         }
-        return (short) modInt(dividend, divisor);
+        return (short) Math.floorMod((int) dividend, (int) divisor);
     }
 
     public static Integer mod(Integer dividend, Integer divisor) {
@@ -56,7 +56,7 @@ public final class Modular {
         if (divisor == 0) {
             return dividend;
         }
-        return modInt(dividend, divisor);
+        return Math.floorMod(dividend, divisor);
     }
 
     public static Long mod(Long dividend, Long divisor) {
@@ -66,7 +66,7 @@ public final class Modular {
         if (divisor == 0L) {
             return dividend;
         }
-        return modLong(dividend, divisor);
+        return Math.floorMod(dividend, divisor);
     }
 
     public static Float mod(Float dividend, Float divisor) {
@@ -96,11 +96,8 @@ public final class Modular {
         if (divisor.signum() == 0) {
             return dividend;
         }
-        BigInteger remainder = dividend.remainder(divisor);
-        if (remainder.signum() == 0) {
-            return BigInteger.ZERO;
-        }
-        return remainder.signum() != divisor.signum() ? remainder.add(divisor) : remainder;
+        // BigInteger.mod requires a positive divisor, so use the sign-agnostic fallback form.
+        return dividend.remainder(divisor).add(divisor).remainder(divisor);
     }
 
     public static BigDecimal mod(BigDecimal dividend, BigDecimal divisor) {
@@ -115,28 +112,6 @@ public final class Modular {
             return BigDecimal.ZERO;
         }
         return remainder.signum() != divisor.signum() ? remainder.add(divisor) : remainder;
-    }
-
-    private static int modInt(int dividend, int divisor) {
-        if (divisor == 0) {
-            throw new ArithmeticException("/ by zero");
-        }
-        int remainder = dividend % divisor;
-        if (remainder == 0) {
-            return 0;
-        }
-        return hasDifferentSigns(remainder, divisor) ? remainder + divisor : remainder;
-    }
-
-    private static long modLong(long dividend, long divisor) {
-        if (divisor == 0L) {
-            throw new ArithmeticException("/ by zero");
-        }
-        long remainder = dividend % divisor;
-        if (remainder == 0L) {
-            return 0L;
-        }
-        return hasDifferentSigns(remainder, divisor) ? remainder + divisor : remainder;
     }
 
     private static float modFloat(float dividend, float divisor) {
@@ -159,14 +134,6 @@ public final class Modular {
             return remainder;
         }
         return hasDifferentSigns(remainder, divisor) ? remainder + divisor : remainder;
-    }
-
-    private static boolean hasDifferentSigns(int a, int b) {
-        return (a < 0 && b > 0) || (a > 0 && b < 0);
-    }
-
-    private static boolean hasDifferentSigns(long a, long b) {
-        return (a < 0L && b > 0L) || (a > 0L && b < 0L);
     }
 
     private static boolean hasDifferentSigns(float a, float b) {
