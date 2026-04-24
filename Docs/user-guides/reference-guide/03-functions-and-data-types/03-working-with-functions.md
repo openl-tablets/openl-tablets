@@ -69,46 +69,20 @@ The following table lists math functions used in OpenL Tablets:
 
 #### Division and Modulo Functions
 
-OpenL Tablets provides four related functions for division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. Given a dividend $a$ and a non-zero divisor $b$, each function produces a different answer to the question *"what integer multiple of $b$ fits into $a$, and what is left over?"*
+OpenL Tablets provides four related functions for division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. Given a dividend $a$ and a non-zero divisor $b$, each function answers the same question — *"what integer multiple of $b$ fits into $a$, and what is left over?"* — but picks a different rounding rule for the quotient:
 
-The four functions split into two families by the rounding rule applied to the quotient:
+- **quotient** drops the fractional part of $a / b$ (truncates toward zero).
+- **floorDiv** rounds $a / b$ down to the next lower integer (toward negative infinity).
+- **remainder** is the leftover after **quotient**: it takes the sign of the dividend $a$.
+- **mod** is the leftover after **floorDiv**: it takes the sign of the divisor $b$.
 
-- **Truncation toward zero** — drops the fractional part:
-
-$$\mathrm{quotient}(a, b) = \begin{cases} \lfloor a / b \rfloor & \text{if } a / b \ge 0 \\ \lceil a / b \rceil & \text{if } a / b < 0 \end{cases} \qquad \mathrm{remainder}(a, b) = a - b \cdot \mathrm{quotient}(a, b)$$
-
-- **Floor toward negative infinity** — rounds the quotient down on the number line:
-
-$$\mathrm{floorDiv}(a, b) = \lfloor a / b \rfloor \qquad \mathrm{mod}(a, b) = a - b \cdot \mathrm{floorDiv}(a, b)$$
-
-Each family therefore satisfies the division identity
+Both pairs satisfy the division identity:
 
 $$a = b \cdot \mathrm{quotient}(a, b) + \mathrm{remainder}(a, b)$$
 
 $$a = b \cdot \mathrm{floorDiv}(a, b) + \mathrm{mod}(a, b)$$
 
-and each remainder is bounded in magnitude by the divisor: $0 \le \lvert \mathrm{remainder}(a, b) \rvert < \lvert b \rvert$ and $0 \le \lvert \mathrm{mod}(a, b) \rvert < \lvert b \rvert$.
-
-**Sign of the remainder:**
-
-- $\mathrm{remainder}(a, b)$ takes the sign of the dividend $a$.
-- $\mathrm{mod}(a, b)$ takes the sign of the divisor $b$.
-
-**When the two families agree:** the two rounding rules coincide whenever $a / b \ge 0$ or when $a$ is an exact multiple of $b$. They differ only when $a$ and $b$ have opposite signs *and* $a$ is not a multiple of $b$, in which case
-
-$$\mathrm{floorDiv}(a, b) = \mathrm{quotient}(a, b) - 1 \qquad \mathrm{mod}(a, b) = \mathrm{remainder}(a, b) + b$$
-
-Equivalently, letting $r = \mathrm{remainder}(a, b)$:
-
-$$
-\mathrm{mod}(a, b) =
-\begin{cases}
-r & \text{if } r = 0 \text{ or } \mathrm{sign}(r) = \mathrm{sign}(b) \\
-r + b & \text{otherwise}
-\end{cases}
-$$
-
-The table below illustrates the four sign combinations and the exact-divisibility case:
+The two pairs give the same result when $a$ and $b$ have the same sign or when $a$ is an exact multiple of $b$. They diverge only when $a$ and $b$ have opposite signs and $a$ is not a multiple of $b$. The table below illustrates all four sign combinations and the exact-divisibility case:
 
 | $a$ | $b$ | $\mathrm{quotient}(a,b)$ | $\mathrm{remainder}(a,b)$ | $\mathrm{floorDiv}(a,b)$ | $\mathrm{mod}(a,b)$ |
 |-----|-----|--------------------------|---------------------------|--------------------------|---------------------|
@@ -118,16 +92,13 @@ The table below illustrates the four sign combinations and the exact-divisibilit
 | -10 | -3  | 3                        | -1                        | 3                        | -1                  |
 | 12  | 3   | 4                        | 0                         | 4                        | 0                   |
 
-**Zero divisor ($b = 0$):**
-
-- $\mathrm{mod}(a, 0) = a$. This is a deliberate convenience so rules do not have to guard against $b = 0$.
-- $\mathrm{quotient}(a, 0)$, $\mathrm{floorDiv}(a, 0)$, and $\mathrm{remainder}(a, 0)$ are undefined — they raise an arithmetic error (integer operands) or yield the standard IEEE 754 special values $\pm\infty$ / $\mathrm{NaN}$ (floating-point operands).
+**Zero divisor ($b = 0$):** `mod(a, 0)` returns the dividend `a` so rules do not have to guard against zero. The other three functions (`quotient`, `floorDiv`, `remainder`) are undefined for $b = 0$ — they raise an arithmetic error for integer types or produce the usual IEEE 754 special values (`±Infinity`, `NaN`) for `Float`/`Double` types.
 
 **Null handling:** if any argument is `null`, every function returns `null`.
 
-**Non-finite floating-point operands:** $\mathrm{NaN}$ propagates through all four functions; infinite operands produce the values dictated by the formulas above ($\pm\infty$ or $\mathrm{NaN}$).
+**Non-finite floating-point operands:** a `NaN` input propagates to `NaN`; an infinite input produces `±Infinity` or `NaN` as the rounding rule dictates.
 
-> [Note:] $\mathrm{remainder}$ defined here is *truncated remainder* (quotient rounded toward zero). It is not the same as **IEEEremainder**, which rounds the quotient to the nearest integer and therefore yields a signed remainder of minimum absolute magnitude.
+> [Note:] `remainder` here is truncated remainder. It is not the same as **IEEEremainder**, which rounds the quotient to the nearest integer and therefore produces a signed remainder of minimum absolute magnitude.
 
 #### Round Function
 
