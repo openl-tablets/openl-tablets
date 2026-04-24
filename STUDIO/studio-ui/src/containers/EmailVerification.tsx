@@ -87,6 +87,7 @@ export const EmailVerification = () => {
             }, 1000)
             return () => clearInterval(timer)
         }
+        return () => {}
     }, [status])
 
     // Cooldown timer effect

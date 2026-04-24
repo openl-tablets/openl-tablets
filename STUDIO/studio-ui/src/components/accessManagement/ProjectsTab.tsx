@@ -45,7 +45,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
                         options: [] as SelectOption[] }) - 1
                 }
                 if (indexOfOption !== -1) {
-                    acc[indexOfOption].options.push({ label: project.name, value: project.id })
+                    acc[indexOfOption]!['options'].push({ label: project.name, value: project.id })
                 }
                 return acc
             }, [] as SelectOption[])
@@ -71,7 +71,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
             return {
                 label: project.label,
                 title: project.title,
-                options: project.options.map((option: SelectOption) => ({
+                options: project['options'].map((option: SelectOption) => ({
                     label: option.label,
                     value: option.value,
                     disabled: selectedProjects.includes(option.value as string)

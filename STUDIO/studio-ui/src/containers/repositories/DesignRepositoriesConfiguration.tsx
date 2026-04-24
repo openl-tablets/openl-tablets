@@ -75,7 +75,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         // This prevents false positives when switching between repositories where form
         // may still have values from previous repository before syncing with new one
         // This is especially important for Deployment repositories when switching tabs
-        const formId = current.id
+        const formId = current['id']
         if (formId && activeRepository.id && formId !== activeRepository.id) {
             // Form is showing a different repository, don't consider it as having changes
             // This means we're in the middle of switching repositories
@@ -218,7 +218,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                 selectedRepository = initialConfiguration.find(repo => repo.id === activeKey)
             }
             if (!selectedRepository) {
-                selectedRepository = initialConfiguration[0]
+                selectedRepository = initialConfiguration[0]!
                 setActiveKey(selectedRepository.id)
                 setURLSearchParam(selectedRepository.id)
             }
@@ -424,7 +424,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
 
     // If there are repositories but no active key, select the first one
     if (!activeKey && configuration && configuration.length > 0) {
-        const firstRepo = configuration[0]
+        const firstRepo = configuration[0]!
         setActiveKey(firstRepo.id)
         setActiveRepository(firstRepo)
         form.setFieldsValue(firstRepo)

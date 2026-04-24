@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 
 export const useRules = ({ required, rules = []}: { required?: boolean, rules: RuleObject[] }) => {
     const { t } = useTranslation()

@@ -134,7 +134,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         try {
             // Get root nodes by calling getNodeChildren without nodeId
             const rootNodes = await traceService.getNodeChildren(projectId, undefined, showRealNumbers)
-            const treeData = rootNodes.map(transformToTreeNode)
+            const treeData = rootNodes.map(node => transformToTreeNode(node))
             set({
                 rootNodes,
                 treeData,

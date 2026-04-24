@@ -140,7 +140,7 @@ describe('webSocketService', () => {
     it('rejects connect when the client is not initialized', async () => {
         const { webSocketService } = await loadService()
         // Mirror the guard: null client → immediate rejection.
-        ;(webSocketService as { client: unknown }).client = null
+        ;(webSocketService as unknown as { client: unknown }).client = null
 
         await expect(webSocketService.connect()).rejects.toThrow('WebSocket client not initialized')
     })

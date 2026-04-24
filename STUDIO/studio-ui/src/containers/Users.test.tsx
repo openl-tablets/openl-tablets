@@ -21,7 +21,7 @@ vi.mock('react-i18next', async () => ({
 }))
 
 vi.mock('antd', async () => {
-    const actual = await vi.importActual('antd')
+    const actual = await vi.importActual<typeof import('antd')>('antd')
     return {
         ...actual,
         Modal: {
@@ -29,6 +29,7 @@ vi.mock('antd', async () => {
             confirm: vi.fn(),
         },
         notification: {
+            ...actual.notification,
             success: vi.fn(),
             error: vi.fn(),
         },
@@ -229,7 +230,7 @@ describe('Users', () => {
 
         // Click the first edit button (for 'admin' row)
         const editButtons = screen.getAllByRole('button', { name: /edit/i })
-        await userEvent.click(editButtons[0])
+        await userEvent.click(editButtons[0]!)
 
         await waitFor(() => {
             expect(screen.getByTestId('edit-drawer')).toHaveAttribute('data-open', 'true')
@@ -264,7 +265,7 @@ describe('Users', () => {
         // viewer is not superUser and not currentUser, so delete is enabled
         const deleteButtons = screen.getAllByRole('button', { name: /delete/i })
         // admin has disabled delete (superUser + currentUser), viewer has enabled delete
-        const viewerDeleteButton = deleteButtons[1]
+        const viewerDeleteButton = deleteButtons[1]!
         await userEvent.click(viewerDeleteButton)
 
         await waitFor(() => {
@@ -291,16 +292,16 @@ describe('Users', () => {
         })
 
         const deleteButtons = screen.getAllByRole('button', { name: /delete/i })
-        await userEvent.click(deleteButtons[1])
+        await userEvent.click(deleteButtons[1]!)
 
         await waitFor(() => {
             expect(Modal.confirm).toHaveBeenCalled()
         })
 
         // Trigger the onOk callback
-        const onOk = Modal.confirm.mock.calls[0][0].onOk
+        const onOk = vi.mocked(Modal.confirm).mock.calls[0]![0].onOk
         await act(async () => {
-            await onOk()
+            await onOk!()
         })
 
         await waitFor(() => {

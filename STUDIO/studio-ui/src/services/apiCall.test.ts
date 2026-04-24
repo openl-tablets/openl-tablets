@@ -77,7 +77,7 @@ describe('apiCall', () => {
             payload: { message: 'Backend failed', code: 'E500' },
         })
 
-        expect(__appStoreState.setShowServerError).toHaveBeenCalledTimes(1)
+        expect(__appStoreState['setShowServerError']).toHaveBeenCalledTimes(1)
     })
 
     it('throws ApiHttpError with fallback message for non-JSON non-404 errors', async () => {
@@ -106,7 +106,7 @@ describe('apiCall', () => {
         )
 
         await expect(apiCall('/missing', undefined, { throwError: true })).rejects.toBeInstanceOf(NotFoundError)
-        expect(__appStoreState.setShowNotFound).toHaveBeenCalledTimes(1)
+        expect(__appStoreState['setShowNotFound']).toHaveBeenCalledTimes(1)
     })
 
     it('recognizes ApiHttpError via type guard', () => {

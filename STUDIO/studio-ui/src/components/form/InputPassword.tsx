@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
 import { usePasswordRules } from './hooks'
 import { getFieldValueProps } from './utils'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 import { useTranslation } from 'react-i18next'
 
 type InputProps = {

@@ -3,7 +3,7 @@ import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd
 import type { DefaultOptionType } from 'antd/es/select'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 
 // @ts-ignore
 export interface SelectOption extends DefaultOptionType {

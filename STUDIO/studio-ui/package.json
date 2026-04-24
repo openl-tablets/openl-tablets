@@ -49,6 +49,7 @@
   },
   "scripts": {
     "start": "vite",
+    "typecheck": "tsc --noEmit",
     "build": "license-checker-rseidelsohn --onlyAllow \"MIT;Apache-2.0\" --production --excludePrivatePackages && vite build",
     "serve": "vite preview --port 3002",
     "clean": "rm -rf dist",

@@ -417,7 +417,7 @@ describe('ConflictResolutionStep', () => {
             const resolveCall = mockApiCall.mock.calls.find(
                 call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
             )
-            const formData = resolveCall![1].body as FormData
+            const formData = resolveCall![1]!.body as FormData
             expect(formData.get('resolutions[0].filePath')).toBe('rules/Main.xlsx')
             expect(formData.get('resolutions[0].strategy')).toBe('THEIRS')
         })
@@ -444,7 +444,7 @@ describe('ConflictResolutionStep', () => {
             const resolveCall = mockApiCall.mock.calls.find(
                 call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
             )
-            const formData = resolveCall![1].body as FormData
+            const formData = resolveCall![1]!.body as FormData
             expect(formData.get('message')).toBe('Custom merge message')
         })
 
@@ -466,7 +466,7 @@ describe('ConflictResolutionStep', () => {
             const resolveCall = mockApiCall.mock.calls.find(
                 call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
             )
-            const formData = resolveCall![1].body as FormData
+            const formData = resolveCall![1]!.body as FormData
             expect(formData.get('message')).toBeNull()
         })
 

@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
 import { InputNumber as AntdInputNumber, Form, TooltipProps } from 'antd'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 
 type InputNumberProps = {
     name: string | (string | number)[]

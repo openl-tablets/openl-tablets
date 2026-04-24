@@ -22,7 +22,7 @@ vi.mock('react-i18next', async () => ({
 let mockUserMode: string | { value: string, readOnly: boolean } | undefined = undefined
 
 vi.mock('antd', async () => {
-    const actual = await vi.importActual('antd')
+    const actual = await vi.importActual<typeof import('antd')>('antd')
     return {
         ...actual,
         Form: {
@@ -401,9 +401,9 @@ describe('Security', () => {
         await waitFor(() => {
             expect(Modal.confirm).toHaveBeenCalled()
         })
-        const onOk = Modal.confirm.mock.calls[0][0].onOk
+        const onOk = vi.mocked(Modal.confirm).mock.calls[0]![0].onOk
         await act(async () => {
-            await onOk()
+            await onOk!()
         })
 
         await waitFor(() => {
@@ -441,9 +441,9 @@ describe('Security', () => {
         await waitFor(() => {
             expect(Modal.confirm).toHaveBeenCalled()
         })
-        const onOk = Modal.confirm.mock.calls[0][0].onOk
+        const onOk = vi.mocked(Modal.confirm).mock.calls[0]![0].onOk
         await act(async () => {
-            await onOk()
+            await onOk!()
         })
 
         await waitFor(() => {

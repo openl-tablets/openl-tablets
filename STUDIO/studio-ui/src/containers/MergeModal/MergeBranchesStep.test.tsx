@@ -45,7 +45,7 @@ vi.mock('components/form', () => ({
         placeholder,
         // AntD-only — extend this list if the component under test starts passing
         // more AntD-specific props (e.g. `mode`, `showSearch`).
-         
+
         suffixIcon,
         ...rest
     }: any) => (

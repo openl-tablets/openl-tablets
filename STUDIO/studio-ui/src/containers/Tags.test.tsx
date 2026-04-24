@@ -23,7 +23,7 @@ import { Tags } from 'containers/Tags'
 vi.mock('react-i18next', async () => ({
     useTranslation: () => ({
         t: (key: string, opts?: Record<string, unknown>) => {
-            if (opts?.count !== undefined) return `${key} (${opts.count})`
+            if (opts?.['count'] !== undefined) return `${key} (${opts['count']})`
             return key
         },
         i18n: { language: 'en' },

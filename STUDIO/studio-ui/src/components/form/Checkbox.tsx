@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Checkbox as AntdCheckbox, Form, TooltipProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import { useRules } from './hooks'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 
 type InputProps = {
     name: string | string[]

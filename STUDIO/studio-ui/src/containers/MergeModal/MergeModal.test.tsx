@@ -28,7 +28,7 @@ vi.mock('store', () => ({
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string, params?: Record<string, string>) => {
-            if (params?.projectName) return `${key}:${params.projectName}`
+            if (params?.['projectName']) return `${key}:${params['projectName']}`
             return key
         },
         i18n: { language: 'en' },
@@ -90,7 +90,7 @@ const dispatchOpenModal = async (detail: MergeModalDetail | null) => {
 }
 
 const getLatestProps = (spy: Mock) =>
-    spy.mock.calls[spy.mock.calls.length - 1][0]
+    spy.mock.calls[spy.mock.calls.length - 1]![0]
 
 // --- Tests ---
 

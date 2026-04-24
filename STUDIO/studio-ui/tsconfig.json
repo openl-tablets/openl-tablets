@@ -1,27 +1,40 @@
 {
   "compilerOptions": {
-    "target": "es2024",
+    "target": "esnext",
     "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
+      "ESNext",
+      "DOM"
     ],
-    "strict": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/globals"
+    ],
+    "module": "preserve",
     "jsx": "react-jsx",
-    "baseUrl": "src",
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+
+    "stableTypeOrdering": true,
+
+    "noEmit": true,
+    "skipLibCheck": true,
     "paths": {
-      "*": ["./*"]
+      "*": [
+        "./src/*"
+      ]
     }
   },
   "include": [
-    "src"
+    "src",
+    "vitest.setup.ts"
   ]
 }
