@@ -181,38 +181,38 @@ public class RemainderTest {
 
     @Test
     public void remainderBoxedNulls() {
-        assertNull(Remainder.remainder((Byte) null, Byte.valueOf((byte) 13)));
-        assertNull(Remainder.remainder(Byte.valueOf((byte) 13), (Byte) null));
+        assertNull(Remainder.remainder(null, (byte) 13));
+        assertNull(Remainder.remainder((byte) 13, null));
 
-        assertNull(Remainder.remainder((Short) null, Short.valueOf((short) 13)));
-        assertNull(Remainder.remainder(Short.valueOf((short) 13), (Short) null));
+        assertNull(Remainder.remainder(null, (short) 13));
+        assertNull(Remainder.remainder((short) 13, null));
 
-        assertNull(Remainder.remainder((Integer) null, Integer.valueOf(13)));
-        assertNull(Remainder.remainder(Integer.valueOf(13), (Integer) null));
+        assertNull(Remainder.remainder(null, 13));
+        assertNull(Remainder.remainder(13, null));
 
-        assertNull(Remainder.remainder((Long) null, Long.valueOf(13L)));
-        assertNull(Remainder.remainder(Long.valueOf(13L), (Long) null));
+        assertNull(Remainder.remainder(null, 13L));
+        assertNull(Remainder.remainder(13L, null));
 
-        assertNull(Remainder.remainder((Float) null, Float.valueOf(1.75f)));
-        assertNull(Remainder.remainder(Float.valueOf(1.75f), (Float) null));
+        assertNull(Remainder.remainder(null, 1.75f));
+        assertNull(Remainder.remainder(1.75f, null));
 
-        assertNull(Remainder.remainder((Double) null, Double.valueOf(1.75)));
-        assertNull(Remainder.remainder(Double.valueOf(1.75), (Double) null));
+        assertNull(Remainder.remainder(null, 1.75));
+        assertNull(Remainder.remainder(1.75, null));
 
-        assertNull(Remainder.remainder((BigInteger) null, BigInteger.valueOf(13)));
-        assertNull(Remainder.remainder(BigInteger.valueOf(13), (BigInteger) null));
+        assertNull(Remainder.remainder(null, BigInteger.valueOf(13)));
+        assertNull(Remainder.remainder(BigInteger.valueOf(13), null));
 
-        assertNull(Remainder.remainder((BigDecimal) null, BigDecimal.valueOf(13)));
-        assertNull(Remainder.remainder(BigDecimal.valueOf(13), (BigDecimal) null));
+        assertNull(Remainder.remainder(null, BigDecimal.valueOf(13)));
+        assertNull(Remainder.remainder(BigDecimal.valueOf(13), null));
     }
 
     @Test
     public void remainderBoxedHappyPath() {
-        assertEquals(Byte.valueOf((byte) 6), Remainder.remainder(Byte.valueOf((byte) 19), Byte.valueOf((byte) 13)));
-        assertEquals(Short.valueOf((short) 6), Remainder.remainder(Short.valueOf((short) 19), Short.valueOf((short) 13)));
-        assertEquals(Integer.valueOf(1), Remainder.remainder(Integer.valueOf(7), Integer.valueOf(3)));
-        assertEquals(Long.valueOf(1L), Remainder.remainder(Long.valueOf(7L), Long.valueOf(3L)));
-        assertEquals(1.47f, Remainder.remainder(Float.valueOf(3.22f), Float.valueOf(1.75f)), 0.001f);
-        assertEquals(1.47, Remainder.remainder(Double.valueOf(3.22), Double.valueOf(1.75)), 0.001);
+        assertEquals(Byte.valueOf((byte) 6), Remainder.remainder((byte) 19, (byte) 13));
+        assertEquals(Short.valueOf((short) 6), Remainder.remainder((short) 19, (short) 13));
+        assertEquals(Integer.valueOf(1), Remainder.remainder(7, 3));
+        assertEquals(Long.valueOf(1L), Remainder.remainder(7L, 3L));
+        assertEquals(1.47f, Remainder.remainder(3.22f, 1.75f), 0.001f);
+        assertEquals(1.47, Remainder.remainder(3.22, 1.75), 0.001);
     }
 }

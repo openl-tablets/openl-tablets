@@ -188,46 +188,46 @@ public class QuotientTest {
 
     @Test
     public void quotientBoxedNulls() {
-        assertNull(Quotient.quotient((Byte) null, (Byte) null));
-        assertNull(Quotient.quotient((Byte) null, Byte.valueOf((byte) 3)));
-        assertNull(Quotient.quotient(Byte.valueOf((byte) 19), (Byte) null));
+        assertNull(Quotient.quotient(null, (Byte) null));
+        assertNull(Quotient.quotient(null, (byte) 3));
+        assertNull(Quotient.quotient((byte) 19, null));
 
-        assertNull(Quotient.quotient((Short) null, (Short) null));
-        assertNull(Quotient.quotient((Short) null, Short.valueOf((short) 3)));
-        assertNull(Quotient.quotient(Short.valueOf((short) 19), (Short) null));
+        assertNull(Quotient.quotient(null, (Short) null));
+        assertNull(Quotient.quotient(null, (short) 3));
+        assertNull(Quotient.quotient((short) 19, null));
 
-        assertNull(Quotient.quotient((Integer) null, (Integer) null));
-        assertNull(Quotient.quotient((Integer) null, Integer.valueOf(3)));
-        assertNull(Quotient.quotient(Integer.valueOf(19), (Integer) null));
+        assertNull(Quotient.quotient(null, (Integer) null));
+        assertNull(Quotient.quotient(null, 3));
+        assertNull(Quotient.quotient(19, null));
 
-        assertNull(Quotient.quotient((Long) null, (Long) null));
-        assertNull(Quotient.quotient((Long) null, Long.valueOf(3L)));
-        assertNull(Quotient.quotient(Long.valueOf(19L), (Long) null));
+        assertNull(Quotient.quotient(null, (Long) null));
+        assertNull(Quotient.quotient(null, 3L));
+        assertNull(Quotient.quotient(19L, null));
 
-        assertNull(Quotient.quotient((Float) null, (Float) null));
-        assertNull(Quotient.quotient((Float) null, Float.valueOf(3.1f)));
-        assertNull(Quotient.quotient(Float.valueOf(4.5f), (Float) null));
+        assertNull(Quotient.quotient(null, (Float) null));
+        assertNull(Quotient.quotient(null, 3.1f));
+        assertNull(Quotient.quotient(4.5f, null));
 
-        assertNull(Quotient.quotient((Double) null, (Double) null));
-        assertNull(Quotient.quotient((Double) null, Double.valueOf(3.1)));
-        assertNull(Quotient.quotient(Double.valueOf(4.5), (Double) null));
+        assertNull(Quotient.quotient(null, (Double) null));
+        assertNull(Quotient.quotient(null, 3.1));
+        assertNull(Quotient.quotient(4.5, null));
 
-        assertNull(Quotient.quotient((BigInteger) null, BigInteger.valueOf(3)));
-        assertNull(Quotient.quotient(BigInteger.valueOf(19), (BigInteger) null));
-        assertNull(Quotient.quotient((BigInteger) null, (BigInteger) null));
+        assertNull(Quotient.quotient(null, BigInteger.valueOf(3)));
+        assertNull(Quotient.quotient(BigInteger.valueOf(19), null));
+        assertNull(Quotient.quotient(null, (BigInteger) null));
 
-        assertNull(Quotient.quotient((BigDecimal) null, BigDecimal.valueOf(3)));
-        assertNull(Quotient.quotient(BigDecimal.valueOf(19), (BigDecimal) null));
-        assertNull(Quotient.quotient((BigDecimal) null, (BigDecimal) null));
+        assertNull(Quotient.quotient(null, BigDecimal.valueOf(3)));
+        assertNull(Quotient.quotient(BigDecimal.valueOf(19), null));
+        assertNull(Quotient.quotient(null, (BigDecimal) null));
     }
 
     @Test
     public void quotientBoxedHappyPath() {
-        assertEquals(Integer.valueOf(3), Quotient.quotient(Byte.valueOf((byte) 19), Byte.valueOf((byte) 5)));
-        assertEquals(Integer.valueOf(3), Quotient.quotient(Short.valueOf((short) 19), Short.valueOf((short) 5)));
-        assertEquals(Integer.valueOf(2), Quotient.quotient(Integer.valueOf(5), Integer.valueOf(2)));
-        assertEquals(Long.valueOf(2L), Quotient.quotient(Long.valueOf(5L), Long.valueOf(2L)));
-        assertEquals(Long.valueOf(1L), Quotient.quotient(Float.valueOf(4.5f), Float.valueOf(3.1f)));
-        assertEquals(Long.valueOf(1L), Quotient.quotient(Double.valueOf(4.5), Double.valueOf(3.1)));
+        assertEquals(Integer.valueOf(3), Quotient.quotient((byte) 19, (byte) 5));
+        assertEquals(Integer.valueOf(3), Quotient.quotient((short) 19, (short) 5));
+        assertEquals(Integer.valueOf(2), Quotient.quotient(5, 2));
+        assertEquals(Long.valueOf(2L), Quotient.quotient(5L, 2L));
+        assertEquals(Long.valueOf(1L), Quotient.quotient(4.5f, 3.1f));
+        assertEquals(Long.valueOf(1L), Quotient.quotient(4.5, 3.1));
     }
 }

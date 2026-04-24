@@ -230,68 +230,62 @@ public class ModularTest {
 
     @Test
     public void modBigDecimalNull() {
-        assertNull(Modular.mod((BigDecimal) null, BigDecimal.valueOf(13)));
-        assertNull(Modular.mod(BigDecimal.valueOf(13), (BigDecimal) null));
-        assertNull(Modular.mod((BigDecimal) null, (BigDecimal) null));
+        assertNull(Modular.mod(null, BigDecimal.valueOf(13)));
+        assertNull(Modular.mod(BigDecimal.valueOf(13), null));
+        assertNull(Modular.mod(null, (BigDecimal) null));
     }
 
     @Test
     public void modByteBoxed() {
-        assertEquals(Byte.valueOf((byte) 6), Modular.mod(Byte.valueOf((byte) 19), Byte.valueOf((byte) 13)));
-        assertEquals(Byte.valueOf((byte) -7), Modular.mod(Byte.valueOf((byte) 19), Byte.valueOf((byte) -13)));
-        assertNull(Modular.mod((Byte) null, Byte.valueOf((byte) 13)));
-        assertNull(Modular.mod(Byte.valueOf((byte) 13), (Byte) null));
-        assertNull(Modular.mod((Byte) null, (Byte) null));
+        assertEquals(Byte.valueOf((byte) 6), Modular.mod((byte) 19, (byte) 13));
+        assertEquals(Byte.valueOf((byte) -7), Modular.mod((byte) 19, (byte) -13));
+        assertNull(Modular.mod(null, (byte) 13));
+        assertNull(Modular.mod((byte) 13, null));
+        assertNull(Modular.mod(null, (Byte) null));
     }
 
     @Test
     public void modShortBoxed() {
-        assertEquals(Short.valueOf((short) 6), Modular.mod(Short.valueOf((short) 19), Short.valueOf((short) 13)));
-        assertEquals(Short.valueOf((short) -7), Modular.mod(Short.valueOf((short) 19), Short.valueOf((short) -13)));
-        assertNull(Modular.mod((Short) null, Short.valueOf((short) 13)));
-        assertNull(Modular.mod(Short.valueOf((short) 13), (Short) null));
-        assertNull(Modular.mod((Short) null, (Short) null));
+        assertEquals(Short.valueOf((short) 6), Modular.mod((short) 19, (short) 13));
+        assertEquals(Short.valueOf((short) -7), Modular.mod((short) 19, (short) -13));
+        assertNull(Modular.mod(null, (short) 13));
+        assertNull(Modular.mod((short) 13, null));
+        assertNull(Modular.mod(null, (Short) null));
     }
 
     @Test
     public void modIntegerBoxed() {
-        assertEquals(Integer.valueOf(6), Modular.mod(Integer.valueOf(19), Integer.valueOf(13)));
-        assertEquals(Integer.valueOf(-7), Modular.mod(Integer.valueOf(19), Integer.valueOf(-13)));
-        assertNull(Modular.mod((Integer) null, Integer.valueOf(13)));
-        assertNull(Modular.mod(Integer.valueOf(13), (Integer) null));
-        assertNull(Modular.mod((Integer) null, (Integer) null));
+        assertEquals(Integer.valueOf(6), Modular.mod(19, 13));
+        assertEquals(Integer.valueOf(-7), Modular.mod(19, -13));
+        assertNull(Modular.mod(null, 13));
+        assertNull(Modular.mod(13, null));
+        assertNull(Modular.mod(null, (Integer) null));
     }
 
     @Test
     public void modLongBoxed() {
-        assertEquals(Long.valueOf(6L), Modular.mod(Long.valueOf(19L), Long.valueOf(13L)));
-        assertEquals(Long.valueOf(-7L), Modular.mod(Long.valueOf(19L), Long.valueOf(-13L)));
-        assertNull(Modular.mod((Long) null, Long.valueOf(13L)));
-        assertNull(Modular.mod(Long.valueOf(13L), (Long) null));
-        assertNull(Modular.mod((Long) null, (Long) null));
+        assertEquals(Long.valueOf(6L), Modular.mod(19L, 13L));
+        assertEquals(Long.valueOf(-7L), Modular.mod(19L, -13L));
+        assertNull(Modular.mod(null, 13L));
+        assertNull(Modular.mod(13L, null));
+        assertNull(Modular.mod(null, (Long) null));
     }
 
     @Test
     public void modFloatBoxed() {
-        assertEquals(1.47f, Modular.mod(Float.valueOf(3.22f), Float.valueOf(1.75f)), 0.001f);
-        assertEquals(-0.28f, Modular.mod(Float.valueOf(3.22f), Float.valueOf(-1.75f)), 0.001f);
-        assertNull(Modular.mod((Float) null, Float.valueOf(1.75f)));
-        assertNull(Modular.mod(Float.valueOf(1.75f), (Float) null));
-        assertNull(Modular.mod((Float) null, (Float) null));
+        assertEquals(1.47f, Modular.mod(3.22f, 1.75f), 0.001f);
+        assertEquals(-0.28f, Modular.mod(3.22f, -1.75f), 0.001f);
+        assertNull(Modular.mod(null, 1.75f));
+        assertNull(Modular.mod(1.75f, null));
+        assertNull(Modular.mod(null, (Float) null));
     }
 
     @Test
     public void modDoubleBoxed() {
-        assertEquals(1.47, Modular.mod(Double.valueOf(3.22), Double.valueOf(1.75)), 0.001);
-        assertEquals(-0.28, Modular.mod(Double.valueOf(3.22), Double.valueOf(-1.75)), 0.001);
-        assertNull(Modular.mod((Double) null, Double.valueOf(1.75)));
-        assertNull(Modular.mod(Double.valueOf(1.75), (Double) null));
-        assertNull(Modular.mod((Double) null, (Double) null));
-    }
-
-    public static void main(String[] args) {
-        short a = 1;
-        short b = 3;
-        short c = (short) (a / b);
+        assertEquals(1.47, Modular.mod(3.22, 1.75), 0.001);
+        assertEquals(-0.28, Modular.mod(3.22, -1.75), 0.001);
+        assertNull(Modular.mod(null, 1.75));
+        assertNull(Modular.mod(1.75, null));
+        assertNull(Modular.mod(null, (Double) null));
     }
 }

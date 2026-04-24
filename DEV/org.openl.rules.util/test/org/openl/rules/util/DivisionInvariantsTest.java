@@ -2,11 +2,15 @@ package org.openl.rules.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.FieldSource;
 
 /**
  * Cross-class invariants:
@@ -20,104 +24,108 @@ import org.junit.jupiter.api.Test;
  */
 public class DivisionInvariantsTest {
 
-    // Covers all sign combinations, exact divisibility, and zero dividend.
-    private static final int[][] INT_PAIRS = {
-            {19, 13}, {19, -13}, {-19, 13}, {-19, -13},
-            {7, 3}, {-7, 3}, {7, -3}, {-7, -3},
-            {19, 19}, {0, 19},
-            {5, 2}, {-10, 3}, {10, -3}, {-10, -3}
+    // Sign matrix, exact divisibility, zero dividend, plus the Excel/Wikipedia canonical examples.
+    static final Arguments[] INT_PAIRS = {
+            arguments(19, 13), arguments(19, -13), arguments(-19, 13), arguments(-19, -13),
+            arguments(7, 3), arguments(-7, 3), arguments(7, -3), arguments(-7, -3),
+            arguments(19, 19), arguments(0, 19),
+            arguments(5, 2), arguments(-10, 3), arguments(10, -3), arguments(-10, -3)
+    };
+
+    static final Arguments[] FLOAT_PAIRS = {
+            arguments(3.22f, 1.75f), arguments(-3.22f, 1.75f),
+            arguments(3.22f, -1.75f), arguments(-3.22f, -1.75f),
+            arguments(7f, 3f), arguments(-7f, 3f),
+            arguments(0f, 3.1f), arguments(3.5f, 1.75f)
+    };
+
+    static final Arguments[] DOUBLE_PAIRS = {
+            arguments(3.22, 1.75), arguments(-3.22, 1.75),
+            arguments(3.22, -1.75), arguments(-3.22, -1.75),
+            arguments(7d, 3d), arguments(-7d, 3d),
+            arguments(0d, 3.1), arguments(3.5, 1.75)
     };
 
     // ===== identity: a == n * quotient(a, n) + remainder(a, n) =====
 
-    @Test
-    public void identityByte() {
-        for (int[] p : INT_PAIRS) {
-            byte a = (byte) p[0], n = (byte) p[1];
-            int q = Quotient.quotient(a, n);
-            byte r = Remainder.remainder(a, n);
-            assertEquals((int) a, n * q + r, () -> "byte (" + a + ", " + n + ")");
-        }
+    @ParameterizedTest(name = "byte ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void identityByte(int a, int n) {
+        byte ab = (byte) a, nb = (byte) n;
+        int q = Quotient.quotient(ab, nb);
+        byte r = Remainder.remainder(ab, nb);
+        assertEquals((int) ab, nb * q + r);
+    }
+
+    @ParameterizedTest(name = "short ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void identityShort(int a, int n) {
+        short as = (short) a, ns = (short) n;
+        int q = Quotient.quotient(as, ns);
+        short r = Remainder.remainder(as, ns);
+        assertEquals((int) as, ns * q + r);
+    }
+
+    @ParameterizedTest(name = "int ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void identityInt(int a, int n) {
+        int q = Quotient.quotient(a, n);
+        int r = Remainder.remainder(a, n);
+        assertEquals(a, n * q + r);
+    }
+
+    @ParameterizedTest(name = "long ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void identityLong(int a, int n) {
+        long al = a, nl = n;
+        long q = Quotient.quotient(al, nl);
+        long r = Remainder.remainder(al, nl);
+        assertEquals(al, nl * q + r);
+    }
+
+    @ParameterizedTest(name = "float ({0}, {1})")
+    @FieldSource("FLOAT_PAIRS")
+    void identityFloat(float a, float n) {
+        long q = Quotient.quotient(a, n);
+        float r = Remainder.remainder(a, n);
+        assertEquals(a, n * q + r, 1e-6f);
+    }
+
+    @ParameterizedTest(name = "double ({0}, {1})")
+    @FieldSource("DOUBLE_PAIRS")
+    void identityDouble(double a, double n) {
+        long q = Quotient.quotient(a, n);
+        double r = Remainder.remainder(a, n);
+        assertEquals(a, n * q + r, 1e-12);
+    }
+
+    @ParameterizedTest(name = "BigInteger ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void identityBigInteger(int a, int n) {
+        BigInteger ab = BigInteger.valueOf(a), nb = BigInteger.valueOf(n);
+        BigInteger q = Quotient.quotient(ab, nb);
+        BigInteger r = Remainder.remainder(ab, nb);
+        assertEquals(ab, nb.multiply(q).add(r));
     }
 
     @Test
-    public void identityShort() {
-        for (int[] p : INT_PAIRS) {
-            short a = (short) p[0], n = (short) p[1];
-            int q = Quotient.quotient(a, n);
-            short r = Remainder.remainder(a, n);
-            assertEquals((int) a, n * q + r, () -> "short (" + a + ", " + n + ")");
-        }
-    }
-
-    @Test
-    public void identityInt() {
-        for (int[] p : INT_PAIRS) {
-            int a = p[0], n = p[1];
-            int q = Quotient.quotient(a, n);
-            int r = Remainder.remainder(a, n);
-            assertEquals(a, n * q + r, () -> "int (" + a + ", " + n + ")");
-        }
-    }
-
-    @Test
-    public void identityLong() {
-        for (int[] p : INT_PAIRS) {
-            long a = p[0], n = p[1];
-            long q = Quotient.quotient(a, n);
-            long r = Remainder.remainder(a, n);
-            assertEquals(a, n * q + r, () -> "long (" + a + ", " + n + ")");
-        }
-    }
-
-    @Test
-    public void identityFloat() {
-        float[][] pairs = {{3.22f, 1.75f}, {-3.22f, 1.75f}, {3.22f, -1.75f}, {-3.22f, -1.75f},
-                {7f, 3f}, {-7f, 3f}, {0f, 3.1f}, {3.5f, 1.75f}};
-        for (float[] p : pairs) {
-            float a = p[0], n = p[1];
-            long q = Quotient.quotient(a, n);
-            float r = Remainder.remainder(a, n);
-            assertEquals(a, n * q + r, 1e-6f, () -> "float (" + a + ", " + n + ")");
-        }
-    }
-
-    @Test
-    public void identityDouble() {
-        double[][] pairs = {{3.22, 1.75}, {-3.22, 1.75}, {3.22, -1.75}, {-3.22, -1.75},
-                {7, 3}, {-7, 3}, {0, 3.1}, {3.5, 1.75}};
-        for (double[] p : pairs) {
-            double a = p[0], n = p[1];
-            long q = Quotient.quotient(a, n);
-            double r = Remainder.remainder(a, n);
-            assertEquals(a, n * q + r, 1e-12, () -> "double (" + a + ", " + n + ")");
-        }
-    }
-
-    @Test
-    public void identityBigInteger() {
-        BigInteger[] extras = {new BigInteger("203000745502000030060144252100"), BigInteger.valueOf(97)};
-        for (int[] p : INT_PAIRS) {
-            BigInteger a = BigInteger.valueOf(p[0]), n = BigInteger.valueOf(p[1]);
-            BigInteger q = Quotient.quotient(a, n);
-            BigInteger r = Remainder.remainder(a, n);
-            assertEquals(a, n.multiply(q).add(r), () -> "BigInteger (" + a + ", " + n + ")");
-        }
-        // Large-value regression.
-        BigInteger a = extras[0], n = extras[1];
+    void identityBigIntegerLarge() {
+        // Large-value regression — beyond long range.
+        BigInteger a = new BigInteger("203000745502000030060144252100"), n = BigInteger.valueOf(97);
         assertEquals(a, n.multiply(Quotient.quotient(a, n)).add(Remainder.remainder(a, n)));
     }
 
+    @ParameterizedTest(name = "BigDecimal ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void identityBigDecimal(int a, int n) {
+        BigDecimal ab = BigDecimal.valueOf(a), nb = BigDecimal.valueOf(n);
+        BigInteger q = Quotient.quotient(ab, nb);
+        BigDecimal r = Remainder.remainder(ab, nb);
+        assertEquals(0, ab.compareTo(nb.multiply(new BigDecimal(q)).add(r)));
+    }
+
     @Test
-    public void identityBigDecimal() {
-        for (int[] p : INT_PAIRS) {
-            BigDecimal a = BigDecimal.valueOf(p[0]), n = BigDecimal.valueOf(p[1]);
-            BigInteger q = Quotient.quotient(a, n);
-            BigDecimal r = Remainder.remainder(a, n);
-            BigDecimal reconstructed = n.multiply(new BigDecimal(q)).add(r);
-            assertEquals(0, a.compareTo(reconstructed), () -> "BigDecimal (" + a + ", " + n + ")");
-        }
-        // Decimal case.
+    void identityBigDecimalFractional() {
         BigDecimal a = BigDecimal.valueOf(3.22), n = BigDecimal.valueOf(1.75);
         BigInteger q = Quotient.quotient(a, n);
         BigDecimal r = Remainder.remainder(a, n);
@@ -126,68 +134,58 @@ public class DivisionInvariantsTest {
 
     // ===== normalization: mod(a, n) == remainder(a, n) shifted by n when signs of r and n differ =====
 
-    @Test
-    public void modIsNormalizedRemainderInt() {
-        for (int[] p : INT_PAIRS) {
-            int a = p[0], n = p[1];
-            int r = Remainder.remainder(a, n);
-            int m = Modular.mod(a, n);
-            int expected = (r != 0 && Integer.signum(r) != Integer.signum(n)) ? r + n : r;
-            assertEquals(expected, m, () -> "int (" + a + ", " + n + ")");
-        }
+    @ParameterizedTest(name = "int ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void modIsNormalizedRemainderInt(int a, int n) {
+        int r = Remainder.remainder(a, n);
+        int m = Modular.mod(a, n);
+        int expected = (r != 0 && Integer.signum(r) != Integer.signum(n)) ? r + n : r;
+        assertEquals(expected, m);
     }
 
-    @Test
-    public void modIsNormalizedRemainderLong() {
-        for (int[] p : INT_PAIRS) {
-            long a = p[0], n = p[1];
-            long r = Remainder.remainder(a, n);
-            long m = Modular.mod(a, n);
-            long expected = (r != 0 && Long.signum(r) != Long.signum(n)) ? r + n : r;
-            assertEquals(expected, m, () -> "long (" + a + ", " + n + ")");
-        }
+    @ParameterizedTest(name = "long ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void modIsNormalizedRemainderLong(int a, int n) {
+        long al = a, nl = n;
+        long r = Remainder.remainder(al, nl);
+        long m = Modular.mod(al, nl);
+        long expected = (r != 0L && Long.signum(r) != Long.signum(nl)) ? r + nl : r;
+        assertEquals(expected, m);
     }
 
-    @Test
-    public void modIsNormalizedRemainderDouble() {
-        double[][] pairs = {{3.22, 1.75}, {-3.22, 1.75}, {3.22, -1.75}, {-3.22, -1.75},
-                {7, 3}, {-7, 3}, {0, 3.1}, {3.5, 1.75}};
-        for (double[] p : pairs) {
-            double a = p[0], n = p[1];
-            double r = Remainder.remainder(a, n);
-            double m = Modular.mod(a, n);
-            double expected = (r != 0.0 && Math.signum(r) != Math.signum(n)) ? r + n : r;
-            assertEquals(expected, m, 1e-12, () -> "double (" + a + ", " + n + ")");
-        }
+    @ParameterizedTest(name = "double ({0}, {1})")
+    @FieldSource("DOUBLE_PAIRS")
+    void modIsNormalizedRemainderDouble(double a, double n) {
+        double r = Remainder.remainder(a, n);
+        double m = Modular.mod(a, n);
+        double expected = (r != 0.0 && Math.signum(r) != Math.signum(n)) ? r + n : r;
+        assertEquals(expected, m, 1e-12);
     }
 
-    @Test
-    public void modIsNormalizedRemainderBigInteger() {
-        for (int[] p : INT_PAIRS) {
-            BigInteger a = BigInteger.valueOf(p[0]), n = BigInteger.valueOf(p[1]);
-            BigInteger r = Remainder.remainder(a, n);
-            BigInteger m = Modular.mod(a, n);
-            BigInteger expected = (r.signum() != 0 && r.signum() != n.signum()) ? r.add(n) : r;
-            assertEquals(expected, m, () -> "BigInteger (" + a + ", " + n + ")");
-        }
+    @ParameterizedTest(name = "BigInteger ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void modIsNormalizedRemainderBigInteger(int a, int n) {
+        BigInteger ab = BigInteger.valueOf(a), nb = BigInteger.valueOf(n);
+        BigInteger r = Remainder.remainder(ab, nb);
+        BigInteger m = Modular.mod(ab, nb);
+        BigInteger expected = (r.signum() != 0 && r.signum() != nb.signum()) ? r.add(nb) : r;
+        assertEquals(expected, m);
     }
 
-    @Test
-    public void modIsNormalizedRemainderBigDecimal() {
-        for (int[] p : INT_PAIRS) {
-            BigDecimal a = BigDecimal.valueOf(p[0]), n = BigDecimal.valueOf(p[1]);
-            BigDecimal r = Remainder.remainder(a, n);
-            BigDecimal m = Modular.mod(a, n);
-            BigDecimal expected = (r.signum() != 0 && r.signum() != n.signum()) ? r.add(n) : r;
-            assertEquals(0, expected.compareTo(m), () -> "BigDecimal (" + a + ", " + n + ")");
-        }
+    @ParameterizedTest(name = "BigDecimal ({0}, {1})")
+    @FieldSource("INT_PAIRS")
+    void modIsNormalizedRemainderBigDecimal(int a, int n) {
+        BigDecimal ab = BigDecimal.valueOf(a), nb = BigDecimal.valueOf(n);
+        BigDecimal r = Remainder.remainder(ab, nb);
+        BigDecimal m = Modular.mod(ab, nb);
+        BigDecimal expected = (r.signum() != 0 && r.signum() != nb.signum()) ? r.add(nb) : r;
+        assertEquals(0, expected.compareTo(m));
     }
 
     // ===== MOD != REMAINDER in opposite-sign cases; MOD == REMAINDER when signs align =====
 
     @Test
-    public void modDiffersFromRemainderWhenSignsDiffer() {
-        // Opposite signs + non-zero remainder -> they differ by divisor.
+    void modDiffersFromRemainderWhenSignsDiffer() {
         assertNotEquals(Remainder.remainder(19, -13), Modular.mod(19, -13));
         assertNotEquals(Remainder.remainder(-19, 13), Modular.mod(-19, 13));
         assertNotEquals(Remainder.remainder(7, -3), Modular.mod(7, -3));
@@ -195,12 +193,12 @@ public class DivisionInvariantsTest {
     }
 
     @Test
-    public void modEqualsRemainderWhenSignsAgree() {
+    void modEqualsRemainderWhenSignsAgree() {
         assertEquals(Remainder.remainder(19, 13), Modular.mod(19, 13));
         assertEquals(Remainder.remainder(-19, -13), Modular.mod(-19, -13));
         assertEquals(Remainder.remainder(7, 3), Modular.mod(7, 3));
         assertEquals(Remainder.remainder(-7, -3), Modular.mod(-7, -3));
-        // Exact divisibility -> both are zero regardless of signs.
+        // Exact divisibility — both zero regardless of signs.
         assertEquals(Remainder.remainder(19, 19), Modular.mod(19, 19));
         assertEquals(Remainder.remainder(0, 19), Modular.mod(0, 19));
     }
