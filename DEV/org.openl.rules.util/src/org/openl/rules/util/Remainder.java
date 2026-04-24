@@ -5,12 +5,26 @@ import java.math.BigInteger;
 
 /**
  * Truncated remainder: the result has the same sign as the dividend, matching Java's {@code %} operator
- * and {@link BigInteger#remainder(BigInteger)} / {@link BigDecimal#remainder(BigDecimal)}. Satisfies the
- * identity {@code remainder = dividend - divisor * quotient}, where {@code quotient} truncates toward zero
- * (see {@link Quotient}).
+ * and {@link BigInteger#remainder(BigInteger)} / {@link BigDecimal#remainder(BigDecimal)}.
  * <p>
- * Distinct from {@link Modular} (Excel's {@code MOD}, floor-mod, same sign as divisor); the two agree when
- * operands share a sign and differ by {@code divisor} otherwise.
+ * Formula:
+ * <pre>{@code
+ *   remainder(a, b) = a - b * truncate(a / b)
+ * }</pre>
+ * where {@code truncate} rounds toward zero. Pairs with {@link Quotient} via the identity
+ * {@code a == b * quotient(a, b) + remainder(a, b)}.
+ * <p>
+ * <b>Not the same as</b> {@link Math#IEEEremainder(double, double)}, which uses
+ * {@code a - b * round(a / b)} with IEEE 754 round-half-to-even. That operation produces a signed
+ * remainder of minimum absolute magnitude (always within {@code [-|b|/2, |b|/2]}) and takes its sign
+ * from the rounding direction rather than the dividend. Example for {@code a = 5, b = 3}:
+ * <ul>
+ *   <li>{@code remainder(5, 3) == 5 - 3 * trunc(5/3) == 5 - 3 * 1 == 2}</li>
+ *   <li>{@code Math.IEEEremainder(5, 3) == 5 - 3 * round(5/3) == 5 - 3 * 2 == -1}</li>
+ * </ul>
+ * <p>
+ * Distinct also from {@link Modular} (Excel's {@code MOD}, floor-mod, same sign as divisor); the two agree
+ * when operands share a sign and differ by {@code divisor} otherwise.
  * <p>
  * Contract:
  * <ul>

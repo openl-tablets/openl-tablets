@@ -8,16 +8,23 @@ import java.math.BigInteger;
  * Unlike Excel's {@code INT} (which floors toward negative infinity), {@code QUOTIENT} always discards the
  * fractional part: {@code QUOTIENT(-10, 3) == -3}, whereas {@code INT(-10/3) == -4}.
  * <p>
+ * Formula for floating-point types:
+ * <pre>{@code
+ *   val = dividend / divisor
+ *   return (val >= 0) ? floor(val) : ceil(val)
+ * }</pre>
+ * This preserves the original floating-point magnitude — use {@code .longValue()} or {@code .intValue()}
+ * at the call site if an integer type is needed.
+ * <p>
  * Contract:
  * <ul>
- *   <li>{@link Byte} / {@link Short} / {@link Integer} inputs return {@link Integer} (Java's natural
- *       arithmetic type after widening).</li>
- *   <li>{@link Long} / {@link Float} / {@link Double} inputs return {@link Long}.</li>
- *   <li>{@link java.math.BigInteger} / {@link java.math.BigDecimal} inputs return
- *       {@link java.math.BigInteger} with full precision.</li>
- *   <li>Division by zero throws {@link ArithmeticException} (Excel's {@code #DIV/0!}).</li>
- *   <li>{@code NaN} and {@code ±Infinity} inputs throw {@link ArithmeticException} — they have no integer
- *       representation.</li>
+ *   <li>Return type matches the input type: {@link Byte}/{@link Short}/{@link Integer} → {@link Integer};
+ *       {@link Long} → {@link Long}; {@link Float} → {@link Float}; {@link Double} → {@link Double};
+ *       {@link java.math.BigInteger} → {@link java.math.BigInteger};
+ *       {@link java.math.BigDecimal} → {@link java.math.BigDecimal}.</li>
+ *   <li>Integer divide-by-zero throws {@link ArithmeticException} (Java's {@code /} operator).</li>
+ *   <li>Float/double divide-by-zero follows IEEE 754: returns {@code ±Infinity} or {@code NaN}.</li>
+ *   <li>{@code NaN} / {@code ±Infinity} inputs propagate naturally through the formula.</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  */
@@ -48,21 +55,23 @@ public class Quotient {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return quotientLong(dividend, divisor);
+        return dividend / divisor;
     }
 
-    public static Long quotient(Float dividend, Float divisor) {
+    public static Float quotient(Float dividend, Float divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return quotientFloat(dividend, divisor);
+        float val = dividend / divisor;
+        return val >= 0.0f ? (float) Math.floor(val) : (float) Math.ceil(val);
     }
 
-    public static Long quotient(Double dividend, Double divisor) {
+    public static Double quotient(Double dividend, Double divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return quotientDouble(dividend, divisor);
+        double val = dividend / divisor;
+        return val >= 0.0d ? Math.floor(val) : Math.ceil(val);
     }
 
     public static BigInteger quotient(BigInteger dividend, BigInteger divisor) {
@@ -72,46 +81,14 @@ public class Quotient {
         return dividend.divide(divisor);
     }
 
-    public static BigInteger quotient(BigDecimal dividend, BigDecimal divisor) {
+    public static BigDecimal quotient(BigDecimal dividend, BigDecimal divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return dividend.divideToIntegralValue(divisor).toBigInteger();
+        return dividend.divideToIntegralValue(divisor);
     }
 
     private static int quotientInt(int dividend, int divisor) {
-        if (divisor == 0) {
-            throw new ArithmeticException("/ by zero");
-        }
         return dividend / divisor;
-    }
-
-    private static long quotientLong(long dividend, long divisor) {
-        if (divisor == 0L) {
-            throw new ArithmeticException("/ by zero");
-        }
-        return dividend / divisor;
-    }
-
-    private static long quotientFloat(float dividend, float divisor) {
-        if (divisor == 0.0f) {
-            throw new ArithmeticException("/ by zero");
-        }
-        if (Float.isNaN(dividend) || Float.isNaN(divisor)
-                || Float.isInfinite(dividend) || Float.isInfinite(divisor)) {
-            throw new ArithmeticException("NaN or Infinity has no integer quotient");
-        }
-        return (long) (dividend / divisor);
-    }
-
-    private static long quotientDouble(double dividend, double divisor) {
-        if (divisor == 0.0d) {
-            throw new ArithmeticException("/ by zero");
-        }
-        if (Double.isNaN(dividend) || Double.isNaN(divisor)
-                || Double.isInfinite(dividend) || Double.isInfinite(divisor)) {
-            throw new ArithmeticException("NaN or Infinity has no integer quotient");
-        }
-        return (long) (dividend / divisor);
     }
 }

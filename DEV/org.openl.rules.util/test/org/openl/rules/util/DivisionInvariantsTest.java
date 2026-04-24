@@ -86,7 +86,7 @@ public class DivisionInvariantsTest {
     @ParameterizedTest(name = "float ({0}, {1})")
     @FieldSource("FLOAT_PAIRS")
     void identityFloat(float a, float n) {
-        long q = Quotient.quotient(a, n);
+        float q = Quotient.quotient(a, n);
         float r = Remainder.remainder(a, n);
         assertEquals(a, n * q + r, 1e-6f);
     }
@@ -94,7 +94,7 @@ public class DivisionInvariantsTest {
     @ParameterizedTest(name = "double ({0}, {1})")
     @FieldSource("DOUBLE_PAIRS")
     void identityDouble(double a, double n) {
-        long q = Quotient.quotient(a, n);
+        double q = Quotient.quotient(a, n);
         double r = Remainder.remainder(a, n);
         assertEquals(a, n * q + r, 1e-12);
     }
@@ -119,17 +119,17 @@ public class DivisionInvariantsTest {
     @FieldSource("INT_PAIRS")
     void identityBigDecimal(int a, int n) {
         BigDecimal ab = BigDecimal.valueOf(a), nb = BigDecimal.valueOf(n);
-        BigInteger q = Quotient.quotient(ab, nb);
+        BigDecimal q = Quotient.quotient(ab, nb);
         BigDecimal r = Remainder.remainder(ab, nb);
-        assertEquals(0, ab.compareTo(nb.multiply(new BigDecimal(q)).add(r)));
+        assertEquals(0, ab.compareTo(nb.multiply(q).add(r)));
     }
 
     @Test
     void identityBigDecimalFractional() {
         BigDecimal a = BigDecimal.valueOf(3.22), n = BigDecimal.valueOf(1.75);
-        BigInteger q = Quotient.quotient(a, n);
+        BigDecimal q = Quotient.quotient(a, n);
         BigDecimal r = Remainder.remainder(a, n);
-        assertEquals(0, a.compareTo(n.multiply(new BigDecimal(q)).add(r)));
+        assertEquals(0, a.compareTo(n.multiply(q).add(r)));
     }
 
     // ===== normalization: mod(a, n) == remainder(a, n) shifted by n when signs of r and n differ =====
