@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Excel-compatible {@code MOD} (floor-mod): the result has the same sign as the divisor, unlike Java's
- * {@code %} operator which takes the sign of the dividend.
+ * Excel-compatible {@code MOD} (floor-mod): for finite, non-zero divisors the result has the same sign
+ * as the divisor, unlike Java's {@code %} operator which takes the sign of the dividend.
  * <p>
  * Contract:
  * <ul>
@@ -13,9 +13,18 @@ import java.math.BigInteger;
  *   <li>{@code MOD(a, 0) == a} (returns the dividend instead of throwing; deviates from Excel's
  *       {@code #DIV/0!} for rule-engine ergonomics).</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
+ *   <li><b>Floating-point edge cases</b> — the sign-of-divisor guarantee applies to finite divisors only.
+ *       For {@link #mod(Float, Float)} / {@link #mod(Double, Double)}:
+ *       <ul>
+ *         <li>{@code mod(a, ±Infinity) == a % ±Infinity == a} — sign follows the dividend, no floor-mod
+ *             adjustment is applied (it would produce {@code ±Infinity} and is not meaningful).</li>
+ *         <li>{@code mod(a, NaN)} / {@code mod(NaN, b)} propagate {@code NaN}.</li>
+ *         <li>{@code mod(±Infinity, b)} yields {@code NaN} via Java's {@code %}.</li>
+ *       </ul>
+ *   </li>
  * </ul>
  * <p>
- * Formula (derived from Java's truncated remainder):
+ * Formula (derived from Java's truncated remainder; applies to finite, non-zero {@code b}):
  * <pre>{@code
  *   r = a % b            // or remainder() for BigInteger/BigDecimal
  *   if (r == 0)               return 0
