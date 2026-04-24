@@ -70,14 +70,14 @@ describe('isFormValuesEqual', () => {
     it('compares nested objects recursively', () => {
         expect(
             isFormValuesEqual(
-                { settings: { uri: 'http://a', mainBranchOnly: false } },
-                { settings: { uri: 'http://a', mainBranchOnly: false } }
+                { settings: { uri: 'https://a', mainBranchOnly: false } },
+                { settings: { uri: 'https://a', mainBranchOnly: false } }
             )
         ).toBe(true)
         expect(
             isFormValuesEqual(
-                { settings: { uri: 'http://a' } },
-                { settings: { uri: 'http://b' } }
+                { settings: { uri: 'https://a' } },
+                { settings: { uri: 'https://b' } }
             )
         ).toBe(false)
     })
@@ -86,26 +86,26 @@ describe('isFormValuesEqual', () => {
         // This is important for Deployment repositories where mainBranchOnly may be false or undefined
         expect(
             isFormValuesEqual(
-                { settings: { uri: 'http://a', mainBranchOnly: false } },
-                { settings: { uri: 'http://a' } }
+                { settings: { uri: 'https://a', mainBranchOnly: false } },
+                { settings: { uri: 'https://a' } }
             )
         ).toBe(true)
         expect(
             isFormValuesEqual(
-                { settings: { uri: 'http://a' } },
-                { settings: { uri: 'http://a', mainBranchOnly: false } }
+                { settings: { uri: 'https://a' } },
+                { settings: { uri: 'https://a', mainBranchOnly: false } }
             )
         ).toBe(true)
         expect(
             isFormValuesEqual(
-                { settings: { uri: 'http://a', mainBranchOnly: true } },
-                { settings: { uri: 'http://a' } }
+                { settings: { uri: 'https://a', mainBranchOnly: true } },
+                { settings: { uri: 'https://a' } }
             )
         ).toBe(false) // true !== false (undefined treated as false)
         expect(
             isFormValuesEqual(
-                { settings: { uri: 'http://a', mainBranchOnly: true } },
-                { settings: { uri: 'http://a', mainBranchOnly: false } }
+                { settings: { uri: 'https://a', mainBranchOnly: true } },
+                { settings: { uri: 'https://a', mainBranchOnly: false } }
             )
         ).toBe(false)
     })
