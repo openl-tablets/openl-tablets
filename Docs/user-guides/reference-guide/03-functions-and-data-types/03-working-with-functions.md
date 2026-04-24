@@ -112,10 +112,17 @@ $$
 
 **Contract for all four:**
 
-- Return type matches the input type: `Byte` → `Byte`, `Integer` → `Integer`, `Double` → `Double`, `BigDecimal` → `BigDecimal`, and so on.
+- Return types:
+  - `quotient` and `floorDiv` promote the smaller integer wrappers: `Byte`/`Short`/`Integer` → `Integer`, `Long` → `Long`, `Float` → `Float`, `Double` → `Double`, `BigInteger` → `BigInteger`, `BigDecimal` → `BigDecimal`. This matches the convention used elsewhere in `org.openl.rules.util` (e.g., `Sum.sum(Byte...) → Integer`).
+  - `remainder` and `mod` return the same type as the input (`Byte` → `Byte`, `Integer` → `Integer`, `BigDecimal` → `BigDecimal`, …). This is always safe because `|result| < |b|`, so it fits in the dividend's type.
 - Any `null` argument produces a `null` result.
-- Integer and `BigInteger`/`BigDecimal` divide-by-zero throws `ArithmeticException` — except for `mod(a, 0)` which returns `a` for rule-engine ergonomics.
-- `float`/`double` divide-by-zero follows IEEE 754: `x / 0.0` → `±Infinity`, `0.0 / 0.0` → `NaN`. `NaN` propagates through all four functions.
+- Divide-by-zero behavior varies per function:
+  - Integer `quotient`/`floorDiv`/`remainder` (byte/short/int/long) throw `ArithmeticException` via Java's `/` and `%` operators.
+  - `BigInteger`/`BigDecimal` variants of all four functions throw `ArithmeticException` (inherited from `BigInteger.divide` / `BigDecimal.divide` / `.remainder`) — except **`mod`**, which short-circuits to return the dividend.
+  - Float/double `quotient` follows IEEE 754: `x / 0.0` → `±Infinity`, `0.0 / 0.0` → `NaN`; `floorDiv` likewise (via `Math.floor` of ±Infinity).
+  - Float/double `remainder` yields `NaN` (Java's `%` is NaN when the divisor is zero).
+  - Float/double `mod(a, 0.0)` returns the dividend `a` (rule-engine ergonomics, overrides IEEE 754).
+- `NaN` operands propagate to `NaN` for `quotient`/`floorDiv`/`remainder`/`mod` on float/double, except `quotient` on non-FP types (which throws or is unreachable).
 
 > `remainder` is truncated remainder and is not the same as `IEEEremainder`, which uses round-half-to-even rounding for the quotient and produces a signed remainder of minimum absolute magnitude.
 
