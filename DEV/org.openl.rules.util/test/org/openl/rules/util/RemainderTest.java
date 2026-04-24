@@ -155,8 +155,8 @@ class RemainderTest {
 
     @Test
     void remainderBigIntegerByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> Remainder.remainder(BigInteger.valueOf(19), BigInteger.ZERO));
+        var dividend = BigInteger.valueOf(19);
+        assertThrows(ArithmeticException.class, () -> Remainder.remainder(dividend, BigInteger.ZERO));
     }
 
     @Test
@@ -175,8 +175,8 @@ class RemainderTest {
 
     @Test
     void remainderBigDecimalByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> Remainder.remainder(BigDecimal.valueOf(19), BigDecimal.ZERO));
+        var dividend = BigDecimal.valueOf(19);
+        assertThrows(ArithmeticException.class, () -> Remainder.remainder(dividend, BigDecimal.ZERO));
     }
 
     @Test

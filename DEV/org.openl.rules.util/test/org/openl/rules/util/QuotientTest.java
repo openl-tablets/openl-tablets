@@ -157,8 +157,8 @@ class QuotientTest {
 
     @Test
     void quotientBigIntegerByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> Quotient.quotient(BigInteger.valueOf(19), BigInteger.ZERO));
+        var dividend = BigInteger.valueOf(19);
+        assertThrows(ArithmeticException.class, () -> Quotient.quotient(dividend, BigInteger.ZERO));
     }
 
     @Test
@@ -182,8 +182,8 @@ class QuotientTest {
 
     @Test
     void quotientBigDecimalByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> Quotient.quotient(BigDecimal.valueOf(19), BigDecimal.ZERO));
+        var dividend = BigDecimal.valueOf(19);
+        assertThrows(ArithmeticException.class, () -> Quotient.quotient(dividend, BigDecimal.ZERO));
     }
 
     @Test

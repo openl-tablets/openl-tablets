@@ -39,14 +39,14 @@ public final class FloorDiv {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return Math.floorDiv((int) dividend, (int) divisor);
+        return Math.floorDiv(dividend, divisor);
     }
 
     public static Integer floorDiv(Short dividend, Short divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return Math.floorDiv((int) dividend, (int) divisor);
+        return Math.floorDiv(dividend, divisor);
     }
 
     public static Integer floorDiv(Integer dividend, Integer divisor) {

@@ -142,14 +142,13 @@ class FloorDivTest {
         BigInteger expected = new BigInteger("2092791190742268351135507753");
         assertEquals(expected, FloorDiv.floorDiv(dividend, BigInteger.valueOf(97)));
         // Opposite-sign case: remainder is 59 (non-zero), so floor == trunc - 1.
-        assertEquals(expected.negate().subtract(BigInteger.ONE),
-                FloorDiv.floorDiv(dividend, BigInteger.valueOf(-97)));
+        assertEquals(expected.negate().subtract(BigInteger.ONE), FloorDiv.floorDiv(dividend, BigInteger.valueOf(-97)));
     }
 
     @Test
     void floorDivBigIntegerByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> FloorDiv.floorDiv(BigInteger.valueOf(19), BigInteger.ZERO));
+        var dividend = BigInteger.valueOf(19);
+        assertThrows(ArithmeticException.class, () -> FloorDiv.floorDiv(dividend, BigInteger.ZERO));
     }
 
     @Test
@@ -169,8 +168,8 @@ class FloorDivTest {
 
     @Test
     void floorDivBigDecimalByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> FloorDiv.floorDiv(BigDecimal.valueOf(19), BigDecimal.ZERO));
+        var dividend = BigDecimal.valueOf(19);
+        assertThrows(ArithmeticException.class, () -> FloorDiv.floorDiv(dividend, BigDecimal.ZERO));
     }
 
     @Test
