@@ -29,7 +29,7 @@ export interface UpdatedUserRequest {
     firstName: string
     lastName: string
     password: string
-    groups: string[]
+    groups?: string[]
     // Attributes for new user
     username?: string
     internalPassword?: {

@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Form, Input, TooltipProps } from 'antd'
 import { useRules } from './hooks'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 
 const { TextArea: AntdTextArea } = Input
 

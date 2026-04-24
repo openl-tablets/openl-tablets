@@ -67,7 +67,7 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
     }
 
     const handleEditInputConfirm = () => {
-        updateTag({ id: tags[editInputIndex].id, name: editInputValue, tagTypeId  })
+        updateTag({ id: tags[editInputIndex]!.id, name: editInputValue, tagTypeId  })
         setEditInputIndex(-1)
         setEditInputValue('')
     }

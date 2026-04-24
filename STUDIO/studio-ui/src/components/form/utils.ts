@@ -8,10 +8,10 @@
 export function getFieldValueProps(val: unknown, options?: { clearSecret?: boolean }): { value: unknown } {
     if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
         const obj = val as Record<string, unknown>
-        if (options?.clearSecret && obj.secret) {
+        if (options?.clearSecret && obj['secret']) {
             return { value: undefined }
         }
-        return { value: obj.value }
+        return { value: obj['value'] }
     }
     return { value: val }
 }

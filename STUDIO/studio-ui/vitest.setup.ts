@@ -57,11 +57,11 @@ if (typeof globalThis.TextEncoder === 'undefined') {
 // waitFor timeouts. Deliver messages on the next macrotask instead.
 if (typeof globalThis.MessageChannel === 'undefined') {
     class FakeMessagePort {
-        onmessage: ((event: { data: unknown }) => void) | null = null
-        otherPort!: FakeMessagePort
+        onmessage: ((event: any) => void) | null = null
+        otherPort?: FakeMessagePort
         postMessage(data: unknown) {
             const target = this.otherPort
-            setTimeout(() => target.onmessage?.({ data }), 0)
+            setTimeout(() => target?.onmessage?.({ data }), 0)
         }
     }
     globalThis.MessageChannel = class {

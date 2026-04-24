@@ -37,7 +37,7 @@ vi.mock('containers/repositories/DesignRepositoriesConfiguration', async () => (
 
 const mockConfirm = vi.fn()
 vi.mock('antd', async () => {
-    const actual = await vi.importActual('antd')
+    const actual = await vi.importActual<typeof import('antd')>('antd')
     return {
         ...actual,
         Modal: {
@@ -102,7 +102,7 @@ describe('Repositories', () => {
 
         await userEvent.click(screen.getByRole('tab', { name: /repository:tabs.deployment_repositories/i }))
 
-        const confirmOptions = mockConfirm.mock.calls[0][0]
+        const confirmOptions = mockConfirm.mock.calls[0]![0]
         expect(confirmOptions.onOk).toBeDefined()
         confirmOptions.onOk!()
 

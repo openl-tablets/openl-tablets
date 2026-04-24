@@ -105,7 +105,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
             const treeKey = selectedKeys[0] as string
             // Extract nodeId from path-based key (e.g., "24-25" -> 25, "25" -> 25)
             const keyParts = treeKey.split('-')
-            const nodeId = parseInt(keyParts[keyParts.length - 1], 10)
+            const nodeId = parseInt(keyParts[keyParts.length - 1]!, 10)
             selectNode(treeKey, nodeId)
             onSelect?.(nodeId)
         }

@@ -48,7 +48,7 @@ vi.mock('components/accessManagement', async () => {
     // initialValue on these Form.Items is omitted — the parent Form already seeds
     // designRepos/deployRepos/projects/designRootRole/deployRootRole via its
     // `initialValues` prop, and AntD warns if both sides try to seed the same path.
-    const { Form } = await vi.importActual('antd')
+    const { Form } = await vi.importActual<typeof import('antd')>('antd')
     return {
         DesignRepositoriesTab: () => (
             <div data-testid="design-repos-tab">
@@ -71,7 +71,7 @@ vi.mock('components/accessManagement', async () => {
 })
 
 vi.mock('containers/groups/EditGroupDetails', async () => {
-    const { Form } = await vi.importActual('antd')
+    const { Form } = await vi.importActual<typeof import('antd')>('antd')
     return {
         EditGroupDetails: () => (
             <div data-testid="edit-group-details">
@@ -83,7 +83,7 @@ vi.mock('containers/groups/EditGroupDetails', async () => {
 })
 
 vi.mock('containers/users/UserDatailsTab', async () => {
-    const { Form } = await vi.importActual('antd')
+    const { Form } = await vi.importActual<typeof import('antd')>('antd')
     return {
         UserDetailsTab: () => (
             <div data-testid="user-details-tab">
@@ -754,7 +754,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         }
 
         // Make the save succeed but a subsequent role save fail
-        vi.mocked(runSequentialCollectErrors).mockResolvedValueOnce([{ error: new Error('Role save fail') }])
+        vi.mocked(runSequentialCollectErrors).mockResolvedValueOnce([{ item: mockDesignRepo, error: new Error('Role save fail') }])
 
         mockApiCall.mockImplementation((url: string) => {
             if (url === '/repos') return Promise.resolve([mockDesignRepo])

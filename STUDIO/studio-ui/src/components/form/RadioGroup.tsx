@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react'
 import { Form, Radio as AntdRadio, TooltipProps } from 'antd'
 import { useRules } from './hooks'
-import { RuleObject } from 'rc-field-form/lib/interface'
+import { RuleObject } from '@rc-component/form/lib/interface'
 
 interface RadioGroupProps {
     label?: string
