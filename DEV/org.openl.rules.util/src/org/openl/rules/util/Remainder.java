@@ -16,65 +16,38 @@ import java.math.BigInteger;
  * <ul>
  *   <li>{@code remainder(a, b) == 0} when {@code a} is exactly divisible by {@code b}.</li>
  *   <li>Division by zero throws {@link ArithmeticException}.</li>
- *   <li>Reference-type overloads ({@link Byte}, {@link Short}, {@link Integer}, {@link Long}, {@link Float},
- *       {@link Double}, {@link java.math.BigInteger}, {@link java.math.BigDecimal}) return {@code null}
- *       when any argument is {@code null}.</li>
+ *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Remainder">Remainder (Wikipedia)</a>
  */
 public class Remainder {
 
-    public static byte remainder(byte dividend, byte divisor) {
-        return (byte) remainder((int) dividend, (int) divisor);
-    }
-
     public static Byte remainder(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return remainder((byte) dividend, (byte) divisor);
-    }
-
-    public static short remainder(short dividend, short divisor) {
-        return (short) remainder((int) dividend, (int) divisor);
+        return (byte) remainderInt(dividend, divisor);
     }
 
     public static Short remainder(Short dividend, Short divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return remainder((short) dividend, (short) divisor);
-    }
-
-    public static int remainder(int dividend, int divisor) {
-        return dividend % divisor;
+        return (short) remainderInt(dividend, divisor);
     }
 
     public static Integer remainder(Integer dividend, Integer divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return remainder((int) dividend, (int) divisor);
-    }
-
-    public static long remainder(long dividend, long divisor) {
-        return dividend % divisor;
+        return remainderInt(dividend, divisor);
     }
 
     public static Long remainder(Long dividend, Long divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return remainder((long) dividend, (long) divisor);
-    }
-
-    public static float remainder(float dividend, float divisor) {
-        if (divisor == 0.0f) {
-            throw new ArithmeticException("/ by zero");
-        }
-        // Java's float % is defined (JLS 15.17.3) as a - b * trunc(a/b), the same identity with
-        // Quotient, but implemented in IEEE 754 so NaN/Infinity propagate naturally.
         return dividend % divisor;
     }
 
@@ -82,11 +55,7 @@ public class Remainder {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return remainder((float) dividend, (float) divisor);
-    }
-
-    public static double remainder(double dividend, double divisor) {
-        if (divisor == 0.0d) {
+        if (divisor == 0.0f) {
             throw new ArithmeticException("/ by zero");
         }
         return dividend % divisor;
@@ -96,7 +65,10 @@ public class Remainder {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return remainder((double) dividend, (double) divisor);
+        if (divisor == 0.0d) {
+            throw new ArithmeticException("/ by zero");
+        }
+        return dividend % divisor;
     }
 
     public static BigInteger remainder(BigInteger dividend, BigInteger divisor) {
@@ -111,5 +83,9 @@ public class Remainder {
             return null;
         }
         return dividend.remainder(divisor);
+    }
+
+    private static int remainderInt(int dividend, int divisor) {
+        return dividend % divisor;
     }
 }

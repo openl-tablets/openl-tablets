@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.TestUtils;
-import org.openl.rules.util.Quotient;
 import org.openl.util.ArrayTool;
 
 /**
@@ -4385,11 +4384,6 @@ public class RulesUtilsTest {
         c.set(2015, 1, 1, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
         assertEquals(c.getTime(), RulesUtils.stringToDate("2/1/2015"));
-    }
-
-    @Test
-    public void quotientIntTest() {
-        assertEquals(2, Quotient.quotient(9, 4));
     }
 
     @Test

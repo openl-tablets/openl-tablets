@@ -69,6 +69,12 @@ Uses ASM (version in root `pom.xml` → `asm.version`). `RulesEngineFactory` is 
 - `SimpleProjectEngineFactory` / `SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder` — builder pattern for project compilation
 - `SimpleMultiModuleInstantiationStrategy` — multi-module loading
 
+## Rule Utility Libraries (`org.openl.rules.util`)
+
+**Registration**: every new class must be added to `org.openl.conf.LibrariesRegistry` via `DEFAULT.addJavalib(YourClass.class)` in its `static` initializer. Forgetting this leaves the methods invisible to rules.
+
+**Boxed-type-only public API**: never expose primitive overloads (`int`, `long`, `float`, `double`, `byte`, `short`). OpenL compiles rule variables to boxed types internally, so primitive variants add no performance benefit and bloat the method-dispatch search space. Keep primitive arithmetic in **private** helpers; public methods accept and return `Byte` / `Short` / `Integer` / `Long` / `Float` / `Double` / `BigInteger` / `BigDecimal`.
+
 ## After Significant Changes
 
 Verify downstream modules still build:
