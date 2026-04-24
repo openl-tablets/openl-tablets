@@ -47,21 +47,73 @@ The following example illustrates how to use functions in OpenL Tablets. The rul
 The following topics are included in this section:
 
 -   [Math Functions Used in OpenL Tablets](#math-functions-used-in-openl-tablets)
+-   [Division and Modulo Functions](#division-and-modulo-functions)
 -   [Round Function](#round-function)
 
 #### Math Functions Used in OpenL Tablets
 
 The following table lists math functions used in OpenL Tablets:
 
-| Function    | Description                                                                                                                                                                                                                                                                                                                                   |
-|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **min/max** | Returns the smallest or biggest element in a set of elements of comparable type for an array or multiple values. <br/>The result type depends on the entry type. min/max(element1, element2, …) `min/max(array[])` <br/>For example, if Date1= 01/02/2009 and Date2= 03/06/2008 are variables of the Date type, `max(Date1, Date2)` returns 01/02/2009. |
-| **sum**     | Adds all numbers in the provided array and returns the result as a number. `sum(number1, number2, …)` `sum(array[])`                                                                                                                                                                                                                          |
-| **avg**     | Returns the arithmetic average of array elements. The function result is a floating value. avg(number1, number2, …) avg(array[])                                                                                                                                                                                                              |
-| **product** | Multiplies numbers from the provided array and returns the product as a number. product(number1, number2, …) product(array[])                                                                                                                                                                                                                 |
-| **mod**     | Returns the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor. <br/>`mod(number, divisor)` <br/>- `number `is a numeric value which's remainder must be found. <br/>- `divisor` is the number used to divide the `number`. <br/>If the divisor is **0**, the **mod** function returns an error.      |
-| **sort**    | Returns values from the provided array in ascending sort. The result is an array. sort(array[])                                                                                                                                                                                                                                               |
-| **round**   | Rounds a value to a specified number of digits. For more information on the ROUND function, see [Round Function](#round-function).                                                                                                                                                                                                            |
+| Function      | Description                                                                                                                                                                                                                                                                                                                                             |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **min/max**   | Returns the smallest or biggest element in a set of elements of comparable type for an array or multiple values. <br/>The result type depends on the entry type. min/max(element1, element2, …) `min/max(array[])` <br/>For example, if Date1= 01/02/2009 and Date2= 03/06/2008 are variables of the Date type, `max(Date1, Date2)` returns 01/02/2009. |
+| **sum**       | Adds all numbers in the provided array and returns the result as a number. `sum(number1, number2, …)` `sum(array[])`                                                                                                                                                                                                                                    |
+| **avg**       | Returns the arithmetic average of array elements. The function result is a floating value. avg(number1, number2, …) avg(array[])                                                                                                                                                                                                                        |
+| **product**   | Multiplies numbers from the provided array and returns the product as a number. product(number1, number2, …) product(array[])                                                                                                                                                                                                                           |
+| **quotient**  | Truncated integer quotient (Excel-style `QUOTIENT`). Discards the fractional part, rounding toward zero. `quotient(a, b)`. See [Division and Modulo Functions](#division-and-modulo-functions).                                                                                                                                                         |
+| **floorDiv**  | Floor division — largest integer less than or equal to `a / b`. `floorDiv(a, b)`. See [Division and Modulo Functions](#division-and-modulo-functions).                                                                                                                                                                                                  |
+| **mod**       | Floor modulo (Excel-style `MOD`). Result has the same sign as the divisor. <br/>`mod(a, b)`. If `b == 0`, returns `a` (does not throw). See [Division and Modulo Functions](#division-and-modulo-functions).                                                                                                                                            |
+| **remainder** | Truncated remainder (Java's `%` operator). Result has the same sign as the dividend. `remainder(a, b)`. See [Division and Modulo Functions](#division-and-modulo-functions).                                                                                                                                                                            |
+| **sort**      | Returns values from the provided array in ascending sort. The result is an array. sort(array[])                                                                                                                                                                                                                                                         |
+| **round**     | Rounds a value to a specified number of digits. For more information on the ROUND function, see [Round Function](#round-function).                                                                                                                                                                                                                      |
+
+#### Division and Modulo Functions
+
+OpenL Tablets provides four related functions for integer division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. They split into two families by rounding rule:
+
+- **Truncation toward zero** — `quotient` and `remainder` (Java's `/` and `%` semantics).
+- **Floor toward negative infinity** — `floorDiv` and `mod` (Excel's `QUOTIENT`-like integer part via `FLOOR`, and Excel's `MOD` respectively).
+
+Each family satisfies the division-algorithm identity:
+
+```
+a == b * quotient(a, b) + remainder(a, b)
+a == b * floorDiv(a, b) + mod(a, b)
+```
+
+The two families agree when the operands share a sign or when `a` is an exact multiple of `b`; they differ only when signs differ and there is a non-zero remainder:
+
+| `a` | `b` | `quotient` | `remainder` | `floorDiv` | `mod` |
+|-----|-----|------------|-------------|------------|-------|
+| 10  | 3   | 3          | 1           | 3          | 1     |
+| -10 | 3   | -3         | -1          | -4         | 2     |
+| 10  | -3  | -3         | 1           | -4         | -2    |
+| -10 | -3  | 3          | -1          | 3          | -1    |
+| 12  | 3   | 4          | 0           | 4          | 0     |
+
+The relationship between the two "mod" variants is a normalization:
+
+- When `sign(remainder(a, b)) == sign(b)` (or the remainder is zero), `mod(a, b) == remainder(a, b)`.
+- Otherwise, `mod(a, b) == remainder(a, b) + b`.
+
+**Formulas used per numeric type:**
+
+| Type                        | `quotient(a, b)`                                      | `remainder(a, b)`          | `floorDiv(a, b)`                          | `mod(a, b)`                                       |
+|-----------------------------|-------------------------------------------------------|----------------------------|-------------------------------------------|---------------------------------------------------|
+| `byte`, `short`, `int`      | `a / b`                                               | `a % b`                    | `Math.floorDiv(a, b)`                     | `Math.floorMod(a, b)`                             |
+| `long`                      | `a / b`                                               | `a % b`                    | `Math.floorDiv(a, b)`                     | `Math.floorMod(a, b)`                             |
+| `float`, `double`           | `val = a/b; (val >= 0) ? floor(val) : ceil(val)`      | `a % b` (IEEE 754)         | `Math.floor(a / b)`                       | `a - b * floor(a / b)`                            |
+| `BigInteger`                | `a.divide(b)`                                         | `a.remainder(b)`           | sign-aware `divideAndRemainder` fallback  | `a.remainder(b).add(b).remainder(b)`              |
+| `BigDecimal`                | `a.divideToIntegralValue(b)`                          | `a.remainder(b)`           | `a.divide(b, 0, RoundingMode.FLOOR)`      | sign-aware `remainder(b)` with divisor adjustment |
+
+**Contract for all four:**
+
+- Return type matches the input type: `Byte` → `Byte`, `Integer` → `Integer`, `Double` → `Double`, `BigDecimal` → `BigDecimal`, and so on.
+- Any `null` argument produces a `null` result.
+- Integer and `BigInteger`/`BigDecimal` divide-by-zero throws `ArithmeticException` — except for `mod(a, 0)` which returns `a` for rule-engine ergonomics.
+- `float`/`double` divide-by-zero follows IEEE 754: `x / 0.0` → `±Infinity`, `0.0 / 0.0` → `NaN`. `NaN` propagates through all four functions.
+
+> [Note:] `remainder` is truncated remainder and is not the same as `IEEEremainder`, which uses round-half-to-even rounding for the quotient and produces a signed remainder of minimum absolute magnitude.
 
 #### Round Function
 
