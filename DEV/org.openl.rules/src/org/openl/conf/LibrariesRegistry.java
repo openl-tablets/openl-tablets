@@ -29,6 +29,7 @@ import org.openl.rules.util.Booleans;
 import org.openl.rules.util.Correl;
 import org.openl.rules.util.Covar;
 import org.openl.rules.util.Dates;
+import org.openl.rules.util.FloorDiv;
 import org.openl.rules.util.Forecast;
 import org.openl.rules.util.Intercept;
 import org.openl.rules.util.Miscs;
@@ -71,6 +72,7 @@ public class LibrariesRegistry {
         DEFAULT.addJavalib(Product.class);
         DEFAULT.addJavalib(Quotient.class);
         DEFAULT.addJavalib(Remainder.class);
+        DEFAULT.addJavalib(FloorDiv.class);
         DEFAULT.addJavalib(Avg.class);
         DEFAULT.addJavalib(Miscs.class);
         DEFAULT.addJavalib(Modular.class);
