@@ -12,7 +12,7 @@
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.6",
     "dompurify": "^3.4.1",
-    "i18next": "^26.0.6",
+    "i18next": "^26.0.7",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-i18next": "^17.0.4",
