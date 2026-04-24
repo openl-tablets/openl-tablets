@@ -66,16 +66,16 @@ class QuotientTest {
 
     @Test
     void quotientByte() {
-        assertEquals(3, Quotient.quotient((byte) 19, (byte) 5));
-        assertEquals(-3, Quotient.quotient((byte) 19, (byte) -5));
-        assertEquals(18, Quotient.quotient(Byte.MAX_VALUE, (byte) 7));
+        assertEquals((byte) 3, Quotient.quotient((byte) 19, (byte) 5));
+        assertEquals((byte) -3, Quotient.quotient((byte) 19, (byte) -5));
+        assertEquals((byte) 18, Quotient.quotient(Byte.MAX_VALUE, (byte) 7));
     }
 
     @Test
     void quotientShort() {
-        assertEquals(3, Quotient.quotient((short) 19, (short) 5));
-        assertEquals(-3, Quotient.quotient((short) 19, (short) -5));
-        assertEquals(2978, Quotient.quotient(Short.MAX_VALUE, (short) 11));
+        assertEquals((short) 3, Quotient.quotient((short) 19, (short) 5));
+        assertEquals((short) -3, Quotient.quotient((short) 19, (short) -5));
+        assertEquals((short) 2978, Quotient.quotient(Short.MAX_VALUE, (short) 11));
     }
 
     @Test
@@ -223,8 +223,8 @@ class QuotientTest {
 
     @Test
     void quotientBoxedHappyPath() {
-        assertEquals(3, Quotient.quotient((byte) 19, (byte) 5));
-        assertEquals(3, Quotient.quotient((short) 19, (short) 5));
+        assertEquals((byte) 3, Quotient.quotient((byte) 19, (byte) 5));
+        assertEquals((short) 3, Quotient.quotient((short) 19, (short) 5));
         assertEquals(2, Quotient.quotient(5, 2));
         assertEquals(2L, Quotient.quotient(5L, 2L));
         assertEquals(1.0f, Quotient.quotient(4.5f, 3.1f), 0.0f);

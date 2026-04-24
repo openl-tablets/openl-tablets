@@ -18,10 +18,8 @@ import java.math.BigInteger;
  * <p>
  * Contract:
  * <ul>
- *   <li>Return type matches the input type: {@link Byte}/{@link Short}/{@link Integer} → {@link Integer};
- *       {@link Long} → {@link Long}; {@link Float} → {@link Float}; {@link Double} → {@link Double};
- *       {@link java.math.BigInteger} → {@link java.math.BigInteger};
- *       {@link java.math.BigDecimal} → {@link java.math.BigDecimal}.</li>
+ *   <li>Return type matches the input type (e.g. {@link Byte} → {@link Byte}, {@link Integer} →
+ *       {@link Integer}, {@link java.math.BigDecimal} → {@link java.math.BigDecimal}, …).</li>
  *   <li>Integer divide-by-zero throws {@link ArithmeticException} (Java's {@code /} operator).</li>
  *   <li>Float/double divide-by-zero follows IEEE 754: returns {@code ±Infinity} or {@code NaN}.</li>
  *   <li>{@code NaN} / {@code ±Infinity} inputs propagate naturally through the formula.</li>
@@ -34,18 +32,18 @@ public final class Quotient {
         // Utility class
     }
 
-    public static Integer quotient(Byte dividend, Byte divisor) {
+    public static Byte quotient(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return quotientInt(dividend, divisor);
+        return (byte) quotientInt(dividend, divisor);
     }
 
-    public static Integer quotient(Short dividend, Short divisor) {
+    public static Short quotient(Short dividend, Short divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return quotientInt(dividend, divisor);
+        return (short) quotientInt(dividend, divisor);
     }
 
     public static Integer quotient(Integer dividend, Integer divisor) {

@@ -57,16 +57,16 @@ class FloorDivTest {
 
     @Test
     void floorDivByte() {
-        assertEquals(3, FloorDiv.floorDiv((byte) 19, (byte) 5));
-        assertEquals(-4, FloorDiv.floorDiv((byte) 19, (byte) -5));
-        assertEquals(-4, FloorDiv.floorDiv((byte) -19, (byte) 5));
+        assertEquals((byte) 3, FloorDiv.floorDiv((byte) 19, (byte) 5));
+        assertEquals((byte) -4, FloorDiv.floorDiv((byte) 19, (byte) -5));
+        assertEquals((byte) -4, FloorDiv.floorDiv((byte) -19, (byte) 5));
     }
 
     @Test
     void floorDivShort() {
-        assertEquals(3, FloorDiv.floorDiv((short) 19, (short) 5));
-        assertEquals(-4, FloorDiv.floorDiv((short) 19, (short) -5));
-        assertEquals(-4, FloorDiv.floorDiv((short) -19, (short) 5));
+        assertEquals((short) 3, FloorDiv.floorDiv((short) 19, (short) 5));
+        assertEquals((short) -4, FloorDiv.floorDiv((short) 19, (short) -5));
+        assertEquals((short) -4, FloorDiv.floorDiv((short) -19, (short) 5));
     }
 
     @Test

@@ -19,10 +19,8 @@ import java.math.RoundingMode;
  * <p>
  * Contract:
  * <ul>
- *   <li>Return type matches the input type: {@link Byte}/{@link Short}/{@link Integer} → {@link Integer};
- *       {@link Long} → {@link Long}; {@link Float} → {@link Float}; {@link Double} → {@link Double};
- *       {@link java.math.BigInteger} → {@link java.math.BigInteger};
- *       {@link java.math.BigDecimal} → {@link java.math.BigDecimal}.</li>
+ *   <li>Return type matches the input type (e.g. {@link Byte} → {@link Byte}, {@link Integer} →
+ *       {@link Integer}, {@link java.math.BigDecimal} → {@link java.math.BigDecimal}, …).</li>
  *   <li>Integer / BigInteger / BigDecimal divide-by-zero throws {@link ArithmeticException}.</li>
  *   <li>Float / double divide-by-zero follows IEEE 754: returns {@code ±Infinity} or {@code NaN}.</li>
  *   <li>{@code NaN} and {@code ±Infinity} inputs propagate naturally through {@link Math#floor(double)}.</li>
@@ -35,18 +33,18 @@ public final class FloorDiv {
         // Utility class
     }
 
-    public static Integer floorDiv(Byte dividend, Byte divisor) {
+    public static Byte floorDiv(Byte dividend, Byte divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return Math.floorDiv(dividend, divisor);
+        return (byte) Math.floorDiv(dividend, divisor);
     }
 
-    public static Integer floorDiv(Short dividend, Short divisor) {
+    public static Short floorDiv(Short dividend, Short divisor) {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return Math.floorDiv(dividend, divisor);
+        return (short) Math.floorDiv(dividend, divisor);
     }
 
     public static Integer floorDiv(Integer dividend, Integer divisor) {
