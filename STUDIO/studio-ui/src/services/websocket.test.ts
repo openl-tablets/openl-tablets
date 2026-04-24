@@ -8,7 +8,7 @@ describe('webSocketService', () => {
         vi.clearAllMocks()
         Object.defineProperty(document, 'baseURI', {
             configurable: true,
-            value: 'http://localhost:8080/webstudio/',
+            value: 'https://localhost:8080/webstudio/',
         })
     })
 
@@ -61,7 +61,7 @@ describe('webSocketService', () => {
     it('builds websocket URL from base URI', async () => {
         const { latestConfig } = await loadService()
 
-        expect(latestConfig().brokerURL).toBe('ws://localhost:8080/webstudio/web/ws')
+        expect(latestConfig().brokerURL).toBe('wss://localhost:8080/webstudio/web/ws')
     })
 
     it('rejects connect with timeout error when never connected', async () => {
