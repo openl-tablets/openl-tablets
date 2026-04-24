@@ -2,7 +2,6 @@ package org.openl.rules.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -73,7 +72,10 @@ public class ModularTest {
 
     @Test
     public void modIntByZero() {
-        assertThrows(ArithmeticException.class, () -> Modular.mod(5, 0));
+        // x mod 0 == x (does not throw)
+        assertEquals(Integer.valueOf(5), Modular.mod(5, 0));
+        assertEquals(Integer.valueOf(-5), Modular.mod(-5, 0));
+        assertEquals(Integer.valueOf(0), Modular.mod(0, 0));
     }
 
     @Test
@@ -89,7 +91,8 @@ public class ModularTest {
 
     @Test
     public void modLongByZero() {
-        assertThrows(ArithmeticException.class, () -> Modular.mod(5L, 0L));
+        assertEquals(Long.valueOf(5L), Modular.mod(5L, 0L));
+        assertEquals(Long.valueOf(-5L), Modular.mod(-5L, 0L));
     }
 
     @Test
@@ -122,8 +125,9 @@ public class ModularTest {
 
     @Test
     public void modFloatByZero() {
-        assertThrows(ArithmeticException.class, () -> Modular.mod(3.22f, 0.0f));
-        assertThrows(ArithmeticException.class, () -> Modular.mod(3.22f, -0.0f));
+        assertEquals(3.22f, Modular.mod(3.22f, 0.0f), 0.0f);
+        assertEquals(3.22f, Modular.mod(3.22f, -0.0f), 0.0f);
+        assertEquals(-3.22f, Modular.mod(-3.22f, 0.0f), 0.0f);
     }
 
     @Test
@@ -151,8 +155,9 @@ public class ModularTest {
 
     @Test
     public void modDoubleByZero() {
-        assertThrows(ArithmeticException.class, () -> Modular.mod(3.22, 0.0));
-        assertThrows(ArithmeticException.class, () -> Modular.mod(3.22, -0.0));
+        assertEquals(3.22, Modular.mod(3.22, 0.0), 0.0);
+        assertEquals(3.22, Modular.mod(3.22, -0.0), 0.0);
+        assertEquals(-3.22, Modular.mod(-3.22, 0.0), 0.0);
     }
 
     @Test
@@ -187,8 +192,8 @@ public class ModularTest {
 
     @Test
     public void modBigIntegerByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> Modular.mod(BigInteger.valueOf(19), BigInteger.ZERO));
+        assertEquals(BigInteger.valueOf(19), Modular.mod(BigInteger.valueOf(19), BigInteger.ZERO));
+        assertEquals(BigInteger.valueOf(-19), Modular.mod(BigInteger.valueOf(-19), BigInteger.ZERO));
     }
 
     @Test
@@ -219,8 +224,8 @@ public class ModularTest {
 
     @Test
     public void modBigDecimalByZero() {
-        assertThrows(ArithmeticException.class,
-                () -> Modular.mod(BigDecimal.valueOf(19), BigDecimal.ZERO));
+        assertEquals(BigDecimal.valueOf(19), Modular.mod(BigDecimal.valueOf(19), BigDecimal.ZERO));
+        assertEquals(BigDecimal.valueOf(-19), Modular.mod(BigDecimal.valueOf(-19), BigDecimal.ZERO));
     }
 
     @Test

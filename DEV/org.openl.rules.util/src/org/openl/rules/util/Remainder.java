@@ -15,7 +15,9 @@ import java.math.BigInteger;
  * Contract:
  * <ul>
  *   <li>{@code remainder(a, b) == 0} when {@code a} is exactly divisible by {@code b}.</li>
- *   <li>Division by zero throws {@link ArithmeticException}.</li>
+ *   <li>Integer divide-by-zero (byte, short, int, long, BigInteger, BigDecimal) throws
+ *       {@link ArithmeticException}.</li>
+ *   <li>Floating-point divide-by-zero (float, double) returns {@code NaN}, following IEEE 754.</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  *
@@ -55,18 +57,13 @@ public class Remainder {
         if (dividend == null || divisor == null) {
             return null;
         }
-        if (divisor == 0.0f) {
-            throw new ArithmeticException("/ by zero");
-        }
+        // Java's float % is IEEE 754: x % 0.0f returns NaN, NaN propagates.
         return dividend % divisor;
     }
 
     public static Double remainder(Double dividend, Double divisor) {
         if (dividend == null || divisor == null) {
             return null;
-        }
-        if (divisor == 0.0d) {
-            throw new ArithmeticException("/ by zero");
         }
         return dividend % divisor;
     }

@@ -10,7 +10,8 @@ import java.math.BigInteger;
  * Contract:
  * <ul>
  *   <li>{@code MOD(a, b) == 0} when {@code a} is exactly divisible by {@code b}.</li>
- *   <li>Division by zero throws {@link ArithmeticException} (Excel's {@code #DIV/0!}).</li>
+ *   <li>{@code MOD(a, 0) == a} (returns the dividend instead of throwing; deviates from Excel's
+ *       {@code #DIV/0!} for rule-engine ergonomics).</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  * <p>
@@ -28,12 +29,18 @@ public class Modular {
         if (dividend == null || divisor == null) {
             return null;
         }
+        if (divisor == 0) {
+            return dividend;
+        }
         return (byte) modInt(dividend, divisor);
     }
 
     public static Short mod(Short dividend, Short divisor) {
         if (dividend == null || divisor == null) {
             return null;
+        }
+        if (divisor == 0) {
+            return dividend;
         }
         return (short) modInt(dividend, divisor);
     }
@@ -42,12 +49,18 @@ public class Modular {
         if (dividend == null || divisor == null) {
             return null;
         }
+        if (divisor == 0) {
+            return dividend;
+        }
         return modInt(dividend, divisor);
     }
 
     public static Long mod(Long dividend, Long divisor) {
         if (dividend == null || divisor == null) {
             return null;
+        }
+        if (divisor == 0L) {
+            return dividend;
         }
         return modLong(dividend, divisor);
     }
@@ -56,12 +69,18 @@ public class Modular {
         if (dividend == null || divisor == null) {
             return null;
         }
+        if (divisor == 0.0f) {
+            return dividend;
+        }
         return modFloat(dividend, divisor);
     }
 
     public static Double mod(Double dividend, Double divisor) {
         if (dividend == null || divisor == null) {
             return null;
+        }
+        if (divisor == 0.0d) {
+            return dividend;
         }
         return modDouble(dividend, divisor);
     }
@@ -71,7 +90,7 @@ public class Modular {
             return null;
         }
         if (divisor.signum() == 0) {
-            throw new ArithmeticException("BigInteger divide by zero");
+            return dividend;
         }
         BigInteger remainder = dividend.remainder(divisor);
         if (remainder.signum() == 0) {
@@ -85,7 +104,7 @@ public class Modular {
             return null;
         }
         if (divisor.signum() == 0) {
-            throw new ArithmeticException("BigDecimal divide by zero");
+            return dividend;
         }
         BigDecimal remainder = dividend.remainder(divisor);
         if (remainder.signum() == 0) {

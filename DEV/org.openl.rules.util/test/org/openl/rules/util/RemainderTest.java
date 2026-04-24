@@ -89,7 +89,10 @@ public class RemainderTest {
 
     @Test
     public void remainderFloatByZero() {
-        assertThrows(ArithmeticException.class, () -> Remainder.remainder(3.22f, 0.0f));
+        // x rem 0.0f == NaN (IEEE 754)
+        assertTrue(Float.isNaN(Remainder.remainder(3.22f, 0.0f)));
+        assertTrue(Float.isNaN(Remainder.remainder(-3.22f, 0.0f)));
+        assertTrue(Float.isNaN(Remainder.remainder(0.0f, 0.0f)));
     }
 
     @Test
@@ -116,7 +119,9 @@ public class RemainderTest {
 
     @Test
     public void remainderDoubleByZero() {
-        assertThrows(ArithmeticException.class, () -> Remainder.remainder(3.22, 0.0));
+        assertTrue(Double.isNaN(Remainder.remainder(3.22, 0.0)));
+        assertTrue(Double.isNaN(Remainder.remainder(-3.22, 0.0)));
+        assertTrue(Double.isNaN(Remainder.remainder(0.0, 0.0)));
     }
 
     @Test
