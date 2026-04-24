@@ -2,9 +2,9 @@ import { createContext }  from 'react'
 import { OpenlInfo, SystemSettings } from '../types/system'
 
 type SystemContextType = {
-    systemSettings?: SystemSettings
-    openlInfo?: OpenlInfo
-    appVersion?: string
+    systemSettings?: SystemSettings | undefined
+    openlInfo?: OpenlInfo | undefined
+    appVersion?: string | undefined
     isExternalAuthSystem: boolean
     isUserManagementEnabled: boolean
     isGroupsManagementEnabled: boolean

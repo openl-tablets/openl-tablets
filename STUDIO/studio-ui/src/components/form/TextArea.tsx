@@ -53,8 +53,19 @@ const TextArea: FC<TextAreaProps> = ({
     }, [value])
 
     return (
-        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdTextArea disabled={isDisabled} placeholder={placeholder} rows={rows} style={style} />
+        <Form.Item
+            label={label}
+            name={name}
+            rules={allRules}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
+            {...rest}
+        >
+            <AntdTextArea
+                rows={rows}
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
+                {...(placeholder !== undefined && { placeholder })}
+                {...(style !== undefined && { style })}
+            />
         </Form.Item>
     )
 }

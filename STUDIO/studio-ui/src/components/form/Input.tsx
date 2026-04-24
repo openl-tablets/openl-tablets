@@ -59,10 +59,16 @@ const Input: FC<InputProps> = ({
             label={label}
             name={name}
             rules={allRules}
-            style={formItemStyle}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
             {...rest}
         >
-            <AntdInput autoComplete={autoComplete} disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
+            <AntdInput
+                {...(autoComplete !== undefined && { autoComplete })}
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
+                {...(placeholder !== undefined && { placeholder })}
+                {...(style !== undefined && { style })}
+                {...(type !== undefined && { type })}
+            />
         </Form.Item>
     )
 }

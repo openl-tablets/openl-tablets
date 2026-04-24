@@ -70,7 +70,7 @@ export const Repositories = () => {
     return (
         <Tabs
             destroyOnHidden
-            activeKey={repositoryTab}
+            {...(repositoryTab !== undefined && { activeKey: repositoryTab })}
             onChange={onChangeTab}
             tabBarExtraContent={
                 <Button

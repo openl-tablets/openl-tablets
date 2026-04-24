@@ -230,7 +230,7 @@ export const traceService = {
             {
                 method: 'POST',
                 headers: options.inputJson ? { 'Content-Type': 'application/json' } : {},
-                body: options.inputJson || undefined
+                ...(options.inputJson && { body: options.inputJson })
             },
             TRACE_API_OPTIONS
         )

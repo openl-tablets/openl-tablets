@@ -51,8 +51,19 @@ const Checkbox: FC<InputProps> = ({
     }, [value])
 
     return (
-        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} tooltip={tooltip} valuePropName={valuePropName}>
-            <AntdCheckbox disabled={isDisabled} style={style} {...rest} />
+        <Form.Item
+            label={label}
+            name={name}
+            rules={allRules}
+            tooltip={tooltip}
+            valuePropName={valuePropName}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
+        >
+            <AntdCheckbox
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
+                {...(style !== undefined && { style })}
+                {...rest}
+            />
         </Form.Item>
     )
 }

@@ -1,10 +1,10 @@
 export interface GroupItem {
-    admin?: boolean
-    description?: string
+    admin?: boolean | undefined
+    description?: string | undefined
     id: number
     name: string
     numberOfMembers: number
-    oldName?: string
+    oldName?: string | undefined
 }
 
 export interface Group {

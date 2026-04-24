@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RuleObject } from '@rc-component/form/lib/interface'
 
-export const useRules = ({ required, rules = []}: { required?: boolean, rules: RuleObject[] }) => {
+export const useRules = ({ required, rules = []}: { required?: boolean | undefined, rules: RuleObject[] }) => {
     const { t } = useTranslation()
     const [additionalRules, setAdditionalRules] = useState<RuleObject[]>([])
 
@@ -27,7 +27,7 @@ export const useRules = ({ required, rules = []}: { required?: boolean, rules: R
     return { allRules }
 }
 
-export const usePasswordRules = ({ required, isSecret, rules = []}: { required?: boolean, isSecret: boolean, rules: RuleObject[] }) => {
+export const usePasswordRules = ({ required, isSecret, rules = []}: { required?: boolean | undefined, isSecret: boolean, rules: RuleObject[] }) => {
     const { t } = useTranslation()
     const [additionalRules, setAdditionalRules] = useState<RuleObject[]>([])
 

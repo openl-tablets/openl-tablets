@@ -40,7 +40,7 @@ export const RepositoryConfigurationComponent: FC<RepositoryConfigurationCompone
                 name="name"
                 rules={[{ required: true, message: t('common:validation.required') }]}
             />
-            <Select label={t('repository:type')} name="type" onChange={onChangeType} options={designRepositoryTypeOptions} />
+            <Select label={t('repository:type')} name="type" options={designRepositoryTypeOptions} {...(onChangeType !== undefined && { onChange: onChangeType })} />
             {getConfigurationForm()}
         </>
     )

@@ -70,7 +70,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
         return projects.map(project => {
             return {
                 label: project.label,
-                title: project.title,
+                ...(project.title !== undefined && { title: project.title }),
                 options: project['options'].map((option: SelectOption) => ({
                     label: option.label,
                     value: option.value,

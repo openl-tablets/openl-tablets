@@ -86,26 +86,26 @@ const Select: FC<SelectProps> = ({
             label={label}
             name={name}
             rules={allRules}
-            style={formItemStyle}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
             {...rest}
         >
             <AntdSelect
                 defaultActiveFirstOption={defaultActiveFirstOption}
                 disabled={isDisabled}
                 filterOption={filterOption}
-                mode={mode}
-                notFoundContent={notFoundContent}
-                onBlur={onBlur}
-                onChange={onChange}
-                onSearch={onSearch}
-                open={open}
+                showSearch={showSearch}
                 // @ts-ignore
                 options={predefinedOptions || options}
-                placeholder={placeholder}
-                showSearch={showSearch}
-                style={style}
-                suffixIcon={suffixIcon}
-                tokenSeparators={tokenSeparators}
+                {...(mode !== undefined && { mode })}
+                {...(notFoundContent !== undefined && { notFoundContent })}
+                {...(onBlur !== undefined && { onBlur })}
+                {...(onChange !== undefined && { onChange })}
+                {...(onSearch !== undefined && { onSearch })}
+                {...(open !== undefined && { open })}
+                {...(placeholder !== undefined && { placeholder })}
+                {...(style !== undefined && { style })}
+                {...(suffixIcon !== undefined && { suffixIcon })}
+                {...(tokenSeparators !== undefined && { tokenSeparators })}
             />
         </Form.Item>
     )

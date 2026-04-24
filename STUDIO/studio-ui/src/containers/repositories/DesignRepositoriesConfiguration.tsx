@@ -462,7 +462,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                                 key={activeKey}
                                 labelWrap
                                 form={form}
-                                initialValues={isFormInitialized && activeRepository ? activeRepository : undefined}
+                                {...(isFormInitialized && activeRepository && { initialValues: activeRepository })}
                                 labelAlign="right"
                                 labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
                                 onFinish={onFinish}

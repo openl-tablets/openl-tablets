@@ -192,7 +192,7 @@ class WebSocketService {
         this.client.publish({
             destination,
             body,
-            headers
+            ...(headers !== undefined && { headers })
         })
     }
 

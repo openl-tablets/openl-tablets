@@ -11,7 +11,7 @@ import './TraceDetails.scss'
 /**
  * Component for displaying trace errors/warnings.
  */
-const TraceErrors: React.FC<{ errors?: MessageDescription[] }> = ({ errors }) => {
+const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ errors }) => {
     const { t } = useTranslation('trace')
 
     if (!errors || errors.length === 0) {

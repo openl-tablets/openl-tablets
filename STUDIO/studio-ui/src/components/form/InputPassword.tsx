@@ -70,10 +70,15 @@ const InputPassword: FC<InputProps> = ({
             label={label}
             name={name}
             rules={allRules}
-            style={formItemStyle}
+            {...(formItemStyle !== undefined && { style: formItemStyle })}
             {...rest}
         >
-            <AntdInput.Password autoComplete={autoComplete} disabled={isDisabled} placeholder={passwordPlaceholder} style={style} />
+            <AntdInput.Password
+                {...(autoComplete !== undefined && { autoComplete })}
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
+                {...(passwordPlaceholder !== undefined && { placeholder: passwordPlaceholder })}
+                {...(style !== undefined && { style })}
+            />
         </Form.Item>
     )
 }

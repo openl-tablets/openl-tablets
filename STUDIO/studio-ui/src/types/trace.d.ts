@@ -22,16 +22,16 @@ export interface TraceNodeView {
     /** CSS classes for styling (e.g., 'result', 'fail', 'no_result') */
     extraClasses: string
     /** Indicates if an error occurred during execution of this trace node */
-    error?: boolean
+    error?: boolean | undefined
     // Detail fields (only in full view from /nodes/{nodeId})
     /** Input parameters for this traced method */
-    parameters?: TraceParameterValue[]
+    parameters?: TraceParameterValue[] | undefined
     /** Runtime context used during execution */
-    context?: TraceParameterValue
+    context?: TraceParameterValue | undefined
     /** Return value of the method */
-    result?: TraceParameterValue
+    result?: TraceParameterValue | undefined
     /** Error messages if execution failed */
-    errors?: MessageDescription[]
+    errors?: MessageDescription[] | undefined
 }
 
 /**

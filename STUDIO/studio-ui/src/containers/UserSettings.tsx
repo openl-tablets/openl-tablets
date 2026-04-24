@@ -72,7 +72,7 @@ export const UserSettings: React.FC = () => {
     return (
         <Form
             labelWrap
-            initialValues={userProfile}
+            {...(userProfile && { initialValues: userProfile })}
             labelAlign="right"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={handleSubmit}

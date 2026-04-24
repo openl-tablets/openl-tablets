@@ -9,14 +9,14 @@ import { apiCall } from '../../services'
 import './UserDetailsTab.scss'
 
 interface UserDetailsTabProps {
-    isNewUser?: boolean
-    displayPasswordField?: boolean
-    externalFlags?: UserExternalFlags
-    showResendVerification?: boolean
-    userProfile?: UserProfile | UserDetails
-    resendLoading?: boolean
-    cooldown?: number
-    onResendVerification?: () => void
+    isNewUser?: boolean | undefined
+    displayPasswordField?: boolean | undefined
+    externalFlags?: UserExternalFlags | undefined
+    showResendVerification?: boolean | undefined
+    userProfile?: UserProfile | UserDetails | undefined
+    resendLoading?: boolean | undefined
+    cooldown?: number | undefined
+    onResendVerification?: (() => void) | undefined
 }
 
 export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true, showResendVerification = false, userProfile, resendLoading, cooldown, onResendVerification }) => {
@@ -116,12 +116,12 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             )}
             <Divider titlePlacement="start">{t('users:account')}</Divider>
             <Input
-                autoComplete={isNewUser ? 'off' : undefined}
+                {...(isNewUser && { autoComplete: 'off' })}
                 disabled={!isNewUser}
                 label={t('users:edit_modal.username')}
                 name="username"
                 rules={[{
-                    required: isNewUser,
+                    required: !!isNewUser,
                     message: t('users:edit_modal.username_required')
                 }]}
             />
@@ -143,8 +143,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                             }]}
                         >
                             <AntInput
-                                autoComplete={isNewUser ? 'off' : undefined}
-                                disabled={externalFlags?.emailExternal}
+                                {...(isNewUser && { autoComplete: 'off' })}
+                                disabled={!!externalFlags?.emailExternal}
                                 type="email"
                             />
                         </Form.Item>
@@ -171,18 +171,18 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             {displayPasswordField && !isExternalAuthSystem && (
                 <InputPassword
                     autoComplete="new-password"
-                    disabled={externalFlags?.emailExternal}
+                    disabled={!!externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}
                     name="password"
                     rules={[{
-                        required: isNewUser,
+                        required: !!isNewUser,
                         message: t('users:edit_modal.password_required')
                     }]}
                 />
             )}
             <Divider titlePlacement="start">{t('users:name')}</Divider>
             <Input
-                disabled={externalFlags?.firstNameExternal}
+                disabled={!!externalFlags?.firstNameExternal}
                 label={t('users:edit_modal.first_name')}
                 name="firstName"
                 tooltip={t('users:edit_modal.first_name_info')}
@@ -192,7 +192,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 }]}
             />
             <Input
-                disabled={externalFlags?.lastNameExternal}
+                disabled={!!externalFlags?.lastNameExternal}
                 label={t('users:edit_modal.last_name')}
                 name="lastName"
                 tooltip={t('users:edit_modal.last_name_info')}
@@ -204,7 +204,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             <Form.Item label={t('users:edit_modal.display_name')}>
                 <Space.Compact>
                     <Select
-                        disabled={externalFlags?.displayNameExternal}
+                        disabled={!!externalFlags?.displayNameExternal}
                         name="displayNameSelect"
                         options={displayNameOptions}
                         style={{ width: 120 }}

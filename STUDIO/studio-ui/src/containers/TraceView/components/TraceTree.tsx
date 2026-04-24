@@ -47,9 +47,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                 })
                 .map((node) => ({
                     ...node,
-                    children: node.children
-                        ? filterTreeData(node.children)
-                        : undefined,
+                    ...(node.children && { children: filterTreeData(node.children) }),
                 }))
         },
         [hideFailedNodes]
@@ -74,7 +72,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                 ),
                 icon: getTraceIcon(node.type, node.extraClasses),
                 isLeaf: node.isLeaf,
-                children: node.children?.map(transformNode),
+                ...(node.children && { children: node.children.map(transformNode) }),
                 className: nodeClassName,
             }
         },

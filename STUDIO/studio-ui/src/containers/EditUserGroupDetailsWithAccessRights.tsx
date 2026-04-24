@@ -19,16 +19,16 @@ import { useUserStore } from '../store'
 import { SystemContext } from '../contexts'
 
 interface EditUserGroupDetailsWithAccessRightsProps {
-    isOpenFromParent?: boolean
-    sid?: string
-    isPrincipal?: boolean
+    isOpenFromParent?: boolean | undefined
+    sid?: string | undefined
+    isPrincipal?: boolean | undefined
     onClose: () => void
-    group?: GroupItem | SelectedGroup
-    user?: UserDetails
-    renderButton?: (f: () => void) => ReactNode
-    reloadGroups?: () => Promise<void>
-    reloadUsers?: () => Promise<void>
-    newUser?: boolean
+    group?: GroupItem | SelectedGroup | undefined
+    user?: UserDetails | undefined
+    renderButton?: ((f: () => void) => ReactNode) | undefined
+    reloadGroups?: (() => Promise<void>) | undefined
+    reloadUsers?: (() => Promise<void>) | undefined
+    newUser?: boolean | undefined
 }
 
 interface ReposFormValues {
@@ -351,8 +351,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
 
         // Sequential execution with error accumulation: run both, then report if any failed.
         const ops: Array<{ type: RepositoryType; value?: RootRoleFormValue }> = [
-            { type: RepositoryType.DESIGN, value: values.designRootRole },
-            { type: RepositoryType.PROD, value: values.deployRootRole }
+            { type: RepositoryType.DESIGN, ...(values.designRootRole !== undefined && { value: values.designRootRole }) },
+            { type: RepositoryType.PROD, ...(values.deployRootRole !== undefined && { value: values.deployRootRole }) }
         ]
         const failures: Array<{ type: RepositoryType; error: unknown }> = []
         for (const { type, value } of ops) {
@@ -549,7 +549,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             firstName: userData.firstName,
             lastName: userData.lastName,
             password,
-            groups: isGroupsManagementEnabled ? userGroups : undefined,
+            ...(isGroupsManagementEnabled && { groups: userGroups }),
         }
 
         if (isNewUser) {
