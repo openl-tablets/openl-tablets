@@ -6,12 +6,13 @@ vi.mock('services', () => ({
     apiCall: vi.fn(),
 }))
 
-vi.mock('react-i18next', () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 vi.mock('components', () => ({
     Select: ({ label, name, mode, options, ...rest }: any) => (
