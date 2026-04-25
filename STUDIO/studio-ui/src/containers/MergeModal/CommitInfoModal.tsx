@@ -17,6 +17,10 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [initialValues, setInitialValues] = useState<Pick<UserCommitInfo, 'displayName' | 'email'>>({
+        displayName: '',
+        email: '',
+    })
 
     const loadUserInfo = useCallback(async () => {
         setIsLoading(true)
@@ -29,20 +33,17 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                 true
             )
 
-            form.setFieldsValue({
+            setInitialValues({
                 displayName: userInfo.displayName || '',
                 email: userInfo.email || '',
             })
         } catch (_err: any) {
             // User info might not exist yet, that's okay
-            form.setFieldsValue({
-                displayName: '',
-                email: '',
-            })
+            setInitialValues({ displayName: '', email: '' })
         } finally {
             setIsLoading(false)
         }
-    }, [username, form])
+    }, [username])
 
     // Load user info when modal opens
     useEffect(() => {
@@ -114,6 +115,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                     )}
                     <Form
                         form={form}
+                        initialValues={initialValues}
                         labelAlign="right"
                         labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                         layout="horizontal"

@@ -243,13 +243,22 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         [entityInitialValues, accessRightsInitialValues]
     )
 
-    useEffect(() => {
-        form.setFieldsValue(entityInitialValues)
-    }, [entityInitialValues, form])
+    // Form is mounted only while the Drawer is open (Drawer uses destroyOnHidden).
+    // Skip setFieldsValue while the drawer is closed — calling form methods before
+    // the <Form> mounts triggers rc-form's "useForm not connected" warning.
+    const isDrawerOpen = isOpenFromParent || isOpen
 
     useEffect(() => {
-        form.setFieldsValue(accessRightsInitialValues)
-    }, [accessRightsInitialValues, form])
+        if (isDrawerOpen) {
+            form.setFieldsValue(entityInitialValues)
+        }
+    }, [entityInitialValues, form, isDrawerOpen])
+
+    useEffect(() => {
+        if (isDrawerOpen) {
+            form.setFieldsValue(accessRightsInitialValues)
+        }
+    }, [accessRightsInitialValues, form, isDrawerOpen])
 
     useEffect(() => {
         if (isUser) {

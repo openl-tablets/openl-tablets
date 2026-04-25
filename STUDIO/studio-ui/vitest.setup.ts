@@ -25,10 +25,6 @@ failOnConsole({
         // flags as super-linear and the lookahead/backref pattern Sonar flags as
         // "group and backref in different branches".
         if (/^Warning:\s*\[antd:\s*[^\]\r\n]{1,100}]\s*`[^`\r\n]{1,100}`\s*is deprecated\.\s*Please use\s*`[^`\r\n]{1,100}`\s*instead\.?$/.test(message)) return true
-        // rc-form warns when Form.useForm() runs but no <Form> is mounted — structurally
-        // expected for drawers/modals that lazy-mount their <Form> via destroyOnHidden.
-        // Fires in production too; not a test-only artefact.
-        if (/^Warning: Instance created by `useForm` is not connected to any Form element/.test(message)) return true
         // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
         // console.error whenever `window.location.reload()` / href assignment is
         // reached (e.g. Security.tsx save flow). Location is non-configurable in
