@@ -171,7 +171,6 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             {displayPasswordField && !isExternalAuthSystem && (
                 <InputPassword
                     autoComplete="new-password"
-                    disabled={!!externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}
                     name="password"
                     rules={[{
