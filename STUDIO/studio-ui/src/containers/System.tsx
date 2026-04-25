@@ -38,7 +38,7 @@ export const System: React.FC = () => {
         await apiCall('/history', { method: 'DELETE' })
             .then(() => {
                 notification.success({
-                    message: t('system:delete_all_history_success'),
+                    title: t('system:delete_all_history_success'),
                 })
             })
     }
@@ -91,7 +91,7 @@ export const System: React.FC = () => {
         }, true).then(() => {
             window.location.reload()
         }).catch(e => {
-            notification.error({ message: e.toString() })
+            notification.error({ title: e.toString() })
         })
     }
 

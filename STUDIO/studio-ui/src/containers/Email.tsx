@@ -33,7 +33,7 @@ export const Email: React.FC = () => {
                 method: 'DELETE'
             }).then(() => {
                 notification.success({
-                    message: t('email:email_server_configuration'),
+                    title: t('email:email_server_configuration'),
                     description: t('email:email_server_configuration_deleted'),
                 })
             })
@@ -46,7 +46,7 @@ export const Email: React.FC = () => {
                 body: JSON.stringify(restValues)
             }).then(() => {
                 notification.success({
-                    message: t('email:email_server_configuration'),
+                    title: t('email:email_server_configuration'),
                     description: t('email:email_server_configuration_saved'),
                 })
             })

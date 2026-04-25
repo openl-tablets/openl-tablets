@@ -88,7 +88,7 @@ export const MergeModal: React.FC = () => {
 
     const handleMergeSuccess = useCallback(() => {
         notification.success({
-            message: t('merge:notifications.merge_success'),
+            title: t('merge:notifications.merge_success'),
             description: t('merge:notifications.merge_success_description'),
         })
 

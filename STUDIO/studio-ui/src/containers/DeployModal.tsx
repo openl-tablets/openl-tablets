@@ -62,7 +62,7 @@ export const DeployModal: React.FC = () => {
             } else {
                 setDeploymentNames([])
                 notification.error({
-                    message: t('deploy:notifications.deploy_failed'),
+                    title: t('deploy:notifications.deploy_failed'),
                     description: error instanceof Error ? error.message : t('deploy:notifications.deploy_failed_description'),
                     placement: 'topRight',
                 })
@@ -132,7 +132,7 @@ export const DeployModal: React.FC = () => {
                     }),
                 }, deployOptions)
                 notification.success({
-                    message: t('deploy:notifications.deploy_configuration_added'),
+                    title: t('deploy:notifications.deploy_configuration_added'),
                     description: t('deploy:notifications.deploy_configuration_added_description'),
                     placement: 'topRight',
                 })
@@ -152,14 +152,14 @@ export const DeployModal: React.FC = () => {
                         }),
                     }, deployOptions)
                     notification.success({
-                        message: t('deploy:notifications.deploy_configuration_added'),
+                        title: t('deploy:notifications.deploy_configuration_added'),
                         description: t('deploy:notifications.deploy_configuration_added_description'),
                         placement: 'topRight',
                     })
                     didDeploy = true
                 } else {
                     notification.error({
-                        message: t('deploy:notifications.deploy_failed'),
+                        title: t('deploy:notifications.deploy_failed'),
                         description: t('deploy:notifications.deploy_failed_description'),
                         placement: 'topRight',
                     })
@@ -181,13 +181,13 @@ export const DeployModal: React.FC = () => {
                     errors: [t('deploy:notifications.no_deploy_rights_short')],
                 }])
                 notification.warning({
-                    message: t('deploy:notifications.deploy_failed'),
+                    title: t('deploy:notifications.deploy_failed'),
                     description: t('deploy:notifications.no_deploy_rights'),
                     placement: 'topRight',
                 })
             } else {
                 notification.error({
-                    message: t('deploy:notifications.deploy_failed'),
+                    title: t('deploy:notifications.deploy_failed'),
                     description: t('deploy:notifications.deploy_failed_description'),
                     placement: 'topRight',
                 })
@@ -260,8 +260,8 @@ export const DeployModal: React.FC = () => {
                 </div>
             }
         >
-            <Spin spinning={isDeploying} tip={t('deploy:messages.deploying_configuration')}>
-                <Space direction="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
+            <Spin spinning={isDeploying} description={t('deploy:messages.deploying_configuration')}>
+                <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
                     <Form
                         labelWrap
                         form={form}

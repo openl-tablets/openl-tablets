@@ -148,9 +148,9 @@ export const Tags: React.FC = () => {
         setIsSavingTemplates(true)
         try {
             await saveTemplatesRequest()
-            notification.success({ message: t('tags:templates_saved') })
+            notification.success({ title: t('tags:templates_saved') })
         } catch (e) {
-            notification.error({ message: e instanceof Error ? e.message : t('tags:templates_save_error') })
+            notification.error({ title: e instanceof Error ? e.message : t('tags:templates_save_error') })
         } finally {
             setIsSavingTemplates(false)
         }
@@ -164,9 +164,9 @@ export const Tags: React.FC = () => {
                 method: 'POST',
             }, { throwError: true }) as { updated: number; skipped: number } | undefined
             const updated = result?.updated ?? 0
-            notification.success({ message: t('tags:fill_tags_success', { count: updated }) })
+            notification.success({ title: t('tags:fill_tags_success', { count: updated }) })
         } catch (e) {
-            notification.error({ message: e instanceof Error ? e.message : t('tags:fill_tags_error') })
+            notification.error({ title: e instanceof Error ? e.message : t('tags:fill_tags_error') })
         } finally {
             setIsFillingTags(false)
         }

@@ -109,7 +109,7 @@ describe('Tags', () => {
                 { throwError: true }
             )
             expect(notification.success).toHaveBeenCalledWith({
-                message: 'tags:templates_saved',
+                title: 'tags:templates_saved',
             })
         })
     })
@@ -131,7 +131,7 @@ describe('Tags', () => {
 
         await waitFor(() => {
             expect(notification.error).toHaveBeenCalledWith({
-                message: 'Invalid tag template: Cannot find tag type \'Foo\'.',
+                title: 'Invalid tag template: Cannot find tag type \'Foo\'.',
             })
         })
     })
@@ -159,7 +159,7 @@ describe('Tags', () => {
                 { throwError: true }
             )
             expect(notification.success).toHaveBeenCalledWith({
-                message: 'tags:fill_tags_success (3)',
+                title: 'tags:fill_tags_success (3)',
             })
         })
     })

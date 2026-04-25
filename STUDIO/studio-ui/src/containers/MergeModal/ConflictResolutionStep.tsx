@@ -161,7 +161,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     const handleSave = async () => {
         if (!allResolved) {
             notification.warning({
-                message: t('merge:errors.all_conflicts_required'),
+                title: t('merge:errors.all_conflicts_required'),
             })
             return
         }
@@ -202,7 +202,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             )
 
             notification.success({
-                message: t('merge:notifications.resolve_success'),
+                title: t('merge:notifications.resolve_success'),
                 description: t('merge:notifications.resolve_success_description'),
             })
 
@@ -222,7 +222,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 true
             )
             notification.info({
-                message: t('merge:notifications.merge_cancelled'),
+                title: t('merge:notifications.merge_cancelled'),
                 description: t('merge:notifications.merge_cancelled_description'),
             })
         } catch (_err) {

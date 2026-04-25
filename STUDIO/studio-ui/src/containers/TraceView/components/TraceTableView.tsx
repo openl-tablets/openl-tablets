@@ -63,7 +63,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
                 title={t('details.table')}
             >
                 <div className="trace-table-loading">
-                    <Spin tip={t('loadingTable')} />
+                    <Spin description={t('loadingTable')} />
                 </div>
             </Card>
         )

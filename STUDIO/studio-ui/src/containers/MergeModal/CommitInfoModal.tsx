@@ -72,7 +72,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
             )
 
             notification.success({
-                message: t('merge:notifications.commit_info_saved'),
+                title: t('merge:notifications.commit_info_saved'),
                 description: t('merge:notifications.commit_info_saved_description'),
             })
 

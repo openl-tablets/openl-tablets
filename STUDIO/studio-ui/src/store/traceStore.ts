@@ -163,8 +163,8 @@ export const useTraceStore = create<TraceState>((set, get) => ({
 
             return children
         } catch (error: any) {
-            const message = error?.message || 'Failed to fetch node children'
-            notification.error({ message })
+            const title = error?.message || 'Failed to fetch node children'
+            notification.error({ title })
             return []
         }
     },
@@ -178,8 +178,8 @@ export const useTraceStore = create<TraceState>((set, get) => ({
             const details = await traceService.getNodeDetails(projectId, nodeId, showRealNumbers)
             set({ selectedNodeDetails: details, detailsLoading: false })
         } catch (error: any) {
-            const message = error?.message || 'Failed to fetch node details'
-            notification.error({ message })
+            const title = error?.message || 'Failed to fetch node details'
+            notification.error({ title })
             set({ selectedNodeDetails: null, detailsLoading: false })
         }
     },

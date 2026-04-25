@@ -105,16 +105,16 @@ export const EmailVerification = () => {
 
     const handleResend = async () => {
         if (!userProfile?.username) {
-            notification.error({ message: t('users:cannot_determine_current_user') })
+            notification.error({ title: t('users:cannot_determine_current_user') })
             return
         }
         setResendLoading(true)
         try {
             await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
-            notification.success({ message: t('users:verification_email_sent') })
+            notification.success({ title: t('users:verification_email_sent') })
             setCooldown(60)
         } catch (_) {
-            notification.error({ message: t('users:failed_to_send_verification_email') })
+            notification.error({ title: t('users:failed_to_send_verification_email') })
         } finally {
             setResendLoading(false)
         }

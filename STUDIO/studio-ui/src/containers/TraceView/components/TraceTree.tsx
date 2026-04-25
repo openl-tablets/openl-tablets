@@ -112,7 +112,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
     if (loading) {
         return (
             <div className="trace-tree-loading">
-                <Spin tip={t('loading')} />
+                <Spin description={t('loading')} />
             </div>
         )
     }

@@ -79,7 +79,7 @@ const TraceView: React.FC = () => {
             console.error('Failed to cancel trace:', err)
             const errorMessage = err instanceof Error ? err.message : String(err)
             notification.error({
-                message: t('errors.cancelFailed'),
+                title: t('errors.cancelFailed'),
                 description: errorMessage,
             })
         }

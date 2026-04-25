@@ -177,7 +177,7 @@ const apiCall = async (
                 throw error
             } else if (error instanceof EmptyError) {
             } else if (error instanceof Error) {
-                notification.error({ message: error.toString() })
+                notification.error({ title: error.toString() })
             }
         })
         .finally((result: any = false) => {

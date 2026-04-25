@@ -61,7 +61,7 @@ export const UserSettings: React.FC = () => {
                 body: JSON.stringify(body)
             })
             await fetchUserProfile()
-            notification.success({ message: t('users:user_settings_updated_successfully') })
+            notification.success({ title: t('users:user_settings_updated_successfully') })
         } catch (error) {
             console.error('error', error)
         } finally {

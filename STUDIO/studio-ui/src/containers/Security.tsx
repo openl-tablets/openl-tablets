@@ -77,7 +77,7 @@ export const Security = () => {
                 window.location.reload()
             })
             .catch(error => {
-                notification.error({ message: error.toString() })
+                notification.error({ title: error.toString() })
             })
     }
 
