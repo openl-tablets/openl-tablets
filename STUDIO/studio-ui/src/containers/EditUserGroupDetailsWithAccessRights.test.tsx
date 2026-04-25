@@ -11,12 +11,13 @@ vi.mock('services', async () => ({
     apiCall: vi.fn(),
 }))
 
-vi.mock('react-i18next', async () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', async () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 vi.mock('../../src/i18n', async () => ({
     __esModule: true,

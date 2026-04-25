@@ -10,13 +10,14 @@ vi.mock('services', async () => ({
     apiCall: vi.fn(),
 }))
 
-vi.mock('react-i18next', async () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-    Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
-}))
+vi.mock('react-i18next', async () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+        Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
+    }
+})
 
 // Track the current mock value for Form.useWatch
 let mockUserMode: string | { value: string, readOnly: boolean } | undefined = undefined

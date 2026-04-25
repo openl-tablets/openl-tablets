@@ -21,8 +21,9 @@ vi.mock('react-i18next', () => {
         }
         return key
     }
+    const i18n = { language: 'en' }
     return {
-        useTranslation: () => ({ t, i18n: { language: 'en' } }),
+        useTranslation: () => ({ t, i18n }),
     }
 })
 

@@ -25,15 +25,16 @@ vi.mock('store', () => ({
     useUserStore: () => ({ userProfile: { username: 'testuser' } }),
 }))
 
-vi.mock('react-i18next', () => ({
-    useTranslation: () => ({
-        t: (key: string, params?: Record<string, string>) => {
-            if (params?.['projectName']) return `${key}:${params['projectName']}`
-            return key
-        },
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', () => {
+    const t = (key: string, params?: Record<string, string>) => {
+        if (params?.['projectName']) return `${key}:${params['projectName']}`
+        return key
+    }
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 // Capture props passed to child components
 const mergeBranchesStepProps = vi.fn()

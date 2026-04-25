@@ -10,12 +10,13 @@ vi.mock('react-router-dom', async () => ({
     useNavigate: () => mockNavigate,
 }))
 
-vi.mock('react-i18next', async () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', async () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 let mockHasUnsavedChanges = false
 vi.mock('containers/repositories/DesignRepositoriesConfiguration', async () => ({

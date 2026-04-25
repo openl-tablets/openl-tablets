@@ -20,16 +20,17 @@ vi.mock('services', async () => ({
 
 import { Tags } from 'containers/Tags'
 
-vi.mock('react-i18next', async () => ({
-    useTranslation: () => ({
-        t: (key: string, opts?: Record<string, unknown>) => {
-            if (opts?.['count'] !== undefined) return `${key} (${opts['count']})`
-            return key
-        },
-        i18n: { language: 'en' },
-    }),
-    Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
-}))
+vi.mock('react-i18next', async () => {
+    const t = (key: string, opts?: Record<string, unknown>) => {
+        if (opts?.['count'] !== undefined) return `${key} (${opts['count']})`
+        return key
+    }
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+        Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
+    }
+})
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual('antd')

@@ -15,12 +15,13 @@ vi.mock('services', async () => ({
     },
 }))
 
-vi.mock('react-i18next', async () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', async () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual('antd')

@@ -24,12 +24,13 @@ vi.mock('services', () => {
     }
 })
 
-vi.mock('react-i18next', () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 // Mock the custom Select to render a native <select> that properly triggers onChange.
 // Ant Design's Form.useWatch + MessageChannel does not work in jsdom.

@@ -9,12 +9,13 @@ vi.mock('services', () => ({
     apiCall: vi.fn(),
 }))
 
-vi.mock('react-i18next', () => ({
-    useTranslation: () => ({
-        t: (key: string) => key,
-        i18n: { language: 'en' },
-    }),
-}))
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    const i18n = { language: 'en' }
+    return {
+        useTranslation: () => ({ t, i18n }),
+    }
+})
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
