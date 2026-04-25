@@ -16,11 +16,6 @@ failOnConsole({
     silenceMessage: (message, methodName) => {
         // ignore warnings
         if (methodName === 'warn') return true
-        // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
-        // console.error whenever `window.location.reload()` / href assignment is
-        // reached (e.g. Security.tsx save flow). Location is non-configurable in
-        // jsdom, so the call cannot be stubbed at the API layer.
-        if (/Not implemented: navigation/.test(message)) return true
         // jsdom's CSSOM parser rejects modern CSS (container queries, @layer,
         // `:where`/`:is` with complex selectors) that Ant Design's CSS-in-JS emits
         // into <style> tags at runtime. No source-level fix: the parse runs inside
