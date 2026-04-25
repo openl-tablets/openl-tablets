@@ -1,9 +1,9 @@
 import React, { FC, ReactNode, CSSProperties, useEffect, useState } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
+import type { FormRule } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
-import { RuleObject } from '@rc-component/form/lib/interface'
 
 // @ts-ignore
 export interface SelectOption extends DefaultOptionType {
@@ -19,7 +19,7 @@ interface SelectProps extends AntdSelectProps {
     style?: CSSProperties
     formItemStyle?: CSSProperties
     defaultValue?: string
-    rules?: RuleObject[]
+    rules?: FormRule[]
     mode?: 'multiple' | 'tags'
     showSearch?: boolean
     defaultActiveFirstOption?: boolean

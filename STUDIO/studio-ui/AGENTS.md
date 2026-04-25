@@ -117,3 +117,8 @@ Tests are co-located with their source files (e.g. `src/containers/DeployModal.t
   - `Modal`: use `destroyOnHidden` instead of `destroyOnClose`, `mask={{ closable }}` instead of `maskClosable`
   - `Space`: use `orientation` instead of `direction`
   - `Typography.Text`: use `ellipsis={{ tooltip: text }}` for conditional truncation tooltips (only shows on overflow)
+- **Never reach into a library's internals.** Import only from a package's public surface — its main entry (e.g. `antd`, `react`) or its documented subpath exports declared in the package's `exports`/`typesVersions` map (e.g. `antd/es/select` for `DefaultOptionType`). Forbidden in particular:
+  - **Transitive dependencies** that aren't listed in `package.json` (e.g. `@rc-component/form/lib/interface`, `rc-util/...`) — they are implementation details of a direct dep and may disappear on a minor upgrade.
+  - **Undocumented deep paths** of any package — `<pkg>/src/...`, `<pkg>/internal/...`, `<pkg>/lib/<file>` not surfaced via the package's exports map, files inside `node_modules` reached by hand-written paths, etc.
+
+  If a needed type/value is not re-exported, prefer the public alias (e.g. antd re-exports `Rule` as `FormRule`); if no public export exists, derive a local type — do not reach into internals.

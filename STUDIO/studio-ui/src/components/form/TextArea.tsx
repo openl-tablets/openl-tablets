@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Form, Input, TooltipProps } from 'antd'
+import type { FormRule } from 'antd'
 import { useRules } from './hooks'
-import { RuleObject } from '@rc-component/form/lib/interface'
 
 const { TextArea: AntdTextArea } = Input
 
@@ -15,7 +15,7 @@ type TextAreaProps = {
     placeholder?: string
     defaultValue?: string
     hidden?: boolean
-    rules?: RuleObject[]
+    rules?: FormRule[]
     required?: boolean
     rows?: number
 }
