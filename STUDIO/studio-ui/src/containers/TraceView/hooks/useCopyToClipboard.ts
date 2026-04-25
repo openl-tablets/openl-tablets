@@ -32,7 +32,7 @@ export const useCopyToClipboard = (): UseCopyToClipboardResult => {
             setCopied(true)
             timeoutRef.current = setTimeout(() => setCopied(false), 2000)
         } catch {
-            notification.error({ message: t('copy.failed') })
+            notification.error({ title: t('copy.failed') })
         } finally {
             setCopying(false)
         }

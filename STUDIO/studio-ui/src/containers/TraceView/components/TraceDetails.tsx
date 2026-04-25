@@ -76,7 +76,7 @@ const TraceDetails: React.FC = () => {
     if (detailsLoading) {
         return (
             <div className="trace-details trace-details-loading">
-                <Spin tip={t('loadingDetails')} />
+                <Spin description={t('loadingDetails')} />
             </div>
         )
     }

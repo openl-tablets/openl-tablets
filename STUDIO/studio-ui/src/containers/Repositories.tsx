@@ -67,10 +67,40 @@ export const Repositories = () => {
         ? t('repository:add_design_repository')
         : t('repository:add_deployment_repository')
 
+    const tabItems = [
+        {
+            key: RepositoryDataType.DESIGN,
+            label: t('repository:tabs.design_repositories'),
+            children: (
+                <div style={{ minHeight: '400px' }}>
+                    <DesignRepositoriesConfiguration
+                        ref={designFormRef}
+                        onEditingStateChange={setIsEditingNewRepository}
+                        repositoryDataType={RepositoryDataType.DESIGN}
+                    />
+                </div>
+            ),
+        },
+        {
+            key: RepositoryDataType.DEPLOYMENT,
+            label: t('repository:tabs.deployment_repositories'),
+            children: (
+                <div style={{ minHeight: '400px' }}>
+                    <DesignRepositoriesConfiguration
+                        ref={deploymentFormRef}
+                        onEditingStateChange={setIsEditingNewRepository}
+                        repositoryDataType={RepositoryDataType.DEPLOYMENT}
+                    />
+                </div>
+            ),
+        },
+    ]
+
     return (
         <Tabs
             destroyOnHidden
             {...(repositoryTab !== undefined && { activeKey: repositoryTab })}
+            items={tabItems}
             onChange={onChangeTab}
             tabBarExtraContent={
                 <Button
@@ -82,25 +112,6 @@ export const Repositories = () => {
                     {addRepositoryButtonLabel}
                 </Button>
             }
-        >
-            <Tabs.TabPane key={RepositoryDataType.DESIGN} tab={t('repository:tabs.design_repositories')}>
-                <div style={{ minHeight: '400px' }}>
-                    <DesignRepositoriesConfiguration
-                        ref={designFormRef}
-                        onEditingStateChange={setIsEditingNewRepository}
-                        repositoryDataType={RepositoryDataType.DESIGN}
-                    />
-                </div>
-            </Tabs.TabPane>
-            <Tabs.TabPane key={RepositoryDataType.DEPLOYMENT} tab={t('repository:tabs.deployment_repositories')}>
-                <div style={{ minHeight: '400px' }}>
-                    <DesignRepositoriesConfiguration
-                        ref={deploymentFormRef}
-                        onEditingStateChange={setIsEditingNewRepository}
-                        repositoryDataType={RepositoryDataType.DEPLOYMENT}
-                    />
-                </div>
-            </Tabs.TabPane>
-        </Tabs>
+        />
     )
 }

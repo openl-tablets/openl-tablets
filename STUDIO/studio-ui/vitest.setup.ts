@@ -16,15 +16,6 @@ failOnConsole({
     silenceMessage: (message, methodName) => {
         // ignore warnings
         if (methodName === 'warn') return true
-        // Ant Design deprecation warnings: "Warning: [antd: <Component>] `<prop>`
-        // is deprecated. Please use `<other>` instead."
-        // Character classes exclude their own terminator plus `\r\n` (tightens the
-        // match to a single line). Bounded quantifiers `{1,100}` make the worst
-        // case linear — JS has no native possessive quantifiers (`++`/`*+` are
-        // syntax errors), and the bounded form avoids both the backtracking Sonar
-        // flags as super-linear and the lookahead/backref pattern Sonar flags as
-        // "group and backref in different branches".
-        if (/^Warning:\s*\[antd:\s*[^\]\r\n]{1,100}]\s*`[^`\r\n]{1,100}`\s*is deprecated\.\s*Please use\s*`[^`\r\n]{1,100}`\s*instead\.?$/.test(message)) return true
         // jsdom emits "Error: Not implemented: navigation (except hash changes)" via
         // console.error whenever `window.location.reload()` / href assignment is
         // reached (e.g. Security.tsx save flow). Location is non-configurable in

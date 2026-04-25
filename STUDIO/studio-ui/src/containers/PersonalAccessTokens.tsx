@@ -62,7 +62,7 @@ export const PersonalAccessTokens: React.FC = () => {
 
     const showError = useCallback((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : t('common:error')
-        notification.error({ message: errorMessage })
+        notification.error({ title: errorMessage })
     }, [t])
 
     const fetchTokens = useCallback(async () => {
@@ -183,7 +183,7 @@ export const PersonalAccessTokens: React.FC = () => {
             setCopyTooltipOpen(true)
             copyTooltipTimeoutRef.current = setTimeout(() => setCopyTooltipOpen(false), 2000)
         } catch {
-            notification.error({ message: t('pat:copy_failed') })
+            notification.error({ title: t('pat:copy_failed') })
         }
     }
 
@@ -329,7 +329,7 @@ export const PersonalAccessTokens: React.FC = () => {
     )
 
     const renderCreatedToken = () => (
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
             <Alert
                 showIcon
                 title={t('pat:token_created_message')}
@@ -376,7 +376,7 @@ export const PersonalAccessTokens: React.FC = () => {
             {!hasTokens ? (
                 <Empty
                     description={
-                        <Space direction="vertical" size={0}>
+                        <Space orientation="vertical" size={0}>
                             <span>{t('pat:no_tokens')}</span>
                             <Typography.Text type="secondary">
                                 {t('pat:no_tokens_description')}

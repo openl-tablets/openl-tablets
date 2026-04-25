@@ -44,12 +44,12 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
             body: JSON.stringify(values)
         }, true).then(() => {
             notification.success({
-                message: t('repository:notifications.configuration_applied'),
+                title: t('repository:notifications.configuration_applied'),
                 description: t('repository:notifications.configuration_applied_description'),
             })
             window.location.reload()
         }).catch(error => {
-            notification.error({ message: error.toString() })
+            notification.error({ title: error.toString() })
             throw error
         })
     }
@@ -59,12 +59,12 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
             method: 'DELETE'
         }, true).then(() => {
             notification.success({
-                message: t('repository:notifications.repository_deleted'),
+                title: t('repository:notifications.repository_deleted'),
                 description: t('repository:notifications.repository_deleted_description'),
             })
             window.location.reload()
         }).catch(error => {
-            notification.error({ message: error.toString() })
+            notification.error({ title: error.toString() })
         })
     }
 

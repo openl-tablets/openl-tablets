@@ -55,10 +55,10 @@ export const UserProfile: React.FC = () => {
                 { throwError: true }
             )
             await fetchUserProfile()
-            notification.success({ message: t('users:user_profile_updated_successfully') })
+            notification.success({ title: t('users:user_profile_updated_successfully') })
             if (emailChanged && newEmailNonEmpty && hadEmailBefore && systemSettings?.supportedFeatures?.emailVerification) {
                 notification.warning({
-                    message: t('users:email_verification_warning'),
+                    title: t('users:email_verification_warning'),
                     duration: 0,
                     key: 'email-verification-warning',
                 })
@@ -66,7 +66,7 @@ export const UserProfile: React.FC = () => {
         } catch (error) {
             console.error('error', error)
             if (error instanceof Error) {
-                notification.error({ message: error.message })
+                notification.error({ title: error.message })
             }
         } finally {
             setSaving(false)

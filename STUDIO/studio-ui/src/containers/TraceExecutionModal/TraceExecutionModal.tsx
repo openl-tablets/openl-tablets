@@ -222,7 +222,7 @@ export const TraceExecutionModal: React.FC = () => {
                 } catch {
                     useLiveProgress = false
                     notification.warning({
-                        message: t('modal.warnings.liveProgressUnavailable'),
+                        title: t('modal.warnings.liveProgressUnavailable'),
                     })
                 }
             }
@@ -275,7 +275,7 @@ export const TraceExecutionModal: React.FC = () => {
             }
             const errorMessage = error instanceof Error ? error.message : String(error)
             notification.error({
-                message: t('modal.errors.startFailed'),
+                title: t('modal.errors.startFailed'),
                 description: errorMessage
             })
             handleClose()
@@ -329,7 +329,7 @@ export const TraceExecutionModal: React.FC = () => {
             if (executionTokenRef.current === currentToken && currentToken !== null) {
                 const errorMessage = error instanceof Error ? error.message : String(error)
                 notification.error({
-                    message: t('modal.errors.cancelFailed'),
+                    title: t('modal.errors.cancelFailed'),
                     description: errorMessage
                 })
                 setIsCancelling(false)
