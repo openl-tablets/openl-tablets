@@ -1,22 +1,24 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RuleObject } from '@rc-component/form/lib/interface'
+import type { FormRule } from 'antd'
 
-export const useRules = ({ required, rules = []}: { required?: boolean | undefined, rules: RuleObject[] }) => {
+const isRequired = (rule: FormRule) => typeof rule !== 'function' && rule.required
+
+export const useRules = ({ required, rules = []}: { required?: boolean | undefined, rules: FormRule[] }) => {
     const { t } = useTranslation()
-    const [additionalRules, setAdditionalRules] = useState<RuleObject[]>([])
+    const [additionalRules, setAdditionalRules] = useState<FormRule[]>([])
 
     useEffect(() => {
         if (required) {
             setAdditionalRules(prev => {
-                const updatedRules = prev.filter(rule => !rule.required)
+                const updatedRules = prev.filter(rule => !isRequired(rule))
                 return [...updatedRules, {
                     required: true,
                     message: t('common:validation.required')
                 }]
             })
         } else {
-            setAdditionalRules(prev => prev.filter(rule => !rule.required))
+            setAdditionalRules(prev => prev.filter(rule => !isRequired(rule)))
         }
     }, [required])
 
@@ -27,21 +29,21 @@ export const useRules = ({ required, rules = []}: { required?: boolean | undefin
     return { allRules }
 }
 
-export const usePasswordRules = ({ required, isSecret, rules = []}: { required?: boolean | undefined, isSecret: boolean, rules: RuleObject[] }) => {
+export const usePasswordRules = ({ required, isSecret, rules = []}: { required?: boolean | undefined, isSecret: boolean, rules: FormRule[] }) => {
     const { t } = useTranslation()
-    const [additionalRules, setAdditionalRules] = useState<RuleObject[]>([])
+    const [additionalRules, setAdditionalRules] = useState<FormRule[]>([])
 
     useEffect(() => {
         if (required && !isSecret) {
             setAdditionalRules(prev => {
-                const updatedRules = prev.filter(rule => !rule.required)
+                const updatedRules = prev.filter(rule => !isRequired(rule))
                 return [...updatedRules, {
                     required: true,
                     message: t('common:validation.required')
                 }]
             })
         } else {
-            setAdditionalRules(prev => prev.filter(rule => !rule.required))
+            setAdditionalRules(prev => prev.filter(rule => !isRequired(rule)))
         }
     }, [required, isSecret])
 

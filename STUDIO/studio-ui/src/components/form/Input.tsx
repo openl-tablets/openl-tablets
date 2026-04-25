@@ -1,8 +1,8 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
+import type { FormRule } from 'antd'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
-import { RuleObject } from '@rc-component/form/lib/interface'
 
 type InputProps = {
     name: string | (string | number)[]
@@ -14,7 +14,7 @@ type InputProps = {
     placeholder?: string
     defaultValue?: string
     hidden?: boolean
-    rules?: RuleObject[]
+    rules?: FormRule[]
     required?: boolean
     type?: string
     autoComplete?: string

@@ -1,8 +1,8 @@
 import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
 import { InputNumber as AntdInputNumber, Form, TooltipProps } from 'antd'
+import type { FormRule } from 'antd'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
-import { RuleObject } from '@rc-component/form/lib/interface'
 
 type InputNumberProps = {
     name: string | (string | number)[]
@@ -13,7 +13,7 @@ type InputNumberProps = {
     formItemStyle?: React.CSSProperties,
     placeholder?: string
     defaultValue?: string
-    rules?: RuleObject[]
+    rules?: FormRule[]
     required?: boolean
 };
 
