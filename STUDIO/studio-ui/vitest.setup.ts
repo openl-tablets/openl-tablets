@@ -16,11 +16,6 @@ failOnConsole({
     silenceMessage: (message, methodName) => {
         // ignore warnings
         if (methodName === 'warn') return true
-        // jsdom's CSSOM parser rejects modern CSS (container queries, @layer,
-        // `:where`/`:is` with complex selectors) that Ant Design's CSS-in-JS emits
-        // into <style> tags at runtime. No source-level fix: the parse runs inside
-        // jsdom internals, not in component code.
-        if (/Could not parse CSS stylesheet/.test(message)) return true
         return false
     },
 })
