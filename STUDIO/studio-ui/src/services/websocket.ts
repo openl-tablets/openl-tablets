@@ -76,19 +76,17 @@ class WebSocketService {
         this.isConnected = false
     }
 
-    private onError(error: any) {
-        console.warn('WebSocket Error:', error)
+    private onError(_error: any) {
         this.isConnected = false
 
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++
             setTimeout(() => {
-                this.connect().catch((connectError) => {
-                    console.warn('WebSocket reconnect attempt failed:', connectError)
+                this.connect().catch(() => {
+                    // Reconnect failures are expected during transient outages; the next
+                    // onStompError will schedule another attempt until the cap is reached.
                 })
             }, this.reconnectDelay * this.reconnectAttempts)
-        } else {
-            console.warn('Max reconnection attempts reached')
         }
     }
 
@@ -141,10 +139,6 @@ class WebSocketService {
         callback: (message: WebSocketMessage) => void,
         subscriptionId?: string
     ): string {
-        if (!this.client || !this.isConnected) {
-            console.warn('WebSocket not connected, subscription will be queued')
-        }
-
         const id = subscriptionId || `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
         const subscription: WebSocketSubscription = {
@@ -185,7 +179,6 @@ class WebSocketService {
 
     public send(destination: string, body: string, headers?: { [key: string]: string }) {
         if (!this.client || !this.isConnected) {
-            console.warn('WebSocket not connected, cannot send message')
             return
         }
 

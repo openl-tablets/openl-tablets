@@ -8,17 +8,7 @@ import { TextEncoder, TextDecoder } from 'util'
 import { vi } from 'vitest'
 
 
-failOnConsole({
-    // shouldFailOnWarn stays on so jest-fail-on-console wraps `console.warn`; the
-    // `silenceMessage` branch below drops every warn (no failure, no console noise).
-    // With shouldFailOnWarn: false the wrapper is skipped entirely and silenceMessage
-    // is never invoked for warns, so they would leak through to the real console.
-    silenceMessage: (message, methodName) => {
-        // ignore warnings
-        if (methodName === 'warn') return true
-        return false
-    },
-})
+failOnConsole()
 
 // react-router-dom uses TextEncoder (not defined in jsdom)
 if (typeof globalThis.TextEncoder === 'undefined') {
