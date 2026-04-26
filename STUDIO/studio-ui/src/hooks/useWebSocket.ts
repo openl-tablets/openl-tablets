@@ -36,7 +36,6 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
             setIsConnected(true)
             onConnect?.()
         } catch (error) {
-            console.warn('Failed to connect to WebSocket:', error)
             onError?.(error)
             throw error
         }
