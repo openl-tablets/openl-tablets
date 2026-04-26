@@ -43,7 +43,7 @@ export class ErrorHandler {
         }
 
         // Log to console in development
-        if (process.env['NODE_ENV'] === 'development') {
+        if (import.meta.env.DEV && import.meta.env.MODE !== 'test') {
             console.error('Error logged:', errorInfo)
         }
 
