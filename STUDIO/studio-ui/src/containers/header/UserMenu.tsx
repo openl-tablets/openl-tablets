@@ -1,7 +1,6 @@
 import React, { FC, useContext } from 'react'
-import { Col, Drawer, Menu, Row, Typography } from 'antd'
+import { Avatar, Col, Drawer, Menu, Row, Typography } from 'antd'
 import './UserMenu.scss'
-import { UserLogo } from '../../components/UserLogo'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router'
@@ -26,7 +25,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const Title = (
         <Row align="middle">
             <Col style={{ marginRight: '10px' }}>
-                <UserLogo />
+                <Avatar icon={<UserOutlined />} />
             </Col>
             <Col>
                 <div className="user-menu-title">

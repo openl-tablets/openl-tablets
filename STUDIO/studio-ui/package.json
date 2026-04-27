@@ -12,6 +12,7 @@
     "@ant-design/icons": "^6.1.1",
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.6",
+    "antd-style": "^4.1.0",
     "dompurify": "^3.4.1",
     "i18next": "^26.0.7",
     "react": "^19.2.5",
@@ -50,7 +51,7 @@
   "scripts": {
     "start": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "license-checker-rseidelsohn --onlyAllow \"MIT;Apache-2.0\" --production --excludePrivatePackages && vite build",
+    "build": "license-checker-rseidelsohn --onlyAllow \"MIT;Apache-2.0;BSD-3-Clause;ISC\" --production --excludePrivatePackages && vite build",
     "serve": "vite preview --port 3002",
     "clean": "rm -rf dist",
     "lint": "eslint ./src && stylelint '**/*.scss'",

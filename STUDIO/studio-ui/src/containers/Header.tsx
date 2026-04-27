@@ -1,10 +1,10 @@
 import React, { useState, CSSProperties, useCallback, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
+import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
 import './Header.scss'
 import { UserMenu } from './header/UserMenu'
 import { Link } from 'react-router-dom'
-import { UserLogo } from '../components/UserLogo'
 import Logo from '../components/Logo'
 import { CONFIG } from '../services'
 import { SystemContext } from '../contexts'
@@ -109,7 +109,7 @@ export const Header = () => {
                         />
                     </Col>
                     <Col>
-                        <UserLogo onClick={onOpenUserMenu} />
+                        <Avatar icon={<UserOutlined />}  onClick={onOpenUserMenu}/>
                     </Col>
                 </Row>
                 <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />
