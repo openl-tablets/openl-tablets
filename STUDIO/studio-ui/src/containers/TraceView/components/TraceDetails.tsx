@@ -6,20 +6,21 @@ import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
 import CopyJsonButton from './CopyJsonButton'
 import type { MessageDescription } from 'types/trace'
-import './TraceDetails.scss'
+import { useStyles } from './TraceDetails.styles'
 
 /**
  * Component for displaying trace errors/warnings.
  */
 const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ errors }) => {
     const { t } = useTranslation('trace')
+    const { styles } = useStyles()
 
     if (!errors || errors.length === 0) {
         return null
     }
 
     return (
-        <Card className="trace-errors-card" size="small" title={t('details.errors')}>
+        <Card className={styles.errorsCard} size="small" title={t('details.errors')}>
             {errors.map((error, index) => (
                 <Alert
                     key={index}
@@ -30,7 +31,7 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ 
                         <>
                             {error.detail && <div>{error.detail}</div>}
                             {error.sourceLocation && (
-                                <div className="trace-error-location">
+                                <div className={styles.errorLocation}>
                                     {error.sourceLocation}
                                 </div>
                             )}
@@ -55,6 +56,7 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ 
  */
 const TraceDetails: React.FC = () => {
     const { t } = useTranslation('trace')
+    const { styles, cx } = useStyles()
     const {
         selectedNodeId,
         selectedNodeDetails,
@@ -64,7 +66,7 @@ const TraceDetails: React.FC = () => {
     // Use explicit null check - 0 is a valid node ID
     if (selectedNodeId === null) {
         return (
-            <div className="trace-details trace-details-empty">
+            <div className={cx(styles.details, styles.detailsCentered)}>
                 <Empty
                     description={t('details.noSelection')}
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -75,7 +77,7 @@ const TraceDetails: React.FC = () => {
 
     if (detailsLoading) {
         return (
-            <div className="trace-details trace-details-loading">
+            <div className={cx(styles.details, styles.detailsCentered)}>
                 <Spin description={t('loadingDetails')} />
             </div>
         )
@@ -83,7 +85,7 @@ const TraceDetails: React.FC = () => {
 
     if (!selectedNodeDetails) {
         return (
-            <div className="trace-details trace-details-empty">
+            <div className={cx(styles.details, styles.detailsCentered)}>
                 <Empty
                     description={t('errors.detailsFailed')}
                     image={Empty.PRESENTED_IMAGE_SIMPLE}

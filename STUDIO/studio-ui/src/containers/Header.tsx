@@ -2,7 +2,7 @@ import React, { useState, CSSProperties, useCallback, useContext, useMemo } from
 import { useTranslation } from 'react-i18next'
 import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
-import './Header.scss'
+import { useStyles } from './Header.styles'
 import { UserMenu } from './header/UserMenu'
 import { Link } from 'react-router-dom'
 import Logo from '../components/Logo'
@@ -23,6 +23,7 @@ const titleStyle: CSSProperties = {
 
 export const Header = () => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [lastWsMessage, setLastWsMessage] = useState<string>('')
     const { systemSettings } = useContext(SystemContext)
@@ -80,7 +81,7 @@ export const Header = () => {
 
     return (
         <>
-            <AntHeader>
+            <AntHeader className={styles.header}>
                 <Row justify="space-between" style={{ width: '100%' }}>
                     <Col span={6}>
                         <Row align="middle">

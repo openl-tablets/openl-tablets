@@ -8,7 +8,7 @@ import traceService from 'services/traceService'
 import { TRACE_EXECUTION_STATUS } from 'utils/traceExecutionStatus'
 import { getTraceIcon, getNodeClassName, parseNodeStatus } from './TraceIcons'
 import type { TraceTreeDataNode } from 'types/trace'
-import './TraceTree.scss'
+import { useStyles } from './TraceTree.styles'
 
 interface TraceTreeProps {
     onSelect?: (nodeId: number) => void
@@ -20,6 +20,7 @@ interface TraceTreeProps {
  */
 const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
     const { t } = useTranslation('trace')
+    const { styles } = useStyles()
     const {
         treeData,
         loading,
@@ -111,15 +112,15 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
 
     if (loading) {
         return (
-            <div className="trace-tree-loading">
+            <div className={styles.loading}>
                 <Spin description={t('loading')} />
             </div>
         )
     }
 
     return (
-        <div className="trace-tree">
-            <div className="trace-tree-options">
+        <div className={styles.tree}>
+            <div className={styles.options}>
                 <Checkbox
                     checked={!hideFailedNodes}
                     onChange={() => toggleHideFailedNodes()}
@@ -136,7 +137,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                     />
                 </Tooltip>
             </div>
-            <div className="trace-tree-content">
+            <div className={styles.content}>
                 {displayData.length > 0 ? (
                     <Tree
                         blockNode

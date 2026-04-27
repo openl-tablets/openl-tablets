@@ -14,8 +14,8 @@ import {
     ToolOutlined,
     UserOutlined,
 } from '@ant-design/icons'
-import './MainMenu.scss'
 import { PermissionContext, SystemContext } from '../contexts'
+import { useStyles } from './MainMenu.styles'
 
 const MenuItems = {
     userProfile: '/administration/user/profile',
@@ -33,6 +33,7 @@ const MenuItems = {
 
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
     const { hasAdminPermission } = useContext(PermissionContext)
     const { isUserManagementEnabled, isGroupsManagementEnabled, isPersonalAccessTokenEnabled } = useContext(SystemContext)
     const navigate = useNavigate()
@@ -49,7 +50,7 @@ const MainMenu: React.FC = () => {
     }, [location.pathname])
 
     return (
-        <div id="main-menu">
+        <div className={styles.root} id="main-menu">
             <Menu
                 selectedKeys={selectedKeys}
                 onClick={({ key }) => {

@@ -5,7 +5,7 @@ import { TagTableCheckboxCell } from './TagTableCheckboxCell'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import { TagTableNameCell } from './TagTableNameCell'
 import { TagTableTagsCell } from './TagTableTagsCell'
-import './TagTable.scss'
+import { useStyles } from './TagTable.styles'
 import { DeleteOutlined } from '@ant-design/icons'
 
 export interface Tag {
@@ -40,6 +40,7 @@ interface TagTableProps extends TagActions, TagTypeActions {
 
 export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, deleteTag, deleteTagType, updateTagType, isLoading }) => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
 
     const onUpdateTagType = (tagType: TagType, name: string | null = null, extensible: boolean | null = null, nullable: boolean | null = null) => {
         if (tagType) {
@@ -121,7 +122,7 @@ export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, de
     return (
         <div>
             <Table
-                className="tag-table"
+                className={styles.table}
                 columns={columns}
                 dataSource={tagTypes}
                 loading={isLoading}

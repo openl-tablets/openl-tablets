@@ -14,6 +14,7 @@ import {
     isTraceExecutionTerminal,
     TRACE_EXECUTION_STATUS,
 } from 'utils/traceExecutionStatus'
+import { useStyles } from './TraceProgress.styles'
 
 interface TraceProgressProps {
     status: TraceExecutionStatus | null
@@ -36,6 +37,7 @@ const TraceProgress: React.FC<TraceProgressProps> = ({
     visible,
 }) => {
     const { t } = useTranslation('trace')
+    const { styles } = useStyles()
 
     if (!visible || !status) {
         return null
@@ -80,8 +82,8 @@ const TraceProgress: React.FC<TraceProgressProps> = ({
     const showDismissButton = isTraceExecutionTerminal(status) && onDismiss
 
     return (
-        <div className="trace-progress-overlay">
-            <div className="trace-progress-content">
+        <div className={styles.overlay}>
+            <div className={styles.content}>
                 <Result
                     icon={getStatusIcon()}
                     subTitle={message}

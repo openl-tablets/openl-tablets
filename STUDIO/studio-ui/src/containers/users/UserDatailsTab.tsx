@@ -6,7 +6,7 @@ import { DisplayUserName } from '../../constants'
 import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
 import { apiCall } from '../../services'
-import './UserDetailsTab.scss'
+import { useStyles } from './UserDetailsTab.styles'
 
 interface UserDetailsTabProps {
     isNewUser?: boolean | undefined
@@ -21,6 +21,7 @@ interface UserDetailsTabProps {
 
 export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true, showResendVerification = false, userProfile, resendLoading, cooldown, onResendVerification }) => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
     const form = Form.useFormInstance()
     const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
     const firstName = Form.useWatch('firstName', form)
@@ -129,8 +130,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 label={t('users:edit_modal.email')}
                 style={displayPasswordField ? { marginBottom: 24 } : {}}
             >
-                <Row align="top" className="profile-email-row" gutter={8} style={{ width: '100%', height: 32 }}>
-                    <Col className={`${isResendVerificationButtonVisible ? 'profile-email-input' : ''}`} flex="auto">
+                <Row align="top" className={styles.emailRow} gutter={8} style={{ width: '100%', height: 32 }}>
+                    <Col className={isResendVerificationButtonVisible ? styles.emailInput : ''} flex="auto">
                         <Form.Item
                             noStyle
                             name="email"

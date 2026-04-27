@@ -15,7 +15,7 @@ import { isApiHttpError } from 'services'
 import CONFIG from 'services/config'
 import type { TraceExecutionStatus, TraceProgressMessage } from 'types/trace'
 import type { WebSocketMessage } from 'services/websocket'
-import './TraceExecutionModal.scss'
+import { useStyles } from './TraceExecutionModal.styles'
 
 /**
  * Event detail passed from JSF to React via CustomEvent.
@@ -86,6 +86,7 @@ const getStatusIcon = (status: TraceExecutionStatus | null) => {
  */
 export const TraceExecutionModal: React.FC = () => {
     const { t } = useTranslation('trace')
+    const { styles } = useStyles()
     const { detail } = useGlobalEvents<TraceExecutionEventDetail>('openTraceExecutionModal')
     const { subscribe, unsubscribe, connect, isConnected } = useWebSocket({ autoConnect: false })
 
@@ -378,14 +379,14 @@ export const TraceExecutionModal: React.FC = () => {
 
     return (
         <Modal
-            className="trace-execution-modal"
+            className={styles.modal}
             closable={false}
             footer={footerButtons.length > 0 ? footerButtons : null}
             maskClosable={false}
             open={visible}
             title={t('modal.title')}
             width={500}
-            wrapClassName="trace-execution-modal-wrapper"
+            wrapClassName={styles.wrapper}
             zIndex={10000}
         >
             <Result

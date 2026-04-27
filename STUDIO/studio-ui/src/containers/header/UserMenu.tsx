@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react'
 import { Avatar, Col, Drawer, Menu, Row, Typography } from 'antd'
-import './UserMenu.scss'
+import { useStyles } from './UserMenu.styles'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router'
@@ -16,6 +16,7 @@ interface UserMenuProps {
 
 export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const userProfile = useUserStore(state => state.userProfile)
@@ -54,7 +55,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     return (
         <Drawer
             closable
-            className="drawer-user-menu"
+            className={styles.drawer}
             onClose={onClose}
             open={isOpen}
             placement="right"

@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 import dayjs, { Dayjs } from 'dayjs'
 import { apiCall } from '../services'
 import { SystemContext } from '../contexts'
-import './PersonalAccessTokens.scss'
+import { useStyles } from './PersonalAccessTokens.styles'
 
 interface PersonalAccessToken {
     publicId: string
@@ -48,6 +48,7 @@ type DrawerMode = 'create' | 'created'
 
 export const PersonalAccessTokens: React.FC = () => {
     const { t } = useTranslation()
+    const { styles, cx } = useStyles()
     const { isPersonalAccessTokenEnabled } = useContext(SystemContext)
     const [tokens, setTokens] = useState<PersonalAccessToken[]>([])
     const [loading, setLoading] = useState(true)
@@ -314,11 +315,11 @@ export const PersonalAccessTokens: React.FC = () => {
     )
 
     const renderCodeBlock = (code: string, onCopy: () => void, showCopyTooltip?: boolean) => (
-        <div className="pat-code-block">
+        <div className={styles.codeBlock}>
             <pre><code>{code}</code></pre>
             <Tooltip open={showCopyTooltip} title={t('pat:token_copied')}>
                 <Button
-                    className="pat-code-block-copy"
+                    className={styles.codeBlockCopy}
                     icon={<CopyOutlined />}
                     onClick={onCopy}
                     size="small"
@@ -343,7 +344,7 @@ export const PersonalAccessTokens: React.FC = () => {
             <Typography.Text type="secondary">
                 {t('pat:usage_hint')}
             </Typography.Text>
-            <div className="pat-code-block pat-code-block--no-copy">
+            <div className={cx(styles.codeBlock, styles.codeBlockNoCopy)}>
                 <pre><code>Authorization: Token {createdToken?.token ?? ''}</code></pre>
             </div>
         </Space>
@@ -398,7 +399,7 @@ export const PersonalAccessTokens: React.FC = () => {
                     dataSource={tokens}
                     loading={loading}
                     pagination={false}
-                    rowClassName={(record) => isTokenExpired(record.expiresAt) ? 'pat-row-expired' : ''}
+                    rowClassName={(record) => isTokenExpired(record.expiresAt) ? styles.rowExpired : ''}
                     rowKey="publicId"
                     size="middle"
                 />

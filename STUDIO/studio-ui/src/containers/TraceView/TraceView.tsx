@@ -14,7 +14,7 @@ import {
     isTraceExecutionTerminal,
     TRACE_EXECUTION_STATUS,
 } from 'utils/traceExecutionStatus'
-import './TraceView.scss'
+import { useStyles } from './TraceView.styles'
 
 interface TraceViewParams {
     projectId: string
@@ -28,6 +28,7 @@ interface TraceViewParams {
  */
 const TraceView: React.FC = () => {
     const { t } = useTranslation('trace')
+    const { styles, cx } = useStyles()
     const { projectId } = useParams<keyof TraceViewParams>()
     const [searchParams] = useSearchParams()
     const tableId = searchParams.get('tableId')
@@ -136,7 +137,7 @@ const TraceView: React.FC = () => {
 
     if (!projectId || !tableId) {
         return (
-            <div className="trace-view-error" id="trace-view">
+            <div className={cx(styles.view, styles.viewError)} id="trace-view">
                 <Alert
                     description={t('errors.missingParams')}
                     message={t('errors.notFound')}
@@ -149,7 +150,7 @@ const TraceView: React.FC = () => {
     return (
         <div
             ref={containerRef}
-            className={isResizing ? 'resizing' : ''}
+            className={cx(styles.view, isResizing && styles.resizing)}
             id="trace-view"
         >
             {/* Progress overlay is shown only while execution is in progress. */}
@@ -164,7 +165,7 @@ const TraceView: React.FC = () => {
             {showTerminalStatusBanner && (
                 <Alert
                     closable
-                    className="trace-error-banner"
+                    className={styles.errorBanner}
                     description={progressMessage}
                     message={isTraceExecutionError(executionStatus) ? t('progress.error') : t('progress.interrupted')}
                     onClose={() => setTerminalStatusDismissed(true)}
@@ -180,26 +181,26 @@ const TraceView: React.FC = () => {
             {error && !isExecutionInProgress && !showTerminalStatusBanner && (
                 <Alert
                     closable
-                    className="trace-error-banner"
+                    className={styles.errorBanner}
                     message={error}
                     type="error"
                 />
             )}
             {/* Left Panel - Tree */}
             <div
-                className="trace-left-panel"
+                className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}
                 style={{ width: `${leftPanelWidth}%` }}
             >
                 <TraceTree />
             </div>
             {/* Resizer */}
             <div
-                className="trace-resizer"
+                className={styles.resizer}
                 onMouseDown={handleMouseDown}
             />
             {/* Right Panel - Details */}
             <div
-                className="trace-right-panel"
+                className={cx(styles.rightPanel, isResizing && styles.panelDisabled)}
                 style={{ width: `${100 - leftPanelWidth}%` }}
             >
                 <TraceDetails />
