@@ -386,7 +386,6 @@ export const TraceExecutionModal: React.FC = () => {
             open={visible}
             title={t('modal.title')}
             width={500}
-            wrapClassName={styles.wrapper}
             zIndex={10000}
         >
             <Result

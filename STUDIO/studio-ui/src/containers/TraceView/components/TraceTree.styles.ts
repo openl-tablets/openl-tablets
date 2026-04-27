@@ -20,7 +20,6 @@ export const useStyles = createStyles(({ css }) => ({
         padding: 8px;
 
         .ant-tree {
-            background: transparent;
             min-width: max-content;
         }
 

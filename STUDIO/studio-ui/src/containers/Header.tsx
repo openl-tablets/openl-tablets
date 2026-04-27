@@ -1,4 +1,4 @@
-import React, { useState, CSSProperties, useCallback, useContext, useMemo } from 'react'
+import React, { useState, useCallback, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
@@ -14,12 +14,6 @@ import { useNotificationStore } from 'store'
 type MenuItem = Required<MenuProps>['items'][number];
 
 const { Header: AntHeader } = Layout
-
-const titleStyle: CSSProperties = {
-    fontSize: 20,
-    fontFamily: 'Georgia, Verdana, Helvetica, Arial',
-    color: '#384f81',
-}
 
 export const Header = () => {
     const { t } = useTranslation()
@@ -92,7 +86,7 @@ export const Header = () => {
                             </Col>
                             <Col>
                                 <div className="header-title">
-                                    <Link onClick={() => goTo()} style={titleStyle} to="">{t('common:openl_studio')}</Link>
+                                    <Link onClick={() => goTo()} to="">{t('common:openl_studio')}</Link>
                                 </div>
                             </Col>
                         </Row>

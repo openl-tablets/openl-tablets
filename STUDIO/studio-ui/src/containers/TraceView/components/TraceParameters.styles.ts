@@ -2,6 +2,10 @@ import { createStyles } from 'antd-style'
 
 export const useStyles = createStyles(({ css }) => ({
     section: css`
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+        padding: 8px 12px;
         margin-bottom: 12px;
         font-family: Consolas, Monaco, 'Courier New', monospace;
         font-size: 12px;

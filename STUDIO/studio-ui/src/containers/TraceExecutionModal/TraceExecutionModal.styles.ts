@@ -1,9 +1,6 @@
 import { createStyles } from 'antd-style'
 
 export const useStyles = createStyles(({ css }) => ({
-    wrapper: css`
-        z-index: 10000 !important;
-    `,
     modal: css`
         .ant-result {
             padding: 24px 16px;

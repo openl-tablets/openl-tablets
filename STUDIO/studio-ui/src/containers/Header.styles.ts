@@ -21,7 +21,7 @@ export const useStyles = createStyles(({ css }) => ({
             height: 24px;
         }
 
-        .header-title {
+        .header-title a {
             font-size: 20px;
             font-family: Georgia, Verdana, Helvetica, Arial, serif;
             color: rgb(56 79 129);

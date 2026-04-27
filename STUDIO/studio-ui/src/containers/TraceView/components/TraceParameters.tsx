@@ -9,8 +9,6 @@ import { useStyles } from './TraceParameters.styles'
 
 const { Text } = Typography
 
-const SECTION_CLASS = 'trace-params-section'
-
 type Styles = ReturnType<typeof useStyles>['styles']
 
 /**
@@ -257,11 +255,11 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
     copyButton,
 }) => {
     const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
 
     if (!parameters || parameters.length === 0) {
         return (
-            <div className={cx(styles.section, SECTION_CLASS)}>
+            <div className={styles.section}>
                 <div className={styles.header}>
                     <span className={styles.title}>{title}:</span>
                 </div>
@@ -273,7 +271,7 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
     }
 
     return (
-        <div className={cx(styles.section, SECTION_CLASS)}>
+        <div className={styles.section}>
             <div className={styles.header}>
                 <span className={styles.title}>{title}:</span>
                 {copyButton}
@@ -302,11 +300,11 @@ export const SingleParameter: React.FC<{
     copyButton?: React.ReactNode | undefined
 }> = ({ parameter, title, emptyText, copyButton }) => {
     const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
 
     if (!parameter) {
         return (
-            <div className={cx(styles.section, SECTION_CLASS)}>
+            <div className={styles.section}>
                 <div className={styles.header}>
                     <span className={styles.title}>{title}:</span>
                 </div>
@@ -318,7 +316,7 @@ export const SingleParameter: React.FC<{
     }
 
     return (
-        <div className={cx(styles.section, SECTION_CLASS)}>
+        <div className={styles.section}>
             <div className={styles.header}>
                 <span className={styles.title}>{title}:</span>
                 {copyButton}

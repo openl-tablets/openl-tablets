@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
 import { NotFoundError, isApiHttpError } from 'services'
+import { useStyles } from './TraceTableView.styles'
 
 interface TraceTableViewProps {
     nodeId: number
@@ -16,6 +17,7 @@ interface TraceTableViewProps {
  */
 const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     const { t } = useTranslation('trace')
+    const { styles } = useStyles()
     const { projectId } = useTraceStore()
     const [html, setHtml] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -58,11 +60,11 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     if (loading) {
         return (
             <Card
-                className="trace-table-card"
+                className={styles.card}
                 size="small"
                 title={t('details.table')}
             >
-                <div className="trace-table-loading">
+                <div className={styles.loading}>
                     <Spin description={t('loadingTable')} />
                 </div>
             </Card>
@@ -72,7 +74,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     if (error) {
         return (
             <Card
-                className="trace-table-card"
+                className={styles.card}
                 size="small"
                 title={t('details.table')}
             >
@@ -87,12 +89,12 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
 
     return (
         <Card
-            className="trace-table-card"
+            className={styles.card}
             size="small"
             title={t('details.table')}
         >
             <div
-                className="trace-table-content"
+                className={styles.content}
                 dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
         </Card>

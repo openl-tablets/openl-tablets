@@ -102,7 +102,7 @@ const TraceDetails: React.FC = () => {
         : parameters
 
     return (
-        <div className="trace-details">
+        <div className={styles.details}>
             {/* Parameters (including context) */}
             <TraceParameters
                 copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
