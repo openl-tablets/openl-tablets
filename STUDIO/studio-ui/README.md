@@ -18,7 +18,7 @@
 - `src/pages/`: Standalone routes such as `LoginPage`, `403`, `404`, `500`.
 - `src/types/`: TypeScript definitions aligned with backend DTOs.
 - `src/index.tsx`: React entry point, registers i18n bundles and mounts the app.
-- `src/index.scss`: Global styles and Ant Design overrides.
+- `src/App.styles.ts`: Global styles and Ant Design overrides via `antd-style`'s `createGlobalStyle`.
 - `src/setPublicPath.ts`: Configures webpack public path at runtime.
 
 Supporting files:

@@ -14,7 +14,8 @@ Use almost the latest versions when possible.
 - **i18next + react-i18next** for internationalization
 - **@stomp/stompjs** for WebSocket notifications (reconnecting singleton)
 - **Vite** + `@vitejs/plugin-react` (`vite.config.ts`)
-- **ESLint** (flat config: `eslint.config.js`) + **Stylelint**
+- **ESLint** (flat config: `eslint.config.js`)
+- **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
 
 ## Project Structure
@@ -57,8 +58,10 @@ src/
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`
   to gate features (e.g., `isUserManagementEnabled`, `isExternalAuthSystem`).
 - **Forms**: `components/form` wraps Ant Design inputs. `hooks/useIsFormChanged.ts` drives dirty-state detection.
-- **Styling**: global SCSS in `src/index.scss`; feature SCSS co-located with components. BEM-like class naming. Prefer
-  component-level styles over global overrides.
+- **Styling**: CSS-in-JS via `antd-style`. Component styles live in co-located `*.styles.ts` files using
+  `createStyles(({ css }) => ({ ... }))`; consume with `const { styles, cx } = useStyles()` and apply via
+  `className={styles.foo}`. Global styles use `createGlobalStyle` (see `src/App.styles.ts`, mounted as
+  `<AppStyles />` inside `<AntApp>`). Prefer component-level scoped styles over global overrides.
 
 ## Development
 
@@ -67,7 +70,7 @@ npm install                    # Install dependencies
 npm run start                  # Dev server (proxied to backend)
 npm run build                  # Production build with license check
 npm run serve                  # Serve built bundle locally
-npm run lint                   # ESLint + Stylelint
+npm run lint                   # ESLint
 npm run typecheck              # tsc --noEmit
 ```
 

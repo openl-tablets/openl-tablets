@@ -7,6 +7,7 @@ import { SecurityProvider } from './providers/SecurityProvider'
 import { CONFIG } from './services'
 import ErrorBoundary from './components/ErrorBoundary'
 import { errorHandler, setupGlobalErrorHandling } from './utils/errorHandling'
+import { AppStyles } from './App.styles.ts'
 
 function App() {
     const { showLogin } = useAppStore()
@@ -61,6 +62,7 @@ function App() {
         >
             <Suspense fallback={<div>Loading...</div>}>
                 <AntApp>
+                    <AppStyles />
                     <SecurityProvider>
                         <RouterProvider router={router} />
                     </SecurityProvider>
