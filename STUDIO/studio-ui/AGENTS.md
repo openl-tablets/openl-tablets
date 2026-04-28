@@ -136,6 +136,10 @@ Tests are co-located with sources (e.g. `src/containers/DeployModal.test.tsx` ne
 - Add translations from day one — no hardcoded user-facing strings.
 - Prefer Zustand selectors over full-store subscriptions.
 - Unsubscribe WebSocket listeners or use `cleanupWebSocket` to prevent duplicates.
+- Use `data-testid` for elements that tests need to target. Generated CSS-in-JS class names are unstable, and
+  selecting by structure (descendant chains, `nth-child`) couples tests to layout — both break on refactors. Playwright
+  resolves it via `page.getByTestId('foo')`; React Testing Library uses `getByTestId('foo')`. Choose stable,
+  semantic ids (`repositories-tabs`, not `tabs1`); never reuse CSS class names as test ids.
 - **Do not call `console.error` from components, hooks, or services.** Propagate errors via callbacks, thrown
   exceptions, or explicit state so callers (error boundaries, `notification.error`, future global logger) decide how to
   surface them. `console.warn` is allowed for transient recoverable signals (reconnect attempts, queued work,

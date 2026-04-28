@@ -8,6 +8,7 @@ import { Input, Select } from '../../components'
 import { DesignRepositoryCommentsConfiguration } from './DesignRepositoryCommentsConfiguration'
 import { RepositoryConfigurationComponent } from './RepositoryConfigurationComponent'
 import { useRepositoryConfiguration } from './hooks'
+import { useStyles } from './DesignRepositoriesConfiguration.style'
 import { FormRefProps, RepositoryResponse } from './index'
 
 interface DesignRepositoriesConfigurationProps {
@@ -17,6 +18,7 @@ interface DesignRepositoriesConfigurationProps {
 
 export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange }, ref) => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
     const { isLoading: isConfigurationLoading,
         configuration: initialConfiguration = [],
         fetchRepositoryConfigurationTemplate,
@@ -448,10 +450,11 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                 destroyOnHidden
                 hideAdd
                 activeKey={activeKey}
-                className="repositories-tabs"
+                className={styles.tabs}
+                data-testid="repositories-tabs"
                 onChange={onChangeTab}
                 onEdit={onEdit}
-                tabPosition="left"
+                tabPlacement="start"
                 type={tabType}
                 items={configuration?.map((repository) => ({
                     label: typeof repository.name === 'string' ? repository.name : repository?.name?.value,
