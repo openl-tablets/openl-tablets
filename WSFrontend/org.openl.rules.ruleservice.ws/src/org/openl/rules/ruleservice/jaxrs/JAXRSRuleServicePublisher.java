@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +23,12 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
@@ -65,6 +71,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private List<Feature> features;
+
+    @Autowired
+    private Environment environment;
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -117,7 +126,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
 
-            var openApiResource = new OpenApiResource(serviceClass, serviceObjectMapper, service, authenticationEnabled);
+            var openApiResource = new OpenApiResource(buildOpenApiProcessor(serviceClass, serviceObjectMapper, service));
 
             svrFactory.setResourceClasses(serviceClass, OpenApiResource.class);
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));
@@ -137,6 +146,18 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    private Function<UriInfo, OpenAPI> buildOpenApiProcessor(Class<?> serviceClass,
+                                                             ObjectMapper serviceObjectMapper,
+                                                             OpenLService service) throws RuleServiceInstantiationException {
+        var openApiMapper = Json.mapper().copy().setDefaultMergeable(true);
+        Function<UriInfo, OpenAPI> chain = new DefaultOpenApiProcessor(openApiMapper, service.getName());
+        if (authenticationEnabled) {
+            chain = chain.andThen(new SecurityOpenApiProcessor(openApiMapper));
+        }
+        return chain.andThen(new CustomOpenApiProcessor(openApiMapper, service.getClassLoader(), environment))
+                .andThen(new FinalizingOpenApiProcessor(serviceClass, serviceObjectMapper));
     }
 
     @Override

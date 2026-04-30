@@ -1,0 +1,6 @@
+<rules-deploy>
+    <serviceName>EPBDS-15858</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+</rules-deploy>
