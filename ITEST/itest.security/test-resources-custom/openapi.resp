@@ -351,5 +351,10 @@ Content-Type: application/json
         "type" : "http"
       }
     }
+  },
+  "x-application-name": "openl-test-app",
+  "x-spring-properties": {
+    "default-value-property": "defaultValue",
+    "my-custom.property": "Some custom value"
   }
 }

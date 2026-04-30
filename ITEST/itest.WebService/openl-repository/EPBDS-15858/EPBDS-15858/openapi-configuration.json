@@ -1,0 +1,6 @@
+{
+  "openAPI": {
+    "x-application-name": "should not be visible!",
+    "x-project-name": "EPBDS-15858"
+  }
+}

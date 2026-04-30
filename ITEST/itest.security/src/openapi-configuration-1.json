@@ -1,0 +1,9 @@
+{
+  "openAPI": {
+    "x-application-name": "openl-test-app",
+    "x-spring-properties": {
+      "my-custom.property": "${my-custom.property}",
+      "default-value-property": "${default-value.property:defaultValue}"
+    }
+  }
+}
