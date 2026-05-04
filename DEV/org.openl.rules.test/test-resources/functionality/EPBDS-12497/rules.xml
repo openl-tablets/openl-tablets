@@ -1,0 +1,23 @@
+<project>
+    <name>EPBDS-12497</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.*</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+    <interface-methods>
+        <includes>
+            <value>check</value>
+            <value>variant*</value>
+        </includes>
+        <excludes>
+            <value>variantX</value>
+        </excludes>
+    </interface-methods>
+</project>

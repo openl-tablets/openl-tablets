@@ -64,6 +64,12 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             for (Module module : projectDescriptor.getModules()) {
                 Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
                 Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
+                if (module.getMethodFilter() != null
+                        && (!module.getMethodFilter().getIncludes().isEmpty()
+                        || !module.getMethodFilter().getExcludes().isEmpty())) {
+                    moduleWarnMessages.add(
+                            "'method-filter' in the module '" + module.getName() + "' is deprecated. Use 'interface-methods' at the project level instead.");
+                }
                 Map<String, Object> params = new HashMap<>();
                 if (processor != null) {
                     try {
