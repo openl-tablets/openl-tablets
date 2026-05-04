@@ -4,13 +4,13 @@
         <module>
             <name>ALL</name>
             <rules-root path="*.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.*p.*</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>*p*</value>
+        </includes>
+    </interface-methods>
     <classpath>
         <entry path="groovy"/>
     </classpath>

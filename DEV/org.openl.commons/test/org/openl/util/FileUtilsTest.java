@@ -254,4 +254,52 @@ public class FileUtilsTest {
         assertTrue(FileUtils.pathMatches("src/{main}/**/*.java", "src/{main}/util/Helper.java"));
         assertFalse(FileUtils.pathMatches("src/{main}/**/*.java", "src/main/com/example/MyClass.java"));
     }
+
+    @Test
+    public void testPathMatchesExactMatch() {
+        assertTrue(FileUtils.pathMatches("calculate", "calculate"));
+        assertFalse(FileUtils.pathMatches("calculate", "calculateAge"));
+        assertFalse(FileUtils.pathMatches("calculateAge", "calculate"));
+    }
+
+    @Test
+    public void testPathMatchesStarWildcard() {
+        assertTrue(FileUtils.pathMatches("*", "anything"));
+        assertTrue(FileUtils.pathMatches("*", ""));
+        assertTrue(FileUtils.pathMatches("get*", "getName"));
+        assertTrue(FileUtils.pathMatches("get*", "get"));
+        assertFalse(FileUtils.pathMatches("get*", "setName"));
+        assertTrue(FileUtils.pathMatches("*Name", "getName"));
+        assertTrue(FileUtils.pathMatches("*Name", "Name"));
+        assertFalse(FileUtils.pathMatches("*Name", "getNames"));
+        assertTrue(FileUtils.pathMatches("get*Name", "getName"));
+        assertTrue(FileUtils.pathMatches("get*Name", "getFullName"));
+        assertFalse(FileUtils.pathMatches("get*Name", "getNames"));
+    }
+
+    @Test
+    public void testPathMatchesQuestionMarkWildcard() {
+        assertTrue(FileUtils.pathMatches("?etName", "getName"));
+        assertTrue(FileUtils.pathMatches("?etName", "setName"));
+        assertFalse(FileUtils.pathMatches("?etName", "etName"));
+        assertFalse(FileUtils.pathMatches("?etName", "abetName"));
+        assertTrue(FileUtils.pathMatches("calc?late", "calculate"));
+        assertFalse(FileUtils.pathMatches("calc?late", "calclate"));
+    }
+
+    @Test
+    public void testPathMatchesCombinedWildcards() {
+        assertTrue(FileUtils.pathMatches("get*?", "getName"));
+        assertTrue(FileUtils.pathMatches("?et*", "getName"));
+        assertTrue(FileUtils.pathMatches("?et*", "set"));
+        assertFalse(FileUtils.pathMatches("?et*", "ge"));
+    }
+
+    @Test
+    public void testPathMatchesRegexSpecialCharsAreEscaped() {
+        assertTrue(FileUtils.pathMatches("calc.premium", "calc.premium"));
+        assertFalse(FileUtils.pathMatches("calc.premium", "calcXpremium"));
+        assertTrue(FileUtils.pathMatches("method()", "method()"));
+        assertFalse(FileUtils.pathMatches("method()", "methodXY"));
+    }
 }

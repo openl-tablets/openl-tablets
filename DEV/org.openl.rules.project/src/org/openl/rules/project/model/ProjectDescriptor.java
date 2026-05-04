@@ -1,6 +1,7 @@
 package org.openl.rules.project.model;
 
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.INTERFACE_METHODS_TAG;
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
@@ -61,6 +62,16 @@ public class ProjectDescriptor {
     @XmlElement(name = PROPERTIES_FILE_NAME_PROCESSOR)
     private String propertiesFileNameProcessor;
 
+    /**
+     * Project-level filter for controlling which methods are included in the generated service interface.
+     * <p>
+     * Unlike module-level filters which use regex patterns against full method signatures,
+     * this filter uses glob-style patterns ({@code *} and {@code ?}) matched against method names only,
+     * making it simpler for users to configure.
+     */
+    @XmlElement(name = INTERFACE_METHODS_TAG)
+    private MethodFilter interfaceMethods;
+
     @XmlTransient
     private volatile URL[] classPathUrls;
 
@@ -78,6 +89,14 @@ public class ProjectDescriptor {
 
     public void setPropertiesFileNameProcessor(String propertiesFileNameProcessor) {
         this.propertiesFileNameProcessor = propertiesFileNameProcessor;
+    }
+
+    public MethodFilter getInterfaceMethods() {
+        return interfaceMethods;
+    }
+
+    public void setInterfaceMethods(MethodFilter interfaceMethods) {
+        this.interfaceMethods = interfaceMethods;
     }
 
     public List<ProjectDependencyDescriptor> getDependencies() {

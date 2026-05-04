@@ -1,0 +1,18 @@
+<project>
+    <name>test-interface-methods</name>
+    <interface-methods>
+        <includes>
+            <value>get*</value>
+            <value>calculatePremium</value>
+        </includes>
+        <excludes>
+            <value>internal*</value>
+        </excludes>
+    </interface-methods>
+    <modules>
+        <module>
+            <name>testmodule</name>
+            <rules-root path="rules/main.xlsx"/>
+        </module>
+    </modules>
+</project>

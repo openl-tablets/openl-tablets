@@ -410,7 +410,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     public void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
-        assertSetEquals(toSet(".+ getPolicyData\\(.*\\)"), projectModel.getIncludeMethodFilter());
+        assertSetEquals(toSet("getPolicyData"), projectModel.getIncludeMethodFilter());
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         Set<Class<?>> commonClasses = new HashSet<>();
@@ -454,8 +454,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     public void test_nameConflictTest() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
-        assertSetEquals(toSet(".+ MyLovelySpreadsheet\\(.+\\)", ".+ Party\\(.+\\)"),
-                projectModel.getIncludeMethodFilter());
+        assertSetEquals(toSet("MyLovelySpreadsheet", "Party"), projectModel.getIncludeMethodFilter());
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> optionalVM = spreadsheetResultModels.stream()
                 .filter(model -> model.getName().equals("MyLovelySpreadsheet"))
@@ -498,7 +497,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     @Test
     public void test_EPBDS_10979() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10979_extraSpr.json");
-        assertSetEquals(toSet(".+ PlanDetails\\(.+\\)"), projectModel.getIncludeMethodFilter());
+        assertSetEquals(toSet("PlanDetails"), projectModel.getIncludeMethodFilter());
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateGroovyFile());

@@ -55,15 +55,19 @@ The following code fragment is an example of the rules project descriptor:
                 Rules document which is usually an excel file in the project.
             -->
             <rules-root path="MyModule2.xls"/>
-            <method-filter>
-                <includes>
-                    <value> * </value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
-
-<dependencies>
+    <interface-methods>
+        <includes>
+            <value>get*</value>
+            <value>calc</value>
+        </includes>
+        <excludes>
+            <value>*Test</value>
+            <value>getN?</value>
+        </excludes>
+    </interface-methods>
+    <dependencies>
         <dependency>
             <name>projectName</name>
             <autoIncluded>false</autoIncluded>
@@ -91,25 +95,23 @@ The descriptor file contains several sections that describe project configuratio
 ##### Project Configurations
 The project configurations are as follows:
 
-| Tag                            | Required | Description                                                                                                                                |
-|--------------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| name                           | yes      | Project name. It is a string value which defines a user-friendly project name.                                                             |
-| comment                        | no       | Comment for project.                                                                                                                       |
-| dependency                     | no       | Dependencies to projects.                                                                                                                  |
-| modules                        | yes      | Project modules. A project can have one or several modules.                                                                                |
-| classpath                      | no       | Project relative classpath.                                                                                                                |
+| Tag                            | Required | Description                                                                                                                                     |
+|--------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| name                           | yes      | Project name. It is a string value which defines a user-friendly project name.                                                                  |
+| comment                        | no       | Comment for project.                                                                                                                            |
+| dependency                     | no       | Dependencies to projects.                                                                                                                       |
+| modules                        | yes      | Project modules. A project can have one or several modules.                                                                                     |
+| classpath                      | no       | Project relative classpath.                                                                                                                     |
+| interface-methods              | no       | The ant-style pattern (* and ?) filters of the allowed methods in the generated interface.                                                      |
 | properties-file-name-pattern   | no       | File name pattern to be used by the file name processor. <br/>The file name processor adds extracted module properties from a module file name. |
-| properties-file-name-processor | no       | Custom implementation of `org.openl.rules.project.PropertiesFileNameProcessor` used instead of default implementation.                     |
+| properties-file-name-processor | no       | Custom implementation of `org.openl.rules.project.PropertiesFileNameProcessor` used instead of default implementation.                          |
 
 ##### Module Configurations
 The module configurations are as follows:
 
-| Tag          | Required | Description                                                                                                                                                                                                                                         |
-|--------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| name         | yes/no   | Module name. It is a string value which defines a user-friendly module name.  <br/>**Note:** It is used by OpenL Studio application as a module display name. It is not required for modules defined via wildcard.                            |
-| type         | yes      | Module instantiation type. Possible values are case-insensitive and can be **dynamic**, **api**, or **static** (deprecated). <br/>It defines the way of OpenL project instantiation.                                                                     |
-| classname    | yes/no   | Name of rules interface. It is used together with *type*. It is not required for the **api** type.                                                                                                                                                  |
-| method-filer | no       | Filter that defines tables to be used for interface generation. Java regular expression can be used to define a filter for multiple methods.                                                                                                        |
+| Tag          | Required | Description                                                                                                                                                                                                                                              |
+|--------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| name         | yes/no   | Module name. It is a string value which defines a user-friendly module name.  <br/>**Note:** It is used by OpenL Studio application as a module display name. It is not required for modules defined via wildcard.                                       |
 | rules-root   | yes/no   | Path to the main file of a rules module. It is used together with **type**. Ant pattern can be used to define multiple modules via wildcard. <br/>For more information on Ant patterns, see [Ant patterns](https://ant.apache.org/manual/dirtasks.html). |
 
 When working with a large project that, for example, includes huge amounts of tests, you may want to avoid loading modules that the current module does not depend on. To do this, the compileThisModuleOnly attribute must be added to the rules.xml file, <module> section as follows:
