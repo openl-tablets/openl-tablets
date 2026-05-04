@@ -4,19 +4,19 @@
         <module>
             <name>module1</name>
             <rules-root path="module1.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ mySpr\(\)</value>
-                    <value>.+ mySpr2\(\)</value>
-                    <value>.+ main\(\)</value>
-                </includes>
-            </method-filter>
         </module>
         <module>
             <name>module2</name>
             <rules-root path="module2.xlsx"/>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>mySpr</value>
+            <value>mySpr2</value>
+            <value>main</value>
+        </includes>
+    </interface-methods>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>

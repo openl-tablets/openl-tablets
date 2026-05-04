@@ -1206,11 +1206,11 @@ public class ProjectBean {
                     internalOpenAPIPath,
                     converter);
 
-            modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam)).findFirst().ifPresent(m -> {
-                MethodFilter filter = new MethodFilter();
-                filter.setIncludes(projectModel.getIncludeMethodFilter());
-                m.setMethodFilter(filter);
-            });
+            if (!projectModel.getIncludeMethodFilter().isEmpty()) {
+                var interfaceMethods = new MethodFilter();
+                interfaceMethods.setIncludes(projectModel.getIncludeMethodFilter());
+                currentProjectDescriptor.setInterfaceMethods(interfaceMethods);
+            }
 
             addDataTypesFile(modelModulePathParam, currentProject, projectModel);
 

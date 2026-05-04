@@ -27,19 +27,28 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
+import org.openl.util.FileUtils;
 
 public class InterfaceClassGenerator {
 
     private String[] includes;
     private String[] excludes;
+    private Collection<String> nameIncludes;
+    private Collection<String> nameExcludes;
     private boolean provideRuntimeContext;
 
     public InterfaceClassGenerator() {
     }
 
-    public InterfaceClassGenerator(String[] includes, String[] excludes, boolean provideRuntimeContext) {
+    public InterfaceClassGenerator(String[] includes,
+                                   String[] excludes,
+                                   Collection<String> nameIncludes,
+                                   Collection<String> nameExcludes,
+                                   boolean provideRuntimeContext) {
         this.includes = Objects.requireNonNull(includes, "includes cannot be null");
         this.excludes = Objects.requireNonNull(excludes, "excludes cannot be null");
+        this.nameIncludes = nameIncludes;
+        this.nameExcludes = nameExcludes;
         this.provideRuntimeContext = provideRuntimeContext;
     }
 
@@ -175,6 +184,12 @@ public class InterfaceClassGenerator {
     }
 
     private boolean isMember(String name, Class<?> returnType, IOpenClass[] parameterTypes) {
+        // Check project-level name-based filter first (glob on method name only)
+        if (!isNameIncluded(name)) {
+            return false;
+        }
+
+        // Then check module-level signature-based filter (regex on full method signature)
         StringBuilder sb = new StringBuilder();
         sb.append(returnType.getCanonicalName());
         sb.append(" ").append(name).append("(");
@@ -207,5 +222,27 @@ public class InterfaceClassGenerator {
             }
         }
         return isMember;
+    }
+
+    private boolean isNameIncluded(String name) {
+        boolean included = true;
+        if (nameIncludes != null && !nameIncludes.isEmpty()) {
+            included = false;
+            for (var pattern : nameIncludes) {
+                if (FileUtils.pathMatches(pattern, name)) {
+                    included = true;
+                    break;
+                }
+            }
+        }
+        if (nameExcludes != null && included) {
+            for (var pattern : nameExcludes) {
+                if (FileUtils.pathMatches(pattern, name)) {
+                    included = false;
+                    break;
+                }
+            }
+        }
+        return included;
     }
 }

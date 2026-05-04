@@ -97,14 +97,14 @@ This configuration can be applied to projects using the `rules.xml` file. An exa
         <module>
             <name>module-name</name>
             <rules-root path="rules/Calculation.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.*determinePolicyPremium.*</value>
-                    <value>.*vehiclePremiumCalculation.*</value>
-                </includes>
-           </method-filter>
        </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>determinePolicyPremium</value>
+            <value>vehiclePremiumCalculation</value>
+        </includes>
+    </interface-methods>
     <classpath>
         <entry path="lib/*"/>
     </classpath>

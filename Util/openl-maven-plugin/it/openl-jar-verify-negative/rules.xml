@@ -3,13 +3,13 @@
     <modules>
         <module>
             <rules-root path="*.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ ThisMethodDoesNotExist\(.+\)</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>ThisMethodDoesNotExist</value>
+        </includes>
+    </interface-methods>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>

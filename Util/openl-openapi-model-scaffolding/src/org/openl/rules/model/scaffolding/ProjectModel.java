@@ -75,7 +75,7 @@ public class ProjectModel {
         if (includeMethodFilter == null) {
             includeMethodFilter = Stream.concat(spreadsheetModels.stream(), dataModels.stream())
                     .filter(MethodModel::isInclude)
-                    .map(MethodModel::getMethodFilterPattern)
+                    .map(x -> x.getPathInfo().getFormattedPath())
                     .collect(Collectors.toSet());
         }
         return includeMethodFilter;

@@ -3,13 +3,13 @@
     <modules>
         <module>
             <rules-root path="*.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ findCarByVIN\(.+\)</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>findCarByVIN</value>
+        </includes>
+    </interface-methods>
     <dependencies>
         <dependency>
             <name>Project 2</name>
