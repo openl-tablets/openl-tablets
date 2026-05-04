@@ -375,42 +375,54 @@
                 </div>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{!projectBean.emptyInterfaceMethods or editable}">
+            <h:panelGroup rendered="#{!projectBean.emptyExposedMethods or editable}">
                 <div class="block editable">
                     <h3>
-                        <span>Interface Methods</span>
+                        <span>Exposed Methods</span>
                         <h:panelGroup rendered="#{editable}">
-                            <a href="javascript:void(0)" title="Manage Interface Methods" class="editable-link"
-                               onclick="manageInterfaceMethods()"><img
+                            <a href="javascript:void(0)" title="Manage Exposed Methods" class="editable-link"
+                               onclick="manageExposedMethods()"><img
                                     src="#{request.contextPath}/webresource/images/edit.png"
                                     style="opacity:0.4"/></a>
                         </h:panelGroup>
                     </h3>
                     <div class="block-content">
-                        <h:panelGroup rendered="#{editable and projectBean.emptyInterfaceMethods}">
+                        <h:panelGroup rendered="#{editable and projectBean.emptyExposedMethods}">
                             <a class="link-ref" href="javascript:void(0)"
-                               onclick="manageInterfaceMethods()">Click to manage interface methods</a>
+                               onclick="manageExposedMethods()">Click to manage exposed methods</a>
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{not empty project.interfaceMethods.includes}">
+                        <h:panelGroup rendered="#{not empty project.exposedMethods.includes}">
                             <div title="Included Methods">
                                 <img src="#{request.contextPath}/webresource/images/include.png"
                                      style="opacity:0.6"/>
                                 <strong>Includes:</strong>
-                                <a4j:repeat value="#{project.interfaceMethods.includes.toArray()}"
+                                <a4j:repeat value="#{project.exposedMethods.includes.toArray()}"
                                             var="include">
                                     <div style="margin-left:15px">#{include}</div>
                                 </a4j:repeat>
                             </div>
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{not empty project.interfaceMethods.excludes}">
+                        <h:panelGroup rendered="#{not empty project.exposedMethods.excludes}">
                             <div title="Excluded Methods" style="margin-top:4px">
                                 <img src="#{request.contextPath}/webresource/images/exclude.png"
                                      style="opacity:0.6"/>
                                 <strong>Excludes:</strong>
-                                <a4j:repeat value="#{project.interfaceMethods.excludes.toArray()}"
+                                <a4j:repeat value="#{project.exposedMethods.excludes.toArray()}"
                                             var="exclude">
                                     <div style="margin-left:15px">#{exclude}</div>
                                 </a4j:repeat>
+                            </div>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{editable and projectBean.hasMethodFiltersToMigrate}">
+                            <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee">
+                                <h:form prependId="false" id="migrateMethodFiltersForm" style="display:inline">
+                                    <a4j:commandButton id="migrateMethodFiltersBtn"
+                                                       value="Migrate Method Filters"
+                                                       action="#{projectBean.migrateMethodFilters}"
+                                                       styleClass="button-primary"
+                                                       onclick="if(!confirm('This will convert module-level method-filter patterns to project-level exposed-methods and remove the original method-filter entries. Continue?')) return false; if(!canOverwriteRevision()) return false; "
+                                                       oncomplete="ws.nav.reload()"/>
+                                </h:form>
                             </div>
                         </h:panelGroup>
                     </div>
@@ -603,28 +615,28 @@
             </h:form>
         </rich:popupPanel>
 
-        <rich:popupPanel id="manageInterfaceMethodsPopup" minWidth="440" autosized="true">
+        <rich:popupPanel id="manageExposedMethodsPopup" minWidth="440" autosized="true">
             <f:facet name="header">
-                <h:outputText value="Manage Interface Methods"/>
+                <h:outputText value="Manage Exposed Methods"/>
             </f:facet>
 
             <f:facet name="controls">
                 <h:graphicImage value="/images/close.gif" class="close"
-                                onclick="ws.ui.hide('manageInterfaceMethodsPopup')" alt="Close"/>
+                                onclick="ws.ui.hide('manageExposedMethodsPopup')" alt="Close"/>
             </f:facet>
 
-            <h:form prependId="false" id="manageInterfaceMethodsForm">
+            <h:form prependId="false" id="manageExposedMethodsForm">
                 <table class="properties properties-form wide">
                     <tr>
                         <td>Included Methods:</td>
-                        <td><h:inputTextarea id="interfaceMethodIncludes"
-                                             value="#{projectBean.interfaceMethodIncludes}"
+                        <td><h:inputTextarea id="exposedMethodIncludes"
+                                             value="#{projectBean.exposedMethodIncludes}"
                                              style="width:310px;height:100px" styleClass="code"/></td>
                     </tr>
                     <tr>
                         <td>Excluded Methods:</td>
-                        <td><h:inputTextarea id="interfaceMethodExcludes"
-                                             value="#{projectBean.interfaceMethodExcludes}"
+                        <td><h:inputTextarea id="exposedMethodExcludes"
+                                             value="#{projectBean.exposedMethodExcludes}"
                                              style="width:310px;height:100px" styleClass="code"/></td>
                     </tr>
                     <tr>
@@ -634,12 +646,12 @@
                     </tr>
                 </table>
                 <footer>
-                    <a4j:commandButton id="editInterfaceMethodsBtn" value="Save"
-                                       action="#{projectBean.editInterfaceMethods}"
+                    <a4j:commandButton id="editExposedMethodsBtn" value="Save"
+                                       action="#{projectBean.editExposedMethods}"
                                        styleClass="button-primary"
-                                       oncomplete="ws.ui.hide('manageInterfaceMethodsPopup');ws.nav.reload()"/>
+                                       oncomplete="ws.ui.hide('manageExposedMethodsPopup');ws.nav.reload()"/>
                     <input type="button" value="Cancel"
-                           onclick="ws.ui.hide('manageInterfaceMethodsPopup');"/>
+                           onclick="ws.ui.hide('manageExposedMethodsPopup');"/>
                 </footer>
             </h:form>
         </rich:popupPanel>
@@ -655,8 +667,8 @@
             }).get();
 
             var initSources = $j("#sources").val(); // Плохо, очень плохо!!!
-            var initInterfaceMethodIncludes = $j("#interfaceMethodIncludes").val();
-            var initInterfaceMethodExcludes = $j("#interfaceMethodExcludes").val();
+            var initExposedMethodIncludes = $j("#exposedMethodIncludes").val();
+            var initExposedMethodExcludes = $j("#exposedMethodExcludes").val();
             var initPropertiesFileNamePattern = $j("#propertiesFileNamePattern").val(); // Плохо, очень плохо!!!
             var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
@@ -773,26 +785,26 @@
                 })
             }
 
-            function manageInterfaceMethods() {
+            function manageExposedMethods() {
                 if (!canOverwriteRevision()) {
                     return false;
                 }
 
-                var btn = $j("#editInterfaceMethodsBtn");
+                var btn = $j("#editExposedMethodsBtn");
 
                 btn.prop("disabled", true);
-                $j("#interfaceMethodIncludes").val(initInterfaceMethodIncludes);
-                $j("#interfaceMethodExcludes").val(initInterfaceMethodExcludes);
+                $j("#exposedMethodIncludes").val(initExposedMethodIncludes);
+                $j("#exposedMethodExcludes").val(initExposedMethodExcludes);
 
-                ws.ui.show("manageInterfaceMethodsPopup");
+                ws.ui.show("manageExposedMethodsPopup");
 
                 var updateButtonState = function () {
                     btn.prop("disabled",
-                        $j("#interfaceMethodIncludes").val() === initInterfaceMethodIncludes &&
-                        $j("#interfaceMethodExcludes").val() === initInterfaceMethodExcludes);
+                        $j("#exposedMethodIncludes").val() === initExposedMethodIncludes &&
+                        $j("#exposedMethodExcludes").val() === initExposedMethodExcludes);
                 };
 
-                $j("#interfaceMethodIncludes, #interfaceMethodExcludes").on("change keyup cut paste", updateButtonState);
+                $j("#exposedMethodIncludes, #exposedMethodExcludes").on("change keyup cut paste", updateButtonState);
             }
 
             function initExpandableLink(divWithLink, divToShow) {
