@@ -109,6 +109,8 @@ public class ProjectBean {
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
+    private String interfaceMethodIncludes;
+    private String interfaceMethodExcludes;
     private String[] propertiesFileNamePatterns;
 
     private final Formats formats = WebStudioFormats.getInstance();
@@ -175,6 +177,44 @@ public class ProjectBean {
 
     public void setSources(String sources) {
         this.sources = sources;
+    }
+
+    public String getInterfaceMethodIncludes() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        MethodFilter filter = currentProject.getInterfaceMethods();
+        if (filter != null && filter.getIncludes() != null) {
+            var sb = new StringBuilder();
+            for (String include : filter.getIncludes()) {
+                sb.append(include).append(StringTool.NEW_LINE);
+            }
+            interfaceMethodIncludes = sb.toString();
+        } else {
+            interfaceMethodIncludes = "";
+        }
+        return interfaceMethodIncludes;
+    }
+
+    public void setInterfaceMethodIncludes(String interfaceMethodIncludes) {
+        this.interfaceMethodIncludes = interfaceMethodIncludes;
+    }
+
+    public String getInterfaceMethodExcludes() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        MethodFilter filter = currentProject.getInterfaceMethods();
+        if (filter != null && filter.getExcludes() != null) {
+            var sb = new StringBuilder();
+            for (String exclude : filter.getExcludes()) {
+                sb.append(exclude).append(StringTool.NEW_LINE);
+            }
+            interfaceMethodExcludes = sb.toString();
+        } else {
+            interfaceMethodExcludes = "";
+        }
+        return interfaceMethodExcludes;
+    }
+
+    public void setInterfaceMethodExcludes(String interfaceMethodExcludes) {
+        this.interfaceMethodExcludes = interfaceMethodExcludes;
     }
 
     public String getOpenAPIPath() {
@@ -938,6 +978,50 @@ public class ProjectBean {
         newProjectDescriptor.setClasspath(!sourceList.isEmpty() ? sourceList : null);
 
         save(newProjectDescriptor);
+    }
+
+    public void editInterfaceMethods() {
+        tryLockProject();
+
+        RulesProject currentProject = studio.getCurrentProject();
+        validatePermissionsForDescriptorFile(currentProject, true);
+
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        clean(newProjectDescriptor);
+
+        String[] includeArray = StringUtils.toLines(interfaceMethodIncludes);
+        String[] excludeArray = StringUtils.toLines(interfaceMethodExcludes);
+
+        boolean hasIncludes = CollectionUtils.isNotEmpty(includeArray);
+        boolean hasExcludes = CollectionUtils.isNotEmpty(excludeArray);
+
+        if (hasIncludes || hasExcludes) {
+            MethodFilter filter = new MethodFilter();
+            if (hasIncludes) {
+                filter.addIncludePattern(includeArray);
+            }
+            if (hasExcludes) {
+                filter.addExcludePattern(excludeArray);
+            }
+            newProjectDescriptor.setInterfaceMethods(filter);
+        } else {
+            newProjectDescriptor.setInterfaceMethods(null);
+        }
+
+        save(newProjectDescriptor);
+    }
+
+    public boolean isEmptyInterfaceMethods() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        MethodFilter filter = currentProject.getInterfaceMethods();
+        if (filter == null) {
+            return true;
+        }
+        if (filter.getIncludes() != null && !filter.getIncludes().isEmpty()) {
+            return false;
+        }
+        return filter.getExcludes() == null || filter.getExcludes().isEmpty();
     }
 
     public void reconcileOpenAPI() {
