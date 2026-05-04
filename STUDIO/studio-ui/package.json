@@ -37,7 +37,7 @@
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.5.0",
-    "jsdom": "^29.0.2",
+    "jsdom": "^29.1.1",
     "license-checker-rseidelsohn": "^4.4.2",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
