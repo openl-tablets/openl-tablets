@@ -6,11 +6,11 @@
             <rules-root path="*.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>*p*</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="groovy"/>
     </classpath>

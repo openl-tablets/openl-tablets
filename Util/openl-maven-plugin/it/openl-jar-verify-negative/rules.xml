@@ -5,11 +5,11 @@
             <rules-root path="*.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>ThisMethodDoesNotExist</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>

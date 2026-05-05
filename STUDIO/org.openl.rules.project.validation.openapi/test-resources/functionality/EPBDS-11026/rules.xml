@@ -10,12 +10,12 @@
             <rules-root path="rules/Models.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>RatingBasis1</value>
             <value>RatingBasis</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <openapi>
         <path>openapi.json</path>
         <model-module-name>Models</model-module-name>

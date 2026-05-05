@@ -53,10 +53,10 @@ public class XmlProjectDescriptorSerializerTest {
         projectDescriptor.setPropertiesFileNamePatterns(new String[]{" {lob}"});
         projectDescriptor.setPropertiesFileNameProcessor(" default.DefaultProcessor");
 
-        var interfaceMethods = new MethodFilter();
-        interfaceMethods.addIncludePattern("get*", "calculate*");
-        interfaceMethods.addExcludePattern("internal*");
-        projectDescriptor.setInterfaceMethods(interfaceMethods);
+        var exposedMethods = new MethodFilter();
+        exposedMethods.addIncludePattern("get*", "calculate*");
+        exposedMethods.addExcludePattern("internal*");
+        projectDescriptor.setExposedMethods(exposedMethods);
 
         return projectDescriptor;
     }
@@ -109,42 +109,42 @@ public class XmlProjectDescriptorSerializerTest {
     }
 
     @Test
-    public void testDeserializeInterfaceMethods() throws Exception {
+    public void testDeserializeExposedMethods() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
-                .deserialize(new FileInputStream("test-resources/xml/rules-with-interface-methods.xml"));
+                .deserialize(new FileInputStream("test-resources/xml/rules-with-exposed-methods.xml"));
 
-        assertNotNull(pd.getInterfaceMethods());
-        assertNotNull(pd.getInterfaceMethods().getIncludes());
-        assertEquals(2, pd.getInterfaceMethods().getIncludes().size());
-        assertTrue(pd.getInterfaceMethods().getIncludes().contains("get*"));
-        assertTrue(pd.getInterfaceMethods().getIncludes().contains("calculatePremium"));
-        assertNotNull(pd.getInterfaceMethods().getExcludes());
-        assertEquals(1, pd.getInterfaceMethods().getExcludes().size());
-        assertTrue(pd.getInterfaceMethods().getExcludes().contains("internal*"));
+        assertNotNull(pd.getExposedMethods());
+        assertNotNull(pd.getExposedMethods().getIncludes());
+        assertEquals(2, pd.getExposedMethods().getIncludes().size());
+        assertTrue(pd.getExposedMethods().getIncludes().contains("get*"));
+        assertTrue(pd.getExposedMethods().getIncludes().contains("calculatePremium"));
+        assertNotNull(pd.getExposedMethods().getExcludes());
+        assertEquals(1, pd.getExposedMethods().getExcludes().size());
+        assertTrue(pd.getExposedMethods().getExcludes().contains("internal*"));
     }
 
     @Test
-    public void testDeserializeWithoutInterfaceMethods() throws Exception {
+    public void testDeserializeWithoutExposedMethods() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
                 .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
 
-        assertNull(pd.getInterfaceMethods());
+        assertNull(pd.getExposedMethods());
     }
 
     @Test
-    public void testSerializeInterfaceMethodsRoundTrip() throws Exception {
+    public void testSerializeExposedMethodsRoundTrip() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
-                .deserialize(new FileInputStream("test-resources/xml/rules-with-interface-methods.xml"));
+                .deserialize(new FileInputStream("test-resources/xml/rules-with-exposed-methods.xml"));
 
         String xml = new XmlProjectDescriptorSerializer().serialize(pd);
         ProjectDescriptor pd2 = new XmlProjectDescriptorSerializer().deserialize(IOUtils.toInputStream(xml));
 
-        assertNotNull(pd2.getInterfaceMethods());
-        assertEquals(pd.getInterfaceMethods().getIncludes().size(), pd2.getInterfaceMethods().getIncludes().size());
-        assertTrue(pd2.getInterfaceMethods().getIncludes().contains("get*"));
-        assertTrue(pd2.getInterfaceMethods().getIncludes().contains("calculatePremium"));
-        assertEquals(pd.getInterfaceMethods().getExcludes().size(), pd2.getInterfaceMethods().getExcludes().size());
-        assertTrue(pd2.getInterfaceMethods().getExcludes().contains("internal*"));
+        assertNotNull(pd2.getExposedMethods());
+        assertEquals(pd.getExposedMethods().getIncludes().size(), pd2.getExposedMethods().getIncludes().size());
+        assertTrue(pd2.getExposedMethods().getIncludes().contains("get*"));
+        assertTrue(pd2.getExposedMethods().getIncludes().contains("calculatePremium"));
+        assertEquals(pd.getExposedMethods().getExcludes().size(), pd2.getExposedMethods().getExcludes().size());
+        assertTrue(pd2.getExposedMethods().getExcludes().contains("internal*"));
     }
 
     @Test

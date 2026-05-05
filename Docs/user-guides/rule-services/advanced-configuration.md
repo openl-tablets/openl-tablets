@@ -99,12 +99,12 @@ This configuration can be applied to projects using the `rules.xml` file. An exa
             <rules-root path="rules/Calculation.xlsx"/>
        </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>determinePolicyPremium</value>
             <value>vehiclePremiumCalculation</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="lib/*"/>
     </classpath>

@@ -266,7 +266,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         rulesModule.setName(algorithmsModuleName);
         MethodFilter filter = new MethodFilter();
         filter.setIncludes(algorithmsInclude);
-        descriptor.setInterfaceMethods(filter);
+        descriptor.setExposedMethods(filter);
         modules.add(rulesModule);
 
         Module modelsModule = new Module();

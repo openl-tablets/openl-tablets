@@ -57,7 +57,7 @@ The following code fragment is an example of the rules project descriptor:
             <rules-root path="MyModule2.xls"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>get*</value>
             <value>calc</value>
@@ -66,7 +66,7 @@ The following code fragment is an example of the rules project descriptor:
             <value>*Test</value>
             <value>getN?</value>
         </excludes>
-    </interface-methods>
+    </exposed-methods>
     <dependencies>
         <dependency>
             <name>projectName</name>
@@ -102,7 +102,7 @@ The project configurations are as follows:
 | dependency                     | no       | Dependencies to projects.                                                                                                                       |
 | modules                        | yes      | Project modules. A project can have one or several modules.                                                                                     |
 | classpath                      | no       | Project relative classpath.                                                                                                                     |
-| interface-methods              | no       | The ant-style pattern (* and ?) filters of the allowed methods in the generated interface.                                                      |
+| exposed-methods                | no       | The ant-style pattern (* and ?) filters of the allowed methods in the generated interface.                                                      |
 | properties-file-name-pattern   | no       | File name pattern to be used by the file name processor. <br/>The file name processor adds extracted module properties from a module file name. |
 | properties-file-name-processor | no       | Custom implementation of `org.openl.rules.project.PropertiesFileNameProcessor` used instead of default implementation.                          |
 

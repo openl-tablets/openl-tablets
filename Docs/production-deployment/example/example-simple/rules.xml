@@ -7,9 +7,9 @@
             <rules-root path="rules/*.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>Ping</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
 </project>

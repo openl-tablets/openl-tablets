@@ -68,7 +68,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         && (!module.getMethodFilter().getIncludes().isEmpty()
                         || !module.getMethodFilter().getExcludes().isEmpty())) {
                     moduleWarnMessages.add(
-                            "'method-filter' in the module '" + module.getName() + "' is deprecated. Use 'interface-methods' at the project level instead.");
+                            "'method-filter' in the module '" + module.getName() + "' is deprecated. Use 'exposed-methods' at the project level instead.");
                 }
                 Map<String, Object> params = new HashMap<>();
                 if (processor != null) {
