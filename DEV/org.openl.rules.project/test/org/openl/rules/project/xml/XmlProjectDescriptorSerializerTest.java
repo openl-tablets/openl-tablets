@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -55,8 +56,8 @@ public class XmlProjectDescriptorSerializerTest {
         projectDescriptor.setPropertiesFileNameProcessor(" default.DefaultProcessor");
 
         var exposedMethods = new ExposedMethods();
-        exposedMethods.addIncludePattern("get*", "calculate*");
-        exposedMethods.addExcludePattern("internal*");
+        exposedMethods.setIncludes(Set.of("get*", "calculate*"));
+        exposedMethods.setExcludes(Set.of("internal*"));
         projectDescriptor.setExposedMethods(exposedMethods);
 
         return projectDescriptor;

@@ -1005,10 +1005,10 @@ public class ProjectBean {
         if (hasIncludes || hasExcludes) {
             ExposedMethods filter = new ExposedMethods();
             if (hasIncludes) {
-                filter.addIncludePattern(includeArray);
+                filter.setIncludes(new HashSet<>(Arrays.asList(includeArray)));
             }
             if (hasExcludes) {
-                filter.addExcludePattern(excludeArray);
+                filter.setExcludes(new HashSet<>(Arrays.asList(excludeArray)));
             }
             newProjectDescriptor.setExposedMethods(filter);
         } else {
