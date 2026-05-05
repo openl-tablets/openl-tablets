@@ -1,0 +1,20 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>jackson.typingPropertyName</string>
+            <string>_test</string>
+        </entry>
+        <entry>
+            <string>jackson.defaultTypingMode</string>
+            <string>DISABLED</string>
+        </entry>
+        <entry>
+            <string>jackson.failOnUnknownProperties</string>
+            <string>true</string>
+        </entry>
+    </configuration>
+</rules-deploy>
