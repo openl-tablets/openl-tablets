@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -198,8 +199,8 @@ public class ProjectDescriptorManagerTest {
         dependencies.add(dependencyDescriptor);
         descriptor.setDependencies(dependencies);
         descriptor.setExposedMethods(new ExposedMethods());
-        descriptor.getExposedMethods().addIncludePattern(" INCL ");
-        descriptor.getExposedMethods().addExcludePattern(" excl ");
+        descriptor.getExposedMethods().setIncludes(Set.of(" INCL "));
+        descriptor.getExposedMethods().setExcludes(Set.of(" excl "));
 
         Module module1 = new Module();
         module1.setName("name1");

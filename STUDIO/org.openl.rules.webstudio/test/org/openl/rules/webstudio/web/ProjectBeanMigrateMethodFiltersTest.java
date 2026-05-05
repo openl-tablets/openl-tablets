@@ -106,7 +106,7 @@ class ProjectBeanMigrateMethodFiltersTest {
                 createModule("Module1", new String[]{".+ newMethod\\(.+\\)"}, null));
         // Set existing exposed-methods
         var existing = new ExposedMethods();
-        existing.addIncludePattern("existingMethod");
+        existing.setIncludes(Set.of("existingMethod"));
         pd.setExposedMethods(existing);
 
         var result = ProjectBean._migrateMethodFilters(pd);
