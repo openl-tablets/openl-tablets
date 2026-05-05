@@ -58,14 +58,10 @@ The following code fragment is an example of the rules project descriptor:
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>get*</value>
-            <value>calc</value>
-        </includes>
-        <excludes>
-            <value>*Test</value>
-            <value>getN?</value>
-        </excludes>
+        <include>get*</include>
+        <include>calc</include>
+        <exclude>*Test</exclude>
+        <exclude>getN?</exclude>
     </exposed-methods>
     <dependencies>
         <dependency>

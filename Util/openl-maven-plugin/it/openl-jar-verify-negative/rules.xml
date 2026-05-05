@@ -6,9 +6,7 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>ThisMethodDoesNotExist</value>
-        </includes>
+        <include>ThisMethodDoesNotExist</include>
     </exposed-methods>
     <classpath>
         <entry path="lib/*.jar"/>

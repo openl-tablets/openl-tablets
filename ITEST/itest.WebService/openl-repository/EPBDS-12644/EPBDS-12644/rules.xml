@@ -7,9 +7,7 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>*p*</value>
-        </includes>
+        <include>*p*</include>
     </exposed-methods>
     <classpath>
         <entry path="groovy"/>

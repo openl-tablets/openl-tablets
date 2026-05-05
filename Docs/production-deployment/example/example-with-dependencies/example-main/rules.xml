@@ -7,9 +7,7 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>Ping</value>
-        </includes>
+        <include>Ping</include>
     </exposed-methods>
     <dependencies>
         <dependency>

@@ -11,15 +11,13 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>PlanDetailsPUT</value>
-            <value>PlanDetailsGET</value>
-            <value>PlanDetailsPATCH</value>
-            <value>PlanDetailsHEAD</value>
-            <value>PlanDetailsPOST</value>
-            <value>PlanDetailsOPTIONS</value>
-            <value>PlanDetailsDELETE</value>
-        </includes>
+        <include>PlanDetailsPUT</include>
+        <include>PlanDetailsGET</include>
+        <include>PlanDetailsPATCH</include>
+        <include>PlanDetailsHEAD</include>
+        <include>PlanDetailsPOST</include>
+        <include>PlanDetailsOPTIONS</include>
+        <include>PlanDetailsDELETE</include>
     </exposed-methods>
     <classpath>
         <entry path="classes"/>

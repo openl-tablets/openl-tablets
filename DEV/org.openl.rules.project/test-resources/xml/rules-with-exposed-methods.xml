@@ -1,13 +1,9 @@
 <project>
     <name>test-exposed-methods</name>
     <exposed-methods>
-        <includes>
-            <value>get*</value>
-            <value>calculatePremium</value>
-        </includes>
-        <excludes>
-            <value>internal*</value>
-        </excludes>
+        <include>get*</include>
+        <include>calculatePremium</include>
+        <exclude>internal*</exclude>
     </exposed-methods>
     <modules>
         <module>

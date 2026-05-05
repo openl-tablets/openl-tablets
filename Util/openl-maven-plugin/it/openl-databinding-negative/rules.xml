@@ -7,9 +7,7 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>SayHello</value>
-        </includes>
+        <include>SayHello</include>
     </exposed-methods>
 
     <properties-file-name-pattern>.*-%state%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>

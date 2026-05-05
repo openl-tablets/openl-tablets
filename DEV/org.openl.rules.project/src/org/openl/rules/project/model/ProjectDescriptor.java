@@ -70,7 +70,7 @@ public class ProjectDescriptor {
      * making it simpler for users to configure.
      */
     @XmlElement(name = EXPOSED_METHODS_TAG)
-    private MethodFilter exposedMethods;
+    private ExposedMethods exposedMethods;
 
     @XmlTransient
     private volatile URL[] classPathUrls;
@@ -91,11 +91,11 @@ public class ProjectDescriptor {
         this.propertiesFileNameProcessor = propertiesFileNameProcessor;
     }
 
-    public MethodFilter getExposedMethods() {
+    public ExposedMethods getExposedMethods() {
         return exposedMethods;
     }
 
-    public void setExposedMethods(MethodFilter exposedMethods) {
+    public void setExposedMethods(ExposedMethods exposedMethods) {
         this.exposedMethods = exposedMethods;
     }
 

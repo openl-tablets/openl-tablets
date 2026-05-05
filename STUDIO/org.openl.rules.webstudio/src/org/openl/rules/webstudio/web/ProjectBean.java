@@ -55,6 +55,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -186,7 +187,7 @@ public class ProjectBean {
 
     public String getExposedMethodIncludes() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        MethodFilter filter = currentProject.getExposedMethods();
+        ExposedMethods filter = currentProject.getExposedMethods();
         if (filter != null && filter.getIncludes() != null) {
             var sb = new StringBuilder();
             for (String include : filter.getIncludes()) {
@@ -205,7 +206,7 @@ public class ProjectBean {
 
     public String getExposedMethodExcludes() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        MethodFilter filter = currentProject.getExposedMethods();
+        ExposedMethods filter = currentProject.getExposedMethods();
         if (filter != null && filter.getExcludes() != null) {
             var sb = new StringBuilder();
             for (String exclude : filter.getExcludes()) {
@@ -1002,7 +1003,7 @@ public class ProjectBean {
         boolean hasExcludes = CollectionUtils.isNotEmpty(excludeArray);
 
         if (hasIncludes || hasExcludes) {
-            MethodFilter filter = new MethodFilter();
+            ExposedMethods filter = new ExposedMethods();
             if (hasIncludes) {
                 filter.addIncludePattern(includeArray);
             }
@@ -1019,7 +1020,7 @@ public class ProjectBean {
 
     public boolean isEmptyExposedMethods() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        MethodFilter filter = currentProject.getExposedMethods();
+        ExposedMethods filter = currentProject.getExposedMethods();
         if (filter == null) {
             return true;
         }
@@ -1098,7 +1099,7 @@ public class ProjectBean {
         }
 
         // Merge with existing exposed-methods if present
-        MethodFilter existing = newProjectDescriptor.getExposedMethods();
+        ExposedMethods existing = newProjectDescriptor.getExposedMethods();
         if (existing != null) {
             if (existing.getIncludes() != null) {
                 allIncludes.addAll(existing.getIncludes());
@@ -1109,7 +1110,7 @@ public class ProjectBean {
         }
 
         if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-            MethodFilter filter = new MethodFilter();
+            ExposedMethods filter = new ExposedMethods();
             if (!allIncludes.isEmpty()) {
                 filter.setIncludes(new HashSet<>(allIncludes));
             }
@@ -1461,7 +1462,7 @@ public class ProjectBean {
                     converter);
 
             if (!projectModel.getIncludeMethodFilter().isEmpty()) {
-                var exposedMethods = new MethodFilter();
+                var exposedMethods = new ExposedMethods();
                 exposedMethods.setIncludes(projectModel.getIncludeMethodFilter());
                 currentProjectDescriptor.setExposedMethods(exposedMethods);
             }

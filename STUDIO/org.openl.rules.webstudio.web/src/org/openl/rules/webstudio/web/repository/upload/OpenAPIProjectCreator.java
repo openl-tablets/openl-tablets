@@ -26,7 +26,7 @@ import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.ProjectDescriptorManager;
-import org.openl.rules.project.model.MethodFilter;
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
@@ -264,7 +264,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         Module rulesModule = new Module();
         rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
         rulesModule.setName(algorithmsModuleName);
-        MethodFilter filter = new MethodFilter();
+        ExposedMethods filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
         modules.add(rulesModule);

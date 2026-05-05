@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -104,7 +105,7 @@ class ProjectBeanMigrateMethodFiltersTest {
         var pd = createProject("TestProject",
                 createModule("Module1", new String[]{".+ newMethod\\(.+\\)"}, null));
         // Set existing exposed-methods
-        var existing = new MethodFilter();
+        var existing = new ExposedMethods();
         existing.addIncludePattern("existingMethod");
         pd.setExposedMethods(existing);
 

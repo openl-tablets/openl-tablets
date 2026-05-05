@@ -14,13 +14,11 @@
         <entry path="classes"/>
     </classpath>
     <exposed-methods>
-        <includes>
-            <value>getpetsSimpleType</value>
-            <value>getPetsArray</value>
-            <value>getpetsB</value>
-            <value>getpets</value>
-            <value>getpetsA</value>
-        </includes>
+        <include>getpetsSimpleType</include>
+        <include>getPetsArray</include>
+        <include>getpetsB</include>
+        <include>getpets</include>
+        <include>getpetsA</include>
     </exposed-methods>
     <openapi>
         <path>EPBDS-10489.json</path>
