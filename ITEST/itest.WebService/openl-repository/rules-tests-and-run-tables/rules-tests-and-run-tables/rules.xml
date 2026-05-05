@@ -6,13 +6,13 @@
             <rules-root path="rules-tests-and-run-tables.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>calculatePremium</value>
             <value>calculatePremiumTest</value>
             <value>calculatePremiumRun</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="classes"/>
     </classpath>

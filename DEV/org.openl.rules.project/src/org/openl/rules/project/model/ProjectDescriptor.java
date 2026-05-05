@@ -1,7 +1,7 @@
 package org.openl.rules.project.model;
 
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.INTERFACE_METHODS_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.EXPOSED_METHODS_TAG;
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
@@ -69,8 +69,8 @@ public class ProjectDescriptor {
      * this filter uses glob-style patterns ({@code *} and {@code ?}) matched against method names only,
      * making it simpler for users to configure.
      */
-    @XmlElement(name = INTERFACE_METHODS_TAG)
-    private MethodFilter interfaceMethods;
+    @XmlElement(name = EXPOSED_METHODS_TAG)
+    private MethodFilter exposedMethods;
 
     @XmlTransient
     private volatile URL[] classPathUrls;
@@ -91,12 +91,12 @@ public class ProjectDescriptor {
         this.propertiesFileNameProcessor = propertiesFileNameProcessor;
     }
 
-    public MethodFilter getInterfaceMethods() {
-        return interfaceMethods;
+    public MethodFilter getExposedMethods() {
+        return exposedMethods;
     }
 
-    public void setInterfaceMethods(MethodFilter interfaceMethods) {
-        this.interfaceMethods = interfaceMethods;
+    public void setExposedMethods(MethodFilter exposedMethods) {
+        this.exposedMethods = exposedMethods;
     }
 
     public List<ProjectDependencyDescriptor> getDependencies() {

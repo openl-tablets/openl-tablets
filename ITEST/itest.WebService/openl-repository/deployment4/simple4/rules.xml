@@ -10,13 +10,13 @@
             <rules-root path="module2.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>mySpr</value>
             <value>mySpr2</value>
             <value>main</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>

@@ -6,10 +6,10 @@
             <rules-root path="rules/*.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>SayHello</value>
             <value>ValidateVocabulary</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
 </project>

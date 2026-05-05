@@ -114,8 +114,8 @@ public class ProjectBean {
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
-    private String interfaceMethodIncludes;
-    private String interfaceMethodExcludes;
+    private String exposedMethodIncludes;
+    private String exposedMethodExcludes;
     private String[] propertiesFileNamePatterns;
 
     private final Formats formats = WebStudioFormats.getInstance();
@@ -184,42 +184,42 @@ public class ProjectBean {
         this.sources = sources;
     }
 
-    public String getInterfaceMethodIncludes() {
+    public String getExposedMethodIncludes() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        MethodFilter filter = currentProject.getInterfaceMethods();
+        MethodFilter filter = currentProject.getExposedMethods();
         if (filter != null && filter.getIncludes() != null) {
             var sb = new StringBuilder();
             for (String include : filter.getIncludes()) {
                 sb.append(include).append(StringTool.NEW_LINE);
             }
-            interfaceMethodIncludes = sb.toString();
+            exposedMethodIncludes = sb.toString();
         } else {
-            interfaceMethodIncludes = "";
+            exposedMethodIncludes = "";
         }
-        return interfaceMethodIncludes;
+        return exposedMethodIncludes;
     }
 
-    public void setInterfaceMethodIncludes(String interfaceMethodIncludes) {
-        this.interfaceMethodIncludes = interfaceMethodIncludes;
+    public void setExposedMethodIncludes(String exposedMethodIncludes) {
+        this.exposedMethodIncludes = exposedMethodIncludes;
     }
 
-    public String getInterfaceMethodExcludes() {
+    public String getExposedMethodExcludes() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        MethodFilter filter = currentProject.getInterfaceMethods();
+        MethodFilter filter = currentProject.getExposedMethods();
         if (filter != null && filter.getExcludes() != null) {
             var sb = new StringBuilder();
             for (String exclude : filter.getExcludes()) {
                 sb.append(exclude).append(StringTool.NEW_LINE);
             }
-            interfaceMethodExcludes = sb.toString();
+            exposedMethodExcludes = sb.toString();
         } else {
-            interfaceMethodExcludes = "";
+            exposedMethodExcludes = "";
         }
-        return interfaceMethodExcludes;
+        return exposedMethodExcludes;
     }
 
-    public void setInterfaceMethodExcludes(String interfaceMethodExcludes) {
-        this.interfaceMethodExcludes = interfaceMethodExcludes;
+    public void setExposedMethodExcludes(String exposedMethodExcludes) {
+        this.exposedMethodExcludes = exposedMethodExcludes;
     }
 
     public String getOpenAPIPath() {
@@ -985,7 +985,7 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
-    public void editInterfaceMethods() {
+    public void editExposedMethods() {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
@@ -995,8 +995,8 @@ public class ProjectBean {
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
         clean(newProjectDescriptor);
 
-        String[] includeArray = StringUtils.toLines(interfaceMethodIncludes);
-        String[] excludeArray = StringUtils.toLines(interfaceMethodExcludes);
+        String[] includeArray = StringUtils.toLines(exposedMethodIncludes);
+        String[] excludeArray = StringUtils.toLines(exposedMethodExcludes);
 
         boolean hasIncludes = CollectionUtils.isNotEmpty(includeArray);
         boolean hasExcludes = CollectionUtils.isNotEmpty(excludeArray);
@@ -1009,17 +1009,17 @@ public class ProjectBean {
             if (hasExcludes) {
                 filter.addExcludePattern(excludeArray);
             }
-            newProjectDescriptor.setInterfaceMethods(filter);
+            newProjectDescriptor.setExposedMethods(filter);
         } else {
-            newProjectDescriptor.setInterfaceMethods(null);
+            newProjectDescriptor.setExposedMethods(null);
         }
 
         save(newProjectDescriptor);
     }
 
-    public boolean isEmptyInterfaceMethods() {
+    public boolean isEmptyExposedMethods() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        MethodFilter filter = currentProject.getInterfaceMethods();
+        MethodFilter filter = currentProject.getExposedMethods();
         if (filter == null) {
             return true;
         }
@@ -1052,10 +1052,10 @@ public class ProjectBean {
     }
 
     /**
-     * Migrates module-level method-filter regex patterns to project-level interface-methods glob patterns.
+     * Migrates module-level method-filter regex patterns to project-level exposed-methods glob patterns.
      * <p>
      * For each module, converts its method-filter includes/excludes from regex to glob syntax,
-     * merges them with any existing interface-methods, clears the module-level filters,
+     * merges them with any existing exposed-methods, clears the module-level filters,
      * and sets the result on the project descriptor.
      * <p>
      * Invalid patterns that cannot match any method signature are silently ignored.
@@ -1097,8 +1097,8 @@ public class ProjectBean {
             }
         }
 
-        // Merge with existing interface-methods if present
-        MethodFilter existing = newProjectDescriptor.getInterfaceMethods();
+        // Merge with existing exposed-methods if present
+        MethodFilter existing = newProjectDescriptor.getExposedMethods();
         if (existing != null) {
             if (existing.getIncludes() != null) {
                 allIncludes.addAll(existing.getIncludes());
@@ -1116,14 +1116,14 @@ public class ProjectBean {
             if (!allExcludes.isEmpty()) {
                 filter.setExcludes(new HashSet<>(allExcludes));
             }
-            newProjectDescriptor.setInterfaceMethods(filter);
+            newProjectDescriptor.setExposedMethods(filter);
         }
         return newProjectDescriptor;
     }
 
     /**
      * Converts a method-filter regex pattern (matched against full method signature) to an
-     * interface-methods glob pattern (matched against method name only).
+     * exposed-methods glob pattern (matched against method name only).
      * <p>
      * Method-filter patterns are regexps matched against method signatures in the format:
      * {@code returnType methodName(ArgType1, ArgType2, ArgTypeN)}.
@@ -1461,9 +1461,9 @@ public class ProjectBean {
                     converter);
 
             if (!projectModel.getIncludeMethodFilter().isEmpty()) {
-                var interfaceMethods = new MethodFilter();
-                interfaceMethods.setIncludes(projectModel.getIncludeMethodFilter());
-                currentProjectDescriptor.setInterfaceMethods(interfaceMethods);
+                var exposedMethods = new MethodFilter();
+                exposedMethods.setIncludes(projectModel.getIncludeMethodFilter());
+                currentProjectDescriptor.setExposedMethods(exposedMethods);
             }
 
             addDataTypesFile(modelModulePathParam, currentProject, projectModel);

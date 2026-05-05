@@ -11,7 +11,7 @@
             </method-filter>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>check</value>
             <value>variant*</value>
@@ -19,5 +19,5 @@
         <excludes>
             <value>variantX</value>
         </excludes>
-    </interface-methods>
+    </exposed-methods>
 </project>

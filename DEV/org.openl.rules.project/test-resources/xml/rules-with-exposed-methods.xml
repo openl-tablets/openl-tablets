@@ -1,6 +1,6 @@
 <project>
-    <name>test-interface-methods</name>
-    <interface-methods>
+    <name>test-exposed-methods</name>
+    <exposed-methods>
         <includes>
             <value>get*</value>
             <value>calculatePremium</value>
@@ -8,7 +8,7 @@
         <excludes>
             <value>internal*</value>
         </excludes>
-    </interface-methods>
+    </exposed-methods>
     <modules>
         <module>
             <name>testmodule</name>

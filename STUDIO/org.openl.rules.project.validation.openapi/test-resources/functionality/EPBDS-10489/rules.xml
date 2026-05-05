@@ -13,7 +13,7 @@
     <classpath>
         <entry path="classes"/>
     </classpath>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>getpetsSimpleType</value>
             <value>getPetsArray</value>
@@ -21,7 +21,7 @@
             <value>getpets</value>
             <value>getpetsA</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <openapi>
         <path>EPBDS-10489.json</path>
         <model-module-name>Models</model-module-name>

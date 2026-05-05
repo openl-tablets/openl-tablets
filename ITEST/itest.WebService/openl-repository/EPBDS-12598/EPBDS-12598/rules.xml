@@ -6,11 +6,11 @@
             <rules-root path="rules/*.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>SayHello</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
 
     <properties-file-name-pattern>.*-%state%-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>
     <classpath>

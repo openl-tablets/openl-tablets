@@ -6,11 +6,11 @@
             <rules-root path="rules/*.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>Ping</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <dependencies>
         <dependency>
             <name>Dependency Example</name>

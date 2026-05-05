@@ -197,18 +197,18 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
                 excludes = allExcludes.toArray(excludes);
             }
 
-            // Project-level interface methods filter (glob on method name only)
+            // Project-level exposed methods filter (glob on method name only)
             Collection<String> nameIncludes = null;
             Collection<String> nameExcludes = null;
             if (!modules.isEmpty()) {
                 var project = modules.iterator().next().getProject();
-                var interfaceMethods = project.getInterfaceMethods();
-                if (interfaceMethods != null) {
-                    if (interfaceMethods.getIncludes() != null) {
-                        nameIncludes = interfaceMethods.getIncludes();
+                var exposedMethods = project.getExposedMethods();
+                if (exposedMethods != null) {
+                    if (exposedMethods.getIncludes() != null) {
+                        nameIncludes = exposedMethods.getIncludes();
                     }
-                    if (interfaceMethods.getExcludes() != null) {
-                        nameExcludes = interfaceMethods.getExcludes();
+                    if (exposedMethods.getExcludes() != null) {
+                        nameExcludes = exposedMethods.getExcludes();
                     }
                 }
             }

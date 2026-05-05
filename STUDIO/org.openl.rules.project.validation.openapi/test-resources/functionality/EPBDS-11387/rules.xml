@@ -10,7 +10,7 @@
             <rules-root path="rules/Models.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>PlanDetailsPUT</value>
             <value>PlanDetailsGET</value>
@@ -20,7 +20,7 @@
             <value>PlanDetailsOPTIONS</value>
             <value>PlanDetailsDELETE</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="classes"/>
     </classpath>

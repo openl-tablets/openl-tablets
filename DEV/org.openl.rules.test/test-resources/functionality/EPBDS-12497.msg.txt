@@ -1,1 +1,1 @@
-WARN: 'method-filter' in the module 'Main' is deprecated. Use 'interface-methods' at the project level instead.
+WARN: 'method-filter' in the module 'Main' is deprecated. Use 'exposed-methods' at the project level instead.

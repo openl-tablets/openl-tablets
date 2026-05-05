@@ -6,12 +6,12 @@
             <rules-root path="module1.xlsx"/>
         </module>
     </modules>
-    <interface-methods>
+    <exposed-methods>
         <includes>
             <value>main1</value>
             <value>main2</value>
         </includes>
-    </interface-methods>
+    </exposed-methods>
     <classpath>
         <entry path="groovy"/>
     </classpath>

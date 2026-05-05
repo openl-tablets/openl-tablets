@@ -196,9 +196,9 @@ public class ProjectDescriptorManagerTest {
         dependencyDescriptor.setAutoIncluded(false);
         dependencies.add(dependencyDescriptor);
         descriptor.setDependencies(dependencies);
-        descriptor.setInterfaceMethods(new MethodFilter());
-        descriptor.getInterfaceMethods().addIncludePattern(" INCL ");
-        descriptor.getInterfaceMethods().addExcludePattern(" excl ");
+        descriptor.setExposedMethods(new MethodFilter());
+        descriptor.getExposedMethods().addIncludePattern(" INCL ");
+        descriptor.getExposedMethods().addExcludePattern(" excl ");
 
         Module module1 = new Module();
         module1.setName("name1");
@@ -257,14 +257,14 @@ public class ProjectDescriptorManagerTest {
                     </dependencies>
                     <properties-file-name-pattern>{lob}</properties-file-name-pattern>
                     <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
-                    <interface-methods>
+                    <exposed-methods>
                         <includes>
                             <value>INCL</value>
                         </includes>
                         <excludes>
                             <value>excl</value>
                         </excludes>
-                    </interface-methods>
+                    </exposed-methods>
                 </project>""";
         assertEquals(expected, dest.toString());
     }
