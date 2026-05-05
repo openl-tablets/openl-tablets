@@ -11,11 +11,9 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>mySpr</value>
-            <value>mySpr2</value>
-            <value>main</value>
-        </includes>
+        <include>mySpr</include>
+        <include>mySpr2</include>
+        <include>main</include>
     </exposed-methods>
     <classpath>
         <entry path="lib/*.jar"/>

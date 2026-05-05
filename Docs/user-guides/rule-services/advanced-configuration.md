@@ -100,10 +100,8 @@ This configuration can be applied to projects using the `rules.xml` file. An exa
        </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>determinePolicyPremium</value>
-            <value>vehiclePremiumCalculation</value>
-        </includes>
+        <include>determinePolicyPremium</include>
+        <include>vehiclePremiumCalculation</include>
     </exposed-methods>
     <classpath>
         <entry path="lib/*"/>

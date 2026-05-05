@@ -6,9 +6,7 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>findCarByVIN</value>
-        </includes>
+        <include>findCarByVIN</include>
     </exposed-methods>
     <dependencies>
         <dependency>

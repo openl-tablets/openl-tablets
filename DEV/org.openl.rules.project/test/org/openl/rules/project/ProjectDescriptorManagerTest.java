@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -196,7 +197,7 @@ public class ProjectDescriptorManagerTest {
         dependencyDescriptor.setAutoIncluded(false);
         dependencies.add(dependencyDescriptor);
         descriptor.setDependencies(dependencies);
-        descriptor.setExposedMethods(new MethodFilter());
+        descriptor.setExposedMethods(new ExposedMethods());
         descriptor.getExposedMethods().addIncludePattern(" INCL ");
         descriptor.getExposedMethods().addExcludePattern(" excl ");
 
@@ -258,12 +259,8 @@ public class ProjectDescriptorManagerTest {
                     <properties-file-name-pattern>{lob}</properties-file-name-pattern>
                     <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
                     <exposed-methods>
-                        <includes>
-                            <value>INCL</value>
-                        </includes>
-                        <excludes>
-                            <value>excl</value>
-                        </excludes>
+                        <include>INCL</include>
+                        <exclude>excl</exclude>
                     </exposed-methods>
                 </project>""";
         assertEquals(expected, dest.toString());

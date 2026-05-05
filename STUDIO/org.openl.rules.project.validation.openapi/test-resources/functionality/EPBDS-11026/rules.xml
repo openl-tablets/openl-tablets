@@ -11,10 +11,8 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>RatingBasis1</value>
-            <value>RatingBasis</value>
-        </includes>
+        <include>RatingBasis1</include>
+        <include>RatingBasis</include>
     </exposed-methods>
     <openapi>
         <path>openapi.json</path>

@@ -7,9 +7,7 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>SayHello</value>
-            <value>ValidateVocabulary</value>
-        </includes>
+        <include>SayHello</include>
+        <include>ValidateVocabulary</include>
     </exposed-methods>
 </project>

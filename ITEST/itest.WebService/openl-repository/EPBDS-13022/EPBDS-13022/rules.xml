@@ -7,10 +7,8 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>main1</value>
-            <value>main2</value>
-        </includes>
+        <include>main1</include>
+        <include>main2</include>
     </exposed-methods>
     <classpath>
         <entry path="lib/*.jar"/>

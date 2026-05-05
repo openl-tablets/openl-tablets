@@ -7,11 +7,9 @@
         </module>
     </modules>
     <exposed-methods>
-        <includes>
-            <value>calculatePremium</value>
-            <value>calculatePremiumTest</value>
-            <value>calculatePremiumRun</value>
-        </includes>
+        <include>calculatePremium</include>
+        <include>calculatePremiumTest</include>
+        <include>calculatePremiumRun</include>
     </exposed-methods>
     <classpath>
         <entry path="classes"/>

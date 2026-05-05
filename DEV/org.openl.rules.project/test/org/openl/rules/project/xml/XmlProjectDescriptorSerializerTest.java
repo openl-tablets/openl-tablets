@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -53,7 +54,7 @@ public class XmlProjectDescriptorSerializerTest {
         projectDescriptor.setPropertiesFileNamePatterns(new String[]{" {lob}"});
         projectDescriptor.setPropertiesFileNameProcessor(" default.DefaultProcessor");
 
-        var exposedMethods = new MethodFilter();
+        var exposedMethods = new ExposedMethods();
         exposedMethods.addIncludePattern("get*", "calculate*");
         exposedMethods.addExcludePattern("internal*");
         projectDescriptor.setExposedMethods(exposedMethods);
