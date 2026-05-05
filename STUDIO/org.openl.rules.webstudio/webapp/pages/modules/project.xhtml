@@ -168,7 +168,7 @@
                                           rendered="#{isModuleWithWildcard or !includedInWildcard}">
                                 <div>
                                     <h:panelGroup rendered="#{isModuleWithWildcard}">
-                                        Wildcard matched modules
+                                        Modules matched by pattern
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!isModuleWithWildcard}">
                                         <a href="#{utils.toUrl(projectData.repository.id, projectData.name, module.name)}">#{module.name}</a>
@@ -190,7 +190,7 @@
                                                      style="opacity:0.6"/>
                                                 <a4j:repeat value="#{module.methodFilter.includes.toArray()}"
                                                             var="include">
-                                                    #{include}
+                                                    <div style="margin-left:15px">#{include}</div>
                                                 </a4j:repeat>
                                             </div>
                                         </h:panelGroup>
@@ -201,7 +201,7 @@
                                                      style="opacity:0.6"/>
                                                 <a4j:repeat value="#{module.methodFilter.excludes.toArray()}"
                                                             var="exclude">
-                                                    #{exclude}
+                                                    <div style="margin-left:15px">#{exclude}</div>
                                                 </a4j:repeat>
                                             </div>
                                         </h:panelGroup>
@@ -386,6 +386,11 @@
                                     style="opacity:0.4"/></a>
                         </h:panelGroup>
                     </h3>
+                    <div style="margin: 20px 0; color: #777;">
+                        Methods this project exposes when deployed as a rule service.<br/>
+                        External clients can only call what's listed here.<br/>
+                        If empty, every method in the project is exposed.
+                    </div>
                     <div class="block-content">
                         <h:panelGroup rendered="#{editable and projectBean.emptyExposedMethods}">
                             <a class="link-ref" href="javascript:void(0)"
