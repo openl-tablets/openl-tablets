@@ -128,7 +128,7 @@
         <plexus-utils.version>4.0.3</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>12.1.8</jetty.version>
+        <jetty.version>12.1.9</jetty.version>
 
         <!-- Repositories -->
         <amazonaws.version>2.44.1</amazonaws.version>
