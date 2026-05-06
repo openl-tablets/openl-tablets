@@ -153,7 +153,7 @@
         <testcontainers.keycloak.version>4.2.1</testcontainers.keycloak.version>
         <s3mock.version>5.0.0</s3mock.version>
         <ojdbc11.version>23.26.1.0.0</ojdbc11.version>
-        <postgresql.version>42.7.10</postgresql.version>
+        <postgresql.version>42.7.11</postgresql.version>
         <mariadb.version>2.7.13</mariadb.version>
         <mssql.version>13.4.0.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
