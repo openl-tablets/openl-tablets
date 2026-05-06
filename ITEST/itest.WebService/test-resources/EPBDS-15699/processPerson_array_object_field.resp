@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Invalid number format for field 'otherAddresses[1].zip'",
+  "type": "BAD_REQUEST"
+}

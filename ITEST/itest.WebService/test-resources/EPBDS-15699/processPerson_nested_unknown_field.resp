@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Unknown field 'homeAddress.unknownNested'",
+  "type": "BAD_REQUEST"
+}
