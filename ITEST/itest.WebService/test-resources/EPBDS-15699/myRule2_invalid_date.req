@@ -1,0 +1,7 @@
+POST /EPBDS-15699/EPBDS-15699/myRule2 HTTP/1.1
+Content-Type: application/json
+
+{
+  "param1": "aaa",
+  "param2": "1970-01-01T00:00s:00.000Z"
+}

@@ -1,0 +1,4 @@
+POST /EPBDS-15699/EPBDS-15699/myRule HTTP/1.1
+Content-Type: application/json
+
+42

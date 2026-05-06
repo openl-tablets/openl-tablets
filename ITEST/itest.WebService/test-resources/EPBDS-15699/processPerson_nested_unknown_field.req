@@ -1,0 +1,12 @@
+POST /EPBDS-15699/EPBDS-15699/processPerson HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "age": 30,
+  "homeAddress": {
+    "city": "NYC",
+    "zip": 10001,
+    "unknownNested": "oops"
+  }
+}
