@@ -41,14 +41,8 @@ public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProces
         }
         if (exception instanceof InvalidFormatException ife) {
             var field = formatPath(ife.getPath());
-            var type = ife.getTargetType();
-            if (type != null && type.isEnum()) {
-                return field.isEmpty() ? "Invalid enum value" : "Invalid enum value for field '%s'".formatted(field);
-            }
-            var typeName = friendlyType(type);
-            return field.isEmpty()
-                    ? "Invalid %s format".formatted(typeName)
-                    : "Invalid %s format for field '%s'".formatted(typeName, field);
+            var typeName = friendlyType(ife.getTargetType());
+            return field.isEmpty() ? "Invalid %s format".formatted(typeName) : "Invalid %s format for field '%s'".formatted(typeName, field);
         }
         if (exception instanceof JsonMappingException jme) {
             var field = formatPath(jme.getPath());
@@ -77,25 +71,15 @@ public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProces
     }
 
     private static String friendlyType(Class<?> type) {
-        if (type == null) {
-            return "value";
-        }
-        if (Date.class.isAssignableFrom(type) || type.getName().startsWith("java.time.")) {
-            return "date";
-        }
-        if (Boolean.class == type || boolean.class == type) {
-            return "boolean";
-        }
-        if (Number.class.isAssignableFrom(type)
-                || (type.isPrimitive() && type != boolean.class && type != char.class && type != void.class)) {
-            return "number";
-        }
-        if (CharSequence.class.isAssignableFrom(type) || char.class == type || Character.class == type) {
-            return "string";
-        }
-        if (type.isEnum()) {
-            return "enum";
-        }
-        return "value";
+        return switch (type) {
+            case Class<?> t when Date.class.isAssignableFrom(t) || t.getName().startsWith("java.time.") -> "date";
+            case Class<?> t when t == Boolean.class || t == boolean.class -> "boolean";
+            case Class<?> t when Number.class.isAssignableFrom(t) || t.isPrimitive() && t != char.class && t != void.class ->
+                    "number";
+            case Class<?> t when CharSequence.class.isAssignableFrom(t) || t == char.class || t == Character.class ->
+                    "string";
+            case Class<?> t when t.isEnum() -> "enum";
+            case null, default -> "value";
+        };
     }
 }
