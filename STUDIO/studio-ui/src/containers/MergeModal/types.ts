@@ -79,6 +79,7 @@ export interface ResolveConflictsResponse {
 export interface BranchInfo {
     name: string
     protected: boolean
+    bypassEligible?: boolean
 }
 
 // Modal detail passed from RichFaces via CustomEvent

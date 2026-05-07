@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -60,6 +61,7 @@ import org.openl.util.FileUtils;
 
 @Validated
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/projects/{projectId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Merge (BETA)", description = "Experimental projects merge API")
 public class ProjectsMergeController {
@@ -69,24 +71,16 @@ public class ProjectsMergeController {
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectsMergeConflictsService mergeConflictsService;
 
-    public ProjectsMergeController(ProjectsMergeService mergeService,
-                                   WorkspaceProjectService projectService,
-                                   ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
-                                   ProjectsMergeConflictsService mergeConflictsService) {
-        this.mergeService = mergeService;
-        this.projectService = projectService;
-        this.conflictsSessionHolder = conflictsSessionHolder;
-        this.mergeConflictsService = mergeConflictsService;
-    }
-
     @Operation(summary = "projects.merge.check.summary", description = "projects.merge.check.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.check.200.desc")
     @PostMapping("/check")
     public CheckMergeResult check(@ProjectId @PathVariable("projectId") RulesProject project,
                                   @Parameter(description = "projects.merge.check.request.desc")
-                                  @RequestBody @Valid MergeRequest request) throws IOException {
+                                  @RequestBody @Valid MergeRequest request,
+                                  @Parameter(description = "projects.merge.param.force.desc")
+                                  @RequestParam(name = "force", defaultValue = "false") boolean force) throws IOException {
         validateUnresolvedConflict(project);
-        return mergeService.checkMerge(project, request.otherBranch(), request.mode());
+        return mergeService.checkMerge(project, request.otherBranch(), request.mode(), force);
     }
 
     @Operation(summary = "projects.merge.get-conflicts.summary", description = "projects.merge.get-conflicts.desc")
@@ -131,9 +125,11 @@ public class ProjectsMergeController {
     @PostMapping
     public MergeResultResponse merge(@ProjectId @PathVariable("projectId") RulesProject project,
                                      @Parameter(description = "projects.merge.merge.request.desc")
-                                     @RequestBody @Valid MergeRequest request) throws IOException, ProjectException {
+                                     @RequestBody @Valid MergeRequest request,
+                                     @Parameter(description = "projects.merge.param.force.desc")
+                                     @RequestParam(name = "force", defaultValue = "false") boolean force) throws IOException, ProjectException {
         validateUnresolvedConflict(project);
-        var checkMergeResult = mergeService.checkMerge(project, request.otherBranch(), request.mode());
+        var checkMergeResult = mergeService.checkMerge(project, request.otherBranch(), request.mode(), force);
         if (checkMergeResult.status() != CheckMergeStatus.MERGEABLE) {
             throw new ConflictException("project.branch.merge.not.mergeable.message");
         }
@@ -152,7 +148,7 @@ public class ProjectsMergeController {
         boolean shouldResumeDependencies = false;
         try {
             studio.freezeProject(nameBeforeMerge);
-            var mergeRsult = mergeService.merge(project, request.otherBranch(), request.mode());
+            var mergeRsult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
             if (mergeRsult.status() == MergeResultStatus.SUCCESS) {
                 var workspace = projectService.getUserWorkspace();
                 if (wasOpened) {

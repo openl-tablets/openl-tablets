@@ -1,10 +1,22 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Modal } from 'antd'
 import { MergeBranchesStep } from 'containers/MergeModal/MergeBranchesStep'
 import * as services from 'services'
 import { BranchInfo, CheckMergeResult, MergeResultResponse } from 'containers/MergeModal/types'
 import type { MockedFunction } from 'vitest'
+
+vi.mock('antd', async () => {
+    const actual = await vi.importActual<typeof import('antd')>('antd')
+    return {
+        ...actual,
+        Modal: {
+            ...actual.Modal,
+            confirm: vi.fn(),
+        },
+    }
+})
 
 vi.mock('services', () => {
     class MockApiHttpError extends Error {
@@ -99,8 +111,12 @@ const upToDateResult = (source: string, target: string): CheckMergeResult => ({
     status: 'up-to-date',
 })
 
-const createApiError = (status: number, message: string) =>
-    new (services as any).ApiHttpError(status, message)
+const createApiError = (status: number, message: string, payload?: unknown) =>
+    new (services as any).ApiHttpError(status, message, payload)
+
+const BYPASS_CODE = 'openl.error.409.protected.branch.bypass.required'
+const createBypassError = (message = 'bypass required') =>
+    createApiError(409, message, { code: BYPASS_CODE, message })
 
 const selectBranch = async (branchValue: string) => {
     const select = screen.getByLabelText('merge:branches.target')
@@ -377,6 +393,104 @@ describe('MergeBranchesStep', () => {
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
             expect(props.onCheckCommitInfo).not.toHaveBeenCalled()
+        })
+    })
+
+    describe('protected branch bypass', () => {
+        it('retries check with force=true and shows bypass warning when check returns bypass-required', async () => {
+            mockApiCall
+                .mockRejectedValueOnce(createBypassError())
+                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'feature'))
+
+            render(<MergeBranchesStep {...defaultProps()} />)
+            await selectBranch('feature')
+
+            await waitFor(() => {
+                expect(screen.getByText('merge:bypass.title')).toBeInTheDocument()
+            })
+
+            // First receive check (no force) → bypass-required
+            expect(mockApiCall).toHaveBeenNthCalledWith(
+                1,
+                '/projects/proj-1/merge/check',
+                expect.anything(),
+                expect.anything()
+            )
+            // Receive retried with force=true
+            expect(mockApiCall).toHaveBeenNthCalledWith(
+                2,
+                '/projects/proj-1/merge/check?force=true',
+                expect.anything(),
+                expect.anything()
+            )
+            // Merge button enabled because forced check returned mergeable
+            const receiveBtn = getButton(/merge:actions.receive/i)
+            expect(receiveBtn).not.toBeDisabled()
+            // Button styled danger (red) to mirror GitHub's "Confirm bypass rules and merge" UX
+            expect(receiveBtn).toHaveClass('ant-btn-dangerous')
+            // Send button is unaffected because its check resolved normally
+            expect(getButton(/merge:actions.send/i)).not.toHaveClass('ant-btn-dangerous')
+        })
+
+        it('opens danger confirm modal and retries merge with force=true on confirm', async () => {
+            mockApiCall
+                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'feature'))
+
+            const props = defaultProps()
+            render(<MergeBranchesStep {...props} />)
+            await selectBranch('feature')
+            await waitFor(() => expect(getButton(/merge:actions.send/i)).not.toBeDisabled())
+
+            // First merge attempt → bypass-required
+            mockApiCall.mockRejectedValueOnce(createBypassError())
+            await userEvent.click(getButton(/merge:actions.send/i))
+
+            // Confirm modal is invoked with danger styling and the bypass copy
+            await waitFor(() => expect(Modal.confirm).toHaveBeenCalled())
+            const confirmConfig = vi.mocked(Modal.confirm).mock.calls[0]![0]
+            expect(confirmConfig.title).toBe('merge:bypass.title')
+            expect(confirmConfig.okText).toBe('merge:bypass.confirm')
+            expect(confirmConfig.okButtonProps).toEqual({ danger: true })
+
+            // Confirming retries the merge with force=true
+            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            await act(async () => {
+                await confirmConfig.onOk?.()
+            })
+
+            await waitFor(() => {
+                expect(mockApiCall).toHaveBeenCalledWith(
+                    '/projects/proj-1/merge?force=true',
+                    expect.objectContaining({
+                        body: JSON.stringify({ mode: 'send', otherBranch: 'feature' }),
+                    }),
+                    expect.anything()
+                )
+            })
+            await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
+        })
+
+        it('does not retry when user cancels the bypass confirm modal', async () => {
+            mockApiCall
+                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'feature'))
+
+            const props = defaultProps()
+            render(<MergeBranchesStep {...props} />)
+            await selectBranch('feature')
+            await waitFor(() => expect(getButton(/merge:actions.send/i)).not.toBeDisabled())
+
+            mockApiCall.mockRejectedValueOnce(createBypassError())
+            await userEvent.click(getButton(/merge:actions.send/i))
+
+            await waitFor(() => expect(Modal.confirm).toHaveBeenCalled())
+            const callsAfterFirstAttempt = mockApiCall.mock.calls.length
+
+            // Simulate the user dismissing the modal — onOk is never invoked
+            expect(mockApiCall.mock.calls.length).toBe(callsAfterFirstAttempt)
+            expect(props.onMergeSuccess).not.toHaveBeenCalled()
         })
     })
 })

@@ -11,6 +11,9 @@ public record ProjectBranchInfo(
 
         @Schema(description = "Whether the branch is protected")
         @JsonProperty("protected")
-        boolean protectedFlag
+        boolean protectedFlag,
+
+        @Schema(description = "Whether the current user is eligible to bypass protection (Manager role + global setting enabled)")
+        boolean bypassEligible
 ) {
 }

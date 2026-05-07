@@ -3,6 +3,7 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'security', {
     select_user_mode: 'Select User Mode',
     allowProjectCreateDelete: 'Permit creating and deleting projects',
+    allowBypassProtectedBranches: 'Allow Managers to bypass protected branches',
     select_user_mode_info: 'User mode defines how many users can run the application and where user projects will be located by default.',
     configure_initial_users: 'Configure Initial Users',
     configure_initial_users_info: 'Add a list of comma-separated users with administrator privileges and decide whether to grant view access for OpenL Studio to the newly created users.',

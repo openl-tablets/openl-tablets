@@ -5,6 +5,7 @@ Content-Type: application/json
   "userMode": "oauth2",
   "defaultGroup": "",
   "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false,
   "clientId": "webstudio",
   "clientSecret": "",
   "issuerUri": "",

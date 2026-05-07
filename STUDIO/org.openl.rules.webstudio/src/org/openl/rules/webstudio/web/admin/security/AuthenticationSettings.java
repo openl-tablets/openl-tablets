@@ -23,6 +23,7 @@ public abstract class AuthenticationSettings implements SettingsHolder {
 
     public static final String USER_MODE = "user.mode";
     private static final String ALLOW_PROJECT_CREATE_DELETE = "security.allow-project-create-delete";
+    private static final String ALLOW_BYPASS_PROTECTED_BRANCHES = "security.allow-bypass-protected-branches";
 
     @Parameter(description = "Authentication mode.", example = "single")
     @SettingPropertyName(USER_MODE)
@@ -33,10 +34,17 @@ public abstract class AuthenticationSettings implements SettingsHolder {
     @SettingPropertyName(ALLOW_PROJECT_CREATE_DELETE)
     private boolean allowProjectCreateDelete;
 
+    @Parameter(description = "Allow users with the Manager role to bypass protected branch restrictions")
+    @SettingPropertyName(ALLOW_BYPASS_PROTECTED_BRANCHES)
+    private boolean allowBypassProtectedBranches;
+
     @Override
     public void load(PropertiesHolder properties) {
         userMode = UserMode.fromValue(properties.getProperty(USER_MODE));
         allowProjectCreateDelete = Optional.ofNullable(properties.getProperty(ALLOW_PROJECT_CREATE_DELETE))
+                .map(Boolean::parseBoolean)
+                .orElse(false);
+        allowBypassProtectedBranches = Optional.ofNullable(properties.getProperty(ALLOW_BYPASS_PROTECTED_BRANCHES))
                 .map(Boolean::parseBoolean)
                 .orElse(false);
     }
@@ -45,11 +53,12 @@ public abstract class AuthenticationSettings implements SettingsHolder {
     public void store(PropertiesHolder properties) {
         properties.setProperty(USER_MODE, userMode.getValue());
         properties.setProperty(ALLOW_PROJECT_CREATE_DELETE, Boolean.toString(allowProjectCreateDelete));
+        properties.setProperty(ALLOW_BYPASS_PROTECTED_BRANCHES, Boolean.toString(allowBypassProtectedBranches));
     }
 
     @Override
     public void revert(PropertiesHolder properties) {
-        properties.revertProperties(USER_MODE, ALLOW_PROJECT_CREATE_DELETE);
+        properties.revertProperties(USER_MODE, ALLOW_PROJECT_CREATE_DELETE, ALLOW_BYPASS_PROTECTED_BRANCHES);
         load(properties);
     }
 
@@ -67,6 +76,14 @@ public abstract class AuthenticationSettings implements SettingsHolder {
 
     public void setAllowProjectCreateDelete(boolean allowProjectCreateDelete) {
         this.allowProjectCreateDelete = allowProjectCreateDelete;
+    }
+
+    public boolean isAllowBypassProtectedBranches() {
+        return allowBypassProtectedBranches;
+    }
+
+    public void setAllowBypassProtectedBranches(boolean allowBypassProtectedBranches) {
+        this.allowBypassProtectedBranches = allowBypassProtectedBranches;
     }
 
 }

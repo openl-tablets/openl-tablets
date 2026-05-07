@@ -17,5 +17,6 @@ Content-Type: application/json
   "allowProjectCreateDelete": {
     "value": false,
     "readOnly": true
-  }
+  },
+  "allowBypassProtectedBranches": false
 }

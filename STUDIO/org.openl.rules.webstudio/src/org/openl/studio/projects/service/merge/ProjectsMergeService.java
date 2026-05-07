@@ -70,7 +70,8 @@ public interface ProjectsMergeService {
     @NotNull
     CheckMergeResult checkMerge(@NotNull RulesProject project,
                                 @NotBlank String otherBranch,
-                                @NotNull MergeOpMode mode) throws IOException;
+                                @NotNull MergeOpMode mode,
+                                boolean force) throws IOException;
 
     /**
      * Performs an actual Git merge operation between two branches.
@@ -120,6 +121,7 @@ public interface ProjectsMergeService {
     @NotNull
     MergeResult merge(@NotNull RulesProject project,
                       @NotBlank String otherBranch,
-                      @NotNull MergeOpMode mode) throws IOException;
+                      @NotNull MergeOpMode mode,
+                      boolean force) throws IOException;
 
 }

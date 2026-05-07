@@ -1,7 +1,7 @@
-HTTP/1.1 409
+HTTP/1.1 403
 Content-Type: application/json
 
 {
-  "code": "openl.error.409.project.merge.branch.protected.message",
-  "message": "Cannot merge into the branch 'release-EPBDS-15753' because it is protected."
+  "code": "openl.error.403.default.message",
+  "message": "You do not have the required privileges to do that."
 }

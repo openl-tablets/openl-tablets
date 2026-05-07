@@ -4,5 +4,6 @@ Content-Type: application/json
 {
   "userMode": "multi",
   "defaultGroup": "",
-  "allowProjectCreateDelete": true
+  "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false
 }

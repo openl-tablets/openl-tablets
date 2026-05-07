@@ -187,6 +187,7 @@ export const Security = () => {
                 <InitialUsers showDefaultGroup={mode !== SecurityUserMode.MULTI} userGroups={userGroups} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
+            <Checkbox label={t('security:allowBypassProtectedBranches')} name="allowBypassProtectedBranches" />
             <Row justify="end">
                 <Button htmlType="submit" type="primary">
                     {t('common:btn.apply')}

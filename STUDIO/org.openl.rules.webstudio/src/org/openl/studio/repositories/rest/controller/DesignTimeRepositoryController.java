@@ -54,6 +54,7 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.RepositoryProjectService;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.RepositoryFeatures;
@@ -86,6 +87,7 @@ public class DesignTimeRepositoryController {
     private final AclProjectsHelper aclProjectsHelper;
     private final DesignTimeRepositoryService designTimeRepositoryService;
     private final ProjectRevisionService projectRevisionService;
+    private final ProtectedBranchBypassService bypassService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
@@ -97,7 +99,8 @@ public class DesignTimeRepositoryController {
                                           @Value("${openl.home.shared}") String homeDirectory,
                                           RepositoryProjectService projectService, AclProjectsHelper aclProjectsHelper,
                                           DesignTimeRepositoryService designTimeRepositoryService,
-                                          ProjectRevisionService projectRevisionService) {
+                                          ProjectRevisionService projectRevisionService,
+                                          ProtectedBranchBypassService bypassService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -109,6 +112,7 @@ public class DesignTimeRepositoryController {
         this.aclProjectsHelper = aclProjectsHelper;
         this.designTimeRepositoryService = designTimeRepositoryService;
         this.projectRevisionService = projectRevisionService;
+        this.bypassService = bypassService;
     }
 
     @Lookup
@@ -179,7 +183,8 @@ public class DesignTimeRepositoryController {
                                                  @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
                                                  @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
                                                  @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
-                                                 @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException,
             JAXBException, ProjectException {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
@@ -190,7 +195,7 @@ public class DesignTimeRepositoryController {
             throw new ForbiddenException();
         }
 
-        allowedToPush(repository);
+        allowedToPush(repository, force);
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(),
                 getUserName(),
@@ -248,12 +253,10 @@ public class DesignTimeRepositoryController {
         return auth.getName();
     }
 
-    private void allowedToPush(Repository repo) {
+    private void allowedToPush(Repository repo, boolean force) {
         if (repo.supports().branches()) {
             BranchRepository branchRepo = (BranchRepository) repo;
-            if (branchRepo.isBranchProtected(branchRepo.getBranch())) {
-                throw new ForbiddenException("default.message");
-            }
+            bypassService.requireBypassOrThrow(branchRepo, branchRepo.getBranch(), repo.getId(), force);
         }
     }
 

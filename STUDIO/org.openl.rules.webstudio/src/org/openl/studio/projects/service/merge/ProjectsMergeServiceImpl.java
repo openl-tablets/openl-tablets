@@ -6,6 +6,7 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.security.acls.domain.BasePermission;
@@ -27,32 +28,29 @@ import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResult;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 @Validated
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ProjectsMergeServiceImpl implements ProjectsMergeService {
-
 
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
-
-    public ProjectsMergeServiceImpl(ProjectStateValidator projectStateValidator,
-                                    RepositoryAclService designRepositoryAclService) {
-        this.projectStateValidator = projectStateValidator;
-        this.designRepositoryAclService = designRepositoryAclService;
-    }
+    private final ProtectedBranchBypassService bypassService;
 
     @Override
     @NotNull
     public CheckMergeResult checkMerge(@NotNull RulesProject project,
                                        @NotBlank String otherBranch,
-                                       @NotNull MergeOpMode mode) throws IOException {
+                                       @NotNull MergeOpMode mode,
+                                       boolean force) throws IOException {
         validateMerge(project, otherBranch);
         var repository = getBranchRepository(project);
         var branchPair = getBranchPair(project, otherBranch, mode);
-        validateTargetBranchNotProtected(project, branchPair.target());
+        bypassService.requireBypassOrThrow(repository, branchPair.target(), project, force);
         validateProjectLock(project, branchPair.target());
         boolean merged = repository.isMergedInto(branchPair.source(), branchPair.target());
         return CheckMergeResult.builder()
@@ -96,13 +94,6 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         return false;
     }
 
-    private void validateTargetBranchNotProtected(RulesProject project, String targetBranch) {
-        var repository = getBranchRepository(project);
-        if (repository.isBranchProtected(targetBranch)) {
-            throw new ConflictException("project.merge.branch.protected.message", targetBranch);
-        }
-    }
-
     private void validateProjectLock(RulesProject project, String targetBranch) {
         var userWorkspace = getUserWorkspace();
         var repository = getBranchRepository(project);
@@ -122,12 +113,12 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     }
 
     @Override
-    public MergeResult merge(RulesProject project, String otherBranch, MergeOpMode mode) throws IOException {
+    public MergeResult merge(RulesProject project, String otherBranch, MergeOpMode mode, boolean force) throws IOException {
         validateMerge(project, otherBranch);
         var branchPair = getBranchPair(project, otherBranch, mode);
-        validateTargetBranchNotProtected(project, branchPair.target());
-        validateProjectLock(project, branchPair.target());
         var branchRepository = getBranchRepository(project);
+        bypassService.requireBypassOrThrow(branchRepository, branchPair.target(), project, force);
+        validateProjectLock(project, branchPair.target());
         var currentUser = getUserWorkspace().getUser();
         var mergeResultBuilder = MergeResult.builder();
         try {

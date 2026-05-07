@@ -97,6 +97,7 @@ import { Security } from 'containers/Security'
 const defaultSettings = {
     userMode: 'multi',
     allowProjectCreateDelete: true,
+    allowBypassProtectedBranches: false,
     administrators: ['admin'],
 }
 
@@ -155,6 +156,16 @@ describe('Security', () => {
 
         await waitFor(() => {
             expect(screen.getByTestId('checkbox-allowProjectCreateDelete')).toBeInTheDocument()
+        })
+    })
+
+    it('renders allowBypassProtectedBranches checkbox', async () => {
+        await act(async () => {
+            render(<Security />)
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('checkbox-allowBypassProtectedBranches')).toBeInTheDocument()
         })
     })
 
