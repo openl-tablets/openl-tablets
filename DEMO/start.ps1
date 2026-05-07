@@ -22,12 +22,12 @@ $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 
 $JAVA_MAJOR_VERSION = "25"
-$JETTY_VERSION = "12.1.7"
+$JETTY_VERSION = "12.1.9"
 
 # JDBC Driver Versions
-$POSTGRES_VERSION = "42.7.10"
+$POSTGRES_VERSION = "42.7.11"
 $ORACLE_VERSION = "23.26.1.0.0"
-$MSSQL_VERSION = "13.2.1.jre11"
+$MSSQL_VERSION = "13.4.0.jre11"
 
 
 # --- SCRIPT INTERNAL VARIABLES ---
