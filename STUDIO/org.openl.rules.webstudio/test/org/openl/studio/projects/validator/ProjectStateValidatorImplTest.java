@@ -12,12 +12,14 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Repository;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 class ProjectStateValidatorImplTest {
 
@@ -25,10 +27,20 @@ class ProjectStateValidatorImplTest {
     private static final Features BRANCH_FEATURES = new FeaturesBuilder(mock(BranchRepository.class)).build();
 
     private ProjectStateValidatorImpl validator;
+    private ProtectedBranchBypassService bypassService;
 
     @BeforeEach
     void setUp() {
-        validator = new ProjectStateValidatorImpl();
+        bypassService = mock(ProtectedBranchBypassService.class);
+        // Default: bypass not granted, so protection is enforced exactly when the branch is
+        // marked protected on the repo. Tests asserting the bypass case override this.
+        when(bypassService.isProtectionEnforced(any(BranchRepository.class), any(), any(AProject.class)))
+                .thenAnswer(inv -> {
+                    BranchRepository repo = inv.getArgument(0);
+                    String branch = inv.getArgument(1);
+                    return repo.isBranchProtected(branch);
+                });
+        validator = new ProjectStateValidatorImpl(bypassService);
     }
 
     // --- canSave ---
@@ -72,6 +84,15 @@ class ProjectStateValidatorImplTest {
     void canSave_modifiedOnProtectedBranch_returnsFalse() {
         var project = projectWith().modified(true).openedForEditing(true).protectedBranch(true).build();
         assertFalse(validator.canSave(project));
+    }
+
+    @Test
+    void canSave_modifiedOnProtectedBranchButBypassEligible_returnsTrue() {
+        // Manager with global setting enabled → bypass service reports protection NOT enforced
+        var project = projectWith().modified(true).openedForEditing(true).protectedBranch(true).build();
+        when(bypassService.isProtectionEnforced(any(BranchRepository.class), any(), any(AProject.class)))
+                .thenReturn(false);
+        assertTrue(validator.canSave(project));
     }
 
     // --- canModify ---

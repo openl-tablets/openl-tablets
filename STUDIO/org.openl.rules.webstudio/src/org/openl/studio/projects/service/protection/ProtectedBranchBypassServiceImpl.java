@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
 
-import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -22,7 +22,7 @@ public class ProtectedBranchBypassServiceImpl implements ProtectedBranchBypassSe
     private final boolean enabled;
 
     @Override
-    public boolean isBypassEligible(RulesProject project) {
+    public boolean isBypassEligible(AProject project) {
         if (!enabled || project == null) {
             return false;
         }
@@ -38,7 +38,7 @@ public class ProtectedBranchBypassServiceImpl implements ProtectedBranchBypassSe
     }
 
     @Override
-    public void requireBypassOrThrow(BranchRepository repo, String branch, RulesProject projectForAcl, boolean force) {
+    public void requireBypassOrThrow(BranchRepository repo, String branch, AProject projectForAcl, boolean force) {
         if (!repo.isBranchProtected(branch)) {
             return;
         }
@@ -61,5 +61,15 @@ public class ProtectedBranchBypassServiceImpl implements ProtectedBranchBypassSe
         if (!force) {
             throw new ProtectedBranchBypassRequiredException(BYPASS_REQUIRED_CODE, branch);
         }
+    }
+
+    @Override
+    public boolean isProtectionEnforced(BranchRepository repo, String branch, AProject project) {
+        return repo.isBranchProtected(branch) && !isBypassEligible(project);
+    }
+
+    @Override
+    public boolean isProtectionEnforced(BranchRepository repo, String branch, String repoId) {
+        return repo.isBranchProtected(branch) && !isBypassEligible(repoId);
     }
 }

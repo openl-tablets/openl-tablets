@@ -27,6 +27,7 @@ import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -49,14 +50,17 @@ public class RepositoryProjectRulesDeployConfig {
     private boolean created;
 
     private final RepositoryAclService designRepositoryAclService;
+    private final ProtectedBranchBypassService bypassService;
 
     public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
-                                              @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+                                              @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                              ProtectedBranchBypassService bypassService) {
         this.repositoryTreeState = repositoryTreeState;
 
         serializer = new XmlRulesDeployGuiWrapperSerializer();
 
         this.designRepositoryAclService = designRepositoryAclService;
+        this.bypassService = bypassService;
     }
 
     public RulesDeployGuiWrapper getRulesDeploy() {
@@ -198,7 +202,8 @@ public class RepositoryProjectRulesDeployConfig {
     private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
         Repository repo = selectedProject.getDesignRepository();
         if (repo != null && repo.supports().branches()) {
-            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
+            return bypassService.isProtectionEnforced(
+                    (BranchRepository) repo, selectedProject.getBranch(), selectedProject);
         }
         return false;
     }

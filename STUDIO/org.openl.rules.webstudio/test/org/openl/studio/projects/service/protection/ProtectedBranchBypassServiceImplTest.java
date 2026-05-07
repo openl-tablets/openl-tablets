@@ -70,7 +70,7 @@ class ProtectedBranchBypassServiceImplTest {
 
     @Test
     void isBypassEligible_nullProject_returnsFalse() {
-        assertFalse(service(true).isBypassEligible((RulesProject) null));
+        assertFalse(service(true).isBypassEligible((org.openl.rules.project.abstraction.AProject) null));
     }
 
     // --- isBypassEligible(repoId) ---

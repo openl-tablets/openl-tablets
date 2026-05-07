@@ -1,6 +1,6 @@
 package org.openl.studio.projects.service.protection;
 
-import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 
 /**
@@ -22,7 +22,7 @@ public interface ProtectedBranchBypassService {
      * @return {@code true} if the global setting is enabled AND the current user has the
      *         Manager role on the given project (or its repository, by parent strategy).
      */
-    boolean isBypassEligible(RulesProject project);
+    boolean isBypassEligible(AProject project);
 
     /**
      * Repository-scoped eligibility, used when no project context exists yet
@@ -50,12 +50,30 @@ public interface ProtectedBranchBypassService {
      * @param projectForAcl   the project used for the ACL Manager check
      * @param force           the explicit confirmation flag from the client
      */
-    void requireBypassOrThrow(BranchRepository repo, String branch, RulesProject projectForAcl, boolean force);
+    void requireBypassOrThrow(BranchRepository repo, String branch, AProject projectForAcl, boolean force);
 
     /**
      * Repository-scoped variant of
-     * {@link #requireBypassOrThrow(BranchRepository, String, RulesProject, boolean)} for
+     * {@link #requireBypassOrThrow(BranchRepository, String, AProject, boolean)} for
      * call sites that have no project (e.g. {@code createProjectFromZip}).
      */
     void requireBypassOrThrow(BranchRepository repo, String branch, String repoId, boolean force);
+
+    /**
+     * Convenience predicate for legacy JSF beans gating UI actions: returns
+     * {@code true} when the branch is protected AND the current user is NOT eligible to
+     * bypass. JSF screens lack the async confirm-then-retry flow, so eligible users get an
+     * implicit bypass (the global setting is the deliberate admin opt-in; the Manager role
+     * is the per-user gate).
+     *
+     * @return {@code true} if the action should be blocked due to branch protection.
+     */
+    boolean isProtectionEnforced(BranchRepository repo, String branch, AProject project);
+
+    /**
+     * Repository-scoped variant of
+     * {@link #isProtectionEnforced(BranchRepository, String, AProject)} for call sites
+     * with no project context (e.g. repository-list filters).
+     */
+    boolean isProtectionEnforced(BranchRepository repo, String branch, String repoId);
 }
