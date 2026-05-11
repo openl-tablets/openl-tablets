@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU4MTg6YTg3MDljZjYyOTMwMmI0NDY4ZWU4YmYyMjc0NWNhZmE4OTEzMWVmMDhkNjllZjRkZmFmN2IxYWNkMGJlYzVlYg==?sid=manager_15818&principal=true HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "role": "MANAGER"
+}
