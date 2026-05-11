@@ -41,8 +41,10 @@ public interface ProtectedBranchBypassService {
      *   <li>Protected, eligible, {@code force=true} → no-op (allow).</li>
      *   <li>Protected, eligible, {@code force=false} → throw
      *       {@link org.openl.studio.common.exception.ProtectedBranchBypassRequiredException}.</li>
-     *   <li>Protected, not eligible → throw {@link org.openl.studio.common.exception.ForbiddenException}
-     *       (preserves prior 403 behavior).</li>
+     *   <li>Protected, not eligible → throw {@link org.openl.studio.common.exception.ForbiddenException}.
+     *       Note: this is a behavior change for the merge endpoints, which previously returned
+     *       409 with {@code project.merge.branch.protected.message}. For
+     *       {@code createProjectFromZip} the 403 status matches the prior contract.</li>
      * </ul>
      *
      * @param repo            the branch repository hosting the target branch

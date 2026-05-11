@@ -257,9 +257,14 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                             showIcon
                             title={t('merge:bypass.title')}
                             type="warning"
-                            description={t('merge:bypass.description', {
-                                branch: bypassRequiredSend ? selectedBranch : currentBranch,
-                            })}
+                            description={bypassRequiredReceive && bypassRequiredSend
+                                ? t('merge:bypass.description_both', {
+                                    send: selectedBranch,
+                                    receive: currentBranch,
+                                })
+                                : t('merge:bypass.description', {
+                                    branch: bypassRequiredSend ? selectedBranch : currentBranch,
+                                })}
                         />
                     )}
                     <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>

@@ -114,6 +114,7 @@ i18next.addResourceBundle('en', 'merge', {
     bypass: {
         title: 'Bypass branch protection?',
         description: 'The branch "{{branch}}" is protected. Confirming will merge into it anyway. This action cannot be undone.',
+        description_both: 'Both branches are protected: sending into "{{send}}" and receiving into "{{receive}}". Confirming will merge anyway. This action cannot be undone.',
         confirm: 'Confirm bypass and merge',
         action_tooltip: 'Target branch is protected. Merging will require explicit bypass confirmation.',
     },

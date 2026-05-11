@@ -35,8 +35,10 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
     private boolean isCurrentBranchProtectionEnforced(UserWorkspaceProject project) {
         if (project != null && !project.isLocalOnly()) {
             Repository repo = project.getDesignRepository();
-            return repo.supports().branches()
-                    && bypassService.isProtectionEnforced((BranchRepository) repo, project.getBranch(), project);
+            if (repo != null && repo.supports().branches()) {
+                return bypassService.isProtectionEnforced(
+                        (BranchRepository) repo, project.getBranch(), project);
+            }
         }
         return false;
     }

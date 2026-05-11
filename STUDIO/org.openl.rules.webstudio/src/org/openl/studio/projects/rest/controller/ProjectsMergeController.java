@@ -148,8 +148,8 @@ public class ProjectsMergeController {
         boolean shouldResumeDependencies = false;
         try {
             studio.freezeProject(nameBeforeMerge);
-            var mergeRsult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
-            if (mergeRsult.status() == MergeResultStatus.SUCCESS) {
+            var mergeResult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
+            if (mergeResult.status() == MergeResultStatus.SUCCESS) {
                 var workspace = projectService.getUserWorkspace();
                 if (wasOpened) {
                     if (project.isDeleted()) {
@@ -177,11 +177,11 @@ public class ProjectsMergeController {
             } else {
                 shouldResumeDependencies = true;
                 var projectId = projectService.resolveProjectId(project);
-                conflictsSessionHolder.store(projectId, mergeRsult.conflictInfo());
+                conflictsSessionHolder.store(projectId, mergeResult.conflictInfo());
             }
             return new MergeResultResponse(
-                    mergeRsult.status(),
-                    Optional.ofNullable(mergeRsult.conflictInfo())
+                    mergeResult.status(),
+                    Optional.ofNullable(mergeResult.conflictInfo())
                             .map(mergeConflictsService::getMergeConflicts)
                             .orElseGet(List::of)
             );
