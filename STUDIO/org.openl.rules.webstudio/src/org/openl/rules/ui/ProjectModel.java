@@ -750,7 +750,9 @@ public class ProjectModel {
         RulesProject project = getProject();
         if (project != null && !project.isLocalOnly()) {
             Repository repo = project.getDesignRepository();
-            return repo.supports().branches() && ((BranchRepository) repo).isBranchProtected(project.getBranch());
+            return repo.supports().branches()
+                    && studio.getBypassService().isProtectionEnforced(
+                            (BranchRepository) repo, project.getBranch(), project);
         }
         return false;
     }
