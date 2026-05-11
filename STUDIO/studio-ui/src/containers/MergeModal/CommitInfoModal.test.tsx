@@ -5,6 +5,20 @@ import { CommitInfoModal } from 'containers/MergeModal/CommitInfoModal'
 import * as services from 'services'
 import type { MockedFunction } from 'vitest'
 
+// Mock AntD's static `notification` API. The real implementation renders via a portal
+// outside the test's render tree and schedules ForwardRef state updates that are not
+// wrapped in act() — vitest-fail-on-console then fails the test on the resulting warning.
+vi.mock('antd', async () => {
+    const actual = await vi.importActual<typeof import('antd')>('antd')
+    return {
+        ...actual,
+        notification: {
+            success: vi.fn(),
+            error: vi.fn(),
+        },
+    }
+})
+
 vi.mock('services', () => ({
     apiCall: vi.fn(),
 }))

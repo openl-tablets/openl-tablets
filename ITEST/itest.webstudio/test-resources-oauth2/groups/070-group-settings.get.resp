@@ -4,6 +4,7 @@ Content-Type: application/json
 {
   "userMode": "oauth2",
   "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false,
   "administrators": [
     "admin"
   ],
