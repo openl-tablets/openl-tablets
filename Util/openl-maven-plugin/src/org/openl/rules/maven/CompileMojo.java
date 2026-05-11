@@ -25,7 +25,8 @@ import org.openl.types.IOpenClass;
  *
  * @author Yury Molchan
  */
-@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class CompileMojo extends BaseOpenLMojo {
 
     /**

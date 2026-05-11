@@ -65,7 +65,8 @@ import org.openl.types.impl.ThisField;
  *
  * @author Yury Molchan
  */
-@Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.TEST)
 public final class TestMojo extends BaseOpenLMojo {
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
