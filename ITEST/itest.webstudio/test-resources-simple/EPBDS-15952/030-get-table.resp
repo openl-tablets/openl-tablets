@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "1ace9d7588761211a02c3727857e40e8",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "HelloTest3",
+  "headers": [
+    {
+      "fieldName": "hour",
+      "displayName": "Hour"
+    },
+    {
+      "fieldName": "_res_",
+      "displayName": "Result"
+    }
+  ],
+  "rows": [
+    {
+      "values": [1, "1"]
+    }
+  ],
+  "testedTableName": "Hello"
+}
