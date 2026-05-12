@@ -46,6 +46,21 @@
             <groupId>com.helger</groupId>
             <artifactId>jcodemodel</artifactId>
         </dependency>
+        <!-- SCM API + git provider used by the 'migrate' goal to create one commit per migrator.  -->
+        <dependency>
+            <groupId>org.apache.maven.scm</groupId>
+            <artifactId>maven-scm-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.scm</groupId>
+            <artifactId>maven-scm-manager-plexus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.scm</groupId>
+            <artifactId>maven-scm-provider-gitexe</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>

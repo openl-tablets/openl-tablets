@@ -1,0 +1,27 @@
+<project>
+    <id>obsolete-id</id>
+    <name>openl-migrate</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>main</name>
+            <type>api</type>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.*ong.*</value>
+                    <value>.*notExisted.*</value>
+                </includes>
+                <excludes>
+                    <value>.+ g.+</value>
+                    <value>missed</value>
+                </excludes>
+            </method-filter>
+        </module>
+    </modules>
+    <properties-file-name-processor>org.openl.rules.project.resolving.CWPropertyFileNameProcessor</properties-file-name-processor>
+    <classpath>
+        <entry path="groovy"/>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

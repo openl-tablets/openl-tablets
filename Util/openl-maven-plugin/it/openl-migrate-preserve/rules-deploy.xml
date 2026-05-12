@@ -1,0 +1,9 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <serviceName>preserve-service</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <interceptingTemplateClassName>UnknownService</interceptingTemplateClassName>
+    <annotationTemplateClassName>LegacyService</annotationTemplateClassName>
+</rules-deploy>

@@ -1,0 +1,19 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <serviceName>migrate-service</serviceName>
+    <rmiServiceClass>java.lang.String</rmiServiceClass>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+        <publisher>RMI</publisher>
+    </publishers>
+    <interceptingTemplateClassName>LegacyService</interceptingTemplateClassName>
+    <annotationTemplateClassName></annotationTemplateClassName>
+    <url>foo</url>
+    <rmiName>rmiName</rmiName>
+    <version>v1</version>
+    <groups></groups>
+    <lazy-modules-for-compilation>
+        <module name="*"/>
+    </lazy-modules-for-compilation>
+</rules-deploy>
