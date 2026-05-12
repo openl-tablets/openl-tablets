@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.acls.domain.BasePermission;
@@ -49,7 +50,6 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -114,8 +114,11 @@ public class ProjectModel {
     /**
      * Compiled rules with errors. Representation of wrapper.
      */
+    @Getter
     private volatile CompiledOpenClass compiledOpenClass;
+    @Getter
     private volatile CompiledOpenClass openedModuleCompiledOpenClass;
+    @Getter
     private volatile boolean compilationInProgress;
     private volatile ResolvedDependency projectCompilationCompleted;
 
@@ -123,10 +126,12 @@ public class ProjectModel {
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
 
+    @Getter
     private Module moduleInfo;
     private long moduleLastModified;
 
     private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    @Getter
     private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
     private final WebStudio studio;
@@ -135,6 +140,7 @@ public class ProjectModel {
 
     private TreeNode projectRoot = null;
 
+    @Getter
     private String historyStoragePath;
 
     private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
@@ -547,14 +553,6 @@ public class ProjectModel {
         isModified();
     }
 
-    public CompiledOpenClass getCompiledOpenClass() {
-        return compiledOpenClass;
-    }
-
-    public CompiledOpenClass getOpenedModuleCompiledOpenClass() {
-        return openedModuleCompiledOpenClass;
-    }
-
     public synchronized ProjectCompilationStatus getCompilationStatus() {
         ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
         if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
@@ -620,13 +618,6 @@ public class ProjectModel {
             return openedCompiledOpenClass.getAllMessages();
         }
         return Collections.emptyList();
-    }
-
-    /**
-     * @return Returns the wrapperInfo.
-     */
-    public Module getModuleInfo() {
-        return moduleInfo;
     }
 
     public XlsModuleSyntaxNode getXlsModuleNode() {
@@ -1038,8 +1029,8 @@ public class ProjectModel {
     }
 
     private synchronized Set<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
-        return Optional.ofNullable(studio.getCurrentProject())
-                .map(AProjectFolder::getName)
+        return Optional.ofNullable(studio.getCurrentProjectDescriptor())
+                .map(ProjectDescriptor::getName)
                 .map(this::getModuleSyntaxNodesByProject)
                 .map(nodes -> nodes.stream()
                         .filter(Objects::nonNull)
@@ -1439,10 +1430,6 @@ public class ProjectModel {
         return getTableEditorModel(table);
     }
 
-    public WebStudioWorkspaceRelatedDependencyManager getWebStudioWorkspaceDependencyManager() {
-        return webStudioWorkspaceDependencyManager;
-    }
-
     public synchronized TableEditorModel getTableEditorModel(IOpenLTable table) {
         String tableView = studio.getTableView();
         return new TableEditorModel(table, tableView, false);
@@ -1457,50 +1444,6 @@ public class ProjectModel {
         return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass
                 .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
                 .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
-    }
-
-    public synchronized List<File> getSources() {
-        List<File> sourceFiles = new ArrayList<>();
-
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-                File sourceFile = workbookSyntaxNode.getWorkbookSourceCodeModule().getSourceFile();
-                sourceFiles.add(sourceFile);
-            }
-        }
-
-        // TODO: Consider the case when there is compilation error. In this case sourceFiles will be empty, it can break
-        // history manager.
-
-        return sourceFiles;
-    }
-
-    public synchronized String[] getModuleSourceNames() {
-        List<File> moduleSources = getSources();
-        String[] moduleSourceNames = new String[moduleSources.size()];
-        int i = 0;
-        for (File source : moduleSources) {
-            moduleSourceNames[i] = source.getName();
-            i++;
-        }
-        return moduleSourceNames;
-    }
-
-    public synchronized File getSourceByName(String fileName) {
-        List<File> sourceFiles = getSources();
-
-        for (File file : sourceFiles) {
-            if (file.getName().equals(fileName)) {
-                return file;
-            }
-        }
-
-        return null;
-    }
-
-    public String getHistoryStoragePath() {
-        return historyStoragePath;
     }
 
     private void initHistoryStoragePath() {
@@ -1579,10 +1522,6 @@ public class ProjectModel {
                 }
             }
         }
-    }
-
-    public boolean isCompilationInProgress() {
-        return compilationInProgress;
     }
 
     public boolean isProjectCompilationCompleted() {

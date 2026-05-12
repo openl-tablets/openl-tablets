@@ -1253,7 +1253,7 @@ public class ProjectBean {
 
         studio.init(currentProject.getDesignRepository().getId(),
                 currentProject.getBranch(),
-                currentProject.getName(),
+                currentDescriptor.getName(),
                 modules.getFirst().getName());
         org.openl.rules.ui.ProjectModel projectModel = studio.getModel();
         while (!isCompilationCompleted(projectModel)) {
@@ -1265,18 +1265,7 @@ public class ProjectBean {
             }
         }
         final String existedOpenAPIFilePath = getExistedOpenAPIFilePath();
-        final boolean update = existedOpenAPIFilePath != null;
-        CompiledOpenClass compiledOpenClass = projectModel.getCompiledOpenClass();
-        final boolean hasCompilationErrors;
-        if (compiledOpenClass instanceof ValidatedCompiledOpenClass validated) {
-            hasCompilationErrors = validated.hasErrors() && !validated.hasOnlyValidationErrors();
-        } else {
-            hasCompilationErrors = compiledOpenClass.hasErrors();
-        }
-        if (hasCompilationErrors) {
-            throw new Message(
-                    "Cannot %s OpenAPI file. Project has compilation error.".formatted(update ? "update" : "create"));
-        }
+        final boolean update = isUpdate(existedOpenAPIFilePath, projectModel);
 
         tryLockProject();
         try {
@@ -1330,6 +1319,22 @@ public class ProjectBean {
                 currentProject.unlock();
             }
         }
+    }
+
+    private static boolean isUpdate(String existedOpenAPIFilePath, org.openl.rules.ui.ProjectModel projectModel) {
+        final boolean update = existedOpenAPIFilePath != null;
+        CompiledOpenClass compiledOpenClass = projectModel.getCompiledOpenClass();
+        final boolean hasCompilationErrors;
+        if (compiledOpenClass instanceof ValidatedCompiledOpenClass validated) {
+            hasCompilationErrors = validated.hasErrors() && !validated.hasOnlyValidationErrors();
+        } else {
+            hasCompilationErrors = compiledOpenClass.hasErrors();
+        }
+        if (hasCompilationErrors) {
+            throw new Message(
+                    "Cannot %s OpenAPI file. Project has compilation error.".formatted(update ? "update" : "create"));
+        }
+        return update;
     }
 
     private static boolean isCompilationCompleted(org.openl.rules.ui.ProjectModel projectModel) {
