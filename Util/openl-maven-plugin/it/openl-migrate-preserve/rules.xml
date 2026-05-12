@@ -1,0 +1,14 @@
+<project>
+    <name>preserve-fixture-name</name>
+    <modules>
+        <module>
+            <name>main</name>
+            <rules-root path="rules/Hello.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>%lob%-%state%</properties-file-name-pattern>
+    <properties-file-name-processor>org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
+    <exposed-methods>
+        <include>pong</include>
+    </exposed-methods>
+</project>
