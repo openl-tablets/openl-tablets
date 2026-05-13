@@ -98,34 +98,39 @@ class ProtectedBranchBypassServiceImplTest {
     @Test
     void requireBypass_branchNotProtected_isNoOp() {
         when(repo.isBranchProtected(BRANCH)).thenReturn(false);
-        assertDoesNotThrow(() -> service(true).requireBypassOrThrow(repo, BRANCH, project, false));
+        var svc = service(true);
+        assertDoesNotThrow(() -> svc.requireBypassOrThrow(repo, BRANCH, project, false));
     }
 
     @Test
     void requireBypass_protectedNotEligible_throwsForbidden() {
         when(aclProjectsHelper.hasPermission(any(RulesProject.class), eq(BasePermission.ADMINISTRATION))).thenReturn(false);
+        var svc = service(true);
         assertThrows(ForbiddenException.class,
-                () -> service(true).requireBypassOrThrow(repo, BRANCH, project, true));
+                () -> svc.requireBypassOrThrow(repo, BRANCH, project, true));
     }
 
     @Test
     void requireBypass_settingDisabledThrowsForbiddenEvenForManager() {
         when(aclProjectsHelper.hasPermission(any(RulesProject.class), eq(BasePermission.ADMINISTRATION))).thenReturn(true);
+        var svc = service(false);
         assertThrows(ForbiddenException.class,
-                () -> service(false).requireBypassOrThrow(repo, BRANCH, project, true));
+                () -> svc.requireBypassOrThrow(repo, BRANCH, project, true));
     }
 
     @Test
     void requireBypass_protectedEligibleNoForce_throwsBypassRequired() {
         when(aclProjectsHelper.hasPermission(any(RulesProject.class), eq(BasePermission.ADMINISTRATION))).thenReturn(true);
+        var svc = service(true);
         assertThrows(ProtectedBranchBypassRequiredException.class,
-                () -> service(true).requireBypassOrThrow(repo, BRANCH, project, false));
+                () -> svc.requireBypassOrThrow(repo, BRANCH, project, false));
     }
 
     @Test
     void requireBypass_protectedEligibleWithForce_isNoOp() {
         when(aclProjectsHelper.hasPermission(any(RulesProject.class), eq(BasePermission.ADMINISTRATION))).thenReturn(true);
-        assertDoesNotThrow(() -> service(true).requireBypassOrThrow(repo, BRANCH, project, true));
+        var svc = service(true);
+        assertDoesNotThrow(() -> svc.requireBypassOrThrow(repo, BRANCH, project, true));
     }
 
     // --- requireBypassOrThrow(repoId) ---
@@ -133,20 +138,23 @@ class ProtectedBranchBypassServiceImplTest {
     @Test
     void requireBypassRepoId_protectedEligibleNoForce_throwsBypassRequired() {
         when(designRepositoryAclService.isGranted(eq(REPO_ID), isNull(), eq(List.of(BasePermission.ADMINISTRATION)))).thenReturn(true);
+        var svc = service(true);
         assertThrows(ProtectedBranchBypassRequiredException.class,
-                () -> service(true).requireBypassOrThrow(repo, BRANCH, REPO_ID, false));
+                () -> svc.requireBypassOrThrow(repo, BRANCH, REPO_ID, false));
     }
 
     @Test
     void requireBypassRepoId_protectedEligibleWithForce_isNoOp() {
         when(designRepositoryAclService.isGranted(eq(REPO_ID), isNull(), eq(List.of(BasePermission.ADMINISTRATION)))).thenReturn(true);
-        assertDoesNotThrow(() -> service(true).requireBypassOrThrow(repo, BRANCH, REPO_ID, true));
+        var svc = service(true);
+        assertDoesNotThrow(() -> svc.requireBypassOrThrow(repo, BRANCH, REPO_ID, true));
     }
 
     @Test
     void requireBypassRepoId_protectedNotEligible_throwsForbidden() {
         when(designRepositoryAclService.isGranted(eq(REPO_ID), isNull(), eq(List.of(BasePermission.ADMINISTRATION)))).thenReturn(false);
+        var svc = service(true);
         assertThrows(ForbiddenException.class,
-                () -> service(true).requireBypassOrThrow(repo, BRANCH, REPO_ID, true));
+                () -> svc.requireBypassOrThrow(repo, BRANCH, REPO_ID, true));
     }
 }

@@ -194,6 +194,12 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     const canSend = checkResultSend?.status === 'mergeable'
     const isReceiveUpToDate = checkResultReceive?.status === 'up-to-date'
     const isSendUpToDate = checkResultSend?.status === 'up-to-date'
+    const receiveActionTooltip = bypassRequiredReceive
+        ? t('merge:bypass.action_tooltip')
+        : t('merge:actions.receive_description')
+    const sendActionTooltip = bypassRequiredSend
+        ? t('merge:bypass.action_tooltip')
+        : t('merge:actions.send_description')
 
     return (
         <Space orientation="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
@@ -269,11 +275,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     )}
                     <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Tooltip
-                            title={isReceiveUpToDate
-                                ? t('merge:status.up_to_date_receive')
-                                : (bypassRequiredReceive
-                                    ? t('merge:bypass.action_tooltip')
-                                    : t('merge:actions.receive_description'))}
+                            title={isReceiveUpToDate ? t('merge:status.up_to_date_receive') : receiveActionTooltip}
                         >
                             <Button
                                 danger={bypassRequiredReceive}
@@ -287,11 +289,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                             </Button>
                         </Tooltip>
                         <Tooltip
-                            title={isSendUpToDate
-                                ? t('merge:status.up_to_date_send')
-                                : (bypassRequiredSend
-                                    ? t('merge:bypass.action_tooltip')
-                                    : t('merge:actions.send_description'))}
+                            title={isSendUpToDate ? t('merge:status.up_to_date_send') : sendActionTooltip}
                         >
                             <Button
                                 danger={bypassRequiredSend}
