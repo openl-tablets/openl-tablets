@@ -73,6 +73,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
@@ -112,6 +113,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableCreatorService tableCreatorService;
     private final TableWritersFactory tableWritersFactory;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProtectedBranchBypassService bypassService;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -125,7 +127,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableCreatorService tableCreatorService,
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            ProtectedBranchBypassService bypassService) {
         super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -138,6 +141,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
         this.eventPublisher = eventPublisher;
+        this.bypassService = bypassService;
     }
 
     @Lookup
@@ -472,13 +476,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ForbiddenException("default.message");
         }
         var repository = (BranchRepository) project.getDesignRepository();
+        boolean bypassEligible = bypassService.isBypassEligible(project);
         try {
             // projectPath parameter is not required because we need all branches for repository, not only selected project branches
             return repository.getBranches(null).stream()
-                    .map(branch -> ProjectBranchInfo.builder()
-                            .name(branch)
-                            .protectedFlag(repository.isBranchProtected(branch))
-                            .build())
+                    .map(branch -> {
+                        boolean isProtected = repository.isBranchProtected(branch);
+                        return ProjectBranchInfo.builder()
+                                .name(branch)
+                                .protectedFlag(isProtected)
+                                .bypassEligible(isProtected && bypassEligible)
+                                .build();
+                    })
                     .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
                     .toList();
         } catch (IOException e) {

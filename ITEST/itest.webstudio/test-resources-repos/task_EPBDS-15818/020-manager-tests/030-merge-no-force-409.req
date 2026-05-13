@@ -1,0 +1,8 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU4MTg6YTg3MDljZjYyOTMwMmI0NDY4ZWU4YmYyMjc0NWNhZmE4OTEzMWVmMDhkNjllZjRkZmFmN2IxYWNkMGJlYzVlYg==/merge HTTP/1.1
+Authorization: Basic bWFuYWdlcl8xNTgxODptYW5hZ2VyXzE1ODE4
+Content-Type: application/json
+
+{
+  "mode": "send",
+  "otherBranch": "release-EPBDS-15818"
+}

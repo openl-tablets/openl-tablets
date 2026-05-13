@@ -180,6 +180,10 @@ Content-Type: application/json
       "ProjectBranchInfo": {
         "type": "object",
         "properties": {
+          "bypassEligible": {
+            "type": "boolean",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -823,6 +827,10 @@ Content-Type: application/json
           }
         ],
         "properties": {
+          "allowBypassProtectedBranches": {
+            "type": "boolean",
+            "description": "***"
+          },
           "allowProjectCreateDelete": {
             "type": "boolean",
             "description": "***"
@@ -11713,6 +11721,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "force",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "requestBody": {
@@ -11816,6 +11833,15 @@ Content-Type: application/json
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "force",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -16286,6 +16312,10 @@ Content-Type: application/json
                     "type": "string"
                   },
                   "overwrite": {
+                    "description": "***",
+                    "type": "boolean"
+                  },
+                  "force": {
                     "description": "***",
                     "type": "boolean"
                   },

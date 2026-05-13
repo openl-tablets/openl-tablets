@@ -3,6 +3,12 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'security', {
     select_user_mode: 'Select User Mode',
     allowProjectCreateDelete: 'Permit creating and deleting projects',
+    allowBypassProtectedBranches: 'Allow Managers to bypass protected branches',
+    allowBypassProtectedBranches_info_enabled: 'When enabled, users with the <0>Manager</0> role can merge changes directly into protected branches from the OpenL Studio UI. When disabled, protected branch restrictions apply uniformly to all users and merges must be completed using external Git tooling.',
+    allowBypassProtectedBranches_info_scope_intro: 'The bypass follows the scope of the assigned <0>Manager</0> role:',
+    allowBypassProtectedBranches_info_scope_project: 'If granted at the <0>project</0> level, the bypass applies to that project only.',
+    allowBypassProtectedBranches_info_scope_repository: 'If granted at the <0>repository</0> level, the bypass applies to all projects in the repository.',
+    allowBypassProtectedBranches_info_note: '<0>Note:</0> The <0>Manager</0> role also grants permission to manage access rights for other users and groups on the resource. It is not currently possible to grant merge-bypass authority without also granting role management rights.',
     select_user_mode_info: 'User mode defines how many users can run the application and where user projects will be located by default.',
     configure_initial_users: 'Configure Initial Users',
     configure_initial_users_info: 'Add a list of comma-separated users with administrator privileges and decide whether to grant view access for OpenL Studio to the newly created users.',

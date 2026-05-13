@@ -2,18 +2,23 @@ package org.openl.studio.projects.validator;
 
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 /**
  * Project state validator implementation
  */
 @Component
+@RequiredArgsConstructor
 public class ProjectStateValidatorImpl implements ProjectStateValidator {
+
+    private final ProtectedBranchBypassService bypassService;
 
     @Override
     public boolean canSave(UserWorkspaceProject project) {
@@ -21,16 +26,19 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
     }
 
     private boolean isEditableProject(UserWorkspaceProject project) {
-        if (isCurrentBranchProtected(project)) {
+        if (isCurrentBranchProtectionEnforced(project)) {
             return false;
         }
         return project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing();
     }
 
-    private boolean isCurrentBranchProtected(UserWorkspaceProject project) {
+    private boolean isCurrentBranchProtectionEnforced(UserWorkspaceProject project) {
         if (project != null && !project.isLocalOnly()) {
             Repository repo = project.getDesignRepository();
-            return repo.supports().branches() && ((BranchRepository) repo).isBranchProtected(project.getBranch());
+            if (repo != null && repo.supports().branches()) {
+                return bypassService.isProtectionEnforced(
+                        (BranchRepository) repo, project.getBranch(), project);
+            }
         }
         return false;
     }

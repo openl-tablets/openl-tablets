@@ -4,6 +4,7 @@ Content-Type: application/json
 {
   "userMode": "single",
   "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false,
   "user": {
     "username": "jdoe",
     "email": "jdoe@example.com",

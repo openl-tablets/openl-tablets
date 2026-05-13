@@ -5,6 +5,7 @@ Content-Type: application/json
   "userMode": "ad",
   "defaultGroup": "",
   "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false,
   "domain": "",
   "serverUrl": "ldap://ldap.example.com:3268",
   "searchFilter": "(&(objectClass=user)(userPrincipalName={0}))",

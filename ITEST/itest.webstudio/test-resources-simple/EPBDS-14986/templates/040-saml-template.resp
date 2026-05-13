@@ -5,6 +5,7 @@ Content-Type: application/json
   "userMode": "saml",
   "defaultGroup": "",
   "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false,
   "entityId": "webstudio",
   "metadataUrl": "",
   "serverCertificate": "",

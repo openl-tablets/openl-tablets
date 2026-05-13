@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { Button, Divider, Form, Modal, notification, Row, Typography } from 'antd'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { Checkbox, RadioGroup } from '../components/form'
 import { SecurityUserMode } from '../constants/security'
@@ -30,6 +30,32 @@ const UserModeModal = (
                 </p>
                 <p>
                     <b>Active Directory</b>, <b>SSO: SAML</b>, and <b>SSO: OAuth2</b> modes allow multiple users to run OpenL Studio using their unique user names. User credentials are managed by the respective identity provider server.
+                </p>
+            </>
+        )}
+    />
+)
+
+const BypassProtectedBranchesModal = (
+    <InfoFieldModal
+        text={(
+            <>
+                <p>
+                    <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_enabled" />
+                </p>
+                <p>
+                    <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_scope_intro" />
+                </p>
+                <ul>
+                    <li>
+                        <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_scope_project" />
+                    </li>
+                    <li>
+                        <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_scope_repository" />
+                    </li>
+                </ul>
+                <p>
+                    <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_note" />
                 </p>
             </>
         )}
@@ -187,6 +213,11 @@ export const Security = () => {
                 <InitialUsers showDefaultGroup={mode !== SecurityUserMode.MULTI} userGroups={userGroups} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
+            <Checkbox
+                label={t('security:allowBypassProtectedBranches')}
+                name="allowBypassProtectedBranches"
+                tooltip={{ icon: BypassProtectedBranchesModal }}
+            />
             <Row justify="end">
                 <Button htmlType="submit" type="primary">
                     {t('common:btn.apply')}

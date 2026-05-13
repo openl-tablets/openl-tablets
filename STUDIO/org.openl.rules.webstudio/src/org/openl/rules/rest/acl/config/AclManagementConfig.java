@@ -1,5 +1,6 @@
 package org.openl.rules.rest.acl.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,10 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassServiceImpl;
 
 @Configuration
 public class AclManagementConfig {
@@ -36,6 +40,14 @@ public class AclManagementConfig {
     public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider,
                                                @Value("${security.allow-project-create-delete}") boolean allowProjectCreateDelete) {
         return new AclProjectsHelperImpl(aclServiceProvider, allowProjectCreateDelete);
+    }
+
+    @Bean
+    public ProtectedBranchBypassService protectedBranchBypassService(
+            AclProjectsHelper aclProjectsHelper,
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+            @Value("${security.allow-bypass-protected-branches}") boolean allowBypassProtectedBranches) {
+        return new ProtectedBranchBypassServiceImpl(aclProjectsHelper, designRepositoryAclService, allowBypassProtectedBranches);
     }
 
     @Bean

@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU4MTg6YTg3MDljZjYyOTMwMmI0NDY4ZWU4YmYyMjc0NWNhZmE4OTEzMWVmMDhkNjllZjRkZmFmN2IxYWNkMGJlYzVlYg== HTTP/1.1
+Authorization: Basic Y29udHJpYnV0b3JfMTU4MTg6Y29udHJpYnV0b3JfMTU4MTg=
+Content-Type: application/json
+
+{
+  "branch": "EPBDS-15818_dev"
+}

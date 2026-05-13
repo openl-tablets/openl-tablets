@@ -55,6 +55,7 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.util.StringUtils;
 
 /**
@@ -94,17 +95,20 @@ public class CopyBean {
     private Comments designRepoComments;
 
     private final AclProjectsHelper aclProjectsHelper;
+    private final ProtectedBranchBypassService bypassService;
 
     public CopyBean(PropertyResolver propertyResolver,
                     RepositoryTreeState repositoryTreeState,
                     ProjectTagsBean projectTagsBean,
                     @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-                    AclProjectsHelper aclProjectsHelper) {
+                    AclProjectsHelper aclProjectsHelper,
+                    ProtectedBranchBypassService bypassService) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
         this.designRepositoryAclService = designRepositoryAclService;
         this.aclProjectsHelper = aclProjectsHelper;
+        this.bypassService = bypassService;
     }
 
     public boolean getCanCopy(AProject project) {
@@ -521,8 +525,8 @@ public class CopyBean {
         DesignTimeRepository designRepo = getUserWorkspace().getDesignTimeRepository();
         return designRepo.getRepositories()
                 .stream()
-                .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
-                        .isBranchProtected(((BranchRepository) repo).getBranch()))
+                .filter(repo -> !repo.supports().branches() || !bypassService.isProtectionEnforced(
+                        (BranchRepository) repo, ((BranchRepository) repo).getBranch(), repo.getId()))
                 .collect(Collectors.toList());
     }
 

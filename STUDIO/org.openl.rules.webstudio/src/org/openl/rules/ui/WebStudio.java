@@ -96,6 +96,7 @@ import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -185,6 +186,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final ApplicationEventPublisher eventPublisher;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+    private final ProtectedBranchBypassService bypassService;
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
@@ -197,7 +199,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      PropertyResolver propertyResolver,
                      DeploymentManager deploymentManager,
                      ApplicationEventPublisher eventPublisher,
-                     ProjectsMergeConflictsSessionHolder conflictsSessionHolder
+                     ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
+                     ProtectedBranchBypassService bypassService
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -212,6 +215,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.deploymentManager = deploymentManager;
         this.eventPublisher = eventPublisher;
         this.conflictsSessionHolder = conflictsSessionHolder;
+        this.bypassService = bypassService;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
@@ -222,6 +226,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public RepositoryAclService getDesignRepositoryAclService() {
         return designRepositoryAclService;
+    }
+
+    public ProtectedBranchBypassService getBypassService() {
+        return bypassService;
     }
 
     private void copyExternalProperty(String key) {
@@ -1350,9 +1358,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public boolean isBranchProtected() {
-        return Optional.ofNullable(getCurrentProject())
-                .map(UserWorkspaceProject::isBranchProtected)
-                .orElse(Boolean.FALSE);
+        var project = getCurrentProject();
+        if (project == null || project.isLocalOnly()) {
+            return false;
+        }
+        var repo = project.getDesignRepository();
+        if (!repo.supports().branches()) {
+            return false;
+        }
+        return bypassService.isProtectionEnforced((BranchRepository) repo, project.getBranch(), project);
     }
 
     public Map<String, Object> getExternalProperties() {

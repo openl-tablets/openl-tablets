@@ -6,6 +6,7 @@ Content-Type: application/json
   "administrators": ["admin"],
   "defaultGroup": "Viewers",
   "allowProjectCreateDelete": true,
+  "allowBypassProtectedBranches": false,
   "clientId": "openlstudio",
   "clientSecret": {
     "secret": true

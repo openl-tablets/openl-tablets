@@ -119,6 +119,7 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -196,6 +197,9 @@ public class RepositoryTreeController {
 
     @Autowired
     private AclProjectsHelper aclProjectsHelper;
+
+    @Autowired
+    private ProtectedBranchBypassService bypassService;
 
     private String repositoryId;
     private String projectName;
@@ -541,8 +545,8 @@ public class RepositoryTreeController {
         DesignTimeRepository designRepo = userWorkspace.getDesignTimeRepository();
         return designRepo.getRepositories()
                 .stream()
-                .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
-                        .isBranchProtected(((BranchRepository) repo).getBranch()))
+                .filter(repo -> !repo.supports().branches() || !bypassService.isProtectionEnforced(
+                        (BranchRepository) repo, ((BranchRepository) repo).getBranch(), repo.getId()))
                 .filter(e -> aclProjectsHelper.hasCreateProjectPermission(e.getId()))
                 .collect(Collectors.toList());
     }
@@ -2350,7 +2354,8 @@ public class RepositoryTreeController {
     private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
         Repository repo = selectedProject.getDesignRepository();
         if (repo != null && repo.supports().branches()) {
-            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
+            return bypassService.isProtectionEnforced(
+                    (BranchRepository) repo, selectedProject.getBranch(), selectedProject);
         }
         return false;
     }

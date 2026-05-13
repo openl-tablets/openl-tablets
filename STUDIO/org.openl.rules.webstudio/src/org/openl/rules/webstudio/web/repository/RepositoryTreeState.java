@@ -51,6 +51,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
@@ -91,6 +92,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Autowired
     private AclProjectsHelper aclProjectsHelper;
+
+    @Autowired
+    private ProtectedBranchBypassService bypassService;
 
     @Autowired
     private SecureDeploymentRepositoryService deploymentRepositoryService;
@@ -787,7 +791,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
         Repository repo = selectedProject.getDesignRepository();
         if (repo != null && repo.supports().branches()) {
-            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
+            return bypassService.isProtectionEnforced(
+                    (BranchRepository) repo, selectedProject.getBranch(), selectedProject);
         }
         return false;
     }
