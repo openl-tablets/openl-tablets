@@ -36,28 +36,6 @@ const UserModeModal = (
     />
 )
 
-const BypassProtectedBranchesModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>
-                    When enabled, users with the <b>Manager</b> role can merge changes directly into protected branches from the OpenL Studio UI. When disabled, protected branch restrictions apply uniformly to all users and merges must be completed using external Git tooling.
-                </p>
-                <p>
-                    The bypass follows the scope of the assigned <b>Manager</b> role:
-                </p>
-                <ul>
-                    <li>If granted at the <b>project</b> level, the bypass applies to that project only.</li>
-                    <li>If granted at the <b>repository</b> level, the bypass applies to all projects in the repository.</li>
-                </ul>
-                <p>
-                    <b>Note:</b> The <b>Manager</b> role also grants permission to manage access rights for other users and groups on the resource. It is not currently possible to grant merge-bypass authority without also granting role management rights.
-                </p>
-            </>
-        )}
-    />
-)
-
 export const Security = () => {
     const { t } = useTranslation()
     const [form] = Form.useForm()
@@ -209,11 +187,6 @@ export const Security = () => {
                 <InitialUsers showDefaultGroup={mode !== SecurityUserMode.MULTI} userGroups={userGroups} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
-            <Checkbox
-                label={t('security:allowBypassProtectedBranches')}
-                name="allowBypassProtectedBranches"
-                tooltip={{ icon: BypassProtectedBranchesModal }}
-            />
             <Row justify="end">
                 <Button htmlType="submit" type="primary">
                     {t('common:btn.apply')}
