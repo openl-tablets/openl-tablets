@@ -8,6 +8,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
 - Use Java 21+ features where appropriate
 - Use Lombok for boilerplate reduction
+- Use `var` keyword in Java classes for declaring a variable type where possible
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
