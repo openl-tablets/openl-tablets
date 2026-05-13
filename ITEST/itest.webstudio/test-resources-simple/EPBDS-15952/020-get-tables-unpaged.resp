@@ -1,0 +1,81 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "8365291ced8dd58717c33d07abfe2f24",
+      "tableType": "Environment",
+      "kind": "Environment",
+      "name": "Environment",
+      "file": "EPBDS-15952-Project/Main.xlsx",
+      "pos": "G4:H5"
+    },
+    {
+      "id": "ef130fc652bbd11c47556f92d5714275",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "EPBDS-15952-Project/Main.xlsx",
+      "pos": "B3:E11"
+    },
+    {
+      "id": "21bdae829e3c23abca125d5e138a2318",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "properties": {
+        "state": ["AL"]
+      },
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "EPBDS-15952-Project/Main.xlsx",
+      "pos": "B18:E27"
+    },
+    {
+      "id": "b7f5e529dd863c50a60faeb05f3ba881",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "properties": {
+        "state": ["AZ"]
+      },
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "EPBDS-15952-Project/Main.xlsx",
+      "pos": "B29:E38"
+    },
+    {
+      "id": "507be09607bcbb661368dcf531b6f2d2",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "EPBDS-15952-Project/Main2.xlsx",
+      "pos": "B3:E11"
+    },
+    {
+      "id": "81120801736dfd651e3b7efd3f5a93e5",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "HelloTest",
+      "file": "EPBDS-15952-Project/Main.xlsx",
+      "pos": "B13:C16"
+    },
+    {
+      "id": "1ace9d7588761211a02c3727857e40e8",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "HelloTest3",
+      "file": "EPBDS-15952-Project/Main.xlsx",
+      "pos": "B45:C48"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 7,
+  "numberOfElements": 7,
+  "total": 7
+}
