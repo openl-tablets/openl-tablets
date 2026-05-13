@@ -18,10 +18,7 @@ class SAXFormulaParsingWorkbook implements FormulaParsingWorkbook {
 
     @Override
     public EvaluationName getName(String name, int sheetIndex) {
-        // No defined names are tracked by the SAX parser. Returning null lets POI's FormulaParser
-        // fall back to creating a NameXPxg for unknown identifiers (e.g. Analysis ToolPak functions
-        // like RANDBETWEEN that are not in POI's built-in function registry).
-        return null;
+        throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
     }
 
     @Override
@@ -37,8 +34,7 @@ class SAXFormulaParsingWorkbook implements FormulaParsingWorkbook {
     @Override
     public Ptg getNameXPtg(String name, SheetIdentifier sheet) {
         if (sheet == null) {
-            // Unknown unscoped name — let POI's FormulaParser create a NameXPxg fallback.
-            return null;
+            throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
         }
         if (sheet.getSheetIdentifier() == null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
