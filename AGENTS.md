@@ -7,6 +7,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
 - Use Java 21+ features where appropriate
+- Use Lombok for boilerplate reduction
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
