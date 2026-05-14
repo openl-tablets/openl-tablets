@@ -12,7 +12,6 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.engine.OpenLCompileManager;
-import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
@@ -22,11 +21,9 @@ import org.openl.rules.table.properties.PropertiesLoader;
 @Slf4j
 public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
 
-    public static final String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
-
     @Override
     public boolean isRulesProject(Path folder) {
-        Path descriptorFile = folder.resolve(PROJECT_DESCRIPTOR_FILE_NAME);
+        Path descriptorFile = folder.resolve(ProjectDescriptor.FILE_NAME);
         if (Files.exists(descriptorFile)) {
             log.debug("Project in folder '{}' has been resolved as project descriptor based project.",
                     descriptorFile);
@@ -35,19 +32,17 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             log.debug(
                     "Project descriptor based strategy is failed to resolve project folder '{}': there is no file '{}' in the folder.",
                     descriptorFile,
-                    PROJECT_DESCRIPTOR_FILE_NAME);
+                    ProjectDescriptor.FILE_NAME);
             return false;
         }
     }
 
     @Override
     public ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException {
-        Path descriptorFile = folder.resolve(PROJECT_DESCRIPTOR_FILE_NAME);
         Set<String> globalErrorMessages = new LinkedHashSet<>();
-        ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
-            ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
+            var projectDescriptor = ProjectDescriptor.read(folder).expand().validate();
             PropertiesFileNameProcessor processor = null;
             try {
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
@@ -94,7 +89,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     ex);
         } catch (FileNotFoundException e) {
             throw new ProjectResolvingException(
-                    "Project descriptor is not found. File '" + PROJECT_DESCRIPTOR_FILE_NAME + "' is missed.",
+                    "Project descriptor is not found. File '" + ProjectDescriptor.FILE_NAME + "' is missed.",
                     e);
         } catch (Exception e) {
             throw new ProjectResolvingException("Failed to read project descriptor.", e);

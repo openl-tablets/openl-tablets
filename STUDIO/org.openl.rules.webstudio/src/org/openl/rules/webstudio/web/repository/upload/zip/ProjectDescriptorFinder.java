@@ -6,12 +6,9 @@ import java.io.InputStream;
 import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 
 public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
-    private final XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
     private ProjectDescriptor projectDescriptor;
     private boolean exists;
     private JAXBException serializationException;
@@ -19,10 +16,10 @@ public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
 
     @Override
     public boolean execute(String filePath, InputStream inputStream) {
-        if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(filePath)) {
+        if (ProjectDescriptor.FILE_NAME.equals(filePath)) {
             exists = true;
             try {
-                projectDescriptor = serializer.deserialize(inputStream);
+                projectDescriptor = ProjectDescriptor.read(inputStream);
             } catch (JAXBException e) {
                 serializationException = e;
             }
@@ -35,7 +32,7 @@ public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
         if (!exists) {
             throw new ProjectDescriptionNotFoundException(
                     format("Project descriptor file %s not found",
-                            ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                            ProjectDescriptor.FILE_NAME));
         }
         if (serializationException != null) {
             throw new InvalidProjectDescriptorFileFormatException(ProjectDescriptorUtils.getErrorMessage(serializationException));

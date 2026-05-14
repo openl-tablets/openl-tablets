@@ -69,8 +69,6 @@ import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -741,7 +739,7 @@ public class RepositoryTreeController {
             }
             return files.stream().anyMatch(fileData -> {
                 String name = fileData.getName();
-                if (name.equals(projectPath + "rules.xml")) {
+                if (name.equals(projectPath + ProjectDescriptor.FILE_NAME)) {
                     return true;
                 }
                 if (name.endsWith(".xls") || name.endsWith(".xlsx")) {
@@ -787,7 +785,7 @@ public class RepositoryTreeController {
         AProjectArtefact projectDescriptorArtifact;
         try {
             projectDescriptorArtifact = selectedProject
-                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                    .getArtefact(ProjectDescriptor.FILE_NAME);
         } catch (ProjectException ex) {
             // Project does not contain rules.xml file
             return;
@@ -795,8 +793,6 @@ public class RepositoryTreeController {
         Collection<String> modulePaths = new HashSet<>();
         findModulePaths(aProjectArtefact, modulePaths);
         if (projectDescriptorArtifact instanceof AProjectResource resource) {
-            var serializer = new XmlProjectDescriptorSerializer();
-
             String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath()
                     .withoutFirstSegment()
                     .getStringValue();
@@ -809,7 +805,7 @@ public class RepositoryTreeController {
             InputStream content = resource.getContent();
             ProjectDescriptor projectDescriptor;
             try {
-                projectDescriptor = serializer.deserialize(content);
+                projectDescriptor = ProjectDescriptor.read(content);
             } catch (JAXBException e) {
                 log.error("Broken rules.xml file. Cannot remove modules from it", e);
                 return;
@@ -849,8 +845,7 @@ public class RepositoryTreeController {
                 }
             }
             if (projectDescriptorChanged) {
-                String xmlString = serializer.serialize(projectDescriptor);
-                InputStream newContent = IOUtils.toInputStream(xmlString);
+                InputStream newContent = projectDescriptor.toInputStream();
                 if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
                     throw new Message("There is no permission for modifying '%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(resource)));
@@ -2085,16 +2080,14 @@ public class RepositoryTreeController {
             try {
                 UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
                 AProjectArtefact projectDescriptorArtifact = selectedProject
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptor.FILE_NAME);
                 if (projectDescriptorArtifact instanceof AProjectResource resource) {
-                    var serializer = new XmlProjectDescriptorSerializer();
-
                     if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
                         throw new Message("There is no permission for modifying '%s' file.".formatted(
                                 ProjectArtifactUtils.extractResourceName(resource)));
                     }
                     content = resource.getContent();
-                    ProjectDescriptor projectDescriptor = serializer.deserialize(content);
+                    ProjectDescriptor projectDescriptor = ProjectDescriptor.read(content);
                     String modulePath = addedFileResource.getArtefactPath().withoutFirstSegment().getStringValue();
                     while (modulePath.charAt(0) == '/') {
                         modulePath = modulePath.substring(1);
@@ -2106,11 +2099,10 @@ public class RepositoryTreeController {
                     if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
                         projectDescriptor.getModules().add(module);
                     }
-                    String xmlString = serializer.serialize(projectDescriptor);
-                    InputStream newContent = IOUtils.toInputStream(xmlString);
+                    InputStream newContent = projectDescriptor.toInputStream();
                     resource.setContent(newContent);
                 }
-            } catch (ProjectException | JAXBException | IOException ex) {
+            } catch (ProjectException | JAXBException ex) {
                 if (log.isDebugEnabled()) {
                     log.debug(ex.getMessage(), ex);
                 }

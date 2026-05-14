@@ -17,12 +17,14 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.CollectionUtils;
 import org.openl.util.ZipUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
     private static final String SEPARATOR = "--------------------------------------------------";
-    private static final Collection<String> OPENL_FILES = Arrays.asList("rules.xml", "rules-deploy.xml");
+    private static final Collection<String> OPENL_FILES = Arrays.asList(ProjectDescriptor.FILE_NAME, RulesDeploy.FILE_NAME);
 
     /**
      * Folder that contains all OpenL Tablets-related resources such as rules and project descriptor, for example,

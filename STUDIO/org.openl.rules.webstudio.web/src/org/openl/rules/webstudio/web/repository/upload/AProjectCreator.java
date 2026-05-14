@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
@@ -85,7 +83,7 @@ public abstract class AProjectCreator {
     }
 
     protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws ProjectException {
-        if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
+        if (ProjectDescriptor.FILE_NAME.equals(fileName)) {
             // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
             // original rules.xml.
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -97,10 +95,9 @@ public abstract class AProjectCreator {
             ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
-                XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-                ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
+                ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
                 projectDescriptor.setName(getProjectName());
-                return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
+                return projectDescriptor.toInputStream();
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
                 copy.reset();

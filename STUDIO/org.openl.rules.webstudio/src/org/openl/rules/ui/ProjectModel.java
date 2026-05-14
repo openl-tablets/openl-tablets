@@ -62,7 +62,6 @@ import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrat
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.repository.api.BranchRepository;
@@ -662,10 +661,10 @@ public class ProjectModel {
 
     public boolean isEditableProjectDescriptor() {
         RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+        if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             try {
                 AProjectArtefact rulesDescriptorArtifact = currentProject
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptor.FILE_NAME);
                 return studio.getDesignRepositoryAclService()
                         .isGranted(rulesDescriptorArtifact, List.of(BasePermission.WRITE));
             } catch (ProjectException ignored) {

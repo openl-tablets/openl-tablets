@@ -16,11 +16,8 @@ import java.util.zip.ZipInputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -35,7 +32,6 @@ import org.openl.rules.workspace.filter.PathFilter;
 public class ZipCharsetDetector {
     private final Charset[] charsets;
     private final PathFilter zipFilter;
-    private IProjectDescriptorSerializer projectDescriptorSerializer;
 
     /**
      * Create zip charset detector.
@@ -171,21 +167,14 @@ public class ZipCharsetDetector {
                 }
                 String entryName = entry.getName();
                 String fileName = extractor.extractFromRootFolder(entryName);
-                if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
-                    return getProjectDescriptorSerializer().deserialize(zipInputStream);
+                if (ProjectDescriptor.FILE_NAME.equals(fileName)) {
+                    return ProjectDescriptor.read(zipInputStream);
                 }
             }
         } catch (Exception e) {
             log.debug("Cannot read project descriptor. Skip it. Cause: {}", e.getMessage(), e);
         }
         return null;
-    }
-
-    private IProjectDescriptorSerializer getProjectDescriptorSerializer() {
-        if (projectDescriptorSerializer == null) {
-            projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
-        }
-        return projectDescriptorSerializer;
     }
 
     private boolean checkNames(Collection<String> entryNames) {

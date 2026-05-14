@@ -1,15 +1,14 @@
 package org.openl.rules.project.model;
 
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.EXPOSED_METHODS_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
+import static org.openl.rules.project.model.ProjectDependencyDescriptor.DEPENDENCY_TAG;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,47 +18,61 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
+import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
+import org.openl.util.OS;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = PROJECT_DESCRIPTOR_TAG)
+@XmlRootElement(name = "project")
+@Getter
+@Setter
 public class ProjectDescriptor {
-    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter2.class)
     private String name;
     private String comment;
     @XmlTransient
     private Path projectFolder;
-    @XmlElementWrapper(name = "modules")
-    @XmlElement(name = "module")
-    private List<Module> modules;
-    @XmlElementWrapper(name = "classpath")
-    @XmlElement(name = "entry")
-    private List<PathEntry> classpath;
+    @XmlElement(name = "modules")
+    @XmlJavaTypeAdapter(ModulesAdapter.class)
+    private List<Module> modules = new ArrayList<>();
+    @XmlElement(name = "classpath")
+    @XmlJavaTypeAdapter(ClasspathAdapter.class)
+    private List<PathEntry> classpath = new ArrayList<>();
     private OpenAPI openapi;
 
     @XmlElementWrapper(name = "dependencies")
     @XmlElement(name = DEPENDENCY_TAG)
     private List<ProjectDependencyDescriptor> dependencies;
-    @XmlElement(name = PROPERTIES_FILE_NAME_PATTERN)
+    @XmlElement(name = "properties-file-name-pattern")
     private String[] propertiesFileNamePatterns;
-    @XmlElement(name = PROPERTIES_FILE_NAME_PROCESSOR)
+    @XmlElement(name = "properties-file-name-processor")
     private String propertiesFileNameProcessor;
 
     /**
@@ -69,51 +82,14 @@ public class ProjectDescriptor {
      * this filter uses glob-style patterns ({@code *} and {@code ?}) matched against method names only,
      * making it simpler for users to configure.
      */
-    @XmlElement(name = EXPOSED_METHODS_TAG)
+    @XmlElement(name = "exposed-methods")
     private ExposedMethods exposedMethods;
 
+    /** Lazy classpath URL cache; computed by {@link #getClassPathUrls()}, not exposed via Lombok. */
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     @XmlTransient
     private volatile URL[] classPathUrls;
-
-    public String[] getPropertiesFileNamePatterns() {
-        return propertiesFileNamePatterns;
-    }
-
-    public void setPropertiesFileNamePatterns(String[] propertiesFileNamePatterns) {
-        this.propertiesFileNamePatterns = propertiesFileNamePatterns;
-    }
-
-    public String getPropertiesFileNameProcessor() {
-        return propertiesFileNameProcessor;
-    }
-
-    public void setPropertiesFileNameProcessor(String propertiesFileNameProcessor) {
-        this.propertiesFileNameProcessor = propertiesFileNameProcessor;
-    }
-
-    public ExposedMethods getExposedMethods() {
-        return exposedMethods;
-    }
-
-    public void setExposedMethods(ExposedMethods exposedMethods) {
-        this.exposedMethods = exposedMethods;
-    }
-
-    public List<ProjectDependencyDescriptor> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(List<ProjectDependencyDescriptor> dependencies) {
-        this.dependencies = dependencies;
-    }
-
-    public Path getProjectFolder() {
-        return projectFolder;
-    }
-
-    public void setProjectFolder(Path projectRoot) {
-        this.projectFolder = projectRoot;
-    }
 
     public String getRelativeUri() {
         Path parent = projectFolder.getParent();
@@ -122,46 +98,6 @@ public class ProjectDescriptor {
         } else {
             return parent.toUri().relativize(projectFolder.toUri()).toString();
         }
-    }
-
-    public OpenAPI getOpenapi() {
-        return openapi;
-    }
-
-    public void setOpenapi(OpenAPI openapi) {
-        this.openapi = openapi;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public List<Module> getModules() {
-        return modules != null ? modules : new ArrayList<>();
-    }
-
-    public void setModules(List<Module> modules) {
-        this.modules = modules;
-    }
-
-    public List<PathEntry> getClasspath() {
-        return classpath;
-    }
-
-    public void setClasspath(List<PathEntry> classpath) {
-        this.classpath = classpath;
     }
 
     private URI fixJarURI(URI jarURI) {
@@ -210,9 +146,6 @@ public class ProjectDescriptor {
             }
         } catch (MalformedURLException e) {
             return new URL[]{};
-        }
-        if (classpath == null) {
-            return new URL[]{projectUrl};
         }
         if (classPathUrls == null) {
             synchronized (this) {
@@ -275,6 +208,10 @@ public class ProjectDescriptor {
 
     private Set<String> processClasspathPathPatterns() {
         Set<String> pathEntries = new HashSet<>();
+        if (CollectionUtils.isEmpty(classpath)) {
+            pathEntries.add("groovy/");
+            return pathEntries;
+        }
         for (PathEntry pathEntry : this.classpath) {
             String path = pathEntry.getPath().replace('\\', '/').trim();
             if (path.startsWith("./")) {
@@ -343,5 +280,264 @@ public class ProjectDescriptor {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    public static final String FILE_NAME = "rules.xml";
+    private static final JAXBSerializer SERIALIZER = new JAXBSerializer(ProjectDescriptor.class);
+
+
+    public ProjectDescriptor validate() throws ValidationException {
+        for (Module module : getModules()) {
+            if (module.getRulesRootPath() == null || StringUtils.isEmpty(module.getRulesRootPath().getPath())) {
+                throw new ValidationException("Module rules root are not defined.");
+            }
+        }
+        return this;
+    }
+
+    public ProjectDescriptor expand() throws IOException {
+        fillProjectName();
+        fillModulesByPattern();
+
+        for (Module module : getModules()) {
+            module.setProject(this);
+            if (module.getMethodFilter() == null) {
+                module.setMethodFilter(new MethodFilter());
+            }
+            if (module.getMethodFilter().getExcludes() == null) {
+                module.getMethodFilter().setExcludes(new HashSet<>());
+            } else {
+                // Remove empty nodes
+                module.getMethodFilter().getExcludes().removeAll(Arrays.asList("", null));
+            }
+
+            if (module.getMethodFilter().getIncludes() == null) {
+                module.getMethodFilter().setIncludes(new HashSet<>());
+            } else {
+                // Remove empty nodes
+                module.getMethodFilter().getIncludes().removeAll(Arrays.asList("", null));
+            }
+
+            var path = module.getRulesRootPath().getPath();
+            if (StringUtils.isBlank(module.getName())) {
+                module.setName(FileUtils.getBaseName(path));
+            }
+            Path modulePath = Path.of(path);
+            if (modulePath.isAbsolute()) {
+                modulePath = projectFolder.relativize(modulePath);
+                PathEntry relativePath = new PathEntry(modulePath.toString());
+                module.setRulesRootPath(relativePath);
+            }
+        }
+        return this;
+    }
+
+    private void fillModulesByPattern() throws IOException {
+        var readModules = getModules();
+        if (readModules.isEmpty()) {
+            var rules = new Module();
+            rules.setRulesRootPath(new PathEntry("rules/**/*.xlsx"));
+            var tests = new Module();
+            tests.setRulesRootPath(new PathEntry("tests/**/*.xlsx"));
+            readModules = Arrays.asList(rules, tests);
+        }
+        var processedModules = new ArrayList<Module>(readModules.size());
+        // Process modules without wildcard path
+        for (var module : readModules) {
+            if (!module.isModuleWithWildcard()) {
+                processedModules.add(module);
+            }
+        }
+        // Process modules with wildcard path
+        for (Module module : readModules) {
+            if (module.isModuleWithWildcard()) {
+                var newModules = new ArrayList<Module>();
+                var matchedModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath().getPath());
+                for (var m : matchedModules) {
+                    if (!containsInProcessedModules(processedModules, m, getProjectFolder())) {
+                        newModules.add(m);
+                    }
+                }
+                processedModules.addAll(newModules);
+            }
+        }
+
+        setModules(processedModules);
+    }
+
+    private void fillProjectName() {
+        if (StringUtils.isNotBlank(getName())) {
+            return;
+        }
+        var projectFolderName = getProjectFolder().getFileName();
+        if (projectFolderName != null) {
+            setName(projectFolderName.toString());
+        } else {
+            var path = getProjectFolder().toUri().getSchemeSpecificPart();
+            var zipName = FileUtils.getBaseName(path.substring(0, path.length() - 2));
+            setName(zipName);
+        }
+    }
+
+    private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
+        final Path targetModulePath = projectRoot.resolve(m.getRulesRootPath().getPath());
+
+        for (Module module : modules) {
+            Path modulePath = projectRoot.resolve(module.getRulesRootPath().getPath());
+            if (targetModulePath.equals(modulePath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Module> getAllModulesMatchingPathPattern(Module module,
+                                                         String pathPattern) throws IOException {
+        List<Module> matchedModules = new ArrayList<>();
+
+        String ptrn = pathPattern.trim();
+        Path rootPath = getProjectFolder();
+
+        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                String relativePath = rootPath.relativize(file).toString().replace("\\", "/");
+                if (isNotTemporaryFile(file) && FileUtils.pathMatches(ptrn, relativePath)) {
+                    Path modulePath = file.toAbsolutePath();
+                    Module m = new Module();
+                    m.setProject(ProjectDescriptor.this);
+                    m.setRulesRootPath(new PathEntry(relativePath));
+                    m.setName(FileUtils.getBaseName(modulePath.toString()));
+                    m.setMethodFilter(module.getMethodFilter());
+                    if (module.getWebstudioConfiguration() != null) {
+                        WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+                        webstudioConfiguration
+                                .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
+                        m.setWebstudioConfiguration(webstudioConfiguration);
+                    }
+                    m.setWildcardRulesRootPath(pathPattern);
+                    m.setWildcardName(module.getName());
+                    matchedModules.add(m);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        return matchedModules;
+    }
+
+    private boolean isNotTemporaryFile(Path file) throws IOException {
+        if (file.getFileName().startsWith("~$")) {
+            return false;
+        }
+        if (OS.isWindows() && Files.isHidden(file)) {
+            OutputStream os = null;
+            try {
+                os = Files.newOutputStream(file, StandardOpenOption.APPEND);
+            } catch (Exception unused) {
+                return false;
+            } finally {
+                IOUtils.closeQuietly(os);
+            }
+        }
+        return true;
+    }
+
+    public static ProjectDescriptor read(Path path) throws IOException, JAXBException {
+        var file = Files.isDirectory(path) ? path.resolve(FILE_NAME) : path;
+        if (!Files.isRegularFile(file)) {
+            return null;
+        }
+        try (var in = Files.newInputStream(file)) {
+            var descriptor = read(in);
+            descriptor.setProjectFolder(file.getParent());
+            return descriptor;
+        }
+    }
+
+    public static ProjectDescriptor read(InputStream in) throws JAXBException {
+        return (ProjectDescriptor) SERIALIZER.unmarshal(in);
+    }
+
+    public InputStream toInputStream() throws JAXBException {
+        var outputStrteam = new ByteArrayOutputStream();
+        SERIALIZER.marshal(this, outputStrteam);
+        return new ByteArrayInputStream(outputStrteam.toByteArray());
+    }
+
+    public void write(Path folder) throws IOException, JAXBException {
+        try (var outputStream = Files.newOutputStream(folder.resolve(FILE_NAME))) {
+            SERIALIZER.marshal(this, outputStream);
+        }
+    }
+
+    public boolean hasChanges(Path folder) throws IOException, JAXBException {
+        var original = Files.readAllBytes(folder.resolve(FILE_NAME));
+        var outputStrteam = new ByteArrayOutputStream();
+        SERIALIZER.marshal(this, outputStrteam);
+        return !Arrays.equals(original, outputStrteam.toByteArray());
+    }
+
+    /**
+     * Wrapper holding the inner {@code <module>} elements of the {@code <modules>} block. Defined solely
+     * so {@link ModulesAdapter} can convert between the wrapper-shape JAXB expects on the wire and the
+     * plain {@code List<Module>} the model exposes.
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class ModulesXml {
+        @XmlElement(name = "module")
+        List<Module> module;
+    }
+
+    /**
+     * Maps an empty {@code <modules>} block to a {@code null} marshal result so JAXB omits the wrapper
+     * entirely; conversely, a missing block unmarshals to an empty {@link ArrayList} so consumers never
+     * see {@code null}.
+     */
+    static class ModulesAdapter extends XmlAdapter<ModulesXml, List<Module>> {
+        @Override
+        public List<Module> unmarshal(ModulesXml v) {
+            return (v == null || v.module == null) ? new ArrayList<>() : v.module;
+        }
+
+        @Override
+        public ModulesXml marshal(List<Module> v) {
+            if (v == null || v.isEmpty()) {
+                return null;
+            }
+            var wrapper = new ModulesXml();
+            wrapper.module = v;
+            return wrapper;
+        }
+    }
+
+    /**
+     * Wrapper holding the inner {@code <entry>} elements of the {@code <classpath>} block. See
+     * {@link ClasspathAdapter} for the role this plays.
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class ClasspathXml {
+        @XmlElement(name = "entry")
+        List<PathEntry> entry;
+    }
+
+    /**
+     * Same null/empty contract as {@link ModulesAdapter} but for the {@code <classpath>} block.
+     */
+    static class ClasspathAdapter extends XmlAdapter<ClasspathXml, List<PathEntry>> {
+        @Override
+        public List<PathEntry> unmarshal(ClasspathXml v) {
+            return (v == null || v.entry == null) ? new ArrayList<>() : v.entry;
+        }
+
+        @Override
+        public ClasspathXml marshal(List<PathEntry> v) {
+            if (v == null || v.isEmpty()) {
+                return null;
+            }
+            var wrapper = new ClasspathXml();
+            wrapper.entry = v;
+            return wrapper;
+        }
     }
 }

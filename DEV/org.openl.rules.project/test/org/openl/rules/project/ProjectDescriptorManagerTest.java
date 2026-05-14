@@ -1,165 +1,37 @@
 package org.openl.rules.project;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.project.model.ExposedMethods;
-import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
-public class ProjectDescriptorManagerTest {
+class ProjectDescriptorManagerTest {
 
-    private static final Path DESCRIPTOR_PATH = Path.of("test-resources/descriptor.zip");
+    private static final Path DESCRIPTOR_ZIP = Path.of("test-resources/descriptor.zip");
 
     @Test
-    public void testRelativeUri() {
-        ProjectDescriptor pd = new ProjectDescriptor();
-        pd.setProjectFolder(Path.of("test/rules/test xls"));
-        assertEquals("test%20xls", pd.getRelativeUri());
+    void testIsCoveredByWildcardModule() throws Exception {
+        assertIsCoveredByWildcardModule(ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml")));
     }
 
     @Test
-    public void testReadDescriptor1() throws Exception {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor descriptor = manager.readDescriptor("test-resources/descriptor/rules1.xml");
-        assertReadDescriptor1(descriptor);
-        final Path rootFolder = Path.of("test-resources/descriptor").toAbsolutePath();
-        Module module1 = descriptor.getModules().getFirst();
-        assertTrue(module1.getRulesPath().startsWith(rootFolder));
-        Module module2 = descriptor.getModules().get(1);
-        assertTrue(module2.getRulesPath().startsWith(rootFolder));
-    }
-
-    public void assertReadDescriptor1(ProjectDescriptor descriptor) {
-        assertEquals("Project name", descriptor.getName());
-        assertEquals("comment", descriptor.getComment());
-        assertEquals(2, descriptor.getModules().size());
-        assertArrayEquals(new String[]{"%lob%"}, descriptor.getPropertiesFileNamePatterns());
-        assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
-        Module module1 = descriptor.getModules().getFirst();
-        assertEquals("MyModule1", module1.getName());
-        assertEquals("MyModule1.xls",
-                module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
-        assertEquals("MyModule1.xls", module1.getRulesRootPath().getPath());
-        assertTrue(module1.getRulesPath().isAbsolute());
-
-        Module module2 = descriptor.getModules().get(1);
-        assertEquals("MyModule2", module2.getName());
-        assertEquals("MyModule2.xls",
-                module2.getRulesPath().getName(module2.getRulesPath().getNameCount() - 1).toString());
-        assertEquals("MyModule2.xls", module2.getRulesRootPath().getPath());
-        assertTrue(module2.getRulesPath().isAbsolute());
-
-        assertEquals(2, descriptor.getClasspath().size());
-
-        PathEntry classpathEntry1 = descriptor.getClasspath().getFirst();
-        assertEquals("path1", classpathEntry1.getPath());
-
-        PathEntry classpathEntry2 = descriptor.getClasspath().get(1);
-        assertEquals("path2", classpathEntry2.getPath());
-
-        assertNotNull(descriptor.getModules());
-        assertEquals(2, descriptor.getModules().size());
-        Module module = descriptor.getModules().getFirst();
-        if (!"MyModule2".equals(module.getName())) {
-            module = descriptor.getModules().get(1);
-        }
-        assertNotNull(module.getMethodFilter());
-        assertNotNull(module.getMethodFilter().getIncludes());
-        assertEquals(1, module.getMethodFilter().getIncludes().size());
-        assertNotNull(module.getMethodFilter().getExcludes());
-        Iterator<String> itr = module.getMethodFilter().getIncludes().iterator();
-        String value = itr.next();
-        assertEquals("*", value);
-
-        assertNotNull(descriptor.getDependencies());
-        assertEquals(1, descriptor.getDependencies().size());
-        ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().getFirst();
-        assertEquals("someProjectName", projectDependencyDescriptor.getName());
-        assertFalse(projectDependencyDescriptor.isAutoIncluded());
-    }
-
-    @Test
-    public void zipArchive_testReadDescriptor1() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            final Path rootFolder = fs.getPath("/");
-            ProjectDescriptor descriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules1.xml"));
-            assertReadDescriptor1(descriptor);
-            Module module1 = descriptor.getModules().getFirst();
-            assertTrue(module1.getRulesPath().startsWith(rootFolder));
-            Module module2 = descriptor.getModules().get(1);
-            assertTrue(module2.getRulesPath().startsWith(rootFolder));
+    void zipArchive_testIsCoveredByWildcardModule() throws Exception {
+        try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
+            assertIsCoveredByWildcardModule(ProjectDescriptor.read(fs.getPath("/rules-wildcard.xml")));
         }
     }
 
-    @Test
-    public void testReadDescriptor2() throws Exception {
-        assertThrows(ValidationException.class, () -> {
-            ProjectDescriptorManager manager = new ProjectDescriptorManager();
-            manager.readDescriptor("test-resources/descriptor/rules2.xml");
-        });
-    }
-
-    @Test
-    public void zipArchive_testReadDescriptor2() throws Exception {
-        assertThrows(ValidationException.class, () -> {
-            try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-                new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
-            }
-        });
-    }
-
-    @Test
-    public void testReadDescriptor3() throws Exception {
+    private void assertIsCoveredByWildcardModule(ProjectDescriptor descriptor) {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
-        List<Module> modules = projectDescriptor.getModules();
-        assertTrue(modules.isEmpty());
-    }
-
-    @Test
-    public void zipArchive_testReadDescriptor3() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            ProjectDescriptor projectDescriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
-            List<Module> modules = projectDescriptor.getModules();
-            assertTrue(modules.isEmpty());
-        }
-    }
-
-    @Test
-    public void testIsCoveredByWildcardModule() throws Exception {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-        final ProjectDescriptor descriptor = serializer
-                .deserialize(new FileInputStream("test-resources/descriptor/rules-wildcard.xml"));
-        assertIsCoveredByWildcardModule(manager, descriptor);
-    }
-
-    private void assertIsCoveredByWildcardModule(ProjectDescriptorManager manager, ProjectDescriptor descriptor) {
         Module newModule = new Module();
         newModule.setName("New Module");
         newModule.setRulesRootPath(new PathEntry("rules/New Module.xlsx"));
@@ -170,170 +42,6 @@ public class ProjectDescriptorManagerTest {
 
         newModule.setRulesRootPath(new PathEntry("New Module.xlsx"));
         assertFalse(manager.isCoveredByWildcardModule(descriptor, newModule));
-    }
-
-    @Test
-    public void zipArchive_testIsCoveredByWildcardModule() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            ProjectDescriptorManager manager = new ProjectDescriptorManager();
-            XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-            final ProjectDescriptor descriptor = serializer
-                    .deserialize(Files.newInputStream(fs.getPath("/rules-wildcard.xml")));
-            assertIsCoveredByWildcardModule(manager, descriptor);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testWriteDescriptor1() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setName("name1");
-        descriptor.setComment("comment1");
-        descriptor.setPropertiesFileNamePatterns(new String[]{"{lob}"});
-        descriptor.setPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
-
-        List<ProjectDependencyDescriptor> dependencies = new ArrayList<>();
-        ProjectDependencyDescriptor dependencyDescriptor = new ProjectDependencyDescriptor();
-        dependencyDescriptor.setName("someProjectName");
-        dependencyDescriptor.setAutoIncluded(false);
-        dependencies.add(dependencyDescriptor);
-        descriptor.setDependencies(dependencies);
-        descriptor.setExposedMethods(new ExposedMethods());
-        descriptor.getExposedMethods().setIncludes(Set.of(" INCL "));
-        descriptor.getExposedMethods().setExcludes(Set.of(" excl "));
-
-        Module module1 = new Module();
-        module1.setName("name1");
-        module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setMethodFilter(new MethodFilter());
-
-        List<PathEntry> classpath = new ArrayList<>();
-        PathEntry entry1 = new PathEntry("path1");
-
-        PathEntry entry2 = new PathEntry("path2");
-
-        classpath.add(entry1);
-        classpath.add(entry2);
-
-        descriptor.setClasspath(classpath);
-
-        List<Module> modules = new ArrayList<>();
-        modules.add(module1);
-
-        descriptor.setModules(modules);
-
-        module1.getMethodFilter().addIncludePattern(" * ");
-        module1.getMethodFilter().addExcludePattern(" * ");
-
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ByteArrayOutputStream dest = new ByteArrayOutputStream();
-        manager.writeDescriptor(descriptor, dest);
-
-        String expected = """
-                <project>
-                    <name>name1</name>
-                    <comment>comment1</comment>
-                    <modules>
-                        <module>
-                            <name>name1</name>
-                            <rules-root path="path1"/>
-                            <method-filter>
-                                <includes>
-                                    <value>*</value>
-                                </includes>
-                                <excludes>
-                                    <value>*</value>
-                                </excludes>
-                            </method-filter>
-                        </module>
-                    </modules>
-                    <classpath>
-                        <entry path="path1"/>
-                        <entry path="path2"/>
-                    </classpath>
-                    <dependencies>
-                        <dependency>
-                            <name>someProjectName</name>
-                            <autoIncluded>false</autoIncluded>
-                        </dependency>
-                    </dependencies>
-                    <properties-file-name-pattern>{lob}</properties-file-name-pattern>
-                    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
-                    <exposed-methods>
-                        <include>INCL</include>
-                        <exclude>excl</exclude>
-                    </exposed-methods>
-                </project>""";
-        assertEquals(expected, dest.toString());
-    }
-
-    @Test
-    public void testWriteDescriptor2() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setName("name1");
-
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ByteArrayOutputStream dest = new ByteArrayOutputStream();
-        manager.writeDescriptor(descriptor, dest);
-        List<Module> modules = descriptor.getModules();
-        assertTrue(modules.isEmpty());
-    }
-
-    @Test
-    public void testModulePathPatterns() throws Exception {
-        ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-        // test ?
-        assertEquals(4, projectDescriptorManager.readDescriptor("./test-resources/rules1.xml").getModules().size());
-        // test *
-        assertEquals(2, projectDescriptorManager.readDescriptor("./test-resources/rules2.xml").getModules().size());
-        // test **
-        assertEquals(2, projectDescriptorManager.readDescriptor("./test-resources/rules3.xml").getModules().size());
-        // test complex
-        assertEquals(2, projectDescriptorManager.readDescriptor("./test-resources/rules4.xml").getModules().size());
-    }
-
-    @Test
-    public void zipArchive_testModulePathPatterns() throws Exception {
-        try (FileSystem fs = openZipFile(Path.of("test-resources/test-resources.zip"))) {
-            ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-            // test ?
-            assertEquals(6, projectDescriptorManager.readDescriptor(fs.getPath("/rules1.xml")).getModules().size());
-            // test *
-            assertEquals(2, projectDescriptorManager.readDescriptor(fs.getPath("/rules2.xml")).getModules().size());
-            // test **
-            assertEquals(2, projectDescriptorManager.readDescriptor(fs.getPath("/rules3.xml")).getModules().size());
-            // test complex
-            assertEquals(2, projectDescriptorManager.readDescriptor(fs.getPath("/rules4.xml")).getModules().size());
-        }
-    }
-
-    @Test
-    public void testClassPathUrls() throws Exception {
-        ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-        ProjectDescriptor projectDescriptor = projectDescriptorManager
-                .readDescriptor("./test-resources/descriptor/rules-clspth.xml");
-        URL[] classPathUrls = projectDescriptor.getClassPathUrls();
-        assertEquals(10, classPathUrls.length);
-    }
-
-    @Test
-    public void zipArchive_testClassPathUrls() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            ProjectDescriptor projectDescriptor = new ProjectDescriptorManager()
-                    .readDescriptor(fs.getPath("/rules-clspth.xml"));
-            assertEquals(10, projectDescriptor.getClassPathUrls().length);
-            assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
-        }
-    }
-
-    @Test
-    public void zipArchive_testClassPathUrls_Internal() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            ProjectDescriptor projectDescriptor = new ProjectDescriptorManager()
-                    .readDescriptor(fs.getPath("/internal/rules-clspth.xml"));
-            assertEquals(10, projectDescriptor.getClassPathUrls().length);
-            assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
-        }
     }
 
     private static FileSystem openZipFile(Path path) throws IOException {

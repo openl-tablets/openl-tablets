@@ -35,7 +35,6 @@ import org.openl.util.StringUtils;
 @ViewScope
 @Slf4j
 public class RepositoryProjectRulesDeployConfig {
-    private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
 
     private final RepositoryTreeState repositoryTreeState;
 
@@ -95,17 +94,17 @@ public class RepositoryProjectRulesDeployConfig {
         UserWorkspaceProject project = getProject();
         if (hasRulesDeploy(project)) {
             try {
-                AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                AProjectArtefact projectArtefact = project.getArtefact(RulesDeploy.FILE_NAME);
                 if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
                     WebStudioUtils.addErrorMessage("There is no permission for deleting '%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(projectArtefact)));
                     return;
                 }
-                project.deleteArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                project.deleteArtefact(RulesDeploy.FILE_NAME);
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
             } catch (ProjectException e) {
-                WebStudioUtils.addErrorMessage("Failed to delete '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
+                WebStudioUtils.addErrorMessage("Failed to delete '" + RulesDeploy.FILE_NAME + "' file.");
                 log.error(e.getMessage(), e);
             }
         }
@@ -125,8 +124,8 @@ public class RepositoryProjectRulesDeployConfig {
             InputStream inputStream = IOUtils
                     .toInputStream(serializer.serialize(rulesDeploy));
 
-            if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+            if (project.hasArtefact(RulesDeploy.FILE_NAME)) {
+                AProjectResource artefact = (AProjectResource) project.getArtefact(RulesDeploy.FILE_NAME);
                 if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
                     WebStudioUtils.addErrorMessage("There is no permission for modifying '%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(artefact)));
@@ -137,11 +136,11 @@ public class RepositoryProjectRulesDeployConfig {
                 if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.CREATE))) {
                     WebStudioUtils.addErrorMessage("There is no permission for creating '%s/%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(project),
-                            RULES_DEPLOY_CONFIGURATION_FILE));
+                            RulesDeploy.FILE_NAME));
                     return;
                 }
-                project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
-                AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                project.addResource(RulesDeploy.FILE_NAME, inputStream);
+                AProjectArtefact projectArtefact = project.getArtefact(RulesDeploy.FILE_NAME);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                         .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = "Granting permissions to a new file '%s' is failed.".formatted(
@@ -153,7 +152,7 @@ public class RepositoryProjectRulesDeployConfig {
             }
             created = false;
         } catch (ProjectException | JAXBException | IOException e) {
-            WebStudioUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
+            WebStudioUtils.addErrorMessage("Failed to save '" + RulesDeploy.FILE_NAME + "' file.");
             log.error(e.getMessage(), e);
         }
     }
@@ -163,21 +162,21 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     private boolean hasRulesDeploy(UserWorkspaceProject project) {
-        return project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+        return project.hasArtefact(RulesDeploy.FILE_NAME);
     }
 
     private RulesDeployGuiWrapper loadRulesDeploy(UserWorkspaceProject project) {
         try {
-            AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+            AProjectResource artefact = (AProjectResource) project.getArtefact(RulesDeploy.FILE_NAME);
             try (var content = artefact.getContent()) {
                 var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);
                 return serializer.deserialize(sourceString);
             }
         } catch (IOException | ProjectException e) {
-            WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
+            WebStudioUtils.addErrorMessage("Failed to read '" + RulesDeploy.FILE_NAME + "' file.");
             log.error(e.getMessage(), e);
         } catch (JAXBException e) {
-            WebStudioUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
+            WebStudioUtils.addErrorMessage("Failed to parse '" + RulesDeploy.FILE_NAME + " file.");
             log.error(e.getMessage(), e);
         }
         return null;
@@ -214,8 +213,8 @@ public class RepositoryProjectRulesDeployConfig {
             return false;
         }
         try {
-            if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
-                AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+            if (project.hasArtefact(RulesDeploy.FILE_NAME)) {
+                AProjectArtefact projectArtefact = project.getArtefact(RulesDeploy.FILE_NAME);
                 return designRepositoryAclService.isGranted(projectArtefact, List.of(BasePermission.WRITE));
             } else {
                 return designRepositoryAclService.isGranted(project, List.of(BasePermission.CREATE));
@@ -231,7 +230,7 @@ public class RepositoryProjectRulesDeployConfig {
             return false;
         }
         try {
-            AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+            AProjectArtefact projectArtefact = project.getArtefact(RulesDeploy.FILE_NAME);
             return designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE);
         } catch (ProjectException e) {
             return false;

@@ -2,8 +2,6 @@ package org.openl.rules.ruleservice.loader;
 
 import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
 
-import static org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
-
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +14,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.spring.config.ConditionalOnEnable;
@@ -70,7 +69,7 @@ public class DeployClasspathJarsBean {
     private void deployLoop() {
         var filesToDeploy = new ArrayDeque<Path>(); // Package level for tests only
         try {
-            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + PROJECT_DESCRIPTOR_FILE_NAME);
+            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + ProjectDescriptor.FILE_NAME);
             processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.XML.getFileName());
             processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.YAML.getFileName());
             processResources(filesToDeploy, "/openl/*.zip");

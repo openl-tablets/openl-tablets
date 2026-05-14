@@ -1,7 +1,6 @@
 package org.openl.rules.project.validation.openapi;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -66,14 +65,12 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.openapi.OpenAPIConfiguration;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
@@ -99,9 +96,7 @@ public class OpenApiProjectValidator {
     private static final String OPENAPI_YAML = "openapi.yaml";
     private static final String OPENAPI_YML = "openapi.yml";
     public static final String OPEN_API_VALIDATION_MSG_PREFIX = "OpenAPI Reconciliation: ";
-    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
     private RulesDeploy rulesDeploy;
     private ClassLoader classLoader;
 
@@ -1214,11 +1209,11 @@ public class OpenApiProjectValidator {
     protected RulesDeploy loadRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
         ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
         ProjectResource projectResource = loadProjectResource(projectResourceLoader,
-                RULES_DEPLOY_XML, false);
+                RulesDeploy.FILE_NAME, false);
         if (projectResource != null) {
-            try {
-                return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
-            } catch (FileNotFoundException | JAXBException e) {
+            try(var stream = projectResource.getUrl().openStream()) {
+                return RulesDeploy.read(stream);
+            } catch (IOException | JAXBException e) {
                 log.debug("Ignored error: ", e);
                 return null;
             }

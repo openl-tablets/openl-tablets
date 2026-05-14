@@ -30,7 +30,7 @@ import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectState;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -260,9 +260,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public String getActualName(AProject project) throws ProjectException, IOException {
-        if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+        if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             AProjectArtefact artefact = project
-                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                    .getArtefact(ProjectDescriptor.FILE_NAME);
             if (artefact instanceof AProjectResource resource) {
                 try (InputStream content = resource.getContent()) {
                     return getActualName(content);

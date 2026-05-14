@@ -20,16 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.abstraction.IProjectArtefact;
 import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ResourceLoader;
 import org.openl.rules.ruleservice.core.ServiceDescription;
@@ -45,13 +41,6 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, InitializingBean {
 
-    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
-
-
-    @Setter
-    private IRulesDeploySerializer rulesDeploySerializer;
-    @Setter
-    private IProjectDescriptorSerializer projectDescriptorSerializer;
     @Getter
     @Setter
     private boolean provideRuntimeContext = false;
@@ -101,10 +90,10 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                     serviceDescriptionBuilder.setResourceLoader(resourceLoader);
                     RulesDeploy rulesDeploy = null;
                     try {
-                        IProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
+                        IProjectArtefact artifact = project.getArtefact(RulesDeploy.FILE_NAME);
                         if (artifact instanceof IProjectResource resource) {
                             try (InputStream content = resource.getContent()) {
-                                rulesDeploy = getRulesDeploySerializer().deserialize(content);
+                                rulesDeploy = RulesDeploy.read(content);
                                 serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
                                 if (rulesDeploy
                                         .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
@@ -251,20 +240,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             }
         }
         return deployment.getDeploymentName() + '/' + projectName;
-    }
-
-    public final IRulesDeploySerializer getRulesDeploySerializer() {
-        if (rulesDeploySerializer == null) {
-            rulesDeploySerializer = new XmlRulesDeploySerializer();
-        }
-        return rulesDeploySerializer;
-    }
-
-    public final IProjectDescriptorSerializer getProjectDescriptorSerializer() {
-        if (projectDescriptorSerializer == null) {
-            projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
-        }
-        return projectDescriptorSerializer;
     }
 
     public void setDatasourceDeploymentPatterns(String deploymentPatterns) {

@@ -1,7 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +16,7 @@ import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
@@ -225,13 +223,11 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
 
     private boolean isProvideRuntimeContext() {
         if (!modules.isEmpty()) {
-            Path deployXmlPath = modules.iterator().next().getProject().getProjectFolder().resolve("rules-deploy.xml");
-            if (Files.exists(deployXmlPath)) {
-                try (var stream = Files.newInputStream(deployXmlPath)) {
-                    return Boolean.TRUE.equals(new XmlRulesDeploySerializer().deserialize(stream).isProvideRuntimeContext());
-                } catch (Exception ignored) {
-                    // Failed to read rules-deploy.xml, fallback to default
-                }
+            try {
+                var rulesDeploy = RulesDeploy.read(modules.iterator().next().getProject().getProjectFolder());
+                return rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
+            } catch (Exception ignored) {
+                // Failed to read rules-deploy.xml, fallback to default
             }
         }
         return false;
