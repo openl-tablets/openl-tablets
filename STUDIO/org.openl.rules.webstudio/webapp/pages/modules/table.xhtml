@@ -252,10 +252,20 @@
             <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace scrollable">
                 <c:if test="#{fn:length(tableBean.tests) gt 20}"><!-- Use range only for the huge tests -->
                     <input type="checkbox" id="useTestRanges" checked="checked" style="display: none"/>
-                    <div id="testRangeSetting" title="Define ranges like: 2-4,7,10-12 or id3-id7">
+                    <div class="b-run">
+                        <span>Run All</span>
+                        <input type="checkbox" id="runAllTests"
+                               onclick="toggleRunAllTests(this)"
+                               style="vertical-align:-2px;margin:-4px"/>
+                    </div>
+                    <div id="testRangeSetting">
                         <span>Range of IDs</span>
                         <input type="text" id="testRanges" value="#{tableBean.tests[0].id}"/>
+                        <a class="imageButton" href="javascript:void(0)" title="Define ranges like: 2-4,7,10-12 or id3-id7"
+                           style="background:url('webresource/images/info.png');display: inline-block; vertical-align: middle;"></a>
                     </div>
+                    <div style="color: #777;">Total test cases: #{fn:length(tableBean.tests)}</div>
+                    <div style="color: #777;">Individual selection is disabled for tables with more than 20 test cases.</div>
                 </c:if>
 
                 <c:if test="#{fn:length(tableBean.tests) le 20}"><!-- Display checkbox only when the count of the tests not greater than 20 -->
@@ -265,9 +275,12 @@
                                              onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
                                              style="vertical-align:-2px;margin:-4px"/>
                 </div>
-                <div id="testRangeSetting" style="display:none;" title="Define ranges like: 2-4,7,10-12 or id3-id7">
+                <div id="testRangeSetting" style="display:none;">
                     <span>Range of IDs</span>
                     <input type="text" id="testRanges"/>
+                    <a class="imageButton" href="javascript:void(0)" title="Define ranges like: 2-4,7,10-12 or id3-id7"
+                       style="background:url('webresource/images/info.png');display: inline-block; vertical-align: middle;"></a>
+                    <div style="color: #777; margin-left: 110px;">Total test cases: #{fn:length(tableBean.tests)}</div>
                 </div>
             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;">
                 <thead>
@@ -1230,6 +1243,7 @@
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
+            resetRunAllForNonRunMode(block);
         }
 
         function showUnitsMenu(event, block) {
@@ -1237,6 +1251,19 @@
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
+            resetRunAllForNonRunMode(block);
+        }
+
+        function resetRunAllForNonRunMode(block) {
+            // The "Run All" checkbox applies only to the Run mode. When switching to another
+            // mode, uncheck it so the range input becomes editable again.
+            if (block !== 'b-run') {
+                var runAll = $j("#runAllTests");
+                if (runAll.is(":checked")) {
+                    runAll.prop("checked", false);
+                    toggleRunAllTests(runAll[0]);
+                }
+            }
         }
 
         function getTestQuery(currentOpenedModule) {
@@ -1272,6 +1299,20 @@
                         .join();
             }
             return ids;
+        }
+
+        function toggleRunAllTests(cb) {
+            var $range = $j("#testRanges");
+            if (cb.checked) {
+                $range.data("prevValue", $range.val());
+                var first = testIds[1];
+                var last = testIds[testIds.length - 1];
+                var fullRange = (testIds.length > 2) ? (first + " - " + last) : (first || "");
+                $range.val(fullRange).prop("readonly", true);
+            } else {
+                var prev = $range.data("prevValue");
+                $range.val(prev != null ? prev : "").prop("readonly", false);
+            }
         }
 
         function runTestCases(currentOpenedModule) {
