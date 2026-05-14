@@ -39,7 +39,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -51,11 +50,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -324,17 +320,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     getModel().clearModuleInfo();
 
                     // Revert project name in rules.xml
-                    var serializer = new XmlProjectDescriptorSerializer();
                     AProjectResource artefact = (AProjectResource) project
-                            .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                            .getArtefact(ProjectDescriptor.FILE_NAME);
                     content = artefact.getContent();
-                    ProjectDescriptor projectDescriptor = serializer.deserialize(content);
+                    ProjectDescriptor projectDescriptor = ProjectDescriptor.read(content);
                     projectDescriptor.setName(project.getName());
                     if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
                         throw new Message("There is no permission for modifying '%s' file.".formatted(
                                 ProjectArtifactUtils.extractResourceName(artefact)));
                     }
-                    artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
+                    artefact.setContent(projectDescriptor.toInputStream());
                     resetProjects();
                 } else {
                     FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
@@ -392,13 +387,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public RulesDeploy getCurrentProjectRulesDeploy() {
         try {
             RulesProject currentProject = getCurrentProject();
-            if (currentProject.hasArtefact(DeploymentManager.RULES_DEPLOY_XML)) {
+            if (currentProject.hasArtefact(RulesDeploy.FILE_NAME)) {
                 try {
-                    AProjectArtefact artefact = currentProject.getArtefact(DeploymentManager.RULES_DEPLOY_XML);
+                    AProjectArtefact artefact = currentProject.getArtefact(RulesDeploy.FILE_NAME);
                     if (artefact instanceof AProjectResource resource) {
                         try (InputStream content = resource.getContent()) {
-                            IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-                            return rulesDeploySerializer.deserialize(content);
+                            return RulesDeploy.read(content);
                         }
                     }
                 } catch (ProjectException ignore) {

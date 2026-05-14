@@ -11,14 +11,11 @@ import jakarta.xml.bind.JAXBException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
 
@@ -27,7 +24,6 @@ import org.openl.util.IOUtils;
  */
 @Slf4j
 public class ProjectDescriptorArtefactResolver {
-    private final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
 
     /**
      * Project descriptors cache. Replace with ehcache if GC occurs too often.
@@ -48,19 +44,19 @@ public class ProjectDescriptorArtefactResolver {
             return descriptor;
         }
 
-        if (!project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+        if (!project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             // For performance reasons assume that if there is no rules.xml then there are no project dependencies and
             // project name is got from the project folder name.
             return null;
         }
 
         AProjectArtefact artefact = project
-                .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .getArtefact(ProjectDescriptor.FILE_NAME);
         if (artefact instanceof AProjectResource resource) {
             InputStream content = null;
             try {
                 content = resource.getContent();
-                descriptor = serializer.deserialize(content);
+                descriptor = ProjectDescriptor.read(content);
             } finally {
                 IOUtils.closeQuietly(content);
             }

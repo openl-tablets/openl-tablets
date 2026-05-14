@@ -10,17 +10,15 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @Getter
 @Setter
 public class ExposedMethods {
     @XmlElement(name = "include")
-    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter2.class)
     private Set<String> includes;
     @XmlElement(name = "exclude")
-    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter2.class)
     private Set<String> excludes;
 }

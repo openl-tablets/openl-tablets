@@ -19,12 +19,10 @@ import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -43,12 +41,10 @@ import org.openl.util.StringUtils;
  */
 @Slf4j
 public class DeploymentManager implements InitializingBean {
-    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String API_VERSION_SEPARATOR = "_V";
 
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
-    private IRulesDeploySerializer rulesDeploySerializer;
     private PropertyResolver propertyResolver;
 
     private final Set<String> deployers = new HashSet<>();
@@ -262,10 +258,10 @@ public class DeploymentManager implements InitializingBean {
                                 .getProject(repositoryId, pd.projectName(), pd.projectVersion());
                     }
 
-                    AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
+                    AProjectArtefact artifact = project.getArtefact(RulesDeploy.FILE_NAME);
                     if (artifact instanceof AProjectResource resource) {
                         try (InputStream content = resource.getContent()) {
-                            RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
+                            RulesDeploy rulesDeploy = RulesDeploy.read(content);
                             String apiVersion = rulesDeploy.getVersion();
                             if (StringUtils.isNotBlank(apiVersion)) {
                                 return apiVersion;
@@ -284,13 +280,6 @@ public class DeploymentManager implements InitializingBean {
         }
 
         return null;
-    }
-
-    private IRulesDeploySerializer getRulesDeploySerializer() {
-        if (rulesDeploySerializer == null) {
-            rulesDeploySerializer = new XmlRulesDeploySerializer();
-        }
-        return rulesDeploySerializer;
     }
 
     public void setRepositoryFactoryProxy(RepositoryFactoryProxy repositoryFactoryProxy) {

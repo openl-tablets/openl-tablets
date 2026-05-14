@@ -2,13 +2,10 @@ package org.openl.rules.webstudio.web;
 
 import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -70,9 +67,7 @@ import org.openl.rules.project.openapi.OpenApiGenerator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.table.formatters.Formats;
@@ -101,10 +96,8 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 @RequestScope
 @Slf4j
 public class ProjectBean {
-    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     public static final String CANNOT_BE_EMPTY_MESSAGE = "Cannot be empty";
     public static final String RECONCILIATION = "reconciliation";
-    private static final XmlRulesDeploySerializer RULES_DEPLOY_XML_SERIALIZER = new XmlRulesDeploySerializer();
 
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
@@ -572,17 +565,15 @@ public class ProjectBean {
     }
 
     private void validatePermissionsForDescriptorFile(RulesProject currentProject, boolean append) {
-        if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+        if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             try {
-                AProjectArtefact projectArtefact = currentProject
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                AProjectArtefact projectArtefact = currentProject.getArtefact(ProjectDescriptor.FILE_NAME);
                 validatePermissionForEditing(projectArtefact);
             } catch (ProjectException ignored) {
             }
         } else {
             if (append) {
-                validatePermissionForCreating(currentProject,
-                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                validatePermissionForCreating(currentProject, ProjectDescriptor.FILE_NAME);
             }
         }
     }
@@ -769,7 +760,7 @@ public class ProjectBean {
         if (StringUtils.isEmpty(leaveExcelFile)) {
             ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
             List<Module> modulesForRemoving = new ArrayList<>();
-            if (projectDescriptorManager.isModuleWithWildcard(removed)) {
+            if (removed.isModuleWithWildcard()) {
                 for (Module module : currentProjectDescriptor.getModules()) {
                     if (module.getWildcardRulesRootPath() == null) {
                         // Module not included in wildcard
@@ -786,8 +777,7 @@ public class ProjectBean {
             }
             modulesForRemoving.forEach(e -> deleteModule(currentProject, e));
             File projectFolder = currentProjectDescriptor.getProjectFolder().toFile();
-            File rulesXmlFile = new File(projectFolder,
-                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            File rulesXmlFile = new File(projectFolder, ProjectDescriptor.FILE_NAME);
             if (rulesXmlFile.exists()) {
                 String removedModuleName = removed.getName();
                 clean(newProjectDescriptor);
@@ -870,11 +860,10 @@ public class ProjectBean {
     public boolean canDeleteModule(Module module) {
         if (studio.getModel().isEditableProject()) {
             RulesProject currentProject = studio.getCurrentProject();
-            if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
                 try {
                     return designRepositoryAclService.isGranted(
-                            currentProject
-                                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
+                            currentProject.getArtefact(ProjectDescriptor.FILE_NAME),
                             List.of(BasePermission.WRITE));
                 } catch (ProjectException ignored) {
                     return false;
@@ -1494,7 +1483,7 @@ public class ProjectBean {
             editOrCreateRulesDeploy(currentProject,
                     projectModel,
                     generated,
-                    currentProject.hasArtefact(RULES_DEPLOY_XML));
+                    currentProject.hasArtefact(RulesDeploy.FILE_NAME));
             studio.storeProjectHistory();
 
             refreshProject(currentProject.getRepository().getId(), currentProject.getName());
@@ -1679,18 +1668,18 @@ public class ProjectBean {
                                          boolean rulesDeployExists) {
         try {
             if (rulesDeployExists) {
-                AProjectResource artifact = (AProjectResource) currentProject.getArtefact(RULES_DEPLOY_XML);
+                AProjectResource artifact = (AProjectResource) currentProject.getArtefact(RulesDeploy.FILE_NAME);
                 validatePermissionForEditing(artifact);
                 try (InputStream rulesDeployContent = artifact.getContent()) {
-                    RulesDeploy rulesDeploy = RULES_DEPLOY_XML_SERIALIZER.deserialize(rulesDeployContent);
+                    RulesDeploy rulesDeploy = RulesDeploy.read(rulesDeployContent);
                     artifact.setContent(openAPIHelper
-                            .editOrCreateRulesDeploy(RULES_DEPLOY_XML_SERIALIZER, projectModel, generatedClasses, rulesDeploy));
+                            .editOrCreateRulesDeploy(projectModel, generatedClasses, rulesDeploy));
                 }
             } else {
-                try (ByteArrayInputStream rulesDeployInputStream = openAPIHelper
-                        .editOrCreateRulesDeploy(RULES_DEPLOY_XML_SERIALIZER, projectModel, generatedClasses, null)) {
-                    validatePermissionForCreating(currentProject, RULES_DEPLOY_XML);
-                    currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
+                try (var rulesDeployInputStream = openAPIHelper
+                        .editOrCreateRulesDeploy(projectModel, generatedClasses, null)) {
+                    validatePermissionForCreating(currentProject, RulesDeploy.FILE_NAME);
+                    currentProject.addResource(RulesDeploy.FILE_NAME, rulesDeployInputStream);
                 }
             }
         } catch (ProjectException | IOException | JAXBException e) {
@@ -1734,21 +1723,20 @@ public class ProjectBean {
         RulesProject project = studio.getCurrentProject();
         InputStream rulesDeployContent = null;
         try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            projectDescriptor.validate();
+            var inputStream = projectDescriptor.toInputStream();
 
-            if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
                 AProjectResource artifact = (AProjectResource) project
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptor.FILE_NAME);
                 validatePermissionForEditing(artifact);
                 artifact.setContent(inputStream);
             } else {
                 validatePermissionForCreating(project,
-                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
+                        ProjectDescriptor.FILE_NAME);
+                project.addResource(ProjectDescriptor.FILE_NAME, inputStream);
                 AProjectArtefact projectArtefact = project
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptor.FILE_NAME);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                         .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = "Granting permissions to a new file '%s' is failed.".formatted(
@@ -1756,13 +1744,12 @@ public class ProjectBean {
                     WebStudioUtils.addErrorMessage(message);
                 }
             }
-            if (project.hasArtefact(RULES_DEPLOY_XML)) {
-                AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+            if (project.hasArtefact(RulesDeploy.FILE_NAME)) {
+                AProjectResource artifact = (AProjectResource) project.getArtefact(RulesDeploy.FILE_NAME);
                 validatePermissionForEditing(artifact);
                 rulesDeployContent = artifact.getContent();
-                RulesDeploy rulesDeploy = RULES_DEPLOY_XML_SERIALIZER.deserialize(rulesDeployContent);
-                artifact.setContent(new ByteArrayInputStream(
-                        RULES_DEPLOY_XML_SERIALIZER.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
+                RulesDeploy rulesDeploy = RulesDeploy.read(rulesDeployContent);
+                artifact.setContent(rulesDeploy.toInputStream());
             }
 
             refreshProject(project.getRepository().getId(), project.getName());
@@ -1866,7 +1853,7 @@ public class ProjectBean {
     }
 
     public boolean isModuleWithWildcard(Module module) {
-        return projectDescriptorManager.isModuleWithWildcard(module);
+        return module.isModuleWithWildcard();
     }
 
     public boolean isModuleMatchesSomePathPattern(Module module) {
@@ -1947,7 +1934,7 @@ public class ProjectBean {
                 module = studio.getModule(newProjectDescriptor, currentModuleName);
             }
 
-            if (!projectDescriptorManager.isModuleWithWildcard(module)) {
+            if (!module.isModuleWithWildcard()) {
                 // Single module
                 return Collections.singletonList(getModulePath(module));
             }
@@ -2001,7 +1988,7 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
 
         for (Module m : projectDescriptor.getModules()) {
-            if (projectDescriptorManager.isModuleWithWildcard(m)) {
+            if (m.isModuleWithWildcard()) {
                 String path = m.getRulesRootPath().getPath();
                 if (FileUtils.pathMatches(path, newFileName)) {
                     if (!currentPathPattern.equals(path)) {
@@ -2018,13 +2005,12 @@ public class ProjectBean {
     }
 
     public List<Module> getModulesMatchingPathPattern(Module module) {
-        if (module == null || !projectDescriptorManager.isModuleWithWildcard(module)) {
+        if (module == null || !module.isModuleWithWildcard()) {
             return Collections.emptyList();
         }
         try {
-            return projectDescriptorManager.getAllModulesMatchingPathPattern(studio.getCurrentProjectDescriptor(),
-                    module,
-                    module.getRulesRootPath().getPath());
+            ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
+            return descriptor.getAllModulesMatchingPathPattern(module, module.getRulesRootPath().getPath());
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -2070,13 +2056,10 @@ public class ProjectBean {
     private ProjectDescriptor getOriginalProjectDescriptor() {
         ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
         try {
-            File file = descriptor.getProjectFolder()
-                    .resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)
-                    .toFile();
-            return projectDescriptorManager.readOriginalDescriptor(file);
+            return ProjectDescriptor.read(descriptor.getProjectFolder());
         } catch (FileNotFoundException ignored) {
             return descriptor;
-        } catch (IOException | ValidationException | JAXBException e) {
+        } catch (IOException | JAXBException e) {
             log.error(e.getMessage(), e);
             return descriptor;
         }

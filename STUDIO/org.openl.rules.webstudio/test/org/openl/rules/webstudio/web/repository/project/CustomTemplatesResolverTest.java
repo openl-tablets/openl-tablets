@@ -12,22 +12,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * @author nsamatov, Yury Molchan.
  */
-public class CustomTemplatesResolverTest extends TemplatesResolverTest {
+class CustomTemplatesResolverTest extends TemplatesResolverTest {
     private static final String CUSTOM_TEMPLATES_CATEGORY = "Custom templates";
     private static final String RATING_TEMPLATES_CATEGORY = "Rating Templates";
 
     @TempDir
-    public File tempFolder;
+    File tempFolder;
 
     private String webStudioHomePath;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         webStudioHomePath = tempFolder.getPath();
         File webStudioHome = newFolder(tempFolder, CustomTemplatesResolver.PROJECT_TEMPLATES_FOLDER);
 
@@ -41,13 +41,13 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
         touch(new File(sample2Folder, "Main2.xlsx"));
 
         // Auto rating project
-        touch(new File(autoRatingFolder, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+        touch(new File(autoRatingFolder, ProjectDescriptor.FILE_NAME));
         File rulesFolder = createFolder(autoRatingFolder, "rules");
         touch(new File(rulesFolder, "Rating.xlsx"));
     }
 
     @Test
-    public void testGetCategories() {
+    void testGetCategories() {
         Collection<String> categories = new CustomTemplatesResolver(webStudioHomePath).getCategories();
         assertEquals(2, categories.size());
         assertTrue(categories.containsAll(Arrays.asList(CUSTOM_TEMPLATES_CATEGORY, RATING_TEMPLATES_CATEGORY)));
@@ -58,7 +58,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     }
 
     @Test
-    public void testGetTemplates() {
+    void testGetTemplates() {
         CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
 
         Collection<String> templates1 = templatesResolver.getTemplates(CUSTOM_TEMPLATES_CATEGORY);
@@ -71,7 +71,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     }
 
     @Test
-    public void testGetProjectFiles() {
+    void testGetProjectFiles() {
         CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
         ProjectFile[] projectFiles = templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "Sample1 project");
         assertEquals(1, projectFiles.length);
@@ -85,7 +85,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
 
         projectFiles = templatesResolver.getProjectFiles(RATING_TEMPLATES_CATEGORY, "Auto rating");
         assertEquals(2, projectFiles.length);
-        assertTrue(contains(projectFiles, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+        assertTrue(contains(projectFiles, ProjectDescriptor.FILE_NAME));
         assertTrue(contains(projectFiles, "rules/Rating.xlsx"));
         close(projectFiles);
     }

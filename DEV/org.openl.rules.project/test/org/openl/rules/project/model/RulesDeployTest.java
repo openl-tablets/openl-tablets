@@ -1,24 +1,21 @@
-package org.openl.rules.project.xml;
+package org.openl.rules.project.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.FileInputStream;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
-public class XmlRulesDeploySerializerTest {
+class RulesDeployTest {
 
     @Test
-    public void testReadRulesDeploy() throws Exception {
-        FileInputStream fis = new FileInputStream("test-resources/rules-deploy/rules-deploy.xml");
-        XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
-        RulesDeploy rulesDeploy = serializer.deserialize(fis);
+    void testReadRulesDeploy() throws Exception {
+        var rulesDeploy = RulesDeploy.read(Path.of("test-resources/rules-deploy/"));
 
         assertNotNull(rulesDeploy);
         assertEquals("rulesDeployName", rulesDeploy.getServiceName());
@@ -32,21 +29,13 @@ public class XmlRulesDeploySerializerTest {
         assertEquals("someURL", rulesDeploy.getUrl());
         assertEquals("v1", rulesDeploy.getVersion());
         assertEquals("group1,group2", rulesDeploy.getGroups());
-        assertEquals("rmiName", rulesDeploy.getRmiName());
         assertEquals(Map.of("rootClassNamesBinding", "com.chartis.premier.rating.result.ChartisCompoundStep,com.chartis.premier.rating.result.ChartisSimpleStep"),
                 rulesDeploy.getConfiguration());
     }
 
     @Test
-    public void testWriteRulesDeploy() throws Exception {
-        RulesDeploy rulesDeploy = generateRulesDeployForTest();
-        XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
-        String value = serializer.serialize(rulesDeploy);
-        assertEquals(EXPECTED_VALUE, value);
-    }
-
-    public static RulesDeploy generateRulesDeployForTest() {
-        RulesDeploy rulesDeploy = new RulesDeploy();
+    void testWriteRulesDeploy() throws Exception {
+        var rulesDeploy = new RulesDeploy();
         rulesDeploy.setServiceName("rulesDeployName");
         rulesDeploy.setProvideRuntimeContext(false);
         rulesDeploy.setInterceptingTemplateClassName(String.class.getName());
@@ -54,14 +43,16 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setServiceClass(String.class.getName());
         rulesDeploy.setUrl("someURL");
         rulesDeploy.setVersion("v1");
-        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{PublisherType.WEBSERVICE});
+        rulesDeploy.setPublishers(new PublisherType[]{PublisherType.WEBSERVICE});
         rulesDeploy.setGroups("group1,group2");
-        rulesDeploy.setRmiName("rmiName");
-        Map<String, Object> configuration = new HashMap<>();
-        configuration.put("key", "value");
-        configuration.put("key2", "value2");
+        var configuration = Map.<String, Object>of("key", "value");
         rulesDeploy.setConfiguration(configuration);
-        return rulesDeploy;
+
+        String value;
+        try (var inputStream = rulesDeploy.toInputStream()) {
+            value = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        assertEquals(EXPECTED_VALUE, value);
     }
 
     private static final String EXPECTED_VALUE = """
@@ -75,18 +66,14 @@ public class XmlRulesDeploySerializerTest {
                 <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
                 <serviceClass>java.lang.String</serviceClass>
                 <url>someURL</url>
-                <rmiName>rmiName</rmiName>
                 <version>v1</version>
                 <groups>group1,group2</groups>
                 <configuration>
-                    <entry>
-                        <string>key2</string>
-                        <string>value2</string>
-                    </entry>
                     <entry>
                         <string>key</string>
                         <string>value</string>
                     </entry>
                 </configuration>
-            </rules-deploy>""";
+            </rules-deploy>
+            """;
 }

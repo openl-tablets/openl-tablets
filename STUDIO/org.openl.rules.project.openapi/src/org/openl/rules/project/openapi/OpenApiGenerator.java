@@ -3,7 +3,6 @@ package org.openl.rules.project.openapi;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.Optional;
 import jakarta.xml.bind.JAXBException;
@@ -16,12 +15,10 @@ import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.openapi.OpenAPIConfiguration;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
@@ -37,15 +34,10 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class OpenApiGenerator {
 
-
-    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
-
     private final RulesInstantiationStrategy instantiationStrategy;
     private final CompiledOpenClass compiledOpenClass;
     private final IOpenClass openClass;
     private final RulesDeploy rulesDeploy;
-
-    private static final IRulesDeploySerializer RULES_DEPLOY_XML_SERIALIZER = new XmlRulesDeploySerializer();
 
     private ClassLoader classLoader;
 
@@ -85,15 +77,12 @@ public class OpenApiGenerator {
     }
 
     private static RulesDeploy loadRulesDeploy(ProjectDescriptor descriptor) {
-        var deployXmlPath = descriptor.getProjectFolder().resolve(RULES_DEPLOY_XML);
-        if (Files.exists(deployXmlPath)) {
-            try (var stream = Files.newInputStream(deployXmlPath)){
-                return RULES_DEPLOY_XML_SERIALIZER.deserialize(stream);
-            } catch (IOException | JAXBException e) {
-                log.debug("Ignored error: ", e);
-            }
+        try {
+            return RulesDeploy.read(descriptor.getProjectFolder());
+        } catch (IOException | JAXBException e) {
+            log.debug("Ignored error: ", e);
+            return null;
         }
-        return null;
     }
 
     private ClassLoader resolveServiceClassLoader(

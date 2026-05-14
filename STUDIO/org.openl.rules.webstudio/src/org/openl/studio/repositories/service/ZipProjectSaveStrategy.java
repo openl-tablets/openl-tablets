@@ -1,10 +1,8 @@
 package org.openl.studio.repositories.service;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -25,8 +23,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -128,21 +124,19 @@ public class ZipProjectSaveStrategy {
         }
     }
 
-    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) throws JAXBException, IOException {
+    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) throws JAXBException {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName(model.getProjectName());
-        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-        final byte[] bytes = serializer.serialize(descriptor).getBytes(StandardCharsets.UTF_8);
 
-        String name = folderTo + "/" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
-        return new FileItem(name, new ByteArrayInputStream(bytes));
+        String name = folderTo + "/" + ProjectDescriptor.FILE_NAME;
+        return new FileItem(name, descriptor.toInputStream());
     }
 
     private boolean checkIfRequiredProjectDescriptorCreation(CreateUpdateProjectModel model, Path projectRoot) {
         Path p = Path.of(model.getFullPath());
         String folderName = p.getName(p.getNameCount() - 1).toString();
         return !folderName.equals(model.getProjectName()) && !Files
-                .exists(projectRoot.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                .exists(projectRoot.resolve(ProjectDescriptor.FILE_NAME));
     }
 
     private static <T> Stream<T> concat(Iterable<T> a, Stream<T> b) {

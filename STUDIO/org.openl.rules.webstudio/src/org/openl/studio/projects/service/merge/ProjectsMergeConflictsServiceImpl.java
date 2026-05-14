@@ -25,7 +25,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -57,8 +56,6 @@ import org.openl.util.StringUtils;
 @Service
 @Slf4j
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
-
-    private static final XmlProjectDescriptorSerializer PROJECT_DESCRIPTOR_SERIALIZER = new XmlProjectDescriptorSerializer();
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -479,7 +476,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
             try (FileItem fileItem = repository.read(rulesXmlFile)) {
                 if (fileItem != null) {
-                    ProjectDescriptor descriptor = PROJECT_DESCRIPTOR_SERIALIZER.deserialize(fileItem.getStream());
+                    ProjectDescriptor descriptor = ProjectDescriptor.read(fileItem.getStream());
                     Map<String, Module> modules = new LinkedHashMap<>();
 
                     // Add existing modules
@@ -497,7 +494,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
                     descriptor.setModules(new ArrayList<>(modules.values()));
                     files.add(new FileItem(rulesXmlFile,
-                            IOUtils.toInputStream(PROJECT_DESCRIPTOR_SERIALIZER.serialize(descriptor))));
+                            descriptor.toInputStream()));
                 }
             }
         }
@@ -514,7 +511,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
     private Module getModule(FileItem fileItem, String moduleInternalPath) throws IOException, JAXBException {
         try (InputStream stream = fileItem.getStream()) {
-            ProjectDescriptor descriptor = PROJECT_DESCRIPTOR_SERIALIZER.deserialize(stream);
+            ProjectDescriptor descriptor = ProjectDescriptor.read(stream);
             for (Module module : descriptor.getModules()) {
                 if (module.getRulesRootPath().getPath().equals(moduleInternalPath)) {
                     return module;

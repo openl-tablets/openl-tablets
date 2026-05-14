@@ -2,7 +2,6 @@ package org.openl.studio.projects.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,7 +41,6 @@ import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -95,12 +93,11 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
 
         return originalDescriptor.getModules().stream()
                 .map(originalModule -> {
-                    if (projectDescriptorManager.isModuleWithWildcard(originalModule)) {
+                    if (originalModule.isModuleWithWildcard()) {
                         var builder = WildcardModuleView.builder();
                         applyModuleFields(builder, originalModule);
                         try {
-                            var matchedModules = projectDescriptorManager.getAllModulesMatchingPathPattern(
-                                    resolvedDescriptor, originalModule, originalModule.getRulesRootPath().getPath());
+                            var matchedModules = resolvedDescriptor.getAllModulesMatchingPathPattern(originalModule, originalModule.getRulesRootPath().getPath());
                             for (Module matched : matchedModules) {
                                 builder.matchedModule(toBaseModuleView(matched));
                             }
@@ -259,7 +256,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
 
         deleteModuleFiles(project, resolvedDescriptor, removed);
 
-        if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+        if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             clearOpenApiReferencesOnRemove(newDescriptor, removed.getName());
             cleanDescriptor(newDescriptor);
             saveDescriptor(project, newDescriptor);
@@ -284,7 +281,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                                    ProjectDescriptor resolvedDescriptor,
                                    Module removed) {
         List<Module> modulesForRemoving;
-        if (projectDescriptorManager.isModuleWithWildcard(removed)) {
+        if (removed.isModuleWithWildcard()) {
             modulesForRemoving = collectWildcardMatchedModules(project, resolvedDescriptor, removed);
         } else {
             validateDeletePermission(project, removed);
@@ -441,10 +438,10 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      * @param append  if true, also check CREATE permission when descriptor does not exist
      */
     private void validateDescriptorPermissions(RulesProject project, boolean append) {
-        if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+        if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             try {
                 AProjectArtefact artefact = project
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptor.FILE_NAME);
                 if (!aclProjectsHelper.hasPermission(artefact, BasePermission.WRITE)) {
                     throw new ForbiddenException();
                 }
@@ -452,7 +449,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                 // Artefact access failed — skip permission check
             }
         } else if (append) {
-            validateCreatePermission(project, ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            validateCreatePermission(project, ProjectDescriptor.FILE_NAME);
         }
     }
 
@@ -526,7 +523,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                                            ProjectDescriptor resolvedDescriptor) {
         Module toCheck = new Module();
         toCheck.setRulesRootPath(new PathEntry(path));
-        boolean withWildcard = projectDescriptorManager.isModuleWithWildcard(toCheck);
+        boolean withWildcard = toCheck.isModuleWithWildcard();
 
         if (!withWildcard && StringUtils.isBlank(newName)) {
             throw new BadRequestException("cannot.be.empty.message");
@@ -605,8 +602,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     }
 
     private boolean isPathConflict(String existingPath, String relativePath, Module module) {
-        return Objects.equals(existingPath, relativePath)
-                || projectDescriptorManager.isModuleWithWildcard(module) && FileUtils.pathMatches(existingPath, relativePath);
+        return Objects.equals(existingPath, relativePath) || module.isModuleWithWildcard() && FileUtils.pathMatches(existingPath, relativePath);
     }
 
     /**
@@ -761,13 +757,10 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private ProjectDescriptor getOriginalProjectDescriptor(ProjectDescriptor descriptor) {
         try {
-            File file = descriptor.getProjectFolder()
-                    .resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)
-                    .toFile();
-            return projectDescriptorManager.readOriginalDescriptor(file);
+            return ProjectDescriptor.read(descriptor.getProjectFolder());
         } catch (FileNotFoundException ignored) {
             return descriptor;
-        } catch (IOException | ValidationException | JAXBException e) {
+        } catch (IOException | JAXBException e) {
             log.error(e.getMessage(), e);
             return descriptor;
         }
@@ -855,16 +848,15 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private void saveDescriptor(RulesProject project, ProjectDescriptor descriptor) {
         try {
-            var outputStream = new ByteArrayOutputStream();
-            projectDescriptorManager.writeDescriptor(descriptor, outputStream);
-            var inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            descriptor.validate();
+            var inputStream = descriptor.toInputStream();
 
-            if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
                 AProjectResource artifact = (AProjectResource) project
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptor.FILE_NAME);
                 artifact.setContent(inputStream);
             } else {
-                project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
+                project.addResource(ProjectDescriptor.FILE_NAME, inputStream);
             }
         } catch (ValidationException e) {
             throw new BadRequestException("module.save.validation.failed.message");

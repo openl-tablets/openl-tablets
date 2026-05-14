@@ -35,8 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -53,7 +52,7 @@ import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
 
-public class ZipProjectSaveStrategyTest {
+class ZipProjectSaveStrategyTest {
 
     private static final String BASE_RULES_LOCATION = "DESIGN/";
 
@@ -61,11 +60,9 @@ public class ZipProjectSaveStrategyTest {
     private DesignTimeRepository designTimeRepositoryMock;
     private UserManagementService userManagementService;
     private ArgumentCaptor<FileData> fileDataCaptor;
-    private XmlProjectDescriptorSerializer projectDescriptorSerializer;
 
     @BeforeEach
-    public void setUp() throws JAXBException {
-        this.projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
+    void setUp() throws JAXBException {
         this.fileDataCaptor = forClass(FileData.class);
 
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
@@ -89,7 +86,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepo() throws Exception {
+    void testSaveMappedRepo() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
                 "jsmith",
@@ -117,7 +114,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepo2() throws Exception {
+    void testSaveMappedRepo2() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
                 "jsmith",
@@ -145,7 +142,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveNotFolderRepo() throws Exception {
+    void testSaveNotFolderRepo() throws Exception {
         mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design2",
                 "jsmith",
@@ -170,7 +167,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepoCustomPath() throws Exception {
+    void testSaveMappedRepoCustomPath() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
                 "jsmith",
@@ -198,13 +195,13 @@ public class ZipProjectSaveStrategyTest {
         assertEquals("custom-name", actualAddData.getInternalPath());
 
         FileItem descriptor = actualFileItems
-                .get(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .get(expectedRootFolder + ProjectDescriptor.FILE_NAME);
         ((ByteArrayInputStream) descriptor.getStream()).reset();
         assertProjectDescriptor(expectedRootFolder, "Project 1", descriptor);
     }
 
     @Test
-    public void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws Exception {
+    void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
                 "jsmith",
@@ -221,7 +218,7 @@ public class ZipProjectSaveStrategyTest {
 
         final String expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
         FileItem descriptor = actualFileItems
-                .remove(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .remove(expectedRootFolder + ProjectDescriptor.FILE_NAME);
         assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
 
         assertSame(expected, expectedRootFolder, actualFileItems);
@@ -239,9 +236,9 @@ public class ZipProjectSaveStrategyTest {
 
     private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) throws Exception {
         assertNotNull(descriptor);
-        assertEquals(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
+        assertEquals(expectedRootFolder + ProjectDescriptor.FILE_NAME,
                 descriptor.getData().getName());
-        assertEquals(expectedName, projectDescriptorSerializer.deserialize(descriptor.getStream()).getName());
+        assertEquals(expectedName, ProjectDescriptor.read(descriptor.getStream()).getName());
     }
 
     private static void assertSame(Path expectedArchive, InputStream actualStream) throws IOException {

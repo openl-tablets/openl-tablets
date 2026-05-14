@@ -14,12 +14,9 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.util.IOUtils;
 import org.openl.util.PropertiesUtils;
@@ -49,10 +46,9 @@ public class CopyProjectTransformer implements ResourceTransformer {
             ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
-                IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-                ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
+                ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
                 projectDescriptor.setName(newProjectName);
-                return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
+                return projectDescriptor.toInputStream();
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
                 copy.reset();
@@ -64,7 +60,7 @@ public class CopyProjectTransformer implements ResourceTransformer {
     }
 
     private boolean isProjectDescriptor(AProjectResource resource) {
-        return ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(resource.getInternalPath());
+        return ProjectDescriptor.FILE_NAME.equals(resource.getInternalPath());
     }
 
     @Override

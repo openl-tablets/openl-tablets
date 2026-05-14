@@ -9,8 +9,6 @@ import java.util.Objects;
 import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.folder.FileAdaptor;
 import org.openl.util.IOUtils;
 
@@ -28,7 +26,7 @@ public class ProjectDescriptorNameAdaptor implements FileAdaptor {
         if (fileName.charAt(0) == '/' || fileName.charAt(0) == '\\') {
             fileName = fileName.substring(1);
         }
-        return ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName);
+        return ProjectDescriptor.FILE_NAME.equals(fileName);
     }
 
     @Override
@@ -38,10 +36,9 @@ public class ProjectDescriptorNameAdaptor implements FileAdaptor {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         IOUtils.copyAndClose(inputStream, outputStream);
         ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
-        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
-        ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
+        ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
         projectDescriptor.setName(projectName);
-        return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
+        return projectDescriptor.toInputStream();
     }
 
 }

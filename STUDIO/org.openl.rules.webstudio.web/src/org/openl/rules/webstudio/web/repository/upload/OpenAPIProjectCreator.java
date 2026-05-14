@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -25,15 +23,13 @@ import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
-import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -51,13 +47,9 @@ import org.openl.util.formatters.FileNameFormatter;
  */
 @Slf4j
 public class OpenAPIProjectCreator extends AProjectCreator {
-    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
-
 
     private final ProjectFile uploadedOpenAPIFile;
     private final String comment;
-    private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-    private final XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
     private final String repositoryId;
     private final String projectName;
@@ -195,12 +187,12 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                     projectModel.getIncludeMethodFilter());
             addFile(projectBuilder,
                     rulesFile,
-                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
+                    ProjectDescriptor.FILE_NAME,
                     "Error uploading %s file.".formatted(
-                            ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                            ProjectDescriptor.FILE_NAME));
             addFile(projectBuilder,
-                    openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
-                    RULES_DEPLOY_XML,
+                    openAPIHelper.editOrCreateRulesDeploy(projectModel, generated, null),
+                    RulesDeploy.FILE_NAME,
                     "Error uploading rules-deploy.xml file.");
         } catch (Exception e) {
             projectBuilder.cancel();
@@ -245,11 +237,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private InputStream generateRulesFile(boolean genJavaClasses, Set<String> algorithmsInclude) throws IOException,
             ValidationException, JAXBException {
         ProjectDescriptor descriptor = defineDescriptor(genJavaClasses, algorithmsInclude);
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            projectDescriptorManager.writeDescriptor(descriptor, baos);
-            byte[] descriptorBytes = baos.toByteArray();
-            return new ByteArrayInputStream(descriptorBytes);
-        }
+        descriptor.validate();
+        return descriptor.toInputStream();
     }
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {

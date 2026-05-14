@@ -4,7 +4,7 @@ import jakarta.xml.bind.JAXBException;
 
 import org.xml.sax.SAXParseException;
 
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 public final class ProjectDescriptorUtils {
     private ProjectDescriptorUtils() {
@@ -12,7 +12,7 @@ public final class ProjectDescriptorUtils {
 
     public static String getErrorMessage(JAXBException e) {
         StringBuilder message = new StringBuilder(
-                "Cannot parse project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + '.');
+                "Cannot parse project descriptor file " + ProjectDescriptor.FILE_NAME + '.');
         if (e.getCause() instanceof SAXParseException) {
             SAXParseException parseException = (SAXParseException) e.getCause();
             message.append(" Line number: ")

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import jakarta.xml.bind.JAXBException;
@@ -16,7 +15,6 @@ import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -43,10 +41,9 @@ public class OpenAPIHelper {
         }
     }
 
-    public ByteArrayInputStream editOrCreateRulesDeploy(final IRulesDeploySerializer serializer,
-                                                        final ProjectModel projectModel,
-                                                        final OpenAPIGeneratedClasses generated,
-                                                        RulesDeploy exitingRulesDeploy) throws JAXBException, IOException {
+    public InputStream editOrCreateRulesDeploy(final ProjectModel projectModel,
+                                               final OpenAPIGeneratedClasses generated,
+                                               RulesDeploy exitingRulesDeploy) throws JAXBException, IOException {
         boolean fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {
@@ -60,7 +57,7 @@ public class OpenAPIHelper {
         if (CollectionUtils.isEmpty(rd.getPublishers())) {
             rd.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
         }
-        return new ByteArrayInputStream(serializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
+        return rd.toInputStream();
     }
 
     public String makePathToTheGeneratedFile(String path) {
