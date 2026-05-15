@@ -50,7 +50,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
@@ -84,7 +83,6 @@ import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -96,7 +94,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 @ParametersAreNonnullByDefault
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
-
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
     private static final Comparator<MessageDescription> MESSAGE_DESCRIPTION_COMPARATOR = Comparator.comparing(MessageDescription::severity)
@@ -128,8 +125,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
             ApplicationEventPublisher eventPublisher,
-            ProtectedBranchBypassService bypassService) {
-        super(designRepositoryAclService);
+            ProtectedBranchBypassService bypassService,
+            ProjectIdentifierMapper projectIdentifierMapper) {
+        super(designRepositoryAclService, projectIdentifierMapper);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
@@ -181,7 +179,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     protected ProjectDependencyViewModel.Builder mapProjectDependency(RulesProject src) {
         var repository = src.getRepository();
         var builder = ProjectDependencyViewModel.builder().name(src.getBusinessName())
-                .id(resolveProjectId(src))
+                .id(projectIdentifierMapper.map(src))
                 .repository(repository.getId());
         builder.status(src.getStatus()).branch(src.getBranch());
         return builder;
@@ -217,7 +215,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 var rulesProject = (RulesProject) project;
                 var dependencies = projectDependencyResolver.getProjectDependencies(rulesProject);
                 return dependencies.stream().anyMatch(dependency -> {
-                    var dependencyId = resolveProjectId(dependency);
+                    var dependencyId = projectIdentifierMapper.map(dependency);
                     return dependencyId.equals(query.dependsOn());
                 });
             });
@@ -734,21 +732,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableWriterExecutor.executeAppend(writer, tableView);
-    }
-
-    @Override
-    protected String resolveProjectName(RulesProject src) {
-        var designRepo = src.getDesignRepository();
-        if (designRepo != null && designRepo.supports().mappedFolders()) {
-            // if project repository supports mapped folders, then project id should be based on design folder name
-            // it's required to align project id when current project is opened or closed
-            // if project is opened its name is different from the name in design repository
-            var mappingData = src.getFileData().getAdditionalData(FileMappingData.class);
-            if (mappingData != null) {
-                return FileUtils.getName(mappingData.getExternalPath());
-            }
-        }
-        return super.resolveProjectName(src);
     }
 
     public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {

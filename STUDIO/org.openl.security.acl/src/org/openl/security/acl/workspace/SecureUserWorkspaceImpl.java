@@ -176,6 +176,22 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
+    public Collection<RulesProject> getProjectsByName(String name) {
+        return userWorkspace.getProjectsByName(name)
+                .stream()
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<RulesProject> getProjectsByName(String name, boolean refreshBefore) {
+        return userWorkspace.getProjectsByName(name, refreshBefore)
+                .stream()
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public LockEngine getProjectsLockEngine() {
         return userWorkspace.getProjectsLockEngine();
     }

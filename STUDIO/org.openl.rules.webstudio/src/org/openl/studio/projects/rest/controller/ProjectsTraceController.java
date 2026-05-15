@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +48,7 @@ import org.openl.studio.projects.model.trace.TraceNodeView;
 import org.openl.studio.projects.model.trace.TraceNodeViewMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ExecutionStatus;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry;
 import org.openl.studio.projects.service.trace.TableInputParserService;
@@ -63,6 +65,7 @@ import org.openl.types.IOpenMethod;
 @RequestMapping(value = "/projects/{projectId}/trace", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Trace (BETA)", description = "Experimental trace execution API")
 @Validated
+@RequiredArgsConstructor
 public class ProjectsTraceController {
 
     private final WorkspaceProjectService projectService;
@@ -74,26 +77,7 @@ public class ProjectsTraceController {
     private final TableInputParserService inputParserService;
     private final TraceExportService traceExportService;
     private final Environment environment;
-
-    public ProjectsTraceController(WorkspaceProjectService projectService,
-                                   TraceExecutorService traceExecutorService,
-                                   ExecutionTraceResultRegistry traceResultRegistry,
-                                   SocketTraceExecutionProgressListenerFactory listenerFactory,
-                                   TraceParameterRegistry parameterRegistry,
-                                   TraceTableHtmlService traceTableHtmlService,
-                                   TableInputParserService inputParserService,
-                                   TraceExportService traceExportService,
-                                   Environment environment) {
-        this.projectService = projectService;
-        this.traceExecutorService = traceExecutorService;
-        this.traceResultRegistry = traceResultRegistry;
-        this.listenerFactory = listenerFactory;
-        this.parameterRegistry = parameterRegistry;
-        this.traceTableHtmlService = traceTableHtmlService;
-        this.inputParserService = inputParserService;
-        this.traceExportService = traceExportService;
-        this.environment = environment;
-    }
+    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
@@ -114,7 +98,7 @@ public class ProjectsTraceController {
         traceResultRegistry.cancelIfAny();
         parameterRegistry.clear();
 
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.getProjectModel(project, fromModule);
         var currentOpenedModule = fromModule != null;
@@ -269,7 +253,7 @@ public class ProjectsTraceController {
     }
 
     private TraceHelper getCompletedTraceHelper(RulesProject project) {
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
 
         if (!traceResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("trace.execution.task.message");

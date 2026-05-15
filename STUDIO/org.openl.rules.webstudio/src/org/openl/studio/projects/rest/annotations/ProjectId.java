@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Parameter(description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
+@Parameter(description = "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
 public @interface ProjectId {
 
 }

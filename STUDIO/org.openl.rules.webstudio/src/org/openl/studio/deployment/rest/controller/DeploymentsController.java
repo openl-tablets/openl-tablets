@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,23 +26,18 @@ import org.openl.studio.deployment.model.DeploymentViewModel;
 import org.openl.studio.deployment.model.RedeployProjectModel;
 import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
 import org.openl.studio.deployment.service.DeploymentService;
-import org.openl.studio.projects.converter.Base64ProjectConverter;
+import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.security.CommitInfoRequired;
 
 @RestController
 @RequestMapping(value = "/deployments", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Deployments", description = "Deployment management APIs")
+@RequiredArgsConstructor
 public class DeploymentsController {
 
     private final DeploymentService deploymentService;
-    private final Base64ProjectConverter projectConverter;
-
-    public DeploymentsController(DeploymentService deploymentService,
-                                 Base64ProjectConverter projectConverter) {
-        this.deploymentService = deploymentService;
-        this.projectConverter = projectConverter;
-    }
+    private final ProjectIdentityConverter projectConverter;
 
     @Operation(summary = "Get Deployments", description = "Returns a list of deployments. Optionally, filter by provided criterias.")
     @Parameters({

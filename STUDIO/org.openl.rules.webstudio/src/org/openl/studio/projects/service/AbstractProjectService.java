@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nonnull;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -23,7 +24,6 @@ import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.model.PageResponse;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectLockInfo;
 import org.openl.studio.projects.model.ProjectViewModel;
 
@@ -33,6 +33,7 @@ import org.openl.studio.projects.model.ProjectViewModel;
  * @author Vladyslav Pikus
  */
 @ParametersAreNonnullByDefault
+@RequiredArgsConstructor
 public abstract class AbstractProjectService<T extends AProject> implements ProjectService<T> {
 
     protected static final Comparator<AProject> PROJECT_BUSINESS_NAME_ORDER =
@@ -40,10 +41,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     private static final Predicate<AProject> ALL_PROJECTS = project -> true;
 
     protected final RepositoryAclService designRepositoryAclService;
-
-    public AbstractProjectService(RepositoryAclService designRepositoryAclService) {
-        this.designRepositoryAclService = designRepositoryAclService;
-    }
+    protected final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Override
     @Nonnull
@@ -102,18 +100,11 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     protected abstract Stream<T> getProjects0(ProjectCriteriaQuery query);
 
-    public ProjectIdModel resolveProjectId(T project) {
-        return ProjectIdModel.builder()
-                .repository(project.getRepository().getId())
-                .projectName(resolveProjectName(project))
-                .build();
-    }
-
     protected ProjectViewModel.Builder mapProjectResponse(T src) {
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
                 .name(src.getBusinessName())
-                .id(resolveProjectId(src))
+                .id(projectIdentifierMapper.map(src))
                 .repository(repository.getId());
         var fileData = src.getFileData();
         if (fileData != null) {
@@ -156,10 +147,6 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         }
 
         return builder;
-    }
-
-    protected String resolveProjectName(T src) {
-        return src.getName();
     }
 
 }

@@ -57,6 +57,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final DesignTimeRepository designTimeRepository;
 
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
+    private final HashMap<String, List<ProjectKey>> rulesProjectKeysByName;
 
     private volatile boolean projectsRefreshNeeded = true;
     private volatile boolean syncNeeded = true;
@@ -76,6 +77,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         this.projectsLockEngine = projectsLockEngine;
 
         userRulesProjects = new HashMap<>();
+        rulesProjectKeysByName = new HashMap<>();
     }
 
     @Override
@@ -152,7 +154,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userRulesProjects) {
             return userRulesProjects.entrySet()
                     .stream()
-                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
                     .map(Map.Entry::getValue)
                     .sorted(PROJECTS_COMPARATOR)
                     .collect(Collectors.toList());
@@ -173,6 +175,29 @@ public class UserWorkspaceImpl implements UserWorkspace {
         result.sort(PROJECTS_COMPARATOR);
 
         return result;
+    }
+
+    @Override
+    public Collection<RulesProject> getProjectsByName(String name) {
+        return getProjectsByName(name, true);
+    }
+
+    @Override
+    public Collection<RulesProject> getProjectsByName(String name, boolean refreshBefore) {
+        if (refreshBefore || projectsRefreshNeeded) {
+            refreshRulesProjects();
+        }
+        synchronized (userRulesProjects) {
+            var keys = rulesProjectKeysByName.get(name.toLowerCase(Locale.ROOT));
+            if (keys == null || keys.isEmpty()) {
+                return List.of();
+            }
+            return keys.stream()
+                    .map(userRulesProjects::get)
+                    .filter(Objects::nonNull)
+                    .sorted(PROJECTS_COMPARATOR)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -201,7 +226,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void passivate() {
         synchronized (userRulesProjects) {
-            userRulesProjects.clear();
+            clearRulesProjectsCache();
         }
         scheduleProjectsRefresh();
 
@@ -285,6 +310,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
+    private void clearRulesProjectsCache() {
+        userRulesProjects.clear();
+        rulesProjectKeysByName.clear();
+    }
+
+    private void putRulesProject(RulesProject project) {
+        var repoId = project.getRepository().getId();
+        var key = new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT));
+        userRulesProjects.put(key, project);
+        var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
+        rulesProjectKeysByName.computeIfAbsent(businessNameKey, k -> new ArrayList<>()).add(key);
+    }
+
     private void scheduleProjectsRefresh() {
         synchronized (userRulesProjects) {
             projectsRefreshNeeded = true;
@@ -303,7 +341,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             Map<ProjectKey, String> closedProjectBranches = new HashMap<>();
             for (Map.Entry<ProjectKey, RulesProject> entry : userRulesProjects.entrySet()) {
                 ProjectKey projectKey = entry.getKey();
-                final Repository designRepository = designTimeRepository.getRepository(projectKey.getRepositoryId());
+                final Repository designRepository = designTimeRepository.getRepository(projectKey.repositoryId());
                 if (designRepository != null) {
                     boolean supportsBranches = designRepository.supports().branches();
                     if (supportsBranches) {
@@ -316,7 +354,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
 
-            userRulesProjects.clear();
+            clearRulesProjectsCache();
 
             // add new
             for (AProject rp : designTimeRepository.getProjects()) {
@@ -446,7 +484,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         log.warn("Cannot close the project {}", project.getName(), e);
                     }
                 }
-                userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT)), project);
+                putRulesProject(project);
             }
 
             // LocalProjects that hasn't corresponding project in
@@ -482,7 +520,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             null,
                             null,
                             projectsLockEngine);
-                    userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT)), project);
+                    putRulesProject(project);
                 }
             }
 
@@ -519,7 +557,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void release() {
         localWorkspace.release();
         synchronized (userRulesProjects) {
-            userRulesProjects.clear();
+            clearRulesProjectsCache();
         }
 
         scheduleProjectsRefresh();

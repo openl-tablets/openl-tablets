@@ -114,7 +114,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         synchronized (localProjects) {
             return localProjects.entrySet()
                     .stream()
-                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
                     .map(Map.Entry::getValue)
                     .sorted(PROJECTS_COMPARATOR)
                     .collect(Collectors.toList());

@@ -46,6 +46,7 @@ import org.openl.studio.projects.model.run.RunExecutionResult;
 import org.openl.studio.projects.model.run.RunExecutionResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ExecutionStatus;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
@@ -72,6 +73,7 @@ public class ProjectsRunController {
     private final SocketRunExecutionProgressListenerFactory listenerFactory;
     private final TableInputParserService inputParserService;
     private final Environment environment;
+    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
@@ -90,7 +92,7 @@ public class ProjectsRunController {
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "run.param.from-module.desc") String fromModule,
             @Parameter(description = "run.param.input-json.desc") @RequestBody(required = false) String inputJson) {
 
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.getProjectModel(project, fromModule);
         var currentOpenedModule = fromModule != null;
@@ -148,7 +150,7 @@ public class ProjectsRunController {
             @RequestHeader(name = HttpHeaders.ACCEPT)
             String acceptMediaType) throws IOException {
 
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
         if (!runResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("run.execution.task.message");
         }
