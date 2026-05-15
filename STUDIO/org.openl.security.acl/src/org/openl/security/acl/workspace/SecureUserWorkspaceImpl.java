@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -48,7 +47,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         return userWorkspace.getProjects(repositoryId)
                 .stream()
                 .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -164,7 +163,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         return userWorkspace.getProjects()
                 .stream()
                 .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -172,7 +171,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         return userWorkspace.getProjects(refreshBefore)
                 .stream()
                 .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -180,7 +179,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         return userWorkspace.getProjectsByName(name)
                 .stream()
                 .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -188,7 +187,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         return userWorkspace.getProjectsByName(name, refreshBefore)
                 .stream()
                 .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

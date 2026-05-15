@@ -157,7 +157,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
                     .map(Map.Entry::getValue)
                     .sorted(PROJECTS_COMPARATOR)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 

@@ -41,7 +41,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapperImpl;
  * @author Vladyslav Pikus
  */
 @SpringJUnitConfig(classes = ProjectIdentityConverterTest.TestConfig.class)
-public class ProjectIdentityConverterTest {
+class ProjectIdentityConverterTest {
 
     private static final String ID_SEPARATOR = ":";
 
@@ -55,12 +55,12 @@ public class ProjectIdentityConverterTest {
     private UserWorkspace userWorkspace;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reset(designRepositoryAclService, userWorkspace);
     }
 
     @Test
-    public void test_convert() throws ProjectException {
+    void convert_byId() throws ProjectException {
         String repoId = "qwerty";
         String projectName = "projectName";
         String projectId = encode(repoId, projectName);
@@ -74,7 +74,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_securityError() throws ProjectException {
+    void convert_securityError() throws ProjectException {
         String repoId = "qwerty";
         String projectName = "projectName";
         String projectId = encode(repoId, projectName);
@@ -87,7 +87,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_invalidId_fallsBackToNameLookup() throws ProjectException {
+    void convert_invalidId_fallsBackToNameLookup() {
         var designRepo = mock(DesignTimeRepository.class);
         when(userWorkspace.getDesignTimeRepository()).thenReturn(designRepo);
         when(designRepo.getRepositories()).thenReturn(List.of());
@@ -103,7 +103,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_notFound() throws ProjectException {
+    void convert_notFound() throws ProjectException {
         String repositoryId = "design-repo";
         String projectName = "projectName";
         String projectId = encode(repositoryId, projectName);
@@ -123,7 +123,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_mappedName() throws ProjectException {
+    void convert_mappedName() throws ProjectException {
         String repoId = "design-repo";
         String projectBusinessName = "projectName";
         String projectMappedName = projectBusinessName + ":123456789";
@@ -146,7 +146,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_mappedName_fallsBackToNameLookup() throws ProjectException {
+    void convert_mappedName_fallsBackToNameLookup() throws ProjectException {
         String repoId = "design-repo";
         String projectBusinessName = "projectName";
         String projectMappedName = projectBusinessName + ":123456789";
@@ -168,7 +168,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_byName_singleMatch() throws ProjectException {
+    void convert_byName_singleMatch() {
         String name = "MyProject";
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(rulesProject));
@@ -179,7 +179,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_byName_ambiguous() throws ProjectException {
+    void convert_byName_ambiguous() {
         String name = "MyProject";
         var p1 = mock(RulesProject.class);
         var p2 = mock(RulesProject.class);
@@ -202,7 +202,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_byName_fallbackToRepoScan() throws ProjectException {
+    void convert_byName_fallbackToRepoScan() throws ProjectException {
         String name = "MyProject";
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of());
 
@@ -225,7 +225,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_byName_fallbackToRepoScan_ambiguous() throws ProjectException {
+    void convert_byName_fallbackToRepoScan_ambiguous() throws ProjectException {
         String name = "MyProject";
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of());
 
@@ -253,7 +253,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_byName_fallbackToRepoScan_mappedFolders() throws ProjectException {
+    void convert_byName_fallbackToRepoScan_mappedFolders() throws ProjectException {
         String businessName = "MyProject";
         String mappedName = businessName + ":hash";
         when(userWorkspace.getProjectsByName(businessName)).thenReturn(List.of());
@@ -280,7 +280,7 @@ public class ProjectIdentityConverterTest {
     }
 
     @Test
-    public void test_convert_byName_notFound() throws ProjectException {
+    void convert_byName_notFound() {
         String name = "MyProject";
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of());
 
@@ -298,12 +298,12 @@ public class ProjectIdentityConverterTest {
     }
 
     @Configuration
-    public static class TestConfig {
+    static class TestConfig {
 
         @Bean
-        public ProjectIdentityConverter projectConverter(RepositoryAclService designRepositoryAclService,
-                                                         List<ProjectResolveStrategy> strategies,
-                                                         ProjectIdentifierMapper projectIdentifierMapper) {
+        ProjectIdentityConverter projectConverter(RepositoryAclService designRepositoryAclService,
+                                                  List<ProjectResolveStrategy> strategies,
+                                                  ProjectIdentifierMapper projectIdentifierMapper) {
             return new ProjectIdentityConverter(designRepositoryAclService, strategies, projectIdentifierMapper) {
                 // just a workaround for @Lookup
                 @Override
@@ -314,27 +314,27 @@ public class ProjectIdentityConverterTest {
         }
 
         @Bean
-        public Base64ProjectResolveStrategy base64ProjectResolveStrategy() {
+        Base64ProjectResolveStrategy base64ProjectResolveStrategy() {
             return new Base64ProjectResolveStrategy();
         }
 
         @Bean
-        public ProjectNameResolveStrategy projectNameResolveStrategy() {
+        ProjectNameResolveStrategy projectNameResolveStrategy() {
             return new ProjectNameResolveStrategy();
         }
 
         @Bean
-        public ProjectIdentifierMapper projectIdentifierMapper() {
+        ProjectIdentifierMapper projectIdentifierMapper() {
             return new ProjectIdentifierMapperImpl();
         }
 
         @Bean
-        public RepositoryAclService designRepositoryAclService() {
+        RepositoryAclService designRepositoryAclService() {
             return mock(RepositoryAclService.class);
         }
 
         @Bean
-        public UserWorkspace userWorkspace() {
+        UserWorkspace userWorkspace() {
             return mock(UserWorkspace.class);
         }
     }
