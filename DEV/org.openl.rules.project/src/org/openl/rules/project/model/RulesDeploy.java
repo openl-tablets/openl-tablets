@@ -12,7 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -25,6 +28,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.openl.util.StringUtils;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "rules-deploy")
 @Getter
@@ -32,9 +37,7 @@ import lombok.Setter;
 public class RulesDeploy {
 
     public enum PublisherType {
-        WEBSERVICE,
         RESTFUL,
-        RMI,
         KAFKA
     }
 
@@ -101,12 +104,45 @@ public class RulesDeploy {
     }
 
     /**
+     * JAXB callback: drops not supported elements from legacy {@code rules-deploy.xml} files so deprecated values
+     * do not leak into the model. The XML still parses without error to preserve backward compatibility.
+     */
+    @SuppressWarnings("unused")
+    private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+        if (this.publishers != null) {
+            // Clean up null elements
+            publishers = Arrays.stream(this.publishers)
+                    .filter(Objects::nonNull)
+                    .toArray(PublisherType[]::new);
+        }
+    }
+
+    /** Nullify blank Strings and empty containers so JAXB omits the corresponding elements entirely. */
+    @SuppressWarnings("unused")
+    private void beforeMarshal(Marshaller marshaller) {
+        serviceName = StringUtils.trimToNull(serviceName);
+        interceptingTemplateClassName = StringUtils.trimToNull(interceptingTemplateClassName);
+        annotationTemplateClassName = StringUtils.trimToNull(annotationTemplateClassName);
+        serviceClass = StringUtils.trimToNull(serviceClass);
+        url = StringUtils.trimToNull(url);
+        version = StringUtils.trimToNull(version);
+        groups = StringUtils.trimToNull(groups);
+        if (configuration != null && configuration.isEmpty()) {
+            configuration = null;
+        }
+    }
+
+    /**
      * Renders a {@link PublisherType} enum constant as the bare string the wire format uses.
      */
     public static class PublisherTypeXmlAdapter extends XmlAdapter<String, PublisherType> {
         @Override
         public PublisherType unmarshal(String name) {
-            return PublisherType.valueOf(name.toUpperCase(Locale.ROOT));
+            try {
+                return PublisherType.valueOf(name.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
         }
 
         @Override

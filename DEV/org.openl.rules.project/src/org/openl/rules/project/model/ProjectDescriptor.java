@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -476,6 +477,34 @@ public class ProjectDescriptor {
         var outputStrteam = new ByteArrayOutputStream();
         SERIALIZER.marshal(this, outputStrteam);
         return !Arrays.equals(original, outputStrteam.toByteArray());
+    }
+
+    @SuppressWarnings("unused")
+    private void beforeMarshal(Marshaller marshaller) {
+        name = StringUtils.trimToNull(name);
+        comment = StringUtils.trimToNull(comment);
+        propertiesFileNameProcessor = StringUtils.trimToNull(propertiesFileNameProcessor);
+        if (propertiesFileNamePatterns != null) {
+            var trimmed = Arrays.stream(propertiesFileNamePatterns)
+                    .filter(StringUtils::isNotBlank)
+                    .toArray(String[]::new);
+            propertiesFileNamePatterns = trimmed.length == 0 ? null : trimmed;
+        }
+        if (classpath != null) {
+            classpath.removeIf(e -> e == null || e.getPath() == null || e.getPath().isBlank());
+            if (classpath.isEmpty()) {
+                classpath = null;
+            }
+        }
+        if (dependencies != null && dependencies.isEmpty()) {
+            dependencies = null;
+        }
+        if (OpenAPI.isEmpty(openapi) || OpenAPI.isDefault(openapi)) {
+            openapi = null;
+        }
+        if (ExposedMethods.isEmpty(exposedMethods)) {
+            exposedMethods = null;
+        }
     }
 
     /**

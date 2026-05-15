@@ -121,7 +121,7 @@ public class StoreLogDataMapper {
                 String request = null;
                 switch (storeLogData.getPublisherType()) {
                     case KAFKA -> request = storeLogData.getConsumerRecord().value().asText();
-                    case RESTFUL, WEBSERVICE -> {
+                    case RESTFUL -> {
                         if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
                                 .getPayload() != null) {
                             request = storeLogData.getRequestMessage().getPayload().toString();
@@ -146,7 +146,7 @@ public class StoreLogDataMapper {
                             }
                         }
                     }
-                    case RESTFUL, WEBSERVICE -> {
+                    case RESTFUL -> {
                         if (storeLogData.getResponseMessage() != null && storeLogData.getResponseMessage()
                                 .getPayload() != null) {
                             response = storeLogData.getResponseMessage().getPayload().toString();
@@ -321,8 +321,6 @@ public class StoreLogDataMapper {
         return switch (publisherType) {
             case KAFKA -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.KAFKA);
-            case WEBSERVICE -> Arrays.asList(value)
-                        .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE);
             case RESTFUL -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL);
             default -> false;

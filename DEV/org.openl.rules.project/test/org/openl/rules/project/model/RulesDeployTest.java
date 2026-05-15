@@ -3,6 +3,7 @@ package org.openl.rules.project.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
@@ -43,7 +44,7 @@ class RulesDeployTest {
         rulesDeploy.setServiceClass(String.class.getName());
         rulesDeploy.setUrl("someURL");
         rulesDeploy.setVersion("v1");
-        rulesDeploy.setPublishers(new PublisherType[]{PublisherType.WEBSERVICE});
+        rulesDeploy.setPublishers(new PublisherType[]{PublisherType.RESTFUL});
         rulesDeploy.setGroups("group1,group2");
         var configuration = Map.<String, Object>of("key", "value");
         rulesDeploy.setConfiguration(configuration);
@@ -55,12 +56,70 @@ class RulesDeployTest {
         assertEquals(EXPECTED_VALUE, value);
     }
 
+    @Test
+    void testReadSkipsDeprecatedPublishers() throws Exception {
+        var xml = """
+                <rules-deploy>
+                    <publishers>
+                        <publisher>RMI</publisher>
+                        <publisher>RESTFUL</publisher>
+                        <publisher>WEBSERVICE</publisher>
+                        <publisher>KAFKA</publisher>
+                    </publishers>
+                </rules-deploy>
+                """;
+        var rulesDeploy = RulesDeploy.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertNotNull(rulesDeploy);
+        assertNotNull(rulesDeploy.getPublishers());
+        assertEquals(2, rulesDeploy.getPublishers().length);
+        assertEquals(PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
+        assertEquals(PublisherType.KAFKA, rulesDeploy.getPublishers()[1]);
+    }
+
+    @Test
+    void testReadOmitsPublishersWhenOnlyDeprecated() throws Exception {
+        var xml = """
+                <rules-deploy>
+                    <publishers>
+                        <publisher>RMI</publisher>
+                        <publisher>WEBSERVICE</publisher>
+                    </publishers>
+                </rules-deploy>
+                """;
+        var rulesDeploy = RulesDeploy.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertNotNull(rulesDeploy);
+        assertEquals(0, rulesDeploy.getPublishers().length);
+    }
+
+    @Test
+    void testWriteOmitsBlankFields() throws Exception {
+        var rulesDeploy = new RulesDeploy();
+        rulesDeploy.setServiceName("svc");
+        rulesDeploy.setUrl("   ");
+        rulesDeploy.setVersion("");
+        rulesDeploy.setGroups(null);
+        rulesDeploy.setInterceptingTemplateClassName("\t \n");
+        rulesDeploy.setAnnotationTemplateClassName("LegacyService");
+        rulesDeploy.setConfiguration(java.util.Map.of());
+
+        String value;
+        try (var inputStream = rulesDeploy.toInputStream()) {
+            value = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        assertEquals("""
+                <rules-deploy>
+                    <serviceName>svc</serviceName>
+                    <annotationTemplateClassName>LegacyService</annotationTemplateClassName>
+                </rules-deploy>
+                """, value);
+    }
+
     private static final String EXPECTED_VALUE = """
             <rules-deploy>
                 <isProvideRuntimeContext>false</isProvideRuntimeContext>
                 <serviceName>rulesDeployName</serviceName>
                 <publishers>
-                    <publisher>WEBSERVICE</publisher>
+                    <publisher>RESTFUL</publisher>
                 </publishers>
                 <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
                 <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
