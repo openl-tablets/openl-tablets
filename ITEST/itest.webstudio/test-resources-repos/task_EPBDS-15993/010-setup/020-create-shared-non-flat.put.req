@@ -1,0 +1,15 @@
+PUT /rest/repos/design-non-flat/projects/{SHARED_NAME} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="Sample Project.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&Sample Project.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+EPBDS-15993 Create shared project in non-flat repo
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
