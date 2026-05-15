@@ -55,7 +55,7 @@ public class SpringBootWebAppTest {
     @Test
     public void deployZipFromOpenLFolder() {
         String response = restTemplate
-                .postForObject("/REST/deployed-rules/hello", "John Smith", String.class);
+                .postForObject("/deployed-rules/hello", "John Smith", String.class);
         assertThat(response).contains("Hello, John Smith");
     }
 

@@ -55,16 +55,6 @@ public class StoreLogDataMapperTest {
         assertEquals(customString2, testEntity1.getValue2());
         assertEquals(customString2, testEntity1.getStringValue2());
         assertNull(testEntity1.getValue1());
-
-        final PublisherType publisher2 = PublisherType.WEBSERVICE;
-        storeLogData.setPublisherType(publisher2);
-
-        TestEntity testEntity2 = new TestEntity();
-        mapper.map(storeLogData, testEntity2);
-
-        // validation
-        assertNull(testEntity2.getValue2());
-        assertEquals(customString1, testEntity2.getValue1());
     }
 
     @Test

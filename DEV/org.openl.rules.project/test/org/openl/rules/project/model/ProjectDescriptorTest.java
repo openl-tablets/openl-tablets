@@ -13,6 +13,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -167,6 +169,7 @@ class ProjectDescriptorTest {
 
         module1.getMethodFilter().addIncludePattern(" * ");
         module1.getMethodFilter().addExcludePattern(" * ");
+        module1.getMethodFilter().addExcludePattern("  ");
 
         var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
 
@@ -339,6 +342,160 @@ class ProjectDescriptorTest {
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
+    }
+
+    @Test
+    void testWriteOmitsBlankProjectFields() throws Exception {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("   ");
+        descriptor.setComment("");
+        descriptor.setPropertiesFileNameProcessor("\t");
+        descriptor.setPropertiesFileNamePatterns(new String[]{null, "", "  "});
+        descriptor.setClasspath(new ArrayList<>(List.of(new PathEntry(""), new PathEntry("  "))));
+        descriptor.setDependencies(new ArrayList<>());
+        descriptor.setOpenapi(new OpenAPI("  ", null, "", null));
+        ExposedMethods em = new ExposedMethods();
+        em.setIncludes(new HashSet<>(Arrays.asList("", null, " ")));
+        em.setExcludes(new HashSet<>(Arrays.asList("", null, " ")));
+        descriptor.setExposedMethods(em);
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("<project/>\n", dest);
+    }
+
+    @Test
+    void testWriteFiltersBlankPropertiesFileNamePatterns() throws Exception {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setPropertiesFileNamePatterns(new String[]{"", "{lob}-{state}", null, "  "});
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <properties-file-name-pattern>{lob}-{state}</properties-file-name-pattern>
+                </project>
+                """, dest);
+    }
+
+    @Test
+    void testWriteFiltersBlankClasspathEntries() throws Exception {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setClasspath(new ArrayList<>(List.of(new PathEntry("lib/*.jar"), new PathEntry(""))));
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <classpath>
+                        <entry path="lib/*.jar"/>
+                    </classpath>
+                </project>
+                """, dest);
+    }
+
+    @Test
+    void testWriteKeepsOpenApiWithPath() throws Exception {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setOpenapi(new OpenAPI("api.yaml", OpenAPI.Mode.RECONCILIATION, "", null));
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <openapi>
+                        <path>api.yaml</path>
+                        <mode>RECONCILIATION</mode>
+                    </openapi>
+                </project>
+                """, dest);
+    }
+
+    @Test
+    void testWriteOmitsDefaultReconciliationOpenApi() throws Exception {
+        for (String defaultPath : List.of("openapi.yaml", "openapi.yml", "openapi.json")) {
+            ProjectDescriptor descriptor = new ProjectDescriptor();
+            descriptor.setName("p");
+            descriptor.setOpenapi(new OpenAPI(defaultPath, OpenAPI.Mode.RECONCILIATION, null, null));
+
+            var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+            assertEquals("""
+                    <project>
+                        <name>p</name>
+                    </project>
+                    """, dest, "for path " + defaultPath);
+        }
+    }
+
+    @Test
+    void testWriteKeepsGenerationOpenApiEvenForDefaultPath() throws Exception {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setOpenapi(new OpenAPI("openapi.yaml", OpenAPI.Mode.GENERATION, null, null));
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <openapi>
+                        <path>openapi.yaml</path>
+                        <mode>GENERATION</mode>
+                    </openapi>
+                </project>
+                """, dest);
+    }
+
+    @Test
+    void testWriteKeepsReconciliationOpenApiWithModelOverrides() throws Exception {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setOpenapi(new OpenAPI("openapi2.yaml", OpenAPI.Mode.RECONCILIATION, "Model", null));
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <openapi>
+                        <path>openapi2.yaml</path>
+                        <model-module-name>Model</model-module-name>
+                        <mode>RECONCILIATION</mode>
+                    </openapi>
+                </project>
+                """, dest);
+    }
+
+    @Test
+    void testWriteOmitsEmptyMethodFilterAndBlankModuleFields() throws Exception {
+        Module module = new Module();
+        module.setName("  ");
+        module.setRulesRootPath(new PathEntry(""));
+        MethodFilter mf = new MethodFilter();
+        mf.setIncludes(new HashSet<>());
+        mf.setExcludes(new HashSet<>());
+        module.setMethodFilter(mf);
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setModules(new ArrayList<>(List.of(module)));
+
+        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <modules>
+                        <module/>
+                    </modules>
+                </project>
+                """, dest);
     }
 
     private static FileSystem openZipFile(Path path) throws IOException {

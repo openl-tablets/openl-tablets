@@ -5,6 +5,7 @@ import static org.openl.rules.project.model.WebstudioConfiguration.WEBSTUDIO_CON
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -14,6 +15,8 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import org.openl.util.StringUtils;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "module")
@@ -37,6 +40,17 @@ public class Module {
     private String wildcardRulesRootPath;
     @XmlElement(name = "method-filter")
     private MethodFilter methodFilter;
+
+    @SuppressWarnings("unused")
+    private void beforeMarshal(Marshaller marshaller) {
+        name = StringUtils.trimToNull(name);
+        if (rulesRootPath != null && (rulesRootPath.getPath() == null || rulesRootPath.getPath().isBlank())) {
+            rulesRootPath = null;
+        }
+        if (MethodFilter.isEmpty(methodFilter)) {
+            methodFilter = null;
+        }
+    }
 
     public Path getRulesPath() {
         return project.getProjectFolder().resolve(rulesRootPath.getPath()).toAbsolutePath();
