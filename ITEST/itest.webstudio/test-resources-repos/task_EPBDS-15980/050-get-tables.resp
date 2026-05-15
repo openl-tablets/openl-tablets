@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "09084dc7cf97f795a126b7b4e786e285",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String[]",
+      "signature": "Hello ( )",
+      "file": "EPBDS-15980/Main.xlsx",
+      "pos": "B3:B9"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

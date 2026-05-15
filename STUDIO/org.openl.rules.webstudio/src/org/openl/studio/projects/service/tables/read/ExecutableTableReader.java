@@ -29,61 +29,44 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
 
     private void initializeSignature(R builder, HeaderSyntaxNode header) {
         var headerSource = header.getSourceString();
-        int pos = rollWhitespaces(headerSource, 0);
-        int start = pos;
-        pos = rollIdentifier(headerSource, pos);
-        if (start < pos) {
-            // it is probably table type
-            builder.tableType(headerSource.substring(start, pos));
-        }
-        pos = rollWhitespaces(headerSource, pos);
+
+        var parsedTableType = readIdentifier(headerSource, 0);
+        builder.tableType(parsedTableType.identifier());
+
+        int pos = rollWhitespaces(headerSource, parsedTableType.pos());
         if (header.isCollect()) {
             // skip "Collect" keyword
             pos = rollIdentifier(headerSource, pos);
-            pos = rollWhitespaces(headerSource, pos);
         }
-        start = pos;
-        pos = rollIdentifier(headerSource, pos);
-        if (start < pos) {
-            // it is probably table return type
-            builder.returnType(headerSource.substring(start, pos));
-        }
-        pos = rollWhitespaces(headerSource, pos);
-        start = pos;
-        pos = rollIdentifier(headerSource, pos);
-        if (start < pos) {
-            // it is probably table name
-            builder.name(headerSource.substring(start, pos));
-        }
-        pos = rollWhitespaces(headerSource, pos);
-        List<ArgumentView> args = null;
+
+        var parsedReturnType = readIdentifier(headerSource, pos);
+        builder.returnType(parsedReturnType.identifier());
+
+        var parsedName = readIdentifier(headerSource, parsedReturnType.pos());
+        builder.name(parsedName.identifier());
+
+        pos = rollWhitespaces(headerSource, parsedName.pos());
         if (pos < headerSource.length() && headerSource.charAt(pos) == '(') {
-            args = parseArguments(headerSource, pos);
+            var args = parseArguments(headerSource, pos);
+            builder.args(args);
         }
-        builder.args(args);
     }
 
     private static List<ArgumentView> parseArguments(String headerSource, int pos) {
         List<ArgumentView> args = new ArrayList<>();
         pos++;
         while (pos < headerSource.length() && headerSource.charAt(pos) != ')') {
-            var argBuilder = ArgumentView.builder();
-            pos = rollWhitespaces(headerSource, pos);
-            int start = pos;
-            pos = rollIdentifier(headerSource, pos);
-            if (start < pos) {
-                // it is probably argument type
-                argBuilder.type(headerSource.substring(start, pos));
+            var parsedType = readIdentifier(headerSource, pos);
+            var parsedName = readIdentifier(headerSource, parsedType.pos());
+
+            if (parsedType.hasIdentifier() || parsedName.hasIdentifier()) {
+                args.add(ArgumentView.builder()
+                        .type(parsedType.identifier())
+                        .name(parsedName.identifier())
+                        .build());
             }
-            pos = rollWhitespaces(headerSource, pos);
-            start = pos;
-            pos = rollIdentifier(headerSource, pos);
-            if (start < pos) {
-                // it is probably argument name
-                argBuilder.name(headerSource.substring(start, pos));
-            }
-            args.add(argBuilder.build());
-            pos = rollWhitespaces(headerSource, pos);
+
+            pos = rollWhitespaces(headerSource, parsedName.pos());
             if (pos < headerSource.length() && headerSource.charAt(pos) == ',') {
                 pos++;
             } else {
@@ -92,6 +75,15 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
             }
         }
         return Collections.unmodifiableList(args);
+    }
+
+    private static ParsedIdentifier readIdentifier(String source, int from) {
+        int pos = rollWhitespaces(source, from);
+        int start = pos;
+        pos = rollIdentifier(source, pos);
+        return start < pos
+                ? new ParsedIdentifier(pos, source.substring(start, pos))
+                : new ParsedIdentifier(pos, null);
     }
 
     static int rollIdentifier(String s, int pos) {
@@ -110,5 +102,13 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
             pos++;
         }
         return pos;
+    }
+
+    private record ParsedIdentifier(int pos, String identifier) {
+
+        public boolean hasIdentifier() {
+            return identifier != null;
+        }
+
     }
 }

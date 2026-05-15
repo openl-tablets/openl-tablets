@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "09084dc7cf97f795a126b7b4e786e285",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "Hello",
+  "returnType": "String[]",
+  "collect": true,
+  "headers": [
+    {
+      "title": "String greeting"
+    }
+  ],
+  "rules": [
+    {
+      "String greeting": "Greeting"
+    },
+    {
+      "String greeting": "Good Morning"
+    },
+    {
+      "String greeting": "Good Afternoon"
+    },
+    {
+      "String greeting": "Good Evening"
+    },
+    {
+      "String greeting": "Good Night"
+    }
+  ]
+}
