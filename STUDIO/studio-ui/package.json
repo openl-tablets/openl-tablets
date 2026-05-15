@@ -40,7 +40,7 @@
     "jsdom": "^29.1.1",
     "license-checker-rseidelsohn": "^4.4.2",
     "typescript": "^6.0.3",
-    "vite": "^8.0.12",
+    "vite": "^8.0.13",
     "vitest": "^4.1.6",
     "vitest-fail-on-console": "^0.10.1"
   },
