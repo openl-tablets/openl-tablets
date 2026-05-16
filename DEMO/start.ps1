@@ -15,6 +15,8 @@
 # Stop script on any error, similar to 'set -e'
 $ErrorActionPreference = 'Stop'
 
+[System.Net.WebRequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+
 # --- 1. SETTINGS ---
 # Define the required versions for your environment.
 # -----------------------------------------------------------------------------------
