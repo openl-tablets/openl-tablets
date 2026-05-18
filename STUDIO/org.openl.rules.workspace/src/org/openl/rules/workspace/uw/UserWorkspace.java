@@ -50,6 +50,31 @@ public interface UserWorkspace extends ProjectsContainer {
 
     Collection<RulesProject> getProjects(boolean refreshBefore);
 
+    /**
+     * Returns all projects in the workspace whose business name matches the given name (case-insensitive). Since project
+     * names are unique only within a single design repository, multiple projects with the same business name may exist
+     * across repositories and are all returned.
+     * <p>
+     * Refreshes the workspace before lookup. Equivalent to {@link #getProjectsByName(String, boolean)} with
+     * {@code refreshBefore = true}.
+     *
+     * @param name project business name to match (case-insensitive)
+     * @return matching projects, sorted by business name, repository id, then real path; empty if none found
+     */
+    Collection<RulesProject> getProjectsByName(String name);
+
+    /**
+     * Returns all projects in the workspace whose business name matches the given name (case-insensitive). Since project
+     * names are unique only within a single design repository, multiple projects with the same business name may exist
+     * across repositories and are all returned.
+     *
+     * @param name           project business name to match (case-insensitive)
+     * @param refreshBefore  if {@code true}, the workspace is refreshed before the lookup; if {@code false}, the cached
+     *                       state is used (a refresh still happens when one was previously scheduled)
+     * @return matching projects, sorted by business name, repository id, then real path; empty if none found
+     */
+    Collection<RulesProject> getProjectsByName(String name, boolean refreshBefore);
+
     LockEngine getProjectsLockEngine();
 
     boolean isOpenedOtherProject(AProject project);

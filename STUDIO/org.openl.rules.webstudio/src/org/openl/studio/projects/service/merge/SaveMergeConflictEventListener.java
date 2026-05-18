@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 
 /**
  * Listens for {@link SaveMergeConflictEvent} and stores the conflict info
@@ -14,12 +14,12 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 @RequiredArgsConstructor
 public class SaveMergeConflictEventListener {
 
-    private final WorkspaceProjectService projectService;
+    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
 
     @EventListener
     public void onSaveMergeConflict(SaveMergeConflictEvent event) {
-        var projectId = projectService.resolveProjectId(event.project());
+        var projectId = projectIdentifierMapper.map(event.project());
         conflictsSessionHolder.store(projectId, event.conflictInfo());
     }
 }

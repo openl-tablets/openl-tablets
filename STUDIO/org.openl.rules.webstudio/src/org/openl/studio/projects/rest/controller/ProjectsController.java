@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -68,6 +69,7 @@ import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -87,6 +89,7 @@ import org.openl.util.StringUtils;
 @RequestMapping(value = "/projects", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects (BETA)", description = "Experimental projects API")
 @Validated
+@RequiredArgsConstructor
 public class ProjectsController {
 
     private static final String TAGS_PREFIX = "tags.";
@@ -99,20 +102,7 @@ public class ProjectsController {
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
     private final Environment environment;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
-
-    public ProjectsController(WorkspaceProjectService projectService,
-                              TestsExecutorService testsExecutorService,
-                              ExecutionTestsResultRegistry executionTestsResultRegistry,
-                              SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory,
-                              Environment environment,
-                              ProjectsMergeConflictsSessionHolder conflictsSessionHolder) {
-        this.projectService = projectService;
-        this.testsExecutorService = testsExecutorService;
-        this.executionTestsResultRegistry = executionTestsResultRegistry;
-        this.socketProjectAllTestsExecutionProgressListenerFactory = socketProjectAllTestsExecutionProgressListenerFactory;
-        this.environment = environment;
-        this.conflictsSessionHolder = conflictsSessionHolder;
-    }
+    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -174,7 +164,7 @@ public class ProjectsController {
     @Operation(summary = "Update project status (BETA)")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                     @RequestBody ProjectStatusUpdateModel request) {
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
         if (conflictsSessionHolder.hasConflictInfo(projectId)) {
             throw new ConflictException("project.unresolved.merge.conflicts.message");
         }
@@ -319,7 +309,7 @@ public class ProjectsController {
                             @RequestParam(value = "tableId", required = false) @Parameter(description = "Table ID") String tableId,
                             @RequestParam(value = "testRanges", required = false) String testRanges) {
         executionTestsResultRegistry.cancelIfAny();
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.getProjectModel(project, fromModule);
         var currentOpenedModule = fromModule != null;
@@ -381,7 +371,7 @@ public class ProjectsController {
                                              @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
                                              @RequestHeader(name = HttpHeaders.ACCEPT)
                                              String acceptMediaType) throws IOException {
-        var projectId = projectService.resolveProjectId(project);
+        var projectId = projectIdentifierMapper.map(project);
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
         }

@@ -11899,7 +11899,7 @@ Content-Type: application/json
           {
             "name": "projectId",
             "in": "path",
-            "description": "Project ID",
+            "description": "***",
             "required": true,
             "schema": {
               "type": "string"

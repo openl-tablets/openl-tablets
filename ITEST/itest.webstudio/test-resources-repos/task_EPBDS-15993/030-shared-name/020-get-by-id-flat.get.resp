@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTMtc2hhcmVkOmYyMTAwNWYxZDFjMDNkMzBmMGIzYWMxYjQ4YWQwY2I0OGVmZDk4YjZmOTQ0YzFhYTA0NWIyZjk5NGM0OWQzMjk=",
+  "name": "EPBDS-15993-shared",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedBy": "*",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15993-shared",
+  "comment": "EPBDS-15993 Create shared project in flat repo",
+  "selectedBranches": ["master"]
+}

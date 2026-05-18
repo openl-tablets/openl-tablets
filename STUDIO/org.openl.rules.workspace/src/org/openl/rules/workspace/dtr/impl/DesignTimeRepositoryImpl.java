@@ -314,7 +314,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
             return projects.entrySet()
                     .stream()
-                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
                     .map(Map.Entry::getValue)
                     .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
                     .collect(Collectors.toList());

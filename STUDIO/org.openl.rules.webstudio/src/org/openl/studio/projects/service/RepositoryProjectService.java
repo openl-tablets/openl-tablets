@@ -28,8 +28,9 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     private final DesignTimeRepository designTimeRepository;
 
     public RepositoryProjectService(DesignTimeRepository designTimeRepository,
-                                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
-        super(designRepositoryAclService);
+                                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                    ProjectIdentifierMapper projectIdentifierMapper) {
+        super(designRepositoryAclService, projectIdentifierMapper);
         this.designTimeRepository = designTimeRepository;
     }
 

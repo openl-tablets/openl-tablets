@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTMtdW5pcXVlOmI1ZDlhMGY1YzYwYTM5NjMzM2ZjMTBkZGUzNDE0MzE5MDVlOWRmNzhiYzY5MjY0NmVjMDE2MWZhNTU5MzE2M2U=",
+  "name": "EPBDS-15993-unique",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedBy": "*",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15993-unique",
+  "comment": "EPBDS-15993 Create unique project",
+  "selectedBranches": ["master"]
+}
