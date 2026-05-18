@@ -34,7 +34,7 @@ To get a full list of projects, delete filter text value in the field.
 
 Rules Editor allows a user to work with one project at a time. To select a project, in the **Projects** tree, select the blue hyperlink of the required project name. The project page with general information about the project and configuration details appears in the middle pane of the editor.
 
-![](images/project-page-rules-editor.jpeg)
+![](images/project-page-rules-editor.png)
 
 *A project page in Rules Editor*
 
@@ -102,16 +102,6 @@ A project can be opened for editing and saved directly in Rules Editor.
 
 All changes are saved in the project `rules.xml` file. For more information on this XML file, see the [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
 
-#### Saving a Project for Backward Compatibility
-
-For backward compatibility, a project can be saved in earlier OpenL versions, for example, 5.11.0 or 5.12.0.
-
-It is important that the structure of `rules.xml` and `rules-deploy.xml` is changed after saving a project in a previous OpenL version, and may result, for example, in disappeared UI fragments.
-
-![](images/select-openl-version-compatibility.png)
-
-*Selecting an OpenL Tablets version for creating a backward compatible project version*
-
 #### Updating and Exporting a Project
 
 To update or export a project, proceed as follows:
@@ -167,7 +157,9 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 
 1.  To save the changes, click **Save** ![](images/toolbar-save-icon.png).
 
-**Notes:** The 'Included Methods' and 'Excluded Methods' fields provide the ability to set method filters. For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#dynamic-interface-support)
+**Notes:** The 'Included Methods' and 'Excluded Methods' on this UI has been deprecated and kept for backward
+compatibility. The new fields for filterring exposed methods are located on the project info UI.
+For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#dynamic-interface-support)
 
 #### Comparing and Reverting Module Changes
 
