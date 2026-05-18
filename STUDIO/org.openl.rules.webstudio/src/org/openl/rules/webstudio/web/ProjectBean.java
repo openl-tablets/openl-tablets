@@ -994,10 +994,10 @@ public class ProjectBean {
         if (hasIncludes || hasExcludes) {
             ExposedMethods filter = new ExposedMethods();
             if (hasIncludes) {
-                filter.setIncludes(new HashSet<>(Arrays.asList(includeArray)));
+                filter.setIncludes(new LinkedHashSet<>(Arrays.asList(includeArray)));
             }
             if (hasExcludes) {
-                filter.setExcludes(new HashSet<>(Arrays.asList(excludeArray)));
+                filter.setExcludes(new LinkedHashSet<>(Arrays.asList(excludeArray)));
             }
             newProjectDescriptor.setExposedMethods(filter);
         } else {
