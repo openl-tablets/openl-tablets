@@ -15,5 +15,5 @@ Within each tab, configured repositories are listed as vertical tabs on the left
 
 This section describes repository settings management and includes the following topics:
 
-- [Managing General Repository Settings](#managing-general-repository-settings)
-- [Managing Git Repository Settings](#managing-git-repository-settings)
+- [Managing General Repository Settings](01-general-repository-settings.md#managing-general-repository-settings)
+- [Managing Git Repository Settings](02-git-repository-settings.md#managing-git-repository-settings)

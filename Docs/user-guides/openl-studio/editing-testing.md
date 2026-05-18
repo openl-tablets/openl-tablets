@@ -86,13 +86,13 @@ The following topics are included in this section:
 
 ##### Editing System Properties
 
-By default, OpenL Studio applies system properties to each created or edited table. For information on how to switch off this option, please refer to [Managing Common Settings](#managing-common-settings). The values of the System properties are provided in the table and in the Properties section.
+By default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the Properties section.
 
 The **modifiedBy** property value is set using the name of the currently logged in user. The **modifiedOn** property is set according to the current date. These properties are applied upon each save.
 
 The **createdBy** property value is set using the name of the currently logged in user. The **createdOn** property is set according to the current date. These properties are applied on the first save only while creating or copying a table in OpenL Studio.
 
-The **createdBy** and **modifiedBy** properties are only applied in the multi-mode as described in [Security Overview](#security-overview).
+The **createdBy** and **modifiedBy** properties are only applied in the multi-mode as described in [Security Overview](introduction.md#security-overview).
 
 System properties cannot be edited in UI. The OpenL Studio users can delete those properties if required.
 
@@ -172,7 +172,7 @@ For example, in the following diagram, the table on the left is a decision table
 
 *Decision table and its test table*
 
-OpenL Studio supports visual controls for creating and running project tests. Test tables can be modified like all other tables in OpenL Studio. For information on modifying a table, see [Modifying Tables](#modifying-tables). Test results are displayed in a simple format directly in the user interface.
+OpenL Studio supports visual controls for creating and running project tests. Test tables can be modified like all other tables in OpenL Studio. For information on modifying a table, see [Modifying Tables](rules-editor.md#modifying-tables). Test results are displayed in a simple format directly in the user interface.
 
 The following topics are included in this section:
 

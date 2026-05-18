@@ -1,6 +1,6 @@
 ## Using Rules Editor
 
-This chapter describes basic tasks that can be performed in Rules Editor. For more information on Rules Editor, see [Introducing Rules Editor](#introducing-rules-editor).
+This chapter describes basic tasks that can be performed in Rules Editor. For more information on Rules Editor, see [Introducing Rules Editor](getting-started.md#introducing-rules-editor).
 
 The following topics are included in this chapter:
 
@@ -38,7 +38,7 @@ Rules Editor allows a user to work with one project at a time. To select a proje
 
 *A project page in Rules Editor*
 
-If a particular project is not available, it must be opened as described in [Opening a Project](#opening-a-project).
+If a particular project is not available, it must be opened as described in [Opening a Project](repository-editor.md#opening-a-project).
 
 ### Viewing a Module
 
@@ -47,7 +47,7 @@ Rules Editor allows a user to work with one module at a time. To select a module
 -   tree in the left pane displaying module tables
 -   general module information displayed in the middle pane, including project and module names, associated Excel file, number of tables, and module dependencies
 
-If a particular module is not available, the project in which it is defined must be opened as described in [Opening a Project](#opening-a-project).
+If a particular module is not available, the project in which it is defined must be opened as described in [Opening a Project](repository-editor.md#opening-a-project).
 
 By default, a project is opened in the multi-module mode. This is a common production mode. In the multi-module mode, all modules of the current project with all their dependencies are displayed, that is, modules of projects defined as the project dependencies.
 
@@ -76,7 +76,6 @@ When loading is completed, the **Within Current Module Only** check box is clear
 This section explains the following tasks that can be performed on projects in Rules Editor:
 
 -   [Editing and Saving a Project](#editing-and-saving-a-project)
--   [Saving a Project for Backward Compatibility](#saving-a-project-for-backward-compatibility)
 -   [Updating and Exporting a Project](#updating-and-exporting-a-project)
 -   [Copying a Project](#copying-a-project)
 -   [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module)
@@ -95,7 +94,7 @@ A project can be opened for editing and saved directly in Rules Editor.
 
 | Project details                                                                                                                               | Available actions                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General project information <br/>and configuration, <br/>such as OpenL version compatibility, <br/>description, project name, <br/>and custom file name processor | Put the mouse cursor over the project name and click **Edit** ![](images/edit-icon.png) . <br/>For more information on OpenL version compatibility, see [Saving a Project for Backward Compatibility](#saving-a-project-for-backward-compatibility). <br/>Project name can be edited only for projects in a non-flat Git repository. <br/>The project name will be changed in OpenL Studio only, while the folder name remains unchanged. <br/>For more information on properties pattern for the file name, see <br/>[OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
+| General project information <br/>and configuration, <br/>such as OpenL version compatibility, <br/>description, project name, <br/>and custom file name processor | Put the mouse cursor over the project name and click **Edit** ![](images/edit-icon.png) . <br/>Project name can be edited only for projects in a non-flat Git repository. <br/>The project name will be changed in OpenL Studio only, while the folder name remains unchanged. <br/>For more information on properties pattern for the file name, see <br/>[OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
 | Project sources                                                                                                                               | Put the mouse cursor over the **Sources** label and click **Manage Sources** ![](images/edit-icon.png) .                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | Modules configuration                                                                                                                         | Put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](images/add-module-icon.png) or **Edit Module** ![](images/edit-icon.png) <br/>or **Remove Module** ![](images/remove-module-icon.png).                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Project dependencies                                                                                                                          | Manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -509,7 +508,7 @@ The table appears in the module list.
 
 #### Creating a New Version of the Table
 
-To create a new version of the existing table, proceed as described in [Using Table Versioning](#using-table-versioning). In that case, dimensional properties of a new version are exactly the same as for the original one. OpenL Tablets allows creating an overloaded table from an existing one.
+To create a new version of the existing table, proceed as described in [Using Table Versioning](editing-testing.md#using-table-versioning). In that case, dimensional properties of a new version are exactly the same as for the original one. OpenL Tablets allows creating an overloaded table from an existing one.
 
 #### Creating a Table as a New Business Dimension Version
 

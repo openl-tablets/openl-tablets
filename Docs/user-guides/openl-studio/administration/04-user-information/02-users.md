@@ -89,7 +89,7 @@ To create a new user, proceed as follows:
    To grant access to multiple resources, add a new row for each resource. The same resource cannot be assigned more
    than one role.
 
-   For a description of available roles and their permissions, see [Understanding Roles](#understanding-roles).
+   For a description of available roles and their permissions, see [Understanding Roles](01-groups.md#understanding-roles).
 
 8. Click **Save** to complete.
 

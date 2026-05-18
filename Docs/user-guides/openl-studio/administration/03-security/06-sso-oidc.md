@@ -15,4 +15,4 @@ When **SSO: OIDC (OAuth2)** is selected, configure the connection to the OAuth2 
 | **Attribute for Email**        | Name of the token claim that contains the user's email address.                            |
 | **Attribute for Groups**       | Name of the token claim that contains the user's group memberships.                        |
 
-Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+Proceed to [Configuring Initial Users](07-initial-users.md#configuring-initial-users) to set up the administrator account and the default group.

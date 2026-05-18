@@ -21,7 +21,7 @@ This guide is organized into the following sections:
 
 ### Administration
 
-- [Using Administration Tools](administration.md) - System administration and configuration
+- [Using Administration Tools](administration/index.md) - System administration and configuration
 
 ### Appendices
 

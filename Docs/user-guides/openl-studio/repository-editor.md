@@ -1,6 +1,6 @@
 ## Using Repository Editor
 
-This chapter describes tasks that can be performed in repository editor. For general information on repository editor, see [Introducing Repository Editor](#introducing-repository-editor).
+This chapter describes tasks that can be performed in repository editor. For general information on repository editor, see [Introducing Repository Editor](getting-started.md#introducing-repository-editor).
 
 The following topics are included in this chapter:
 
@@ -49,7 +49,7 @@ Projects in the repository editor are filtered the same way as in Rules Editor.
 
 To filter projects by name, enter the name in the filter text box. All projects matching the name are displayed in the **Projects** list.
 
-To group projects by repository or tag types, click the **Group Projects** icon ![](images/group-projects-icon.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](#managing-tags).
+To group projects by repository or tag types, click the **Group Projects** icon ![](images/group-projects-icon.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](administration/06-tags.md#managing-tags).
 
 ![](images/projects-grouped-by-tags.jpeg)
 
@@ -124,7 +124,7 @@ To create a new project from template, proceed as follows:
 
 1.  Click **Create**.
 
-    If tag types are defined as described in the [Managing Tags](#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
+    If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
     A new project is created in Design repository. Initially, project structure corresponds to the selected project template but can be constructed manually.
 
@@ -178,7 +178,7 @@ Proceed as follows:
 
 1.  Click **Create** to complete.
 
-If tag types are defined as described in the [Managing Tags](#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
+If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Creating a Project from OpenAPI file
 
@@ -186,7 +186,7 @@ A rule project in the Design repository can be created by uploading the OpenAPI 
 
 The OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection.
 
-The algorithm for generating a project from an OpenAPI file is described in the [Appendix B: OpenAPI Project Generation Algorithm](#appendix-b-openapi-project-generation-algorithm).
+The algorithm for generating a project from an OpenAPI file is described in the [Appendix B: OpenAPI Project Generation Algorithm](appendices/openapi-generation.md#appendix-b-openapi-project-generation-algorithm).
 
 The OpenAPI file must have a valid structure and a JSON, YAML(YML) extension.
 
@@ -209,7 +209,7 @@ To create a project from the OpenAPI file, proceed as follows:
 
 1.  Click **Create**.
 
-If tag types are defined as described in the [Managing Tags](#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
+If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Creating a Project from ZIP Archive
 
@@ -237,7 +237,7 @@ A project can only be created from a `zip` archive. The .`rar` or `.7zip` archiv
 
 1.  Click **Create** to complete.
 
-If tag types are defined as described in the [Managing Tags](#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
+If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Importing a Project from Workspace
 
@@ -255,7 +255,7 @@ A new project can be created in Design repository by loading a project with the 
 1.  Select check boxes for projects to be uploaded.
 2.  To complete creation, click **Create**.
 
-If tag types are defined as described in the [Managing Tags](#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
+If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Creating a Project from a Repository
 
@@ -269,7 +269,7 @@ A project existing in the Git repository can be imported into OpenL Studio as fo
 
 *Importing a project from a Git repository*
 
-If tag types are defined as described in the [Managing Tags](#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
+If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 ### Specifying tags for a new project
 
@@ -283,7 +283,7 @@ If the project contains tags that cannot be applied, a **Missing tags** pop-up w
 
 *Some tags are not configured properly*
 
-If the tag types are defined as described in the [Managing Tags](#managing-tags) section, a pop-up window appears, prompting the user to specify project tags.
+If the tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a pop-up window appears, prompting the user to specify project tags.
 
 Default tag values are determined in the following order:
 
@@ -376,7 +376,7 @@ To save a project, proceed as follows:
 
 1.  Enter comments if needed and click **Save**.
 
-An editable project can be saved and closed directly from Rules Editor as described in [Editing and Saving a Project](#editing-and-saving-a-project).
+An editable project can be saved and closed directly from Rules Editor as described in [Editing and Saving a Project](rules-editor.md#editing-and-saving-a-project).
 
 ### Viewing Project Properties
 
@@ -390,7 +390,7 @@ Properties, such as Name and Created At / Created By, are updated automatically 
 
 If the user chooses to modify tag values, the project status will change to **In Editing**, unless it is already in this state.
 
-There are scenarios where a project has a tag that does not have a configured tag type, as described in the [Managing Tags](#managing-tags) section, or contains a value that is not permitted. This can occur if a project was created before tag types were reconfigured or removed.
+There are scenarios where a project has a tag that does not have a configured tag type, as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or contains a value that is not permitted. This can occur if a project was created before tag types were reconfigured or removed.
 
 In cases where a tag type is missing, the user can only change its value to **None**, effectively removing the tag.
 
@@ -500,7 +500,7 @@ To copy a project, proceed as follows:
 1.  In the **Copy Project** window, enter the new project name.
 2.  Select whether a new project must be linked to the origin project.
 
-    In case of linked projects, a new project branch is created. For more information on branches, see [Working with Project Branches](#working-with-project-branches). For unlinked projects, if there are mandatory tag types, tags must be defined for a new project.
+    In case of linked projects, a new project branch is created. For more information on branches, see [Working with Project Branches](project-branches.md#working-with-project-branches). For unlinked projects, if there are mandatory tag types, tags must be defined for a new project.
 
 1.  Specify whether old revisions must be copied to the newly created project.
 2.  If necessary, select a repository and specify the path to the destination project.
@@ -719,7 +719,7 @@ It is recommended to grant permission to the “Unlock” functionality only for
 
 ### Browsing the Deployment Repository
 
-**The Deployment repository** contains project deployments and is also the location from where solution applications use them. OpenL Studio allows connecting several deployment repositories. For information on how to configure deployment repositories, refer to [Managing Repository Settings](#managing-repository-settings).
+**The Deployment repository** contains project deployments and is also the location from where solution applications use them. OpenL Studio allows connecting several deployment repositories. For information on how to configure deployment repositories, refer to [Managing Repository Settings](administration/01-repository-settings/index.md#managing-repository-settings).
 
 To browse a deployment repository, proceed as follows:
 

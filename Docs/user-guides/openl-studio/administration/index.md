@@ -14,10 +14,10 @@ Normally, the default settings are recommended, but users with appropriate permi
 
 The following topics are included:
 
--   [Managing Repository Settings](#managing-repository-settings)
--   [Managing System Settings](#managing-system-settings)
--   [Managing Security Settings](#managing-security-settings)
--   [Managing User Information](#managing-user-information)
--   [Managing Notifications](#managing-notifications)
--   [Managing Tags](#managing-tags)
--   [Managing Email Server Configuration](#managing-email-server-configuration)
+-   [Managing Repository Settings](01-repository-settings/index.md#managing-repository-settings)
+-   [Managing System Settings](02-system-settings.md#managing-system-settings)
+-   [Managing Security Settings](03-security/index.md#managing-security-settings)
+-   [Managing User Information](04-user-information/index.md#managing-user-information)
+-   [Managing Notifications](05-notifications.md#managing-notifications)
+-   [Managing Tags](06-tags.md#managing-tags)
+-   [Managing Email Server Configuration](07-email-server.md#managing-email-server-configuration)

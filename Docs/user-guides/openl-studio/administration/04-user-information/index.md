@@ -10,5 +10,5 @@ Users and groups are managed in the **Groups** and **Users** tabs of the **Admin
 
 The following topics are included in this section:
 
-- [Managing Groups](#managing-groups)
-- [Managing Users](#managing-users)
+- [Managing Groups](01-groups.md#managing-groups)
+- [Managing Users](02-users.md#managing-users)

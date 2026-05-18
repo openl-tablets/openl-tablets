@@ -26,7 +26,7 @@ To sign in to OpenL Studio, proceed as follows:
 
 1.  Enter the user name and password provided by the system administrator and click **Sign in**.
 
-For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](#security-overview).
+For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
 
 ### Modifying User Profile
 
@@ -229,7 +229,7 @@ The following table describes the Rules Editor toolbar controls:
 | ![](images/toolbar-search-icon.png) ![](images/toolbar-export-icon.png) | Updates the current module or project with uploaded file or zip file. Exports the current version of the module or project.                                                                                                                                                                                            |
 | ![](images/toolbar-repository-editor-icon.png)                                                                  | Switches user interface to repository editor. For more information on repository editor, see [Introducing Repository Editor](#introducing-repository-editor).                                                                                                                                                          |
 | ![](images/toolbar-rules-editor-icon.png)                                                                  | Switches user interface to Rules Editor. For more information on Rules Editor, see [Using Rules Editor](rules-editor.md#using-rules-editor).                                                                                                                                                                                          |
-| ![](images/toolbar-admin-mode-icon.png)                                                                  | Switches user interface to the **Administration** mode. For more information on administrative functions, see [Using Administration Tools](administration.md#using-administration-tools).                                                                                                                                               |
+| ![](images/toolbar-admin-mode-icon.png)                                                                  | Switches user interface to the **Administration** mode. For more information on administrative functions, see [Using Administration Tools](administration/index.md#using-administration-tools).                                                                                                                                               |
 
 #### View Modes
 
@@ -289,4 +289,4 @@ The following table describes repository editor organization:
 
 A user can switch to Rules Editor by clicking the **Rules Editor** control.
 
-For more information on tasks that can be performed in repository editor, see [Using Repository Editor](#using-repository-editor).
+For more information on tasks that can be performed in repository editor, see [Using Repository Editor](repository-editor.md#using-repository-editor).

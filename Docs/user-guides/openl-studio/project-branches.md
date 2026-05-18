@@ -11,7 +11,7 @@ The following topics are included in this section:
 
 ### Creating a Branch
 
-A branch is created by copying an existing project. Both predefined and user-defined names can be used for a branch. For more information on name patterns, see [Setting Up a Connection to a Git Repository](administration.md#setting-up-a-connection-to-a-git-repository).
+A branch is created by copying an existing project. Both predefined and user-defined names can be used for a branch. For more information on name patterns, see [Setting Up a Connection to a Git Repository](administration/01-repository-settings/02-git-repository-settings.md#setting-up-a-connection-to-a-git-repository).
 
 Proceed as follows:
 
@@ -118,4 +118,4 @@ Wildcards can be used to specify a group of branches, such as release-\*, so all
 
 By default, branches are not protected.
 
-Branches can also be defined as protected in the OpenL Studio administration navigation menu as described in [Setting Up a Connection to a Git Repository](administration.md#setting-up-a-connection-to-a-git-repository).
+Branches can also be defined as protected in the OpenL Studio administration navigation menu as described in [Setting Up a Connection to a Git Repository](administration/01-repository-settings/02-git-repository-settings.md#setting-up-a-connection-to-a-git-repository).

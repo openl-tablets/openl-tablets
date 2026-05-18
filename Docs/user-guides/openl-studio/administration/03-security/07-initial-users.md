@@ -29,13 +29,13 @@ When this option is disabled:
 -   No user can delete an existing project from a design repository.
 -   Existing projects remain fully editable subject to the user's role.
 
-The setting does not grant any permissions on its own — when enabled, users still need the **Create** or **Delete** permission on the target repository or project to perform the action. For more information on roles, see [Understanding Roles](#understanding-roles).
+The setting does not grant any permissions on its own — when enabled, users still need the **Create** or **Delete** permission on the target repository or project to perform the action. For more information on roles, see [Understanding Roles](../04-user-information/01-groups.md#understanding-roles).
 
 The **Allow Managers to bypass protected branches** check box (`security.allow-bypass-protected-branches`) controls whether users with the **Manager** role can merge changes directly into protected branches from the OpenL Studio UI. When this option is disabled, protected branch restrictions apply uniformly to all users, and merges into protected branches must be completed using external Git tooling. When enabled, the bypass follows the scope of the assigned **Manager** role:
 
 -   If the **Manager** role is granted at the project level, the bypass applies to that project only.
 -   If the **Manager** role is granted at the repository level, the bypass applies to all projects in the repository.
 
-For more information on protected branches, see [Using Protected Branches](project-branches.md#using-protected-branches). For more information on roles, see [Understanding Roles](#understanding-roles).
+For more information on protected branches, see [Using Protected Branches](../../project-branches.md#using-protected-branches). For more information on roles, see [Understanding Roles](../04-user-information/01-groups.md#understanding-roles).
 
 **Note:** The **Manager** role also grants permission to manage access rights for other users and groups on the resource. It is not currently possible to grant merge-bypass authority without also granting role management rights.

@@ -6,10 +6,10 @@ To configure security, select the authentication mode, fill in the required sett
 
 This section includes the following topics:
 
--   [Selecting an Authentication Mode](#selecting-an-authentication-mode)
--   [Configuring Single-User Mode](#configuring-single-user-mode)
--   [Configuring Multi-User Mode](#configuring-multi-user-mode)
--   [Configuring Active Directory / LDAP Mode](#configuring-active-directory--ldap-mode)
--   [Configuring SSO: SAML Mode](#configuring-sso-saml-mode)
--   [Configuring SSO: OIDC (OAuth2) Mode](#configuring-sso-oidc-oauth2-mode)
--   [Configuring Initial Users](#configuring-initial-users)
+-   [Selecting an Authentication Mode](01-authentication-mode.md#selecting-an-authentication-mode)
+-   [Configuring Single-User Mode](02-single-user.md#configuring-single-user-mode)
+-   [Configuring Multi-User Mode](03-multi-user.md#configuring-multi-user-mode)
+-   [Configuring Active Directory / LDAP Mode](04-ldap.md#configuring-active-directory--ldap-mode)
+-   [Configuring SSO: SAML Mode](05-sso-saml.md#configuring-sso-saml-mode)
+-   [Configuring SSO: OIDC (OAuth2) Mode](06-sso-oidc.md#configuring-sso-oidc-oauth2-mode)
+-   [Configuring Initial Users](07-initial-users.md#configuring-initial-users)

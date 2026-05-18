@@ -14,4 +14,4 @@ When **SSO: SAML** is selected, configure the connection to the SAML identity pr
 | **Attribute for Email**        | Name of the SAML attribute that contains the user's email address.                         |
 | **Attribute for Groups**       | Name of the SAML attribute that contains the user's group memberships.                     |
 
-Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+Proceed to [Configuring Initial Users](07-initial-users.md#configuring-initial-users) to set up the administrator account and the default group.
