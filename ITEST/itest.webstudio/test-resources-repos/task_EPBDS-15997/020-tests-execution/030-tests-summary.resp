@@ -1,0 +1,126 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 14,
+  "executionTimeMs": "*",
+  "numberOfTests": 34,
+  "numberOfFailures": 1,
+  "testCases": [
+    {
+      "name": "BankRatingTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_EXCEPTION",
+          "parameters": "*",
+          "errors": [
+            {
+              "id": 88,
+              "summary": "java.lang.UnsupportedOperationException: You are trying to run openl code with a compile error in it\r\nOpenl Code Fragment:\r\n=======================\r\n $LimitIndex * MaxLimit выв\r\n               ^^^^^^^^^^^^\r\n=======================\r\n    at EPBDS-15997/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&cell=G22&start=16&end=27\r\n",
+              "severity": "ERROR"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BankLimitIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "BankRatingGroupTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 5,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "CapitalAdequacyScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "DynamicIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "EquityScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "IsAdequateMaxCreditRiskScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "IsAdequateNormativeIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "LossesInThisYearScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 2,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "ProfitDynamicScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "QualitativeIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "QualityIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "SetNonZeroValuesTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "TotalBalanceScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    }
+  ]
+}
