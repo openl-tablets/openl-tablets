@@ -12,6 +12,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ParameterValue;
@@ -80,14 +81,19 @@ public class TestsExecutionSummaryResponseMapper {
                 .status(testUnit.getResultStatus())
                 .executionTimeMs(testUnit.getExecutionTime() / 1_000_000.0);
 
-        // Map test assertions
-        var results = testUnit.getComparisonResults();
-        var resultColumnNames = testUnit.getActualResult() instanceof Exception
-                ? testCase.getTestErrorColumnDisplayNames()
-                : testCase.getTestResultColumnDisplayNames();
-        IntStream.range(0, results.size())
-                .mapToObj(i -> mapToTestAssertionResult(results.get(i), resultColumnNames[i]))
-                .forEach(builder::testAssertion);
+        // Map test assertions. Skip them for TR_EXCEPTION (unexpected exception thrown by the test)
+        // to mirror the legacy RichFaces UI (test.xhtml renders only #{testCase.errors} when
+        // compareResult == 'TR_EXCEPTION'). Such tests have no _error_ columns so column display
+        // names are empty, which previously caused ArrayIndexOutOfBoundsException.
+        if (testUnit.getResultStatus() != TestStatus.TR_EXCEPTION) {
+            var results = testUnit.getComparisonResults();
+            var resultColumnNames = testUnit.getActualResult() instanceof Exception
+                    ? testCase.getTestErrorColumnDisplayNames()
+                    : testCase.getTestResultColumnDisplayNames();
+            IntStream.range(0, results.size())
+                    .mapToObj(i -> mapToTestAssertionResult(results.get(i), resultColumnNames[i]))
+                    .forEach(builder::testAssertion);
+        }
 
         // Map execution parameters
         var executionParams = testUnit.getTest().getExecutionParams();
