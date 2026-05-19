@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -72,6 +71,8 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
+import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -150,6 +151,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     @Lookup
     public WebStudio getWebStudio() {
+        return null;
+    }
+
+    @Lookup
+    public CompilationJobRegistry getCompilationJobRegistry() {
         return null;
     }
 
@@ -518,7 +524,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public PageResponse<SummaryTableView> getTables(RulesProject project,
                                                     ProjectTableCriteriaQuery query,
                                                     Pageable page) {
-        var moduleModel = getProjectModel(project);
+        var moduleModel = openProject(project).awaitCompiled();
 
         var selectors = buildTableSelector(query);
         var allTables = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
@@ -570,18 +576,37 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return selectors;
     }
 
-    public ProjectModel getProjectModel(RulesProject project) {
-        return getProjectModel(project, (String) null);
+    /**
+     * Open the project's default module and return a non-blocking handle to the
+     * resulting {@link ProjectModel} together with its asynchronous compilation
+     * job. The project model becomes available immediately; callers that need a
+     * compiled model should use {@link ProjectHandle#awaitCompiled()} or wait on
+     * {@link org.openl.studio.projects.service.project.compile.CompilationJob#future()}.
+     *
+     * @param project workspace project to open
+     * @return handle exposing the project model and its compilation job
+     */
+    public ProjectHandle openProject(RulesProject project) {
+        return openProject(project, (String) null);
     }
 
-    public ProjectModel getProjectModel(RulesProject project, @Nullable String moduleName) {
+    /**
+     * Open a specific module of the given project and return a non-blocking
+     * handle.
+     *
+     * @param project    workspace project to open
+     * @param moduleName name of the module to open, or {@code null} to pick the
+     *                   first module
+     * @return handle exposing the project model and its compilation job
+     */
+    public ProjectHandle openProject(RulesProject project, @Nullable String moduleName) {
         var projectDescriptor = getProjectDescriptor(project);
         var moduleSelector = projectDescriptor.getModules().stream();
         if (moduleName != null) {
             moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
         }
         var module = moduleSelector.findFirst().orElse(null);
-        return getProjectModel(projectDescriptor, project, module);
+        return openProject(projectDescriptor, project, module);
     }
 
     public ProjectDescriptor getProjectDescriptor(RulesProject project) {
@@ -615,22 +640,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return projectDescriptor;
     }
 
-    private ProjectModel getProjectModel(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
+    private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
         var webstudio = getWebStudio();
         webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
         var moduleModel = webstudio.getModel();
-        while (!moduleModel.isProjectCompilationCompleted()) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("Project compilation interrupted", e);
-            }
-        }
-        return moduleModel;
+        var job = getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project), moduleModel);
+        return ProjectHandle.of(moduleModel, job);
     }
 
     /**
@@ -675,7 +693,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
-        var moduleModel = getProjectModel(project);
+        var moduleModel = openProject(project).awaitCompiled();
         var table = moduleModel.getTableById(tableId);
         if (table == null) {
             throw new NotFoundException("table.message");
@@ -688,7 +706,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var pd = getProjectDescriptor(project);
             module = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
             // initialize module
-            moduleModel = getProjectModel(pd, project, module);
+            moduleModel = openProject(pd, project, module).awaitCompiled();
             table = moduleModel.getTableById(tableId);
             if (table == null) {
                 throw new NotFoundException("table.message");
@@ -739,7 +757,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var projectModel = getProjectModel(project, createTableRequest.moduleName());
+        var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableCreatorService.createTable(createTableRequest, projectModel);
     }

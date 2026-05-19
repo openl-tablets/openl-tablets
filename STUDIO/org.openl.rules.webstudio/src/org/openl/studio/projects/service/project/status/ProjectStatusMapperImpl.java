@@ -24,6 +24,8 @@ import org.openl.studio.projects.model.project.status.ModifiedBy;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.project.compile.CompilationJob;
+import org.openl.studio.projects.service.project.compile.CompilationStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +51,10 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             builder.author(mapAuthor(fileData));
         });
         if (project.isOpened()) {
-            var projectModel = workspaceProjectService.getProjectModel(project);
+            var handle = workspaceProjectService.openProject(project);
+            var projectModel = handle.project();
             var moduleMessages = projectModel.getModuleMessages();
-            builder.compileState(deriveCompileState(projectModel, moduleMessages));
+            builder.compileState(deriveCompileState(handle.compilation(), projectModel, moduleMessages));
             builder.messages(groupMessages(moduleMessages));
         } else {
             builder.compileState(CompileState.IDLE);
@@ -71,7 +74,13 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         return authorBuilder.build();
     }
 
-    private CompileState deriveCompileState(ProjectModel projectModel, Collection<OpenLMessage> messages) {
+    private CompileState deriveCompileState(CompilationJob compilation,
+                                            ProjectModel projectModel,
+                                            Collection<OpenLMessage> messages) {
+        var status = compilation.status();
+        if (status == CompilationStatus.PENDING || status == CompilationStatus.RUNNING) {
+            return CompileState.COMPILING;
+        }
         if (!projectModel.isProjectCompilationCompleted()) {
             return CompileState.COMPILING;
         }

@@ -100,7 +100,7 @@ public class ProjectsTraceController {
 
         var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
-        var projectModel = projectService.getProjectModel(project, fromModule);
+        var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
 
         var table = projectModel.getTableById(tableId);
@@ -210,7 +210,7 @@ public class ProjectsTraceController {
             @RequestParam(value = "showFormulas", defaultValue = "false") @Parameter(description = "trace.param.show-formulas.desc") boolean showFormulas) {
 
         var traceHelper = getCompletedTraceHelper(project);
-        var projectModel = projectService.getProjectModel(project, null);
+        var projectModel = projectService.openProject(project, null).awaitCompiled();
 
         return traceTableHtmlService.renderTraceTableHtml(traceHelper, nodeId, projectModel, showFormulas);
     }

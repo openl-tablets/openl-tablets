@@ -135,7 +135,7 @@ public class ProjectsMergeController {
         if (checkMergeResult.status() != CheckMergeStatus.MERGEABLE) {
             throw new ConflictException("project.branch.merge.not.mergeable.message");
         }
-        var model = projectService.getProjectModel(project);
+        var model = projectService.openProject(project).awaitCompiled();
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
         if (dependencyManager != null) {
             dependencyManager.pause();
@@ -222,7 +222,7 @@ public class ProjectsMergeController {
                 });
 
         var mergeOperation = mergeConflictInfo.isMerging();
-        var model = projectService.getProjectModel(project);
+        var model = projectService.openProject(project).awaitCompiled();
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
         boolean wasOpened = project.isOpened();
         if (dependencyManager != null) {

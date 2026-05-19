@@ -117,7 +117,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                                          @Valid CopyModuleRequest request,
                                          boolean force) {
         var descriptor = workspaceProjectService.getProjectDescriptor(project);
-        workspaceProjectService.getProjectModel(project); // Ensure model is loaded for module retrieval
+        workspaceProjectService.openProject(project).awaitCompiled(); // Ensure model is loaded for module retrieval
 
         Module sourceModule = CollectionUtils.findFirst(descriptor.getModules(),
                 module -> module.getName() != null && module.getName().equals(moduleName));

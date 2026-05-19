@@ -119,6 +119,17 @@ public class ProjectModel {
     @Getter
     private volatile boolean compilationInProgress;
     private volatile ResolvedDependency projectCompilationCompleted;
+    private long compilationCycleCounter;
+    /**
+     * The most recent registered compilation cycle. A fresh instance is created whenever the
+     * model starts (or has just finished) a compilation — {@link #compileProject(boolean, boolean)},
+     * {@link #setModuleInfo(Module, ReloadType)} via its single-module path, etc. External
+     * observers can use object identity (or {@link RegisteredCompilation#id()}) to detect a new
+     * cycle even when the previous one completes very quickly. Initialised to an already-completed
+     * sentinel so callers never see {@code null}.
+     */
+    @Getter
+    private volatile RegisteredCompilation currentCompilation = RegisteredCompilation.completed(0L);
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
@@ -1262,6 +1273,9 @@ public class ProjectModel {
                 }
             } else {
                 this.compilationInProgress = false;
+                // Single-module compile already finished synchronously above. Register a fresh
+                // completed cycle so external observers see a new identity for this compilation.
+                this.currentCompilation = RegisteredCompilation.completed(++this.compilationCycleCounter);
             }
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
@@ -1270,6 +1284,7 @@ public class ProjectModel {
 
     public void compileProject(boolean sync, boolean prepareWorkspaceDependencyManager) {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final RegisteredCompilation cycle;
         synchronized (this) {
             ProjectDescriptor projectDescriptor = getProjectDescriptor();
             if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
@@ -1277,8 +1292,11 @@ public class ProjectModel {
             }
             this.compilationInProgress = true;
             this.projectCompilationCompleted = null;
+            cycle = new RegisteredCompilation(++this.compilationCycleCounter);
+            this.currentCompilation = cycle;
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
+                Throwable failure = null;
                 synchronized (ProjectModel.this) {
                     try {
                         this.compiledOpenClass = this.validate(projectDescriptor);
@@ -1288,10 +1306,16 @@ public class ProjectModel {
                         redraw();
                     } catch (Exception | LinkageError e) {
                         onCompilationFailed(e);
+                        failure = e;
                     }
                     this.projectCompilationCompleted = compiledDependency.getDependency();
                     this.compilationInProgress = false;
                     countDownLatch.countDown();
+                }
+                if (failure != null) {
+                    cycle.future().completeExceptionally(failure);
+                } else {
+                    cycle.future().complete(null);
                 }
             });
         }

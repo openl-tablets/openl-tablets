@@ -333,7 +333,7 @@ public class ProjectsController {
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
-        var projectModel = projectService.getProjectModel(project, fromModule);
+        var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
         var objectMapper = configureObjectMapper();

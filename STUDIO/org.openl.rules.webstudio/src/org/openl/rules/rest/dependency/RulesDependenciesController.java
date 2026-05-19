@@ -61,7 +61,7 @@ public class RulesDependenciesController {
     @GetMapping("/projects/{projectId}/tables/graph")
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
     public List<Table> getTablesWithDependencies(@PathVariable("projectId") RulesProject project) {
-        return getTablesWithDependencies(projectService.getProjectModel(project));
+        return getTablesWithDependencies(projectService.openProject(project).awaitCompiled());
     }
 
     private List<Table> getTablesWithDependencies(ProjectModel projectModel) {
