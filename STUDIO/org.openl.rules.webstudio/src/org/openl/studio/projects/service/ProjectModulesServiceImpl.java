@@ -35,7 +35,6 @@ import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
-import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
@@ -844,7 +843,6 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private void saveDescriptor(RulesProject project, ProjectDescriptor descriptor) {
         try {
-            descriptor.validate();
             var inputStream = new ByteArrayInputStream(descriptor.toBytes());
 
             if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
@@ -854,8 +852,6 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
             } else {
                 project.addResource(ProjectDescriptor.FILE_NAME, inputStream);
             }
-        } catch (ValidationException e) {
-            throw new BadRequestException("module.save.validation.failed.message");
         } catch (Exception e) {
             throw new ConflictException("module.save.failed.message");
         }
