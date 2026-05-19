@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
-import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -43,7 +42,7 @@ public class OpenAPIHelper {
 
     public InputStream editOrCreateRulesDeploy(final ProjectModel projectModel,
                                                final OpenAPIGeneratedClasses generated,
-                                               RulesDeploy exitingRulesDeploy) throws JAXBException, IOException {
+                                               RulesDeploy exitingRulesDeploy) throws IOException {
         boolean fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {

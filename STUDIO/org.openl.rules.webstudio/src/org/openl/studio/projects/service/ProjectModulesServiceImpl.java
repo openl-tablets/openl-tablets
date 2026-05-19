@@ -2,7 +2,6 @@ package org.openl.studio.projects.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +13,6 @@ import java.util.Set;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -757,11 +755,9 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private ProjectDescriptor getOriginalProjectDescriptor(ProjectDescriptor descriptor) {
         try {
-            return ProjectDescriptor.read(descriptor.getProjectFolder());
-        } catch (FileNotFoundException ignored) {
-            return descriptor;
-        } catch (IOException | JAXBException e) {
-            log.error(e.getMessage(), e);
+            var originalDescriptor = ProjectDescriptor.read(descriptor.getProjectFolder());
+            return originalDescriptor != null ? originalDescriptor : descriptor;
+        } catch (Exception e) {
             return descriptor;
         }
     }

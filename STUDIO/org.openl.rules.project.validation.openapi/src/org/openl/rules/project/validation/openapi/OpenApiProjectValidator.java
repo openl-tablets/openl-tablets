@@ -31,7 +31,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -1213,7 +1212,7 @@ public class OpenApiProjectValidator {
         if (projectResource != null) {
             try(var stream = projectResource.getUrl().openStream()) {
                 return RulesDeploy.read(stream);
-            } catch (IOException | JAXBException e) {
+            } catch (IOException e) {
                 log.debug("Ignored error: ", e);
                 return null;
             }

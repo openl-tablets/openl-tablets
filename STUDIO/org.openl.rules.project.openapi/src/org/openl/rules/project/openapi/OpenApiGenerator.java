@@ -1,11 +1,9 @@
 package org.openl.rules.project.openapi;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
-import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -42,7 +40,7 @@ public class OpenApiGenerator {
     private ClassLoader classLoader;
 
     private OpenApiGenerator(ProjectDescriptor projectDescriptor, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
-        this.rulesDeploy = loadRulesDeploy(projectDescriptor);
+        this.rulesDeploy = RulesDeploy.read(projectDescriptor.getProjectFolder());
         this.instantiationStrategy = instantiationStrategy;
         this.compiledOpenClass = instantiationStrategy.compile();
         this.openClass = compiledOpenClass.getOpenClass();
@@ -73,15 +71,6 @@ public class OpenApiGenerator {
             return OpenAPIConfiguration.generateOpenAPI(enhancedServiceClass, objectMapper);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
-
-    private static RulesDeploy loadRulesDeploy(ProjectDescriptor descriptor) {
-        try {
-            return RulesDeploy.read(descriptor.getProjectFolder());
-        } catch (IOException | JAXBException e) {
-            log.debug("Ignored error: ", e);
-            return null;
         }
     }
 

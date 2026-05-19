@@ -41,6 +41,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.util.CollectionUtils;
@@ -54,6 +55,7 @@ import org.openl.util.StringUtils;
 @XmlRootElement(name = "project")
 @Getter
 @Setter
+@Slf4j
 public class ProjectDescriptor {
     @XmlJavaTypeAdapter(CollapsedStringAdapter2.class)
     private String name;
@@ -444,38 +446,58 @@ public class ProjectDescriptor {
         return true;
     }
 
-    public static ProjectDescriptor read(Path path) throws IOException, JAXBException {
+    public static ProjectDescriptor read(Path path) {
         var file = Files.isDirectory(path) ? path.resolve(FILE_NAME) : path;
         if (!Files.isRegularFile(file)) {
             return null;
         }
         try (var in = Files.newInputStream(file)) {
             var descriptor = read(in);
-            descriptor.setProjectFolder(file.getParent());
+            if (descriptor != null) {
+                descriptor.setProjectFolder(file.getParent());
+            }
             return descriptor;
+        } catch (IOException e) {
+            log.warn("Failed to read '{}'.", file, e);
+            return null;
         }
     }
 
-    public static ProjectDescriptor read(InputStream in) throws JAXBException {
-        return (ProjectDescriptor) SERIALIZER.unmarshal(in);
+    public static ProjectDescriptor read(InputStream in) {
+        try {
+            return (ProjectDescriptor) SERIALIZER.unmarshal(in);
+        } catch (JAXBException e) {
+            log.warn("Failed to parse '{}'.", FILE_NAME, e);
+            return null;
+        }
     }
 
-    public InputStream toInputStream() throws JAXBException {
+    public InputStream toInputStream() {
         var outputStrteam = new ByteArrayOutputStream();
-        SERIALIZER.marshal(this, outputStrteam);
+        try {
+            SERIALIZER.marshal(this, outputStrteam);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
         return new ByteArrayInputStream(outputStrteam.toByteArray());
     }
 
-    public void write(Path folder) throws IOException, JAXBException {
+    public void write(Path folder) throws IOException {
         try (var outputStream = Files.newOutputStream(folder.resolve(FILE_NAME))) {
             SERIALIZER.marshal(this, outputStream);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    public boolean hasChanges(Path folder) throws IOException, JAXBException {
+    public boolean hasChanges(Path folder) throws IOException {
         var original = Files.readAllBytes(folder.resolve(FILE_NAME));
         var outputStrteam = new ByteArrayOutputStream();
-        SERIALIZER.marshal(this, outputStrteam);
+        try {
+            SERIALIZER.marshal(this, outputStrteam);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
         return !Arrays.equals(original, outputStrteam.toByteArray());
     }
 
