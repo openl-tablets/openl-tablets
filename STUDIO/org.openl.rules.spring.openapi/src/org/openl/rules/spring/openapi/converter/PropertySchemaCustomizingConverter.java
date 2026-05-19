@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -108,6 +109,7 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
                             }
                         }
                     }
+                    expandEnumKeyedMap(property, propSchema);
                 }
                 applyDiscriminatorMapping(javaType, definedSchema, context);
             }
@@ -201,5 +203,47 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * When a property is a {@code Map} keyed by an enum, the chain produces a generic
+     * {@code object} schema with {@code additionalProperties} carrying the value type
+     * (e.g. {@code messages: { "[any-key]": [MessageDescription] }}). This rewrites such a
+     * schema into one with an explicit property per enum constant so consumers see the
+     * actual set of allowed keys (e.g. {@code messages: { INFO: ..., WARN: ..., ERROR: ... }}).
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void expandEnumKeyedMap(BeanPropertyDefinition property, Schema propSchema) {
+        var propType = property.getPrimaryType();
+        if (propType == null || !propType.isMapLikeType()) {
+            return;
+        }
+        var keyType = propType.getKeyType();
+        if (keyType == null || !keyType.isEnumType()) {
+            return;
+        }
+        if (!(propSchema.getAdditionalProperties() instanceof Schema valueSchema)) {
+            return;
+        }
+        var enumClass = keyType.getRawClass();
+        var expanded = new LinkedHashMap<String, Schema>();
+        for (var constant : enumClass.getEnumConstants()) {
+            expanded.put(enumJsonName(enumClass, constant), valueSchema);
+        }
+        propSchema.setProperties(expanded);
+        propSchema.setAdditionalProperties(Boolean.FALSE);
+    }
+
+    private static String enumJsonName(Class<?> enumClass, Object constant) {
+        var name = ((Enum<?>) constant).name();
+        try {
+            var jsonProp = enumClass.getField(name).getAnnotation(JsonProperty.class);
+            if (jsonProp != null && !jsonProp.value().isEmpty()) {
+                return jsonProp.value();
+            }
+        } catch (NoSuchFieldException ignored) {
+            // fall through to the default name
+        }
+        return name;
     }
 }

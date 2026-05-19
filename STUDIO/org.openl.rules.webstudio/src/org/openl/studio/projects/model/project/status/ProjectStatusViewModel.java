@@ -27,6 +27,9 @@ public record ProjectStatusViewModel (
         ModifiedBy author,
 
         @Parameter(description = "Compilation messages grouped by severity.")
-        LinkedHashMap<Severity, List<MessageDescription>> messages
+        LinkedHashMap<Severity, List<MessageDescription>> messages,
+
+        @Parameter(description = "Files modified locally and not yet committed to the design repository.")
+        PendingChanges pendingChanges
 ) {
 }

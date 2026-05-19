@@ -24,6 +24,7 @@ import org.openl.studio.projects.model.project.status.ModifiedBy;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationStatus;
 
@@ -38,6 +39,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final WorkspaceProjectService workspaceProjectService;
+    private final PendingChangesResolver pendingChangesResolver;
 
     @Override
     public ProjectStatusViewModel map(RulesProject project) {
@@ -59,6 +61,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         } else {
             builder.compileState(CompileState.IDLE);
         }
+        builder.pendingChanges(pendingChangesResolver.resolve(project));
         return builder.build();
     }
 
