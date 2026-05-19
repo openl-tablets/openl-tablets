@@ -84,6 +84,7 @@ import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 
 /**
  * Implementation of project service for workspace projects.
@@ -225,26 +226,26 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public void updateProjectStatus(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
-        if (model.getStatus() != null && !ALLOWED_STATUSES.contains(model.getStatus())) {
+        if (model.status() != null && !ALLOWED_STATUSES.contains(model.status())) {
             throw new BadRequestException("invalid.project.status.message");
         }
-        if (project.isModified() && model.getComment().isPresent()) {
+        if (project.isModified() && model.comment() != null) {
             save(project, model);
         }
-        if (model.getStatus() == ProjectStatus.VIEWING) {
-            if (!project.isOpened() || model.getBranch().isPresent() || model.getRevision().isPresent()) {
+        if (model.status() == ProjectStatus.VIEWING) {
+            if (!project.isOpened() || StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision())) {
                 open(project, false, model);
             }
         } else {
-            if (model.getStatus() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED) {
+            if (model.status() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED) {
                 close(project);
             }
-            if (model.getBranch().isPresent()) {
-                switchToBranch(project, model.getBranch().get());
+            if (StringUtils.isNotBlank(model.branch())) {
+                switchToBranch(project, model.branch());
             }
         }
-        if (CollectionUtils.isNotEmpty(model.getSelectedBranches())) {
-            project.setSelectedBranches(model.getSelectedBranches());
+        if (CollectionUtils.isNotEmpty(model.selectedBranches())) {
+            project.setSelectedBranches(model.selectedBranches());
         }
     }
 
@@ -265,7 +266,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var comment = model.getComment().map(String::trim).orElse(null);
+        var comment = StringUtils.trimToNull(model.comment());
         try {
             CommentValidator.forRepo(project.getRepository().getId()).validate(comment);
         } catch (Exception e) {
@@ -328,7 +329,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if failed to open project
      */
     public void open(RulesProject project, boolean openDependencies) throws ProjectException {
-        open(project, openDependencies, new ProjectStatusUpdateModel());
+        open(project, openDependencies, ProjectStatusUpdateModel.builder().build());
     }
 
     private void open(RulesProject project,
@@ -344,10 +345,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.open.conflict.message");
         }
 
-        if (model.getRevision().isPresent()) {
+        if (StringUtils.isNotBlank(model.revision())) {
             AProject historic = new AProject(project.getDesignRepository(),
                     project.getDesignFolderName(),
-                    model.getRevision().get());
+                    model.revision());
             if (workspace.isOpenedOtherProject(historic)) {
                 throw new ConflictException("open.duplicated.project");
             }
@@ -360,21 +361,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         var wasOpened = project.isOpened();
         var webStudio = getWebStudio();
-        if (wasOpened && (model.getBranch().isPresent() || model.getRevision().isPresent())) {
+        if (wasOpened && (StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision()))) {
             // We must clear module info and release project lock
             // because project was already opened and we are going to open it in another branch or revision
             webStudio.getModel().clearModuleInfo();
             project.releaseMyLock();
         }
 
-        if (model.getBranch().isPresent()) {
-            switchToBranch(project, model.getBranch().get());
+        if (StringUtils.isNotBlank(model.branch())) {
+            switchToBranch(project, model.branch());
         }
 
-        if (model.getRevision().isPresent()) {
-            project.openVersion(model.getRevision().get());
+        if (StringUtils.isNotBlank(model.revision())) {
+            project.openVersion(model.revision());
         } else {
-            if (model.getBranch().isPresent() || !wasOpened) {
+            if (StringUtils.isNotBlank(model.branch()) || !wasOpened) {
                 project.open();
             } else {
                 throw new ConflictException("project.open.conflict.message");

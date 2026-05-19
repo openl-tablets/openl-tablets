@@ -59,6 +59,7 @@ import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
@@ -73,6 +74,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
+import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -103,6 +105,7 @@ public class ProjectsController {
     private final Environment environment;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectIdentifierMapper projectIdentifierMapper;
+    private final ProjectStatusMapper projectStatusMapper;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -170,15 +173,34 @@ public class ProjectsController {
         }
         try {
             projectService.updateProjectStatus(project, request);
-            if (request.getStatus() != null
-                    || request.getBranch().isPresent()
-                    || request.getComment().isPresent()
-                    || request.getRevision().isPresent()) {
+            if (request.status() != null
+                    || StringUtils.isNotBlank(request.branch())
+                    || request.comment() != null
+                    || StringUtils.isNotBlank(request.revision())) {
                 getWebStudio().reset();
             }
         } catch (ProjectException e) {
             throw new ConflictException("project.status.update.failed.message");
         }
+    }
+
+    @GetMapping("/{projectId}/status")
+    @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
+    public ProjectStatusViewModel getStatus(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @Parameter(description = "projects.status.param.branch.desc")
+                                            @RequestParam(value = "branch", required = false) String branch) {
+        if (StringUtils.isNotBlank(branch)) {
+            var updateBranchRequest = ProjectStatusUpdateModel.builder()
+                    .branch(branch)
+                    .build();
+            try {
+                projectService.updateProjectStatus(project, updateBranchRequest);
+            } catch (ProjectException e) {
+                throw new ConflictException("project.branch.switch.failed.message");
+            }
+            getWebStudio().reset();
+        }
+        return projectStatusMapper.map(project);
     }
 
     @PostMapping("/{projectId}/branches")
