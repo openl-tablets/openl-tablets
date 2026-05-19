@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 class ProjectBeanMigrateMethodFiltersTest {
@@ -217,7 +216,7 @@ class ProjectBeanMigrateMethodFiltersTest {
     private static Module createModule(String name, String[] includes, String[] excludes) {
         var module = new Module();
         module.setName(name);
-        module.setRulesRootPath(new PathEntry(name + ".xlsx"));
+        module.setRulesRootPath(name + ".xlsx");
         if (includes != null || excludes != null) {
             var filter = new MethodFilter();
             if (includes != null) {

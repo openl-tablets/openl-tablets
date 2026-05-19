@@ -67,7 +67,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 Map<String, Object> params = new HashMap<>();
                 if (processor != null) {
                     try {
-                        final String relativePath = module.getRulesRootPath().getPath();
+                        final String relativePath = module.getRulesRootPath();
                         ITableProperties tableProperties = processor.process(relativePath);
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {

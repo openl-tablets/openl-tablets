@@ -66,7 +66,6 @@ import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
@@ -816,7 +815,7 @@ public class RepositoryTreeController {
             List<String> removedModuleNames = new ArrayList<>();
             for (String modulePath : modulePaths) {
                 projectDescriptor.getModules().removeIf(module -> {
-                    boolean contains = modulePath.equals(module.getRulesRootPath().getPath());
+                    boolean contains = modulePath.equals(module.getRulesRootPath());
                     if (contains) {
                         removedModuleNames.add(module.getName());
                     }
@@ -2097,7 +2096,7 @@ public class RepositoryTreeController {
                     }
                     Module module = new Module();
                     module.setName(FileUtils.getBaseName(fileName));
-                    module.setRulesRootPath(new PathEntry(modulePath));
+                    module.setRulesRootPath(modulePath);
                     ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
                     if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
                         projectDescriptor.getModules().add(module);

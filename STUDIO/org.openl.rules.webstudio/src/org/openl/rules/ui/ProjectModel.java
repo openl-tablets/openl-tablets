@@ -60,7 +60,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
@@ -644,7 +643,7 @@ public class ProjectModel {
             AProjectArtefact currentModule = null;
             try {
                 if (studio.getCurrentModule() != null) {
-                    currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+                    currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath());
                 }
             } catch (ProjectException e) {
                 return false;
@@ -1468,7 +1467,7 @@ public class ProjectModel {
             return null;
         }
 
-        PathEntry rulesRootPath = currentModule.getRulesRootPath();
+        String rulesRootPath = currentModule.getRulesRootPath();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes == null) {
@@ -1479,7 +1478,7 @@ public class ProjectModel {
             var module = workbookSyntaxNode.getWorkbookSourceCodeModule();
             if (rulesRootPath != null && module.getSourceFile()
                     .getName()
-                    .equals(FileUtils.getName(rulesRootPath.getPath()))) {
+                    .equals(FileUtils.getName(rulesRootPath))) {
                 return module;
             }
         }

@@ -359,7 +359,7 @@ public class TableBean {
         if (currentProject == null) {
             return false;
         }
-        return currentProject.hasArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        return currentProject.hasArtefact(studio.getCurrentModule().getRulesRootPath());
     }
 
     public boolean getCanBenchmark() {
@@ -368,7 +368,7 @@ public class TableBean {
         if (currentProject == null) {
             return false;
         }
-        return currentProject.hasArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        return currentProject.hasArtefact(studio.getCurrentModule().getRulesRootPath());
     }
 
     public Integer getRowIndex() {

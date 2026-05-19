@@ -46,7 +46,7 @@ public class LaunchFileServlet extends HttpServlet {
         RulesProject currentProject = ws.getCurrentProject();
         AProjectArtefact currentModule;
         try {
-            currentModule = currentProject.getArtefact(ws.getCurrentModule().getRulesRootPath().getPath());
+            currentModule = currentProject.getArtefact(ws.getCurrentModule().getRulesRootPath());
         } catch (ProjectException e) {
             return;
         }

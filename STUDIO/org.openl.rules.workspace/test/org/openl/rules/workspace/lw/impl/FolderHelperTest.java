@@ -8,16 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
 
 public class FolderHelperTest {
 
     @Test
     public void testResolveHistoryFolder() {
         Module module = mock(Module.class);
-        PathEntry pathEntry = mock(PathEntry.class);
-        when(module.getRulesRootPath()).thenReturn(pathEntry);
-        when(pathEntry.getPath()).thenReturn("Bank Rating .xlsx");
+        when(module.getRulesRootPath()).thenReturn("Bank Rating .xlsx");
 
         assertEquals(".history/Bank Rating .xlsx", FolderHelper.resolveHistoryFolder(module));
 

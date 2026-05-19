@@ -620,7 +620,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                             "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
                             repositoryId,
                             rulesProject.getLocalFolderName(),
-                            module.getRulesRootPath().getPath());
+                            module.getRulesRootPath());
                 } else {
                     if (rulesProject != null) {
                         log.debug("Check permission for repository id '{}', project path in the repository '{}'.",

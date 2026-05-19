@@ -32,7 +32,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -318,7 +317,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         projectDescriptor
                 .setProjectFolder(Path.of("./test-resources/ServiceInterfaceMethodInterceptingTest").toAbsolutePath());
         module.setProject(projectDescriptor);
-        module.setRulesRootPath(new PathEntry("Overload.xls"));
+        module.setRulesRootPath("Overload.xls");
 
         var ruleServiceLoader = mock(RuleServiceLoader.class);
         assertNotNull(instantiationFactory);
