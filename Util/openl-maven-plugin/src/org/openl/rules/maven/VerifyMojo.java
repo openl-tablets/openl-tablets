@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -52,9 +51,6 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.build.directory}", required = true, readonly = true)
     private File outputDirectory;
-
-    @Parameter(defaultValue = "${plugin}", readonly = true)
-    private PluginDescriptor plugin;
 
     @Parameter(defaultValue = "${plugin.artifacts}", readonly = true, required = true)
     private List<Artifact> pluginArtifacts;
@@ -158,40 +154,10 @@ public class VerifyMojo extends BaseOpenLMojo {
         Set<String> pluginDependencies = plugin.getDependencies().stream()
                 .map(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), null))
                 .collect(Collectors.toSet());
-        Set<String> allowedDependencies = getAllowedDependencies();
-        return getDependentNonOpenLProjects().stream().filter(artifact -> {
-                    if (isOpenLCoreDependency(artifact.getGroupId())) {
-                        debug("SKIP : ", artifact);
-                        return false;
-                    }
-                    return true;
-                }).filter(artifact -> {
-                    List<String> dependencyTrail = artifact.getDependencyTrail();
-                    if (dependencyTrail.size() < 2) {
-                        debug("SKIP : ", artifact, " (by dependency depth)");
-                        return false; // skip, unexpected size of dependencies
-                    }
-                    if (skipOpenLCoreDependency(dependencyTrail)) {
-                        debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
-                        return false;
-                    }
-                    return true;
-                }).filter(a -> !pluginDependencies.contains(versionlessKey(a.getGroupId(), a.getArtifactId(), a.getClassifier())))
-                .filter(artifact -> {
-                    String tr = artifact.getDependencyTrail().get(1);
-                    String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
-                    return allowedDependencies.contains(key);
-                }).collect(Collectors.toMap(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), d.getClassifier()), Artifact::getFile));
-    }
-
-    private Set<String> getAllowedDependencies() {
-        return project.getDependencies().stream().filter(dep -> {
-            if (skipToProcess(dep.getScope(), dep.getGroupId())) {
-                debug("SKIP : ", dep);
-                return false;
-            }
-            return true;
-        }).map(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), d.getClassifier())).collect(Collectors.toSet());
+        return getFilteredDependencies(Artifact.SCOPE_PROVIDED::equals).stream()
+                .filter(a -> !pluginDependencies.contains(versionlessKey(a.getGroupId(), a.getArtifactId(), a.getClassifier())))
+                .collect(Collectors.toMap(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), d.getClassifier()),
+                        Artifact::getFile));
     }
 
     private static String versionlessKey(String groupId, String artifactId, String classifier) {
@@ -200,10 +166,6 @@ public class VerifyMojo extends BaseOpenLMojo {
         } else {
             return groupId + ":" + artifactId + ":" + classifier;
         }
-    }
-
-    private static boolean skipToProcess(String scope, String group) {
-        return !Artifact.SCOPE_PROVIDED.equals(scope) || isOpenLCoreDependency(group);
     }
 
     @Override

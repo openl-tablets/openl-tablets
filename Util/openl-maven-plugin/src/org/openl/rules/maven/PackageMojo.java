@@ -10,8 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -20,8 +18,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactUtils;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -296,57 +292,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private Set<Artifact> getDependencies() {
-        HashSet<String> allowed = getAllowedDependencies();
-
-        Set<Artifact> dependencies = new HashSet<>();
-        for (Artifact artifact : getDependentNonOpenLProjects()) {
-            String groupId = artifact.getGroupId();
-            String scope = artifact.getScope();
-            if (skipToProcess(groupId, scope)) {
-                debug("SKIP : ", artifact);
-                continue;
-            }
-            List<String> dependencyTrail = artifact.getDependencyTrail();
-            if (dependencyTrail.size() < 2) {
-                debug("SKIP : ", artifact, " (by dependency depth)");
-                continue; // skip, unexpected size of dependencies
-            }
-            if (skipOpenLCoreDependency(dependencyTrail)) {
-                debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
-                continue;
-            }
-            String tr = dependencyTrail.get(1);
-            String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
-            if (allowed.contains(key)) {
-                debug("ADD : ", artifact);
-                dependencies.add(artifact);
-            }
-        }
-
-        return dependencies;
-    }
-
-    private HashSet<String> getAllowedDependencies() {
-        HashSet<String> allowed = new HashSet<>();
-        for (Dependency dep : project.getDependencies()) {
-            String groupId = dep.getGroupId();
-            String artifactId = dep.getArtifactId();
-            String scope = dep.getScope();
-            if (skipToProcess(groupId, scope)) {
-                debug("SKIP : ", dep);
-            } else {
-                allowed.add(ArtifactUtils.versionlessKey(groupId, artifactId));
-            }
-        }
-        return allowed;
-    }
-
-    private boolean skipToProcess(String groupId, String scope) {
-        return !isRuntimeScope(scope) || isOpenLCoreDependency(groupId);
-    }
-
-    private boolean isRuntimeScope(String scope) {
-        return Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
+        return getFilteredDependencies(BaseOpenLMojo::isRuntimeScope);
     }
 
     @Override
