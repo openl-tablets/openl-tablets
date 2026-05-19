@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
 
@@ -42,7 +41,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         Set<String> globalErrorMessages = new LinkedHashSet<>();
         PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
-            var projectDescriptor = ProjectDescriptor.read(folder).expand().validate();
+            var projectDescriptor = ProjectDescriptor.read(folder).expand();
             PropertiesFileNameProcessor processor = null;
             try {
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
@@ -83,10 +82,6 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 module.setProperties(params);
             }
             return projectDescriptor;
-        } catch (ValidationException ex) {
-            throw new ProjectResolvingException(
-                    "Project descriptor is wrong. Verify the '\" + PROJECT_DESCRIPTOR_FILE_NAME + \"' file format.",
-                    ex);
         } catch (FileNotFoundException e) {
             throw new ProjectResolvingException(
                     "Project descriptor is not found. File '" + ProjectDescriptor.FILE_NAME + "' is missed.",

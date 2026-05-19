@@ -60,7 +60,6 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WebstudioConfiguration;
-import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.openapi.OpenApiGenerationException;
 import org.openl.rules.project.openapi.OpenApiGenerator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
@@ -1722,7 +1721,6 @@ public class ProjectBean {
         RulesProject project = studio.getCurrentProject();
         InputStream rulesDeployContent = null;
         try {
-            projectDescriptor.validate();
             var inputStream = new ByteArrayInputStream(projectDescriptor.toBytes());
 
             if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
@@ -1752,8 +1750,6 @@ public class ProjectBean {
             }
 
             refreshProject(project.getRepository().getId(), project.getName());
-        } catch (ValidationException e) {
-            throw new Message(e.getMessage());
         } catch (Message e) {
             throw e;
         } catch (Exception e) {

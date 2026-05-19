@@ -42,7 +42,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -287,16 +286,6 @@ public class ProjectDescriptor {
     public static final String FILE_NAME = "rules.xml";
     private static final JAXBSerializer SERIALIZER = new JAXBSerializer(ProjectDescriptor.class);
 
-
-    public ProjectDescriptor validate() throws ValidationException {
-        for (Module module : getModules()) {
-            if (module.getRulesRootPath() == null || StringUtils.isEmpty(module.getRulesRootPath().getPath())) {
-                throw new ValidationException("Module rules root are not defined.");
-            }
-        }
-        return this;
-    }
-
     public ProjectDescriptor expand() throws IOException {
         fillProjectName();
         fillModulesByPattern();
@@ -320,6 +309,9 @@ public class ProjectDescriptor {
                 module.getMethodFilter().getIncludes().removeAll(Arrays.asList("", null));
             }
 
+            if (module.getRulesRootPath() == null || StringUtils.isBlank(module.getRulesRootPath().getPath())) {
+                continue;
+            }
             var path = module.getRulesRootPath().getPath();
             if (StringUtils.isBlank(module.getName())) {
                 module.setName(FileUtils.getBaseName(path));
@@ -506,6 +498,15 @@ public class ProjectDescriptor {
         }
         if (ExposedMethods.isEmpty(exposedMethods)) {
             exposedMethods = null;
+        }
+        dropModulesWithoutRulesRootPath();
+    }
+
+    private void dropModulesWithoutRulesRootPath() {
+        if (modules != null) {
+            modules.removeIf(m -> m.getRulesRootPath() == null
+                    || m.getRulesRootPath().getPath() == null
+                    || m.getRulesRootPath().getPath().isBlank());
         }
     }
 

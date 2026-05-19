@@ -107,15 +107,15 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadDescriptor2_failsValidation() throws Exception {
-        var pd = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules2.xml")).expand().validate();
+    void testReadDescriptor2() throws Exception {
+        var pd = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules2.xml")).expand();
         assertEquals(2, pd.getModules().size());
     }
 
     @Test
-    void zipArchive_testReadDescriptor2_failsValidation() throws Exception {
+    void zipArchive_testReadDescriptor2() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
-            var pd = ProjectDescriptor.read(fs.getPath("/rules2.xml")).expand().validate();
+            var pd = ProjectDescriptor.read(fs.getPath("/rules2.xml")).expand();
             assertEquals(2, pd.getModules().size());
         }
     }
@@ -129,7 +129,7 @@ class ProjectDescriptorTest {
     @Test
     void zipArchive_testReadDescriptor3_emptyModules() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
-            var descriptor = ProjectDescriptor.read(fs.getPath("/rules3.xml")).expand().validate();
+            var descriptor = ProjectDescriptor.read(fs.getPath("/rules3.xml")).expand();
             assertTrue(descriptor.getModules().isEmpty());
         }
     }
@@ -213,15 +213,6 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testValidateEmptyDescriptor() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setName("name1");
-
-        descriptor.validate();
-        assertTrue(descriptor.getModules().isEmpty());
-    }
-
-    @Test
     void testModulePathPatterns() throws Exception {
         // test ?
         assertEquals(4, ProjectDescriptor.read(Path.of("./test-resources/rules1.xml")).expand().getModules().size());
@@ -237,13 +228,13 @@ class ProjectDescriptorTest {
     void zipArchive_testModulePathPatterns() throws Exception {
         try (FileSystem fs = openZipFile(Path.of("test-resources/test-resources.zip"))) {
             // test ?
-            assertEquals(6, ProjectDescriptor.read(fs.getPath("/rules1.xml")).expand().validate().expand().getModules().size());
+            assertEquals(6, ProjectDescriptor.read(fs.getPath("/rules1.xml")).expand().getModules().size());
             // test *
-            assertEquals(2, ProjectDescriptor.read(fs.getPath("/rules2.xml")).expand().validate().expand().getModules().size());
+            assertEquals(2, ProjectDescriptor.read(fs.getPath("/rules2.xml")).expand().getModules().size());
             // test **
-            assertEquals(2, ProjectDescriptor.read(fs.getPath("/rules3.xml")).expand().validate().expand().getModules().size());
+            assertEquals(2, ProjectDescriptor.read(fs.getPath("/rules3.xml")).expand().getModules().size());
             // test complex
-            assertEquals(2, ProjectDescriptor.read(fs.getPath("/rules4.xml")).expand().validate().expand().getModules().size());
+            assertEquals(2, ProjectDescriptor.read(fs.getPath("/rules4.xml")).expand().getModules().size());
         }
     }
 
@@ -256,7 +247,7 @@ class ProjectDescriptorTest {
     @Test
     void zipArchive_testClassPathUrls() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
-            var projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand().validate();
+            var projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
             assertEquals(10, projectDescriptor.getClassPathUrls().length);
             assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
         }
@@ -265,7 +256,7 @@ class ProjectDescriptorTest {
     @Test
     void zipArchive_testClassPathUrls_internalDescriptor() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
-            var projectDescriptor = ProjectDescriptor.read(fs.getPath("/internal/rules-clspth.xml")).expand().validate();
+            var projectDescriptor = ProjectDescriptor.read(fs.getPath("/internal/rules-clspth.xml")).expand();
             assertEquals(10, projectDescriptor.getClassPathUrls().length);
             assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
         }
@@ -474,10 +465,38 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteOmitsEmptyMethodFilterAndBlankModuleFields() throws Exception {
+    void testWriteDropsModulesWithoutRulesRootPath() throws Exception {
+        Module noPath = new Module();
+        noPath.setName("orphan");
+        Module blankPath = new Module();
+        blankPath.setRulesRootPath(new PathEntry("  "));
+        Module valid = new Module();
+        valid.setName("kept");
+        valid.setRulesRootPath(new PathEntry("rules/A.xlsx"));
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName("p");
+        descriptor.setModules(new ArrayList<>(List.of(noPath, blankPath, valid)));
+
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>p</name>
+                    <modules>
+                        <module>
+                            <name>kept</name>
+                            <rules-root path="rules/A.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """, dest);
+    }
+
+    @Test
+    void testWriteOmitsEmptyMethodFilterOnValidModule() throws Exception {
         Module module = new Module();
         module.setName("  ");
-        module.setRulesRootPath(new PathEntry(""));
+        module.setRulesRootPath(new PathEntry("rules/A.xlsx"));
         MethodFilter mf = new MethodFilter();
         mf.setIncludes(new HashSet<>());
         mf.setExcludes(new HashSet<>());
@@ -492,7 +511,9 @@ class ProjectDescriptorTest {
                 <project>
                     <name>p</name>
                     <modules>
-                        <module/>
+                        <module>
+                            <rules-root path="rules/A.xlsx"/>
+                        </module>
                     </modules>
                 </project>
                 """, dest);
