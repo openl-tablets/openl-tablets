@@ -2,7 +2,6 @@ package org.openl.studio.projects.rest.controller;
 
 import java.util.Comparator;
 import java.util.List;
-import jakarta.xml.bind.JAXBException;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -97,7 +96,7 @@ public class ProjectManagementController {
                     .map(ProjectInfo::new)
                     .toList();
             return info;
-        } catch (ProjectException | JAXBException e) {
+        } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }
     }

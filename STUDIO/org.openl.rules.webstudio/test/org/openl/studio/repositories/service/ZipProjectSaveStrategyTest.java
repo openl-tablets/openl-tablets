@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import jakarta.xml.bind.JAXBException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,7 @@ class ZipProjectSaveStrategyTest {
     private ArgumentCaptor<FileData> fileDataCaptor;
 
     @BeforeEach
-    void setUp() throws JAXBException {
+    void setUp() {
         this.fileDataCaptor = forClass(FileData.class);
 
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);

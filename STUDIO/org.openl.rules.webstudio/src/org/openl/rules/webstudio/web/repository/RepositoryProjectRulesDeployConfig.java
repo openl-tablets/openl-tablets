@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -151,7 +150,7 @@ public class RepositoryProjectRulesDeployConfig {
                 studio.reset();
             }
             created = false;
-        } catch (ProjectException | JAXBException | IOException e) {
+        } catch (ProjectException | IOException e) {
             WebStudioUtils.addErrorMessage("Failed to save '" + RulesDeploy.FILE_NAME + "' file.");
             log.error(e.getMessage(), e);
         }
@@ -174,9 +173,6 @@ public class RepositoryProjectRulesDeployConfig {
             }
         } catch (IOException | ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RulesDeploy.FILE_NAME + "' file.");
-            log.error(e.getMessage(), e);
-        } catch (JAXBException e) {
-            WebStudioUtils.addErrorMessage("Failed to parse '" + RulesDeploy.FILE_NAME + " file.");
             log.error(e.getMessage(), e);
         }
         return null;
