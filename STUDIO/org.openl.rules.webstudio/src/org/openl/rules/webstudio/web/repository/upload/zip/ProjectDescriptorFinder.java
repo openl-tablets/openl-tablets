@@ -3,26 +3,19 @@ package org.openl.rules.webstudio.web.repository.upload.zip;
 import static org.openl.rules.util.Strings.format;
 
 import java.io.InputStream;
-import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 
 public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
     private ProjectDescriptor projectDescriptor;
     private boolean exists;
-    private JAXBException serializationException;
 
 
     @Override
     public boolean execute(String filePath, InputStream inputStream) {
         if (ProjectDescriptor.FILE_NAME.equals(filePath)) {
             exists = true;
-            try {
-                projectDescriptor = ProjectDescriptor.read(inputStream);
-            } catch (JAXBException e) {
-                serializationException = e;
-            }
+            projectDescriptor = ProjectDescriptor.read(inputStream);
             return false;
         }
         return true;
@@ -34,8 +27,9 @@ public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
                     format("Project descriptor file %s not found",
                             ProjectDescriptor.FILE_NAME));
         }
-        if (serializationException != null) {
-            throw new InvalidProjectDescriptorFileFormatException(ProjectDescriptorUtils.getErrorMessage(serializationException));
+        if (projectDescriptor == null) {
+            throw new InvalidProjectDescriptorFileFormatException(
+                    "Cannot parse project descriptor file " + ProjectDescriptor.FILE_NAME + '.');
         }
         return projectDescriptor;
     }

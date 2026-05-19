@@ -27,6 +27,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.StringUtils;
 
@@ -34,6 +35,7 @@ import org.openl.util.StringUtils;
 @XmlRootElement(name = "rules-deploy")
 @Getter
 @Setter
+@Slf4j
 public class RulesDeploy {
 
     public enum PublisherType {
@@ -70,36 +72,54 @@ public class RulesDeploy {
     public static final String FILE_NAME = "rules-deploy.xml";
     private static final JAXBSerializer SERIALIZER = new JAXBSerializer(RulesDeploy.class);
 
-    public static RulesDeploy read(Path path) throws IOException, JAXBException {
+    public static RulesDeploy read(Path path) {
         var file = Files.isDirectory(path) ? path.resolve(FILE_NAME) : path;
         if (!Files.isRegularFile(file)) {
             return null;
         }
         try (var in = Files.newInputStream(file)) {
             return read(in);
+        } catch (IOException e) {
+            log.warn("Failed to read '{}'.", file, e);
+            return null;
         }
     }
 
-    public static RulesDeploy read(InputStream in) throws JAXBException {
-        return (RulesDeploy) SERIALIZER.unmarshal(in);
+    public static RulesDeploy read(InputStream in) {
+        try {
+            return (RulesDeploy) SERIALIZER.unmarshal(in);
+        } catch (JAXBException e) {
+            log.warn("Failed to parse '{}'.", FILE_NAME, e);
+            return null;
+        }
     }
 
-    public InputStream toInputStream() throws JAXBException {
+    public InputStream toInputStream() {
         var outputStream = new ByteArrayOutputStream();
-        SERIALIZER.marshal(this, outputStream);
+        try {
+            SERIALIZER.marshal(this, outputStream);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
         return new ByteArrayInputStream(outputStream.toByteArray());
     }
 
-    public void write(Path folder) throws IOException, JAXBException {
+    public void write(Path folder) throws IOException {
         try (var outputStream = Files.newOutputStream(folder.resolve(FILE_NAME))) {
             SERIALIZER.marshal(this, outputStream);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    public boolean hasChanges(Path folder) throws IOException, JAXBException {
+    public boolean hasChanges(Path folder) throws IOException {
         var original = Files.readAllBytes(folder.resolve(FILE_NAME));
         var outputStream = new ByteArrayOutputStream();
-        SERIALIZER.marshal(this, outputStream);
+        try {
+            SERIALIZER.marshal(this, outputStream);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
         return !Arrays.equals(original, outputStream.toByteArray());
     }
 

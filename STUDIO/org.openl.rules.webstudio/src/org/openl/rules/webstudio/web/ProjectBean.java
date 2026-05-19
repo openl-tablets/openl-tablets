@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -24,7 +23,6 @@ import java.util.stream.Stream;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
 import jakarta.faces.context.FacesContext;
-import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
@@ -1682,7 +1680,7 @@ public class ProjectBean {
                     currentProject.addResource(RulesDeploy.FILE_NAME, rulesDeployInputStream);
                 }
             }
-        } catch (ProjectException | IOException | JAXBException e) {
+        } catch (ProjectException | IOException e) {
             throw new Message("Failed to add 'rules-deploy.xml' file to the project.");
         }
     }
@@ -2054,13 +2052,11 @@ public class ProjectBean {
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {
-        ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
+        var descriptor = studio.getCurrentProjectDescriptor();
         try {
-            return ProjectDescriptor.read(descriptor.getProjectFolder());
-        } catch (FileNotFoundException ignored) {
-            return descriptor;
-        } catch (IOException | JAXBException e) {
-            log.error(e.getMessage(), e);
+            var originalDescriptor = ProjectDescriptor.read(descriptor.getProjectFolder());
+            return originalDescriptor != null ? originalDescriptor : descriptor;
+        } catch (Exception e) {
             return descriptor;
         }
     }

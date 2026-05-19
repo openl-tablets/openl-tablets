@@ -35,7 +35,6 @@ import jakarta.faces.event.AjaxBehaviorEvent;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -771,7 +770,7 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException, JAXBException, IOException {
+    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException, IOException {
         TreeNode selectedNode = getSelectedNode();
         String nodeType = selectedNode.getType();
         if (UiConst.TYPE_FOLDER.equals(nodeType) || UiConst.TYPE_FILE.equals(nodeType)) {
@@ -780,7 +779,7 @@ public class RepositoryTreeController {
     }
 
     private void unregisterArtifactInProjectDescriptor(
-            AProjectArtefact aProjectArtefact) throws ProjectException, JAXBException, IOException {
+            AProjectArtefact aProjectArtefact) throws ProjectException, IOException {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         AProjectArtefact projectDescriptorArtifact;
         try {
@@ -806,11 +805,12 @@ public class RepositoryTreeController {
             ProjectDescriptor projectDescriptor;
             try {
                 projectDescriptor = ProjectDescriptor.read(content);
-            } catch (JAXBException e) {
-                log.error("Broken rules.xml file. Cannot remove modules from it", e);
-                return;
             } finally {
                 IOUtils.closeQuietly(content);
+            }
+            if (projectDescriptor == null) {
+                log.error("Broken rules.xml file. Cannot remove modules from it");
+                return;
             }
             List<String> removedModuleNames = new ArrayList<>();
             for (String modulePath : modulePaths) {
@@ -2088,6 +2088,9 @@ public class RepositoryTreeController {
                     }
                     content = resource.getContent();
                     ProjectDescriptor projectDescriptor = ProjectDescriptor.read(content);
+                    if (projectDescriptor == null) {
+                        return;
+                    }
                     String modulePath = addedFileResource.getArtefactPath().withoutFirstSegment().getStringValue();
                     while (modulePath.charAt(0) == '/') {
                         modulePath = modulePath.substring(1);
@@ -2102,7 +2105,7 @@ public class RepositoryTreeController {
                     InputStream newContent = projectDescriptor.toInputStream();
                     resource.setContent(newContent);
                 }
-            } catch (ProjectException | JAXBException ex) {
+            } catch (ProjectException ex) {
                 if (log.isDebugEnabled()) {
                     log.debug(ex.getMessage(), ex);
                 }

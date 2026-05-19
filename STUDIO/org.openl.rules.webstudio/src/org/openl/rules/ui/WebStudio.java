@@ -20,7 +20,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ValidationException;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -368,7 +367,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 // Require modules reload and recompilation
                 resetProjects();
             }
-        } catch (IOException | JAXBException e) {
+        } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());
@@ -399,7 +398,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             }
             return null;
-        } catch (IOException | JAXBException e) {
+        } catch (IOException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
                 throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
             }
