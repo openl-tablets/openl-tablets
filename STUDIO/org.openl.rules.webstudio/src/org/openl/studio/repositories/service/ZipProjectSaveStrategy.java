@@ -1,5 +1,6 @@
 package org.openl.studio.repositories.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -124,12 +125,12 @@ public class ZipProjectSaveStrategy {
         }
     }
 
-    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) throws JAXBException {
+    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName(model.getProjectName());
 
         String name = folderTo + "/" + ProjectDescriptor.FILE_NAME;
-        return new FileItem(name, descriptor.toInputStream());
+        return new FileItem(name, new ByteArrayInputStream(descriptor.toBytes()));
     }
 
     private boolean checkIfRequiredProjectDescriptorCreation(CreateUpdateProjectModel model, Path projectRoot) {

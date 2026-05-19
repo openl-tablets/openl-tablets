@@ -48,7 +48,7 @@ public class CopyProjectTransformer implements ResourceTransformer {
             try {
                 ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
                 projectDescriptor.setName(newProjectName);
-                return projectDescriptor.toInputStream();
+                return new ByteArrayInputStream(projectDescriptor.toBytes());
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
                 copy.reset();

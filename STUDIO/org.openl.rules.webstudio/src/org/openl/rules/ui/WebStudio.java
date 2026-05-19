@@ -1,5 +1,6 @@
 package org.openl.rules.ui;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -328,7 +329,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         throw new Message("There is no permission for modifying '%s' file.".formatted(
                                 ProjectArtifactUtils.extractResourceName(artefact)));
                     }
-                    artefact.setContent(projectDescriptor.toInputStream());
+                    artefact.setContent(new ByteArrayInputStream(projectDescriptor.toBytes()));
                     resetProjects();
                 } else {
                     FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);

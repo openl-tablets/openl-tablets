@@ -494,7 +494,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
                     descriptor.setModules(new ArrayList<>(modules.values()));
                     files.add(new FileItem(rulesXmlFile,
-                            descriptor.toInputStream()));
+                            new ByteArrayInputStream(descriptor.toBytes())));
                 }
             }
         }

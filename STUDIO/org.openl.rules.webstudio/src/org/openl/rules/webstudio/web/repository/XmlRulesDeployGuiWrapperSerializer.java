@@ -18,7 +18,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
             .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
 
     public String serialize(final RulesDeployGuiWrapper wrapper) throws JAXBException, IOException {
-        var rulesDeploy = new String(wrapper.getRulesDeploy().toInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        var rulesDeploy = new String(wrapper.getRulesDeploy().toBytes(), StandardCharsets.UTF_8);
         rulesDeploy = rulesDeploy.replaceAll("<configuration>[\\s\\S]*?</configuration>", "")
                 .replaceAll("(?m)^[ \t]*\r?\n", "");
 

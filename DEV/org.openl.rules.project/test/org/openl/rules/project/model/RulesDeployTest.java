@@ -49,10 +49,7 @@ class RulesDeployTest {
         var configuration = Map.<String, Object>of("key", "value");
         rulesDeploy.setConfiguration(configuration);
 
-        String value;
-        try (var inputStream = rulesDeploy.toInputStream()) {
-            value = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        }
+        var value = new String(rulesDeploy.toBytes(), StandardCharsets.UTF_8);
         assertEquals(EXPECTED_VALUE, value);
     }
 
@@ -102,10 +99,7 @@ class RulesDeployTest {
         rulesDeploy.setAnnotationTemplateClassName("LegacyService");
         rulesDeploy.setConfiguration(java.util.Map.of());
 
-        String value;
-        try (var inputStream = rulesDeploy.toInputStream()) {
-            value = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        }
+        var value = new String(rulesDeploy.toBytes(), StandardCharsets.UTF_8);
         assertEquals("""
                 <rules-deploy>
                     <serviceName>svc</serviceName>

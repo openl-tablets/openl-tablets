@@ -1,6 +1,5 @@
 package org.openl.rules.project.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,33 +93,14 @@ public class RulesDeploy {
         }
     }
 
-    public InputStream toInputStream() {
+    public byte[] toBytes() {
         var outputStream = new ByteArrayOutputStream();
         try {
             SERIALIZER.marshal(this, outputStream);
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
-        return new ByteArrayInputStream(outputStream.toByteArray());
-    }
-
-    public void write(Path folder) throws IOException {
-        try (var outputStream = Files.newOutputStream(folder.resolve(FILE_NAME))) {
-            SERIALIZER.marshal(this, outputStream);
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public boolean hasChanges(Path folder) throws IOException {
-        var original = Files.readAllBytes(folder.resolve(FILE_NAME));
-        var outputStream = new ByteArrayOutputStream();
-        try {
-            SERIALIZER.marshal(this, outputStream);
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
-        return !Arrays.equals(original, outputStream.toByteArray());
+        return outputStream.toByteArray();
     }
 
     /**

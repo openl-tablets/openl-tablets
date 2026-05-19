@@ -1,7 +1,6 @@
 package org.openl.studio.repositories.service;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -10,7 +9,6 @@ import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.folder.FileAdaptor;
-import org.openl.util.IOUtils;
 
 public class ProjectDescriptorNameAdaptor implements FileAdaptor {
 
@@ -33,12 +31,13 @@ public class ProjectDescriptorNameAdaptor implements FileAdaptor {
     public InputStream apply(InputStream inputStream) throws IOException, JAXBException {
         // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
         // original rules.xml.
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        IOUtils.copyAndClose(inputStream, outputStream);
-        ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
-        ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
-        projectDescriptor.setName(projectName);
-        return projectDescriptor.toInputStream();
+        var originalBytes = inputStream.readAllBytes();
+        try {
+            var projectDescriptor = ProjectDescriptor.read(new ByteArrayInputStream(originalBytes));
+            projectDescriptor.setName(projectName);
+            return new ByteArrayInputStream(projectDescriptor.toBytes());
+        } catch (Exception e) {
+            return new ByteArrayInputStream(originalBytes);
+        }
     }
-
 }
