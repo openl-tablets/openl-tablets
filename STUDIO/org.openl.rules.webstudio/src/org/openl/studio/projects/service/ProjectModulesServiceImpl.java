@@ -32,7 +32,6 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
@@ -94,13 +93,13 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                         var builder = WildcardModuleView.builder();
                         applyModuleFields(builder, originalModule);
                         try {
-                            var matchedModules = resolvedDescriptor.getAllModulesMatchingPathPattern(originalModule, originalModule.getRulesRootPath().getPath());
+                            var matchedModules = resolvedDescriptor.getAllModulesMatchingPathPattern(originalModule, originalModule.getRulesRootPath());
                             for (Module matched : matchedModules) {
                                 builder.matchedModule(toBaseModuleView(matched));
                             }
                         } catch (IOException e) {
                             log.error("Failed to expand wildcard module pattern '{}'",
-                                    originalModule.getRulesRootPath().getPath(), e);
+                                    originalModule.getRulesRootPath(), e);
                         }
                         return builder.build();
                     } else {
@@ -126,7 +125,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
             throw new NotFoundException("module.not.found.message", moduleName);
         }
 
-        String sourcePath = sourceModule.getRulesRootPath().getPath();
+        String sourcePath = sourceModule.getRulesRootPath();
         String newPath = resolveNewPath(request.newPath(), request.newModuleName(), sourcePath);
 
         var originalDescriptor = getOriginalProjectDescriptor(descriptor);
@@ -290,7 +289,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     private List<Module> collectWildcardMatchedModules(RulesProject project,
                                                        ProjectDescriptor resolvedDescriptor,
                                                        Module wildcardModule) {
-        String wildcardPath = wildcardModule.getRulesRootPath().getPath();
+        String wildcardPath = wildcardModule.getRulesRootPath();
         List<Module> matched = new ArrayList<>();
         for (Module m : resolvedDescriptor.getModules()) {
             if (wildcardPath.equals(m.getWildcardRulesRootPath())) {
@@ -302,8 +301,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     }
 
     private BaseModuleView toBaseModuleView(Module module) {
-        String path = module.getRulesRootPath() != null ? module.getRulesRootPath().getPath() : null;
-        return BaseModuleView.builder().name(module.getName()).path(path).build();
+        return BaseModuleView.builder().name(module.getName()).path(module.getRulesRootPath()).build();
     }
 
     private ModuleView toModuleView(Module module) {
@@ -313,8 +311,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     }
 
     private void applyModuleFields(ModuleView.ModuleViewBuilder<?, ?> builder, Module module) {
-        String path = module.getRulesRootPath() != null ? module.getRulesRootPath().getPath() : null;
-        builder.name(module.getName()).path(path);
+        builder.name(module.getName()).path(module.getRulesRootPath());
         if (module.getMethodFilter() != null) {
             var filter = module.getMethodFilter();
             builder.methodFilter(MethodFilterView.builder()
@@ -348,7 +345,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
 
     private boolean checkWildcardCoverage(ProjectDescriptor originalDescriptor, String newPath) {
         Module tempModule = new Module();
-        tempModule.setRulesRootPath(new PathEntry(newPath));
+        tempModule.setRulesRootPath(newPath);
         return projectDescriptorManager.isCoveredByWildcardModule(originalDescriptor, tempModule);
     }
 
@@ -519,7 +516,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                                            String path,
                                            ProjectDescriptor resolvedDescriptor) {
         Module toCheck = new Module();
-        toCheck.setRulesRootPath(new PathEntry(path));
+        toCheck.setRulesRootPath(path);
         boolean withWildcard = toCheck.isModuleWithWildcard();
 
         if (!withWildcard && StringUtils.isBlank(newName)) {
@@ -590,7 +587,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                                     ProjectDescriptor resolvedDescriptor,
                                     String selfModuleName) {
         for (Module m : resolvedDescriptor.getModules()) {
-            String existingPath = m.getRulesRootPath() != null ? m.getRulesRootPath().getPath() : null;
+            String existingPath = m.getRulesRootPath();
             boolean isSelf = selfModuleName != null && Objects.equals(selfModuleName, m.getName());
             if (!isSelf && existingPath != null && isPathConflict(existingPath, relativePath, m)) {
                 throw new ConflictException("module.path.conflict.message");
@@ -612,13 +609,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private void applyModuleProperties(Module module, EditModuleRequest request) {
         module.setName(request.name());
-
-        PathEntry pathEntry = module.getRulesRootPath();
-        if (pathEntry == null) {
-            pathEntry = new PathEntry();
-            module.setRulesRootPath(pathEntry);
-        }
-        pathEntry.setPath(request.path());
+        module.setRulesRootPath(request.path());
 
         MethodFilter filter = module.getMethodFilter();
         if (filter == null) {
@@ -701,7 +692,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private void validateDeletePermission(RulesProject project, Module module) {
         try {
-            AProjectArtefact artefact = project.getArtefact(module.getRulesRootPath().getPath());
+            AProjectArtefact artefact = project.getArtefact(module.getRulesRootPath());
             if (!aclProjectsHelper.hasPermission(artefact, BasePermission.DELETE)) {
                 throw new ForbiddenException("module.delete.permission.message",
                         new Object[]{ProjectArtifactUtils.extractResourceName(artefact)});
@@ -721,7 +712,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      */
     private void deleteModuleFile(RulesProject project, Module module) {
         try {
-            AProjectArtefact artefact = project.getArtefact(module.getRulesRootPath().getPath());
+            AProjectArtefact artefact = project.getArtefact(module.getRulesRootPath());
             artefact.delete();
         } catch (ProjectException e) {
             throw new ConflictException("module.delete.failed.message", module.getName());
@@ -738,7 +729,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         ProjectDescriptor newDescriptor = Cloner.clone(originalDescriptor);
         Module newModule = new Module();
         newModule.setName(newModuleName);
-        newModule.setRulesRootPath(new PathEntry(newPath));
+        newModule.setRulesRootPath(newPath);
         newModule.setProject(newDescriptor);
         newDescriptor.getModules().add(newModule);
 
@@ -811,12 +802,12 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     }
 
     private static void cleanModuleRulesPath(Module module) {
-        PathEntry rulesRootPath = module.getRulesRootPath();
+        String rulesRootPath = module.getRulesRootPath();
         if (rulesRootPath == null) {
             return;
         }
-        if (StringUtils.isNotBlank(rulesRootPath.getPath())) {
-            rulesRootPath.setPath(rulesRootPath.getPath().replace("\\", "/"));
+        if (StringUtils.isNotBlank(rulesRootPath)) {
+            module.setRulesRootPath(rulesRootPath.replace("\\", "/"));
         } else {
             module.setRulesRootPath(null);
         }

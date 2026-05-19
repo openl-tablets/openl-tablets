@@ -30,6 +30,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -65,7 +66,7 @@ public class ProjectDescriptor {
     private List<Module> modules = new ArrayList<>();
     @XmlElement(name = "classpath")
     @XmlJavaTypeAdapter(ClasspathAdapter.class)
-    private List<PathEntry> classpath = new ArrayList<>();
+    private List<String> classpath = new ArrayList<>();
     private OpenAPI openapi;
 
     @XmlElementWrapper(name = "dependencies")
@@ -213,8 +214,8 @@ public class ProjectDescriptor {
             pathEntries.add("groovy/");
             return pathEntries;
         }
-        for (PathEntry pathEntry : this.classpath) {
-            String path = pathEntry.getPath().replace('\\', '/').trim();
+        for (String pathEntry : this.classpath) {
+            String path = pathEntry.replace('\\', '/').trim();
             if (path.startsWith("./")) {
                 path = path.substring(2);
             }
@@ -309,18 +310,17 @@ public class ProjectDescriptor {
                 module.getMethodFilter().getIncludes().removeAll(Arrays.asList("", null));
             }
 
-            if (module.getRulesRootPath() == null || StringUtils.isBlank(module.getRulesRootPath().getPath())) {
+            if (StringUtils.isBlank(module.getRulesRootPath())) {
                 continue;
             }
-            var path = module.getRulesRootPath().getPath();
+            var path = module.getRulesRootPath();
             if (StringUtils.isBlank(module.getName())) {
                 module.setName(FileUtils.getBaseName(path));
             }
             Path modulePath = Path.of(path);
             if (modulePath.isAbsolute()) {
                 modulePath = projectFolder.relativize(modulePath);
-                PathEntry relativePath = new PathEntry(modulePath.toString());
-                module.setRulesRootPath(relativePath);
+                module.setRulesRootPath(modulePath.toString());
             }
         }
         return this;
@@ -330,9 +330,9 @@ public class ProjectDescriptor {
         var readModules = getModules();
         if (readModules.isEmpty()) {
             var rules = new Module();
-            rules.setRulesRootPath(new PathEntry("rules/**/*.xlsx"));
+            rules.setRulesRootPath("rules/**/*.xlsx");
             var tests = new Module();
-            tests.setRulesRootPath(new PathEntry("tests/**/*.xlsx"));
+            tests.setRulesRootPath("tests/**/*.xlsx");
             readModules = Arrays.asList(rules, tests);
         }
         var processedModules = new ArrayList<Module>(readModules.size());
@@ -346,7 +346,7 @@ public class ProjectDescriptor {
         for (Module module : readModules) {
             if (module.isModuleWithWildcard()) {
                 var newModules = new ArrayList<Module>();
-                var matchedModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath().getPath());
+                var matchedModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath());
                 for (var m : matchedModules) {
                     if (!containsInProcessedModules(processedModules, m, getProjectFolder())) {
                         newModules.add(m);
@@ -374,10 +374,10 @@ public class ProjectDescriptor {
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
-        final Path targetModulePath = projectRoot.resolve(m.getRulesRootPath().getPath());
+        final Path targetModulePath = projectRoot.resolve(m.getRulesRootPath());
 
         for (Module module : modules) {
-            Path modulePath = projectRoot.resolve(module.getRulesRootPath().getPath());
+            Path modulePath = projectRoot.resolve(module.getRulesRootPath());
             if (targetModulePath.equals(modulePath)) {
                 return true;
             }
@@ -400,7 +400,7 @@ public class ProjectDescriptor {
                     Path modulePath = file.toAbsolutePath();
                     Module m = new Module();
                     m.setProject(ProjectDescriptor.this);
-                    m.setRulesRootPath(new PathEntry(relativePath));
+                    m.setRulesRootPath(relativePath);
                     m.setName(FileUtils.getBaseName(modulePath.toString()));
                     m.setMethodFilter(module.getMethodFilter());
                     if (module.getWebstudioConfiguration() != null) {
@@ -485,7 +485,8 @@ public class ProjectDescriptor {
             propertiesFileNamePatterns = trimmed.length == 0 ? null : trimmed;
         }
         if (classpath != null) {
-            classpath.removeIf(e -> e == null || e.getPath() == null || e.getPath().isBlank());
+            classpath.replaceAll(StringUtils::trimToNull);
+            classpath.removeIf(Objects::isNull);
             if (classpath.isEmpty()) {
                 classpath = null;
             }
@@ -504,9 +505,7 @@ public class ProjectDescriptor {
 
     private void dropModulesWithoutRulesRootPath() {
         if (modules != null) {
-            modules.removeIf(m -> m.getRulesRootPath() == null
-                    || m.getRulesRootPath().getPath() == null
-                    || m.getRulesRootPath().getPath().isBlank());
+            modules.removeIf(m -> StringUtils.isBlank(m.getRulesRootPath()));
         }
     }
 
@@ -544,31 +543,53 @@ public class ProjectDescriptor {
     }
 
     /**
+     * Wrapper holding a single {@code <entry path="..."/>} element of the {@code <classpath>} block;
+     * the {@code path} attribute is the wire shape consumed by {@link ClasspathAdapter}.
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class ClasspathEntryXml {
+        @XmlAttribute
+        String path;
+    }
+
+    /**
      * Wrapper holding the inner {@code <entry>} elements of the {@code <classpath>} block. See
      * {@link ClasspathAdapter} for the role this plays.
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     static class ClasspathXml {
         @XmlElement(name = "entry")
-        List<PathEntry> entry;
+        List<ClasspathEntryXml> entry;
     }
 
     /**
      * Same null/empty contract as {@link ModulesAdapter} but for the {@code <classpath>} block.
      */
-    static class ClasspathAdapter extends XmlAdapter<ClasspathXml, List<PathEntry>> {
+    static class ClasspathAdapter extends XmlAdapter<ClasspathXml, List<String>> {
         @Override
-        public List<PathEntry> unmarshal(ClasspathXml v) {
-            return (v == null || v.entry == null) ? new ArrayList<>() : v.entry;
+        public List<String> unmarshal(ClasspathXml v) {
+            if (v == null || v.entry == null) {
+                return new ArrayList<>();
+            }
+            var result = new ArrayList<String>(v.entry.size());
+            for (var e : v.entry) {
+                result.add(e.path);
+            }
+            return result;
         }
 
         @Override
-        public ClasspathXml marshal(List<PathEntry> v) {
+        public ClasspathXml marshal(List<String> v) {
             if (v == null || v.isEmpty()) {
                 return null;
             }
             var wrapper = new ClasspathXml();
-            wrapper.entry = v;
+            wrapper.entry = new ArrayList<>(v.size());
+            for (var path : v) {
+                var entry = new ClasspathEntryXml();
+                entry.path = path;
+                wrapper.entry.add(entry);
+            }
             return wrapper;
         }
     }

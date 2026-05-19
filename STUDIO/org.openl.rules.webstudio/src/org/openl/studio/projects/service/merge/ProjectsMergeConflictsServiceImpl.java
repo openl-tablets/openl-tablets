@@ -482,11 +482,11 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                     // Add existing modules
                     modules.putAll(descriptor.getModules()
                             .stream()
-                            .collect(Collectors.toMap(m -> m.getRulesRootPath().getPath(), m -> m)));
+                            .collect(Collectors.toMap(Module::getRulesRootPath, m -> m)));
 
                     // Add new modules
                     for (Module module : entry.getValue()) {
-                        String path = module.getRulesRootPath().getPath();
+                        String path = module.getRulesRootPath();
                         if (!modules.containsKey(path)) {
                             modules.put(path, module);
                         }
@@ -513,7 +513,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         try (InputStream stream = fileItem.getStream()) {
             ProjectDescriptor descriptor = ProjectDescriptor.read(stream);
             for (Module module : descriptor.getModules()) {
-                if (module.getRulesRootPath().getPath().equals(moduleInternalPath)) {
+                if (module.getRulesRootPath().equals(moduleInternalPath)) {
                     return module;
                 }
             }

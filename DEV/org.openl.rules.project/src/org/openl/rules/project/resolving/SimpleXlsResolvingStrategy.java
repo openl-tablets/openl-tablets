@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -71,8 +70,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                             final String relativePath = project.getProjectFolder()
                                     .relativize(f.toRealPath().toAbsolutePath())
                                     .toString();
-                            PathEntry rootPath = new PathEntry(relativePath);
-                            Module module = createModule(project, rootPath, name);
+                            Module module = createModule(project, relativePath, name);
                             modules.put(name, module);
                         } else {
                             log.error("A module with the same name already exists: {}", name);
@@ -88,7 +86,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         }
     }
 
-    private Module createModule(ProjectDescriptor project, PathEntry rootPath, String name) {
+    private Module createModule(ProjectDescriptor project, String rootPath, String name) {
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(rootPath);

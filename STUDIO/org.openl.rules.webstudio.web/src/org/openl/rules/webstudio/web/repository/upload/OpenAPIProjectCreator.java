@@ -26,7 +26,6 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
@@ -242,7 +241,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         descriptor.setName(projectName);
         List<Module> modules = new ArrayList<>();
         Module rulesModule = new Module();
-        rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
+        rulesModule.setRulesRootPath(algorithmsPath);
         rulesModule.setName(algorithmsModuleName);
         ExposedMethods filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
@@ -251,16 +250,16 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
         Module modelsModule = new Module();
         modelsModule.setName(modelsModuleName);
-        modelsModule.setRulesRootPath(new PathEntry(modelsPath));
+        modelsModule.setRulesRootPath(modelsPath);
         modules.add(modelsModule);
 
         openAPI.setPath(uploadedOpenAPIFile.getName());
         descriptor.setOpenapi(openAPI);
         descriptor.setModules(modules);
 
-        List<PathEntry> classpath = new ArrayList<>();
+        List<String> classpath = new ArrayList<>();
         if (genJavaClasses) {
-            classpath.add(new PathEntry(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
+            classpath.add(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
         }
         descriptor.setClasspath(classpath);
         return descriptor;

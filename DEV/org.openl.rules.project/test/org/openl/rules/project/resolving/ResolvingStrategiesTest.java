@@ -32,7 +32,7 @@ public class ResolvingStrategiesTest {
         assertEquals(1, descriptor.getClasspath().size());
 
         Module module = descriptor.getModules().getFirst();
-        assertEquals("rules/Tutorial_1.xls", module.getRulesRootPath().getPath());
+        assertEquals("rules/Tutorial_1.xls", module.getRulesRootPath());
         assertTrue(module.getRulesPath().isAbsolute());
         assertTrue(module.getRulesPath().startsWith(projectFolder.toPath().toAbsolutePath()));
 
@@ -51,13 +51,13 @@ public class ResolvingStrategiesTest {
         assertEquals(2, descriptor.getModules().size());
         Module moduleFirst = descriptor.getModules().getFirst();
         assertEquals("Rules", moduleFirst.getName());
-        assertEquals("Rules.xls", moduleFirst.getRulesRootPath().getPath());
+        assertEquals("Rules.xls", moduleFirst.getRulesRootPath());
         assertTrue(moduleFirst.getRulesPath().isAbsolute());
         assertTrue(moduleFirst.getRulesPath().startsWith(projectFolder.toPath().toAbsolutePath()));
 
         Module moduleSecond = descriptor.getModules().get(1);
         assertEquals("Rules2", moduleSecond.getName());
-        assertEquals("Rules2.xls", moduleSecond.getRulesRootPath().getPath());
+        assertEquals("Rules2.xls", moduleSecond.getRulesRootPath());
         assertTrue(moduleSecond.getRulesPath().isAbsolute());
         assertTrue(moduleSecond.getRulesPath().startsWith(projectFolder.toPath().toAbsolutePath()));
     }
@@ -77,7 +77,7 @@ public class ResolvingStrategiesTest {
 
             Module module1 = descriptor.getModules().getFirst();
             assertEquals("Tutorial1 - Intro to Decision Tables", module1.getName());
-            assertEquals("Tutorial1 - Intro to Decision Tables.xlsx", module1.getRulesRootPath().getPath());
+            assertEquals("Tutorial1 - Intro to Decision Tables.xlsx", module1.getRulesRootPath());
             assertTrue(module1.getRulesPath().isAbsolute());
             assertTrue(module1.getRulesPath().startsWith(zipRoot));
         }

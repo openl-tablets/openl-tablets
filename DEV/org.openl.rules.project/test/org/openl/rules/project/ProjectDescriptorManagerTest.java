@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 class ProjectDescriptorManagerTest {
@@ -34,13 +33,13 @@ class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         Module newModule = new Module();
         newModule.setName("New Module");
-        newModule.setRulesRootPath(new PathEntry("rules/New Module.xlsx"));
+        newModule.setRulesRootPath("rules/New Module.xlsx");
         assertTrue(manager.isCoveredByWildcardModule(descriptor, newModule));
 
-        newModule.setRulesRootPath(new PathEntry("rules\\New Module.xlsx"));
+        newModule.setRulesRootPath("rules\\New Module.xlsx");
         assertTrue(manager.isCoveredByWildcardModule(descriptor, newModule));
 
-        newModule.setRulesRootPath(new PathEntry("New Module.xlsx"));
+        newModule.setRulesRootPath("New Module.xlsx");
         assertFalse(manager.isCoveredByWildcardModule(descriptor, newModule));
     }
 

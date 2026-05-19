@@ -67,23 +67,23 @@ class ProjectDescriptorTest {
         assertEquals("MyModule1", module1.getName());
         assertEquals("MyModule1.xls",
                 module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
-        assertEquals("MyModule1.xls", module1.getRulesRootPath().getPath());
+        assertEquals("MyModule1.xls", module1.getRulesRootPath());
         assertTrue(module1.getRulesPath().isAbsolute());
 
         Module module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
         assertEquals("MyModule2.xls",
                 module2.getRulesPath().getName(module2.getRulesPath().getNameCount() - 1).toString());
-        assertEquals("MyModule2.xls", module2.getRulesRootPath().getPath());
+        assertEquals("MyModule2.xls", module2.getRulesRootPath());
         assertTrue(module2.getRulesPath().isAbsolute());
 
         assertEquals(2, descriptor.getClasspath().size());
 
-        PathEntry classpathEntry1 = descriptor.getClasspath().getFirst();
-        assertEquals("path1", classpathEntry1.getPath());
+        String classpathEntry1 = descriptor.getClasspath().getFirst();
+        assertEquals("path1", classpathEntry1);
 
-        PathEntry classpathEntry2 = descriptor.getClasspath().get(1);
-        assertEquals("path2", classpathEntry2.getPath());
+        String classpathEntry2 = descriptor.getClasspath().get(1);
+        assertEquals("path2", classpathEntry2);
 
         assertNotNull(descriptor.getModules());
         assertEquals(2, descriptor.getModules().size());
@@ -155,12 +155,12 @@ class ProjectDescriptorTest {
 
         Module module1 = new Module();
         module1.setName("name1");
-        module1.setRulesRootPath(new PathEntry("path1"));
+        module1.setRulesRootPath("path1");
         module1.setMethodFilter(new MethodFilter());
 
-        List<PathEntry> classpath = new ArrayList<>();
-        classpath.add(new PathEntry("path1"));
-        classpath.add(new PathEntry("path2"));
+        List<String> classpath = new ArrayList<>();
+        classpath.add("path1");
+        classpath.add("path2");
         descriptor.setClasspath(classpath);
 
         List<Module> modules = new ArrayList<>();
@@ -280,7 +280,7 @@ class ProjectDescriptorTest {
         assertEquals(1, modules.size());
         Module m = modules.getFirst();
         assertEquals("testmodule", m.getName());
-        assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
+        assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
     }
 
@@ -331,7 +331,7 @@ class ProjectDescriptorTest {
         assertEquals(1, modules.size());
         Module m = modules.getFirst();
         assertEquals("testmodule", m.getName());
-        assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
+        assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
     }
 
@@ -342,7 +342,7 @@ class ProjectDescriptorTest {
         descriptor.setComment("");
         descriptor.setPropertiesFileNameProcessor("\t");
         descriptor.setPropertiesFileNamePatterns(new String[]{null, "", "  "});
-        descriptor.setClasspath(new ArrayList<>(List.of(new PathEntry(""), new PathEntry("  "))));
+        descriptor.setClasspath(new ArrayList<>(List.of("", "  ")));
         descriptor.setDependencies(new ArrayList<>());
         descriptor.setOpenapi(new OpenAPI("  ", null, "", null));
         ExposedMethods em = new ExposedMethods();
@@ -375,7 +375,7 @@ class ProjectDescriptorTest {
     void testWriteFiltersBlankClasspathEntries() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("p");
-        descriptor.setClasspath(new ArrayList<>(List.of(new PathEntry("lib/*.jar"), new PathEntry(""))));
+        descriptor.setClasspath(new ArrayList<>(List.of("lib/*.jar", "")));
 
         var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
@@ -469,10 +469,10 @@ class ProjectDescriptorTest {
         Module noPath = new Module();
         noPath.setName("orphan");
         Module blankPath = new Module();
-        blankPath.setRulesRootPath(new PathEntry("  "));
+        blankPath.setRulesRootPath("  ");
         Module valid = new Module();
         valid.setName("kept");
-        valid.setRulesRootPath(new PathEntry("rules/A.xlsx"));
+        valid.setRulesRootPath("rules/A.xlsx");
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setModules(new ArrayList<>(List.of(noPath, blankPath, valid)));
@@ -496,7 +496,7 @@ class ProjectDescriptorTest {
     void testWriteOmitsEmptyMethodFilterOnValidModule() throws Exception {
         Module module = new Module();
         module.setName("  ");
-        module.setRulesRootPath(new PathEntry("rules/A.xlsx"));
+        module.setRulesRootPath("rules/A.xlsx");
         MethodFilter mf = new MethodFilter();
         mf.setIncludes(new HashSet<>());
         mf.setExcludes(new HashSet<>());

@@ -8,9 +8,11 @@ import java.util.Optional;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import lombok.Getter;
@@ -26,7 +28,8 @@ public class Module {
     @XmlJavaTypeAdapter(CollapsedStringAdapter2.class)
     private String name;
     @XmlElement(name = "rules-root")
-    private PathEntry rulesRootPath;
+    @XmlJavaTypeAdapter(RulesRootPathAdapter.class)
+    private String rulesRootPath;
     @XmlTransient
     private ProjectDescriptor project;
     @XmlTransient
@@ -44,16 +47,14 @@ public class Module {
     @SuppressWarnings("unused")
     private void beforeMarshal(Marshaller marshaller) {
         name = StringUtils.trimToNull(name);
-        if (rulesRootPath != null && (rulesRootPath.getPath() == null || rulesRootPath.getPath().isBlank())) {
-            rulesRootPath = null;
-        }
+        rulesRootPath = StringUtils.trimToNull(rulesRootPath);
         if (MethodFilter.isEmpty(methodFilter)) {
             methodFilter = null;
         }
     }
 
     public Path getRulesPath() {
-        return project.getProjectFolder().resolve(rulesRootPath.getPath()).toAbsolutePath();
+        return project.getProjectFolder().resolve(rulesRootPath).toAbsolutePath();
     }
 
     public String getRelativeUri() {
@@ -78,11 +79,30 @@ public class Module {
     }
 
     public boolean isModuleWithWildcard() {
-        if (rulesRootPath != null) {
-            String path = rulesRootPath.getPath();
-            return path.contains("*") || path.contains("?");
+        return rulesRootPath != null && (rulesRootPath.contains("*") || rulesRootPath.contains("?"));
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class RulesRootPathXml {
+        @XmlAttribute
+        String path;
+    }
+
+    static class RulesRootPathAdapter extends XmlAdapter<RulesRootPathXml, String> {
+        @Override
+        public String unmarshal(RulesRootPathXml v) {
+            return v == null ? null : v.path;
         }
-        return false;
+
+        @Override
+        public RulesRootPathXml marshal(String v) {
+            if (v == null) {
+                return null;
+            }
+            var xml = new RulesRootPathXml();
+            xml.path = v;
+            return xml;
+        }
     }
 
 }

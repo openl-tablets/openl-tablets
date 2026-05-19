@@ -145,7 +145,7 @@ public class ZipCharsetDetector {
         if (projectDescriptor != null) {
             Set<String> files = new HashSet<>();
             for (Module module : projectDescriptor.getModules()) {
-                String path = module.getRulesRootPath().getPath();
+                String path = module.getRulesRootPath();
                 if (!path.contains("*") && !path.contains("?")) {
                     // Modules with wildcard aren't supported for now
                     files.add(path);

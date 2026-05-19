@@ -55,7 +55,6 @@ import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
@@ -132,11 +131,7 @@ public class ProjectBean {
     }
 
     public static String getModulePath(Module module) {
-        PathEntry modulePath = module == null ? null : module.getRulesRootPath();
-        if (modulePath == null) {
-            return null;
-        }
-        return modulePath.getPath();
+        return module == null ? null : module.getRulesRootPath();
     }
 
     public List<ListItem<ProjectDependencyDescriptor>> getDependencies() {
@@ -160,11 +155,11 @@ public class ProjectBean {
 
     public String getSources() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        List<PathEntry> sourceList = currentProject.getClasspath();
+        List<String> sourceList = currentProject.getClasspath();
         if (sourceList != null) {
             StringBuilder sb = new StringBuilder();
-            for (PathEntry source : sourceList) {
-                sb.append(source.getPath()).append(StringTool.NEW_LINE);
+            for (String source : sourceList) {
+                sb.append(source).append(StringTool.NEW_LINE);
             }
             sources = sb.toString();
         }
@@ -340,7 +335,7 @@ public class ProjectBean {
         String modulePath = WebStudioUtils.getRequestParameter("modulePath");
 
         Module toCheck = new Module();
-        toCheck.setRulesRootPath(new PathEntry(modulePath));
+        toCheck.setRulesRootPath(modulePath);
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
             WebStudioUtils.validate(StringUtils.isNotBlank(newName), CANNOT_BE_EMPTY_MESSAGE);
@@ -367,7 +362,7 @@ public class ProjectBean {
         String modulePath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
 
         Module toCheck = new Module();
-        toCheck.setRulesRootPath(new PathEntry(modulePath));
+        toCheck.setRulesRootPath(modulePath);
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
             WebStudioUtils.validate(StringUtils.isNotBlank(newName), CANNOT_BE_EMPTY_MESSAGE);
@@ -408,10 +403,10 @@ public class ProjectBean {
         final boolean isNewModule = StringUtils.isBlank(oldName) && StringUtils.isBlank(index);
         final Predicate<Module> isEditedModule = m -> !isNewModule && Objects.equals(oldName, m.getName());
 
-        final Predicate<Module> wildcardPathMatch = m -> FileUtils.pathMatches(m.getRulesRootPath().getPath(),
+        final Predicate<Module> wildcardPathMatch = m -> FileUtils.pathMatches(m.getRulesRootPath(),
                 relativePath);
 
-        final Predicate<Module> strictPathMatch = m -> Objects.equals(m.getRulesRootPath().getPath(), relativePath);
+        final Predicate<Module> strictPathMatch = m -> Objects.equals(m.getRulesRootPath(), relativePath);
         final Predicate<Module> checkDuplicatePath = strictPathMatch
                 .or(wildcardPathMatch.and(this::isModuleWithWildcard));
         if (projectDescriptor.getModules().stream().filter(isEditedModule.negate()).anyMatch(checkDuplicatePath)) {
@@ -480,7 +475,7 @@ public class ProjectBean {
         Module module = studio.getModule(currentProjectDescriptor, moduleName);
         String folderPath = studio.getCurrentProject().getFolderPath();
         if (module == null || (module
-                .getRulesRootPath() != null && !getArtefactPath(module.getRulesRootPath().getPath(), folderPath)
+                .getRulesRootPath() != null && !getArtefactPath(module.getRulesRootPath(), folderPath)
                 .equals(path))) {
             Path moduleFile = currentProjectDescriptor.getProjectFolder().resolve(path);
             WebStudioUtils.validate(!Files.exists(moduleFile), "File with such name already exists.");
@@ -618,13 +613,7 @@ public class ProjectBean {
 
         if (module != null) {
             module.setName(name);
-
-            PathEntry pathEntry = module.getRulesRootPath();
-            if (pathEntry == null) {
-                pathEntry = new PathEntry();
-                module.setRulesRootPath(pathEntry);
-            }
-            pathEntry.setPath(path);
+            module.setRulesRootPath(path);
 
             MethodFilter filter = module.getMethodFilter();
             if (filter == null) {
@@ -682,12 +671,9 @@ public class ProjectBean {
         String oldPath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePathOld");
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
 
-        PathEntry pathEntry = new PathEntry();
-        pathEntry.setPath(path);
-
         Module newModule = new Module();
         newModule.setName(name);
-        newModule.setRulesRootPath(pathEntry);
+        newModule.setRulesRootPath(path);
         boolean moduleMatchesSomePathPattern = isModuleMatchesSomePathPattern(newModule);
         if (!moduleMatchesSomePathPattern) {
             validatePermissionsForDescriptorFile(currentProject, false);
@@ -764,7 +750,7 @@ public class ProjectBean {
                         // Module not included in wildcard
                         continue;
                     }
-                    if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
+                    if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath())) {
                         checkPermissionsForDeletingModule(currentProject, module);
                         modulesForRemoving.add(module);
                     }
@@ -803,7 +789,7 @@ public class ProjectBean {
 
     private void checkPermissionsForDeletingModule(RulesProject currentProject, Module module) {
         try {
-            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath());
             if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
                 throw new Message("There is no permission for deleting '%s' file.".formatted(
                         ProjectArtifactUtils.extractResourceName(projectArtefact)));
@@ -814,7 +800,7 @@ public class ProjectBean {
 
     private void deleteModule(RulesProject currentProject, Module module) {
         try {
-            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath());
             projectArtefact.delete();
         } catch (ProjectException e) {
             throw new Message("Cannot delete '%s' module.".formatted(module.getName()), e);
@@ -828,7 +814,7 @@ public class ProjectBean {
     public boolean canCopyModule(Module module) {
         if (studio.getModel().isEditableProject()) {
             RulesProject currentProject = studio.getCurrentProject();
-            String path = module.getRulesRootPath().getPath();
+            String path = module.getRulesRootPath();
             boolean originalPathWithWildcards = path.contains("?") || path.contains("*");
             path = path.replace("\\", "/");
             int d = path.lastIndexOf("/");
@@ -886,14 +872,14 @@ public class ProjectBean {
             try {
                 if (isModuleWithWildcard(module)) {
                     for (Module m : getModulesMatchingPathPattern(module)) {
-                        AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
+                        AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath());
                         if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
                             return true;
                         }
                     }
                     return false;
                 } else {
-                    AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+                    AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath());
                     return !designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE);
                 }
             } catch (ProjectException e) {
@@ -953,14 +939,11 @@ public class ProjectBean {
         RulesProject currentProject = studio.getCurrentProject();
         validatePermissionsForDescriptorFile(currentProject, true);
 
-        List<PathEntry> sourceList = new ArrayList<>();
+        List<String> sourceList = new ArrayList<>();
         String[] sourceArray = StringUtils.toLines(sources);
 
         if (CollectionUtils.isNotEmpty(sourceArray)) {
-            for (String source : sourceArray) {
-                PathEntry sourcePath = new PathEntry(source);
-                sourceList.add(sourcePath);
-            }
+            Collections.addAll(sourceList, sourceArray);
         }
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
@@ -1220,9 +1203,9 @@ public class ProjectBean {
     private ModuleInfoDTO getModuleInfoDTO(Module module, String type) {
         ModuleInfoDTO result = null;
         if (module != null) {
-            PathEntry rulesRootPath = module.getRulesRootPath();
+            String rulesRootPath = module.getRulesRootPath();
             result = new ModuleInfoDTO(module.getName(),
-                    rulesRootPath != null ? getArtefactPath(rulesRootPath.getPath(),
+                    rulesRootPath != null ? getArtefactPath(rulesRootPath,
                             studio.getCurrentProject().getFolderPath()) : null,
                     type);
         }
@@ -1400,10 +1383,10 @@ public class ProjectBean {
             openAPI.setPath(openAPIPathParam);
             openAPI.setMode(OpenAPI.Mode.GENERATION);
 
-            List<PathEntry> currentClassPath = currentProjectDescriptor.getClasspath();
+            List<String> currentClassPath = currentProjectDescriptor.getClasspath();
             boolean openAPIClassesInClassPath = CollectionUtils.isNotEmpty(currentClassPath) && currentClassPath
                     .stream()
-                    .anyMatch(pathEntry -> pathEntry.getPath().equals(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
+                    .anyMatch(OpenAPIHelper.DEF_JAVA_CLASS_PATH::equals);
 
             if (existingOpenAPI == null || existingOpenAPI.getPath() == null || existingOpenAPI.getMode() == null) {
                 openAPIInfoChanged = true;
@@ -1424,7 +1407,7 @@ public class ProjectBean {
                 openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
             } else {
                 Module rulesModule = new Module();
-                rulesModule.setRulesRootPath(new PathEntry(algorithmModulePathParam));
+                rulesModule.setRulesRootPath(algorithmModulePathParam);
                 rulesModule.setName(algorithmModuleNameParam);
                 modules.add(rulesModule);
                 openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
@@ -1438,7 +1421,7 @@ public class ProjectBean {
                 openAPI.setModelModuleName(modelModuleNameParam);
             } else {
                 Module modelsModule = new Module();
-                modelsModule.setRulesRootPath(new PathEntry(modelModulePathParam));
+                modelsModule.setRulesRootPath(modelModulePathParam);
                 modelsModule.setName(modelModuleNameParam);
                 modules.add(modelsModule);
                 openAPI.setModelModuleName(modelModuleNameParam);
@@ -1564,19 +1547,18 @@ public class ProjectBean {
             newProjectDescriptor.setOpenapi(openAPI);
         }
         if (classPathChanged) {
-            List<PathEntry> classpath = newProjectDescriptor.getClasspath();
+            List<String> classpath = newProjectDescriptor.getClasspath();
             if (annotationTemplateClassesAreGenerated) {
-                PathEntry openAPIClasses = new PathEntry(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
                 if (classpath == null) {
-                    List<PathEntry> generatedClassPath = new ArrayList<>();
-                    generatedClassPath.add(openAPIClasses);
+                    List<String> generatedClassPath = new ArrayList<>();
+                    generatedClassPath.add(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
                     newProjectDescriptor.setClasspath(generatedClassPath);
                 } else {
-                    classpath.add(openAPIClasses);
+                    classpath.add(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
                 }
             } else {
                 if (classpath != null) {
-                    classpath.removeIf(pathEntry -> pathEntry.getPath().equals(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
+                    classpath.removeIf(OpenAPIHelper.DEF_JAVA_CLASS_PATH::equals);
                 }
             }
         }
@@ -1634,7 +1616,7 @@ public class ProjectBean {
         try {
             if (existingModule.getRulesRootPath() != null) {
                 artefact = currentProject
-                        .getArtefactByPath(new ArtefactPathImpl(getArtefactPath(existingModule.getRulesRootPath().getPath(),
+                        .getArtefactByPath(new ArtefactPathImpl(getArtefactPath(existingModule.getRulesRootPath(),
                                 studio.getCurrentProject().getFolderPath())));
             }
         } catch (ProjectException e) {
@@ -1798,10 +1780,10 @@ public class ProjectBean {
         }
 
         for (Module module : modules) {
-            PathEntry rulesRootPath = module.getRulesRootPath();
+            String rulesRootPath = module.getRulesRootPath();
             if (rulesRootPath != null) {
-                if (StringUtils.isNotBlank(rulesRootPath.getPath())) {
-                    rulesRootPath.setPath(getModulePath(module));
+                if (StringUtils.isNotBlank(rulesRootPath)) {
+                    module.setRulesRootPath(getModulePath(module));
                 } else {
                     module.setRulesRootPath(null);
                 }
@@ -1984,7 +1966,7 @@ public class ProjectBean {
 
         for (Module m : projectDescriptor.getModules()) {
             if (m.isModuleWithWildcard()) {
-                String path = m.getRulesRootPath().getPath();
+                String path = m.getRulesRootPath();
                 if (FileUtils.pathMatches(path, newFileName)) {
                     if (!currentPathPattern.equals(path)) {
                         // Module file name captured by another path pattern (not current one).
@@ -2005,7 +1987,7 @@ public class ProjectBean {
         }
         try {
             ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
-            return descriptor.getAllModulesMatchingPathPattern(module, module.getRulesRootPath().getPath());
+            return descriptor.getAllModulesMatchingPathPattern(module, module.getRulesRootPath());
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);

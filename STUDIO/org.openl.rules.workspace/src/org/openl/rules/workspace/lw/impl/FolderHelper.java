@@ -107,7 +107,7 @@ public final class FolderHelper {
     }
 
     public static String resolveHistoryFolder(Module module) {
-        return normalizePath(Path.of(HISTORY_FOLDER, module.getRulesRootPath().getPath()));
+        return normalizePath(Path.of(HISTORY_FOLDER, module.getRulesRootPath()));
     }
 
     private static String normalizePath(Path p) {
