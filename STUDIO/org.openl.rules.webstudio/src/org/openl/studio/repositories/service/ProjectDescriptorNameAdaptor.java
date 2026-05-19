@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
-import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.folder.FileAdaptor;
@@ -28,7 +27,7 @@ public class ProjectDescriptorNameAdaptor implements FileAdaptor {
     }
 
     @Override
-    public InputStream apply(InputStream inputStream) throws IOException, JAXBException {
+    public InputStream apply(InputStream inputStream) throws IOException {
         // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
         // original rules.xml.
         var originalBytes = inputStream.readAllBytes();

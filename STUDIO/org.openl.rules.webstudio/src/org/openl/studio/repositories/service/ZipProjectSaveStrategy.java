@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import jakarta.xml.bind.JAXBException;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -60,7 +59,7 @@ public class ZipProjectSaveStrategy {
         this.userManagementService = userManagementService;
     }
 
-    public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException, JAXBException {
+    public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
         UserInfo author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
                 .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))

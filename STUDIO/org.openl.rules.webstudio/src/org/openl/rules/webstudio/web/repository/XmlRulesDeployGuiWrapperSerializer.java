@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.IOUtils;
@@ -17,7 +16,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern ENCLOSING_CONFIG_PATTERN = Pattern
             .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
 
-    public String serialize(final RulesDeployGuiWrapper wrapper) throws JAXBException, IOException {
+    public String serialize(final RulesDeployGuiWrapper wrapper) throws IOException {
         var rulesDeploy = new String(wrapper.getRulesDeploy().toBytes(), StandardCharsets.UTF_8);
         rulesDeploy = rulesDeploy.replaceAll("<configuration>[\\s\\S]*?</configuration>", "")
                 .replaceAll("(?m)^[ \t]*\r?\n", "");
@@ -37,7 +36,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
         return rulesDeploy;
     }
 
-    public RulesDeployGuiWrapper deserialize(String source) throws JAXBException {
+    public RulesDeployGuiWrapper deserialize(String source) {
         Matcher matcher = CONFIGURATION_PATTERN.matcher(source);
         String configuration = null;
 

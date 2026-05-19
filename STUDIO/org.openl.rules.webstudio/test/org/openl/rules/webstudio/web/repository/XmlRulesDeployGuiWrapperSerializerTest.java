@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
-import jakarta.xml.bind.JAXBException;
 
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +58,7 @@ class XmlRulesDeployGuiWrapperSerializerTest {
     }
 
     @Test
-    void testDeserialize() throws JAXBException {
+    void testDeserialize() {
         String value = """
                 <rules-deploy>
                   <isProvideRuntimeContext>false</isProvideRuntimeContext>

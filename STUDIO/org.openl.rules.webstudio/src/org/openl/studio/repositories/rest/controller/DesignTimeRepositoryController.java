@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
@@ -185,7 +184,7 @@ public class DesignTimeRepositoryController {
                                                  @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
                                                  @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite,
                                                  @Parameter(description = "repos.create-project-from-zip.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException,
-            JAXBException, ProjectException {
+            ProjectException {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
             if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {

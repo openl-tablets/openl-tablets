@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +29,7 @@ public class ProjectDescriptorArtefactResolver {
      */
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<>();
 
-    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, JAXBException {
+    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException {
         FileData fileData = project.getFileData();
         if (fileData == null) {
             return null;
@@ -67,7 +66,7 @@ public class ProjectDescriptorArtefactResolver {
         return null;
     }
 
-    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, JAXBException {
+    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
         ProjectDescriptor pd = getProjectDescriptor(project);
         return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : Collections.emptyList();
     }

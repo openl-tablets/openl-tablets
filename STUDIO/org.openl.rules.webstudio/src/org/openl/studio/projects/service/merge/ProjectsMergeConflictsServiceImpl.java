@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -359,9 +358,6 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             return new ResolveConflictsResponse(
                     ConflictResolutionStatus.SUCCESS,
                     resolvedFilePaths);
-        } catch (JAXBException e) {
-            log.error("Failed to resolve conflicts", e);
-            throw new ProjectException("Failed to resolve conflicts: " + e.getMessage(), e);
         } finally {
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
@@ -403,7 +399,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     }
 
     private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflictInfo,
-                                                          List<FileItem> resolvedFiles) throws IOException, JAXBException {
+                                                          List<FileItem> resolvedFiles) throws IOException {
         UserWorkspace workspace = getUserWorkspace();
         String repositoryId = mergeConflictInfo.getRepositoryId();
         var conflictDetails = mergeConflictInfo.details();
@@ -462,7 +458,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     private void updateRulesXmlFiles(String repositoryId,
                                      Map<String, List<Module>> modulesToAppend,
                                      String branch,
-                                     String mergeMessage) throws IOException, JAXBException {
+                                     String mergeMessage) throws IOException {
         if (modulesToAppend.isEmpty()) {
             return;
         }
@@ -509,7 +505,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         }
     }
 
-    private Module getModule(FileItem fileItem, String moduleInternalPath) throws IOException, JAXBException {
+    private Module getModule(FileItem fileItem, String moduleInternalPath) throws IOException {
         try (InputStream stream = fileItem.getStream()) {
             ProjectDescriptor descriptor = ProjectDescriptor.read(stream);
             for (Module module : descriptor.getModules()) {

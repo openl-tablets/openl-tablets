@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +50,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     }
 
     @Override
-    public List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException, JAXBException {
+    public List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException {
         List<RulesProject> result = new ArrayList<>();
         for (RulesProject pr : getAllProjects()) {
             List<ProjectDependencyDescriptor> dependencies = projectDescriptorResolver.getDependencies(pr);
