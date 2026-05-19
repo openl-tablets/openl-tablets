@@ -2,7 +2,6 @@ package org.openl.rules.project.model;
 
 import static org.openl.rules.project.model.ProjectDependencyDescriptor.DEPENDENCY_TAG;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -472,33 +471,14 @@ public class ProjectDescriptor {
         }
     }
 
-    public InputStream toInputStream() {
-        var outputStrteam = new ByteArrayOutputStream();
+    public byte[] toBytes() {
+        var outputStream = new ByteArrayOutputStream();
         try {
-            SERIALIZER.marshal(this, outputStrteam);
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
-        return new ByteArrayInputStream(outputStrteam.toByteArray());
-    }
-
-    public void write(Path folder) throws IOException {
-        try (var outputStream = Files.newOutputStream(folder.resolve(FILE_NAME))) {
             SERIALIZER.marshal(this, outputStream);
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public boolean hasChanges(Path folder) throws IOException {
-        var original = Files.readAllBytes(folder.resolve(FILE_NAME));
-        var outputStrteam = new ByteArrayOutputStream();
-        try {
-            SERIALIZER.marshal(this, outputStrteam);
-        } catch (JAXBException e) {
-            throw new IllegalStateException(e);
-        }
-        return !Arrays.equals(original, outputStrteam.toByteArray());
+        return outputStream.toByteArray();
     }
 
     @SuppressWarnings("unused")

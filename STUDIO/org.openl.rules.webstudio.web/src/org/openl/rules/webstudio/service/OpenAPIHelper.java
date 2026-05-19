@@ -56,7 +56,7 @@ public class OpenAPIHelper {
         if (CollectionUtils.isEmpty(rd.getPublishers())) {
             rd.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
         }
-        return rd.toInputStream();
+        return new ByteArrayInputStream(rd.toBytes());
     }
 
     public String makePathToTheGeneratedFile(String path) {

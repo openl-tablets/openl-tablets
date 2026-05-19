@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web;
 
 import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1722,7 +1723,7 @@ public class ProjectBean {
         InputStream rulesDeployContent = null;
         try {
             projectDescriptor.validate();
-            var inputStream = projectDescriptor.toInputStream();
+            var inputStream = new ByteArrayInputStream(projectDescriptor.toBytes());
 
             if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
                 AProjectResource artifact = (AProjectResource) project
@@ -1747,7 +1748,7 @@ public class ProjectBean {
                 validatePermissionForEditing(artifact);
                 rulesDeployContent = artifact.getContent();
                 RulesDeploy rulesDeploy = RulesDeploy.read(rulesDeployContent);
-                artifact.setContent(rulesDeploy.toInputStream());
+                artifact.setContent(new ByteArrayInputStream(rulesDeploy.toBytes()));
             }
 
             refreshProject(project.getRepository().getId(), project.getName());

@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -845,12 +846,11 @@ public class RepositoryTreeController {
                 }
             }
             if (projectDescriptorChanged) {
-                InputStream newContent = projectDescriptor.toInputStream();
                 if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
                     throw new Message("There is no permission for modifying '%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(resource)));
                 }
-                resource.setContent(newContent);
+                resource.setContent(new ByteArrayInputStream(projectDescriptor.toBytes()));
             }
         }
     }
@@ -2102,8 +2102,7 @@ public class RepositoryTreeController {
                     if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
                         projectDescriptor.getModules().add(module);
                     }
-                    InputStream newContent = projectDescriptor.toInputStream();
-                    resource.setContent(newContent);
+                    resource.setContent(new ByteArrayInputStream(projectDescriptor.toBytes()));
                 }
             } catch (ProjectException ex) {
                 if (log.isDebugEnabled()) {

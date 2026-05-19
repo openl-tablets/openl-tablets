@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -19,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 class ProjectDescriptorTest {
@@ -171,7 +171,7 @@ class ProjectDescriptorTest {
         module1.getMethodFilter().addExcludePattern(" * ");
         module1.getMethodFilter().addExcludePattern("  ");
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         String expected = """
                 <project>
@@ -318,7 +318,7 @@ class ProjectDescriptorTest {
     void testExposedMethodsRoundTrip() throws Exception {
         var pd = ProjectDescriptor.read(Path.of("test-resources/xml/rules-with-exposed-methods.xml"));
 
-        var pd2 = ProjectDescriptor.read(pd.toInputStream());
+        var pd2 = ProjectDescriptor.read(new ByteArrayInputStream(pd.toBytes()));
 
         assertNotNull(pd2.getExposedMethods());
         assertEquals(pd.getExposedMethods().getIncludes().size(), pd2.getExposedMethods().getIncludes().size());
@@ -332,7 +332,7 @@ class ProjectDescriptorTest {
     void testMultiPropertiesFileNamePatternsRoundTrip() throws Exception {
         var pd = ProjectDescriptor.read(Path.of("test-resources/multi-file-name-pattern/rules.xml"));
 
-        var pd1 = ProjectDescriptor.read(pd.toInputStream());
+        var pd1 = ProjectDescriptor.read(new ByteArrayInputStream(pd.toBytes()));
 
         assertEquals("test ?", pd1.getName());
         List<Module> modules = pd1.getModules();
@@ -359,7 +359,7 @@ class ProjectDescriptorTest {
         em.setExcludes(new HashSet<>(Arrays.asList("", null, " ")));
         descriptor.setExposedMethods(em);
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("<project/>\n", dest);
     }
@@ -370,7 +370,7 @@ class ProjectDescriptorTest {
         descriptor.setName("p");
         descriptor.setPropertiesFileNamePatterns(new String[]{"", "{lob}-{state}", null, "  "});
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("""
                 <project>
@@ -386,7 +386,7 @@ class ProjectDescriptorTest {
         descriptor.setName("p");
         descriptor.setClasspath(new ArrayList<>(List.of(new PathEntry("lib/*.jar"), new PathEntry(""))));
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("""
                 <project>
@@ -404,7 +404,7 @@ class ProjectDescriptorTest {
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("api.yaml", OpenAPI.Mode.RECONCILIATION, "", null));
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("""
                 <project>
@@ -424,7 +424,7 @@ class ProjectDescriptorTest {
             descriptor.setName("p");
             descriptor.setOpenapi(new OpenAPI(defaultPath, OpenAPI.Mode.RECONCILIATION, null, null));
 
-            var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+            var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
             assertEquals("""
                     <project>
@@ -440,7 +440,7 @@ class ProjectDescriptorTest {
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("openapi.yaml", OpenAPI.Mode.GENERATION, null, null));
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("""
                 <project>
@@ -459,7 +459,7 @@ class ProjectDescriptorTest {
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("openapi2.yaml", OpenAPI.Mode.RECONCILIATION, "Model", null));
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("""
                 <project>
@@ -486,7 +486,7 @@ class ProjectDescriptorTest {
         descriptor.setName("p");
         descriptor.setModules(new ArrayList<>(List.of(module)));
 
-        var dest = IOUtils.toString(descriptor.toInputStream(), StandardCharsets.UTF_8);
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
         assertEquals("""
                 <project>

@@ -845,7 +845,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     private void saveDescriptor(RulesProject project, ProjectDescriptor descriptor) {
         try {
             descriptor.validate();
-            var inputStream = descriptor.toInputStream();
+            var inputStream = new ByteArrayInputStream(descriptor.toBytes());
 
             if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
                 AProjectResource artifact = (AProjectResource) project

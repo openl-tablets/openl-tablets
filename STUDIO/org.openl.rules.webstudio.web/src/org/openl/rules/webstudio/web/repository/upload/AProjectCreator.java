@@ -97,7 +97,7 @@ public abstract class AProjectCreator {
             try {
                 ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
                 projectDescriptor.setName(getProjectName());
-                return projectDescriptor.toInputStream();
+                return new ByteArrayInputStream(projectDescriptor.toBytes());
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
                 copy.reset();

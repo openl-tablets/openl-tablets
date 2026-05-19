@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -8,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,7 +29,6 @@ import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -183,10 +182,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 addGroovyScriptFile(projectBuilder, groovyScriptFile);
             }
 
-            InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass,
-                    projectModel.getIncludeMethodFilter());
+            var descriptor = defineDescriptor(hasAnnotationTemplateClass, projectModel.getIncludeMethodFilter());
             addFile(projectBuilder,
-                    rulesFile,
+                    new ByteArrayInputStream(descriptor.toBytes()),
                     ProjectDescriptor.FILE_NAME,
                     "Error uploading %s file.".formatted(
                             ProjectDescriptor.FILE_NAME));
@@ -232,13 +230,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             throw new ProjectException("Cannot import the OpenAPI file. Possible broken OpenAPI file.", e.getCause());
         }
         return projectModel;
-    }
-
-    private InputStream generateRulesFile(boolean genJavaClasses, Set<String> algorithmsInclude) throws IOException,
-            ValidationException, JAXBException {
-        ProjectDescriptor descriptor = defineDescriptor(genJavaClasses, algorithmsInclude);
-        descriptor.validate();
-        return descriptor.toInputStream();
     }
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
