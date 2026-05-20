@@ -23,9 +23,9 @@ import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ModifiedBy;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
-import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
+import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.CompilationStatus;
 
 @Service
@@ -38,13 +38,14 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private static final List<Severity> SEVERITY_ORDER = List.of(Severity.ERROR, Severity.WARN, Severity.INFO);
 
     private final ProjectIdentifierMapper projectIdentifierMapper;
-    private final WorkspaceProjectService workspaceProjectService;
+    private final CompilationJobRegistry compilationJobRegistry;
     private final PendingChangesResolver pendingChangesResolver;
 
     @Override
     public ProjectStatusViewModel map(RulesProject project) {
+        var projectId = projectIdentifierMapper.map(project);
         var builder = ProjectStatusViewModel.builder()
-                .project(projectIdentifierMapper.map(project).encode());
+                .project(projectId.encode());
         if (project.isSupportsBranches()) {
             builder.branch(project.getBranch());
         }
@@ -52,14 +53,16 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             Optional.ofNullable(fileData.getVersion()).ifPresent(builder::revision);
             builder.author(mapAuthor(fileData));
         });
-        if (project.isOpened()) {
-            var handle = workspaceProjectService.openProject(project);
-            var projectModel = handle.project();
-            var moduleMessages = projectModel.getModuleMessages();
-            builder.compileState(deriveCompileState(handle.compilation(), projectModel, moduleMessages));
-            builder.messages(groupMessages(moduleMessages));
-        } else {
+        // Read-only check: do not initiate any compilation. The status endpoint must only
+        // report whatever is already registered in the session-scoped compilation registry.
+        var compilation = compilationJobRegistry.find(projectId, project.getBranch()).orElse(null);
+        if (compilation == null) {
             builder.compileState(CompileState.IDLE);
+        } else {
+            var projectModel = compilation.project();
+            var moduleMessages = projectModel.getModuleMessages();
+            builder.compileState(deriveCompileState(compilation, projectModel, moduleMessages));
+            builder.messages(groupMessages(moduleMessages));
         }
         builder.pendingChanges(pendingChangesResolver.resolve(project));
         return builder.build();

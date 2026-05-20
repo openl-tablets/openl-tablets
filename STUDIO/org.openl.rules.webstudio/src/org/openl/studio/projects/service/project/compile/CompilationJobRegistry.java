@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.project.compile;
 
+import java.util.Optional;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import org.openl.rules.ui.ProjectModel;
@@ -24,4 +26,18 @@ public interface CompilationJobRegistry {
      */
     @NotNull
     CompilationJob acquire(@NotNull ProjectIdModel projectId, @NotNull ProjectModel model);
+
+    /**
+     * Look up the current compilation job for the given project and branch without
+     * registering a new one. Used by read-only callers (e.g. the project status mapper)
+     * that must not trigger any compilation side effects.
+     *
+     * @param projectId target project identifier
+     * @param branch    branch name the caller expects; {@code null} for repositories without
+     *                  branch support
+     * @return job tracking the active compilation for this project/branch, or empty when no
+     *         matching compilation has been registered
+     */
+    @NotNull
+    Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch);
 }

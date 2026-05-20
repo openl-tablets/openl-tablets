@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -29,18 +28,21 @@ class CompilationJobImpl implements CompilationJob {
 
     @Getter
     private final UUID id = UUID.randomUUID();
-    @Getter(AccessLevel.PACKAGE)
-    @Accessors(fluent = false)
-    private final ProjectModel model;
+    @Getter
+    private final ProjectModel project;
     @Accessors(fluent = false)
     private final RegisteredCompilation cycle;
-    private final Instant startedAt = Instant.now();
     @Getter
     private final CompletableFuture<CompilationResult> future;
 
     CompilationJobImpl(ProjectModel model) {
-        this.model = model;
+        this.project = model;
         this.cycle = model.getCurrentCompilation();
+        // The compile start time is owned by the cycle itself (recorded when ProjectModel
+        // registered it), so duration stays accurate even if this job observer is created
+        // long after the compile was kicked off (e.g. the JSF Project Tree triggered the
+        // compile and the REST status endpoint adopts it later via the registry).
+        var cycleStartedAt = cycle.startedAt();
         this.future = cycle.future().handle((ignored, throwable) -> {
             if (throwable != null) {
                 log.warn("Project compilation failed", throwable);
@@ -52,7 +54,7 @@ class CompilationJobImpl implements CompilationJob {
             var compilationStatus = model.getCompilationStatus();
             return new CompilationResult(
                     id,
-                    Duration.between(startedAt, Instant.now()),
+                    Duration.between(cycleStartedAt, Instant.now()),
                     compilationStatus.getModulesCompiled(),
                     compilationStatus.getModulesCount());
         });
@@ -68,7 +70,7 @@ class CompilationJobImpl implements CompilationJob {
 
     @Override
     public int progress() {
-        var compilationStatus = model.getCompilationStatus();
+        var compilationStatus = project.getCompilationStatus();
         var total = compilationStatus.getModulesCount();
         if (total <= 0) {
             return status() == CompilationStatus.SUCCEEDED ? 100 : 0;
@@ -109,7 +111,7 @@ class CompilationJobImpl implements CompilationJob {
      *         newer cycle and the cached job's result is no longer authoritative.
      */
     boolean tracksCurrentCompilation() {
-        return model.getCurrentCompilation() == cycle;
+        return project.getCurrentCompilation() == cycle;
     }
 
     private static final class CompletionExceptionWrapper extends RuntimeException {

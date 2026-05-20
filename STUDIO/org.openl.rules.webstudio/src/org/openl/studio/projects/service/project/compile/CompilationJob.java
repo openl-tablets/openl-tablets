@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.openl.rules.ui.ProjectModel;
+
 /**
  * Asynchronous compilation handle for a single project/module.
  *
@@ -46,4 +48,10 @@ public interface CompilationJob {
      * until the job terminates.
      */
     CompletableFuture<CompilationResult> future();
+
+    /**
+     * Project model whose compilation this job tracks. Always non-null; inspect
+     * {@link #status()} to interpret the live state of the model.
+     */
+    ProjectModel project();
 }
