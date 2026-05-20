@@ -26,6 +26,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.info.OpenLVersion;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
@@ -48,6 +49,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    private static final String TESTS_CLASSIFIER = "tests";
 
     private static final byte[] EMPTY_PUBLISHERS_RULES_DEPLOY = """
             <rules-deploy>
@@ -214,12 +216,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             JarArchiver.archive(classesDirectory, dependencyLib);
         }
 
-        DirectoryScanner dirScan = new DirectoryScanner();
-        dirScan.setBasedir(openLSourceDir);
-        dirScan.setExcludes(getExcludes());
-        dirScan.setIncludes(includes);
-        dirScan.scan();
-        final String[] includedFiles = dirScan.getIncludedFiles();
+        final var includedFiles = scanFiles(openLSourceDir, includes, getExcludes());
 
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
@@ -227,12 +224,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             final boolean itselfLink = outputFile.equals(dependencyLib);
 
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
-                if (addDefaultManifest || manifestEntries != null) {
-                    Manifest manifest = createManifest();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    manifest.write(baos);
-                    arch.addFile(baos.toByteArray(), JarFile.MANIFEST_NAME);
-                }
+                writeManifest(arch);
 
                 if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
                     ProjectPackager.addOpenLProject(classesDirectory, arch);
@@ -258,6 +250,8 @@ public final class PackageMojo extends BaseOpenLMojo {
                 project.getArtifact().setFile(outputFile);
             }
         }
+
+        buildTestsArtifact(openLSourceDir, types);
 
         if (deploymentPackage != null) {
             warn("Parameter 'deploymentPackage' is deprecated and has no effect. " +
@@ -378,12 +372,13 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private String[] getExcludes() {
-        ArrayList<String> strings = new ArrayList<>(excludes.length + 2);
+        var strings = new ArrayList<String>(excludes.length + 4);
         Collections.addAll(strings, excludes);
 
-        final String targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
+        final var targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
         strings.add(targetDir);
         strings.add("pom.xml");
+        strings.add("tests/**");
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
@@ -392,6 +387,45 @@ public final class PackageMojo extends BaseOpenLMojo {
         return rulesDeploy != null
                 && rulesDeploy.getPublishers() != null
                 && rulesDeploy.getPublishers().length == 0;
+    }
+
+    private static String[] scanFiles(File basedir, @Nullable String[] includes, @Nullable String[] excludes) {
+        var scanner = new DirectoryScanner();
+        scanner.setBasedir(basedir);
+        scanner.setIncludes(includes);
+        scanner.setExcludes(excludes);
+        scanner.scan();
+        return scanner.getIncludedFiles();
+    }
+
+    private void writeManifest(ZipArchiver arch) throws IOException {
+        if (addDefaultManifest || manifestEntries != null) {
+            var manifest = createManifest();
+            var baos = new ByteArrayOutputStream();
+            manifest.write(baos);
+            arch.addFile(baos.toByteArray(), JarFile.MANIFEST_NAME);
+        }
+    }
+
+    private void buildTestsArtifact(File openLSourceDir, String[] types) throws Exception {
+        var testsFiles = scanFiles(openLSourceDir, new String[]{"tests/**"}, null);
+        if (testsFiles.length == 0) {
+            debug("No files found under 'tests/' folder, skipping tests artifact.");
+            return;
+        }
+
+        var basePath = openLSourceDir.toPath();
+        for (String type : types) {
+            var outputFile = getOutputFile(outputDirectory, finalName, TESTS_CLASSIFIER, type);
+            try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+                writeManifest(arch);
+                for (String file : testsFiles) {
+                    arch.addFile(basePath.resolve(file), file);
+                }
+            }
+            info("Attaching the tests artifact '", outputFile, ",");
+            projectHelper.attachArtifact(project, type, TESTS_CLASSIFIER, outputFile);
+        }
     }
 
 }
