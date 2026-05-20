@@ -133,7 +133,13 @@
                         <maven.compiler.release>21</maven.compiler.release>
                     </properties>
                     <showErrors>true</showErrors>
-                    <mavenOpts>-ea ${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
+                    <!-- `@{jacoco.argLine}` (late-bound by maven-invoker-plugin) rather than `${...}` so the
+                         agent flag survives Maven model interpolation. The no-sonar profile declares an
+                         empty `<jacoco.argLine/>` default (so Surefire's `@{jacoco.argLine}` interpolates
+                         safely when JaCoCo isn't enabled), and Maven would otherwise substitute that empty
+                         value into the model before `prepare-agent-integration` runs, dropping the agent
+                         from MAVEN_OPTS. -->
+                    <mavenOpts>-ea @{jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
                     <scriptVariables>
                         <noPerf>${invoker.noPerf}</noPerf>
                     </scriptVariables>
