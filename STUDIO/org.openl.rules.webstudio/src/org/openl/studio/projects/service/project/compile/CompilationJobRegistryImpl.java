@@ -28,8 +28,8 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
  * polling.
  *
  * <p>{@link #find(ProjectIdModel, String)} additionally adopts compilations initiated
- * outside of {@link #acquire(ProjectIdModel, ProjectModel)} — e.g. legacy JSF flows
- * (Project Tree → {@code WebStudio.init} → {@code setModuleInfo}) that drive
+ * outside of {@link #acquire(ProjectIdModel, ProjectModel)} — JSF flows
+ * (Project Tree → {@code WebStudio.init} → {@code setModuleInfo}) drive
  * {@link ProjectModel#compileProject(boolean, boolean)} directly without going through
  * the REST {@code openProject} path. Such compilations register a {@code RegisteredCompilation}
  * on the model; if the WebStudio session's current project matches the requested

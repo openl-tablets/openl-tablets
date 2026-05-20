@@ -4,6 +4,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * @deprecated superseded by {@code ProjectStatusViewModel.compilation}
+ *             ({@code CompilationDetails}) exposed via {@code GET /projects/{projectId}/status}.
+ *             Will be removed together with {@code WorkspaceCompileController}.
+ */
+@Deprecated(forRemoval = true)
 public class CompileModuleInfo {
 
     private final String dataType;

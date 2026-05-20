@@ -38,6 +38,12 @@ public class WorkspaceCompileController {
 
     private static final int MAX_PROBLEMS = 100;
 
+    /**
+     * @deprecated superseded by {@code GET /projects/{projectId}/status} which exposes the
+     *             same data via {@code ProjectStatusViewModel.compilation}
+     *             ({@code CompilationDetails}). Will be removed in a future release.
+     */
+    @Deprecated(forRemoval = true)
     @Operation(summary = "compile.get-compile.summary", description = "compile.get-compile.desc")
     @GetMapping("progress/{messageId}/{messageIndex}")
     public CompileModuleInfo getCompile(
@@ -105,6 +111,13 @@ public class WorkspaceCompileController {
         return response.build();
     }
 
+    /**
+     * @deprecated total test count is now part of
+     *             {@code ProjectStatusViewModel.compilation.tests.total} returned by
+     *             {@code GET /projects/{projectId}/status}. Will be removed in a future
+     *             release.
+     */
+    @Deprecated(forRemoval = true)
     @Operation(summary = "compile.tests.summary", description = "compile.tests.desc")
     @GetMapping("tests")
     public ModuleTestsInfo tests() {
@@ -122,6 +135,13 @@ public class WorkspaceCompileController {
         return response.build();
     }
 
+    /**
+     * @deprecated whether project compilation is in progress is now derivable from
+     *             {@code ProjectStatusViewModel.compileState} (returned by
+     *             {@code GET /projects/{projectId}/status}): the {@code COMPILING} value
+     *             corresponds to {@code !project()}. Will be removed in a future release.
+     */
+    @Deprecated(forRemoval = true)
     @Operation(summary = "compile.project.summary", description = "compile.project.desc")
     @GetMapping("project")
     public boolean project() {

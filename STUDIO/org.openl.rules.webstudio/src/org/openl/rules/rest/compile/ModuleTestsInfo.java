@@ -1,5 +1,12 @@
 package org.openl.rules.rest.compile;
 
+/**
+ * @deprecated test count is now exposed via
+ *             {@code ProjectStatusViewModel.compilation.tests}
+ *             ({@code CompilationTests.total}) on {@code GET /projects/{projectId}/status}.
+ *             Will be removed together with {@code WorkspaceCompileController}.
+ */
+@Deprecated(forRemoval = true)
 public class ModuleTestsInfo {
 
     private final int count;

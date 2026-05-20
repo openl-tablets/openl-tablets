@@ -98,8 +98,6 @@ import org.openl.util.StringUtils;
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
-    private static final Comparator<MessageDescription> MESSAGE_DESCRIPTION_COMPARATOR = Comparator.comparing(MessageDescription::severity)
-            .thenComparing(MessageDescription::id);
 
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -113,6 +111,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableWritersFactory tableWritersFactory;
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
+    private final MessageDescriptionMapper messageDescriptionMapper;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -128,7 +127,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableWritersFactory tableWritersFactory,
             ApplicationEventPublisher eventPublisher,
             ProtectedBranchBypassService bypassService,
-            ProjectIdentifierMapper projectIdentifierMapper) {
+            ProjectIdentifierMapper projectIdentifierMapper,
+            MessageDescriptionMapper messageDescriptionMapper) {
         super(designRepositoryAclService, projectIdentifierMapper);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -142,6 +142,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableWritersFactory = tableWritersFactory;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
+        this.messageDescriptionMapper = messageDescriptionMapper;
     }
 
     @Lookup
@@ -671,11 +672,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private List<MessageDescription> mapMessages(Map<Severity, List<OpenLMessage>> messages) {
-        return messages.values().stream()
-                .flatMap(Collection::stream)
-                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                .sorted(MESSAGE_DESCRIPTION_COMPARATOR)
-                .toList();
+        return messageDescriptionMapper.mapSorted(
+                messages.values().stream().flatMap(Collection::stream).toList());
     }
 
     /**
