@@ -493,6 +493,73 @@ class ProjectDescriptorTest {
     }
 
     @Test
+    void testReadSkipsBlankAndMissingClasspathEntries() throws Exception {
+        var xml = """
+                <project>
+                    <name>p</name>
+                    <classpath>
+                        <entry/>
+                        <entry path=""/>
+                        <entry path="   "/>
+                        <entry path="lib/*.jar"/>
+                        <entry path="  lib/extra.jar  "/>
+                    </classpath>
+                </project>
+                """;
+        var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertNotNull(pd);
+        assertEquals(2, pd.getClasspath().size());
+        assertEquals("lib/*.jar", pd.getClasspath().get(0));
+        assertEquals("lib/extra.jar", pd.getClasspath().get(1));
+    }
+
+    @Test
+    void testReadBlankClasspathEntriesDoesNotBreakClassPathUrlsResolution() throws Exception {
+        var xml = """
+                <project>
+                    <name>p</name>
+                    <classpath>
+                        <entry/>
+                        <entry path="   "/>
+                    </classpath>
+                </project>
+                """;
+        var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        pd.setProjectFolder(Path.of("."));
+        // Should not throw NPE inside processClasspathPathPatterns
+        assertNotNull(pd.getClassPathUrls());
+    }
+
+    @Test
+    void testReadTrimsRulesRootPathAttribute() throws Exception {
+        var xml = """
+                <project>
+                    <name>p</name>
+                    <modules>
+                        <module>
+                            <name>m1</name>
+                            <rules-root path="  rules/A.xlsx  "/>
+                        </module>
+                        <module>
+                            <name>m-blank</name>
+                            <rules-root path="   "/>
+                        </module>
+                        <module>
+                            <name>m-empty</name>
+                            <rules-root path=""/>
+                        </module>
+                    </modules>
+                </project>
+                """;
+        var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertNotNull(pd);
+        assertEquals(3, pd.getModules().size());
+        assertEquals("rules/A.xlsx", pd.getModules().get(0).getRulesRootPath());
+        assertNull(pd.getModules().get(1).getRulesRootPath());
+        assertNull(pd.getModules().get(2).getRulesRootPath());
+    }
+
+    @Test
     void testWriteOmitsEmptyMethodFilterOnValidModule() throws Exception {
         Module module = new Module();
         module.setName("  ");

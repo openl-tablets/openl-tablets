@@ -2,6 +2,7 @@ package org.openl.rules.project.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -71,6 +72,56 @@ class RulesDeployTest {
         assertEquals(2, rulesDeploy.getPublishers().length);
         assertEquals(PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
         assertEquals(PublisherType.KAFKA, rulesDeploy.getPublishers()[1]);
+    }
+
+    @Test
+    void testPublisherTypeAdapterHandlesNullAndBlankInput() throws Exception {
+        var adapter = new RulesDeploy.PublisherTypeXmlAdapter();
+        assertNull(adapter.unmarshal(null));
+        assertNull(adapter.unmarshal(""));
+        assertNull(adapter.unmarshal("   "));
+        assertNull(adapter.unmarshal("\n\t"));
+    }
+
+    @Test
+    void testReadConfigurationSkipsMalformedEntries() throws Exception {
+        var xml = """
+                <rules-deploy>
+                    <configuration>
+                        <entry/>
+                        <entry>
+                            <string>orphanKey</string>
+                        </entry>
+                        <entry>
+                            <string>k</string>
+                            <string>v</string>
+                        </entry>
+                    </configuration>
+                </rules-deploy>
+                """;
+        var rulesDeploy = RulesDeploy.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertNotNull(rulesDeploy);
+        assertNotNull(rulesDeploy.getConfiguration());
+        assertEquals(Map.of("k", "v"), rulesDeploy.getConfiguration());
+    }
+
+    @Test
+    void testReadSkipsBlankAndMissingPublisherValues() throws Exception {
+        var xml = """
+                <rules-deploy>
+                    <publishers>
+                        <publisher/>
+                        <publisher></publisher>
+                        <publisher>   </publisher>
+                        <publisher>RESTFUL</publisher>
+                    </publishers>
+                </rules-deploy>
+                """;
+        var rulesDeploy = RulesDeploy.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertNotNull(rulesDeploy);
+        assertNotNull(rulesDeploy.getPublishers());
+        assertEquals(1, rulesDeploy.getPublishers().length);
+        assertEquals(PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
     }
 
     @Test

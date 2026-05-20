@@ -573,7 +573,10 @@ public class ProjectDescriptor {
             }
             var result = new ArrayList<String>(v.entry.size());
             for (var e : v.entry) {
-                result.add(e.path);
+                var path = StringUtils.trimToNull(e.path);
+                if (path != null) {
+                    result.add(path);
+                }
             }
             return result;
         }
