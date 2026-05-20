@@ -1,0 +1,4 @@
+<rules-deploy>
+    <!-- Library project: do not publish. The packaging plugin must therefore skip the deployment artifact. -->
+    <publishers/>
+</rules-deploy>
