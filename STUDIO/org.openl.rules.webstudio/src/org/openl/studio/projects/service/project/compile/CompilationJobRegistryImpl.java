@@ -66,7 +66,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 
     @Override
     @NotNull
-    public CompilationJob acquire(@NotNull ProjectIdModel projectId, @NotNull ProjectModel model) {
+    public synchronized CompilationJob acquire(@NotNull ProjectIdModel projectId, @NotNull ProjectModel model) {
         var previous = ref.get();
         if (previous != null && previous.canReuse(projectId, model)) {
             return previous.job();
@@ -74,16 +74,15 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
         if (previous != null && !previous.job().isFinished()) {
             previous.job().future().cancel(false);
         }
-        var entry = new Entry(projectId,
-                model.getProject().getBranch(),
-                new CompilationJobImpl(model));
+        var branch = model.getProject().getBranch();
+        var entry = new Entry(projectId, branch, new CompilationJobImpl(model));
         ref.set(entry);
         return entry.job();
     }
 
     @Override
     @NotNull
-    public Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch) {
+    public synchronized Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch) {
         var entry = ref.get();
         if (entry != null
                 && entry.projectId().equals(projectId)
@@ -117,6 +116,8 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
         if (model == null || model.getCurrentCompilation() == null) {
             return Optional.empty();
         }
-        return Optional.of(new CompilationJobImpl(model));
+        var entry = new Entry(projectId, branch, new CompilationJobImpl(model));
+        ref.set(entry);
+        return Optional.of(entry.job());
     }
 }

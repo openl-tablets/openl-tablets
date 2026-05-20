@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,7 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.MessageDescriptionMapper;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
-import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
-import org.openl.studio.projects.service.project.compile.CompilationStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +44,17 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     @Override
     public ProjectStatusViewModel map(RulesProject project) {
+        // Read-only check: do not initiate any compilation. The status endpoint must only
+        // report whatever is already registered in the session-scoped compilation registry.
+        var projectId = projectIdentifierMapper.map(project);
+        var model = compilationJobRegistry.find(projectId, project.getBranch())
+                .map(job -> job.project())
+                .orElse(null);
+        return map(project, model);
+    }
+
+    @Override
+    public ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model) {
         var projectId = projectIdentifierMapper.map(project);
         var builder = ProjectStatusViewModel.builder()
                 .projectId(projectId);
@@ -55,16 +65,12 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             Optional.ofNullable(fileData.getVersion()).ifPresent(builder::revision);
             builder.lastModifiedBy(mapLastModifiedBy(fileData));
         });
-        // Read-only check: do not initiate any compilation. The status endpoint must only
-        // report whatever is already registered in the session-scoped compilation registry.
-        var compilation = compilationJobRegistry.find(projectId, project.getBranch()).orElse(null);
-        if (compilation == null) {
+        if (model == null) {
             builder.compileState(CompileState.IDLE);
         } else {
-            var projectModel = compilation.project();
-            var moduleMessages = projectModel.getModuleMessages();
-            builder.compileState(deriveCompileState(compilation, projectModel, moduleMessages));
-            builder.compilation(mapCompilationDetails(projectModel, moduleMessages));
+            var moduleMessages = model.getModuleMessages();
+            builder.compileState(deriveCompileState(model, moduleMessages));
+            builder.compilation(mapCompilationDetails(model, moduleMessages));
         }
         builder.pendingChanges(pendingChangesResolver.resolve(project));
         return builder.build();
@@ -82,14 +88,9 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         return authorBuilder.build();
     }
 
-    private CompileState deriveCompileState(CompilationJob compilation,
-                                            ProjectModel projectModel,
+    private CompileState deriveCompileState(ProjectModel projectModel,
                                             Collection<OpenLMessage> messages) {
-        var status = compilation.status();
-        if (status == CompilationStatus.PENDING || status == CompilationStatus.RUNNING) {
-            return CompileState.COMPILING;
-        }
-        if (!isCompilationCompleted(projectModel)) {
+        if (projectModel.isCompilationInProgress() || !isCompilationCompleted(projectModel)) {
             return CompileState.COMPILING;
         }
         var hasWarnings = false;

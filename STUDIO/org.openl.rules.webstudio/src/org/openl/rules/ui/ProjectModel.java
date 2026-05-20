@@ -1208,6 +1208,10 @@ public class ProjectModel {
                 }
             }
         }
+        if (!dependencyLoader.isProjectLoader()) {
+            // A single module within the current cycle just finished — re-publish status.
+            publishStatusChanged();
+        }
     }
 
     private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
@@ -1276,6 +1280,7 @@ public class ProjectModel {
                 // Single-module compile already finished synchronously above. Register a fresh
                 // completed cycle so external observers see a new identity for this compilation.
                 this.currentCompilation = RegisteredCompilation.completed(++this.compilationCycleCounter);
+                publishStatusChanged();
             }
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
@@ -1294,6 +1299,10 @@ public class ProjectModel {
             this.projectCompilationCompleted = null;
             cycle = new RegisteredCompilation(++this.compilationCycleCounter);
             this.currentCompilation = cycle;
+            // Guarantee a terminal "compilation done" event fires regardless of what happens
+            // inside the async callback — whenComplete is invoked synchronously on whichever
+            // thread completes the cycle's future.
+            cycle.future().whenComplete((ignored, throwable) -> publishStatusChanged());
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
                 Throwable failure = null;
@@ -1319,12 +1328,35 @@ public class ProjectModel {
                 }
             });
         }
+        publishStatusChanged();
         if (sync) {
             try {
                 countDownLatch.await();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    /**
+     * Publishes a {@link ProjectStatusChangedEvent} so external observers (e.g. the
+     * WebSocket status publisher) can re-render the project status view. Captures the
+     * current project and user name at publish time so the listener doesn't depend on
+     * thread-bound context.
+     */
+    private void publishStatusChanged() {
+        var publisher = studio.getEventPublisher();
+        if (publisher == null) {
+            return;
+        }
+        try {
+            var project = getProject();
+            if (project == null) {
+                return;
+            }
+            publisher.publishEvent(new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername()));
+        } catch (RuntimeException e) {
+            log.debug("Failed to publish project status changed event", e);
         }
     }
 

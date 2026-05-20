@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -23,6 +24,8 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_TABLES_TESTS = "/topic/projects/%s/tables/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TRACE = "/topic/projects/%s/tables/%s/trace";
     private static final String TOPIC_PROJECTS_TABLES_RUN = "/topic/projects/%s/tables/%s/run";
+    private static final String TOPIC_PROJECTS_STATUS = "/topic/projects/%s/status";
+    private static final String TOPIC_PROJECTS_BRANCHES_STATUS = "/topic/projects/%s/branches/%s/status";
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -138,6 +141,34 @@ public class ProjectSocketNotificationService {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
                 java.util.Map.of("status", "ERROR", "message", errorMessage));
+    }
+
+    /**
+     * Notifies user about a project status change by sending the full
+     * {@link org.openl.studio.projects.model.project.status.ProjectStatusViewModel}.
+     *
+     * <p>Destination depends on whether the project supports branches:
+     * <ul>
+     *   <li>branch present → {@code /topic/projects/{projectId}/branches/{branch}/status}</li>
+     *   <li>branch absent  → {@code /topic/projects/{projectId}/status}</li>
+     * </ul>
+     *
+     * @param userName  destination user (captured from {@code SecurityContext} at the
+     *                  call site so async callbacks can still target the right user)
+     * @param projectId target project identifier
+     * @param branch    branch name; {@code null}/blank for repositories without branch
+     *                  support (the topic then omits the {@code /branches/...} segment)
+     * @param status    full status view to push
+     */
+    public void notifyProjectStatus(String userName,
+                                    ProjectIdModel projectId,
+                                    String branch,
+                                    ProjectStatusViewModel status) {
+        var encodedProjectId = encodePathSegment(projectId.encode());
+        var destination = branch == null || branch.isBlank()
+                ? TOPIC_PROJECTS_STATUS.formatted(encodedProjectId)
+                : TOPIC_PROJECTS_BRANCHES_STATUS.formatted(encodedProjectId, encodePathSegment(branch));
+        messagingTemplate.convertAndSendToUser(userName, destination, status);
     }
 
     private String encodePathSegment(String segment) {

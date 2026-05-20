@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ValidationException;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -180,6 +181,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final Set<String> frozenProjects = Collections.synchronizedSet(new HashSet<>());
     private boolean needRedirect;
 
+    @Getter
     private final ApplicationEventPublisher eventPublisher;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProtectedBranchBypassService bypassService;
