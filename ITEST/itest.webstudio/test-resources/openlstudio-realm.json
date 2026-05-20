@@ -1214,6 +1214,19 @@
             "claim.name": "clientHost",
             "jsonType.label": "String"
           }
+        },
+        {
+          "id": "b2f4c9d3-7a1e-4f8b-9c2d-3e5a6b7c8d9e",
+          "name": "openlstudio audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "openlstudio",
+            "introspection.token.claim": "true",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
         }
       ],
       "defaultClientScopes": [
