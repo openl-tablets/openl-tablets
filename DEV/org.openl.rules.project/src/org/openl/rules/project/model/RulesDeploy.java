@@ -138,8 +138,11 @@ public class RulesDeploy {
     public static class PublisherTypeXmlAdapter extends XmlAdapter<String, PublisherType> {
         @Override
         public PublisherType unmarshal(String name) {
+            if (StringUtils.isBlank(name)) {
+                return null;
+            }
             try {
-                return PublisherType.valueOf(name.toUpperCase(Locale.ROOT));
+                return PublisherType.valueOf(name.trim().toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException e) {
                 return null;
             }
@@ -180,8 +183,15 @@ public class RulesDeploy {
         @Override
         public Map<String, Object> unmarshal(MapType arg0) {
             HashMap<String, Object> hashMap = new HashMap<>();
+            if (arg0 == null || arg0.entry == null) {
+                return hashMap;
+            }
             for (MapStringEntryType myEntryType : arg0.entry) {
-                hashMap.put(myEntryType.getString()[0], myEntryType.getString()[1]);
+                var pair = myEntryType.getString();
+                if (pair == null || pair.length < 2 || pair[0] == null) {
+                    continue;
+                }
+                hashMap.put(pair[0], pair[1]);
             }
             return hashMap;
         }

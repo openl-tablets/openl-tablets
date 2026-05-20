@@ -91,7 +91,7 @@ public class Module {
     static class RulesRootPathAdapter extends XmlAdapter<RulesRootPathXml, String> {
         @Override
         public String unmarshal(RulesRootPathXml v) {
-            return v == null ? null : v.path;
+            return v == null ? null : StringUtils.trimToNull(v.path);
         }
 
         @Override
