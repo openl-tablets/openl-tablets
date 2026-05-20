@@ -7,8 +7,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
+import org.jspecify.annotations.NonNull;
 
 import org.openl.util.formatters.FileNameFormatter;
 
@@ -57,10 +61,56 @@ public final class ZipArchiver implements Closeable {
         IOUtils.copy(inputStream, zos, buffer);
     }
 
+    public void addFile(byte[] data, String path) throws IOException {
+        var zipPath = FileNameFormatter.normalizePath(path);
+        var entry = new ZipEntry(zipPath);
+        zos.putNextEntry(entry);
+        zos.write(data);
+    }
+
     public void addFolder(String path) throws IOException {
         String zipPath = FileNameFormatter.normalizePath(path + File.separatorChar);
         ZipEntry entry = new ZipEntry(zipPath);
         zos.putNextEntry(entry);
+    }
+
+    /**
+     * Copy all entries from the given source ZIP into this archive, prefixing each entry name with {@code prefix}.
+     *
+     * @param sourceZip path to the source ZIP file
+     * @param prefix    folder prefix (without trailing slash) under which the source entries will be placed
+     */
+    public void addZipEntries(File sourceZip, String prefix) throws IOException {
+        addZipEntries(sourceZip, prefix, name -> true);
+    }
+
+    /**
+     * Copy entries from the given source ZIP into this archive, prefixing each entry name with {@code prefix}.
+     * Entries whose original name does not satisfy {@code entryNameFilter} are skipped.
+     *
+     * @param sourceZip       path to the source ZIP file
+     * @param prefix          folder prefix (without trailing slash) under which the source entries will be placed
+     * @param entryNameFilter predicate evaluated against the original entry name; entries returning {@code false} are skipped
+     */
+    public void addZipEntries(@NonNull File sourceZip, @NonNull String prefix, @NonNull Predicate<String> entryNameFilter) throws IOException {
+        var normalizedPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
+        try (var source = new ZipFile(sourceZip)) {
+            var entries = source.entries();
+            while (entries.hasMoreElements()) {
+                var entry = entries.nextElement();
+                if (entry.isDirectory() || !entryNameFilter.test(entry.getName())) {
+                    continue;
+                }
+                var zipPath = FileNameFormatter.normalizePath(normalizedPrefix + entry.getName());
+                if (!zipPath.startsWith(normalizedPrefix)) {
+                    throw new SecurityException("Zip Slip vulnerability detected! Invalid entry: " + entry.getName());
+                }
+                zos.putNextEntry(new ZipEntry(zipPath));
+                try (InputStream is = source.getInputStream(entry)) {
+                    is.transferTo(zos);
+                }
+            }
+        }
     }
 
     @Override

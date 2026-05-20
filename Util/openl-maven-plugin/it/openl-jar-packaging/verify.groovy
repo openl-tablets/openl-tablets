@@ -48,8 +48,11 @@ try {
         assert fileNames.contains('openl-jar-packaging-openl-simple/META-INF/MANIFEST.MF')
         assert fileNames.contains('openl-jar-packaging-openl-simple/rules/SimpleRules.xlsx')
         assert fileNames.contains('openl-jar-packaging-openl-simple/com/example/MyBean.class')
+        // Stub rules-deploy.xml with empty <publishers/> is injected for the dependency
+        assert fileNames.contains('openl-jar-packaging-openl-simple/rules-deploy.xml')
+        assert zf.getInputStream(zf.getEntry('openl-jar-packaging-openl-simple/rules-deploy.xml')).text.contains('<publishers/>')
         // There must be no extra files
-        assert zf.entries().findAll { !it.directory }.size() == 9
+        assert zf.entries().findAll { !it.directory }.size() == 10
     }
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')

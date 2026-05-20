@@ -53,9 +53,12 @@ try {
         assert fileNames.contains('openl-child-dependency/META-INF/MANIFEST.MF')
         assert fileNames.contains('openl-child-dependency/Project2-Main.xlsx')
         assert fileNames.contains('openl-child-dependency/Child-Test.xlsx')
+        // Stub rules-deploy.xml with empty <publishers/> is injected for the dependency
+        assert fileNames.contains('openl-child-dependency/rules-deploy.xml')
+        assert zf.getInputStream(zf.getEntry('openl-child-dependency/rules-deploy.xml')).text.contains('<publishers/>')
 
         // There must be no extra jar
-        assert zf.entries().findAll { !it.directory }.size() == 9
+        assert zf.entries().findAll { !it.directory }.size() == 10
     }
 
     rulesArchive = parentProjectZips.find { it.name == "openl-parent-project-0.0.0.zip" }

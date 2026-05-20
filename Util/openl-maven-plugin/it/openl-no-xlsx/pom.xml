@@ -10,6 +10,7 @@
     <modules>
         <module>no-xlsx-common</module>
         <module>service</module>
+        <module>silent-consumer</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -25,9 +25,6 @@
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <configuration>
-                    <deploymentPackage>true</deploymentPackage>
-                </configuration>
             </plugin>
         </plugins>
     </build>

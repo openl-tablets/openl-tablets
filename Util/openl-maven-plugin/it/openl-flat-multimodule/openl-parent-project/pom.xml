@@ -38,7 +38,6 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <deploymentPackage>true</deploymentPackage>
                     <excludes>
                         <exclude>*-Test.xlsx</exclude>
                         <exclude>**/resources/*</exclude>

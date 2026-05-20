@@ -1,9 +1,9 @@
 package org.openl.rules.maven;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,12 +29,11 @@ import org.codehaus.plexus.util.DirectoryScanner;
 
 import org.openl.info.OpenLVersion;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
 import org.openl.util.ProjectPackager;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipArchiver;
-import org.openl.util.ZipUtils;
 
 /**
  * Packages an OpenL Tablets project in a ZIP archive.
@@ -49,6 +48,12 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     static final String DEPLOYMENT_CLASSIFIER = "deployment";
+
+    private static final byte[] EMPTY_PUBLISHERS_RULES_DEPLOY = """
+            <rules-deploy>
+                <publishers/>
+            </rules-deploy>
+            """.getBytes(StandardCharsets.UTF_8);
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -99,11 +104,13 @@ public final class PackageMojo extends BaseOpenLMojo {
     private int dependenciesThreshold;
 
     /**
-     * Parameter that enables deployed zip generation. This zip includes an exploded main OpenL Tablets project and all
-     * dependent OpenL Tablets projects located in separated folders inside the archive.
+     * @deprecated The parameter has no effect and will be removed in a future release. Each dependent OpenL project's
+     * {@code rules-deploy.xml} is always replaced with a stub that declares empty {@code <publishers/>}, suppressing
+     * publication of the dependency — only the main project is published as a service.
      */
-    @Parameter(defaultValue = "false")
-    private boolean deploymentPackage;
+    @Deprecated(forRemoval = true)
+    @Parameter
+    private Boolean deploymentPackage;
 
     /**
      * Deployment archive name.
@@ -224,7 +231,7 @@ public final class PackageMojo extends BaseOpenLMojo {
                     Manifest manifest = createManifest();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     manifest.write(baos);
-                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                    arch.addFile(baos.toByteArray(), JarFile.MANIFEST_NAME);
                 }
 
                 if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
@@ -252,35 +259,54 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
         }
 
-        if (deploymentPackage && (openLJarPackaging || "openl".equals(packaging))) {
-            File outputDeploymentDir = new File(outputDirectory, finalName + "-" + DEPLOYMENT_CLASSIFIER);
-            if (outputDeploymentDir.isDirectory()) {
-                info("Cleaning up '", outputDeploymentDir, "' directory...");
-                FileUtils.delete(outputDeploymentDir.toPath());
-            }
-            outputDeploymentDir.mkdir();
-            Set<Artifact> openLDependencies = getDependentOpenLProjects();
-            for (Artifact openLArtifact : openLDependencies) {
-                if (isRuntimeScope(openLArtifact.getScope())) {
-                    debug("ADD : ", openLArtifact);
-                    File artifactFile = openLArtifact.getFile();
-                    unpackZip(outputDeploymentDir, openLArtifact.getArtifactId(), artifactFile);
-                }
-            }
-            unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
-
-            YamlMapperFactory.getYamlMapper().writeValue(new File(outputDeploymentDir, DEPLOYMENT_YAML), Map.of("name", deploymentName));
-
-            final String artifactType = getFormats()[0];
-            File outputFile = getOutputFile(outputDirectory,
-                    deploymentName,
-                    DEPLOYMENT_CLASSIFIER,
-                    artifactType);
-            ZipUtils.archive(outputDeploymentDir, outputFile);
-
-            info("Attaching the deployment artifact '", outputFile, ",");
-            projectHelper.attachArtifact(project, artifactType, DEPLOYMENT_CLASSIFIER, outputFile);
+        if (deploymentPackage != null) {
+            warn("Parameter 'deploymentPackage' is deprecated and has no effect. " +
+                    "Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers " +
+                    "to suppress their publication.");
         }
+
+        Set<Artifact> openLDependencies = getDependentOpenLProjects();
+        if ((openLJarPackaging || "openl".equals(packaging)) && !openLDependencies.isEmpty()) {
+            if (hasEmptyPublishers(openLSourceDir)) {
+                info("Project's '", RulesDeploy.FILE_NAME,
+                        "' declares empty <publishers/>; skipping the deployment artifact.");
+            } else {
+                atachDeploymentArtifact(openLDependencies);
+            }
+        }
+    }
+
+    private void atachDeploymentArtifact(Set<Artifact> openLDependencies) throws IOException {
+        final String artifactType = getFormats()[0];
+        File outputFile = getOutputFile(outputDirectory,
+                deploymentName,
+                DEPLOYMENT_CLASSIFIER,
+                artifactType);
+
+        var deploymentYamlBytes = YamlMapperFactory.getYamlMapper()
+                .writeValueAsBytes(Map.of("name", deploymentName));
+
+        try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+            // deployment.yaml must be the first entry in the archive
+            arch.addFile(deploymentYamlBytes, DEPLOYMENT_YAML);
+            var mainArtifact = project.getArtifact();
+            arch.addZipEntries(mainArtifact.getFile(), mainArtifact.getArtifactId());
+
+            for (Artifact openLArtifact : openLDependencies) {
+                if (!isRuntimeScope(openLArtifact.getScope())) {
+                    continue;
+                }
+                debug("ADD : ", openLArtifact);
+                var depArtifactId = openLArtifact.getArtifactId();
+                arch.addZipEntries(openLArtifact.getFile(),
+                        depArtifactId,
+                        name -> !RulesDeploy.FILE_NAME.equals(name));
+                arch.addFile(EMPTY_PUBLISHERS_RULES_DEPLOY, depArtifactId + "/" + RulesDeploy.FILE_NAME);
+            }
+        }
+
+        info("Attaching the deployment artifact '", outputFile, ",");
+        projectHelper.attachArtifact(project, artifactType, DEPLOYMENT_CLASSIFIER, outputFile);
     }
 
     private String[] getFormats() {
@@ -323,11 +349,6 @@ public final class PackageMojo extends BaseOpenLMojo {
         return new File(basedir, fileName.toString());
     }
 
-    private void unpackZip(File baseDir, String name, File zip) throws IOException {
-        File outDir = new File(baseDir, name);
-        ZipUtils.extractAll(zip, outDir);
-    }
-
     private Manifest createManifest() {
         Manifest manifest = new Manifest();
         Attributes attributes = manifest.getMainAttributes();
@@ -364,6 +385,13 @@ public final class PackageMojo extends BaseOpenLMojo {
         strings.add(targetDir);
         strings.add("pom.xml");
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
+    }
+
+    private static boolean hasEmptyPublishers(File openLSourceDir) {
+        var rulesDeploy = RulesDeploy.read(openLSourceDir.toPath());
+        return rulesDeploy != null
+                && rulesDeploy.getPublishers() != null
+                && rulesDeploy.getPublishers().length == 0;
     }
 
 }
