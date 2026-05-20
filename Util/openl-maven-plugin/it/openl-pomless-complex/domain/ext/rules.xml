@@ -1,0 +1,7 @@
+<project>
+    <dependencies>
+        <dependency>
+            <name>core</name>
+        </dependency>
+    </dependencies>
+</project>

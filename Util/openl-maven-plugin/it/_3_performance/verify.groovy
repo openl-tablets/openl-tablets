@@ -23,13 +23,17 @@ for (def test : folder.getParentFile().listFiles()) {
     }
 
     def poms = 0
+    def rules = 0
     test.eachFileRecurse(groovy.io.FileType.FILES) { file ->
         if (file.getName() == "pom.xml") {
             poms++
         }
+        if (file.getName() == "rules.xml") {
+            rules++
+        }
     }
 
-    def timeout = poms * 5 + 10 // 5 seconds per file plus 10 seconds over
+    def timeout = (poms > rules ? poms : rules) * 5 + 10 // 5 seconds per file plus 10 seconds over
     def timeoutPlus = props.getProperty("openl.perf.timeoutPlus")
     if (timeoutPlus != null) {
         timeout += Integer.parseInt(timeoutPlus)
@@ -41,7 +45,7 @@ for (def test : folder.getParentFile().listFiles()) {
 
     props.setProperty("invoker.timeoutInSeconds", timeout.toString())
 
-    var text = ("  Timeout: " + timeout + " for " + poms + " pom.xml files and clock=" + clock + "ms")
+    var text = ("  Timeout: " + timeout + " for " + poms + " pom.xml and " + rules + " rules.xml files and clock=" + clock + "ms")
     println(text)
     props.store(propsFile.newOutputStream(), text)
 }

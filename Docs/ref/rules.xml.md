@@ -65,6 +65,8 @@
             <!-- If true - makes all modules of the dependency available without an explicit `Environment` table. -->
             <autoIncluded>false</autoIncluded>
             <!-- Maven coordinates of the dependent project; will be resolved if absent locally. -->
+            <!-- In pom-less mode (see openl-maven-plugin.md) this becomes a real Maven dependency; -->
+            <!-- when omitted, the participant tries to match <name> against sibling pom-less projects. -->
             <mavenArtifact>com.example:shared-data-project:1.0.0</mavenArtifact>
         </dependency>
     </dependencies>

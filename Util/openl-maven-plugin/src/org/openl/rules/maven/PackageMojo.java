@@ -48,7 +48,8 @@ import org.openl.util.ZipArchiver;
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
-    static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    /** Classifier of the auto-attached deployment artifact; consumed by {@code PrepareDeploymentBomMojo}. */
+    public static final String DEPLOYMENT_CLASSIFIER = "deployment";
     private static final String TESTS_CLASSIFIER = "tests";
 
     private static final byte[] EMPTY_PUBLISHERS_RULES_DEPLOY = """
@@ -208,7 +209,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
             throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
-        final boolean openLJarPackaging = packaging.equals("openl-jar");
+        final boolean openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
             dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
@@ -260,8 +261,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
 
         Set<Artifact> openLDependencies = getDependentOpenLProjects();
-        if ((openLJarPackaging || "openl".equals(packaging)) && !openLDependencies.isEmpty()) {
-            if (hasEmptyPublishers(openLSourceDir)) {
+        if (OpenLPackagings.isOpenL(packaging) && !openLDependencies.isEmpty()) {
+            if (OpenLPackagings.hasEmptyPublishers(openLSourceDir.toPath())) {
                 info("Project's '", RulesDeploy.FILE_NAME,
                         "' declares empty <publishers/>; skipping the deployment artifact.");
             } else {
@@ -305,8 +306,8 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private String[] getFormats() {
         return switch (packaging) {
-            case "openl" -> new String[]{"zip"};
-            case "openl-jar" -> new String[]{"jar"};
+            case OpenLPackagings.OPENL_PACKAGING -> new String[]{OpenLPackagings.ZIP_DEPENDENCY_TYPE};
+            case OpenLPackagings.OPENL_JAR_PACKAGING -> new String[]{OpenLPackagings.JAR_DEPENDENCY_TYPE};
             default -> StringUtils.split(format, ',');
         };
     }
@@ -372,7 +373,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private String[] getExcludes() {
-        var strings = new ArrayList<String>(excludes.length + 4);
+        var strings = new ArrayList<String>(excludes.length + 3);
         Collections.addAll(strings, excludes);
 
         final var targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
@@ -380,13 +381,6 @@ public final class PackageMojo extends BaseOpenLMojo {
         strings.add("pom.xml");
         strings.add("tests/**");
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
-    }
-
-    private static boolean hasEmptyPublishers(File openLSourceDir) {
-        var rulesDeploy = RulesDeploy.read(openLSourceDir.toPath());
-        return rulesDeploy != null
-                && rulesDeploy.getPublishers() != null
-                && rulesDeploy.getPublishers().length == 0;
     }
 
     private static String[] scanFiles(File basedir, @Nullable String[] includes, @Nullable String[] excludes) {

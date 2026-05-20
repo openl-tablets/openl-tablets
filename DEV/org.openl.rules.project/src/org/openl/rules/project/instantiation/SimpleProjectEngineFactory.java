@@ -187,6 +187,11 @@ public class SimpleProjectEngineFactory<T> {
                                       Collection<ProjectDescriptor> projectsInWorkspace) {
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor dependencyDescriptor : project.getDependencies()) {
+                if (dependencyDescriptor.getName() == null) {
+                    // A <mavenArtifact> dependency with no <name> is a plain Maven artifact (jar),
+                    // not an OpenL project in the workspace.
+                    continue;
+                }
                 for (ProjectDescriptor projectDescriptor : projectsInWorkspace) {
                     if (dependencyDescriptor.getName().equals(projectDescriptor.getName())) {
                         projectDescriptors.add(projectDescriptor);

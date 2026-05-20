@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>openl-pomless-mixed</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>OpenL Pom-less - Mixed with classic</name>
+
+    <!--
+        This reactor's top-level pom intentionally does NOT declare openl-maven-plugin. The
+        submodule 'rules-root' declares it with <extensions>true</extensions> and acts as the
+        anchor for the pom-less OpenL project at 'rules-root/deep/nested/generated/'. This proves
+        a submodule can host the extension on its own, without a top-level declaration.
+    -->
+    <modules>
+        <module>classic</module>
+        <module>rules-root</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.openl.version>@project.version@</org.openl.version>
+    </properties>
+</project>

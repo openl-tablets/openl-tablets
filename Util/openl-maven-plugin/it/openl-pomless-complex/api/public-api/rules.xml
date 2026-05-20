@@ -1,0 +1,10 @@
+<project>
+    <dependencies>
+        <dependency>
+            <name>core</name>
+            <!-- Deliberate placeholder version. The anchor's <dependencyManagement> overrides
+                 this to the real 0.0.0 reactor version when the synthesised pom is built. -->
+            <mavenArtifact>com.example.domain:core:99.99.99</mavenArtifact>
+        </dependency>
+    </dependencies>
+</project>

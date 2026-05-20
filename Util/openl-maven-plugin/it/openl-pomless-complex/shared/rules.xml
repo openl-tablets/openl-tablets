@@ -1,0 +1,19 @@
+<project>
+    <!--
+        Jar-type mavenArtifact. The synthesiser emits <optional>true</> on jar deps:
+        * 'shared' itself packages commons-text + its commons-lang3 transitive into lib/
+          (the PackageMojo lib/ filter doesn't check the optional flag).
+        * Downstream OpenL projects that depend on 'shared' do NOT inherit commons-text or
+          commons-lang3 (Maven's optional semantics block transitive propagation).
+        See verify.groovy for the assertions.
+
+        A jar <mavenArtifact> carries NO <name>/<autoIncluded> — those are OpenL (zip) project
+        concepts. OpenL's runtime dependency manager treats a name-less <mavenArtifact> as a plain
+        jar on the classpath (it is bundled into lib/), so it is not resolved as an OpenL project.
+    -->
+    <dependencies>
+        <dependency>
+            <mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>
+        </dependency>
+    </dependencies>
+</project>
