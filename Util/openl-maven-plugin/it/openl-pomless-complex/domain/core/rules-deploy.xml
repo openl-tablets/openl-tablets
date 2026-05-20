@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Empty <publishers/> intentionally: marks 'core' as not deployable.
+    PackageMojo will NOT auto-attach a *-deployment.zip (core has no OpenL deps anyway), and
+    PrepareDeploymentBomMojo must SKIP 'core' from the BOM's <dependencies> bundle section while
+    still keeping it in <dependencyManagement>. See verify.groovy section 4d.
+-->
+<rules-deploy>
+    <publishers/>
+</rules-deploy>

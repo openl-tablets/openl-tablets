@@ -1,0 +1,11 @@
+<project>
+    <dependencies>
+        <dependency>
+            <name>shared</name>
+        </dependency>
+        <dependency>
+            <name>public-api</name>
+            <mavenArtifact>com.example.api:public-api:0.0.0</mavenArtifact>
+        </dependency>
+    </dependencies>
+</project>

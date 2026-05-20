@@ -36,6 +36,7 @@
                                 org.openl.rules:openl-maven-plugin:verify
                             </verify>
                             <install>
+                                org.openl.rules:openl-maven-plugin:prepare-pom,
                                 org.apache.maven.plugins:maven-install-plugin:install
                             </install>
                             <deploy>
@@ -119,6 +120,20 @@
                 <language>java</language>
                 <addedToClasspath>true</addedToClasspath>
             </configuration>
+        </component>
+
+        <!-- Pom-less OpenL project discovery: adds rules.xml folders under the anchor to the reactor. -->
+        <component>
+            <role>org.apache.maven.AbstractMavenLifecycleParticipant</role>
+            <role-hint>openl-pomless</role-hint>
+            <implementation>org.openl.rules.maven.extension.OpenLPomlessParticipant</implementation>
+            <instantiation-strategy>singleton</instantiation-strategy>
+            <requirements>
+                <requirement>
+                    <role>org.apache.maven.project.ProjectBuilder</role>
+                    <field-name>projectBuilder</field-name>
+                </requirement>
+            </requirements>
         </component>
     </components>
 </component-set>

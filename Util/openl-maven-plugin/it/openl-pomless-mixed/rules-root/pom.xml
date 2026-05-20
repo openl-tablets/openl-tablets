@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>openl-pomless-mixed</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <!--
+        Deliberately override the inherited groupId. Pom-less projects discovered under this
+        anchor must derive coordinates from THIS groupId ('com.example.flatten'), not the
+        top-level's ('com.example'). With <flattenGroupId>true</flattenGroupId> below, the
+        'generated' project lands at com.example.flatten:generated.
+    -->
+    <groupId>com.example.flatten</groupId>
+    <artifactId>rules-root</artifactId>
+    <packaging>pom</packaging>
+    <name>Pom-less OpenL anchor (submodule only)</name>
+
+    <!--
+        This submodule is the SOLE openl-maven-plugin anchor in this reactor. The top-level pom
+        does not declare the plugin. The participant must discover this submodule and scan its
+        basedir for rules.xml folders.
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${org.openl.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- Use the submodule's groupId verbatim; don't append the deep/nested/ path. -->
+                    <flattenGroupId>true</flattenGroupId>
+                </configuration>
+            </plugin>
+
+            <!--
+                Regression guard for anchor-build inheritance: pom-less projects must inherit the
+                anchor's <build><plugins> via natural Maven parent inheritance. This antrun
+                execution is bound to generate-sources; verify.groovy asserts it ran on BOTH the
+                anchor ('rules-root') and the pom-less child ('generated'), and that
+                ${project.artifactId} interpolates against the child's effective model — not the
+                anchor's.
+            -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>anchor-plugin-propagation</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target>
+                                <echo message="ANCHOR-PLUGIN ran on artifact=${project.artifactId} group=${project.groupId}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

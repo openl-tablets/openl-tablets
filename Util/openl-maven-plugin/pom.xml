@@ -36,6 +36,14 @@
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
         </dependency>
+        <!-- Xpp3Dom lives here in plexus-utils 4.x; needed to read the anchor's <plugin>
+             configuration in OpenLPomlessParticipant. Provided at runtime by Maven itself. -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-xml</artifactId>
+            <version>3.0.2</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- dependencies to annotations -->
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>

@@ -235,6 +235,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     .forEach(dependencyLoadersForProject::add);
             if (projectDescriptor.getDependencies() != null) {
                 for (ProjectDependencyDescriptor pdd : projectDescriptor.getDependencies()) {
+                    if (pdd.getName() == null) {
+                        // A <mavenArtifact> dependency with no <name> is a plain Maven artifact (jar),
+                        // resolved via the project classpath — not an OpenL project reference.
+                        continue;
+                    }
                     IDependencyLoader dl = this.findDependencyLoader(buildResolvedDependency(pdd.getName()));
                     if (dl != null && dl.isProjectLoader() && !projectDescriptors.contains(dl.getProject())) {
                         queue.add(dl.getProject());

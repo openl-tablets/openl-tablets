@@ -1,0 +1,7 @@
+<project>
+    <dependencies>
+        <dependency>
+            <name>ext</name>
+        </dependency>
+    </dependencies>
+</project>

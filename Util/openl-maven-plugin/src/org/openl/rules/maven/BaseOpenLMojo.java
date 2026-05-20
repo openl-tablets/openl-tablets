@@ -77,6 +77,15 @@ abstract class BaseOpenLMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Pom-less OpenL projects place rules.xml at the project basedir, not at the default
+        // src/main/openl. Fall back to basedir whenever the configured sourceDirectory has no
+        // rules.xml but the basedir does.
+        var basedir = project.getBasedir();
+        if (basedir != null
+                && !new File(sourceDirectory, ProjectDescriptor.FILE_NAME).isFile()
+                && new File(basedir, ProjectDescriptor.FILE_NAME).isFile()) {
+            sourceDirectory = basedir;
+        }
         if (isDisabled()) {
             return;
         }

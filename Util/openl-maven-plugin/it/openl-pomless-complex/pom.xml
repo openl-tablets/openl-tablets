@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>openl-pomless-complex</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>OpenL Pom-less - Complex</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.openl.version>@project.version@</org.openl.version>
+    </properties>
+
+    <!-- The pom-less participant honours <dependencyManagement> from this anchor: any
+         <mavenArtifact> declared in a child rules.xml whose GA matches an entry below has its
+         version replaced by the managed one before the synthesised pom is installed. The deliberate
+         "99.99.99" placeholder in api/public-api/rules.xml is overridden to 0.0.0 by the entry
+         below; without it, the IT would fail to resolve com.example.domain:core during compile. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.example.domain</groupId>
+                <artifactId>core</artifactId>
+                <version>0.0.0</version>
+                <type>zip</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${org.openl.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
