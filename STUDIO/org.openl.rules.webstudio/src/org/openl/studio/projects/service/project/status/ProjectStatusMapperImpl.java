@@ -27,6 +27,7 @@ import org.openl.studio.projects.model.project.status.CompilationTables;
 import org.openl.studio.projects.model.project.status.CompilationTests;
 import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ModifiedBy;
+import org.openl.studio.projects.model.project.status.ModuleTablesSummary;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.MessageDescriptionMapper;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -146,9 +147,26 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         if (!isCompilationCompleted(projectModel)) {
             return null;
         }
+        var perModule = projectModel.getProjectTableCountsByModule()
+                .entrySet()
+                .stream()
+                .map(e -> ModuleTablesSummary.builder()
+                        .name(e.getKey())
+                        .total(e.getValue().total())
+                        .errors(e.getValue().errors())
+                        .build())
+                .toList();
+        // Sum the per-module summaries instead of running two more passes over all tables.
+        var total = 0;
+        var errors = 0;
+        for (var summary : perModule) {
+            total += summary.total();
+            errors += summary.errors();
+        }
         return CompilationTables.builder()
-                .total(projectModel.getProjectNumberOfTables())
-                .errors(projectModel.getProjectErrorNodesNumber())
+                .total(total)
+                .errors(errors)
+                .modules(perModule)
                 .build();
     }
 

@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.project.status;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
 
@@ -9,6 +11,10 @@ public record CompilationTables(
         int total,
 
         @Parameter(description = "Number of tables that have at least one error.")
-        int errors
+        int errors,
+
+        @Parameter(description = "Per-module table summaries, ordered by module name. "
+                + "Modules with no tables are omitted.")
+        List<ModuleTablesSummary> modules
 ) {
 }

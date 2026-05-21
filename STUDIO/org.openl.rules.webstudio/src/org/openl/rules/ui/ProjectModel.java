@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
@@ -216,15 +217,6 @@ public class ProjectModel {
 
     public synchronized int getErrorNodesNumber() {
         return countErrorNodes(Arrays.asList(getTableSyntaxNodes()));
-    }
-
-    /**
-     * Project-scope counterpart of {@link #getErrorNodesNumber()} — counts tables with
-     * {@code ERROR} messages across all modules of the current project, not just the
-     * opened module.
-     */
-    public synchronized int getProjectErrorNodesNumber() {
-        return countErrorNodes(getAllTableSyntaxNodes());
     }
 
     private int countErrorNodes(Iterable<TableSyntaxNode> nodes) {
@@ -1069,14 +1061,6 @@ public class ProjectModel {
         return countNonOtherTables(Arrays.asList(getTableSyntaxNodes()));
     }
 
-    /**
-     * Project-scope counterpart of {@link #getNumberOfTables()} — counts non-{@code OTHER}
-     * tables across all modules of the current project, not just the opened module.
-     */
-    public synchronized int getProjectNumberOfTables() {
-        return countNonOtherTables(getAllTableSyntaxNodes());
-    }
-
     private int countNonOtherTables(Collection<TableSyntaxNode> nodes) {
         int count = 0;
         for (TableSyntaxNode table : nodes) {
@@ -1085,6 +1069,75 @@ public class ProjectModel {
             }
         }
         return count;
+    }
+
+    /**
+     * Per-module table summary across the whole current project. Keys are module names
+     * (as defined in the project descriptor); values carry the non-{@code OTHER} table
+     * count and the count of tables that hold at least one {@code ERROR} message.
+     * Modules with no non-{@code OTHER} tables are omitted; entries are ordered by
+     * module name (case-insensitive).
+     */
+    public synchronized Map<String, ModuleTableCounts> getProjectTableCountsByModule() {
+        if (webStudioWorkspaceDependencyManager == null) {
+            return Map.of();
+        }
+        Collection<Pair<OpenLMessage, XlsUrlParser>> errorMessages = getModuleMessages().stream()
+                .filter(m -> m.getSeverity() == Severity.ERROR && m.getSourceLocation() != null)
+                .map(m -> Pair.of(m, new XlsUrlParser(m.getSourceLocation())))
+                .toList();
+        Map<String, ModuleTableCounts> byModule = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (IDependencyLoader loader : webStudioWorkspaceDependencyManager
+                .findAllProjectDependencyLoaders(getProjectDescriptor())) {
+            if (loader.isProjectLoader() || loader.getModule() == null
+                    || loader.getRefToCompiledDependency() == null) {
+                continue;
+            }
+            TableSyntaxNode[] moduleTables = extractModuleTables(loader);
+            int total = 0;
+            int errors = 0;
+            for (TableSyntaxNode tsn : moduleTables) {
+                if (XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType())) {
+                    continue;
+                }
+                total++;
+                if (hasError(tsn, errorMessages)) {
+                    errors++;
+                }
+            }
+            if (total == 0) {
+                continue;
+            }
+            byModule.put(loader.getModule().getName(), new ModuleTableCounts(total, errors));
+        }
+        return byModule;
+    }
+
+    private static TableSyntaxNode[] extractModuleTables(IDependencyLoader loader) {
+        IMetaInfo metaInfo = loader.getRefToCompiledDependency()
+                .getCompiledOpenClass()
+                .getOpenClassWithErrors()
+                .getMetaInfo();
+        if (metaInfo instanceof XlsMetaInfo xlsMetaInfo && xlsMetaInfo.getXlsModuleNode() != null) {
+            return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
+        }
+        return TableSyntaxNode.EMPTY_ARRAY;
+    }
+
+    private static boolean hasError(TableSyntaxNode tsn,
+                                    Collection<Pair<OpenLMessage, XlsUrlParser>> errorMessages) {
+        for (Pair<OpenLMessage, XlsUrlParser> pair : errorMessages) {
+            if (pair.getRight().intersects(tsn.getUriParser())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Per-module table counts produced by {@link #getProjectTableCountsByModule()}.
+     */
+    public record ModuleTableCounts(int total, int errors) {
     }
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
