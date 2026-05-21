@@ -2,7 +2,7 @@ package org.openl.studio.projects.service.project.status;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -12,13 +12,12 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import org.openl.message.OpenLMessage;
-import org.openl.message.Severity;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.project.status.CompilationDetails;
 import org.openl.studio.projects.model.project.status.CompilationMessages;
@@ -32,6 +31,7 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.MessageDescriptionMapper;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
+import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 
 @Service
@@ -49,7 +49,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         // report whatever is already registered in the session-scoped compilation registry.
         var projectId = projectIdentifierMapper.map(project);
         var model = compilationJobRegistry.find(projectId, project.getBranch())
-                .map(job -> job.project())
+                .map(CompilationJob::project)
                 .orElse(null);
         return map(project, model);
     }
@@ -69,9 +69,9 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         if (model == null) {
             builder.compileState(CompileState.IDLE);
         } else {
-            var moduleMessages = model.getModuleMessages();
-            builder.compileState(deriveCompileState(model, moduleMessages));
-            builder.compilation(mapCompilationDetails(model, moduleMessages));
+            var compilationStatus = model.getCompilationStatus();
+            builder.compileState(deriveCompileState(model, compilationStatus));
+            builder.compilation(mapCompilationDetails(model, compilationStatus));
         }
         builder.pendingChanges(pendingChangesResolver.resolve(project));
         return builder.build();
@@ -89,22 +89,17 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         return authorBuilder.build();
     }
 
-    private CompileState deriveCompileState(ProjectModel projectModel,
-                                            Collection<OpenLMessage> messages) {
+    private CompileState deriveCompileState(ProjectModel projectModel, ProjectCompilationStatus compilationStatus) {
         if (projectModel.isCompilationInProgress() || !isCompilationCompleted(projectModel)) {
             return CompileState.COMPILING;
         }
-        var hasWarnings = false;
-        for (var message : messages) {
-            var severity = message.getSeverity();
-            if (severity == Severity.ERROR) {
-                return CompileState.ERRORS;
-            }
-            if (severity == Severity.WARN) {
-                hasWarnings = true;
-            }
+        if (compilationStatus.getErrorsCount() > 0) {
+            return CompileState.ERRORS;
         }
-        return hasWarnings ? CompileState.WARNINGS : CompileState.OK;
+        if (compilationStatus.getWarningsCount() > 0) {
+            return CompileState.WARNINGS;
+        }
+        return CompileState.OK;
     }
 
     /**
@@ -123,10 +118,10 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     }
 
     private CompilationDetails mapCompilationDetails(ProjectModel projectModel,
-                                                     Collection<OpenLMessage> moduleMessages) {
+                                                     ProjectCompilationStatus compilationStatus) {
         return CompilationDetails.builder()
-                .messages(mapMessages(moduleMessages))
-                .modules(mapModules(projectModel))
+                .messages(mapMessages(compilationStatus))
+                .modules(mapModules(projectModel, compilationStatus))
                 .tests(mapTests(projectModel))
                 .tables(mapTables(projectModel))
                 .build();
@@ -170,92 +165,81 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .build();
     }
 
-    private CompilationMessages mapMessages(Collection<OpenLMessage> moduleMessages) {
-        var ordered = messageDescriptionMapper.mapSorted(moduleMessages);
-        var errors = 0;
-        var warnings = 0;
-        for (var message : ordered) {
-            if (message.severity() == Severity.ERROR) {
-                errors++;
-            } else if (message.severity() == Severity.WARN) {
-                warnings++;
-            }
-        }
+    private CompilationMessages mapMessages(ProjectCompilationStatus compilationStatus) {
+        var ordered = messageDescriptionMapper.mapSorted(compilationStatus.getAllMessage());
         return CompilationMessages.builder()
                 .items(ordered)
                 .total(ordered.size())
-                .errors(errors)
-                .warnings(warnings)
+                .errors(compilationStatus.getErrorsCount())
+                .warnings(compilationStatus.getWarningsCount())
                 .build();
     }
 
-    private CompilationModules mapModules(ProjectModel projectModel) {
-        var moduleInfo = projectModel.getModuleInfo();
-        var dependencyManager = projectModel.getWebStudioWorkspaceDependencyManager();
-        if (moduleInfo == null || dependencyManager == null) {
+    private CompilationModules mapModules(ProjectModel projectModel, ProjectCompilationStatus compilationStatus) {
+        var total = compilationStatus.getModulesCount();
+        if (total == 0) {
             return CompilationModules.empty();
         }
-        if (moduleInfo.getWebstudioConfiguration() != null
+        var moduleInfo = projectModel.getModuleInfo();
+        // Single-module compile path: only the opened module is in the cycle and it's done
+        // synchronously inside setModuleInfo, so no need to walk the loader graph.
+        if (moduleInfo != null
+                && moduleInfo.getWebstudioConfiguration() != null
                 && moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
-            // Single-module compile path: only this module participates in the cycle and it
-            // is considered compiled (the synchronous loadDependency in setModuleInfo finished
-            // before the model exposed the cycle to observers).
             return CompilationModules.builder()
                     .compiledModules(List.of(moduleInfo.getName()))
-                    .total(1)
-                    .compiled(1)
+                    .total(total)
+                    .compiled(compilationStatus.getModulesCompiled())
                     .build();
         }
-        var dependencyLoaders = dependencyManager.findAllProjectDependencyLoaders(moduleInfo.getProject());
-        if (dependencyLoaders == null || dependencyLoaders.isEmpty()) {
-            return CompilationModules.empty();
-        }
-        var total = 0;
-        var compiledNames = new java.util.ArrayList<String>();
-        if (projectModel.isProjectCompilationCompleted()) {
-            // Project compilation finished — count modules via the project loaders only.
-            for (var loader : dependencyLoaders) {
-                if (!loader.isProjectLoader()) {
-                    continue;
-                }
-                for (var module : loader.getProject().getModules()) {
-                    total++;
-                    if (module.getName() != null) {
-                        compiledNames.add(module.getName());
-                    }
-                }
-            }
-        } else {
-            // In progress — count each module loader as one module; compiled when it is the
-            // opened module or has a compiled dependency reference.
-            for (var loader : dependencyLoaders) {
-                if (loader.isProjectLoader()) {
-                    continue;
-                }
-                total++;
-                var loaderModule = loader.getModule();
-                if (loaderModule == null) {
-                    continue;
-                }
-                if (isCompiledNonCompleted(loader, loaderModule, moduleInfo)) {
-                    compiledNames.add(loaderModule.getName());
-                }
-            }
-        }
         return CompilationModules.builder()
-                .compiledModules(List.copyOf(compiledNames))
+                .compiledModules(collectCompiledModuleNames(projectModel, moduleInfo))
                 .total(total)
-                .compiled(compiledNames.size())
+                .compiled(compilationStatus.getModulesCompiled())
                 .build();
     }
 
-    private static boolean isCompiledNonCompleted(IDependencyLoader loader,
-                                                  Module loaderModule,
-                                                  Module currentModule) {
+    private static List<String> collectCompiledModuleNames(ProjectModel projectModel, @Nullable Module currentModule) {
+        var dependencyManager = projectModel.getWebStudioWorkspaceDependencyManager();
+        if (dependencyManager == null || currentModule == null) {
+            return List.of();
+        }
+        var loaders = dependencyManager.findAllProjectDependencyLoaders(currentModule.getProject());
+        if (loaders == null || loaders.isEmpty()) {
+            return List.of();
+        }
+        var compiled = new ArrayList<String>();
+        var projectCompilationCompleted = projectModel.isProjectCompilationCompleted();
+        for (IDependencyLoader loader : loaders) {
+            if (loader.isProjectLoader()) {
+                continue;
+            }
+            var loaderModule = loader.getModule();
+            if (loaderModule == null || loaderModule.getName() == null) {
+                continue;
+            }
+            if (isCompiled(loader, loaderModule, currentModule, projectCompilationCompleted)) {
+                compiled.add(loaderModule.getName());
+            }
+        }
+        return List.copyOf(compiled);
+    }
+
+    private static boolean isCompiled(IDependencyLoader loader,
+                                      Module loaderModule,
+                                      Module currentModule,
+                                      boolean projectCompilationCompleted) {
+        // Once the project-wide flag flips, every module loader has its compiled dependency
+        // attached, so the ref-based check below is also true here — kept as an explicit
+        // shortcut.
+        if (projectCompilationCompleted) {
+            return true;
+        }
+        // The opened module's compilation finishes synchronously in setModuleInfo and its
+        // result is stored on the model as openedModuleCompiledOpenClass rather than on
+        // the loader, so it is counted via identity match.
         if (Objects.equals(loaderModule.getName(), currentModule.getName())
                 && Objects.equals(loader.getProject(), currentModule.getProject())) {
-            // Current opened module is always counted as compiled while the cycle is in
-            // progress — its openedModuleCompiledOpenClass was attached by setModuleInfo.
             return true;
         }
         return loader.getRefToCompiledDependency() != null;
