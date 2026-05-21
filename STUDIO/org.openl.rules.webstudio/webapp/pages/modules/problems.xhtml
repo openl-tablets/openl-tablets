@@ -86,8 +86,11 @@
 
         <script>
             //<![CDATA[
-                const $jq = jQuery.noConflict();
-                const projectId = "#{studio.currentProjectId}";
+                // `var` at the top level lets the same script re-evaluate cleanly when the
+                // bottom panel is re-injected via jQuery.html() — `const`/`let` would throw
+                // on redeclaration in the unchanged global scope.
+                var $jq = jQuery.noConflict();
+                var projectId = "#{studio.currentProjectId}";
 
                 if (projectId) {
                     ws.projectStatus.whenReady(function () {

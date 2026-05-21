@@ -577,7 +577,9 @@ public class ProjectModel {
         if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
                 .getWebstudioConfiguration()
                 .isCompileThisModuleOnly()) {
-            compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+            if (compiledOpenClass != null) {
+                compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+            }
             compilationStatus.setModulesCompiled(1);
             compilationStatus.addModulesCount(1);
         } else {
@@ -587,7 +589,9 @@ public class ProjectModel {
             Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager
                     .findAllProjectDependencyLoaders(moduleInfo.getProject());
             if (isProjectCompilationCompleted()) {
-                compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+                if (compiledOpenClass != null) {
+                    compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+                }
                 dependencyLoaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(e -> {
                     compilationStatus.addModulesCount(e.getProject().getModules().size());
                     compilationStatus.addModulesCompiled(e.getProject().getModules().size());
@@ -605,10 +609,21 @@ public class ProjectModel {
                         compilationStatus.addModulesCount(1);
                         if (Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName()) && Objects
                                 .equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
-                            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
-                            // rewrite the algorithm to handle with it is required here
-                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
-                                    .addModulesCompiled(1);
+                            // Opened module's compiled class is published by setModuleInfo AFTER
+                            // loadDependency returns, but dependency-completion callbacks (which
+                            // re-publish status) can fire mid-compile while this field is still
+                            // null. The loader itself has its compiled-dependency reference set
+                            // by then, so use that as a fallback so the messages aren't lost.
+                            if (openedModuleCompiledOpenClass != null) {
+                                // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
+                                // rewrite the algorithm to handle with it is required here
+                                compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
+                                        .addModulesCompiled(1);
+                            } else if (dependencyLoader.getRefToCompiledDependency() != null) {
+                                compilationStatus.addMessages(
+                                                dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages())
+                                        .addModulesCompiled(1);
+                            }
                         } else {
                             if (dependencyLoader.getRefToCompiledDependency() != null) {
                                 compilationStatus.addMessages(
