@@ -286,31 +286,41 @@
 
         var $jq = jQuery.noConflict();
 
-        $j('#testPanel').off('refresh').on('refresh', function (e, state) {
-            return $jq.ajax({
-                url: "#{contextPath}/web/compile/tests",
-                datatype: "text"
-            })
-            .done(function (data) {
-                //Stop current cycle because module or project was changed and script will be reinitialized with new cycle.
-                if (ws.storage.get("WS_PREVIOUS_PAGE_STATE").module !== state.moduleId || ws.storage.get("WS_PREVIOUS_PAGE_STATE").project !== state.projectId){
-                    return;
-                } else {
-                    $j("#tableRunState").val(data.tableRunState);
-                    data.count > 0 ? $j('.test-section').show() : $j('.test-section').hide();
-                    if (document.getElementById("testCountSpan") !== null) {
-                        document.getElementById("testCountSpan").textContent = data.count;
-                        if (!data.compiled) {
-                            setTimeout(function () {
-                                $j('#testPanel').trigger('refresh', state)
-                            }, 1000);
-                        }
-                    }
+        (function initTestPanel() {
+            var projectId = "#{studio.currentProjectId}";
+            if (!projectId) {
+                return;
+            }
+            ws.projectStatus.whenReady(function () {
+                if (window.__testPanelSubscription) {
+                    window.__testPanelSubscription.unsubscribe();
+                    window.__testPanelSubscription = null;
                 }
+                window.openl.projectStatus.fetch(projectId)
+                    .then(function (status) {
+                        applyTestPanelStatus(status);
+                        window.__testPanelSubscription = window.openl.projectStatus.subscribe(
+                            projectId, status.branch || null, applyTestPanelStatus
+                        );
+                    })
+                    .catch(function () { /* best-effort */ });
             });
-        });
+        })();
 
-        $j('#testPanel').trigger('refresh', {projectId: ws.storage.get("WS_PREVIOUS_PAGE_STATE").project, moduleId: ws.storage.get("WS_PREVIOUS_PAGE_STATE").module});
+        function applyTestPanelStatus(status) {
+            // `tableRunState` derives from compile state: CAN_RUN_MODULE while compiling,
+            // CAN_RUN once the cycle has settled (no error/warning gating happens here —
+            // the per-table table.xhtml endpoint refines it for the open table).
+            var tableRunState = status.compileState === 'compiling' ? 'CAN_RUN_MODULE' : 'CAN_RUN';
+            $j("#tableRunState").val(tableRunState);
+
+            var compilation = status.compilation || {};
+            var tests = compilation.tests || { total: 0 };
+            tests.total > 0 ? $j('.test-section').show() : $j('.test-section').hide();
+            if (document.getElementById("testCountSpan") !== null) {
+                document.getElementById("testCountSpan").textContent = tests.total;
+            }
+        }
 
         function test(e, testUrl) {
             e.preventDefault();
@@ -332,13 +342,16 @@
         }
 
         function compiled(callback) {
-            return $jq.ajax({
-                url: "#{contextPath}/web/compile/project",
-                datatype: "text"
-            })
-                .done(function (data) {
-                    callback(data);
-                });
+            var projectId = "#{studio.currentProjectId}";
+            if (!projectId) {
+                callback(false);
+                return;
+            }
+            ws.projectStatus.whenReady(function () {
+                window.openl.projectStatus.fetch(projectId)
+                    .then(function (status) { callback(status.compileState !== 'compiling'); })
+                    .catch(function () { callback(false); });
+            });
         }
 
         function runAllTests(e) {

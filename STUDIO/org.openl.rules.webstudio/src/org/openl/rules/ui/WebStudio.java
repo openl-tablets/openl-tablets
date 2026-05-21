@@ -90,6 +90,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -185,6 +186,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ApplicationEventPublisher eventPublisher;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProtectedBranchBypassService bypassService;
+    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
@@ -198,7 +200,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      DeploymentManager deploymentManager,
                      ApplicationEventPublisher eventPublisher,
                      ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
-                     ProtectedBranchBypassService bypassService
+                     ProtectedBranchBypassService bypassService,
+                     ProjectIdentifierMapper projectIdentifierMapper
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -214,6 +217,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.eventPublisher = eventPublisher;
         this.conflictsSessionHolder = conflictsSessionHolder;
         this.bypassService = bypassService;
+        this.projectIdentifierMapper = projectIdentifierMapper;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
@@ -384,6 +388,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return getProject(currentRepositoryId, projectFolder);
         }
         return null;
+    }
+
+    /**
+     * Canonical, base64-encoded ID of the open project, ready to use as a STOMP
+     * destination segment. Empty when no project is open.
+     */
+    public String getCurrentProjectId() {
+        RulesProject project = getCurrentProject();
+        return project == null ? "" : projectIdentifierMapper.map(project).encode();
     }
 
     public RulesDeploy getCurrentProjectRulesDeploy() {
@@ -1540,12 +1553,26 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return currentRepositoryId;
     }
 
-    @Override
-    public synchronized void onRepositoryModified() {
-        projects = null;
+    /**
+     * Runs {@code action} with this session's captured {@link Authentication} bound to
+     * the current thread's {@link SecurityContextHolder}. Use this when crossing into a
+     * worker thread (compilation callbacks, async events) where Spring Security's
+     * thread-local context is otherwise empty.
+     */
+    public void runAsSessionUser(Runnable action) {
         Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            action.run();
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
+        }
+    }
+
+    @Override
+    public synchronized void onRepositoryModified() {
+        projects = null;
+        runAsSessionUser(() -> {
             if (currentProject != null) {
                 RulesProject project = getCurrentProject();
                 if (project == null || !project.isOpened()) {
@@ -1554,9 +1581,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     model.clearModuleInfo();
                 }
             }
-        } finally {
-            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
-        }
+        });
     }
 
     public void setShowRealNumbers(boolean showRealNumbers) {

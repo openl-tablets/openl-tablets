@@ -1349,15 +1349,20 @@ public class ProjectModel {
         if (publisher == null) {
             return;
         }
-        try {
-            var project = getProject();
-            if (project == null) {
-                return;
+        // Compilation runs on a worker thread without Spring Security's thread-local
+        // context, so `getProject()` (which goes through SecureUserWorkspace) would NPE
+        // on the ACL check. Bind the session's captured Authentication for this call.
+        studio.runAsSessionUser(() -> {
+            try {
+                var project = getProject();
+                if (project == null) {
+                    return;
+                }
+                publisher.publishEvent(new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername()));
+            } catch (RuntimeException e) {
+                log.debug("Failed to publish project status changed event", e);
             }
-            publisher.publishEvent(new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername()));
-        } catch (RuntimeException e) {
-            log.debug("Failed to publish project status changed event", e);
-        }
+        });
     }
 
     private ProjectDescriptor getProjectDescriptor() {

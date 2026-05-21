@@ -144,6 +144,15 @@
                     escapeHtml: function (string) {
                         return $j('<div/>').text(string).html();
                     }
+                },
+                projectStatus: {
+                    // Calls `cb` once `window.openl.projectStatus` is published by the React bundle.
+                    // The React entry point is an ESM module (deferred), so legacy inline scripts on
+                    // first page paint may run before the bridge has installed the global.
+                    whenReady: function (cb) {
+                        if (window.openl && window.openl.projectStatus) { cb(); return; }
+                        document.addEventListener('openl:ready', cb, { once: true });
+                    }
                 }
             };
 

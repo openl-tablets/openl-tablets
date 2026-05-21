@@ -7,6 +7,9 @@ declare module '*.gif'
 declare global {
     interface Window {
         // Global runtime variables
+        openl?: {
+            projectStatus?: import('./services/projectStatus').ProjectStatusBridge
+        }
     }
 }
 

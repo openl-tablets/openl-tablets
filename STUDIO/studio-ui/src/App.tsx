@@ -9,6 +9,9 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { errorHandler, setupGlobalErrorHandling } from './utils/errorHandling'
 import { AppStyles } from './App.styles.ts'
 
+// Expose project-status API to legacy JSF pages via window.openl.projectStatus.
+import './legacy/projectStatusBridge'
+
 function App() {
     const { showLogin } = useAppStore()
     const { fetchUserInfo, isLoggedIn } = useUserStore()
