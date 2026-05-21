@@ -1,0 +1,60 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+  "revision": "*",
+  "compileState": "errors",
+  "lastModifiedBy": {
+    "author": "admin",
+    "date": "*"
+  },
+  "compilation": {
+    "messages": {
+      "items": [
+        {
+          "id": 89,
+          "summary": "Method 'callSomeUnknownFunction()' is not found.",
+          "severity": "ERROR"
+        }
+      ],
+      "total": 1,
+      "errors": 1,
+      "warnings": 0
+    },
+    "modules": {
+      "compiledModules": [
+        "Bank Rating"
+      ],
+      "total": 1,
+      "compiled": 1
+    },
+    "tests": {
+      "total": 14
+    },
+    "tables": {
+      "total": 61,
+      "errors": 1,
+      "modules": [
+        {
+          "name": "Bank Rating",
+          "total": 61,
+          "errors": 1
+        }
+      ]
+    }
+  },
+  "pendingChanges": {
+    "total": 2,
+    "files": [
+      {
+        "path": "DESIGN/rules/EPBDS-15998-db/Bank Rating.xlsx",
+        "type": "modified"
+      },
+      {
+        "path": "DESIGN/rules/EPBDS-15998-db/tags.properties",
+        "type": "modified"
+      }
+    ]
+  }
+}

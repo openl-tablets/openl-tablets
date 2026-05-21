@@ -1,0 +1,484 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "baeaff5bd2d50c80338527e32212efeb",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "BalanceDynamicIndexCalculation",
+      "properties": {
+        "description": "The analysis of dynamic performance of such factors as capital (D1), quick liquidity (D2), liquidity (D3), profit (D4) and liabilities to customers (D5) is used for calculating the first correction index B1 (Balance Dynamic Index). Final value of B1 is the arithmetic mean of the scores of these five factors obtained: B1 = (D1 + D2 + D3 + D4 + D5) / 5."
+      },
+      "returnType": "Double",
+      "signature": "BalanceDynamicIndexCalculation (FinancialData currentFinancialData, FinancialData previousFinancialData)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D54:G68"
+    },
+    {
+      "id": "ce9a3676a2a272d98f12a32f21d22a53",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "BalanceQualityIndexCalculation",
+      "properties": {
+        "description": "To calculate the Balance Quality Index B, which is used for determining the Bank Rating Group, there identifies the following 10 indicators and its scores: Capital Adequacy (Q1), Claims on  Customer Ratio in Assets (Q2), Quality of Credit Portfolio (Q3), Secured by Property Charges Claims Ratio (Q4), Quick Ratio (Q5), Liquidity Ratio (Q6), High Liquidity Ratio (Q7), Net Liabilities at Money Market (Q8), Liabilities to Customers on Demand Ratio (Q9), Other Assets Ratio (Q10). Each range of possible values of the indicators is assigned a score between 0 and 1 (\"0\" corresponds to the critical value of the range,\"1\" - the optimal value). \n          The Balance Quality Index B is calculated as product of score of indicators: B = Q1 * Q2 *...* Q10. Obtained value B reflects current financial bank-counterparty state only due to the balance sheet. It is the basis for further work on the definition of the Limit."
+      },
+      "returnType": "SpreadsheetResult",
+      "signature": "BalanceQualityIndexCalculation (FinancialData currentFinancialData)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D26:G49"
+    },
+    {
+      "id": "e368e23c6eeff1a61afce3e409dc55b1",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Bank",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C5:E12"
+    },
+    {
+      "id": "32b51d4ed984fe0fbd7b723898cb42dc",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "bankData",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "B5:H9"
+    },
+    {
+      "id": "4508daa0239982cfa3e8934a3c09d3a4",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "bankFinancialData",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "B12:S16"
+    },
+    {
+      "id": "43db5288b8e3d23e8ed11a47b5261df5",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "BankLimitIndex",
+      "returnType": "Double",
+      "signature": "BankLimitIndex (Bank bank, RatingGroup bankRatingGroup)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C8:M24"
+    },
+    {
+      "id": "c7c394c0fa1cf3e2473cca78ab85adee",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "BankLimitIndexTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C5:E9"
+    },
+    {
+      "id": "6abe748545ac15a99015f58ba1ec82cd",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "BankQualitativeIndexCalculation",
+      "properties": {
+        "description": "The second correction index B2 (Bank Qualitative Index) is assigned according to the information about the bank profitability and its reputation: losses in the current year (I1), negative history relations (I2), negative mass media information (I3), negative information about shareholders or the bank management (I4), downgrades of bank ratings (I5), total assets (I6). B2 is assumed to be a minimum of these six values obtained: B2 = min {I1, I2, ..., I6}."
+      },
+      "returnType": "Double",
+      "signature": "BankQualitativeIndexCalculation (Bank bank)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D73:G83"
+    },
+    {
+      "id": "9d4f0bbdee0333fc9a1baef8edf7a43d",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "BankRatingCalculation",
+      "properties": {
+        "description": "At first, Balance Quality Index B is calculated on basis of balance sheet data for assessing the quality of the bank-counterparty's balance sheet.\n          Then, the correction indices B1 (Balance Dynamic Index), B2 (Bank Qualitative Index), B3 (IsAdequate Normative Index) for the index B are determined according to the analysis of the dynamic performance of essential financial indicators, the qualitative factors of the bank, the abidance of central bank’s requirements. \n          Thereby, the final bank rating R reflecting the bank-counterparty’s reliability is defined as product of Balance Quality Index B and its three correction indices B1, B2, B3: Bank Rating R = B * B1 * B2 * B3.\n           Depending on the calculated value of the bank rating, the bank-counterparty is related to one of five Bank Rating Groups (categories of reliability): R1, R2, R3, R4, R5.\n          The final value of the Limit for transactions that are subject to credit risk from the bank-counterparty is calculated as product of the Limit Index (Kl) and the maximum limit allowed on a bank-counterparty (Lmax): L = Kl * Lmax, where Kl is determined by the Bank Rating Group, ratings assigned by international rating agencies, the country and total assets of the bank."
+      },
+      "returnType": "SpreadsheetResult",
+      "signature": "BankRatingCalculation (Bank bank)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D9:G21"
+    },
+    {
+      "id": "6c5c8a95400af4a9bfd2e73a4e0600f1",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "BankRatingGroup",
+      "returnType": "RatingGroup",
+      "signature": "BankRatingGroup (Double bankRating)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C8:D14"
+    },
+    {
+      "id": "4e1f62e1ca5efe8f483c4b759bbc8b4a",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "BankRatingGroupTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C6:D13"
+    },
+    {
+      "id": "acfd3e56b9f6f069e4c88056fd0debd9",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "bankRatingList",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "B25:D90"
+    },
+    {
+      "id": "7f166a5dc83968b5b8f503949c062df4",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "BankRatingTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C6:E10"
+    },
+    {
+      "id": "de007c27106a96682484745cde639bc1",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "CapitalAdequacyScore",
+      "returnType": "Double",
+      "signature": "CapitalAdequacyScore (Double capitalAdequacy)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C8:D15"
+    },
+    {
+      "id": "d2c0ba80e682d12711d1c1c4637ae296",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "CapitalAdequacyScoreTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C6:D12"
+    },
+    {
+      "id": "68de41fd9e5c838847d0a326aa3d4ecc",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "CapitalDynamicScore",
+      "returnType": "Double",
+      "signature": "CapitalDynamicScore (Double capitalDynamic)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C8:D13"
+    },
+    {
+      "id": "f1e54a45fcc1202048bd2296650b6052",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "ClaimsOnCustomerRatioScore",
+      "returnType": "Double",
+      "signature": "ClaimsOnCustomerRatioScore (Double claimsOnCustomerRatio)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C19:D25"
+    },
+    {
+      "id": "db477e930ac26d290e9aefce1c9c75b0",
+      "tableType": "Constants",
+      "kind": "Constants",
+      "name": "Constants",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C7:E8"
+    },
+    {
+      "id": "fc9ed95f1be5c48741ef1a7659b131cd",
+      "tableType": "Vocabulary",
+      "kind": "Datatype",
+      "name": "CountryCode",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D59:D77"
+    },
+    {
+      "id": "db743662e9cedaa9c4cb15836499ad68",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "CreditPortfolioQualityScore",
+      "returnType": "Double",
+      "signature": "CreditPortfolioQualityScore (Double creditPortfolioQuality)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C29:D36"
+    },
+    {
+      "id": "413e78631702378b9ea61214add094b1",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "DowngradesOfBankRatingScore",
+      "returnType": "Double",
+      "signature": "DowngradesOfBankRatingScore (Boolean downgradesOfBankRating)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C36:D39"
+    },
+    {
+      "id": "498e83aa2c5328e7106a552981665f8f",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "DynamicIndexTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C22:E26"
+    },
+    {
+      "id": "1b662e47225b661a5bc640d67a79dea6",
+      "tableType": "SimpleLookup",
+      "kind": "Rules",
+      "name": "EquityScore",
+      "returnType": "Double",
+      "signature": "EquityScore (CountryCode countryCode, Double equity)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C29:F32"
+    },
+    {
+      "id": "33e58b7caf7b35b2489cb4b4b808c90c",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "EquityScoreTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C16:E22"
+    },
+    {
+      "id": "4269424f88da4155ef4525b550ae666d",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "FinancialData",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C15:E32"
+    },
+    {
+      "id": "e37e6cd233ff262b1316a2b4ae3c9acb",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "HighLiquidityRatioScore",
+      "returnType": "Double",
+      "signature": "HighLiquidityRatioScore (Double highLiquidityRatio)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C75:D82"
+    },
+    {
+      "id": "9de4ab56147c7f9a53871f6a0ac8abde",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "IsAdequateCoreCapitalRatioScore",
+      "returnType": "Double",
+      "signature": "IsAdequateCoreCapitalRatioScore (Boolean isAdequateCoreCapitalRatio)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C8:D11"
+    },
+    {
+      "id": "003576ebe8ef2c675b2c293661f690ee",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "IsAdequateLiquidityRatioScore",
+      "returnType": "Double",
+      "signature": "IsAdequateLiquidityRatioScore (Boolean isAdequateLiquidityRatio)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C15:D18"
+    },
+    {
+      "id": "d585f96f7b004237ad7b362be6d3c564",
+      "tableType": "SimpleLookup",
+      "kind": "Rules",
+      "name": "IsAdequateMaxCreditRiskScore",
+      "returnType": "Double",
+      "signature": "IsAdequateMaxCreditRiskScore (CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C22:E25"
+    },
+    {
+      "id": "dc969d0c15ce334647d7e0a581ca9b25",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "IsAdequateMaxCreditRiskScoreTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C6:E12"
+    },
+    {
+      "id": "ddc706874f6993e6bd89d36e6b657bf7",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "IsAdequateNormativeIndexCalculation",
+      "properties": {
+        "description": "The third correction index B3 (IsAdequate Normative Index) is determined on basis of the abidance of requirements established by the central bank of the bank-counterparty: adequate core capital ratio (N1), adequate liquidity ratio (N2), adequate max credit risk (N3). For banks – residents of Belarus it is also used the indicator of equity (N4). B3 is taken as the minimum value of these four values obtained: B3 = min {N1, N2, N3, N4}."
+      },
+      "returnType": "Double",
+      "signature": "IsAdequateNormativeIndexCalculation (Bank bank)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D88:G96"
+    },
+    {
+      "id": "b17a0e7b042656a9507588adf95364e1",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "IsAdequateNormativeIndexTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C38:D42"
+    },
+    {
+      "id": "b2f39f26ad5786cafee140338de1fc23",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "LiabilitiesToCustomersDynamicScore",
+      "returnType": "Double",
+      "signature": "LiabilitiesToCustomersDynamicScore (Double LiabToCustDynamic)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C37:D42"
+    },
+    {
+      "id": "bd6df101f02e069133109f51a7807f70",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "LiabilitiesToCustomersOnDemandRatioScore",
+      "returnType": "Double",
+      "signature": "LiabilitiesToCustomersOnDemandRatioScore (Double liabilitiesToCustOnDemand)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C97:D105"
+    },
+    {
+      "id": "ea45ae6ff63f59f1fefb965274238647",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "LiquidityDynamicScore",
+      "returnType": "Double",
+      "signature": "LiquidityDynamicScore (Double liquidityDynamic)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C17:D22"
+    },
+    {
+      "id": "38ef30292bcc103f13b36768d56fbf74",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "LiquidityRatioScore",
+      "returnType": "Double",
+      "signature": "LiquidityRatioScore (Double liquidityRatio)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C63:D71"
+    },
+    {
+      "id": "345c7f02f51dc523ade3f2cf95dc18b2",
+      "tableType": "Vocabulary",
+      "kind": "Datatype",
+      "name": "LongTermRating",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "D12:D56"
+    },
+    {
+      "id": "8c1337a587becd5e6eed607b28549537",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "LossesInThisYearScore",
+      "returnType": "Double",
+      "signature": "LossesInThisYearScore (Boolean lossesInThisYear)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C8:D11"
+    },
+    {
+      "id": "be9862b7f27e117d5c06dda723f621ea",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "LossesInThisYearScoreTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C6:D10"
+    },
+    {
+      "id": "df06c45f6216acf1921960f6114f26da",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "NegativeHistoryRelationsScore",
+      "returnType": "Double",
+      "signature": "NegativeHistoryRelationsScore (Boolean negativeHistoryRelations)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C15:D18"
+    },
+    {
+      "id": "c87f0f5b1f4770155c45fe8011ae8854",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "NegativeInfoShareHoldersOrManagementScore",
+      "returnType": "Double",
+      "signature": "NegativeInfoShareHoldersOrManagementScore (Boolean negativeManagInfo)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C29:D32"
+    },
+    {
+      "id": "4d004cf468b4c3c051d0619215369fe3",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "NegativeMassMediaScore",
+      "returnType": "Double",
+      "signature": "NegativeMassMediaScore (Boolean negativeMassMedia)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C22:D25"
+    },
+    {
+      "id": "5aea89bc0a31d507fc61dfdda675abbf",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "NetMoneyMarketLiabilitiesScore",
+      "returnType": "Double",
+      "signature": "NetMoneyMarketLiabilitiesScore (Double  netMoneyMarketLiabilities)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C86:D93"
+    },
+    {
+      "id": "db294e14382ad512fe7f7888accbc989",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "NonZeroValues",
+      "returnType": "Double",
+      "signature": "NonZeroValues (Double value)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C17:D20"
+    },
+    {
+      "id": "cbc92a9fd8f75c5ab653f81fb5f8ae05",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "OtherAssetsRatioScore",
+      "returnType": "Double",
+      "signature": "OtherAssetsRatioScore (Double otherAssetsRatio)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C109:D116"
+    },
+    {
+      "id": "68dbbd59bd38f643bbe34eaf7da2c5cb",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "ProfitDynamicScore",
+      "returnType": "Double",
+      "signature": "ProfitDynamicScore (Double profitDynamic, Double profit)",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C26:E33"
+    },
+    {
+      "id": "67a936ac8ac9c20be5ccbdf407ef0865",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "ProfitDynamicScoreTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C6:E12"
+    },
+    {
+      "id": "aecfc64c9ad292e81ca03213036322d5",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "QualitativeIndexTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C30:D34"
+    },
+    {
+      "id": "90c597c9115cd89ad8ed222a8b8938f5",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "QualityIndexTest",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C14:D18"
+    },
+    {
+      "id": "70bf6d64135bb4b66cd4e94d31add342",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "QualityIndicators",
+      "file": "EPBDS-15998-db/Bank Rating.xlsx",
+      "pos": "C35:E44"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 50,
+  "total": 60
+}

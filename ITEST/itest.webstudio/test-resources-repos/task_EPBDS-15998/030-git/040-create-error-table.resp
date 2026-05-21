@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "edbd860a543a05651646fe5cf5c9b2c0",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "doWithError",
+  "returnType": "SpreadsheetResult",
+  "signature": "doWithError()",
+  "file": "EPBDS-15998-git/Bank Rating.xlsx",
+  "pos": "B2:C4"
+}
