@@ -2056,47 +2056,6 @@ Content-Type: application/json
         },
         "type": "object"
       },
-      "CompileModuleInfo": {
-        "properties": {
-          "compilationCompleted": {
-            "type": "boolean"
-          },
-          "dataType": {
-            "type": "string"
-          },
-          "errorsCount": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "messageId": {
-            "format": "int64",
-            "type": "integer"
-          },
-          "messageIndex": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "messages": {
-            "items": {
-              "$ref": "#/components/schemas/MessageDescription"
-            },
-            "type": "array"
-          },
-          "modulesCompiled": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "modulesCount": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "warningsCount": {
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "FieldError": {
         "properties": {
           "code": {
@@ -2178,26 +2137,6 @@ Content-Type: application/json
             "type": "string"
           },
           "summary": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "ModuleTestsInfo": {
-        "properties": {
-          "compiled": {
-            "type": "boolean"
-          },
-          "count": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "tableRunState": {
-            "enum": [
-              "CAN_RUN",
-              "CAN_RUN_MODULE",
-              "CANNOT_RUN"
-            ],
             "type": "string"
           }
         },
@@ -3425,20 +3364,23 @@ Content-Type: application/json
         "properties": {
           "status": {
             "type": "string",
-            "description": "Project Status",
+            "description": "Target project status to transition to.",
             "enum": [
               "OPENED",
               "CLOSED"
             ]
           },
           "branch": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "revision": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "comment": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "selectedBranches": {
             "type": "array",
@@ -4838,6 +4780,209 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "CompilationDetails": {
+        "properties": {
+          "messages": {
+            "$ref": "#/components/schemas/CompilationMessages"
+          },
+          "modules": {
+            "$ref": "#/components/schemas/CompilationModules"
+          },
+          "tables": {
+            "$ref": "#/components/schemas/CompilationTables"
+          },
+          "tests": {
+            "$ref": "#/components/schemas/CompilationTests"
+          }
+        },
+        "type": "object"
+      },
+      "CompilationMessages": {
+        "properties": {
+          "errors": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/MessageDescription"
+            },
+            "type": "array"
+          },
+          "total": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          },
+          "warnings": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CompilationModules": {
+        "properties": {
+          "compiled": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          },
+          "compiledModules": {
+            "description": "***",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "total": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CompilationTables": {
+        "properties": {
+          "errors": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          },
+          "modules": {
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleTablesSummary"
+            },
+            "type": "array"
+          },
+          "total": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CompilationTests": {
+        "properties": {
+          "total": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "FileChange": {
+        "properties": {
+          "path": {
+            "description": "***",
+            "type": "string"
+          },
+          "type": {
+            "description": "***",
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ModifiedBy": {
+        "properties": {
+          "author": {
+            "description": "***",
+            "type": "string"
+          },
+          "date": {
+            "description": "***",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ModuleTablesSummary": {
+        "properties": {
+          "errors": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          },
+          "name": {
+            "description": "***",
+            "type": "string"
+          },
+          "total": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PendingChanges": {
+        "properties": {
+          "files": {
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/FileChange"
+            },
+            "type": "array"
+          },
+          "total": {
+            "description": "***",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ProjectStatusViewModel": {
+        "properties": {
+          "branch": {
+            "description": "***",
+            "type": "string"
+          },
+          "compilation": {
+            "$ref": "#/components/schemas/CompilationDetails"
+          },
+          "compileState": {
+            "description": "***",
+            "enum": [
+              "idle",
+              "compiling",
+              "ok",
+              "warnings",
+              "errors"
+            ],
+            "type": "string"
+          },
+          "lastModifiedBy": {
+            "$ref": "#/components/schemas/ModifiedBy"
+          },
+          "pendingChanges": {
+            "$ref": "#/components/schemas/PendingChanges"
+          },
+          "projectId": {
+            "description": "***",
+            "type": "string"
+          },
+          "revision": {
+            "description": "***",
+            "type": "string"
+          }
+        },
+        "type": "object"
       }
     }
   },
@@ -9401,192 +9546,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/compile/progress/{messageId}/{messageIndex}": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "messageId",
-            "required": true,
-            "schema": {
-              "format": "int64",
-              "type": "integer"
-            }
-          },
-          {
-            "description": "***",
-            "in": "path",
-            "name": "messageIndex",
-            "required": true,
-            "schema": {
-              "format": "int32",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CompileModuleInfo"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Project Compilation"
-        ]
-      }
-    },
-    "/compile/project": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Project Compilation"
-        ]
-      }
-    },
     "/compile/table/{tableId}": {
       "get": {
         "description": "***",
@@ -9608,88 +9567,6 @@ Content-Type: application/json
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TableInfo"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Project Compilation"
-        ]
-      }
-    },
-    "/compile/tests": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModuleTestsInfo"
                 }
               }
             },
@@ -18551,6 +18428,107 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Projects: Run (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/status": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectStatusViewModel"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
         ]
       }
     }
