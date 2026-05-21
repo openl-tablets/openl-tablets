@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -122,15 +123,19 @@ public class ProjectModel {
     private volatile ResolvedDependency projectCompilationCompleted;
     private long compilationCycleCounter;
     /**
-     * The most recent registered compilation cycle. A fresh instance is created whenever the
+     * The most recent registered compilation cycle. A fresh instance is published whenever the
      * model starts (or has just finished) a compilation — {@link #compileProject(boolean, boolean)},
      * {@link #setModuleInfo(Module, ReloadType)} via its single-module path, etc. External
      * observers can use object identity (or {@link RegisteredCompilation#id()}) to detect a new
      * cycle even when the previous one completes very quickly. Initialised to an already-completed
      * sentinel so callers never see {@code null}.
      */
-    @Getter
-    private volatile RegisteredCompilation currentCompilation = RegisteredCompilation.completed(0L);
+    private final AtomicReference<RegisteredCompilation> currentCompilation =
+            new AtomicReference<>(RegisteredCompilation.completed(0L));
+
+    public RegisteredCompilation getCurrentCompilation() {
+        return currentCompilation.get();
+    }
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
@@ -1093,24 +1098,27 @@ public class ProjectModel {
                     || loader.getRefToCompiledDependency() == null) {
                 continue;
             }
-            TableSyntaxNode[] moduleTables = extractModuleTables(loader);
-            int total = 0;
-            int errors = 0;
-            for (TableSyntaxNode tsn : moduleTables) {
-                if (XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType())) {
-                    continue;
-                }
+            ModuleTableCounts counts = countModuleTables(extractModuleTables(loader), errorMessages);
+            if (counts.total() > 0) {
+                byModule.put(loader.getModule().getName(), counts);
+            }
+        }
+        return byModule;
+    }
+
+    private static ModuleTableCounts countModuleTables(TableSyntaxNode[] moduleTables,
+                                                       Collection<Pair<OpenLMessage, XlsUrlParser>> errorMessages) {
+        int total = 0;
+        int errors = 0;
+        for (TableSyntaxNode tsn : moduleTables) {
+            if (!XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType())) {
                 total++;
                 if (hasError(tsn, errorMessages)) {
                     errors++;
                 }
             }
-            if (total == 0) {
-                continue;
-            }
-            byModule.put(loader.getModule().getName(), new ModuleTableCounts(total, errors));
         }
-        return byModule;
+        return new ModuleTableCounts(total, errors);
     }
 
     private static TableSyntaxNode[] extractModuleTables(IDependencyLoader loader) {
@@ -1355,7 +1363,7 @@ public class ProjectModel {
                 this.compilationInProgress = false;
                 // Single-module compile already finished synchronously above. Register a fresh
                 // completed cycle so external observers see a new identity for this compilation.
-                this.currentCompilation = RegisteredCompilation.completed(++this.compilationCycleCounter);
+                this.currentCompilation.set(RegisteredCompilation.completed(++this.compilationCycleCounter));
                 publishStatusChanged();
             }
         } catch (Exception | LinkageError e) {
@@ -1374,7 +1382,7 @@ public class ProjectModel {
             this.compilationInProgress = true;
             this.projectCompilationCompleted = null;
             cycle = new RegisteredCompilation(++this.compilationCycleCounter);
-            this.currentCompilation = cycle;
+            this.currentCompilation.set(cycle);
             // Guarantee a terminal "compilation done" event fires regardless of what happens
             // inside the async callback — whenComplete is invoked synchronously on whichever
             // thread completes the cycle's future.

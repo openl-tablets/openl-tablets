@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.MessageConverter;
@@ -189,6 +190,7 @@ public final class StompTester implements AutoCloseable {
      */
     private static final class RawStringMessageConverter implements MessageConverter {
         @Override
+        @Nullable
         public Object fromMessage(Message<?> message, Class<?> targetClass) {
             if (targetClass != String.class) {
                 return null;
@@ -201,7 +203,8 @@ public final class StompTester implements AutoCloseable {
         }
 
         @Override
-        public Message<?> toMessage(Object payload, MessageHeaders headers) {
+        @Nullable
+        public Message<?> toMessage(Object payload, @Nullable MessageHeaders headers) {
             if (payload instanceof String str) {
                 return new org.springframework.messaging.support.GenericMessage<>(
                         str.getBytes(StandardCharsets.UTF_8), headers);

@@ -3,6 +3,7 @@ package org.openl.studio.projects.messaging;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.Nullable;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -162,7 +163,7 @@ public class ProjectSocketNotificationService {
      */
     public void notifyProjectStatus(String userName,
                                     ProjectIdModel projectId,
-                                    String branch,
+                                    @Nullable String branch,
                                     ProjectStatusViewModel status) {
         var encodedProjectId = encodePathSegment(projectId.encode());
         var destination = branch == null || branch.isBlank()

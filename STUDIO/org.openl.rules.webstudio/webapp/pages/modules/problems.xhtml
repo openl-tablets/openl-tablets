@@ -86,21 +86,21 @@
 
         <script>
             //<![CDATA[
-                var $jq = jQuery.noConflict();
-                var projectId = "#{studio.currentProjectId}";
+                const $jq = jQuery.noConflict();
+                const projectId = "#{studio.currentProjectId}";
 
                 if (projectId) {
                     ws.projectStatus.whenReady(function () {
                         // Cancel any previous panel subscription (left-over from a prior project/module nav).
-                        if (window.__projectStatusSubscription) {
-                            window.__projectStatusSubscription.unsubscribe();
-                            window.__projectStatusSubscription = null;
+                        if (globalThis.__projectStatusSubscription) {
+                            globalThis.__projectStatusSubscription.unsubscribe();
+                            globalThis.__projectStatusSubscription = null;
                         }
 
-                        window.openl.projectStatus.fetch(projectId)
+                        globalThis.openl.projectStatus.fetch(projectId)
                             .then(function (status) {
                                 renderProjectStatus(status);
-                                window.__projectStatusSubscription = window.openl.projectStatus.subscribe(
+                                globalThis.__projectStatusSubscription = globalThis.openl.projectStatus.subscribe(
                                     projectId,
                                     status.branch || null,
                                     renderProjectStatus
@@ -111,10 +111,10 @@
                 }
 
                 function renderProjectStatus(status) {
-                    var compileState = status.compileState;
-                    var compilation = status.compilation || {};
-                    var modules = compilation.modules || { total: 0, compiled: 0 };
-                    var messageSummary = compilation.messages || { items: [], errors: 0, warnings: 0 };
+                    const compileState = status.compileState;
+                    const compilation = status.compilation || {};
+                    const modules = compilation.modules || { total: 0, compiled: 0 };
+                    const messageSummary = compilation.messages || { items: [], errors: 0, warnings: 0 };
 
                     if (modules.total > 0) {
                         updateProgressPanel(modules, compileState === 'compiling');
@@ -129,9 +129,9 @@
                 }
 
                 function updateProgressPanel(modules, stillCompiling) {
-                    var total = modules.total || 0;
-                    var compiled = modules.compiled || 0;
-                    var percent = total === 0 ? 0 : Math.round(compiled / total * 100);
+                    const total = modules.total || 0;
+                    const compiled = modules.compiled || 0;
+                    let percent = total === 0 ? 0 : Math.round(compiled / total * 100);
                     if (stillCompiling && compiled === total && total !== 0) {
                         // Hold the bar one tick short of 100% while we still see `compiling`.
                         percent--;
@@ -140,24 +140,24 @@
                 }
 
                 function renderMessages(messageSummary) {
-                    var errorsCount = messageSummary.errors || 0;
-                    var warningsCount = messageSummary.warnings || 0;
+                    const errorsCount = messageSummary.errors || 0;
+                    const warningsCount = messageSummary.warnings || 0;
                     $jq('#errors-info-panel').toggle(errorsCount !== 0);
                     $jq('#errors-count').text(errorsCount);
                     $jq('#warnings-info-panel').toggle(warningsCount !== 0);
                     $jq('#warnings-count').text(warningsCount);
 
-                    var warningsPanel = $j("#warnings-panel");
-                    var errorsPanel = $j("#errors-panel");
+                    const warningsPanel = $j("#warnings-panel");
+                    const errorsPanel = $j("#errors-panel");
                     warningsPanel.empty();
                     errorsPanel.empty();
-                    var items = messageSummary.items || [];
+                    const items = messageSummary.items || [];
                     if (items.length === 0) {
                         return;
                     }
-                    var htmlTemplate = $j('#problems-panel-container>div:nth-child(1)').clone().html();
+                    const htmlTemplate = $j('#problems-panel-container>div:nth-child(1)').clone().html();
                     items.forEach(function (item) {
-                        var newMessageHtml = htmlTemplate
+                        const newMessageHtml = htmlTemplate
                             .replaceString(/{messageId}/g, item.id)
                             .replaceString(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
                         if (item.severity === 'WARN') {
@@ -176,10 +176,10 @@
 
                 function finished() {
                     $jq('#progress-info-panel').attr("data-compilation-status", "finished");
-                    var timestamp = Date.now();
+                    const timestamp = Date.now();
                     $jq('#progress-info-panel').attr("data-compilation-finished", timestamp);
                     setTimeout(function() {
-                       var requiredProgressPanel =
+                       const requiredProgressPanel =
                             $j("#progress-info-panel[data-compilation-status='finished'][data-compilation-finished='" + timestamp + "']");
                        if (requiredProgressPanel.length > 0 ) {
                             requiredProgressPanel.hide();
@@ -192,7 +192,7 @@
                 }
 
                 function navigateProblem(problemBlock) {
-                    var $j = jQuery.noConflict();
+                    const $j = jQuery.noConflict();
                     const problem = $j(problemBlock);
                     $j.ajax({
                         url: "#{contextPath}/web/message/" + problem.attr("data-message-id") + "/url",

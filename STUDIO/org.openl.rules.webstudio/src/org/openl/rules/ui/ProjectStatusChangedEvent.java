@@ -17,7 +17,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 @Getter
 public class ProjectStatusChangedEvent extends ApplicationEvent {
 
-    private final RulesProject project;
+    private final transient RulesProject project;
     private final String userName;
 
     public ProjectStatusChangedEvent(ProjectModel source, RulesProject project, String userName) {

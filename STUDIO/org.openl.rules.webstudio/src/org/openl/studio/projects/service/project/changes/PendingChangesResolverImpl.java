@@ -44,6 +44,13 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
     private static final Comparator<FileChange> CHANGE_ORDER = Comparator.comparing(FileChange::type)
             .thenComparing(FileChange::path, String.CASE_INSENSITIVE_ORDER);
 
+    /**
+     * Hard cap on the number of entries inspected when listing a zip-based design project,
+     * defending against malformed/zip-bomb archives that contain absurd entry counts. Real
+     * OpenL projects don't approach this number.
+     */
+    private static final int MAX_ZIP_ENTRIES = 10_000;
+
     @Override
     public PendingChanges resolve(RulesProject project) {
         if (!project.isModified()) {
@@ -110,12 +117,12 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
             var design = designByPath.get(path);
             if (design == null) {
                 result.add(new FileChange(path, ChangeType.ADDED));
-                continue;
-            }
-            visitedDesign.add(path);
-            var localUniqueId = local.getUniqueId();
-            if (localUniqueId == null || !localUniqueId.equals(design.getUniqueId())) {
-                result.add(new FileChange(path, ChangeType.MODIFIED));
+            } else {
+                visitedDesign.add(path);
+                var localUniqueId = local.getUniqueId();
+                if (localUniqueId == null || !localUniqueId.equals(design.getUniqueId())) {
+                    result.add(new FileChange(path, ChangeType.MODIFIED));
+                }
             }
         }
 
@@ -149,11 +156,11 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
             }
             if (!designPaths.contains(path)) {
                 result.add(new FileChange(path, ChangeType.ADDED));
-                continue;
-            }
-            visitedDesign.add(path);
-            if (local.getUniqueId() == null) {
-                result.add(new FileChange(path, ChangeType.MODIFIED));
+            } else {
+                visitedDesign.add(path);
+                if (local.getUniqueId() == null) {
+                    result.add(new FileChange(path, ChangeType.MODIFIED));
+                }
             }
         }
 
@@ -177,12 +184,25 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
         Set<String> result = new HashSet<>();
         try (var stream = fileItem.getStream(); var zip = new ZipInputStream(stream)) {
             ZipEntry entry;
+            int processed = 0;
             while ((entry = zip.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
+                if (++processed > MAX_ZIP_ENTRIES) {
+                    log.warn("Aborting pending-changes diff for project '{}': design archive exceeds {} entries",
+                            project.getBusinessName(), MAX_ZIP_ENTRIES);
+                    return Set.of();
                 }
-                var relative = normalize(entry.getName());
-                result.add(projectPath.isEmpty() ? relative : projectPath + "/" + relative);
+                if (!entry.isDirectory()) {
+                    var relative = normalize(entry.getName());
+                    // Reject path-traversal / absolute names that would let an attacker
+                    // poison the comparison map (and protect any future caller that
+                    // resolves these paths against the local filesystem).
+                    if (relative.contains("../") || relative.startsWith("/")) {
+                        log.warn("Skipping suspicious zip entry '{}' in project '{}'",
+                                entry.getName(), project.getBusinessName());
+                    } else {
+                        result.add(projectPath.isEmpty() ? relative : projectPath + "/" + relative);
+                    }
+                }
             }
         }
         return result;

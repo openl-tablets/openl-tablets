@@ -13,7 +13,7 @@ import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.StompTester;
 
-public class WorkspaceCompileServiceTest {
+class WorkspaceCompileServiceTest {
 
     @AutoClose
     private static final HttpClient client = JettyServer.get().withProfile("simple").start();
@@ -24,7 +24,7 @@ public class WorkspaceCompileServiceTest {
 
     @Test
     @Timeout(value = 15_000, unit = TimeUnit.MILLISECONDS)
-    public void compile() throws Exception {
+    void compile() throws Exception {
         // Initialize OpenL Studio (also creates the session cookie used by STOMP).
         client.send("workspace-compile/empty.get");
 
