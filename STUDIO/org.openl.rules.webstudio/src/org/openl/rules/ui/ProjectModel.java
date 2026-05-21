@@ -215,11 +215,24 @@ public class ProjectModel {
     }
 
     public synchronized int getErrorNodesNumber() {
+        return countErrorNodes(Arrays.asList(getTableSyntaxNodes()));
+    }
+
+    /**
+     * Project-scope counterpart of {@link #getErrorNodesNumber()} — counts tables with
+     * {@code ERROR} messages across all modules of the current project, not just the
+     * opened module.
+     */
+    public synchronized int getProjectErrorNodesNumber() {
+        return countErrorNodes(getAllTableSyntaxNodes());
+    }
+
+    private int countErrorNodes(Iterable<TableSyntaxNode> nodes) {
         int count = 0;
         Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
                 .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
                 .toList();
-        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
+        for (TableSyntaxNode tsn : nodes) {
             for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
                 if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
                     if (pair.getRight().intersects(tsn.getUriParser())) {
@@ -1053,10 +1066,20 @@ public class ProjectModel {
     }
 
     public synchronized int getNumberOfTables() {
-        int count = 0;
-        TableSyntaxNode[] tables = getTableSyntaxNodes();
+        return countNonOtherTables(Arrays.asList(getTableSyntaxNodes()));
+    }
 
-        for (TableSyntaxNode table : tables) {
+    /**
+     * Project-scope counterpart of {@link #getNumberOfTables()} — counts non-{@code OTHER}
+     * tables across all modules of the current project, not just the opened module.
+     */
+    public synchronized int getProjectNumberOfTables() {
+        return countNonOtherTables(getAllTableSyntaxNodes());
+    }
+
+    private int countNonOtherTables(Collection<TableSyntaxNode> nodes) {
+        int count = 0;
+        for (TableSyntaxNode table : nodes) {
             if (!XlsNodeTypes.XLS_OTHER.toString().equals(table.getType())) {
                 count++;
             }

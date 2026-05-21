@@ -9,21 +9,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 import org.openl.studio.projects.model.project.status.ChangeType;
 import org.openl.studio.projects.model.project.status.FileChange;
 import org.openl.studio.projects.model.project.status.PendingChanges;
 
 /**
- * Diffs the local working copy against the design revision the project is opened on by
- * walking the file lists exposed by the local and design repositories. The local
- * repository stores a per-file {@code uniqueId} that matches the design repository's
- * {@code uniqueId} when the file is in sync; modified files have it cleared.
+ * Diffs the local working copy against the design revision the project is opened on.
+ *
+ * <p>Two design-side shapes are supported:
+ * <ul>
+ *   <li>folder repos ({@code supports().folders()}): list per-file {@link FileData}
+ *       entries and diff by {@code uniqueId} equality;</li>
+ *   <li>zip-based repos (JDBC and friends): read the project archive via
+ *       {@code readHistory} and diff by zip-entry path, using the local
+ *       {@code FileData.uniqueId} (cleared on local edits) as the modified marker.</li>
+ * </ul>
  *
  * @author Vladyslav Pikus
  */
@@ -71,6 +81,16 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
                     .toList();
         }
 
+        if (project.getDesignRepository().supports().folders()) {
+            return diffWithFolderDesign(project, localFiles, localPrefix, projectPath);
+        }
+        return diffWithZipDesign(project, localFiles, localPrefix, projectPath);
+    }
+
+    private List<FileChange> diffWithFolderDesign(RulesProject project,
+                                                  List<FileData> localFiles,
+                                                  String localPrefix,
+                                                  String projectPath) throws IOException {
         var designRepository = project.getDesignRepository();
         var designPrefix = project.getDesignFolderName() + "/";
         var historyVersion = project.getHistoryVersion();
@@ -106,6 +126,66 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
         });
 
         return result.stream().sorted(CHANGE_ORDER).toList();
+    }
+
+    /**
+     * Zip-based design repos store the whole project as one archive blob — there is no
+     * per-file {@code FileData} on the design side. Compare local file paths against the
+     * archive's entry list; for matched paths, treat a cleared local {@code uniqueId}
+     * (the local repository clears it on every edit) as the {@code MODIFIED} marker.
+     */
+    private List<FileChange> diffWithZipDesign(RulesProject project,
+                                               List<FileData> localFiles,
+                                               String localPrefix,
+                                               String projectPath) throws IOException {
+        Set<String> designPaths = readZippedDesignEntryPaths(project, projectPath);
+        Set<String> visitedDesign = new HashSet<>();
+        List<FileChange> result = new ArrayList<>();
+
+        for (FileData local : localFiles) {
+            var path = projectScopedPath(local.getName(), localPrefix, projectPath);
+            if (path == null) {
+                continue;
+            }
+            if (!designPaths.contains(path)) {
+                result.add(new FileChange(path, ChangeType.ADDED));
+                continue;
+            }
+            visitedDesign.add(path);
+            if (local.getUniqueId() == null) {
+                result.add(new FileChange(path, ChangeType.MODIFIED));
+            }
+        }
+
+        designPaths.stream()
+                .filter(path -> !visitedDesign.contains(path))
+                .forEach(path -> result.add(new FileChange(path, ChangeType.DELETED)));
+
+        return result.stream().sorted(CHANGE_ORDER).toList();
+    }
+
+    private static Set<String> readZippedDesignEntryPaths(RulesProject project, String projectPath) throws IOException {
+        Repository designRepository = project.getDesignRepository();
+        String folderPath = project.getDesignFolderName();
+        String historyVersion = project.getHistoryVersion();
+        FileItem fileItem = designRepository.supports().versions() && historyVersion != null
+                ? designRepository.readHistory(folderPath, historyVersion)
+                : designRepository.read(folderPath);
+        if (fileItem == null) {
+            return Set.of();
+        }
+        Set<String> result = new HashSet<>();
+        try (var stream = fileItem.getStream(); var zip = new ZipInputStream(stream)) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                var relative = normalize(entry.getName());
+                result.add(projectPath.isEmpty() ? relative : projectPath + "/" + relative);
+            }
+        }
+        return result;
     }
 
     private static Map<String, FileData> indexByProjectScopedPath(List<FileData> files,

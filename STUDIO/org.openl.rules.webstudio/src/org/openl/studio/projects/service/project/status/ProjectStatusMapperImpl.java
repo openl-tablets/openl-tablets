@@ -147,8 +147,8 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             return null;
         }
         return CompilationTables.builder()
-                .total(projectModel.getNumberOfTables())
-                .errors(projectModel.getErrorNodesNumber())
+                .total(projectModel.getProjectNumberOfTables())
+                .errors(projectModel.getProjectErrorNodesNumber())
                 .build();
     }
 
