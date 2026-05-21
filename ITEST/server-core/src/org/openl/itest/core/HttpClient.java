@@ -300,6 +300,21 @@ public class HttpClient implements AutoCloseable {
         stompClient.connectAsync(webSocketBaseURL, headers, new StompHeaders(), handler);
     }
 
+    /**
+     * @return the {@code ws://...} URL that the server's STOMP endpoint is served from.
+     */
+    public URI getWebSocketBaseURL() {
+        return webSocketBaseURL;
+    }
+
+    /**
+     * @return the session cookie established by previous HTTP calls, or {@code null}
+     *         if no session has been initialized yet (e.g. unauthenticated profiles).
+     */
+    public String getCookie() {
+        return cookie.get();
+    }
+
     public void tryWaitOK(String url) {
         var req = requestBuilder(url, null).GET().build();
         try {
