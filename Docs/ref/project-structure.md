@@ -21,7 +21,7 @@
 - `kafka-deploy.yaml` - Deployment configuration for the Kafka Publisher.
 - `README.md` - project documentation and instructions for developers
 - `AGENTS.md` - guidelines for contributors working on this project
-- `lib/` - for JAR dependencies available to all modules at runtime (deprecated)
+- `lib/` - for JAR dependencies available to all modules at runtime
     - `some-library.jar`
 
 > [!Note]

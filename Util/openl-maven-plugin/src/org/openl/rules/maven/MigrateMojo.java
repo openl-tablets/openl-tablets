@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,7 +27,6 @@ import org.openl.rules.maven.migration.ConfigEmptyTagMigrator;
 import org.openl.rules.maven.migration.ConfigProjectClasspathMigrator;
 import org.openl.rules.maven.migration.ConfigProjectCwProcessorMigrator;
 import org.openl.rules.maven.migration.ConfigProjectDefaultModulesMigrator;
-import org.openl.rules.maven.migration.ConfigProjectLibMigrator;
 import org.openl.rules.maven.migration.ConfigProjectMethodFilterMigrator;
 import org.openl.rules.maven.migration.GroovyJakartaMigrator;
 import org.openl.rules.maven.migration.Migrator;
@@ -116,7 +114,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
         var source = Path.of(sourcePath);
-        var all = allMigrators(this::packagesLibDependencies);
+        var all = allMigrators();
         var selected = selectMigrators(all, migrators);
         if (selected.isEmpty()) {
             info("No migrator matched '", migrators, "'. Available ids: ", joinIds(all));
@@ -183,19 +181,12 @@ public final class MigrateMojo extends BaseOpenLMojo {
      * Every available migrator, in execution order (this is the order {@code openl:migrate} runs them).
      * Stays private — external callers (the {@code openl:migrate-list} goal, unit tests) use
      * {@link #allMigratorsAlphabetical()} instead, which never depends on the execution-order semantics.
-     * <p>
-     * The {@code packagesLibDependencies} supplier is plumbed into
-     * {@link ConfigProjectLibMigrator}; it must report whether the {@code openl:package} goal would put
-     * anything into {@code lib/} so the lib-jar entry is only dropped when that folder would stay empty.
      */
-    static List<Migrator> allMigrators(BooleanSupplier packagesLibDependencies) {
+    static List<Migrator> allMigrators() {
         return List.of(
                 // Empty-tag cleanup for both rules.xml and rules-deploy.xml — one commit covering both files.
                 new ConfigEmptyTagMigrator(),
                 // rules.xml: one atomic step per content rewrite.
-                // Lib runs before classpath: dropping lib/*.jar may leave a classpath that the next step
-                // can flatten entirely (e.g. only the implicit groovy/ entry left).
-                new ConfigProjectLibMigrator(packagesLibDependencies),
                 new ConfigProjectClasspathMigrator(),
                 new ConfigProjectCwProcessorMigrator(),
                 new ConfigProjectMethodFilterMigrator(),
@@ -208,34 +199,12 @@ public final class MigrateMojo extends BaseOpenLMojo {
     }
 
     /**
-     * Returns {@code true} when the {@code openl:package} goal would add anything to the {@code lib/}
-     * folder (see {@code PackageMojo} lines 240-246):
-     * <ul>
-     *     <li>the project already has a main artifact file ({@code dependencyLib} branch), or</li>
-     *     <li>at least one runtime/compile-scoped non-OpenL dependency would be packaged — using
-     *         exactly the filter applied by {@link #getFilteredDependencies(java.util.function.Predicate)}
-     *         with {@link #isRuntimeScope(String)} so the answer matches {@code PackageMojo} on the
-     *         same project.</li>
-     * </ul>
-     * Used by {@link ConfigProjectLibMigrator}.
-     */
-    private boolean packagesLibDependencies() {
-        var artifact = project.getArtifact();
-        if (artifact != null && artifact.getFile() != null && artifact.getFile().isFile()) {
-            return true;
-        }
-        return !getFilteredDependencies(BaseOpenLMojo::isRuntimeScope).isEmpty();
-    }
-
-    /**
      * Same migrators as {@link #allMigrators}, but sorted alphabetically by id. Used by the
      * {@code openl:migrate-list} goal so users can discover every available id in a stable order
-     * regardless of the internal execution sequence. The {@code packagesLibDependencies} supplier is
-     * never consulted by this code path (listing only reads {@link Migrator#getId()} and
-     * {@link Migrator#getCommitMessage()}), so a no-op {@code () -> false} is passed in.
+     * regardless of the internal execution sequence.
      */
     static List<Migrator> allMigratorsAlphabetical() {
-        return allMigrators(() -> false).stream()
+        return allMigrators().stream()
                 .sorted(Comparator.comparing(Migrator::getId))
                 .toList();
     }

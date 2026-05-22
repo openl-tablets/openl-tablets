@@ -12,7 +12,7 @@ import org.openl.rules.maven.migration.Migrator;
 
 class MigrateMojoSelectionTest {
 
-    private static final List<Migrator> ALL = MigrateMojo.allMigrators(() -> false);
+    private static final List<Migrator> ALL = MigrateMojo.allMigrators();
 
     @Test
     void nullSelectorReturnsEveryMigrator() {
@@ -49,8 +49,6 @@ class MigrateMojoSelectionTest {
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.empty-tag"))));
         assertEquals(ids("config.project.classpath"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.project.classpath"))));
-        assertEquals(ids("config.project.lib"),
-                ids(MigrateMojo.selectMigrators(ALL, List.of("config.project.lib"))));
         assertEquals(ids("config.project.cw-processor"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.project.cw-processor"))));
         assertEquals(ids("config.project.method-filter"),
@@ -67,8 +65,7 @@ class MigrateMojoSelectionTest {
     void categoryPrefixMatchesEveryMigratorInCategory() {
         // The merged empty-tag migrator lives directly under `config`, so `config.project` and `config.deploy`
         // each match only the content-specific migrators of their file.
-        assertEquals(ids("config.project.lib",
-                        "config.project.classpath",
+        assertEquals(ids("config.project.classpath",
                         "config.project.cw-processor",
                         "config.project.method-filter",
                         "config.project.default-modules"),
@@ -88,7 +85,6 @@ class MigrateMojoSelectionTest {
         assertEquals(ids("config.empty-tag", "groovy.jakarta"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.empty-tag", "groovy.jakarta"))));
         assertEquals(ids("config.empty-tag",
-                        "config.project.lib",
                         "config.project.classpath",
                         "config.project.cw-processor",
                         "config.project.method-filter",
@@ -177,7 +173,6 @@ class MigrateMojoSelectionTest {
 
     private static List<String> allIds() {
         return List.of("config.empty-tag",
-                "config.project.lib",
                 "config.project.classpath",
                 "config.project.cw-processor",
                 "config.project.method-filter",
@@ -189,7 +184,6 @@ class MigrateMojoSelectionTest {
 
     private static List<String> allConfigIds() {
         return List.of("config.empty-tag",
-                "config.project.lib",
                 "config.project.classpath",
                 "config.project.cw-processor",
                 "config.project.method-filter",

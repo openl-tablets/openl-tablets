@@ -208,13 +208,12 @@ public class ProjectDescriptor {
         return classPathUrls;
     }
 
+    private static final List<String> DEFAULT_CLASSPATH = List.of("groovy/", "lib/*.jar");
+
     private Set<String> processClasspathPathPatterns() {
         Set<String> pathEntries = new HashSet<>();
-        if (CollectionUtils.isEmpty(classpath)) {
-            pathEntries.add("groovy/");
-            return pathEntries;
-        }
-        for (String pathEntry : this.classpath) {
+        var entries = CollectionUtils.isEmpty(classpath) ? DEFAULT_CLASSPATH : this.classpath;
+        for (String pathEntry : entries) {
             String path = pathEntry.replace('\\', '/').trim();
             if (path.startsWith("./")) {
                 path = path.substring(2);
