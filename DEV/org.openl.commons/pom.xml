@@ -30,6 +30,11 @@
             To compile them without adding extra dependency in client's project "compile" scope is used -->
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl</groupId>
