@@ -50,6 +50,6 @@ Integrates OpenL rules compilation into the Maven lifecycle.
 | `migrate`       |                    | Migrates or modernizes OpenL Project and Maven modules        |
 | `migrate-list`  |                    | List available `migrate` ids and their commit messages        |
 
-> [Note:]
+> [!Note]
 > The `generate` goal creates a Java interface matching the project's `<exposed-methods>` filter.
 > Use it to get type-safe rule invocation from Java code.

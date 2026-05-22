@@ -108,6 +108,6 @@ graph LR
     B -->|depends on| C[project-base/\nrules.xml]
 ```
 
-> [Note:]
+> [!Note]
 > In OpenL Studio, dependent projects must be deployed to the same repository workspace. In Rule Services, all
 > projects are deployed as a deployment unit.

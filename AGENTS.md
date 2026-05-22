@@ -72,4 +72,4 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
 - Tables only when both columns are short or 3+ columns; otherwise use `- **label** — description`
 - No version stamp in headings
 - Mermaid for structural diagrams
-- Admonitions: `> [Note:]` (single blockquote level only without title and nesting)
+- Admonitions: `> [!Note]` (single blockquote level only without title and nesting)

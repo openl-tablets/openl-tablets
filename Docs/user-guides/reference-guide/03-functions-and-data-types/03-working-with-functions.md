@@ -98,7 +98,7 @@ The two pairs give the same result when $a$ and $b$ have the same sign or when $
 
 **Non-finite floating-point operands:** a `NaN` input propagates to `NaN`; an infinite input produces `±Infinity` or `NaN` as the rounding rule dictates.
 
-> [Note:] `remainder` here is truncated remainder. It is not the same as **IEEEremainder**, which rounds the quotient to the nearest integer and therefore produces a signed remainder of minimum absolute magnitude.
+> [!Note] `remainder` here is truncated remainder. It is not the same as **IEEEremainder**, which rounds the quotient to the nearest integer and therefore produces a signed remainder of minimum absolute magnitude.
 
 #### Round Function
 

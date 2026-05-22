@@ -40,7 +40,7 @@ Files are applied in a deterministic order:
 - Suffixed variants such as `openapi-configuration-1.json` or `openapi-configuration-alpha.json` follow in natural filename order, so `openapi-configuration-alpha.json` is applied before `openapi-configuration-zeta.json`.
 - Each subsequent file overrides matching fields from the previous ones; non-overlapping fields are merged.
 
-> [Note:] Resources are resolved against the deployed service classpath, which means an extension JAR can ship its own `openapi-configuration-*.json` and it will be picked up automatically alongside the base file.
+> [!Note] Resources are resolved against the deployed service classpath, which means an extension JAR can ship its own `openapi-configuration-*.json` and it will be picked up automatically alongside the base file.
 
 ### Spring Property Placeholders
 

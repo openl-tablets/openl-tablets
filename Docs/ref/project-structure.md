@@ -24,6 +24,6 @@
 - `lib/` - for JAR dependencies available to all modules at runtime (deprecated)
     - `some-library.jar`
 
-> [Note:]
+> [!Note]
 > OpenL rules files may use obsolete `.xls` binary format, but `.xlsx` is recommended for better performance and
 > compatibility with modern Excel features.
