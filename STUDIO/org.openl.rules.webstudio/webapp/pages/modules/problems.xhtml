@@ -122,10 +122,13 @@
                     if (modules.total > 0) {
                         updateProgressPanel(modules, compileState === 'compiling');
                     }
+                    // Errors / warnings render on every push — matches the legacy polling UI,
+                    // which surfaced messages as soon as the server reported them rather than
+                    // waiting for the terminal event.
+                    renderMessages(messageSummary);
                     if (compileState === 'compiling') {
                         inProgress();
                     } else {
-                        renderMessages(messageSummary);
                         finished();
                         ws.nav.reloadPanel('left');
                     }
