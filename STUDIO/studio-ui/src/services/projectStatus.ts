@@ -19,8 +19,42 @@ export interface ProjectStatusMessage {
     severity: ProjectStatusSeverity
 }
 
+/**
+ * Origin of a compilation message. Mirrors the polymorphic backend
+ * {@code MessageSource} (discriminator: {@code type}).
+ *  - {@code module}: workbook-level location (no specific table)
+ *  - {@code table}: specific table cell, with id/name/module/cell
+ */
+export interface ProjectStatusModuleMessageSource {
+    type: 'module'
+    name?: string
+}
+
+export interface ProjectStatusTableMessageSource {
+    type: 'table'
+    id?: string
+    name?: string
+    module?: string
+    cell?: string
+}
+
+export type ProjectStatusMessageSource =
+    | ProjectStatusModuleMessageSource
+    | ProjectStatusTableMessageSource
+
+/**
+ * Compilation message enriched with origin and stack-trace availability.
+ * The {@code source} fields ({@code id}, {@code summary}, {@code severity}) are
+ * inlined by Jackson's {@code @JsonUnwrapped} on the backend, so they appear at the
+ * top level alongside {@code location} and {@code stacktrace}.
+ */
+export interface ProjectStatusDetailedMessage extends ProjectStatusMessage {
+    stacktrace: boolean
+    location?: ProjectStatusMessageSource
+}
+
 export interface ProjectStatusCompilationMessages {
-    items: ProjectStatusMessage[]
+    items: ProjectStatusDetailedMessage[]
     total: number
     errors: number
     warnings: number

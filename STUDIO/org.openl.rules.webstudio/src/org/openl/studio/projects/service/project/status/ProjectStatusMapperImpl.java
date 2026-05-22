@@ -26,7 +26,7 @@ import org.openl.studio.projects.model.project.status.CompilationTests;
 import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ModifiedBy;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
-import org.openl.studio.projects.service.MessageDescriptionMapper;
+import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
@@ -39,7 +39,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final CompilationJobRegistry compilationJobRegistry;
     private final PendingChangesResolver pendingChangesResolver;
-    private final MessageDescriptionMapper messageDescriptionMapper;
+    private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
 
     @Override
     public ProjectStatusViewModel map(RulesProject project) {
@@ -118,7 +118,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private CompilationDetails mapCompilationDetails(ProjectModel projectModel,
                                                      ProjectCompilationStatus compilationStatus) {
         return CompilationDetails.builder()
-                .messages(mapMessages(compilationStatus))
+                .messages(mapMessages(projectModel, compilationStatus))
                 .modules(mapModules(projectModel, compilationStatus))
                 .tests(mapTests(projectModel))
                 .build();
@@ -131,8 +131,8 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .build();
     }
 
-    private CompilationMessages mapMessages(ProjectCompilationStatus compilationStatus) {
-        var ordered = messageDescriptionMapper.mapSorted(compilationStatus.getAllMessage());
+    private CompilationMessages mapMessages(ProjectModel projectModel, ProjectCompilationStatus compilationStatus) {
+        var ordered = detailedMessageDescriptionMapper.mapSorted(compilationStatus.getAllMessage(), projectModel);
         return CompilationMessages.builder()
                 .items(ordered)
                 .total(ordered.size())

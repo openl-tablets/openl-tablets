@@ -172,12 +172,13 @@ public class ProjectsController {
         if (conflictsSessionHolder.hasConflictInfo(projectId)) {
             throw new ConflictException("project.unresolved.merge.conflicts.message");
         }
+        var normalized = normalize(request);
         try {
-            projectService.updateProjectStatus(project, request);
-            if (request.status() != null
-                    || StringUtils.isNotBlank(request.branch())
-                    || request.comment() != null
-                    || StringUtils.isNotBlank(request.revision())) {
+            projectService.updateProjectStatus(project, normalized);
+            if (normalized.status() != null
+                    || normalized.branch() != null
+                    || normalized.comment() != null
+                    || normalized.revision() != null) {
                 getWebStudio().reset();
             }
         } catch (ProjectException e) {
@@ -432,6 +433,21 @@ public class ProjectsController {
         } catch (ClassNotFoundException e) {
             throw new ConflictException("object.mapper.configuration.failed.message");
         }
+    }
+
+    /**
+     * Trim incoming string fields and convert whitespace-only values to {@code null} so
+     * downstream service logic can rely on null-vs-non-null checks instead of repeatedly
+     * calling {@code isNotBlank} / {@code trimToNull}.
+     */
+    private static ProjectStatusUpdateModel normalize(ProjectStatusUpdateModel raw) {
+        return ProjectStatusUpdateModel.builder()
+                .status(raw.status())
+                .branch(StringUtils.trimToNull(raw.branch()))
+                .revision(StringUtils.trimToNull(raw.revision()))
+                .comment(StringUtils.trimToNull(raw.comment()))
+                .selectedBranches(raw.selectedBranches())
+                .build();
     }
 
 }

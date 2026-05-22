@@ -5,12 +5,10 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
 
-import org.openl.rules.rest.compile.MessageDescription;
-
 @Builder
 public record CompilationMessages(
         @Parameter(description = "Compilation messages ordered by id (ascending).")
-        List<MessageDescription> items,
+        List<DetailedMessageDescription> items,
 
         @Parameter(description = "Total number of compilation messages across all severities.")
         int total,

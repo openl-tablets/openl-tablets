@@ -4805,7 +4805,7 @@ Content-Type: application/json
           "items": {
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/MessageDescription"
+              "$ref": "#/components/schemas/DetailedMessageDescription"
             },
             "type": "array"
           },
@@ -4854,6 +4854,33 @@ Content-Type: application/json
         },
         "type": "object"
       },
+      "DetailedMessageDescription": {
+        "properties": {
+          "id": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "location": {
+            "$ref": "#/components/schemas/MessageSource"
+          },
+          "severity": {
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR"
+            ],
+            "type": "string"
+          },
+          "stacktrace": {
+            "description": "***",
+            "type": "boolean"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "FileChange": {
         "properties": {
           "path": {
@@ -4872,6 +4899,33 @@ Content-Type: application/json
         },
         "type": "object"
       },
+      "MessageSource": {
+        "description": "***",
+        "discriminator": {
+          "mapping": {
+            "module": "#/components/schemas/ModuleMessageSource",
+            "table": "#/components/schemas/TableMessageSource"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ModuleMessageSource"
+          },
+          {
+            "$ref": "#/components/schemas/TableMessageSource"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
       "ModifiedBy": {
         "properties": {
           "author": {
@@ -4884,6 +4938,23 @@ Content-Type: application/json
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ModuleMessageSource": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource"
+          },
+          {
+            "properties": {
+              "name": {
+                "description": "***",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
         "type": "object"
       },
       "PendingChanges": {
@@ -4938,6 +5009,35 @@ Content-Type: application/json
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "TableMessageSource": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource"
+          },
+          {
+            "properties": {
+              "cell": {
+                "description": "***",
+                "type": "string"
+              },
+              "id": {
+                "description": "***",
+                "type": "string"
+              },
+              "module": {
+                "description": "***",
+                "type": "string"
+              },
+              "name": {
+                "description": "***",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
         "type": "object"
       }
     }

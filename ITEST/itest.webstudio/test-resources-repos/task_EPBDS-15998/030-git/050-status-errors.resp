@@ -16,7 +16,15 @@ Content-Type: application/json
         {
           "id": "###",
           "summary": "Method 'callSomeUnknownFunction()' is not found.",
-          "severity": "ERROR"
+          "severity": "ERROR",
+          "location": {
+            "type": "table",
+            "id": "***",
+            "name": "doWithError",
+            "module": "Bank Rating",
+            "cell": "***"
+          },
+          "stacktrace": true
         }
       ],
       "total": 1,

@@ -10,7 +10,6 @@ import lombok.extern.jackson.Jacksonized;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.studio.projects.converter.ProjectStatusDeserializer;
-import org.openl.util.StringUtils;
 
 /**
  * Model for updating project status
@@ -36,11 +35,4 @@ public record ProjectStatusUpdateModel(
         @Parameter(description = "List of branches selected by the user for this project.")
         Set<String> selectedBranches
 ) {
-    public ProjectStatusUpdateModel {
-        // Trim and normalise whitespace-only strings to null so downstream code never has
-        // to differentiate "absent" from "blank".
-        branch = StringUtils.trimToNull(branch);
-        revision = StringUtils.trimToNull(revision);
-        comment = StringUtils.trimToNull(comment);
-    }
 }
