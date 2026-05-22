@@ -59,7 +59,6 @@ interface LegacyService {
     // straight from Migrator.getCommitMessage()) and "Migrate <relativePath>" for each groovy file that
     // changed.
     assert buildLog.contains('Migrate: rules.xml (needless tags cleanup)')
-    assert buildLog.contains('Migrate: rules.xml (drop lib/*.jar classpath entry — packaging does not populate lib/)')
     assert buildLog.contains('Migrate: rules.xml (drop default classpath from rules.xml)')
     assert buildLog.contains('Migrate: rules.xml (drop CWPropertyFileNameProcessor)')
     assert buildLog.contains('Migrate: rules.xml (method-filter to exposed-methods)')
@@ -71,12 +70,12 @@ interface LegacyService {
 
     // Tally every "Migrate: " line so an unexpected migrator (e.g. someone wires a noisy migrator without
     // updating this script) immediately surfaces. rules.xml: empty-tag + lib + classpath + cw-processor +
-    // method-filter + default-modules = 6 lines; rules-deploy.xml: empty-tag + runtime-context +
-    // template-class = 3 lines; total = 9. (GroovyJakartaMigrator emits "Migrate <path>", not
+    // method-filter + default-modules = 5 lines; rules-deploy.xml: empty-tag + runtime-context +
+    // template-class = 3 lines; total = 8. (GroovyJakartaMigrator emits "Migrate <path>", not
     // "Migrate: ", so it doesn't count here.)
     def migrateColonLines = buildLog.readLines().findAll { it.contains('Migrate: ') }
-    assert migrateColonLines.size() == 9 :
-            "expected exactly 9 'Migrate: ' lines, got ${migrateColonLines.size()}:\n${migrateColonLines.join('\n')}"
+    assert migrateColonLines.size() == 8 :
+            "expected exactly 8 'Migrate: ' lines, got ${migrateColonLines.size()}:\n${migrateColonLines.join('\n')}"
 
     // setup.groovy created a fresh local git repository and made an "initial" commit. After openl:migrate
     // every migrator that actually changed files produced its own SCM commit. Read the log subjects (one per
@@ -100,7 +99,6 @@ interface LegacyService {
     // by the per-migrator commit subject.
     def commitFragments = subjects.collect { it.split(' for OpenL ')[0] } as Set
     assert commitFragments.contains('migrate: needless tags cleanup')
-    assert commitFragments.contains('migrate: drop lib/*.jar classpath entry — packaging does not populate lib/')
     assert commitFragments.contains('migrate: drop default classpath from rules.xml')
     assert commitFragments.contains('migrate: method-filter to exposed-methods')
     assert commitFragments.contains('migrate: drop redundant module and project-name defaults from rules.xml')

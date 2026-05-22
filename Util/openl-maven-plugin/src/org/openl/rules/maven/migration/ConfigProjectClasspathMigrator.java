@@ -11,9 +11,10 @@ import org.openl.util.CollectionUtils;
 
 /**
  * {@code rules.xml} migration: drops the {@code <classpath>} block when every entry it contains is a
- * path the OpenL resolver already adds implicitly — {@code groovy/} or {@code groovy}. One or several
- * of those entries (in any combination) is enough to trigger the drop; any other entry keeps the
- * whole block.
+ * path the OpenL resolver already adds implicitly — {@code groovy/}, {@code groovy}, or
+ * {@code lib/*.jar}. One or several of those entries (in any combination) is enough to trigger the
+ * drop; any other entry keeps the whole block. Windows-style {@code \} separators are normalised to
+ * {@code /} before matching, mirroring {@code ProjectDescriptor.processClasspathPathPatterns}.
  * <p>
  * Migrator id: {@code config.project.classpath}.
  *
@@ -21,7 +22,7 @@ import org.openl.util.CollectionUtils;
  */
 public final class ConfigProjectClasspathMigrator implements Migrator {
 
-    private static final Set<String> DEFAULT_CLASSPATH_PATHS = Set.of("groovy/", "groovy", "groovy\\");
+    private static final Set<String> DEFAULT_CLASSPATH_PATHS = Set.of("groovy/", "groovy", "lib/*.jar");
 
     /**
      * Package-private for direct unit testing.
@@ -32,7 +33,7 @@ public final class ConfigProjectClasspathMigrator implements Migrator {
             return;
         }
         boolean allDefaults = classpath.stream()
-                .allMatch(e -> e != null && DEFAULT_CLASSPATH_PATHS.contains(e));
+                .allMatch(e -> e != null && DEFAULT_CLASSPATH_PATHS.contains(e.replace('\\', '/')));
         if (allDefaults) {
             descriptor.setClasspath(null);
         }

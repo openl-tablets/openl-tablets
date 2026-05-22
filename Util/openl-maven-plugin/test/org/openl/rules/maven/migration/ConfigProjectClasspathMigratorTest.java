@@ -48,8 +48,46 @@ class ConfigProjectClasspathMigratorTest {
     }
 
     @Test
+    void dropsClasspathWhenOnlyLibJar() {
+        assertMigration(
+                """
+                        <project>
+                            <name>p</name>
+                            <classpath>
+                                <entry path="lib/*.jar"/>
+                            </classpath>
+                        </project>
+                        """,
+                """
+                        <project>
+                            <name>p</name>
+                        </project>
+                        """);
+    }
+
+    @Test
+    void dropsClasspathWhenBackslashLibJar() {
+        // ProjectDescriptor.processClasspathPathPatterns() normalises '\' to '/' before matching,
+        // so "lib\*.jar" is runtime-equivalent to "lib/*.jar" and must be dropped on the same branch.
+        assertMigration(
+                """
+                        <project>
+                            <name>p</name>
+                            <classpath>
+                                <entry path="lib\\*.jar"/>
+                            </classpath>
+                        </project>
+                        """,
+                """
+                        <project>
+                            <name>p</name>
+                        </project>
+                        """);
+    }
+
+    @Test
     void dropsClasspathWhenEveryEntryIsADefault() {
-        // Any combination of the two default paths still drops the whole block.
+        // Any combination of the default paths still drops the whole block.
         assertMigration(
                 """
                         <project>
@@ -57,6 +95,7 @@ class ConfigProjectClasspathMigratorTest {
                             <classpath>
                                 <entry path="groovy/"/>
                                 <entry path="groovy"/>
+                                <entry path="lib/*.jar"/>
                             </classpath>
                         </project>
                         """,
@@ -83,13 +122,29 @@ class ConfigProjectClasspathMigratorTest {
     }
 
     @Test
-    void keepsClasspathWhenOnlyNonDefaultEntry() {
+    void keepsClasspathWhenLibJarMixedWithNonDefault() {
+        // The migrator never selectively removes default entries — a single non-default entry keeps
+        // the whole block, including the now-default lib/*.jar alongside it.
         assertUnchanged(
                 """
                         <project>
                             <name>p</name>
                             <classpath>
                                 <entry path="lib/*.jar"/>
+                                <entry path="custom/"/>
+                            </classpath>
+                        </project>
+                        """);
+    }
+
+    @Test
+    void keepsClasspathWhenOnlyNonDefaultEntry() {
+        assertUnchanged(
+                """
+                        <project>
+                            <name>p</name>
+                            <classpath>
+                                <entry path="custom/"/>
                             </classpath>
                         </project>
                         """);
