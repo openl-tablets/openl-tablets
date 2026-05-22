@@ -3364,7 +3364,7 @@ Content-Type: application/json
         "properties": {
           "status": {
             "type": "string",
-            "description": "Target project status to transition to.",
+            "description": "***",
             "enum": [
               "OPENED",
               "CLOSED"

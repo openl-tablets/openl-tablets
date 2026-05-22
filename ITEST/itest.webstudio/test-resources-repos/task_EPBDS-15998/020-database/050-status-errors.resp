@@ -13,7 +13,7 @@ Content-Type: application/json
     "messages": {
       "items": [
         {
-          "id": 89,
+          "id": "###",
           "summary": "Method 'callSomeUnknownFunction()' is not found.",
           "severity": "ERROR"
         }

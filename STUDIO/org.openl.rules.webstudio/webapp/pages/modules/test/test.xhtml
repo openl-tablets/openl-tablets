@@ -367,6 +367,13 @@
                                             }
                                         }
                                     );
+                                }).catch(function (err) {
+                                    // Don't leave the UI stuck in "Waiting for the end of loading..." —
+                                    // log and reload so the page re-evaluates whatever state the server reports.
+                                    if (console && console.warn) {
+                                        console.warn('Failed to fetch project status', err);
+                                    }
+                                    ws.nav.reload();
                                 });
                             });
                         });

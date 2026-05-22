@@ -13,6 +13,29 @@ vi.mock('services/websocket', () => ({
     },
 }))
 
+vi.mock('store', () => ({
+    useAppStore: {
+        getState: () => ({
+            setShowLogin: vi.fn(),
+            setShowForbidden: vi.fn(),
+            setShowNotFound: vi.fn(),
+            setShowServerError: vi.fn(),
+        }),
+    },
+}))
+
+vi.mock('antd', () => ({
+    notification: { error: vi.fn(), warning: vi.fn(), success: vi.fn() },
+}))
+
+const jsonResponse = (payload: unknown, status = 200) => ({
+    ok: status >= 200 && status < 300,
+    status,
+    headers: new Headers({ 'Content-Type': 'application/json' }),
+    json: async () => payload,
+    text: async () => JSON.stringify(payload),
+})
+
 describe('projectStatus service', () => {
     const fetchMock = vi.fn()
     let fetchProjectStatus: typeof FetchProjectStatusFn
@@ -41,36 +64,28 @@ describe('projectStatus service', () => {
     })
 
     describe('fetchProjectStatus', () => {
-        it('GETs /web/projects/{projectId}/status?branch=', async () => {
+        it('GETs /web/projects/{projectId}/status?branch= via shared apiCall', async () => {
             const payload = { projectId: 'abc', compileState: 'ok' }
-            fetchMock.mockResolvedValue({
-                ok: true,
-                status: 200,
-                json: async () => payload,
-            })
+            fetchMock.mockResolvedValue(jsonResponse(payload))
 
             const result = await fetchProjectStatus('abc=')
 
             expect(fetchMock).toHaveBeenCalledWith(
                 '/ctx/web/projects/abc%3D/status?branch=',
-                expect.objectContaining({ credentials: 'same-origin' })
+                expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
             )
             expect(result).toEqual(payload)
         })
 
-        it('throws on non-2xx response', async () => {
-            fetchMock.mockResolvedValue({ ok: false, status: 500, json: async () => ({}) })
+        it('rejects with ApiHttpError on non-2xx response', async () => {
+            fetchMock.mockResolvedValue(jsonResponse({ message: 'boom' }, 500))
 
-            await expect(fetchProjectStatus('abc')).rejects.toThrow('Failed to fetch project status: 500')
+            await expect(fetchProjectStatus('abc')).rejects.toMatchObject({ name: 'ApiHttpError', status: 500 })
         })
 
         it('dedupes concurrent fetches for the same projectId', async () => {
             const payload = { projectId: 'abc', compileState: 'ok' }
-            fetchMock.mockResolvedValue({
-                ok: true,
-                status: 200,
-                json: async () => payload,
-            })
+            fetchMock.mockResolvedValue(jsonResponse(payload))
 
             const [first, second] = await Promise.all([
                 fetchProjectStatus('abc'),
@@ -83,7 +98,7 @@ describe('projectStatus service', () => {
         })
 
         it('issues a fresh request once the in-flight one settles', async () => {
-            fetchMock.mockResolvedValue({ ok: true, status: 200, json: async () => ({ projectId: 'abc' }) })
+            fetchMock.mockResolvedValue(jsonResponse({ projectId: 'abc' }))
 
             await fetchProjectStatus('abc')
             await fetchProjectStatus('abc')

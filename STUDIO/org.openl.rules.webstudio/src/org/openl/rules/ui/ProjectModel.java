@@ -607,27 +607,20 @@ public class ProjectModel {
                         }
                     } else {
                         compilationStatus.addModulesCount(1);
-                        if (Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName()) && Objects
-                                .equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
-                            // Opened module's compiled class is published by setModuleInfo AFTER
-                            // loadDependency returns, but dependency-completion callbacks (which
-                            // re-publish status) can fire mid-compile while this field is still
-                            // null. The loader itself has its compiled-dependency reference set
-                            // by then, so use that as a fallback so the messages aren't lost.
-                            if (openedModuleCompiledOpenClass != null) {
-                                // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
-                                // rewrite the algorithm to handle with it is required here
-                                compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
-                                        .addModulesCompiled(1);
-                            } else if (dependencyLoader.getRefToCompiledDependency() != null) {
-                                compilationStatus.addMessages(
-                                                dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages())
-                                        .addModulesCompiled(1);
-                            }
+                        boolean isOpenedModule = Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName())
+                                && Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject());
+                        if (isOpenedModule && openedModuleCompiledOpenClass != null) {
+                            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
+                            // rewrite the algorithm to handle with it is required here
+                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
+                                    .addModulesCompiled(1);
                         } else {
-                            if (dependencyLoader.getRefToCompiledDependency() != null) {
-                                compilationStatus.addMessages(
-                                                dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages())
+                            // Fallback path for the opened module BEFORE setModuleInfo publishes
+                            // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
+                            // and the canonical path for all other module loaders.
+                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
+                            if (compiledDependency != null) {
+                                compilationStatus.addMessages(compiledDependency.getCompiledOpenClass().getMessages())
                                         .addModulesCompiled(1);
                             }
                         }
@@ -1106,11 +1099,17 @@ public class ProjectModel {
                 .filter(m -> m.getSeverity() == Severity.ERROR && m.getSourceLocation() != null)
                 .map(m -> Pair.of(m, new XlsUrlParser(m.getSourceLocation())))
                 .toList();
+        var projectDescriptor = getProjectDescriptor();
         Map<String, ModuleTableCounts> byModule = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (IDependencyLoader loader : webStudioWorkspaceDependencyManager
-                .findAllProjectDependencyLoaders(getProjectDescriptor())) {
-            if (loader.isProjectLoader() || loader.getModule() == null
-                    || loader.getRefToCompiledDependency() == null) {
+                .findAllProjectDependencyLoaders(projectDescriptor)) {
+            // Walk only module loaders that belong to the current project — the lookup
+            // returns loaders for inter-project dependencies too, and their modules must
+            // not contribute to this project's table breakdown.
+            if (loader.isProjectLoader()
+                    || loader.getModule() == null
+                    || loader.getRefToCompiledDependency() == null
+                    || !Objects.equals(loader.getProject(), projectDescriptor)) {
                 continue;
             }
             ModuleTableCounts counts = countModuleTables(extractModuleTables(loader), errorMessages);

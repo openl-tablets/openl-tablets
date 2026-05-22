@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
@@ -189,16 +190,16 @@ public class ProjectsController {
     public ProjectStatusViewModel getStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                             @Parameter(description = "projects.status.param.branch.desc")
                                             @RequestParam(value = "branch", required = false) String branch) {
+        // Read-only by design — the `branch` parameter is asserted against the project's
+        // current branch; switching is exposed via PATCH /{projectId} with a
+        // ProjectStatusUpdateModel that carries the target branch.
         if (StringUtils.isNotBlank(branch)) {
-            var updateBranchRequest = ProjectStatusUpdateModel.builder()
-                    .branch(branch)
-                    .build();
-            try {
-                projectService.updateProjectStatus(project, updateBranchRequest);
-            } catch (ProjectException e) {
-                throw new ConflictException("project.branch.switch.failed.message");
+            if (!project.isSupportsBranches()) {
+                throw new ConflictException("project.branch.unsupported.message");
             }
-            getWebStudio().reset();
+            if (!Objects.equals(branch, project.getBranch())) {
+                throw new ConflictException("project.branch.mismatch.message");
+            }
         }
         return projectStatusMapper.map(project);
     }

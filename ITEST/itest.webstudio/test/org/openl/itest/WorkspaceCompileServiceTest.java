@@ -31,7 +31,7 @@ class WorkspaceCompileServiceTest {
         try (var stomp = new StompTester(client)) {
             // Subscribe BEFORE triggering compilation so we don't miss the terminal event.
             var terminal = stomp.awaitMatching(STATUS_TOPIC, ProjectStatus.class,
-                    status -> !"compiling".equals(status.compileState));
+                    status -> "errors".equals(status.compileState));
 
             // Trigger project compilation.
             client.send("workspace-compile/project.get");

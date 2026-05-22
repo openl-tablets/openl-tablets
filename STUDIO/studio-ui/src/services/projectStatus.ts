@@ -1,5 +1,5 @@
+import apiCall from './apiCall'
 import { webSocketService, WebSocketMessage } from './websocket'
-import CONFIG from './config'
 
 /**
  * Compilation severity values produced by the backend (`@JsonProperty` on the enum, but
@@ -76,7 +76,6 @@ export interface ProjectStatusBridge {
     ): ProjectStatusSubscription
 }
 
-const REST_PREFIX = `${CONFIG.CONTEXT}/web`
 
 /**
  * Build the user-scoped STOMP destination matching
@@ -112,17 +111,18 @@ export function fetchProjectStatus(projectId: string): Promise<ProjectStatusUpda
     if (existing) {
         return existing
     }
-    const url = `${REST_PREFIX}/projects/${encodeURIComponent(projectId)}/status?branch=`
-    const promise = (async () => {
-        const response = await fetch(url, {
+    // Background poll: throw on error so callers can decide how to render, and suppress
+    // the global "show login / forbidden / not-found / server error" page redirects —
+    // a stale status fetch shouldn't take over the whole UI.
+    const promise = (apiCall(
+        `/projects/${encodeURIComponent(projectId)}/status?branch=`,
+        {
+            method: 'GET',
             credentials: 'same-origin',
             headers: { Accept: 'application/json' },
-        })
-        if (!response.ok) {
-            throw new Error(`Failed to fetch project status: ${response.status}`)
-        }
-        return (await response.json()) as ProjectStatusUpdate
-    })().finally(() => {
+        },
+        { throwError: true, suppressErrorPages: true }
+    ) as Promise<ProjectStatusUpdate>).finally(() => {
         inflightFetches.delete(projectId)
     })
     inflightFetches.set(projectId, promise)
