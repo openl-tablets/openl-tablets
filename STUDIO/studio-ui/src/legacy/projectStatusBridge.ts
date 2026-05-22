@@ -1,13 +1,13 @@
 /**
  * Bridge that exposes the React-side project-status API to the legacy JSF/RichFaces
  * pages running in the same document. The bridge is a side-effect import — pulling
- * it into the app sets {@code window.openl.projectStatus} once, and legacy inline
+ * it into the app sets {@code globalThis.openl.projectStatus} once, and legacy inline
  * scripts can then call it via the {@code openl:ready} event.
  *
  * <p>Legacy callers should:
  *   <pre>
  *     function whenReady(cb) {
- *         if (window.openl &amp;&amp; window.openl.projectStatus) { cb(); return; }
+ *         if (globalThis.openl &amp;&amp; globalThis.openl.projectStatus) { cb(); return; }
  *         document.addEventListener('openl:ready', cb, { once: true });
  *     }
  *   </pre>
@@ -23,8 +23,8 @@ const bridge: ProjectStatusBridge = {
     subscribe: subscribeProjectStatus,
 }
 
-window.openl = window.openl ?? {}
-window.openl.projectStatus = bridge
+globalThis.openl = globalThis.openl ?? {}
+globalThis.openl.projectStatus = bridge
 
 document.dispatchEvent(new CustomEvent('openl:ready'))
 

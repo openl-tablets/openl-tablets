@@ -120,17 +120,15 @@ public class ProjectModel {
     @Getter
     private volatile boolean compilationInProgress;
     private volatile ResolvedDependency projectCompilationCompleted;
-    private long compilationCycleCounter;
     /**
      * The most recent registered compilation cycle. A fresh instance is published whenever the
      * model starts (or has just finished) a compilation — {@link #compileProject(boolean, boolean)},
      * {@link #setModuleInfo(Module, ReloadType)} via its single-module path, etc. External
-     * observers can use object identity (or {@link RegisteredCompilation#id()}) to detect a new
-     * cycle even when the previous one completes very quickly. Initialised to an already-completed
-     * sentinel so callers never see {@code null}.
+     * observers use object identity to detect a new cycle even when the previous one completes
+     * very quickly. Initialised to an already-completed sentinel so callers never see {@code null}.
      */
     private final AtomicReference<RegisteredCompilation> currentCompilation =
-            new AtomicReference<>(RegisteredCompilation.completed(0L));
+            new AtomicReference<>(RegisteredCompilation.completed());
 
     public RegisteredCompilation getCurrentCompilation() {
         return currentCompilation.get();
@@ -1298,7 +1296,7 @@ public class ProjectModel {
                 this.compilationInProgress = false;
                 // Single-module compile already finished synchronously above. Register a fresh
                 // completed cycle so external observers see a new identity for this compilation.
-                this.currentCompilation.set(RegisteredCompilation.completed(++this.compilationCycleCounter));
+                this.currentCompilation.set(RegisteredCompilation.completed());
                 publishStatusChanged();
             }
         } catch (Exception | LinkageError e) {
@@ -1316,7 +1314,7 @@ public class ProjectModel {
             }
             this.compilationInProgress = true;
             this.projectCompilationCompleted = null;
-            cycle = new RegisteredCompilation(++this.compilationCycleCounter);
+            cycle = new RegisteredCompilation();
             this.currentCompilation.set(cycle);
             // Guarantee a terminal "compilation done" event fires regardless of what happens
             // inside the async callback — whenComplete is invoked synchronously on whichever

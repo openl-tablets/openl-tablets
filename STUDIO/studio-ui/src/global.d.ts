@@ -5,12 +5,11 @@ declare module '*.jpeg'
 declare module '*.gif'
 
 declare global {
-    interface Window {
-        // Global runtime variables
-        openl?: {
-            projectStatus?: import('./services/projectStatus').ProjectStatusBridge
-        }
-    }
+    // Declared as a `var` so it surfaces on both `window` and `globalThis`.
+    // eslint-disable-next-line no-var
+    var openl: {
+        projectStatus?: import('./services/projectStatus').ProjectStatusBridge
+    } | undefined
 }
 
 interface FieldObject<T> {
