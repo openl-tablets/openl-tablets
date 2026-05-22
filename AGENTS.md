@@ -2,13 +2,14 @@
 
 OpenL Tablets is a business rules engine that compiles Excel spreadsheets into executable Java via runtime bytecode generation.
 
-## Strict Rules
+## Strict Rules (**MUST**. No exceptions.)
 
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
-- Use Java 21+ features where appropriate
+- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text bloks and etc.)
+  and features (Virtual Threads, Sequenced Collections, new String, Collections & IO/NIO methods and etc.)
 - Use Lombok for boilerplate reduction
-- Use `var` keyword in Java classes for declaring a variable type where possible
+- Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
