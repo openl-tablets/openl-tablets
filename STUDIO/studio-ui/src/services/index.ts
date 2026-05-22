@@ -13,5 +13,4 @@ export type {
     ProjectStatusCompilationMessages,
     ProjectStatusCompilationModules,
     ProjectStatusCompilationTests,
-    ProjectStatusCompilationTables,
 } from './projectStatus'

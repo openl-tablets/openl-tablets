@@ -4892,9 +4892,6 @@ Content-Type: application/json
           "modules": {
             "$ref": "#/components/schemas/CompilationModules"
           },
-          "tables": {
-            "$ref": "#/components/schemas/CompilationTables"
-          },
           "tests": {
             "$ref": "#/components/schemas/CompilationTests"
           }
@@ -4950,28 +4947,6 @@ Content-Type: application/json
         },
         "type": "object"
       },
-      "CompilationTables": {
-        "properties": {
-          "errors": {
-            "description": "***",
-            "format": "int32",
-            "type": "integer"
-          },
-          "modules": {
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ModuleTablesSummary"
-            },
-            "type": "array"
-          },
-          "total": {
-            "description": "***",
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "CompilationTests": {
         "properties": {
           "total": {
@@ -5010,25 +4985,6 @@ Content-Type: application/json
             "description": "***",
             "format": "date-time",
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "ModuleTablesSummary": {
-        "properties": {
-          "errors": {
-            "description": "***",
-            "format": "int32",
-            "type": "integer"
-          },
-          "name": {
-            "description": "***",
-            "type": "string"
-          },
-          "total": {
-            "description": "***",
-            "format": "int32",
-            "type": "integer"
           }
         },
         "type": "object"

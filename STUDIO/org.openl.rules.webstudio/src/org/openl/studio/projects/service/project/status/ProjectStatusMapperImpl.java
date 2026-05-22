@@ -22,11 +22,9 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.project.status.CompilationDetails;
 import org.openl.studio.projects.model.project.status.CompilationMessages;
 import org.openl.studio.projects.model.project.status.CompilationModules;
-import org.openl.studio.projects.model.project.status.CompilationTables;
 import org.openl.studio.projects.model.project.status.CompilationTests;
 import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ModifiedBy;
-import org.openl.studio.projects.model.project.status.ModuleTablesSummary;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.MessageDescriptionMapper;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -123,7 +121,6 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .messages(mapMessages(compilationStatus))
                 .modules(mapModules(projectModel, compilationStatus))
                 .tests(mapTests(projectModel))
-                .tables(mapTables(projectModel))
                 .build();
     }
 
@@ -131,37 +128,6 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         var testMethods = projectModel.getAllTestMethods();
         return CompilationTests.builder()
                 .total(testMethods == null ? 0 : testMethods.length)
-                .build();
-    }
-
-    /**
-     * Populated only when compilation is done — until then the table tree is incomplete and
-     * the numbers would change with every poll.
-     */
-    private CompilationTables mapTables(ProjectModel projectModel) {
-        if (!isCompilationCompleted(projectModel)) {
-            return null;
-        }
-        var perModule = projectModel.getProjectTableCountsByModule()
-                .entrySet()
-                .stream()
-                .map(e -> ModuleTablesSummary.builder()
-                        .name(e.getKey())
-                        .total(e.getValue().total())
-                        .errors(e.getValue().errors())
-                        .build())
-                .toList();
-        // Sum the per-module summaries instead of running two more passes over all tables.
-        var total = 0;
-        var errors = 0;
-        for (var summary : perModule) {
-            total += summary.total();
-            errors += summary.errors();
-        }
-        return CompilationTables.builder()
-                .total(total)
-                .errors(errors)
-                .modules(perModule)
                 .build();
     }
 

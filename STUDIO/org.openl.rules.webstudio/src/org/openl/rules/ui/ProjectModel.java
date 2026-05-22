@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -1082,84 +1081,6 @@ public class ProjectModel {
             }
         }
         return count;
-    }
-
-    /**
-     * Per-module table summary across the whole current project. Keys are module names
-     * (as defined in the project descriptor); values carry the non-{@code OTHER} table
-     * count and the count of tables that hold at least one {@code ERROR} message.
-     * Modules with no non-{@code OTHER} tables are omitted; entries are ordered by
-     * module name (case-insensitive).
-     */
-    public synchronized Map<String, ModuleTableCounts> getProjectTableCountsByModule() {
-        if (webStudioWorkspaceDependencyManager == null) {
-            return Map.of();
-        }
-        Collection<Pair<OpenLMessage, XlsUrlParser>> errorMessages = getModuleMessages().stream()
-                .filter(m -> m.getSeverity() == Severity.ERROR && m.getSourceLocation() != null)
-                .map(m -> Pair.of(m, new XlsUrlParser(m.getSourceLocation())))
-                .toList();
-        var projectDescriptor = getProjectDescriptor();
-        Map<String, ModuleTableCounts> byModule = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        for (IDependencyLoader loader : webStudioWorkspaceDependencyManager
-                .findAllProjectDependencyLoaders(projectDescriptor)) {
-            // Walk only module loaders that belong to the current project — the lookup
-            // returns loaders for inter-project dependencies too, and their modules must
-            // not contribute to this project's table breakdown.
-            if (loader.isProjectLoader()
-                    || loader.getModule() == null
-                    || loader.getRefToCompiledDependency() == null
-                    || !Objects.equals(loader.getProject(), projectDescriptor)) {
-                continue;
-            }
-            ModuleTableCounts counts = countModuleTables(extractModuleTables(loader), errorMessages);
-            if (counts.total() > 0) {
-                byModule.put(loader.getModule().getName(), counts);
-            }
-        }
-        return byModule;
-    }
-
-    private static ModuleTableCounts countModuleTables(TableSyntaxNode[] moduleTables,
-                                                       Collection<Pair<OpenLMessage, XlsUrlParser>> errorMessages) {
-        int total = 0;
-        int errors = 0;
-        for (TableSyntaxNode tsn : moduleTables) {
-            if (!XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType())) {
-                total++;
-                if (hasError(tsn, errorMessages)) {
-                    errors++;
-                }
-            }
-        }
-        return new ModuleTableCounts(total, errors);
-    }
-
-    private static TableSyntaxNode[] extractModuleTables(IDependencyLoader loader) {
-        IMetaInfo metaInfo = loader.getRefToCompiledDependency()
-                .getCompiledOpenClass()
-                .getOpenClassWithErrors()
-                .getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo xlsMetaInfo && xlsMetaInfo.getXlsModuleNode() != null) {
-            return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
-        }
-        return TableSyntaxNode.EMPTY_ARRAY;
-    }
-
-    private static boolean hasError(TableSyntaxNode tsn,
-                                    Collection<Pair<OpenLMessage, XlsUrlParser>> errorMessages) {
-        for (Pair<OpenLMessage, XlsUrlParser> pair : errorMessages) {
-            if (pair.getRight().intersects(tsn.getUriParser())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Per-module table counts produced by {@link #getProjectTableCountsByModule()}.
-     */
-    public record ModuleTableCounts(int total, int errors) {
     }
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {

@@ -12,9 +12,6 @@ public record CompilationDetails(
         CompilationModules modules,
 
         @Parameter(description = "Tests discovered in the compiled project.")
-        CompilationTests tests,
-
-        @Parameter(description = "Tables discovered in the compiled project. Populated only when compilation is done.")
-        CompilationTables tables
+        CompilationTests tests
 ) {
 }

@@ -36,16 +36,10 @@ export interface ProjectStatusCompilationTests {
     total: number
 }
 
-export interface ProjectStatusCompilationTables {
-    total: number
-    errors: number
-}
-
 export interface ProjectStatusCompilation {
     messages?: ProjectStatusCompilationMessages
     modules?: ProjectStatusCompilationModules
     tests?: ProjectStatusCompilationTests
-    tables?: ProjectStatusCompilationTables
 }
 
 export interface ProjectStatusUpdate {

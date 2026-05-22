@@ -25,17 +25,6 @@ Content-Type: application/json
     },
     "tests": {
       "total": 14
-    },
-    "tables": {
-      "total": 60,
-      "errors": 0,
-      "modules": [
-        {
-          "name": "Bank Rating",
-          "total": 60,
-          "errors": 0
-        }
-      ]
     }
   }
 }
