@@ -42,11 +42,8 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     /**
      * Parameter to skip running OpenL Tablets verify goal if it set to 'true'.
-     *
-     * @deprecated for troubleshooting purposes
      */
     @Parameter(property = "skipITs")
-    @Deprecated
     private boolean skipITs;
 
     @Parameter(defaultValue = "${project.build.directory}", required = true, readonly = true)
