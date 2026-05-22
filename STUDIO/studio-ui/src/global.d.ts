@@ -6,7 +6,6 @@ declare module '*.gif'
 
 declare global {
     // Declared as a `var` so it surfaces on both `window` and `globalThis`.
-    // eslint-disable-next-line no-var
     var openl: {
         projectStatus?: import('./services/projectStatus').ProjectStatusBridge
     } | undefined

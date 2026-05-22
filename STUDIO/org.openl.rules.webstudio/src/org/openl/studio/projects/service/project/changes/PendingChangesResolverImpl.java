@@ -172,12 +172,7 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
     }
 
     private static Set<String> readZippedDesignEntryPaths(RulesProject project, String projectPath) throws IOException {
-        Repository designRepository = project.getDesignRepository();
-        String folderPath = project.getDesignFolderName();
-        String historyVersion = project.getHistoryVersion();
-        FileItem fileItem = designRepository.supports().versions() && historyVersion != null
-                ? designRepository.readHistory(folderPath, historyVersion)
-                : designRepository.read(folderPath);
+        var fileItem = openDesignSnapshot(project);
         if (fileItem == null) {
             return Set.of();
         }
@@ -191,21 +186,38 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
                             project.getBusinessName(), MAX_ZIP_ENTRIES);
                     return Set.of();
                 }
-                if (!entry.isDirectory()) {
-                    var relative = normalize(entry.getName());
-                    // Reject path-traversal / absolute names that would let an attacker
-                    // poison the comparison map (and protect any future caller that
-                    // resolves these paths against the local filesystem).
-                    if (relative.contains("../") || relative.startsWith("/")) {
-                        log.warn("Skipping suspicious zip entry '{}' in project '{}'",
-                                entry.getName(), project.getBusinessName());
-                    } else {
-                        result.add(projectPath.isEmpty() ? relative : projectPath + "/" + relative);
-                    }
-                }
+                collectDesignEntry(entry, project, projectPath, result);
             }
         }
         return result;
+    }
+
+    private static FileItem openDesignSnapshot(RulesProject project) throws IOException {
+        Repository designRepository = project.getDesignRepository();
+        String folderPath = project.getDesignFolderName();
+        String historyVersion = project.getHistoryVersion();
+        return designRepository.supports().versions() && historyVersion != null
+                ? designRepository.readHistory(folderPath, historyVersion)
+                : designRepository.read(folderPath);
+    }
+
+    private static void collectDesignEntry(ZipEntry entry,
+                                           RulesProject project,
+                                           String projectPath,
+                                           Set<String> result) {
+        if (entry.isDirectory()) {
+            return;
+        }
+        var relative = normalize(entry.getName());
+        // Reject path-traversal / absolute names that would let an attacker
+        // poison the comparison map (and protect any future caller that
+        // resolves these paths against the local filesystem).
+        if (relative.contains("../") || relative.startsWith("/")) {
+            log.warn("Skipping suspicious zip entry '{}' in project '{}'",
+                    entry.getName(), project.getBusinessName());
+            return;
+        }
+        result.add(projectPath.isEmpty() ? relative : projectPath + "/" + relative);
     }
 
     private static Map<String, FileData> indexByProjectScopedPath(List<FileData> files,

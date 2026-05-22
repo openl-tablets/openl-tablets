@@ -177,22 +177,16 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         var compiled = new ArrayList<String>();
         var projectCompilationCompleted = projectModel.isProjectCompilationCompleted();
         for (IDependencyLoader loader : loaders) {
-            if (loader.isProjectLoader()) {
-                continue;
-            }
-            var loaderModule = loader.getModule();
-            if (loaderModule == null || loaderModule.getName() == null) {
-                continue;
-            }
-            if (isCompiled(loader, loaderModule, currentModule, projectCompilationCompleted)) {
-                compiled.add(loaderModule.getName());
+            if (!loader.isProjectLoader()) {
+                if (isCompiled(loader, currentModule, projectCompilationCompleted)) {
+                    compiled.add(loader.getModule().getName());
+                }
             }
         }
         return List.copyOf(compiled);
     }
 
     private static boolean isCompiled(IDependencyLoader loader,
-                                      Module loaderModule,
                                       Module currentModule,
                                       boolean projectCompilationCompleted) {
         // Once the project-wide flag flips, every module loader has its compiled dependency
@@ -201,6 +195,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         if (projectCompilationCompleted) {
             return true;
         }
+        var loaderModule = loader.getModule();
         // The opened module's compilation finishes synchronously in setModuleInfo and its
         // result is stored on the model as openedModuleCompiledOpenClass rather than on
         // the loader, so it is counted via identity match.

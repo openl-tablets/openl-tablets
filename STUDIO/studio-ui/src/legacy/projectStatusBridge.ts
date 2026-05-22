@@ -27,5 +27,3 @@ globalThis.openl = globalThis.openl ?? {}
 globalThis.openl.projectStatus = bridge
 
 document.dispatchEvent(new CustomEvent('openl:ready'))
-
-export {}
