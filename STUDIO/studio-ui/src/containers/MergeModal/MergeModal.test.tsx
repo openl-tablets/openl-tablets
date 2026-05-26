@@ -454,19 +454,20 @@ describe('MergeModal', () => {
                 expect(screen.getByTestId('conflict-resolution-step')).toBeInTheDocument()
             })
 
-            // Close
+            // Close, then reopen without conflicts. Antd Modal's Panel wraps children in
+            // a `MemoChildren` whose `shouldUpdate` is gated on `visible`, so after close
+            // the previous step DOM is held in memo until the leave motion ends — which
+            // never happens in jsdom. The reopen below flips `visible` back to true,
+            // forcing MemoChildren to take the new children.
             await dispatchOpenModal(null)
-            await waitFor(() => {
-                expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
-            })
 
-            // Reopen: no conflicts this time
             mockApiCall.mockRejectedValueOnce(new MockNotFoundError())
             await dispatchOpenModal(createDetail())
 
             await waitFor(() => {
                 expect(screen.getByTestId('merge-branches-step')).toBeInTheDocument()
             })
+            expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
         })
     })
 
