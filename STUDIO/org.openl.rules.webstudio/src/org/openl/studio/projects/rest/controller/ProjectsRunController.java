@@ -94,7 +94,7 @@ public class ProjectsRunController {
 
         var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
-        var projectModel = projectService.getProjectModel(project, fromModule);
+        var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
 
         var table = projectModel.getTableById(tableId);

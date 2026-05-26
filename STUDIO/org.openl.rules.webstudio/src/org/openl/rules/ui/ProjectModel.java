@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -119,6 +120,19 @@ public class ProjectModel {
     @Getter
     private volatile boolean compilationInProgress;
     private volatile ResolvedDependency projectCompilationCompleted;
+    /**
+     * The most recent registered compilation cycle. A fresh instance is published whenever the
+     * model starts (or has just finished) a compilation — {@link #compileProject(boolean, boolean)},
+     * {@link #setModuleInfo(Module, ReloadType)} via its single-module path, etc. External
+     * observers use object identity to detect a new cycle even when the previous one completes
+     * very quickly. Initialised to an already-completed sentinel so callers never see {@code null}.
+     */
+    private final AtomicReference<RegisteredCompilation> currentCompilation =
+            new AtomicReference<>(RegisteredCompilation.completed());
+
+    public RegisteredCompilation getCurrentCompilation() {
+        return currentCompilation.get();
+    }
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
@@ -204,11 +218,15 @@ public class ProjectModel {
     }
 
     public synchronized int getErrorNodesNumber() {
+        return countErrorNodes(Arrays.asList(getTableSyntaxNodes()));
+    }
+
+    private int countErrorNodes(Iterable<TableSyntaxNode> nodes) {
         int count = 0;
         Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
                 .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
                 .toList();
-        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
+        for (TableSyntaxNode tsn : nodes) {
             for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
                 if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
                     if (pair.getRight().intersects(tsn.getUriParser())) {
@@ -556,7 +574,9 @@ public class ProjectModel {
         if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
                 .getWebstudioConfiguration()
                 .isCompileThisModuleOnly()) {
-            compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+            if (compiledOpenClass != null) {
+                compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+            }
             compilationStatus.setModulesCompiled(1);
             compilationStatus.addModulesCount(1);
         } else {
@@ -566,7 +586,9 @@ public class ProjectModel {
             Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager
                     .findAllProjectDependencyLoaders(moduleInfo.getProject());
             if (isProjectCompilationCompleted()) {
-                compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+                if (compiledOpenClass != null) {
+                    compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+                }
                 dependencyLoaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(e -> {
                     compilationStatus.addModulesCount(e.getProject().getModules().size());
                     compilationStatus.addModulesCompiled(e.getProject().getModules().size());
@@ -582,16 +604,20 @@ public class ProjectModel {
                         }
                     } else {
                         compilationStatus.addModulesCount(1);
-                        if (Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName()) && Objects
-                                .equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
+                        boolean isOpenedModule = Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName())
+                                && Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject());
+                        if (isOpenedModule && openedModuleCompiledOpenClass != null) {
                             // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
                             // rewrite the algorithm to handle with it is required here
                             compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
                                     .addModulesCompiled(1);
                         } else {
-                            if (dependencyLoader.getRefToCompiledDependency() != null) {
-                                compilationStatus.addMessages(
-                                                dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages())
+                            // Fallback path for the opened module BEFORE setModuleInfo publishes
+                            // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
+                            // and the canonical path for all other module loaders.
+                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
+                            if (compiledDependency != null) {
+                                compilationStatus.addMessages(compiledDependency.getCompiledOpenClass().getMessages())
                                         .addModulesCompiled(1);
                             }
                         }
@@ -1042,10 +1068,12 @@ public class ProjectModel {
     }
 
     public synchronized int getNumberOfTables() {
-        int count = 0;
-        TableSyntaxNode[] tables = getTableSyntaxNodes();
+        return countNonOtherTables(Arrays.asList(getTableSyntaxNodes()));
+    }
 
-        for (TableSyntaxNode table : tables) {
+    private int countNonOtherTables(Collection<TableSyntaxNode> nodes) {
+        int count = 0;
+        for (TableSyntaxNode table : nodes) {
             if (!XlsNodeTypes.XLS_OTHER.toString().equals(table.getType())) {
                 count++;
             }
@@ -1197,6 +1225,10 @@ public class ProjectModel {
                 }
             }
         }
+        if (!dependencyLoader.isProjectLoader()) {
+            // A single module within the current cycle just finished — re-publish status.
+            publishStatusChanged();
+        }
     }
 
     private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
@@ -1262,6 +1294,10 @@ public class ProjectModel {
                 }
             } else {
                 this.compilationInProgress = false;
+                // Single-module compile already finished synchronously above. Register a fresh
+                // completed cycle so external observers see a new identity for this compilation.
+                this.currentCompilation.set(RegisteredCompilation.completed());
+                publishStatusChanged();
             }
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
@@ -1270,6 +1306,7 @@ public class ProjectModel {
 
     public void compileProject(boolean sync, boolean prepareWorkspaceDependencyManager) {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final RegisteredCompilation cycle;
         synchronized (this) {
             ProjectDescriptor projectDescriptor = getProjectDescriptor();
             if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
@@ -1277,8 +1314,15 @@ public class ProjectModel {
             }
             this.compilationInProgress = true;
             this.projectCompilationCompleted = null;
+            cycle = new RegisteredCompilation();
+            this.currentCompilation.set(cycle);
+            // Guarantee a terminal "compilation done" event fires regardless of what happens
+            // inside the async callback — whenComplete is invoked synchronously on whichever
+            // thread completes the cycle's future.
+            cycle.future().whenComplete((ignored, throwable) -> publishStatusChanged());
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
+                Throwable failure = null;
                 synchronized (ProjectModel.this) {
                     try {
                         this.compiledOpenClass = this.validate(projectDescriptor);
@@ -1288,13 +1332,20 @@ public class ProjectModel {
                         redraw();
                     } catch (Exception | LinkageError e) {
                         onCompilationFailed(e);
+                        failure = e;
                     }
                     this.projectCompilationCompleted = compiledDependency.getDependency();
                     this.compilationInProgress = false;
                     countDownLatch.countDown();
                 }
+                if (failure != null) {
+                    cycle.future().completeExceptionally(failure);
+                } else {
+                    cycle.future().complete(null);
+                }
             });
         }
+        publishStatusChanged();
         if (sync) {
             try {
                 countDownLatch.await();
@@ -1302,6 +1353,33 @@ public class ProjectModel {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /**
+     * Publishes a {@link ProjectStatusChangedEvent} so external observers (e.g. the
+     * WebSocket status publisher) can re-render the project status view. Captures the
+     * current project and user name at publish time so the listener doesn't depend on
+     * thread-bound context.
+     */
+    private void publishStatusChanged() {
+        var publisher = studio.getEventPublisher();
+        if (publisher == null) {
+            return;
+        }
+        // Compilation runs on a worker thread without Spring Security's thread-local
+        // context, so `getProject()` (which goes through SecureUserWorkspace) would NPE
+        // on the ACL check. Bind the session's captured Authentication for this call.
+        studio.runAsSessionUser(() -> {
+            try {
+                var project = getProject();
+                if (project == null) {
+                    return;
+                }
+                publisher.publishEvent(new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername()));
+            } catch (RuntimeException e) {
+                log.debug("Failed to publish project status changed event", e);
+            }
+        });
     }
 
     private ProjectDescriptor getProjectDescriptor() {

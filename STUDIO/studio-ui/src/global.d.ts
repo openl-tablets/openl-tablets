@@ -5,9 +5,10 @@ declare module '*.jpeg'
 declare module '*.gif'
 
 declare global {
-    interface Window {
-        // Global runtime variables
-    }
+    // Declared as a `var` so it surfaces on both `window` and `globalThis`.
+    var openl: {
+        projectStatus?: import('./services/projectStatus').ProjectStatusBridge
+    } | undefined
 }
 
 interface FieldObject<T> {

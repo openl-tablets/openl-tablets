@@ -86,53 +86,106 @@
 
         <script>
             //<![CDATA[
+                // `var` at the top level lets the same script re-evaluate cleanly when the
+                // bottom panel is re-injected via jQuery.html() — `const`/`let` would throw
+                // on redeclaration in the unchanged global scope.
                 var $jq = jQuery.noConflict();
-                var messageId = -1;
-                var messageIndex = -1;
+                var projectId = "#{studio.currentProjectId}";
 
-                $jq('#progress-info-panel').off('refresh').on('refresh', function (e, state) {
-                    //Hide progressbar and continue cycle in case if we closed current module or project but not opened another.
-                    //Because script won't be restarted after reopening same module.
-                    if (ws.storage.get("WS_PREVIOUS_PAGE_STATE").project === "" || ws.storage.get("WS_PREVIOUS_PAGE_STATE").module === "") {
-                        ws.ui.problems.hide();
-                        setTimeout(function () {$jq('#progress-info-panel').trigger('refresh', state)}, 1000);
-                    //Stop current cycle because module or project was changed and script will be reinitialized with new cycle.
-                    } else if (ws.storage.get("WS_PREVIOUS_PAGE_STATE").module !== state.moduleId || ws.storage.get("WS_PREVIOUS_PAGE_STATE").project !== state.projectId){
-                        return;
-                    } else {
-                        $jq.ajax({
-                            url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
-                            datatype: "json"
-                        })
-                        .done(function (data) {
-                            if (data.modulesCount > 0) {
-                                updateProgressPanel(data);
-                            }
-                            if (!data.compilationCompleted) {
-                                inProgress();
-                                setTimeout(function () {$jq('#progress-info-panel').trigger('refresh', state)}, 1000);
-                            } else {
-                                finished();
-                                ws.nav.reloadPanel('left');
-                            }
-                        });
+                if (projectId) {
+                    ws.projectStatus.whenReady(function () {
+                        // Cancel any previous panel subscription (left-over from a prior project/module nav).
+                        if (globalThis.__projectStatusSubscription) {
+                            globalThis.__projectStatusSubscription.unsubscribe();
+                            globalThis.__projectStatusSubscription = null;
+                        }
+
+                        globalThis.openl.projectStatus.fetch(projectId)
+                            .then(function (status) {
+                                renderProjectStatus(status);
+                                globalThis.__projectStatusSubscription = globalThis.openl.projectStatus.subscribe(
+                                    projectId,
+                                    status.branch || null,
+                                    renderProjectStatus
+                                );
+                            })
+                            .catch(function () { /* ignore — status panel is best-effort */ });
+                    });
+                }
+
+                function renderProjectStatus(status) {
+                    const compileState = status.compileState;
+                    const compilation = status.compilation || {};
+                    const modules = compilation.modules || { total: 0, compiled: 0 };
+                    const messageSummary = compilation.messages || { items: [], errors: 0, warnings: 0 };
+
+                    if (modules.total > 0) {
+                        updateProgressPanel(modules, compileState === 'compiling');
                     }
-                });
+                    // Errors / warnings render on every push — matches the legacy polling UI,
+                    // which surfaced messages as soon as the server reported them rather than
+                    // waiting for the terminal event.
+                    renderMessages(messageSummary);
+                    if (compileState === 'compiling') {
+                        inProgress();
+                    } else {
+                        finished();
+                        ws.nav.reloadPanel('left');
+                    }
+                }
 
-                $jq('#progress-info-panel').trigger('refresh', {projectId: ws.storage.get("WS_PREVIOUS_PAGE_STATE").project, moduleId: ws.storage.get("WS_PREVIOUS_PAGE_STATE").module});
+                function updateProgressPanel(modules, stillCompiling) {
+                    const total = modules.total || 0;
+                    const compiled = modules.compiled || 0;
+                    let percent = total === 0 ? 0 : Math.round(compiled / total * 100);
+                    if (stillCompiling && compiled === total && total !== 0) {
+                        // Hold the bar one tick short of 100% while we still see `compiling`.
+                        percent--;
+                    }
+                    $jq('#progress-info-panel').text("Loaded " + percent + "% (" + compiled + "/" + total + ")");
+                }
+
+                function renderMessages(messageSummary) {
+                    const errorsCount = messageSummary.errors || 0;
+                    const warningsCount = messageSummary.warnings || 0;
+                    $jq('#errors-info-panel').toggle(errorsCount !== 0);
+                    $jq('#errors-count').text(errorsCount);
+                    $jq('#warnings-info-panel').toggle(warningsCount !== 0);
+                    $jq('#warnings-count').text(warningsCount);
+
+                    const warningsPanel = $j("#warnings-panel");
+                    const errorsPanel = $j("#errors-panel");
+                    warningsPanel.empty();
+                    errorsPanel.empty();
+                    const items = messageSummary.items || [];
+                    if (items.length === 0) {
+                        return;
+                    }
+                    const htmlTemplate = $j('#problems-panel-container>div:nth-child(1)').clone().html();
+                    items.forEach(function (item) {
+                        const newMessageHtml = htmlTemplate
+                            .replaceString(/{messageId}/g, item.id)
+                            .replaceString(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
+                        if (item.severity === 'WARN') {
+                            warningsPanel.append(newMessageHtml.replaceString(/{messageTypeClass}/g, 'problem-warning'));
+                        } else if (item.severity === 'ERROR') {
+                            errorsPanel.append(newMessageHtml.replaceString(/{messageTypeClass}/g, 'problem-error'));
+                        }
+                    });
+                }
 
                 function inProgress() {
                     $jq('#progress-info-panel').attr("data-compilation-status", "inProgress");
                     $jq('#progress-info-panel').show();
                     ws.ui.problems.show();
-                };
+                }
 
                 function finished() {
                     $jq('#progress-info-panel').attr("data-compilation-status", "finished");
-                    var timestamp = Date.now();
+                    const timestamp = Date.now();
                     $jq('#progress-info-panel').attr("data-compilation-finished", timestamp);
                     setTimeout(function() {
-                       var requiredProgressPanel =
+                       const requiredProgressPanel =
                             $j("#progress-info-panel[data-compilation-status='finished'][data-compilation-finished='" + timestamp + "']");
                        if (requiredProgressPanel.length > 0 ) {
                             requiredProgressPanel.hide();
@@ -142,52 +195,10 @@
                             }
                        }
                     }, 10000);
-                };
-
-                function updateProgressPanel(data) {
-                    let percent = Math.round(data.modulesCompiled / data.modulesCount * 100);
-                    if (!data.compilationCompleted && data.modulesCompiled === data.modulesCount) {
-                        percent--;
-                    }
-                    $jq('#progress-info-panel').text("Loaded " + percent + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");
-                    $jq('#errors-info-panel').toggle(data.errorsCount !== 0);
-                    $jq('#errors-count').text(data.errorsCount);
-
-                    $jq('#warnings-info-panel').toggle(data.warningsCount !== 0);
-                    $jq('#warnings-count').text(data.warningsCount);
-
-                    if (data.messageIndex !== -1 || data.messageId !== -1) {
-                        messageIndex = data.messageIndex;
-                        messageId = data.messageId;
-                    }
-                    let messages = data.messages || [];
-                    if (messages.length !== 0) {
-                        const warningsPanel = $j("#warnings-panel");
-                        const errorsPanel = $j("#errors-panel");
-                        let warningsHtml = "";
-                        let errorsHtml = "";
-                        const htmlTemplate = $j('#problems-panel-container>div:nth-child(1)').clone().html();
-
-                        if (data.dataType === 'new') {
-                            warningsPanel.empty();
-                            errorsPanel.empty();
-                        }
-
-                        messages.forEach(function (item) {
-                            const newMessageHtml = htmlTemplate.replaceString(/{messageId}/g, item.id)
-                                .replaceString(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
-
-                            if (item.severity === 'WARN') {
-                                warningsPanel.append(newMessageHtml.replaceString(/{messageTypeClass}/g,'problem-warning'));
-                            } else if (item.severity === 'ERROR') {
-                                errorsPanel.append(newMessageHtml.replaceString(/{messageTypeClass}/g, 'problem-error'));
-                            }
-                        });
-                    }
                 }
 
                 function navigateProblem(problemBlock) {
-                    var $j = jQuery.noConflict();
+                    const $j = jQuery.noConflict();
                     const problem = $j(problemBlock);
                     $j.ajax({
                         url: "#{contextPath}/web/message/" + problem.attr("data-message-id") + "/url",

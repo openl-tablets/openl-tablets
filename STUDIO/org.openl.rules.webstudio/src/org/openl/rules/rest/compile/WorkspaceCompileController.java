@@ -3,7 +3,6 @@ package org.openl.rules.rest.compile;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,14 +21,11 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.util.CollectionUtils;
 
 @RestController
 @RequestMapping(value = "/compile/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -37,44 +33,6 @@ import org.openl.util.CollectionUtils;
 public class WorkspaceCompileController {
 
     private static final int MAX_PROBLEMS = 100;
-
-    @Operation(summary = "compile.get-compile.summary", description = "compile.get-compile.desc")
-    @GetMapping("progress/{messageId}/{messageIndex}")
-    public CompileModuleInfo getCompile(
-            @Parameter(description = "compile.get-compile.field.messageId.desc") @PathVariable("messageId") final Long messageId,
-            @Parameter(description = "compile.get-compile.field.messageIndex.desc") @PathVariable("messageIndex") final Integer messageIndex) {
-        var response = CompileModuleInfo.builder();
-        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        if (webStudio != null) {
-            ProjectModel model = webStudio.getModel();
-            ProjectCompilationStatus status = model.getCompilationStatus();
-            List<MessageDescription> messages = status.getAllMessage()
-                    .stream()
-                    .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                    .collect(Collectors.toList());
-            response.dataType("new");
-            if (messageIndex != -1 && messageId != -1 && messageIndex < messages.size()) {
-                MessageDescription messageDescription = messages.get(messageIndex);
-                if (messageDescription.id() == messageId) {
-                    messages = messages.subList(messageIndex + 1, messages.size());
-                    response.dataType("add");
-                }
-            }
-            response.messages(messages);
-            response.messageId(messages.isEmpty() ? -1 : messages.getLast().id());
-            response.messageIndex(messages.size() - 1);
-            response.errorsCount(status.getErrorsCount());
-            response.warningsCount(status.getWarningsCount());
-            response.modulesCount(status.getModulesCount());
-            response.modulesCompiled(status.getModulesCompiled());
-            response.compilationCompleted(
-                    model.isProjectCompilationCompleted() || model.getModuleInfo() != null && model.getModuleInfo()
-                            .getWebstudioConfiguration() != null && model.getModuleInfo()
-                            .getWebstudioConfiguration()
-                            .isCompileThisModuleOnly());
-        }
-        return response.build();
-    }
 
     @Operation(summary = "compile.get-compile-test.summary", description = "compile.get-compile-test.desc")
     @GetMapping("tests/{tableId}")
@@ -103,33 +61,6 @@ public class WorkspaceCompileController {
             }
         }
         return response.build();
-    }
-
-    @Operation(summary = "compile.tests.summary", description = "compile.tests.desc")
-    @GetMapping("tests")
-    public ModuleTestsInfo tests() {
-        var response = ModuleTestsInfo.builder();
-        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        if (webStudio == null) {
-            return response.build();
-        }
-        ProjectModel model = webStudio.getModel();
-        TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
-        response.count(CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
-        response.compiled(!model.isCompilationInProgress());
-        response.tableRunState(
-                !model.isProjectCompilationCompleted() ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
-        return response.build();
-    }
-
-    @Operation(summary = "compile.project.summary", description = "compile.project.desc")
-    @GetMapping("project")
-    public boolean project() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        if (webStudio == null) {
-            return false;
-        }
-        return !webStudio.getModel().isCompilationInProgress();
     }
 
     @Operation(summary = "compile.table.summary", description = "compile.table.desc")

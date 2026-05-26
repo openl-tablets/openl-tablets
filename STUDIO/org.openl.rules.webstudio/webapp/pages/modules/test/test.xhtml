@@ -348,25 +348,34 @@
                 <script>
                     //<![CDATA[
                         $j(function () {
-                            let messageId = -1;
-                            let messageIndex = -1;
-                            function waitCompilationCompleted() {
-                                $jq.ajax({
-                                    url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
-                                    datatype: "json"
-                                }).done(function (data) {
-                                    if (data.messageIndex !== -1 || data.messageId !== -1) {
-                                        messageIndex = data.messageIndex;
-                                        messageId = data.messageId;
-                                    }
-                                    if (data.compilationCompleted) {
+                            var projectId = "#{studio.currentProjectId}";
+                            if (!projectId) {
+                                return;
+                            }
+                            ws.projectStatus.whenReady(function () {
+                                window.openl.projectStatus.fetch(projectId).then(function (status) {
+                                    if (status.compileState !== 'compiling') {
                                         ws.nav.reload();
-                                    } else {
-                                        setTimeout(waitCompilationCompleted, 1000);
+                                        return;
                                     }
+                                    var subscription;
+                                    subscription = window.openl.projectStatus.subscribe(
+                                        projectId, status.branch || null, function (next) {
+                                            if (next.compileState !== 'compiling') {
+                                                subscription.unsubscribe();
+                                                ws.nav.reload();
+                                            }
+                                        }
+                                    );
+                                }).catch(function (err) {
+                                    // Don't leave the UI stuck in "Waiting for the end of loading..." —
+                                    // log and reload so the page re-evaluates whatever state the server reports.
+                                    if (console && console.warn) {
+                                        console.warn('Failed to fetch project status', err);
+                                    }
+                                    ws.nav.reload();
                                 });
-                            };
-                            waitCompilationCompleted();
+                            });
                         });
                     //]]>
                 </script>

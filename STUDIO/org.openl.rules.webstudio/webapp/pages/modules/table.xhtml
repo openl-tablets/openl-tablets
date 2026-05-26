@@ -1166,13 +1166,16 @@
         }
 
         function compiled(callback) {
-            return $jq.ajax({
-                url: "#{contextPath}/web/compile/project",
-                datatype: "text"
-            })
-                .done(function (data) {
-                    callback(data);
-                });
+            var projectId = "#{studio.currentProjectId}";
+            if (!projectId) {
+                callback(false);
+                return;
+            }
+            ws.projectStatus.whenReady(function () {
+                window.openl.projectStatus.fetch(projectId)
+                    .then(function (status) { callback(status.compileState !== 'compiling'); })
+                    .catch(function () { callback(false); });
+            });
         }
 
         function isAnyTestSelected() {
@@ -1460,13 +1463,41 @@
         });
 
          updatePageRest();
-         (function updateOnCompiled() {
-             compiled(function (data) {
-                 if (data !== true) {
-                    setTimeout(function () {updateOnCompiled()}, 1000);
-                 } else {
-                    updatePageRest(false);
+         (function waitForProjectCompiled() {
+             var projectId = "#{studio.currentProjectId}";
+             if (!projectId) {
+                 return;
+             }
+             ws.projectStatus.whenReady(function () {
+                 if (window.__tablePageSubscription) {
+                     window.__tablePageSubscription.unsubscribe();
+                     window.__tablePageSubscription = null;
                  }
+                 window.openl.projectStatus.fetch(projectId).then(function (status) {
+                     if (status.compileState !== 'compiling') {
+                         updatePageRest(false);
+                         return;
+                     }
+                     window.__tablePageSubscription = window.openl.projectStatus.subscribe(
+                         projectId, status.branch || null, function (next) {
+                             if (next.compileState !== 'compiling') {
+                                 window.__tablePageSubscription.unsubscribe();
+                                 window.__tablePageSubscription = null;
+                                 updatePageRest(false);
+                             }
+                         }
+                     );
+                     // Plug the fetch→subscribe race: if compilation settled between the
+                     // first fetch and the subscribe attaching, the WS event was missed —
+                     // re-pull the status and apply the terminal branch synchronously.
+                     window.openl.projectStatus.fetch(projectId).then(function (latest) {
+                         if (latest.compileState !== 'compiling' && window.__tablePageSubscription) {
+                             window.__tablePageSubscription.unsubscribe();
+                             window.__tablePageSubscription = null;
+                             updatePageRest(false);
+                         }
+                     }).catch(function () { /* best-effort */ });
+                 }).catch(function () { /* best-effort */ });
              });
          })();
 

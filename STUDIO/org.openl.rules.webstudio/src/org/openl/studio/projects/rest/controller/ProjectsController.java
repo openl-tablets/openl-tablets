@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
@@ -59,6 +60,7 @@ import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
@@ -73,6 +75,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
+import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -103,6 +106,7 @@ public class ProjectsController {
     private final Environment environment;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectIdentifierMapper projectIdentifierMapper;
+    private final ProjectStatusMapper projectStatusMapper;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -168,17 +172,37 @@ public class ProjectsController {
         if (conflictsSessionHolder.hasConflictInfo(projectId)) {
             throw new ConflictException("project.unresolved.merge.conflicts.message");
         }
+        var normalized = normalize(request);
         try {
-            projectService.updateProjectStatus(project, request);
-            if (request.getStatus() != null
-                    || request.getBranch().isPresent()
-                    || request.getComment().isPresent()
-                    || request.getRevision().isPresent()) {
+            projectService.updateProjectStatus(project, normalized);
+            if (normalized.status() != null
+                    || normalized.branch() != null
+                    || normalized.comment() != null
+                    || normalized.revision() != null) {
                 getWebStudio().reset();
             }
         } catch (ProjectException e) {
             throw new ConflictException("project.status.update.failed.message");
         }
+    }
+
+    @GetMapping("/{projectId}/status")
+    @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
+    public ProjectStatusViewModel getStatus(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @Parameter(description = "projects.status.param.branch.desc")
+                                            @RequestParam(value = "branch", required = false) String branch) {
+        // Read-only by design — the `branch` parameter is asserted against the project's
+        // current branch; switching is exposed via PATCH /{projectId} with a
+        // ProjectStatusUpdateModel that carries the target branch.
+        if (StringUtils.isNotBlank(branch)) {
+            if (!project.isSupportsBranches()) {
+                throw new ConflictException("project.branch.unsupported.message");
+            }
+            if (!Objects.equals(branch, project.getBranch())) {
+                throw new ConflictException("project.branch.mismatch.message");
+            }
+        }
+        return projectStatusMapper.map(project);
     }
 
     @PostMapping("/{projectId}/branches")
@@ -311,7 +335,7 @@ public class ProjectsController {
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
-        var projectModel = projectService.getProjectModel(project, fromModule);
+        var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
         var objectMapper = configureObjectMapper();
@@ -409,6 +433,21 @@ public class ProjectsController {
         } catch (ClassNotFoundException e) {
             throw new ConflictException("object.mapper.configuration.failed.message");
         }
+    }
+
+    /**
+     * Trim incoming string fields and convert whitespace-only values to {@code null} so
+     * downstream service logic can rely on null-vs-non-null checks instead of repeatedly
+     * calling {@code isNotBlank} / {@code trimToNull}.
+     */
+    private static ProjectStatusUpdateModel normalize(ProjectStatusUpdateModel raw) {
+        return ProjectStatusUpdateModel.builder()
+                .status(raw.status())
+                .branch(StringUtils.trimToNull(raw.branch()))
+                .revision(StringUtils.trimToNull(raw.revision()))
+                .comment(StringUtils.trimToNull(raw.comment()))
+                .selectedBranches(raw.selectedBranches())
+                .build();
     }
 
 }

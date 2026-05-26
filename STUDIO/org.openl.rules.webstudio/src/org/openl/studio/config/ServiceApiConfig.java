@@ -25,6 +25,7 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
@@ -67,7 +68,8 @@ public class ServiceApiConfig {
                                              DeploymentManager deploymentManager,
                                              ApplicationEventPublisher eventPublisher,
                                              ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
-                                             ProtectedBranchBypassService bypassService) {
+                                             ProtectedBranchBypassService bypassService,
+                                             ProjectIdentifierMapper projectIdentifierMapper) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
         rulesUserSession.setWorkspaceManager(workspaceManager);
@@ -85,7 +87,8 @@ public class ServiceApiConfig {
                 deploymentManager,
                 eventPublisher,
                 conflictsSessionHolder,
-                bypassService);
+                bypassService,
+                projectIdentifierMapper);
         rulesUserSession.setWebStudio(webStudio);
         return rulesUserSession;
     }
