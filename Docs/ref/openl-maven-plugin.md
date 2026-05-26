@@ -48,7 +48,6 @@ Integrates OpenL rules compilation into the Maven lifecycle.
 | `package`       | `package`          | Package rules as a ZIP artifact for deployment                |
 | `deploy`        | `deploy`           | Deploy the packaged artifact to OpenL Studio or a repository  |
 | `migrate`       |                    | Migrates or modernizes OpenL Project and Maven modules        |
-| `migrate-list`  |                    | List available `migrate` ids and their commit messages        |
 
 > [!Note]
 > The `generate` goal creates a Java interface matching the project's `<exposed-methods>` filter.

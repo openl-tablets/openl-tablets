@@ -66,11 +66,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
      *         — e.g. {@code config.deploy} (every {@code config.deploy.*} phase), {@code config}
      *         (every {@code config.*} phase), {@code groovy} (every {@code groovy.*})</li>
      * </ul>
-     * On the command line, multiple values are passed comma-separated:
-     * {@code -Dopenl.migrate.migrators=config.deploy.drop-rmi,groovy.jakarta}.
-     * <p>
-     * Run {@code mvn openl:migrate-list} to see every available migrator id (sorted alphabetically)
-     * together with its commit message.
+     * On the command line, multiple values are passed comma-separated: {@code -Dopenl.migrate.migrators=config.deploy.drop-rmi,groovy.jakarta}.
      */
     @Parameter(property = "openl.migrate.migrators", defaultValue = "all")
     private List<String> migrators;
