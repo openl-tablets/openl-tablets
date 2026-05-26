@@ -94,6 +94,16 @@ public final class GroovyJakartaMigrator implements Migrator {
         return "groovy scripts from javax to jakarta";
     }
 
+    @Override
+    public String getDescription() {
+        return """
+                Rewrites javax.* imports and references to jakarta.* in every .groovy file under the
+                project for the six namespaces that fully moved in Jakarta EE 9/10: ws.rs, xml.bind,
+                persistence, validation, servlet, inject. Ambiguous prefixes overlapping with Java SE
+                (annotation.processing, transaction.xa, security.auth.*) are left untouched.
+                """;
+    }
+
     /**
      * Walks {@code sourceFolder} recursively and rewrites every {@code *.groovy} file in place so that the
      * legacy Jakarta EE {@code javax.*} namespaces are replaced with their Jakarta EE 10 equivalents. Files

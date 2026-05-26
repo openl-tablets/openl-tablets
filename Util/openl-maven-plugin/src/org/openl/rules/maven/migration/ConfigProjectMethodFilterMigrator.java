@@ -90,6 +90,20 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Replaces module-level <method-filter> blocks with a single project-level
+                <exposed-methods> listing the method names the project actually exposes. Rather than
+                translating the old regular expressions — which business analysts often get wrong
+                (e.g. .*myMethod.* instead of .* myMethod\\(.+\\)) and which cannot be safely converted
+                to glob patterns — it reads the real names from the built project. So this is both a
+                migration and a cleanup: mistaken or unmatchable patterns simply disappear. An
+                already-populated <exposed-methods> is kept untouched. Requires the project to build;
+                if it cannot, the filter is dropped and every method becomes exposed.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
             throws IOException {
         return ConfigProjectIO.roundtrip(this, sourceFolder,

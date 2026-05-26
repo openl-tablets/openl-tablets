@@ -24,13 +24,17 @@ public final class MigrateListMojo extends AbstractMojo {
     @Override
     public void execute() {
         var migrators = MigrateMojo.allMigratorsAlphabetical();
-        var maxIdLen = migrators.stream().mapToInt(m -> m.getId().length()).max().orElse(0);
         var log = getLog();
-        log.info("Available OpenL migrator ids (alphabetical):");
-        for (Migrator m : migrators) {
-            log.info(String.format("  %-" + maxIdLen + "s  -  %s", m.getId(), m.getCommitMessage()));
-        }
+        log.info("Available OpenL migrators (alphabetical):");
         log.info("");
+        for (Migrator m : migrators) {
+            log.info("  " + m.getId() + "  —  " + m.getCommitMessage());
+            // Each migrator authors its description as a text block — both line breaks AND the leading
+            // indent (six spaces per line) are baked in, so String#lines() preserves the full layout
+            // and no extra padding is needed here.
+            m.getDescription().lines().forEach(log::info);
+            log.info("");
+        }
         log.info("Pass any id on the command line with -Dopenl.migrate.migrators=<id>, or use a category");
         log.info("prefix such as 'config.deploy' to match every config.deploy.* migrator. Multiple ids may");
         log.info("be comma-separated: -Dopenl.migrate.migrators=config.empty-tag,groovy.jakarta.");

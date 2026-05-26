@@ -47,6 +47,16 @@ public final class ConfigDeployTemplateClassMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Renames the legacy interceptingTemplateClassName slot in rules-deploy.xml to
+                annotationTemplateClassName. When both slots are populated the intercepting value is
+                dropped — the annotation slot is treated as the authoritative one. Blank intercepting
+                values are left as they are.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
             throws IOException {
         return ConfigDeployIO.roundtrip(this, sourceFolder, ConfigDeployTemplateClassMigrator::transform);

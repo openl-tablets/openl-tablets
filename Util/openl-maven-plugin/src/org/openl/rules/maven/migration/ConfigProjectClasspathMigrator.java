@@ -50,6 +50,16 @@ public final class ConfigProjectClasspathMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Drops the entire <classpath> block from rules.xml when every entry is a path OpenL
+                already picks up automatically: groovy/, or lib/*.jar. Any unknown entry keeps
+                the block intact. After removal the project still finds the same classes in the same
+                folders — only the redundant declaration goes away.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
         return ConfigProjectIO.roundtrip(this, sourceFolder, ConfigProjectClasspathMigrator::transform);
     }

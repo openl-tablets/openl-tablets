@@ -41,6 +41,15 @@ public final class ConfigProjectCwProcessorMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Removes the discontinued org.openl.rules.project.resolving.CWPropertyFileNameProcessor
+                reference from rules.xml's <properties-file-name-processor>. Any other custom processor
+                class is preserved — only the specific CW class is dropped.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
             throws IOException {
         return ConfigProjectIO.roundtrip(this, sourceFolder, ConfigProjectCwProcessorMigrator::transform);

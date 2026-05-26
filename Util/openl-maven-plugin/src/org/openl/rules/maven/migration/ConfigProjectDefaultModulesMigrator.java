@@ -155,6 +155,17 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Shrinks rules.xml by dropping module names that simply repeat the workbook file name,
+                collapsing several same-folder modules into one <subfolder>/**/*.xlsx wildcard, and
+                removing the whole <modules> block when only the default rules/**/*.xlsx or
+                tests/**/*.xlsx wildcards remain. Also drops the project <name> when it matches the
+                project folder name.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
         return ConfigProjectIO.roundtrip(this, sourceFolder, ConfigProjectDefaultModulesMigrator::transform);
     }

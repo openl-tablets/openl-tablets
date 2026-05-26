@@ -36,11 +36,23 @@ public final class ConfigEmptyTagMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Cleans up rules.xml and rules-deploy.xml by removing elements that carry nothing:
+                empty tags like <comment></comment>, self-closing <classpath/>, blank-text <groups>,
+                and wrapper blocks whose entire body is itself empty. No setting changes — the files
+                just shrink to the lines that actually carry meaning.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
             throws IOException {
         var changed = new ArrayList<Path>();
-        changed.addAll(ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> {}));
-        changed.addAll(ConfigDeployIO.roundtrip(this, sourceFolder, rulesDeploy -> {}));
+        changed.addAll(ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> {
+        }));
+        changed.addAll(ConfigDeployIO.roundtrip(this, sourceFolder, rulesDeploy -> {
+        }));
         return List.copyOf(changed);
     }
 }

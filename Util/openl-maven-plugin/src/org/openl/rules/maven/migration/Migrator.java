@@ -28,6 +28,17 @@ public interface Migrator {
     String getCommitMessage();
 
     /**
+     * Human-readable explanation of what this migrator does, including the assumptions it relies on and
+     * anything that could break for the user (a default behaviour change, a discarded value, a required
+     * external state). Surfaced by {@code openl:migrate-list} so users can decide before running.
+     * <p>
+     * <strong>Length contract:</strong> 10–100 words (most stay well under 50; the headroom is for the
+     * few migrators whose behaviour needs careful explanation). Enforced by
+     * {@code org.openl.rules.maven.MigratorContractTest#descriptionLengthIsWithinTenToHundredWords}.
+     */
+    String getDescription();
+
+    /**
      * Applies the migration to the given source folder.
      *
      * @param sourceFolder       OpenL project root.

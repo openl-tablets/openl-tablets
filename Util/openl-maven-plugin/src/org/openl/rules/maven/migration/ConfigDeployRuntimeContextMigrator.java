@@ -37,6 +37,16 @@ public final class ConfigDeployRuntimeContextMigrator implements Migrator {
     }
 
     @Override
+    public String getDescription() {
+        return """
+                Drops the isProvideRuntimeContext element from rules-deploy.xml when its value is false,
+                because false is what the service does anyway by default. Explicit true or an absent value
+                stay untouched. Services that rely on the "no runtime context" behaviour keep working —
+                only the now-redundant line goes away.
+                """;
+    }
+
+    @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
             throws IOException {
         return ConfigDeployIO.roundtrip(this, sourceFolder, ConfigDeployRuntimeContextMigrator::transform);
