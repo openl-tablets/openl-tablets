@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Test",
   "name": "IncomeForecastTest",
+  "pos": "B57:E62",
   "source": [
     [
       {
+        "cell": "B57",
         "value": "Test IncomeForecast IncomeForecastTest",
         "colspan": 4
       },
@@ -24,71 +26,91 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B58",
         "value": "bonusRate"
       },
       {
+        "cell": "C58",
         "value": "sharePrice"
       },
       {
+        "cell": "D58",
         "value": "_res_.$TotalAmount$MinSalary"
       },
       {
+        "cell": "E58",
         "value": "_res_.$TotalAmount$MaxSalary"
       }
     ],
     [
       {
+        "cell": "B59",
         "value": "Bonus Rate"
       },
       {
+        "cell": "C59",
         "value": "Share Price"
       },
       {
+        "cell": "D59",
         "value": "Min Total Salary"
       },
       {
+        "cell": "E59",
         "value": "Max Total Salary"
       }
     ],
     [
       {
+        "cell": "B60",
         "value": 0.15
       },
       {
+        "cell": "C60",
         "value": 15
       },
       {
+        "cell": "D60",
         "value": 148500
       },
       {
+        "cell": "E60",
         "value": 185775
       }
     ],
     [
       {
+        "cell": "B61",
         "value": 0.1
       },
       {
+        "cell": "C61",
         "value": 25
       },
       {
+        "cell": "D61",
         "value": 148500
       },
       {
+        "cell": "E61",
         "value": 188350
       }
     ],
     [
       {
+        "cell": "B62",
         "value": 0.05
       },
       {
+        "cell": "C62",
         "value": 35
       },
       {
+        "cell": "D62",
         "value": 148500
       },
       {
+        "cell": "E62",
         "value": 190925
       }
     ]

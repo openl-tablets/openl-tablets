@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Test",
   "name": "LossFreeDiscountCalcTest",
+  "pos": "B64:D70",
   "source": [
     [
       {
+        "cell": "B64",
         "value": "Test LossFreeDiscountCalc LossFreeDiscountCalcTest",
         "colspan": 3
       },
@@ -21,58 +23,77 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B65",
         "value": "losses"
       },
       {
+        "cell": "C65",
         "value": "currentDate"
       },
       {
+        "cell": "D65",
         "value": "_res_"
       }
     ],
     [
       {
+        "cell": "B66",
         "value": ">lossData"
       },
-      {},
-      {}
+      {
+        "cell": "C66"
+      },
+      {
+        "cell": "D66"
+      }
     ],
     [
       {
+        "cell": "B67",
         "value": "Losses"
       },
       {
+        "cell": "C67",
         "value": "Current Date"
       },
       {
+        "cell": "D67",
         "value": "Discount"
       }
     ],
     [
-      {},
       {
+        "cell": "B68"
+      },
+      {
+        "cell": "C68",
         "value": "2012-12-26"
       },
       {
+        "cell": "D68",
         "value": 0.1
       }
     ],
     [
       {
+        "cell": "B69",
         "value": [
           "LL1",
           "LL6"
         ]
       },
       {
+        "cell": "C69",
         "value": "2012-12-26"
       },
       {
+        "cell": "D69",
         "value": 0.05
       }
     ],
     [
       {
+        "cell": "B70",
         "value": [
           "LL1",
           "LL6",
@@ -81,9 +102,11 @@ Content-Type: application/json
         ]
       },
       {
+        "cell": "C70",
         "value": "2012-12-26"
       },
       {
+        "cell": "D70",
         "value": 0.05
       }
     ]

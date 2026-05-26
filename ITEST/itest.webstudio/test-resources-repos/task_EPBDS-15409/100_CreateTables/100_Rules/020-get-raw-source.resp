@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "Greeting1",
+  "pos": "B2:D10",
   "source": [
     [
       {
+        "cell": "B2",
         "value": "Rules String Greeting1 (Integer hour)",
         "colspan": 3
       },
@@ -21,6 +23,7 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B3",
         "value": "C1",
         "colspan": 2
       },
@@ -28,11 +31,13 @@ Content-Type: application/json
         "covered": true
       },
       {
+        "cell": "D3",
         "value": "RET1"
       }
     ],
     [
       {
+        "cell": "B4",
         "value": "min <= hour  and  hour < max",
         "colspan": 2
       },
@@ -40,72 +45,91 @@ Content-Type: application/json
         "covered": true
       },
       {
+        "cell": "D4",
         "value": "greeting + \", World!\""
       }
     ],
     [
       {
+        "cell": "B5",
         "value": "Integer min"
       },
       {
+        "cell": "C5",
         "value": "Integer max"
       },
       {
+        "cell": "D5",
         "value": "String greeting"
       }
     ],
     [
       {
+        "cell": "B6",
         "value": "From"
       },
       {
+        "cell": "C6",
         "value": "To"
       },
       {
+        "cell": "D6",
         "value": "Greeting"
       }
     ],
     [
       {
+        "cell": "B7",
         "value": 0
       },
       {
+        "cell": "C7",
         "value": 12
       },
       {
+        "cell": "D7",
         "value": "Good Morning"
       }
     ],
     [
       {
+        "cell": "B8",
         "value": 12
       },
       {
+        "cell": "C8",
         "value": 18
       },
       {
+        "cell": "D8",
         "value": "Good Afternoon"
       }
     ],
     [
       {
+        "cell": "B9",
         "value": 18
       },
       {
+        "cell": "C9",
         "value": 22
       },
       {
+        "cell": "D9",
         "value": "Good Evening"
       }
     ],
     [
       {
+        "cell": "B10",
         "value": 22
       },
       {
+        "cell": "C10",
         "value": 24
       },
       {
+        "cell": "D10",
         "value": "Good Night"
       }
     ]

@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "Greeting4",
+  "pos": "B9:D14",
   "source": [
     [
       {
+        "cell": "B9",
         "value": "SmartRules String Greeting4(Integer hour)",
         "colspan": 3
       },
@@ -21,6 +23,7 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B10",
         "value": "Hour",
         "colspan": 2
       },
@@ -28,50 +31,63 @@ Content-Type: application/json
         "covered": true
       },
       {
+        "cell": "D10",
         "value": "Greeting"
       }
     ],
     [
       {
+        "cell": "B11",
         "value": 0
       },
       {
+        "cell": "C11",
         "value": 12
       },
       {
+        "cell": "D11",
         "value": "Good Morning, World!"
       }
     ],
     [
       {
+        "cell": "B12",
         "value": 12
       },
       {
+        "cell": "C12",
         "value": 18
       },
       {
+        "cell": "D12",
         "value": "Good Afternoon, World!"
       }
     ],
     [
       {
+        "cell": "B13",
         "value": 18
       },
       {
+        "cell": "C13",
         "value": 22
       },
       {
+        "cell": "D13",
         "value": "Good Evening, World!"
       }
     ],
     [
       {
+        "cell": "B14",
         "value": 22
       },
       {
+        "cell": "C14",
         "value": 24
       },
       {
+        "cell": "D14",
         "value": "Good Night, World!"
       }
     ]

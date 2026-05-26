@@ -2,8 +2,8 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableType": "Datatype",
   "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+  "tableType": "Datatype",
   "kind": "Datatype",
   "name": "Cat",
   "properties": {
@@ -13,7 +13,15 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Type 'Person' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+        "name": "Cat",
+        "module": "Main",
+        "cell": "B21"
+      },
+      "stacktrace": true
     }
   ],
   "fields": [

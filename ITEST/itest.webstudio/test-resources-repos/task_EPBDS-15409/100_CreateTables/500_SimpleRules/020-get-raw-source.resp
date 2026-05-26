@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "AmPmTo24",
+  "pos": "B2:D7",
   "source": [
     [
       {
+        "cell": "B2",
         "value": "SimpleRules Integer AmPmTo24(Integer ampmHr, String ampm)",
         "colspan": 3
       },
@@ -21,56 +23,71 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B3",
         "value": "AM/PM hour"
       },
       {
+        "cell": "C3",
         "value": "AM or PM"
       },
       {
+        "cell": "D3",
         "value": "24 hour"
       }
     ],
     [
       {
+        "cell": "B4",
         "value": 12
       },
       {
+        "cell": "C4",
         "value": "AM"
       },
       {
+        "cell": "D4",
         "value": 0
       }
     ],
     [
       {
+        "cell": "B5",
         "value": "1-11"
       },
       {
+        "cell": "C5",
         "value": "AM"
       },
       {
+        "cell": "D5",
         "value": "=ampmHr"
       }
     ],
     [
       {
+        "cell": "B6",
         "value": 12
       },
       {
+        "cell": "C6",
         "value": "PM"
       },
       {
+        "cell": "D6",
         "value": 12
       }
     ],
     [
       {
+        "cell": "B7",
         "value": "1-11"
       },
       {
+        "cell": "C7",
         "value": "PM"
       },
       {
+        "cell": "D7",
         "value": "=ampmHr+12"
       }
     ]

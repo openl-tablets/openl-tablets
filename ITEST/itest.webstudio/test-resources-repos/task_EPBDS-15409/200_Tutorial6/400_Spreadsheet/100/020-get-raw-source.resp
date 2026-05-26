@@ -10,22 +10,48 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Method 'TotalAssets()' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "47d020cdaf10119d4bd11c190f87856e",
+        "name": "AssetsCompare",
+        "module": "Main",
+        "cell": "C26"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Field '$USDValue$Total' is not found in type 'null-Class'.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "47d020cdaf10119d4bd11c190f87856e",
+        "name": "AssetsCompare",
+        "module": "Main",
+        "cell": "C27"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'SpreadsheetResultTotalAssets' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "47d020cdaf10119d4bd11c190f87856e",
+        "name": "AssetsCompare",
+        "module": "Main",
+        "cell": "B26"
+      },
+      "stacktrace": true
     }
   ],
+  "pos": "B24:C29",
   "source": [
     [
       {
+        "cell": "B24",
         "value": "Spreadsheet SpreadsheetResult AssetsCompare()",
         "colspan": 2
       },
@@ -35,41 +61,51 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B25",
         "value": "Steps"
       },
       {
+        "cell": "C25",
         "value": "Value"
       }
     ],
     [
       {
+        "cell": "B26",
         "value": "AssetsCalc2012:SpreadsheetResultTotalAssets"
       },
       {
+        "cell": "C26",
         "value": "= TotalAssets()"
       }
     ],
     [
       {
+        "cell": "B27",
         "value": "TotalAssets2012"
       },
       {
+        "cell": "C27",
         "value": "= $AssetsCalc2012.$USDValue$Total"
       }
     ],
     [
       {
+        "cell": "B28",
         "value": "TotalAssets2011"
       },
       {
+        "cell": "C28",
         "value": 8767500
       }
     ],
     [
       {
+        "cell": "B29",
         "value": "Change in %"
       },
       {
+        "cell": "C29",
         "value": "= round(($TotalAssets2012 - $TotalAssets2011) / $TotalAssets2011 * 100, 2)"
       }
     ]

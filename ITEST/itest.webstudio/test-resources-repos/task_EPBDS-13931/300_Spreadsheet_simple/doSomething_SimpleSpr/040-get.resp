@@ -2,15 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableType": "SimpleSpreadsheet",
   "id": "6e3e97fd6994ad50150bd2f3d86ec198",
+  "tableType": "SimpleSpreadsheet",
   "kind": "Spreadsheet",
   "name": "doSomething_SimpleSpr",
   "messages": [
     {
       "id": "*",
       "summary": "DEPRECATED 'java.lang.Integer' constructor will be removed in the next version.",
-      "severity": "WARN"
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "6e3e97fd6994ad50150bd2f3d86ec198",
+        "name": "doSomething_SimpleSpr",
+        "module": "Main",
+        "cell": "C9"
+      }
     }
   ],
   "returnType": "SpreadsheetResult",

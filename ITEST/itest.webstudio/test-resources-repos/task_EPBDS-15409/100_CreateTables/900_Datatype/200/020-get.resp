@@ -10,7 +10,15 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Type 'ZipCode' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "270fe7e78878ac558337939c621b3a6c",
+        "name": "Address",
+        "module": "Main",
+        "cell": "B103"
+      },
+      "stacktrace": true
     }
   ],
   "fields": [

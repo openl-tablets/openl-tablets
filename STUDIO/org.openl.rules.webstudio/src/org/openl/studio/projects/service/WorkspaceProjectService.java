@@ -42,7 +42,6 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
-import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -63,6 +62,7 @@ import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
+import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
@@ -111,7 +111,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableWritersFactory tableWritersFactory;
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
-    private final MessageDescriptionMapper messageDescriptionMapper;
+    private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -128,7 +128,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ApplicationEventPublisher eventPublisher,
             ProtectedBranchBypassService bypassService,
             ProjectIdentifierMapper projectIdentifierMapper,
-            MessageDescriptionMapper messageDescriptionMapper) {
+            DetailedMessageDescriptionMapper detailedMessageDescriptionMapper) {
         super(designRepositoryAclService, projectIdentifierMapper);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -142,7 +142,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableWritersFactory = tableWritersFactory;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
-        this.messageDescriptionMapper = messageDescriptionMapper;
+        this.detailedMessageDescriptionMapper = detailedMessageDescriptionMapper;
     }
 
     @Lookup
@@ -667,13 +667,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .findFirst()
                 .orElse(null);
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
-        tableView.messages = mapMessages(context.getMessages());
+        tableView.messages = mapMessages(context);
         return tableView;
     }
 
-    private List<MessageDescription> mapMessages(Map<Severity, List<OpenLMessage>> messages) {
-        return messageDescriptionMapper.mapSorted(
-                messages.values().stream().flatMap(Collection::stream).toList());
+    private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {
+        var messages = context.getMessages().values().stream()
+                .flatMap(Collection::stream)
+                .toList();
+        return detailedMessageDescriptionMapper.mapSorted(messages, context.module());
     }
 
     /**
@@ -686,7 +688,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public RawTableView getTableRaw(RulesProject project, String tableId) {
         var context = getOpenLTable(project, tableId);
         var tableView = rawTableReader.read(context.table());
-        tableView.messages = mapMessages(context.getMessages());
+        tableView.messages = mapMessages(context);
         return tableView;
     }
 

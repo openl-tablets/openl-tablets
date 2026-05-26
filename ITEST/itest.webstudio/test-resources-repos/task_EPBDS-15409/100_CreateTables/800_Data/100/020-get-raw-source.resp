@@ -10,17 +10,33 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Type 'USState' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "be271364faadb34a625a7711c8900b6f",
+        "module": "Main",
+        "cell": "B25"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'USState' is defined with errors.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "be271364faadb34a625a7711c8900b6f",
+        "module": "Main",
+        "cell": "B25"
+      },
+      "stacktrace": true
     }
   ],
+  "pos": "B25:C86",
   "source": [
     [
       {
+        "cell": "B25",
         "value": "Data USState states",
         "colspan": 2
       },
@@ -30,489 +46,611 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B26",
         "value": "name"
       },
       {
+        "cell": "C26",
         "value": "code"
       }
     ],
     [
       {
+        "cell": "B27",
         "value": "State/Possession"
       },
       {
+        "cell": "C27",
         "value": "Abbreviation"
       }
     ],
     [
       {
+        "cell": "B28",
         "value": "ALABAMA"
       },
       {
+        "cell": "C28",
         "value": "AL"
       }
     ],
     [
       {
+        "cell": "B29",
         "value": "ALASKA"
       },
       {
+        "cell": "C29",
         "value": "AK"
       }
     ],
     [
       {
+        "cell": "B30",
         "value": "AMERICAN SAMOA"
       },
       {
+        "cell": "C30",
         "value": "AS"
       }
     ],
     [
       {
+        "cell": "B31",
         "value": "ARIZONA"
       },
       {
+        "cell": "C31",
         "value": "AZ"
       }
     ],
     [
       {
+        "cell": "B32",
         "value": "ARKANSAS"
       },
       {
+        "cell": "C32",
         "value": "AR"
       }
     ],
     [
       {
+        "cell": "B33",
         "value": "CALIFORNIA"
       },
       {
+        "cell": "C33",
         "value": "CA"
       }
     ],
     [
       {
+        "cell": "B34",
         "value": "COLORADO"
       },
       {
+        "cell": "C34",
         "value": "CO"
       }
     ],
     [
       {
+        "cell": "B35",
         "value": "CONNECTICUT"
       },
       {
+        "cell": "C35",
         "value": "CT"
       }
     ],
     [
       {
+        "cell": "B36",
         "value": "DELAWARE"
       },
       {
+        "cell": "C36",
         "value": "DE"
       }
     ],
     [
       {
+        "cell": "B37",
         "value": "DISTRICT OF COLUMBIA"
       },
       {
+        "cell": "C37",
         "value": "DC"
       }
     ],
     [
       {
+        "cell": "B38",
         "value": "FEDERATED STATES OF MICRONESIA"
       },
       {
+        "cell": "C38",
         "value": "FM"
       }
     ],
     [
       {
+        "cell": "B39",
         "value": "FLORIDA"
       },
       {
+        "cell": "C39",
         "value": "FL"
       }
     ],
     [
       {
+        "cell": "B40",
         "value": "GEORGIA"
       },
       {
+        "cell": "C40",
         "value": "GA"
       }
     ],
     [
       {
+        "cell": "B41",
         "value": "GUAM"
       },
       {
+        "cell": "C41",
         "value": "GU"
       }
     ],
     [
       {
+        "cell": "B42",
         "value": "HAWAII"
       },
       {
+        "cell": "C42",
         "value": "HI"
       }
     ],
     [
       {
+        "cell": "B43",
         "value": "IDAHO"
       },
       {
+        "cell": "C43",
         "value": "ID"
       }
     ],
     [
       {
+        "cell": "B44",
         "value": "ILLINOIS"
       },
       {
+        "cell": "C44",
         "value": "IL"
       }
     ],
     [
       {
+        "cell": "B45",
         "value": "INDIANA"
       },
       {
+        "cell": "C45",
         "value": "IN"
       }
     ],
     [
       {
+        "cell": "B46",
         "value": "IOWA"
       },
       {
+        "cell": "C46",
         "value": "IA"
       }
     ],
     [
       {
+        "cell": "B47",
         "value": "KANSAS"
       },
       {
+        "cell": "C47",
         "value": "KS"
       }
     ],
     [
       {
+        "cell": "B48",
         "value": "KENTUCKY"
       },
       {
+        "cell": "C48",
         "value": "KY"
       }
     ],
     [
       {
+        "cell": "B49",
         "value": "LOUISIANA"
       },
       {
+        "cell": "C49",
         "value": "LA"
       }
     ],
     [
       {
+        "cell": "B50",
         "value": "MAINE"
       },
       {
+        "cell": "C50",
         "value": "ME"
       }
     ],
     [
       {
+        "cell": "B51",
         "value": "MARSHALL ISLANDS"
       },
       {
+        "cell": "C51",
         "value": "MH"
       }
     ],
     [
       {
+        "cell": "B52",
         "value": "MARYLAND"
       },
       {
+        "cell": "C52",
         "value": "MD"
       }
     ],
     [
       {
+        "cell": "B53",
         "value": "MASSACHUSETTS"
       },
       {
+        "cell": "C53",
         "value": "MA"
       }
     ],
     [
       {
+        "cell": "B54",
         "value": "MICHIGAN"
       },
       {
+        "cell": "C54",
         "value": "MI"
       }
     ],
     [
       {
+        "cell": "B55",
         "value": "MINNESOTA"
       },
       {
+        "cell": "C55",
         "value": "MN"
       }
     ],
     [
       {
+        "cell": "B56",
         "value": "MISSISSIPPI"
       },
       {
+        "cell": "C56",
         "value": "MS"
       }
     ],
     [
       {
+        "cell": "B57",
         "value": "MISSOURI"
       },
       {
+        "cell": "C57",
         "value": "MO"
       }
     ],
     [
       {
+        "cell": "B58",
         "value": "MONTANA"
       },
       {
+        "cell": "C58",
         "value": "MT"
       }
     ],
     [
       {
+        "cell": "B59",
         "value": "NEBRASKA"
       },
       {
+        "cell": "C59",
         "value": "NE"
       }
     ],
     [
       {
+        "cell": "B60",
         "value": "NEVADA"
       },
       {
+        "cell": "C60",
         "value": "NV"
       }
     ],
     [
       {
+        "cell": "B61",
         "value": "NEW HAMPSHIRE"
       },
       {
+        "cell": "C61",
         "value": "NH"
       }
     ],
     [
       {
+        "cell": "B62",
         "value": "NEW JERSEY"
       },
       {
+        "cell": "C62",
         "value": "NJ"
       }
     ],
     [
       {
+        "cell": "B63",
         "value": "NEW MEXICO"
       },
       {
+        "cell": "C63",
         "value": "NM"
       }
     ],
     [
       {
+        "cell": "B64",
         "value": "NEW YORK"
       },
       {
+        "cell": "C64",
         "value": "NY"
       }
     ],
     [
       {
+        "cell": "B65",
         "value": "NORTH CAROLINA"
       },
       {
+        "cell": "C65",
         "value": "NC"
       }
     ],
     [
       {
+        "cell": "B66",
         "value": "NORTH DAKOTA"
       },
       {
+        "cell": "C66",
         "value": "ND"
       }
     ],
     [
       {
+        "cell": "B67",
         "value": "NORTHERN MARIANA ISLANDS"
       },
       {
+        "cell": "C67",
         "value": "MP"
       }
     ],
     [
       {
+        "cell": "B68",
         "value": "OHIO"
       },
       {
+        "cell": "C68",
         "value": "OH"
       }
     ],
     [
       {
+        "cell": "B69",
         "value": "OKLAHOMA"
       },
       {
+        "cell": "C69",
         "value": "OK"
       }
     ],
     [
       {
+        "cell": "B70",
         "value": "OREGON"
       },
       {
+        "cell": "C70",
         "value": "OR"
       }
     ],
     [
       {
+        "cell": "B71",
         "value": "PALAU"
       },
       {
+        "cell": "C71",
         "value": "PW"
       }
     ],
     [
       {
+        "cell": "B72",
         "value": "PENNSYLVANIA"
       },
       {
+        "cell": "C72",
         "value": "PA"
       }
     ],
     [
       {
+        "cell": "B73",
         "value": "PUERTO RICO"
       },
       {
+        "cell": "C73",
         "value": "PR"
       }
     ],
     [
       {
+        "cell": "B74",
         "value": "RHODE ISLAND"
       },
       {
+        "cell": "C74",
         "value": "RI"
       }
     ],
     [
       {
+        "cell": "B75",
         "value": "SOUTH CAROLINA"
       },
       {
+        "cell": "C75",
         "value": "SC"
       }
     ],
     [
       {
+        "cell": "B76",
         "value": "SOUTH DAKOTA"
       },
       {
+        "cell": "C76",
         "value": "SD"
       }
     ],
     [
       {
+        "cell": "B77",
         "value": "TENNESSEE"
       },
       {
+        "cell": "C77",
         "value": "TN"
       }
     ],
     [
       {
+        "cell": "B78",
         "value": "TEXAS"
       },
       {
+        "cell": "C78",
         "value": "TX"
       }
     ],
     [
       {
+        "cell": "B79",
         "value": "UTAH"
       },
       {
+        "cell": "C79",
         "value": "UT"
       }
     ],
     [
       {
+        "cell": "B80",
         "value": "VERMONT"
       },
       {
+        "cell": "C80",
         "value": "VT"
       }
     ],
     [
       {
+        "cell": "B81",
         "value": "VIRGIN ISLANDS"
       },
       {
+        "cell": "C81",
         "value": "VI"
       }
     ],
     [
       {
+        "cell": "B82",
         "value": "VIRGINIA"
       },
       {
+        "cell": "C82",
         "value": "VA"
       }
     ],
     [
       {
+        "cell": "B83",
         "value": "WASHINGTON"
       },
       {
+        "cell": "C83",
         "value": "WA"
       }
     ],
     [
       {
+        "cell": "B84",
         "value": "WEST VIRGINIA"
       },
       {
+        "cell": "C84",
         "value": "WV"
       }
     ],
     [
       {
+        "cell": "B85",
         "value": "WISCONSIN"
       },
       {
+        "cell": "C85",
         "value": "WI"
       }
     ],
     [
       {
+        "cell": "B86",
         "value": "WYOMING"
       },
       {
+        "cell": "C86",
         "value": "WY"
       }
     ]

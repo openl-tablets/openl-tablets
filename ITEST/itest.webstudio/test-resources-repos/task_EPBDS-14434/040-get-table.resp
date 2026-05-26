@@ -2,15 +2,23 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableType": "SmartRules",
   "id": "30507d65bb546d53797e0ab23f25a719",
+  "tableType": "SmartRules",
   "kind": "Rules",
   "name": "FicaTaxRates",
   "messages": [
     {
       "id": "*",
       "summary": "Type 'PaymentToolsFicaDetails' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "30507d65bb546d53797e0ab23f25a719",
+        "name": "FicaTaxRates",
+        "module": "EPBDS-14434",
+        "cell": "B2"
+      },
+      "stacktrace": true
     }
   ],
   "returnType": "PaymentToolsFicaDetails",

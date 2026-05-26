@@ -41,11 +41,15 @@ public class RawTableView extends TableView implements EditableTableView {
 
     public static final String TABLE_TYPE = "RawSource";
 
+    @Schema(description = "Position of the table within the file")
+    public final String pos;
+
     @Schema(description = "2D matrix of raw table cells with merge information")
     public final List<List<RawTableCell>> source;   // 2D matrix of cells
 
     private RawTableView(Builder builder) {
         super(builder);
+        this.pos = builder.pos;
         this.source = builder.source;
     }
 
@@ -83,10 +87,16 @@ public class RawTableView extends TableView implements EditableTableView {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends TableView.Builder<Builder> {
+        private String pos;
         private List<List<RawTableCell>> source;
 
         private Builder() {
             tableType(TABLE_TYPE);
+        }
+
+        public Builder pos(String pos) {
+            this.pos = pos;
+            return this;
         }
 
         public Builder source(List<List<RawTableCell>> source) {

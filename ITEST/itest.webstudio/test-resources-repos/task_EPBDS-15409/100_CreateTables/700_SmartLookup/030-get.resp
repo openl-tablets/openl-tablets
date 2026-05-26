@@ -10,12 +10,28 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Smart table has unmatched title 'Limit'.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+        "name": "CoverageRate",
+        "module": "Main",
+        "cell": "C17"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'CoverageForm' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+        "name": "CoverageRate",
+        "module": "Main",
+        "cell": "B16"
+      },
+      "stacktrace": true
     }
   ],
   "returnType": "Double",

@@ -3566,11 +3566,15 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "pos": {
                 "type": "string",
                 "description": "***"
               },
@@ -3593,6 +3597,11 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "cell": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
+          },
           "colspan": {
             "type": "integer",
             "format": "int32",
@@ -3659,7 +3668,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -3740,7 +3749,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -3856,7 +3865,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -3966,7 +3975,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -4058,7 +4067,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -4181,7 +4190,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -4337,7 +4346,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -4421,7 +4430,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },
@@ -4512,7 +4521,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/MessageDescription"
+                  "$ref": "#/components/schemas/DetailedMessageDescription"
                 },
                 "readOnly": true
               },

@@ -10,12 +10,26 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Type 'Address' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "cb1d8299356a8beb83335365afc54211",
+        "module": "Main",
+        "cell": "B88"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'Address' is defined with errors.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "cb1d8299356a8beb83335365afc54211",
+        "module": "Main",
+        "cell": "B88"
+      },
+      "stacktrace": true
     }
   ],
   "headers": [

@@ -6,99 +6,119 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Datatype",
   "name": "CountryCode",
+  "pos": "B2:B20",
   "source": [
     [
       {
+        "cell": "B2",
         "value": "Datatype CountryCode <String>"
       }
     ],
     [
       {
+        "cell": "B3",
         "value": "DE"
       }
     ],
     [
       {
+        "cell": "B4",
         "value": "BE"
       }
     ],
     [
       {
+        "cell": "B5",
         "value": "NL"
       }
     ],
     [
       {
+        "cell": "B6",
         "value": "AT"
       }
     ],
     [
       {
+        "cell": "B7",
         "value": "CH"
       }
     ],
     [
       {
+        "cell": "B8",
         "value": "DK"
       }
     ],
     [
       {
+        "cell": "B9",
         "value": "US"
       }
     ],
     [
       {
+        "cell": "B10",
         "value": "FR"
       }
     ],
     [
       {
+        "cell": "B11",
         "value": "IT"
       }
     ],
     [
       {
+        "cell": "B12",
         "value": "CZ"
       }
     ],
     [
       {
+        "cell": "B13",
         "value": "SE"
       }
     ],
     [
       {
+        "cell": "B14",
         "value": "FI"
       }
     ],
     [
       {
+        "cell": "B15",
         "value": "UA"
       }
     ],
     [
       {
+        "cell": "B16",
         "value": "KZ"
       }
     ],
     [
       {
+        "cell": "B17",
         "value": "PL"
       }
     ],
     [
       {
+        "cell": "B18",
         "value": "GB"
       }
     ],
     [
       {
+        "cell": "B19",
         "value": "RU"
       }
     ],
     [
       {
+        "cell": "B20",
         "value": "IE"
       }
     ]

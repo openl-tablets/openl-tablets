@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Datatype",
   "name": "USState",
+  "pos": "B95:D97",
   "source": [
     [
       {
+        "cell": "B95",
         "value": "Datatype USState",
         "colspan": 3
       },
@@ -21,21 +23,29 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B96",
         "value": "String"
       },
       {
+        "cell": "C96",
         "value": "name"
       },
-      {}
+      {
+        "cell": "D96"
+      }
     ],
     [
       {
+        "cell": "B97",
         "value": "String"
       },
       {
+        "cell": "C97",
         "value": "code"
       },
-      {}
+      {
+        "cell": "D97"
+      }
     ]
   ]
 }
