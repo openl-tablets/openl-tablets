@@ -40,15 +40,18 @@ class WebSocketAuthTest {
 
     @Test
     void rest_ws_rejects_handshake_without_credentials() {
+        var restWs = client.getWebSocketURL(REST_WS);
         assertThrows(AssertionError.class,
-                () -> new StompTester(client, client.getWebSocketURL(REST_WS), Map.of()),
+                () -> new StompTester(client, restWs, Map.of()),
                 "/rest/ws must reject a handshake without credentials or cookies");
     }
 
     @Test
     void rest_ws_rejects_handshake_with_invalid_credentials() {
+        var restWs = client.getWebSocketURL(REST_WS);
+        var headers = Map.of("Authorization", WRONG_BASIC);
         assertThrows(AssertionError.class,
-                () -> new StompTester(client, client.getWebSocketURL(REST_WS), Map.of("Authorization", WRONG_BASIC)),
+                () -> new StompTester(client, restWs, headers),
                 "/rest/ws must reject a handshake with invalid credentials");
     }
 
