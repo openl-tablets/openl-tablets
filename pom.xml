@@ -116,7 +116,7 @@
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.50</swagger.core.version>
-        <swagger.parser.version>2.1.42</swagger.parser.version>
+        <swagger.parser.version>2.1.43</swagger.parser.version>
 
         <!-- Logging -->
         <log4j.version>2.26.0</log4j.version>
