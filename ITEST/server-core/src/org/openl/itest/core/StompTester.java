@@ -1,9 +1,11 @@
 package org.openl.itest.core;
 
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -47,10 +49,31 @@ public final class StompTester implements AutoCloseable {
     private final List<CompletableFuture<?>> pendingAwaits = new ArrayList<>();
 
     public StompTester(HttpClient http) {
-        this(http, DEFAULT_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        this(http, http.getWebSocketBaseURL(), Map.of(), DEFAULT_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     public StompTester(HttpClient http, long connectTimeout, TimeUnit unit) {
+        this(http, http.getWebSocketBaseURL(), Map.of(), connectTimeout, unit);
+    }
+
+    /**
+     * Connects to a specific STOMP endpoint with extra handshake headers.
+     *
+     * <p>The session cookie established by previous HTTP calls is always sent when present, so
+     * cookie-authenticated {@code /web/ws} sessions keep working. {@code handshakeHeaders} adds
+     * headers on top of it — e.g. {@code Authorization: Basic ...} for the {@code /rest/ws}
+     * endpoint, which is authenticated by the {@code /rest/**} security chain rather than the
+     * session.
+     *
+     * @param http             established HTTP client (provides the base URL and session cookie)
+     * @param wsUrl            the {@code ws://...} endpoint to connect to, see {@link HttpClient#getWebSocketURL(String)}
+     * @param handshakeHeaders extra HTTP headers to send during the WebSocket handshake
+     */
+    public StompTester(HttpClient http, URI wsUrl, Map<String, String> handshakeHeaders) {
+        this(http, wsUrl, handshakeHeaders, DEFAULT_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private StompTester(HttpClient http, URI wsUrl, Map<String, String> handshakeHeaders, long connectTimeout, TimeUnit unit) {
         this.client = new WebSocketStompClient(new StandardWebSocketClient());
         // Always decode the frame body as a UTF-8 string regardless of the broker's
         // declared content type — JSON payloads carry `application/json` and the stock
@@ -62,8 +85,9 @@ public final class StompTester implements AutoCloseable {
         if (cookie != null) {
             headers.add("Cookie", cookie);
         }
+        handshakeHeaders.forEach(headers::add);
         var connectFuture = new CompletableFuture<StompSession>();
-        client.connectAsync(http.getWebSocketBaseURL(), headers, new StompHeaders(),
+        client.connectAsync(wsUrl, headers, new StompHeaders(),
                 new StompSessionHandlerAdapter() {
                     @Override
                     public void afterConnected(StompSession s, StompHeaders connected) {

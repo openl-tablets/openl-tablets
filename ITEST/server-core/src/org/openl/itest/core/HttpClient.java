@@ -308,6 +308,19 @@ public class HttpClient implements AutoCloseable {
     }
 
     /**
+     * Builds a {@code ws://...} URL for a specific servlet-relative STOMP endpoint on this server.
+     * The same controllers are exposed under both DispatcherServlet mappings, so the path is
+     * typically {@code "/web/ws"} (UI, cookie-authenticated) or {@code "/rest/ws"} (third-party
+     * clients, Authorization-header authenticated).
+     *
+     * @param path servlet-relative endpoint path, e.g. {@code "/rest/ws"}.
+     * @return the {@code ws://...} URL for that endpoint.
+     */
+    public URI getWebSocketURL(String path) {
+        return URI.create(baseURL.toString().replaceFirst("^http", "ws") + path);
+    }
+
+    /**
      * @return the session cookie established by previous HTTP calls, or {@code null}
      *         if no session has been initialized yet (e.g. unauthenticated profiles).
      */
