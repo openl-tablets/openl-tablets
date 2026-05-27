@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,6 +43,7 @@ public class RawTableView extends TableView implements EditableTableView {
     public static final String TABLE_TYPE = "RawSource";
 
     @Schema(description = "Position of the table within the file")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final String pos;
 
     @Schema(description = "2D matrix of raw table cells with merge information")

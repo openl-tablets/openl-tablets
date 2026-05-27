@@ -3679,7 +3679,8 @@ Content-Type: application/json
               },
               "pos": {
                 "type": "string",
-                "description": "***"
+                "description": "***",
+                "readOnly": true
               },
               "source": {
                 "type": "array",

@@ -48,8 +48,7 @@ import lombok.Builder;
 @Builder
 public record RawTableCell(
         @Schema(description = "Read-only cell address in A1 notation (e.g. 'B3'); absent for covered cells. "
-                + "Matches the cell address reported by compilation messages.",
-                accessMode = Schema.AccessMode.READ_ONLY)
+                + "Matches the cell address reported by compilation messages.")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         String cell,
 
@@ -66,7 +65,7 @@ public record RawTableCell(
         Boolean covered
 ) {
 
-    public static final RawTableCell COVERED = RawTableCell.builder().covered(true).build();
+    public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
 
     public RawTableCell {
         if (Boolean.TRUE.equals(covered)) {
