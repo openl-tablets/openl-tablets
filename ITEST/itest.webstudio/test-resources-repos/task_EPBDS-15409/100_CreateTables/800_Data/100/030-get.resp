@@ -10,12 +10,26 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Type 'USState' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "be271364faadb34a625a7711c8900b6f",
+        "module": "Main",
+        "cell": "B25"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'USState' is defined with errors.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "be271364faadb34a625a7711c8900b6f",
+        "module": "Main",
+        "cell": "B25"
+      },
+      "stacktrace": true
     }
   ],
   "headers": [

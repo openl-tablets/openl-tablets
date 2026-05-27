@@ -1,6 +1,8 @@
 package org.openl.studio.projects.model.tables;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 /**
  * Represents a single cell in raw table format with explicit span information.
@@ -25,22 +27,31 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * Example for a 2x2 merged cell at position (0,0):
  * <ul>
- *   <li>Cell(0,0) = RawTableCell("Header", 2, 2, null) - origin cell spans 2x2
- *   <li>Cell(0,1) = RawTableCell(null, null, null, true) - covered by column span
- *   <li>Cell(1,0) = RawTableCell(null, null, null, true) - covered by row span
- *   <li>Cell(1,1) = RawTableCell(null, null, null, true) - covered by both spans
+ *   <li>Cell(0,0) = origin cell spans 2x2 ({@code colspan=2, rowspan=2})
+ *   <li>Cell(0,1) = covered by column span ({@code covered=true})
+ *   <li>Cell(1,0) = covered by row span ({@code covered=true})
+ *   <li>Cell(1,1) = covered by both spans ({@code covered=true})
  * </ul>
  * <p>
  * Fields with null values are excluded from JSON response due to {@code @JsonInclude(NON_NULL)} annotation.
  * Clients can easily detect merged cells by checking: {@code colspan > 1 || rowspan > 1}
  *
+ * @param cell    Read-only cell address in A1 notation (e.g. {@code B3}); null for covered cells. The value
+ *                matches the {@code cell} address reported by compilation messages, so clients can correlate a
+ *                message with the exact cell in the matrix.
  * @param value   Cell value (null if covered by another cell's span)
  * @param colspan Number of columns this cell spans (>= 2 means merging, null if single column or covered)
  * @param rowspan Number of rows this cell spans (>= 2 means merging, null if single row or covered)
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
  * @author Vladyslav Pikus
  */
+@Builder
 public record RawTableCell(
+        @Schema(description = "Read-only cell address in A1 notation (e.g. 'B3'); absent for covered cells. "
+                + "Matches the cell address reported by compilation messages.")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        String cell,
+
         @Schema(description = "Value of the cell (null if covered by another cell's span)")
         Object value,
 
@@ -54,10 +65,11 @@ public record RawTableCell(
         Boolean covered
 ) {
 
-    public static final RawTableCell COVERED = new RawTableCell(null, null, null, true);
+    public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
 
     public RawTableCell {
         if (Boolean.TRUE.equals(covered)) {
+            cell = null;
             value = null;
             colspan = null;
             rowspan = null;
@@ -66,14 +78,6 @@ public record RawTableCell(
             rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;
             covered = null;
         }
-    }
-
-    public RawTableCell(Object value) {
-        this(value, null, null, null);
-    }
-
-    public RawTableCell(Object value, int colspan, int rowspan) {
-        this(value, colspan, rowspan, null);
     }
 
 }

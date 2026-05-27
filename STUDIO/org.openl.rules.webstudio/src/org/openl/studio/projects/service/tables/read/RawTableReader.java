@@ -62,6 +62,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     @Override
     protected void initialize(RawTableView.Builder builder, IOpenLTable openLTable) {
         super.initialize(builder, openLTable);
+        builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = openLTable.getSyntaxNode().getMetaInfoReader();
         // Use TableModel to properly handle cell merging and content
         var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), -1, metaInfoReader);
@@ -82,12 +83,12 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      *   <li>Iterates through all cells in the TableModel
      *   <li>Extracts colspan/rowspan for each cell from CellModel
      *   <li>Retrieves cell values using the provided cellValueReader function
-     *   <li>Marks cells that are covered by other cells' spans with RawTableCell.COVERED
+     *   <li>Marks cells that are covered by other cells' spans with RawTableCell.COVERED_CELL
      *   <li>Creates RawTableCell objects with explicit colspan/rowspan for origin cells
      * </ul>
      * <p>
      * Covered cells (those within a merged region but not the origin cell) are marked with
-     * {@code RawTableCell.COVERED} to indicate they should be skipped during processing.
+     * {@code RawTableCell.COVERED_CELL} to indicate they should be skipped during processing.
      *
      * @param tableModel      The TableModel containing cell layout and span information
      * @param cellValueReader Function to extract cell values from ICell instances
@@ -109,24 +110,29 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
             for (int col = 0; col < width; col++) {
                 if (coveredCells.contains(new CellRef(row, col))) {
                     // This cell was already covered as part of a merged region (covered by another cell's span)
-                    rowCells.add(RawTableCell.COVERED);
+                    rowCells.add(RawTableCell.COVERED_CELL);
                     continue;
                 }
 
                 var cm = (CellModel) cells[row][col];
-                RawTableCell rawCell;
                 // Extract cell value
                 var cell = tableModel.getGridTable().getCell(cm.getColumn(), cm.getRow());
                 Object value = cellValueReader.apply(cell);
+                // Cell address in A1 notation, matching the address reported by compilation messages
+                var cellAddress = cell.getUri();
 
                 // Check for merging
                 int rowspan = cm.getRowspan();
                 int colspan = cm.getColspan();
 
-                if (colspan > 1 || rowspan > 1) {
-                    // This is a merged cell origin with explicit colspan/rowspan
-                    rawCell = new RawTableCell(value, colspan, rowspan);
+                var rawCell = RawTableCell.builder()
+                        .cell(cellAddress)
+                        .value(value)
+                        .colspan(colspan)
+                        .rowspan(rowspan)
+                        .build();
 
+                if (colspan > 1 || rowspan > 1) {
                     // Mark spanned cells as covered
                     for (int r = row; r < row + rowspan && r < height; r++) {
                         for (int c = col; c < col + colspan && c < width; c++) {
@@ -135,9 +141,6 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                             }
                         }
                     }
-                } else {
-                    // Simple cell without merging
-                    rawCell = new RawTableCell(value);
                 }
                 rowCells.add(rawCell);
             }

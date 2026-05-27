@@ -6,12 +6,19 @@ Content-Type: application/json
   "tableType": "Test",
   "kind": "Test",
   "name": "CoverageRateTest",
-  "testedTableName": "CoverageRate",
   "messages": [
     {
       "id": "*",
       "summary": "Index Key '41' is not found in the foreign table 'CoverageFormData'.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "5d64e98cfb043d16d9aedc659e4b2674",
+        "name": "CoverageRateTest",
+        "module": "EPBDS-15381",
+        "cell": "B14"
+      },
+      "stacktrace": true
     }
   ],
   "headers": [
@@ -74,5 +81,6 @@ Content-Type: application/json
         5011
       ]
     }
-  ]
+  ],
+  "testedTableName": "CoverageRate"
 }

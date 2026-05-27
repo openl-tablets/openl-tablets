@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Test",
   "name": "IsAdequateMaxCreditRiskScoreTest",
+  "pos": "B27:D33",
   "source": [
     [
       {
+        "cell": "B27",
         "value": "Test IsAdequateMaxCreditRiskScore IsAdequateMaxCreditRiskScoreTest",
         "colspan": 3
       },
@@ -21,67 +23,85 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B28",
         "value": "countryCode"
       },
       {
+        "cell": "C28",
         "value": "isAdequateMaxCreditRisk"
       },
       {
+        "cell": "D28",
         "value": "_res_"
       }
     ],
     [
       {
+        "cell": "B29",
         "value": "Country Code"
       },
       {
+        "cell": "C29",
         "value": "Adequate Max Credit Risk"
       },
       {
+        "cell": "D29",
         "value": "IsAdequate Max Credit Risk Score"
       }
     ],
     [
       {
+        "cell": "B30",
         "value": "CH"
       },
       {
+        "cell": "C30",
         "value": true
       },
       {
+        "cell": "D30",
         "value": 1
       }
     ],
     [
       {
+        "cell": "B31",
         "value": "DE"
       },
       {
+        "cell": "C31",
         "value": true
       },
       {
+        "cell": "D31",
         "value": 1
       }
     ],
     [
       {
+        "cell": "B32",
         "value": "DE"
       },
       {
+        "cell": "C32",
         "value": false
       },
       {
+        "cell": "D32",
         "value": 1
       }
     ],
     [
       {
+        "cell": "B33",
         "value": "IT"
       },
       {
+        "cell": "C33",
         "value": false
       },
       {
+        "cell": "D33",
         "value": 0.7
       }
     ]

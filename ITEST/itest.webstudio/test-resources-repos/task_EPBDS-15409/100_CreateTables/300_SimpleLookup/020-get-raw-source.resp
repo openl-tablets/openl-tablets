@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "IsAdequateMaxCreditRiskScore",
+  "pos": "B22:D25",
   "source": [
     [
       {
+        "cell": "B22",
         "value": "SimpleLookup Double IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
         "colspan": 3
       },
@@ -21,32 +23,42 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B23",
         "value": "Country Code/AdequateMaxCreditRisk"
       },
       {
+        "cell": "C23",
         "value": true
       },
       {
+        "cell": "D23",
         "value": false
       }
     ],
     [
       {
+        "cell": "B24",
         "value": "DE"
       },
       {
+        "cell": "C24",
         "value": 1
       },
       {
+        "cell": "D24",
         "value": 1
       }
     ],
     [
-      {},
       {
+        "cell": "B25"
+      },
+      {
+        "cell": "C25",
         "value": 1
       },
       {
+        "cell": "D25",
         "value": 0.7
       }
     ]

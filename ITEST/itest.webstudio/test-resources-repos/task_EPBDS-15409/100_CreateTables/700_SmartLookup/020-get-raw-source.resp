@@ -10,17 +10,35 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Smart table has unmatched title 'Limit'.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+        "name": "CoverageRate",
+        "module": "Main",
+        "cell": "C17"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'CoverageForm' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+        "name": "CoverageRate",
+        "module": "Main",
+        "cell": "B16"
+      },
+      "stacktrace": true
     }
   ],
+  "pos": "B16:G23",
   "source": [
     [
       {
+        "cell": "B16",
         "value": "SmartLookup Double CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
         "colspan": 6
       },
@@ -42,14 +60,17 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B17",
         "value": "Coverage Type",
         "rowspan": 2
       },
       {
+        "cell": "C17",
         "value": "Limit",
         "rowspan": 2
       },
       {
+        "cell": "D17",
         "value": "<= 14",
         "colspan": 2
       },
@@ -57,6 +78,7 @@ Content-Type: application/json
         "covered": true
       },
       {
+        "cell": "F17",
         "value": ">= 15",
         "colspan": 2
       },
@@ -72,113 +94,148 @@ Content-Type: application/json
         "covered": true
       },
       {
+        "cell": "D18",
         "value": "Low"
       },
       {
+        "cell": "E18",
         "value": "High"
       },
       {
+        "cell": "F18",
         "value": "Low"
       },
       {
+        "cell": "G18",
         "value": "High"
       }
     ],
     [
       {
+        "cell": "B19",
         "value": "Basic"
       },
       {
+        "cell": "C19",
         "value": 100
       },
       {
+        "cell": "D19",
         "value": 20
       },
       {
+        "cell": "E19",
         "value": 30
       },
       {
+        "cell": "F19",
         "value": 30
       },
       {
+        "cell": "G19",
         "value": 66
       }
     ],
     [
       {
+        "cell": "B20",
         "value": "Basic"
       },
       {
+        "cell": "C20",
         "value": 200
       },
       {
+        "cell": "D20",
         "value": 25
       },
       {
+        "cell": "E20",
         "value": 40
       },
       {
+        "cell": "F20",
         "value": 45
       },
       {
+        "cell": "G20",
         "value": 77
       }
     ],
     [
       {
+        "cell": "B21",
         "value": "Basic"
       },
       {
+        "cell": "C21",
         "value": "[200.0..300.0]"
       },
       {
+        "cell": "D21",
         "value": 30
       },
       {
+        "cell": "E21",
         "value": 50
       },
       {
+        "cell": "F21",
         "value": 60
       },
       {
+        "cell": "G21",
         "value": 88
       }
     ],
     [
       {
+        "cell": "B22",
         "value": "Basic"
       },
       {
+        "cell": "C22",
         "value": ">= 500.0"
       },
       {
+        "cell": "D22",
         "value": 35
       },
       {
+        "cell": "E22",
         "value": 60
       },
       {
+        "cell": "F22",
         "value": "= 2 * numberOfEmployees"
       },
       {
+        "cell": "G22",
         "value": 99
       }
     ],
     [
       {
+        "cell": "B23",
         "value": "Additional"
       },
-      {},
       {
+        "cell": "C23"
+      },
+      {
+        "cell": "D23",
         "value": 30
       },
       {
+        "cell": "E23",
         "value": 50
       },
       {
+        "cell": "F23",
         "value": 60
       },
       {
+        "cell": "G23",
         "value": 88
       }
     ]

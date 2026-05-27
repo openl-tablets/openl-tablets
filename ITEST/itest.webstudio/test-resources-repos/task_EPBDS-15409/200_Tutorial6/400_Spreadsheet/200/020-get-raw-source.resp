@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Spreadsheet",
   "name": "IncomeForecast",
+  "pos": "B31:F39",
   "source": [
     [
       {
+        "cell": "B31",
         "value": "Spreadsheet SpreadsheetResult IncomeForecast(Double bonusRate, Double sharePrice)",
         "colspan": 5
       },
@@ -26,132 +28,175 @@ Content-Type: application/json
       }
     ],
     [
-      {},
       {
+        "cell": "B32"
+      },
+      {
+        "cell": "C32",
         "value": "Year1"
       },
       {
+        "cell": "D32",
         "value": "Year2"
       },
       {
+        "cell": "E32",
         "value": "Year3"
       },
       {
+        "cell": "F32",
         "value": "TotalAmount"
       }
     ],
     [
       {
+        "cell": "B33",
         "value": "Salary"
       },
       {
+        "cell": "C33",
         "value": 45000
       },
       {
+        "cell": "D33",
         "value": "= round ($Year1$Salary * 1.10)"
       },
       {
+        "cell": "E33",
         "value": "=round ($Year1$Salary * 1.20)"
       },
       {
+        "cell": "F33",
         "value": "= $Year1 + $Year2 + $Year3"
       }
     ],
     [
       {
+        "cell": "B34",
         "value": "Shares"
       },
       {
+        "cell": "C34",
         "value": 0
       },
       {
+        "cell": "D34",
         "value": 0
       },
       {
+        "cell": "E34",
         "value": 1000
       },
       {
+        "cell": "F34",
         "value": "= $Year1 + $Year2 + $Year3"
       }
     ],
     [
       {
+        "cell": "B35",
         "value": "Bonus"
       },
       {
+        "cell": "C35",
         "value": "=$Salary * bonusRate"
       },
       {
+        "cell": "D35",
         "value": "= $Salary * bonusRate"
       },
       {
+        "cell": "E35",
         "value": "= $Salary * bonusRate"
       },
       {
+        "cell": "F35",
         "value": "= $Year1 + $Year2 + $Year3"
       }
     ],
     [
       {
+        "cell": "B36",
         "value": "bonusRate"
       },
       {
+        "cell": "C36",
         "value": "=bonusRate"
       },
       {
+        "cell": "D36",
         "value": "=bonusRate"
       },
       {
+        "cell": "E36",
         "value": "=bonusRate"
       },
-      {}
+      {
+        "cell": "F36"
+      }
     ],
     [
       {
+        "cell": "B37",
         "value": "sharePrice"
       },
       {
+        "cell": "C37",
         "value": "=sharePrice"
       },
       {
+        "cell": "D37",
         "value": "=sharePrice"
       },
       {
+        "cell": "E37",
         "value": "=sharePrice"
       },
-      {}
+      {
+        "cell": "F37"
+      }
     ],
     [
       {
+        "cell": "B38",
         "value": "MinSalary"
       },
       {
+        "cell": "C38",
         "value": "= $Salary"
       },
       {
+        "cell": "D38",
         "value": "= $Salary"
       },
       {
+        "cell": "E38",
         "value": "= $Salary"
       },
       {
+        "cell": "F38",
         "value": "= $Year1 + $Year2 + $Year3"
       }
     ],
     [
       {
+        "cell": "B39",
         "value": "MaxSalary"
       },
       {
+        "cell": "C39",
         "value": "= $Salary + $Bonus + $Shares * sharePrice"
       },
       {
+        "cell": "D39",
         "value": "= $Salary + $Bonus + $Shares * sharePrice"
       },
       {
+        "cell": "E39",
         "value": "= $Salary + $Bonus + $Shares * sharePrice"
       },
       {
+        "cell": "F39",
         "value": "= $Year1 + $Year2 + $Year3"
       }
     ]

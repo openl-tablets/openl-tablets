@@ -6,9 +6,11 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "BaseRate",
+  "pos": "B4:K9",
   "source": [
     [
       {
+        "cell": "B4",
         "value": "SmartLookup Double BaseRate(TerritoryCd territoryCd, PolicyForm policyForm, Plan policyPlan)",
         "colspan": 10
       },
@@ -42,13 +44,16 @@ Content-Type: application/json
     ],
     [
       {
+        "cell": "B5",
         "value": "Territory Code",
         "rowspan": 2
       },
       {
+        "cell": "C5",
         "value": "HO2"
       },
       {
+        "cell": "D5",
         "value": "HO3",
         "colspan": 4
       },
@@ -62,15 +67,19 @@ Content-Type: application/json
         "covered": true
       },
       {
+        "cell": "H5",
         "value": "HO5"
       },
       {
+        "cell": "I5",
         "value": "HO4"
       },
       {
+        "cell": "J5",
         "value": "HO6"
       },
       {
+        "cell": "K5",
         "value": "DP3"
       }
     ],
@@ -78,115 +87,160 @@ Content-Type: application/json
       {
         "covered": true
       },
-      {},
       {
+        "cell": "C6"
+      },
+      {
+        "cell": "D6",
         "value": "Platinum"
       },
       {
+        "cell": "E6",
         "value": "Gold"
       },
       {
+        "cell": "F6",
         "value": "Silver"
       },
-      {},
-      {},
-      {},
-      {},
-      {}
+      {
+        "cell": "G6"
+      },
+      {
+        "cell": "H6"
+      },
+      {
+        "cell": "I6"
+      },
+      {
+        "cell": "J6"
+      },
+      {
+        "cell": "K6"
+      }
     ],
     [
       {
+        "cell": "B7",
         "value": "001"
       },
       {
+        "cell": "C7",
         "value": 200
       },
       {
+        "cell": "D7",
         "value": 260
       },
       {
+        "cell": "E7",
         "value": 270
       },
       {
+        "cell": "F7",
         "value": 280
       },
       {
+        "cell": "G7",
         "value": 250
       },
       {
+        "cell": "H7",
         "value": 300
       },
       {
+        "cell": "I7",
         "value": 100
       },
       {
+        "cell": "J7",
         "value": 125
       },
       {
+        "cell": "K7",
         "value": 250
       }
     ],
     [
       {
+        "cell": "B8",
         "value": "002"
       },
       {
+        "cell": "C8",
         "value": 225
       },
       {
+        "cell": "D8",
         "value": 285
       },
       {
+        "cell": "E8",
         "value": 295
       },
       {
+        "cell": "F8",
         "value": 305
       },
       {
+        "cell": "G8",
         "value": 275
       },
       {
+        "cell": "H8",
         "value": 325
       },
       {
+        "cell": "I8",
         "value": 125
       },
       {
+        "cell": "J8",
         "value": 150
       },
       {
+        "cell": "K8",
         "value": 275
       }
     ],
     [
       {
+        "cell": "B9",
         "value": 999
       },
       {
+        "cell": "C9",
         "value": 250
       },
       {
+        "cell": "D9",
         "value": 310
       },
       {
+        "cell": "E9",
         "value": 320
       },
       {
+        "cell": "F9",
         "value": 330
       },
       {
+        "cell": "G9",
         "value": 300
       },
       {
+        "cell": "H9",
         "value": 350
       },
       {
+        "cell": "I9",
         "value": 150
       },
       {
+        "cell": "J9",
         "value": 200
       },
       {
+        "cell": "K9",
         "value": 300
       }
     ]

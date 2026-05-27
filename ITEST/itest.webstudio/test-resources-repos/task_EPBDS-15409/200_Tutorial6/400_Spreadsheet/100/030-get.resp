@@ -10,17 +10,41 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "Method 'TotalAssets()' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "47d020cdaf10119d4bd11c190f87856e",
+        "name": "AssetsCompare",
+        "module": "Main",
+        "cell": "C26"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Field '$USDValue$Total' is not found in type 'null-Class'.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "47d020cdaf10119d4bd11c190f87856e",
+        "name": "AssetsCompare",
+        "module": "Main",
+        "cell": "C27"
+      },
+      "stacktrace": true
     },
     {
       "id": "*",
       "summary": "Type 'SpreadsheetResultTotalAssets' is not found.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "47d020cdaf10119d4bd11c190f87856e",
+        "name": "AssetsCompare",
+        "module": "Main",
+        "cell": "B26"
+      },
+      "stacktrace": true
     }
   ],
   "returnType": "SpreadsheetResult",

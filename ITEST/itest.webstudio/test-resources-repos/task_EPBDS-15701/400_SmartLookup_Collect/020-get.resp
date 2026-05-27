@@ -10,7 +10,15 @@ Content-Type: application/json
     {
       "id": "*",
       "summary": "No input parameter found for horizontal condition.",
-      "severity": "ERROR"
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "c926ad554329f8a5caccf920cd8600ad",
+        "name": "collectSmartLookup",
+        "module": "Main",
+        "cell": "B2"
+      },
+      "stacktrace": true
     }
   ],
   "returnType": "Integer[]",
