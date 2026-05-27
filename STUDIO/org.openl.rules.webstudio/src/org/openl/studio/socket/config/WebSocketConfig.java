@@ -35,7 +35,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import org.openl.studio.socket.handler.AnonymousSupportHandshakeHandler;
-import org.openl.studio.socket.handler.AnonymouseSecurityContextHandshakeInterceptor;
+import org.openl.studio.socket.handler.SecurityContextHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -55,11 +55,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // enables ws://localhost:8080/ws
+        // Servlet-relative endpoint reachable under every DispatcherServlet mapping:
+        //   /web/ws  - native UI, authenticated by the session cookie;
+        //   /rest/ws - third-party clients, authenticated by an Authorization header (PAT/Bearer/Basic)
+        //              through the /rest/** chain in org.openl.studio.security.
         registry.addEndpoint("/ws")
                 .setHandshakeHandler(new AnonymousSupportHandshakeHandler())
                 .addInterceptors(new HttpSessionHandshakeInterceptor(),  // pass the HTTP Session to the WebSocket
-                        new AnonymouseSecurityContextHandshakeInterceptor());
+                        new SecurityContextHandshakeInterceptor());
     }
 
     @Override

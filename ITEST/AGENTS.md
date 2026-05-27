@@ -93,7 +93,12 @@ Header-Name: value
 
 ### Environment Variables
 
-Use `${VAR_NAME}` in req/resp files — replaced from `HttpClient.localEnv` map.
+Values come from `itest.env` files (loaded hierarchically per folder) and `HttpClient.localEnv` (set programmatically, highest priority). Two substitution syntaxes apply:
+
+- `${VAR}` — in **header values** (e.g. `Authorization: ${TOKEN}`); an undefined variable fails the request.
+- `{VAR}` — in the **request URL path** (e.g. `PUT /rest/repos/design/projects/{PROJECT}`); an undefined variable is left as-is.
+
+This lets one shared `.req`/`.resp` folder drive several projects/users by changing only `localEnv` between runs.
 
 ### Cookie/Session Handling
 
@@ -152,3 +157,27 @@ When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` f
 - Files use CRLF — read/write as binary with `\r\n` splits
 - JSON keys like `/projects/{projectId}` contain literal `{}` — when counting braces to find block boundaries, skip characters inside quoted strings
 - Verify the resulting JSON is valid before running tests
+
+## Java-Driven Tests
+
+Some flows need logic the declarative framework can't express (WebSocket streams, async waits, computed assertions). Write a JUnit class in `test/` and drive the server through `HttpClient`: `getForObject` / `postForObject` for ad-hoc calls, or `client.test(folder)` to replay a `.req`/`.resp` folder for setup.
+
+### One server per class (performance)
+
+Starting the embedded Jetty + Spring context costs several seconds. Start it **once per class**, not per test/parameter:
+
+```java
+@AutoClose
+private static final HttpClient client = JettyServer.get().withProfile("multi").start();
+```
+
+Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`. Keep handshake-auth negative tests (which must run with no session) in a **separate class** from tests that log in, because the `HttpClient` session cookie persists across calls within a class.
+
+### WebSocket / STOMP
+
+`StompTester` (in `server-core`) wraps a STOMP-over-WebSocket client:
+
+- `new StompTester(client)` — connects to `/web/ws` with the session cookie.
+- `new StompTester(client, client.getWebSocketURL("/rest/ws"), Map.of("Authorization", basic))` — targets a specific endpoint with extra handshake headers (e.g. Basic auth for the `/rest/**` chain); the session cookie is still sent when present.
+- `awaitMatching(topic, Type.class, predicate)` returns a future completing on the first matching frame (`awaitFirst` takes any frame). Subscribe **before** triggering the action that publishes, so the terminal frame isn't missed.
+- A rejected handshake (e.g. `401` on `/rest/ws` without credentials) makes the constructor throw — assert it with `assertThrows(AssertionError.class, ...)`.
