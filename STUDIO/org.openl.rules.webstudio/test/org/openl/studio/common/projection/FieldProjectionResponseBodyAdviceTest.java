@@ -204,6 +204,34 @@ class FieldProjectionResponseBodyAdviceTest {
     }
 
     @Test
+    void rejectsMalformedFieldsOnEmptyProjectableList() throws Exception {
+        // Empty result set must not silence input validation -- the same request must fail the same
+        // way whether the list has zero or many elements.
+        var result = mockMvc.perform(get("/projection-test/list-empty").param("fields", "id(")).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        var error = (BadRequestException) result.getResolvedException();
+        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
+    }
+
+    @Test
+    void leafSelectionWinsOverLaterPartial() throws Exception {
+        // owner selected as leaf first, then a sub-selection on the same name -> owner is kept whole.
+        var body = json(get("/projection-test/single").param("fields", "owner,owner(login)"));
+        var owner = body.get("owner");
+        assertEquals("login-1", owner.get("login").asText());
+        assertEquals("1@example.com", owner.get("email").asText());
+    }
+
+    @Test
+    void leafSelectionWinsOverEarlierPartial() throws Exception {
+        // Partial first, then leaf on the same name -> owner upgrades to whole.
+        var body = json(get("/projection-test/single").param("fields", "owner(login),owner"));
+        var owner = body.get("owner");
+        assertEquals("login-1", owner.get("login").asText());
+        assertEquals("1@example.com", owner.get("email").asText());
+    }
+
+    @Test
     void activeJsonViewAloneRestrictsResponseWithoutProjection() throws Exception {
         // Class-level @JsonView(Public) on the controller -> JsonViewControllerAdvice applies the view.
         // 'status' is @JsonView(Full) only, so it is excluded by the active view.

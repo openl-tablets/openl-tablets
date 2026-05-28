@@ -2,6 +2,7 @@ package org.openl.studio.common.projection;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -46,12 +47,13 @@ public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonRes
         }
         var rawFields = servletRequest.getServletRequest().getParameter(FieldProjectionSupport.PARAMETER_NAME);
         if (StringUtils.isBlank(rawFields)) {
-            // No projection requested -> response stays exactly as it is today.
             return;
         }
-        var targetType = support.resolveTargetType(bodyContainer.getValue());
-        if (targetType == null || !support.isProjectable(targetType)) {
-            // Error responses, binary payloads, actuator, empty collections, ... are left untouched.
+        // Projection eligibility follows the declared return type, with the runtime body as a fallback
+        // for wildcard types like ResponseEntity<?>. This decouples validation of the fields parameter
+        // from whether the current response happens to be empty: an invalid value fails the same way
+        // whether the page has zero or many elements.
+        if (!isProjectableEndpoint(returnType, bodyContainer.getValue())) {
             return;
         }
         var selection = support.parseSelection(rawFields);
@@ -62,6 +64,15 @@ public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonRes
         if (provider != null) {
             provider.addFilter(FieldProjectionSupport.FILTER_ID, new FieldProjectionPropertyFilter(selection));
         }
+    }
+
+    private boolean isProjectableEndpoint(MethodParameter returnType, @Nullable Object body) {
+        var declared = support.resolveTargetType(returnType.getGenericParameterType());
+        if (declared != null) {
+            return support.isProjectable(declared);
+        }
+        var runtime = support.resolveTargetType(body);
+        return runtime != null && support.isProjectable(runtime);
     }
 
     /**

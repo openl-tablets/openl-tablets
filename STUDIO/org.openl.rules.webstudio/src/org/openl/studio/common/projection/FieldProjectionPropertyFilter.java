@@ -45,8 +45,8 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
 
     private boolean includes(JsonGenerator gen, PropertyWriter writer) {
         var node = resolveNode(gen);
-        // No node, or a leaf selection -> the whole object is kept.
-        if (node == null || !node.hasChildren()) {
+        // No node here, explicit whole selection, or empty group -> the whole object is kept.
+        if (node == null || node.isWhole() || !node.hasChildren()) {
             return true;
         }
         return node.contains(writer.getName());
@@ -62,14 +62,32 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
             // First projectable bean = projection root; remember where it sits in the JSON tree.
             anchor = path.toArray(new String[0]);
         }
+        // Beans that sit outside the anchor subtree are not bound by this selection (the user
+        // requested fields relative to the projection root, not to incidental projectable beans
+        // elsewhere in the graph). Returning null tells the caller to keep the whole value.
+        if (!startsWithAnchor(path)) {
+            return null;
+        }
         var node = root;
-        for (int i = Math.min(anchor.length, path.size()); i < path.size(); i++) {
+        for (int i = anchor.length; i < path.size(); i++) {
             if (node == null || !node.hasChildren()) {
                 return node;
             }
             node = node.child(path.get(i));
         }
         return node;
+    }
+
+    private boolean startsWithAnchor(List<String> path) {
+        if (path.size() < anchor.length) {
+            return false;
+        }
+        for (int i = 0; i < anchor.length; i++) {
+            if (!anchor[i].equals(path.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

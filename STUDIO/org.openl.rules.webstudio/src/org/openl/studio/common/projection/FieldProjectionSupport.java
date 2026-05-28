@@ -1,11 +1,17 @@
 package org.openl.studio.common.projection;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
@@ -67,7 +73,7 @@ public class FieldProjectionSupport {
      * <p>Excluded: framework-internal types in {@value #COMMON_MODEL_PACKAGE}, and any class with an
      * explicit {@link JsonFilter} annotation.
      */
-    public boolean isProjectable(Class<?> type) {
+    public boolean isProjectable(@Nullable Class<?> type) {
         if (type == null) {
             return false;
         }
@@ -102,7 +108,7 @@ public class FieldProjectionSupport {
      * <p>For collections, arrays and {@link PageResponse} wrappers the element type is returned --
      * only the elements are reduced, while pagination metadata in the wrapper is preserved.
      */
-    public Class<?> resolveTargetType(Object body) {
+    public @Nullable Class<?> resolveTargetType(@Nullable Object body) {
         return switch (body) {
             case null -> null;
             case PageResponse<?> page -> firstElementType(page.getContent());
@@ -110,6 +116,36 @@ public class FieldProjectionSupport {
             case Object[] array -> firstElementType(Arrays.asList(array));
             default -> ClassUtils.getUserClass(body);
         };
+    }
+
+    /**
+     * The type to project for this declared return type, or {@code null} when the type is too generic
+     * to resolve (e.g. a {@code ResponseEntity<?>} wildcard).
+     *
+     * <p>Unwraps {@code ResponseEntity}/{@link HttpEntity}, {@link PageResponse}, collections and
+     * arrays. Counterpart to {@link #resolveTargetType(Object)} for use when the runtime body is
+     * unavailable or empty.
+     */
+    public @Nullable Class<?> resolveTargetType(@Nullable Type type) {
+        if (type instanceof ParameterizedType parameterizedType
+                && parameterizedType.getRawType() instanceof Class<?> rawType) {
+            if (isContainer(rawType)) {
+                var arguments = parameterizedType.getActualTypeArguments();
+                return arguments.length == 1 ? resolveTargetType(arguments[0]) : null;
+            }
+            return rawType;
+        }
+        if (type instanceof Class<?> clazz) {
+            return clazz.isArray() ? clazz.getComponentType() : clazz;
+        }
+        return null;
+    }
+
+    private static boolean isContainer(Class<?> rawType) {
+        return HttpEntity.class.isAssignableFrom(rawType)
+                || PageResponse.class.isAssignableFrom(rawType)
+                || Iterable.class.isAssignableFrom(rawType)
+                || Collection.class.isAssignableFrom(rawType);
     }
 
     private static Class<?> firstElementType(Iterable<?> elements) {
@@ -143,7 +179,7 @@ public class FieldProjectionSupport {
      * @throws BadRequestException for malformed input or when {@link #MAX_RAW_LENGTH},
      *                             {@link #MAX_DEPTH} or {@link #MAX_NODES} is exceeded
      */
-    public FieldNode parseSelection(String raw) {
+    public @NonNull FieldNode parseSelection(@Nullable String raw) {
         var root = new FieldNode();
         if (raw == null) {
             return root;
@@ -181,7 +217,7 @@ public class FieldProjectionSupport {
                     if (++depth > MAX_DEPTH) {
                         throw tooLarge();
                     }
-                    var child = flushAndCount(parents.peek(), nameBuffer, nodeCount);
+                    var child = flushAndCount(parents.peek(), nameBuffer, nodeCount, false);
                     if (child == null) {
                         throw malformedAt("'(' must be preceded by a field name", i);
                     }
@@ -191,11 +227,11 @@ public class FieldProjectionSupport {
                     if (depth == 0) {
                         throw malformedAt("unmatched ')'", i);
                     }
-                    flushAndCount(parents.peek(), nameBuffer, nodeCount);
+                    flushAndCount(parents.peek(), nameBuffer, nodeCount, true);
                     parents.pop();
                     depth--;
                 }
-                case ',' -> flushAndCount(parents.peek(), nameBuffer, nodeCount);
+                case ',' -> flushAndCount(parents.peek(), nameBuffer, nodeCount, true);
                 default -> nameBuffer.append(c);
             }
         }
@@ -205,19 +241,24 @@ public class FieldProjectionSupport {
             throw malformed("unclosed '('");
         }
         // Trailing field has no separator after it; flush whatever is left in the buffer.
-        flushAndCount(parents.peek(), nameBuffer, nodeCount);
+        flushAndCount(parents.peek(), nameBuffer, nodeCount, true);
     }
 
     /**
      * Attaches the buffered name (if non-blank) as a child of {@code parent} and counts it against
      * {@link #MAX_NODES}. The buffer is cleared on return.
      *
+     * <p>When {@code asLeaf} is {@code true}, the node is marked as a whole-value selection so that a
+     * later sub-selection on the same name cannot downgrade it: {@code fields=owner,owner(login)}
+     * keeps {@code owner} whole regardless of the order in which the two appear.
+     *
      * <p>The cap counts every non-blank token, including duplicates that just re-resolve an existing
      * node, so heavily repeated selections still hit the cap.
      *
      * @return the (possibly pre-existing) child node, or {@code null} when nothing was added
      */
-    private static FieldNode flushAndCount(FieldNode parent, StringBuilder nameBuffer, AtomicInteger nodeCount) {
+    private static FieldNode flushAndCount(FieldNode parent, StringBuilder nameBuffer, AtomicInteger nodeCount,
+                                           boolean asLeaf) {
         var trimmed = nameBuffer.toString().trim();
         nameBuffer.setLength(0);
         if (trimmed.isEmpty()) {
@@ -226,7 +267,11 @@ public class FieldProjectionSupport {
         if (nodeCount.incrementAndGet() > MAX_NODES) {
             throw tooLarge();
         }
-        return parent.getOrAdd(trimmed);
+        var child = parent.getOrAdd(trimmed);
+        if (asLeaf) {
+            child.markWhole();
+        }
+        return child;
     }
 
     private static BadRequestException tooLarge() {

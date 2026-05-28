@@ -1,6 +1,7 @@
 package org.openl.rules.spring.openapi.service;
 
 import io.swagger.v3.oas.models.Operation;
+import org.jspecify.annotations.NonNull;
 
 import org.openl.rules.spring.openapi.model.MethodInfo;
 
@@ -23,5 +24,5 @@ public interface OpenApiOperationCustomizer {
      * @param methodInfo the handler method the operation was generated from
      * @param operation  the operation to customize
      */
-    void customize(MethodInfo methodInfo, Operation operation);
+    void customize(@NonNull MethodInfo methodInfo, @NonNull Operation operation);
 }

@@ -1,5 +1,6 @@
 package org.openl.studio.common.projection;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 public final class FieldNode {
 
     private final Map<String, FieldNode> children = new LinkedHashMap<>();
+    private boolean whole;
 
     public boolean hasChildren() {
         return !children.isEmpty();
@@ -30,6 +32,18 @@ public final class FieldNode {
         return children.isEmpty();
     }
 
+    /**
+     * Whether this field was explicitly selected as a whole value -- i.e. by name without a nested
+     * {@code (...)} sub-selection somewhere in the query.
+     *
+     * <p>Whole always wins over partial: in {@code fields=owner,owner(email)} (and the reverse), the
+     * leaf selection is preserved and {@code owner} is returned in full even though sub-selections
+     * were also parsed for the same name.
+     */
+    public boolean isWhole() {
+        return whole;
+    }
+
     public boolean contains(String name) {
         return children.containsKey(name);
     }
@@ -39,10 +53,14 @@ public final class FieldNode {
     }
 
     public Map<String, FieldNode> children() {
-        return children;
+        return Collections.unmodifiableMap(children);
     }
 
     FieldNode getOrAdd(String name) {
         return children.computeIfAbsent(name, key -> new FieldNode());
+    }
+
+    void markWhole() {
+        this.whole = true;
     }
 }

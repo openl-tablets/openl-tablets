@@ -1,20 +1,14 @@
 package org.openl.studio.openapi;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Collection;
-
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.service.OpenApiOperationCustomizer;
-import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.projection.FieldProjectionSupport;
 
 /**
@@ -60,34 +54,6 @@ public class FieldProjectionOpenApiCustomizer implements OpenApiOperationCustomi
     }
 
     /**
-     * The element type the projection would target for this declared return type.
-     *
-     * <p>Unwraps {@code ResponseEntity}, {@link PageResponse}, collections and arrays. Static
-     * counterpart to {@link FieldProjectionSupport#resolveTargetType(Object)}.
-     */
-    private static Class<?> resolveProjectableType(Type type) {
-        if (type instanceof ParameterizedType parameterizedType
-                && parameterizedType.getRawType() instanceof Class<?> rawType) {
-            if (isWrapper(rawType)) {
-                var arguments = parameterizedType.getActualTypeArguments();
-                return arguments.length == 1 ? resolveProjectableType(arguments[0]) : null;
-            }
-            return rawType;
-        }
-        if (type instanceof Class<?> clazz) {
-            return clazz.isArray() ? clazz.getComponentType() : clazz;
-        }
-        return null;
-    }
-
-    private static boolean isWrapper(Class<?> rawType) {
-        return HttpEntity.class.isAssignableFrom(rawType)
-                || PageResponse.class.isAssignableFrom(rawType)
-                || Iterable.class.isAssignableFrom(rawType)
-                || Collection.class.isAssignableFrom(rawType);
-    }
-
-    /**
      * Whether this operation should advertise the {@code fields} parameter.
      *
      * <p>When the declared return type pins a concrete class, projection eligibility follows that
@@ -97,7 +63,7 @@ public class FieldProjectionOpenApiCustomizer implements OpenApiOperationCustomi
      * projectable DTO.
      */
     private boolean advertisesFieldsFor(MethodInfo methodInfo) {
-        var targetType = resolveProjectableType(methodInfo.getReturnType());
+        var targetType = support.resolveTargetType(methodInfo.getReturnType());
         if (targetType != null) {
             return support.isProjectable(targetType);
         }

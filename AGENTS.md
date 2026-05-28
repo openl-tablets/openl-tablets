@@ -6,7 +6,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
-- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text bloks and etc.)
+- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text blocks and etc.)
   and features (Virtual Threads, Sequenced Collections, new String, Collections & IO/NIO methods and etc.)
 - Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
 - When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter automatically
@@ -17,7 +17,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - No HTML in Markdown when equivalents exist (see Markdown Rules below)
 - All new file names must be only in ASCII alphanumeric without spaces and any special characters, except for `-_.`
 - Existed file names contains spaces and `,+%$#` symbols for tests purposes and must not be renamed during refactoring.
-- Execute `mvn validate -N` after changes and before commiting to ensure all files are formatted correctly.
+- Execute `mvn validate -N` after changes and before committing to ensure all files are formatted correctly.
 
 ## Repository Layout
 

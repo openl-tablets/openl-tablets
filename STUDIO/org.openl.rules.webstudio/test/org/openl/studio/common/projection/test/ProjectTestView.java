@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Response DTO used by the field projection tests. Includes a {@link JsonIgnore} and a
@@ -26,7 +27,9 @@ public class ProjectTestView {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String writeOnly;
 
+    @Nullable
     private final UserTestView owner;
 
+    @Nullable
     private final List<UserTestView> members;
 }
