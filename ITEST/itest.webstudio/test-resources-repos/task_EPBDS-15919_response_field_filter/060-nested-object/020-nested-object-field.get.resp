@@ -4,10 +4,6 @@ Content-Type: application/json
 {
   "username": "admin",
   "externalFlags": {
-    "displayNameExternal": false,
-    "firstNameExternal": false,
-    "lastNameExternal": false,
-    "emailExternal": false,
     "emailVerified": false
   }
 }
