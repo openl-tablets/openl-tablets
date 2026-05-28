@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Applies a hierarchical {@code ?fields=} selection to every projectable bean in a response.
@@ -26,14 +27,11 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
 
     private final FieldNode root;
     private String[] anchor;
-
-    public FieldProjectionPropertyFilter(FieldNode root) {
-        this.root = root;
-    }
 
     @Override
     public void serializeAsField(Object pojo, JsonGenerator gen, SerializerProvider provider,

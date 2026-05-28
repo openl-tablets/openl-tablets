@@ -3,6 +3,7 @@ package org.openl.studio.common.projection;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Tags every projectable response DTO with the shared field-projection filter id.
@@ -15,13 +16,10 @@ import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class FieldProjectionAnnotationIntrospector extends NopAnnotationIntrospector {
 
     private final transient FieldProjectionSupport support;
-
-    public FieldProjectionAnnotationIntrospector(FieldProjectionSupport support) {
-        this.support = support;
-    }
 
     @Override
     public Object findFilterId(Annotated annotated) {

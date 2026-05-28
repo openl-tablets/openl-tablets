@@ -80,7 +80,6 @@ public class OpenApiSpringMvcReaderImpl {
         this.apiParameterService = apiParameterService;
         this.apiSecurityService = apiSecurityService;
         this.apiPropertyResolver = apiPropertyResolver;
-        // Optional: empty unless a feature (e.g. response field projection) contributes a customizer bean.
         this.operationCustomizers = operationCustomizers.orderedStream().toList();
     }
 

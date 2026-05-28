@@ -8,7 +8,8 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
 - Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text bloks and etc.)
   and features (Virtual Threads, Sequenced Collections, new String, Collections & IO/NIO methods and etc.)
-- Use Lombok for boilerplate reduction
+- Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
+- When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter automatically
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives

@@ -7,6 +7,7 @@ import java.util.Collection;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -29,15 +30,12 @@ import org.openl.studio.common.projection.FieldProjectionSupport;
  * @author Vladyslav Pikus
  */
 @Component
+@RequiredArgsConstructor
 public class FieldProjectionOpenApiCustomizer implements OpenApiOperationCustomizer {
 
     private static final String QUERY = "query";
 
     private final FieldProjectionSupport support;
-
-    public FieldProjectionOpenApiCustomizer(FieldProjectionSupport support) {
-        this.support = support;
-    }
 
     @Override
     public void customize(MethodInfo methodInfo, Operation operation) {

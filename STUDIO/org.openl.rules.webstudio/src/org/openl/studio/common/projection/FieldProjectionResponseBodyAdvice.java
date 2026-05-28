@@ -1,6 +1,7 @@
 package org.openl.studio.common.projection;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -32,13 +33,10 @@ import org.openl.util.StringUtils;
  */
 @ControllerAdvice
 @Order(3)
+@RequiredArgsConstructor
 public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonResponseBodyAdvice {
 
     private final FieldProjectionSupport support;
-
-    public FieldProjectionResponseBodyAdvice(FieldProjectionSupport support) {
-        this.support = support;
-    }
 
     @Override
     protected void beforeBodyWriteInternal(MappingJacksonValue bodyContainer, MediaType contentType,
