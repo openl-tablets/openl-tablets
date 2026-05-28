@@ -65,4 +65,18 @@ class FieldProjectionOpenApiCustomizerTest {
     void skipsNonProjectableResponse() {
         assertNull(customize(String.class));
     }
+
+    /**
+     * Controllers may declare an in-scope interface (e.g. {@code EditableTableView}) as the return
+     * type while returning a concrete subtype at runtime. The customizer must still advertise the
+     * {@code fields} parameter for such operations.
+     */
+    @Test
+    void addsParameterForInterfaceReturnTypeInScope() {
+        assertTrue(customize(InScopeInterface.class) != null);
+    }
+
+    /** In-scope interface used to verify the OpenAPI customizer treats interfaces as projectable. */
+    public interface InScopeInterface {
+    }
 }

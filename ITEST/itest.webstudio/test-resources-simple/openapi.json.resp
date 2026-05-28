@@ -13349,6 +13349,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

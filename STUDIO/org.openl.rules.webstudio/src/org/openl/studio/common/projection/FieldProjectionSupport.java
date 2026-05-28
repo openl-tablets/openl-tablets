@@ -75,7 +75,10 @@ public class FieldProjectionSupport {
     }
 
     private static boolean computeProjectable(Class<?> type) {
-        if (type.isEnum() || type.isInterface() || type.isPrimitive() || type.isArray() || type.isAnnotation()) {
+        // Interfaces are allowed here: response bodies are always concrete instances at runtime, but a
+        // controller may declare an interface as its return type (e.g. EditableTableView). The OpenAPI
+        // customizer needs that interface to be projectable so the 'fields' parameter is advertised.
+        if (type.isEnum() || type.isPrimitive() || type.isArray() || type.isAnnotation()) {
             return false;
         }
         if (type.isAnnotationPresent(JsonFilter.class)) {
