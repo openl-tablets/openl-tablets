@@ -31,6 +31,11 @@ public class ProjectionTestController {
         return List.of(project("1"), project("2"));
     }
 
+    @GetMapping("/list-empty")
+    public List<ProjectTestView> listEmpty() {
+        return List.of();
+    }
+
     @GetMapping("/set")
     public Set<ProjectTestView> set() {
         return new LinkedHashSet<>(List.of(project("1"), project("2")));

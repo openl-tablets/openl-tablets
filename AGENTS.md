@@ -73,3 +73,14 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
 - No version stamp in headings
 - Mermaid for structural diagrams
 - Admonitions: `> [!Note]` (single blockquote level only without title and nesting)
+
+## JavaDoc Rules
+
+- Describe **what** the code does, not **how** it is implemented
+- Keep sentences short — prefer several short sentences over one long multi-clause sentence
+- Use domain language (`path`, `field`, `parent object`, `collection element`) instead of internal jargon (`chain`, `deepest-first traversal`, `segments produced by iteration`)
+- Skip implementation details (specific collections, algorithms, iteration order, internal APIs) unless they affect observable behavior
+- Preserve behavioral details — edge cases, special behavior, invariants, constraints, assumptions
+- Structure for scanning: short intro sentence, then separate paragraphs for behavior and special cases
+- Aim for 3 short paragraphs rather than 1 dense paragraph
+- Refactor only for readability — do not change behavior, contracts, or assumptions

@@ -6564,6 +6564,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Authentication"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "patch": {
@@ -6822,6 +6833,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Authentication"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -6977,6 +6999,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Mail Verification Server"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "patch": {
@@ -7461,6 +7494,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Design Repository"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "patch": {
@@ -7636,6 +7680,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Design Repository"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -7964,6 +8019,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Production Repository"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "patch": {
@@ -8248,6 +8314,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Production Repository"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -8573,6 +8650,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: System"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "patch": {
@@ -9692,6 +9780,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9782,6 +9879,15 @@ Content-Type: application/json
             "in": "path",
             "name": "tableId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -11218,6 +11324,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Project Tables"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -18106,6 +18223,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Users"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },

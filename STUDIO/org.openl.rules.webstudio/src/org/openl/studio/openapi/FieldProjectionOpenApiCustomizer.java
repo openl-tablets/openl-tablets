@@ -1,4 +1,4 @@
-package org.openl.studio.common.projection;
+package org.openl.studio.openapi;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -13,14 +13,17 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.service.OpenApiOperationCustomizer;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 
 /**
- * Advertises the response field projection query parameter (default {@code fields}) in the generated
+ * Advertises the {@value FieldProjectionSupport#PARAMETER_NAME} query parameter in the generated
  * OpenAPI document for every operation whose response is a projectable DTO.
  *
- * <p>This bean is the presence signal for the {@link OpenApiOperationCustomizer} SPI: the OpenAPI reader
- * adds the parameter only because this bean exists. It is wired only when the field projection feature is
- * present (it depends on {@link FieldProjectionSupport}) and emits nothing while projection is disabled.
+ * <p>Activation is automatic: the OpenAPI reader picks up every {@link OpenApiOperationCustomizer}
+ * bean, so declaring this one is the presence signal.
+ *
+ * <p>The bean depends on {@link FieldProjectionSupport}, which couples the customization to the
+ * projection feature itself.
  *
  * @author Vladyslav Pikus
  */
@@ -37,19 +40,15 @@ public class FieldProjectionOpenApiCustomizer implements OpenApiOperationCustomi
 
     @Override
     public void customize(MethodInfo methodInfo, Operation operation) {
-        if (!support.isEnabled()) {
-            return;
-        }
         var targetType = resolveProjectableType(methodInfo.getReturnType());
         if (targetType == null || !support.isProjectable(targetType)) {
             return;
         }
-        var parameterName = support.getParameterName();
-        if (hasParameter(operation, parameterName)) {
+        if (hasParameter(operation, FieldProjectionSupport.PARAMETER_NAME)) {
             return;
         }
         operation.addParametersItem(new Parameter()
-                .name(parameterName)
+                .name(FieldProjectionSupport.PARAMETER_NAME)
                 .in(QUERY)
                 .required(false)
                 .description("Comma-separated list of response fields to return, including nested selection, "
@@ -63,9 +62,10 @@ public class FieldProjectionOpenApiCustomizer implements OpenApiOperationCustomi
     }
 
     /**
-     * Resolves the element type the projection would target, unwrapping {@link HttpEntity}/{@code ResponseEntity},
-     * {@link PageResponse}, collections and arrays. Mirrors {@link FieldProjectionSupport#resolveTargetType(Object)}
-     * but works on the declared return {@link Type}.
+     * The element type the projection would target for this declared return type.
+     *
+     * <p>Unwraps {@code ResponseEntity}, {@link PageResponse}, collections and arrays. Static
+     * counterpart to {@link FieldProjectionSupport#resolveTargetType(Object)}.
      */
     private static Class<?> resolveProjectableType(Type type) {
         if (type instanceof ParameterizedType parameterizedType

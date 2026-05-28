@@ -3,11 +3,14 @@ package org.openl.studio.common.projection;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +34,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import org.openl.studio.common.JsonViewControllerAdvice;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.projection.test.ProjectionTestController;
 import org.openl.studio.config.ObjectMapperConfig;
 
@@ -191,6 +196,121 @@ class FieldProjectionResponseBodyAdviceTest {
         assertArrayEquals("binary".getBytes(StandardCharsets.UTF_8), response.getContentAsByteArray());
     }
 
+    @Test
+    void emptyListResponseIsUnchangedByProjection() throws Exception {
+        var body = json(get("/projection-test/list-empty").param("fields", "id"));
+        assertTrue(body.isArray());
+        assertEquals(0, body.size());
+    }
+
+    @Test
+    void activeJsonViewAloneRestrictsResponseWithoutProjection() throws Exception {
+        // Class-level @JsonView(Public) on the controller -> JsonViewControllerAdvice applies the view.
+        // 'status' is @JsonView(Full) only, so it is excluded by the active view.
+        var body = json(get("/viewed/single"));
+        assertEquals("1", body.get("id").asText());
+        assertEquals("name-1", body.get("name").asText());
+        assertFalse(body.has("status"));
+    }
+
+    @Test
+    void projectionIntersectsWithActiveJsonView() throws Exception {
+        // View keeps {id, name}; projection further restricts to {id}.
+        var body = json(get("/viewed/single").param("fields", "id"));
+        assertEquals("1", body.get("id").asText());
+        assertFalse(body.has("name"));
+        assertFalse(body.has("status"));
+    }
+
+    @Test
+    void projectionCannotExposeFieldHiddenByActiveJsonView() throws Exception {
+        // 'status' is excluded by the Public view; selecting it cannot bypass the view.
+        var body = json(get("/viewed/single").param("fields", "id,status"));
+        assertEquals("1", body.get("id").asText());
+        assertFalse(body.has("status"));
+    }
+
+    @Test
+    void rejectsExcessivelyLongFieldsParameter() throws Exception {
+        // > MAX_RAW_LENGTH (4096) characters of client-controlled input -> 400, no parse work.
+        var huge = "x," + "y,".repeat(3000);
+        var result = mockMvc.perform(get("/projection-test/single").param("fields", huge)).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        assertInstanceOf(BadRequestException.class, result.getResolvedException());
+        assertEquals("openl.error.400.fields.too.large.message",
+                ((BadRequestException) result.getResolvedException()).getErrorCode());
+    }
+
+    @Test
+    void rejectsExcessivelyDeepNesting() throws Exception {
+        // 20 levels of '(' > MAX_DEPTH (16) -> 400 before unbounded tree growth.
+        var deep = "x";
+        for (int i = 0; i < 20; i++) {
+            deep = "a(" + deep + ")";
+        }
+        var result = mockMvc.perform(get("/projection-test/single").param("fields", deep)).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        assertInstanceOf(BadRequestException.class, result.getResolvedException());
+    }
+
+    @Test
+    void rejectsTooManyFields() throws Exception {
+        // 300 fields > MAX_NODES (256) -> 400 before tree-walk validation runs.
+        var many = IntStream.range(0, 300).mapToObj(i -> "f" + i).collect(Collectors.joining(","));
+        var result = mockMvc.perform(get("/projection-test/single").param("fields", many)).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        assertInstanceOf(BadRequestException.class, result.getResolvedException());
+    }
+
+    @Test
+    void rejectsUnmatchedClosingParen() throws Exception {
+        var result = mockMvc.perform(get("/projection-test/single").param("fields", "id,name)")).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        var error = (BadRequestException) result.getResolvedException();
+        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
+    }
+
+    @Test
+    void rejectsUnclosedOpeningParen() throws Exception {
+        var result = mockMvc.perform(get("/projection-test/single").param("fields", "id,owner(login")).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        var error = (BadRequestException) result.getResolvedException();
+        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
+    }
+
+    @Test
+    void rejectsGroupWithoutPrecedingName() throws Exception {
+        var result = mockMvc.perform(get("/projection-test/single").param("fields", "id,(name)")).andReturn();
+        assertEquals(400, result.getResponse().getStatus());
+        var error = (BadRequestException) result.getResolvedException();
+        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
+    }
+
+    @Test
+    void acceptsEmptyFieldsBetweenCommas() throws Exception {
+        // cosmetic noise is forgiven
+        var body = json(get("/projection-test/single").param("fields", "id,,name"));
+        assertEquals("1", body.get("id").asText());
+        assertEquals("name-1", body.get("name").asText());
+    }
+
+    @Test
+    void acceptsTrailingComma() throws Exception {
+        var body = json(get("/projection-test/single").param("fields", "id,name,"));
+        assertEquals("1", body.get("id").asText());
+        assertEquals("name-1", body.get("name").asText());
+        assertFalse(body.has("status"));
+    }
+
+    @Test
+    void mergesRepeatedNestedSelections() throws Exception {
+        // 'owner(login),owner(email)' merges via getOrAdd into a single owner{login,email} subtree.
+        var body = json(get("/projection-test/single").param("fields", "owner(login),owner(email)"));
+        var owner = body.get("owner");
+        assertEquals("login-1", owner.get("login").asText());
+        assertEquals("1@example.com", owner.get("email").asText());
+    }
+
     private JsonNode json(RequestBuilder request) throws Exception {
         var result = mockMvc.perform(request).andReturn();
         if (result.getResolvedException() != null) {
@@ -209,14 +329,8 @@ class FieldProjectionResponseBodyAdviceTest {
         private ObjectProvider<ObjectMapper> objectMapperProvider;
 
         @Bean
-        FieldProjectionProperties fieldProjectionProperties() {
-            return new FieldProjectionProperties(true, false, "fields",
-                    List.of("org.openl.studio.common.projection.test"));
-        }
-
-        @Bean
-        FieldProjectionSupport fieldProjectionSupport(FieldProjectionProperties properties) {
-            return new FieldProjectionSupport(properties);
+        FieldProjectionSupport fieldProjectionSupport() {
+            return new FieldProjectionSupport();
         }
 
         @Bean
@@ -225,9 +339,13 @@ class FieldProjectionResponseBodyAdviceTest {
         }
 
         @Bean
-        FieldProjectionResponseBodyAdvice fieldProjectionResponseBodyAdvice(FieldProjectionSupport support,
-                                                                            ObjectMapper objectMapper) {
-            return new FieldProjectionResponseBodyAdvice(support, objectMapper);
+        FieldProjectionResponseBodyAdvice fieldProjectionResponseBodyAdvice(FieldProjectionSupport support) {
+            return new FieldProjectionResponseBodyAdvice(support);
+        }
+
+        @Bean
+        JsonViewControllerAdvice jsonViewControllerAdvice() {
+            return new JsonViewControllerAdvice();
         }
 
         @Bean

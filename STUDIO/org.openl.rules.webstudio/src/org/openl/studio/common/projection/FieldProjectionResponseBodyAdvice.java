@@ -1,12 +1,9 @@
 package org.openl.studio.common.projection;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -14,23 +11,22 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.AbstractMappingJacksonResponseBodyAdvice;
 
-import org.openl.studio.common.exception.BadRequestException;
 import org.openl.util.StringUtils;
 
 /**
- * Applies GraphQL-like response field projection driven by the {@code ?fields=} query parameter.
+ * Reduces JSON responses to the fields requested by the {@code ?fields=} query parameter.
  *
- * <p>The advice is fully transparent to controllers: it reduces the serialized JSON to the requested
- * root-level fields of the response DTO without any controller-side parameter or annotation. It runs
- * only for Jackson-rendered responses (see {@link AbstractMappingJacksonResponseBodyAdvice#supports}),
- * so binary, {@code String} and other non-JSON payloads are unaffected.
+ * <p>Transparent to controllers -- no extra parameter or annotation is required on any endpoint. Only
+ * Jackson-rendered responses are touched; binary, {@code String} and other non-JSON payloads pass
+ * through unchanged. Pagination wrappers keep all of their fields -- only the content elements are
+ * projected.
  *
- * <p>Selection is hierarchical: {@code ?fields=id,name,modules(id,name)} projects the root and recurses
- * into nested objects/arrays. A field selected without a {@code (...)} sub-selection is kept whole.
- * Projection is applied by registering a single {@link FieldProjectionPropertyFilter} (shared by all
- * projectable DTOs via {@link FieldProjectionAnnotationIntrospector}); pagination wrappers are not
- * projectable and keep all of their fields. The projection can only remove properties, never add hidden
- * ones, so {@code @JsonIgnore} and {@code @JsonProperty(access = WRITE_ONLY)} stay in effect.
+ * <p>Selection is hierarchical. {@code ?fields=id,name,modules(id,name)} projects the root and
+ * recurses into nested objects and arrays. A field selected without a {@code (...)} sub-selection is
+ * kept whole.
+ *
+ * <p>Projection only removes properties -- it never exposes hidden ones. {@code @JsonIgnore} and
+ * {@code @JsonProperty(access = WRITE_ONLY)} stay in effect.
  *
  * @author Vladyslav Pikus
  */
@@ -38,19 +34,10 @@ import org.openl.util.StringUtils;
 @Order(3)
 public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonResponseBodyAdvice {
 
-    static final String UNKNOWN_FIELD_ERROR_CODE = "unknown.field.message";
-
     private final FieldProjectionSupport support;
-    private final ObjectMapper objectMapper;
 
-    public FieldProjectionResponseBodyAdvice(FieldProjectionSupport support, ObjectMapper objectMapper) {
+    public FieldProjectionResponseBodyAdvice(FieldProjectionSupport support) {
         this.support = support;
-        this.objectMapper = objectMapper;
-    }
-
-    @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return support.isEnabled() && super.supports(returnType, converterType);
     }
 
     @Override
@@ -59,7 +46,7 @@ public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonRes
         if (!(request instanceof ServletServerHttpRequest servletRequest)) {
             return;
         }
-        var rawFields = servletRequest.getServletRequest().getParameter(support.getParameterName());
+        var rawFields = servletRequest.getServletRequest().getParameter(FieldProjectionSupport.PARAMETER_NAME);
         if (StringUtils.isBlank(rawFields)) {
             // No projection requested -> response stays exactly as it is today.
             return;
@@ -70,18 +57,35 @@ public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonRes
             return;
         }
         var selection = support.parseSelection(rawFields);
-        if (!selection.hasChildren()) {
+        if (selection.isEmpty()) {
             return;
         }
-        if (support.isFailOnUnknownField()) {
-            var unknown = support.findUnknownPaths(objectMapper, targetType, selection);
-            if (!unknown.isEmpty()) {
-                throw new BadRequestException(UNKNOWN_FIELD_ERROR_CODE, new Object[]{String.join(", ", unknown)});
+        var provider = getOrCreateFilterProvider(bodyContainer);
+        if (provider != null) {
+            provider.addFilter(FieldProjectionSupport.FILTER_ID, new FieldProjectionPropertyFilter(selection));
+        }
+    }
+
+    /**
+     * Merge into any FilterProvider already configured upstream (e.g. by another advice) instead of
+     * replacing it -- defensive against future advices that contribute their own filters. Non-Simple
+     * providers we don't recognize are left untouched and we skip projection rather than risk dropping
+     * existing filters.
+     */
+    private SimpleFilterProvider getOrCreateFilterProvider(MappingJacksonValue bodyContainer) {
+        var existing = bodyContainer.getFilters();
+        switch (existing) {
+            case null -> {
+                var provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+                bodyContainer.setFilters(provider);
+                return provider;
+            }
+            case SimpleFilterProvider simple -> {
+                return simple;
+            }
+            default -> {
+                return null;
             }
         }
-        FilterProvider filters = new SimpleFilterProvider()
-                .setFailOnUnknownId(false)
-                .addFilter(FieldProjectionSupport.FILTER_ID, new FieldProjectionPropertyFilter(selection));
-        bodyContainer.setFilters(filters);
     }
 }

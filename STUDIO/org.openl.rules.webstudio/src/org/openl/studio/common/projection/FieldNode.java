@@ -4,11 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * A node of the parsed {@code ?fields=} selection tree.
+ * A node in the parsed {@code ?fields=} selection tree.
  *
- * <p>Each node owns the set of explicitly requested child fields. A node with no children is a
- * <em>leaf selection</em>: the corresponding value is serialized in full (the whole object/array),
- * which is how a field selected without a nested {@code (...)} sub-selection behaves.
+ * <p>Each node lists the child fields the client asked for.
+ *
+ * <p>A node with no children is a leaf: the value is kept whole. This is how a field selected
+ * without a {@code (...)} sub-selection behaves.
  *
  * @author Vladyslav Pikus
  */
@@ -18,6 +19,15 @@ public final class FieldNode {
 
     public boolean hasChildren() {
         return !children.isEmpty();
+    }
+
+    /**
+     * Whether no fields were requested under this node.
+     *
+     * <p>On the root: nothing to project. On a child: the field was selected as a leaf and is kept whole.
+     */
+    public boolean isEmpty() {
+        return children.isEmpty();
     }
 
     public boolean contains(String name) {

@@ -1,4 +1,4 @@
-package org.openl.studio.common.projection;
+package org.openl.studio.openapi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -17,21 +17,19 @@ import org.springframework.http.ResponseEntity;
 
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.common.projection.test.ProjectTestView;
 
 class FieldProjectionOpenApiCustomizerTest {
 
-    private static FieldProjectionOpenApiCustomizer customizer(boolean enabled) {
-        var properties = new FieldProjectionProperties(enabled, false, "fields",
-                List.of("org.openl.studio.common.projection.test"));
-        return new FieldProjectionOpenApiCustomizer(new FieldProjectionSupport(properties));
-    }
+    private static final FieldProjectionOpenApiCustomizer CUSTOMIZER = new FieldProjectionOpenApiCustomizer(
+            new FieldProjectionSupport());
 
-    private static Parameter customize(boolean enabled, Type returnType) {
+    private static Parameter customize(Type returnType) {
         var methodInfo = mock(MethodInfo.class);
         when(methodInfo.getReturnType()).thenReturn(returnType);
         var operation = new Operation();
-        customizer(enabled).customize(methodInfo, operation);
+        CUSTOMIZER.customize(methodInfo, operation);
         if (operation.getParameters() == null) {
             return null;
         }
@@ -43,33 +41,28 @@ class FieldProjectionOpenApiCustomizerTest {
 
     @Test
     void addsParameterForSingleProjectableDto() {
-        var param = customize(true, ProjectTestView.class);
+        var param = customize(ProjectTestView.class);
         assertTrue(param != null && Boolean.FALSE.equals(param.getRequired()));
         assertEquals("string", param.getSchema().getType());
     }
 
     @Test
     void addsParameterForListOfProjectableDto() {
-        assertTrue(customize(true, new TypeReference<List<ProjectTestView>>() {}.getType()) != null);
+        assertTrue(customize(new TypeReference<List<ProjectTestView>>() {}.getType()) != null);
     }
 
     @Test
     void addsParameterForPageOfProjectableDto() {
-        assertTrue(customize(true, new TypeReference<PageResponse<ProjectTestView>>() {}.getType()) != null);
+        assertTrue(customize(new TypeReference<PageResponse<ProjectTestView>>() {}.getType()) != null);
     }
 
     @Test
     void addsParameterForResponseEntityOfProjectableDto() {
-        assertTrue(customize(true, new TypeReference<ResponseEntity<ProjectTestView>>() {}.getType()) != null);
+        assertTrue(customize(new TypeReference<ResponseEntity<ProjectTestView>>() {}.getType()) != null);
     }
 
     @Test
     void skipsNonProjectableResponse() {
-        assertNull(customize(true, String.class));
-    }
-
-    @Test
-    void skipsWhenProjectionDisabled() {
-        assertNull(customize(false, ProjectTestView.class));
+        assertNull(customize(String.class));
     }
 }

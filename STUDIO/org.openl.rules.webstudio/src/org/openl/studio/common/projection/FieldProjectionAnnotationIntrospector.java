@@ -5,12 +5,13 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 
 /**
- * Assigns a Jackson filter id to every projectable response DTO so that
- * {@link FieldProjectionResponseBodyAdvice} can apply a per-request property filter without requiring a
- * {@code @JsonFilter} annotation on each DTO.
+ * Tags every projectable response DTO with the shared field-projection filter id.
  *
- * <p>It is meant to be paired (as the primary introspector) with the default Jackson introspector;
- * for every non-projectable type it returns {@code null}, delegating to the paired introspector.
+ * <p>Projection works without a {@code @JsonFilter} annotation on each DTO -- this introspector
+ * supplies the id at runtime.
+ *
+ * <p>Pair it as the primary introspector with the default Jackson one: non-projectable types return
+ * {@code null} and fall through to the delegate.
  *
  * @author Vladyslav Pikus
  */

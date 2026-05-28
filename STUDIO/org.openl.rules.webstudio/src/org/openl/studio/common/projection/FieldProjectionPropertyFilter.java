@@ -1,8 +1,8 @@
 package org.openl.studio.common.projection;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonStreamContext;
@@ -11,23 +11,18 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 
 /**
- * Path-aware Jackson property filter that applies a hierarchical {@code ?fields=} selection tree.
+ * Applies a hierarchical {@code ?fields=} selection to every projectable bean in a response.
  *
- * <p>The same filter instance is invoked for every projectable bean in the response graph (they all
- * share one filter id). For each property it computes the bean's path relative to the projection root
- * and consults the matching {@link FieldNode}:
- * <ul>
- *   <li>a node with explicit children keeps only those children (nested objects/arrays are projected
- *       recursively because their own beans resolve to the corresponding sub-node);</li>
- *   <li>a leaf node (a field selected without a {@code (...)} sub-selection) keeps the whole value.</li>
- * </ul>
+ * <p>For each property, the filter looks up the matching node by its path relative to the projection
+ * root. A node with explicit children keeps only those children; a leaf node keeps the whole value.
+ * Nested objects and arrays are projected the same way -- their own beans resolve to the
+ * corresponding sub-nodes.
  *
- * <p>The projection root is anchored to the first projectable bean encountered during serialization,
- * so the same logic works for a single object, a collection/array element, or an element inside a
- * pagination wrapper (the wrapper itself is not projectable and keeps all of its fields).
+ * <p>The projection root is the first projectable bean seen during serialization. The same logic
+ * works for a single object, a collection element, or an element inside a pagination wrapper -- the
+ * wrapper itself is not projectable and keeps all of its fields.
  *
- * <p>One instance is created per response and serialization is single-threaded, so the lazily captured
- * {@link #anchor} needs no synchronization.
+ * <p>One instance per response; serialization is single-threaded, so no synchronization is needed.
  *
  * @author Vladyslav Pikus
  */
@@ -60,7 +55,8 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
     }
 
     /**
-     * Resolves the selection node that governs the bean currently being serialized.
+     * The selection node that governs the bean currently being serialized, or {@code null} when
+     * nothing constrains it.
      */
     private FieldNode resolveNode(JsonGenerator gen) {
         var path = absolutePath(gen);
@@ -79,17 +75,19 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
     }
 
     /**
-     * The chain of object field names from the JSON root down to (but excluding) the current bean.
-     * Array indices contribute no segment, so collection elements share their container's path.
+     * Path from the JSON root to the parent of the current bean, listed root-to-leaf.
+     *
+     * <p>Collection elements do not contribute path segments, so all elements of a collection share
+     * their container's path.
      */
     private static List<String> absolutePath(JsonGenerator gen) {
-        var segments = new ArrayDeque<String>();
-        for (JsonStreamContext ctx = gen.getOutputContext().getParent(); ctx != null && !ctx.inRoot(); ctx = ctx.getParent()) {
-            var name = ctx.getCurrentName();
-            if (name != null) {
-                segments.addFirst(name);
-            }
-        }
-        return new ArrayList<>(segments);
+        return Stream.iterate(
+                        gen.getOutputContext().getParent(),
+                        ctx -> ctx != null && !ctx.inRoot(),
+                        JsonStreamContext::getParent)
+                .map(JsonStreamContext::getCurrentName)
+                .filter(Objects::nonNull)
+                .toList()
+                .reversed();
     }
 }
