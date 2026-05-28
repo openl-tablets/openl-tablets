@@ -167,7 +167,11 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     @Override
     boolean isDisabled() {
-        return skipTests || skipITs;
+        // No publishers in rules-deploy.xml means the project opted out of being booted as a deployable —
+        // PackageMojo already suppresses the *-deployment.zip on that signal, so verification has nothing
+        // meaningful to do (the main artifact alone can't boot when there are OpenL deps, and there is
+        // nothing to publish when there aren't). Skip cleanly via the standard disable hook.
+        return skipTests || skipITs || OpenLPackagings.hasEmptyPublishers(sourceDirectory.toPath());
     }
 
     @Override
