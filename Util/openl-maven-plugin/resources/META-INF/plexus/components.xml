@@ -13,7 +13,8 @@
 
                         <phases>
                             <validate>
-                                org.openl.rules:openl-maven-plugin:sync-versions
+                                org.openl.rules:openl-maven-plugin:sync-versions,
+                                org.openl.rules:openl-maven-plugin:prepare-pom
                             </validate>
                             <process-resources>
                                 org.apache.maven.plugins:maven-resources-plugin:resources
@@ -39,7 +40,6 @@
                                 org.openl.rules:openl-maven-plugin:verify
                             </verify>
                             <install>
-                                org.openl.rules:openl-maven-plugin:prepare-pom,
                                 org.apache.maven.plugins:maven-install-plugin:install
                             </install>
                             <deploy>

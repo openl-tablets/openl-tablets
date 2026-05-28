@@ -44,6 +44,14 @@
             <version>3.0.2</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Interactive Y/n prompts in openl:pomless when conflicting sub-anchor proposals
+             are detected. Bundled (not provided) because plexus-interactivity-api isn't in Maven's
+             plugin foreign-import realm. -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-interactivity-api</artifactId>
+            <version>1.3</version>
+        </dependency>
         <!-- dependencies to annotations -->
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>

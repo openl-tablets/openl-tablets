@@ -1,0 +1,11 @@
+<project>
+    <!-- Logical <name> deliberately decoupled from the Maven artifactId (clean-leaf) so the
+         sibling-merge path in PomlessMojo.writeRulesXmlDeps must look the name up via the reactor's
+         rules.xml — not infer it from the artifactId. -->
+    <name>Clean Leaf Domain</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+</project>

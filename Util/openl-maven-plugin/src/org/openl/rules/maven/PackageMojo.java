@@ -103,8 +103,14 @@ public final class PackageMojo extends BaseOpenLMojo {
      * incorrectly, the size of the ZIP package increases dramatically. This parameter allows preventing such situation
      * by failing packaging.
      */
+    /** Name of the {@link #dependenciesThreshold} parameter; referenced by {@code PomlessConverter}. */
+    static final String DEPENDENCIES_THRESHOLD_PARAM = "dependenciesThreshold";
+
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
+
+    /** Name of the deprecated {@link #deploymentPackage} parameter; referenced by {@code PomlessConverter}. */
+    static final String DEPLOYMENT_PACKAGE_PARAM = "deploymentPackage";
 
     /**
      * @deprecated The parameter has no effect and will be removed in a future release. Each dependent OpenL project's

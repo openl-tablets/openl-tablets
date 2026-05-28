@@ -1,8 +1,12 @@
 package org.openl.rules.maven;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 
 import org.openl.rules.project.model.RulesDeploy;
 
@@ -58,6 +62,30 @@ public final class OpenLPackagings {
 
     /** First flatten-maven-plugin release with a {@code flatten.skip} switch; older versions are bumped to it. */
     public static final String FLATTEN_MIN_VERSION = "1.6.0";
+
+    /** File name of the materialised install/deploy pom for a pom-less OpenL project (lives in {@code target/}). */
+    public static final String INSTALL_POM_FILE_NAME = "openl-pom.xml";
+
+    /**
+     * Writes a pom-less project's install/deploy pom into {@code targetDir} — the {@link Model#getOriginalModel()
+     * raw model} stripped of {@code <parent>}, {@code <build>}, and the transient {@code flatten.skip} property.
+     * Returns the path to the written file. Idempotent: overwrites any previous content (lets the participant
+     * write eagerly at session start AND {@code openl:prepare-pom} re-create the file after {@code clean}).
+     */
+    public static Path materialiseInstallPom(Model rawModel, Path targetDir) throws IOException {
+        var minimal = rawModel.clone();
+        minimal.setBuild(null);
+        minimal.setParent(null);
+        if (minimal.getProperties() != null) {
+            minimal.getProperties().remove(FLATTEN_SKIP_PROPERTY);
+        }
+        Files.createDirectories(targetDir);
+        var pomFile = targetDir.resolve(INSTALL_POM_FILE_NAME);
+        try (var writer = Files.newBufferedWriter(pomFile)) {
+            new MavenXpp3Writer().write(writer, minimal);
+        }
+        return pomFile;
+    }
 
     /** True when the plugin coordinates identify {@code org.openl.rules:openl-maven-plugin}. */
     public static boolean isOpenLPlugin(String groupId, String artifactId) {

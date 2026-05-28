@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>openl-migrate-pomless-nested</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>OpenL migrate-pomless nested-anchor IT</name>
+
+    <!-- The OpenL project lives two levels down, under the 'rating' submodule aggregator. Because
+         'rating/pom.xml' is a pure pass-through aggregator (only <parent>+GAV+<modules>),
+         openl:pomless COLLAPSES it: 'rating/pom.xml' is deleted and the leaf reanchors here, the
+         top-level pom. The plugin is also pre-declared here so the `openl:` prefix resolves for the
+         aggregator goal invocation; the migrator adds <flattenGroupId>true</> to its configuration
+         so the collapsed leaf keeps its installed groupId stable. -->
+    <modules>
+        <module>rating</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.openl.version>@project.version@</org.openl.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${org.openl.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
