@@ -19,8 +19,16 @@ import org.openl.util.StringUtils;
 public class ProjectDependencyDescriptor {
     static final String DEPENDENCY_TAG = "dependency";
     private String name;
-    private boolean autoIncluded;
+    private Boolean autoIncluded;
     private String mavenArtifact;
+
+    public boolean isAutoIncluded() {
+        return Boolean.TRUE.equals(autoIncluded);
+    }
+
+    public void setAutoIncluded(boolean value) {
+        autoIncluded = value ? Boolean.TRUE : null;
+    }
 
     @SuppressWarnings("unused")
     private void beforeMarshal(Marshaller marshaller) {
