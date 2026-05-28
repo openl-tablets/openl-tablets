@@ -198,7 +198,6 @@ class ProjectDescriptorTest {
                     <dependencies>
                         <dependency>
                             <name>someProjectName</name>
-                            <autoIncluded>false</autoIncluded>
                         </dependency>
                     </dependencies>
                     <properties-file-name-pattern>{lob}</properties-file-name-pattern>
@@ -582,6 +581,124 @@ class ProjectDescriptorTest {
                             <rules-root path="rules/A.xlsx"/>
                         </module>
                     </modules>
+                </project>
+                """, dest);
+    }
+
+    /**
+     * Default state of {@link ProjectDependencyDescriptor}: only {@code mavenArtifact} is set; {@code name}
+     * and {@code autoIncluded} are left untouched. The marshalled output must be a bare jar entry — no
+     * {@code <name>}, no {@code <autoIncluded>} — so the migrator's
+     * {@code <dependency><mavenArtifact>...</></>} shape (asserted by the {@code openl-migrate-pomless}
+     * IT regex) round-trips intact. Locks in the {@link Boolean} boxing of {@code autoIncluded}: with a
+     * primitive {@code boolean} this would emit {@code <autoIncluded>false</>} despite never being set.
+     */
+    @Test
+    void writeDependencyWithDefaultValuesOmitsAutoIncluded() {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("consumer");
+        Module module = new Module();
+        module.setRulesRootPath("rules/*.xlsx");
+        descriptor.setModules(new ArrayList<>(List.of(module)));
+
+        var dep = new ProjectDependencyDescriptor();
+        // Bare jar entry: setAutoIncluded is intentionally NOT called — autoIncluded is a zip/OpenL
+        // concept and has no meaning for a plain jar on the classpath.
+        dep.setMavenArtifact("org.apache.commons:commons-text:jar:1.15.0");
+        descriptor.setDependencies(new ArrayList<>(List.of(dep)));
+
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>consumer</name>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/*.xlsx"/>
+                        </module>
+                    </modules>
+                    <dependencies>
+                        <dependency>
+                            <mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """, dest);
+    }
+
+    /**
+     * Explicit {@code setAutoIncluded(false)} marshals exactly like the default (no element at all):
+     * the {@link ProjectDependencyDescriptor#beforeMarshal} cleanup collapses {@code false} → {@code null}
+     * so that absent and explicit-false produce the same on-disk shape. The opt-in signal only ever
+     * appears when it carries a non-default value ({@code true}); a redundant {@code false} would only
+     * clutter migrated rules.xml files.
+     */
+    @Test
+    void writeDependencyWithExplicitAutoIncludedFalseOmitsIt() {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("consumer");
+        Module module = new Module();
+        module.setRulesRootPath("rules/*.xlsx");
+        descriptor.setModules(new ArrayList<>(List.of(module)));
+
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Domain");
+        dep.setAutoIncluded(false);
+        descriptor.setDependencies(new ArrayList<>(List.of(dep)));
+
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>consumer</name>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/*.xlsx"/>
+                        </module>
+                    </modules>
+                    <dependencies>
+                        <dependency>
+                            <name>Domain</name>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """, dest);
+    }
+
+    /**
+     * Complement to {@link #writeDependencyWithDefaultValuesOmitsAutoIncluded}: an explicit
+     * {@code setAutoIncluded(true)} must marshal as {@code <autoIncluded>true</autoIncluded>}. Pins
+     * the round-trip for OpenL sibling entries that opt into workspace name-auto-inclusion.
+     */
+    @Test
+    void writeDependencyWithAutoIncludedTrueEmitsIt() {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("consumer");
+        Module module = new Module();
+        module.setRulesRootPath("rules/*.xlsx");
+        descriptor.setModules(new ArrayList<>(List.of(module)));
+
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Domain");
+        dep.setAutoIncluded(true);
+        descriptor.setDependencies(new ArrayList<>(List.of(dep)));
+
+        var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
+
+        assertEquals("""
+                <project>
+                    <name>consumer</name>
+                    <modules>
+                        <module>
+                            <rules-root path="rules/*.xlsx"/>
+                        </module>
+                    </modules>
+                    <dependencies>
+                        <dependency>
+                            <name>Domain</name>
+                            <autoIncluded>true</autoIncluded>
+                        </dependency>
+                    </dependencies>
                 </project>
                 """, dest);
     }
