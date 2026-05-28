@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,8 +66,9 @@ public class UserManagementConfiguration {
     @ConditionalOnExpression("'${user.mode}' != 'multi' and '${user.mode}' != 'single'")
     public BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> groupPrivilegeMapper(
             UserManagementService userManagementService,
-            GroupManagementService groupManagementService) {
-        return new GetUserPrivileges(userManagementService, groupManagementService);
+            GroupManagementService groupManagementService,
+            @Value("${security.default-group:}") String defaultGroup) {
+        return new GetUserPrivileges(userManagementService, groupManagementService, defaultGroup);
     }
 
     @Bean("privilegeMapper")

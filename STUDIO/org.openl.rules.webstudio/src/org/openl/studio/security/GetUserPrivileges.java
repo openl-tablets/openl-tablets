@@ -11,8 +11,6 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
 import org.openl.util.StringUtils;
 
 /**
@@ -25,10 +23,11 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
     private final String defaultGroup;
 
     public GetUserPrivileges(UserManagementService userManagementService,
-                             GroupManagementService groupManagementService) {
+                             GroupManagementService groupManagementService,
+                             String defaultGroup) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
-        this.defaultGroup = Props.text(InheritedAuthenticationSettings.DEFAULT_GROUP);
+        this.defaultGroup = defaultGroup;
     }
 
     @Override
