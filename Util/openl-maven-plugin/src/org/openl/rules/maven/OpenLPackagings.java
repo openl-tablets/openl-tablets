@@ -45,6 +45,18 @@ public final class OpenLPackagings {
     /** {@code artifactId} of this plugin. */
     public static final String PLUGIN_ARTIFACT_ID = "openl-maven-plugin";
 
+    /** {@code groupId} of flatten-maven-plugin — disabled on pom-less projects (no on-disk pom to read). */
+    public static final String FLATTEN_GROUP_ID = "org.codehaus.mojo";
+
+    /** {@code artifactId} of flatten-maven-plugin. */
+    public static final String FLATTEN_ARTIFACT_ID = "flatten-maven-plugin";
+
+    /** Project property that skips the flatten goal. The switch only exists since {@link #FLATTEN_MIN_VERSION}. */
+    public static final String FLATTEN_SKIP_PROPERTY = "flatten.skip";
+
+    /** First flatten-maven-plugin release with a {@code flatten.skip} switch; older versions are bumped to it. */
+    public static final String FLATTEN_MIN_VERSION = "1.6.0";
+
     /** True when the plugin coordinates identify {@code org.openl.rules:openl-maven-plugin}. */
     public static boolean isOpenLPlugin(String groupId, String artifactId) {
         return PLUGIN_GROUP_ID.equals(groupId) && PLUGIN_ARTIFACT_ID.equals(artifactId);

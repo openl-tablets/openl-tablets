@@ -102,6 +102,10 @@ Synthesised with the anchor as `<parent>`; inherits via Maven:
 - `<build><pluginManagement>` — config defaults for plugins the project declares (i.e. `openl-maven-plugin`).
 - `<properties>`, `<dependencyManagement>`, `<distributionManagement>`, `<repositories>` — visible during the build.
 
+`flatten-maven-plugin` is auto-skipped on pom-less projects: they expose `rules.xml`, not a pom, so it can't build
+their model — `openl:prepare-pom` produces the flattened install/deploy pom instead. The skip switch (`flatten.skip`)
+exists only since 1.6.0, so an older inherited version is bumped to it for the in-memory build.
+
 Installed pom strips `<parent>` and `<build>` → flat artefact pom, no anchor lineage.
 
 ### Cross-project dependencies
