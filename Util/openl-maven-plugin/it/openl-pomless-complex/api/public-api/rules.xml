@@ -2,8 +2,11 @@
     <dependencies>
         <dependency>
             <name>core</name>
-            <!-- Deliberate placeholder version. The anchor's <dependencyManagement> overrides
-                 this to the real 0.0.0 reactor version when the synthesised pom is built. -->
+            <!-- Deliberate placeholder version. Two anchor-driven mechanisms reconcile it to the real
+                 0.0.0 reactor version: (1) the synthesiser overrides it in-memory from the anchor's
+                 <dependencyManagement> when building the installed pom; (2) openl:sync-versions (validate
+                 phase) rewrites it to the managed 0.0.0 in this build's working copy (the IT runs in a
+                 clone under target/its, so this tracked fixture keeps the placeholder). -->
             <mavenArtifact>com.example.domain:core:99.99.99</mavenArtifact>
         </dependency>
     </dependencies>

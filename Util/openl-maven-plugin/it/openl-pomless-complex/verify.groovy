@@ -130,6 +130,32 @@ try {
     assert publicApiPom =~ /(?s)<dependency>\s*<groupId>com\.example\.domain<\/groupId>\s*<artifactId>core<\/artifactId>\s*<version>0\.0\.0<\/version>\s*<type>zip<\/type>/,
             "public-api installed pom must declare core 0.0.0 (managed by anchor)"
 
+    // ---------------------------------------------------------------------------------------
+    // 4e. openl:sync-versions (validate phase) — reconciles each rules.xml's <mavenArtifact>
+    //     versions with the version managed by the inherited anchor <dependencyManagement>.
+    //     public-api's deliberate 99.99.99 placeholder for the managed com.example.domain:core must
+    //     be rewritten to 0.0.0 in this run's rules.xml (the invoker clones ITs under target/its, so
+    //     the tracked source fixture is never touched). shared's commons-text and pricing's public-api
+    //     are NOT managed by the anchor → their rules.xml must stay untouched.
+    // ---------------------------------------------------------------------------------------
+    def publicApiRules = new File(folder, 'api/public-api/rules.xml').text
+    assert publicApiRules.contains('<mavenArtifact>com.example.domain:core:0.0.0</mavenArtifact>'),
+            "sync-versions must rewrite public-api/rules.xml's core placeholder to the managed 0.0.0"
+    assert !publicApiRules.contains('99.99.99'),
+            "the 99.99.99 placeholder must be gone from public-api/rules.xml after sync-versions"
+
+    def sharedRules = new File(folder, 'shared/rules.xml').text
+    assert sharedRules.contains('<mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>'),
+            "shared's commons-text is unmanaged by the anchor → sync-versions must leave it untouched"
+    def pricingRules = new File(folder, 'markets/eu/de/pricing/rules.xml').text
+    assert pricingRules.contains('<mavenArtifact>com.example.api:public-api:0.0.0</mavenArtifact>'),
+            "pricing's public-api dep is unmanaged by the anchor → sync-versions must leave it untouched"
+
+    assert logs =~ /openl:[^:]+:sync-versions \(default-sync-versions\) @ public-api/,
+            "openl:sync-versions must run on public-api (validate phase)"
+    assert logs =~ /Synced 1 <mavenArtifact> version\(s\) in .*public-api.*rules\.xml/,
+            "sync-versions must log the single public-api rewrite"
+
     // internal-api → ext via <name>.
     def internalApiPom = new File(localRepo, 'com/example/api/internal-api/0.0.0/internal-api-0.0.0.pom').text
     assert internalApiPom.contains('<artifactId>ext</artifactId>')

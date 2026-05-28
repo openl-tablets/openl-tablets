@@ -2,6 +2,8 @@ package org.openl.rules.maven;
 
 import java.nio.file.Path;
 
+import org.apache.maven.model.Dependency;
+
 import org.openl.rules.project.model.RulesDeploy;
 
 /**
@@ -78,6 +80,36 @@ public final class OpenLPackagings {
      */
     public static String dependencyType(String packaging) {
         return OPENL_JAR_PACKAGING.equals(packaging) ? JAR_DEPENDENCY_TYPE : ZIP_DEPENDENCY_TYPE;
+    }
+
+    /**
+     * Parses a {@code rules.xml} {@code <mavenArtifact>} coordinate in Aether's {@code DefaultArtifact}
+     * format — {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>} (the version is
+     * always the last segment). The {@code <extension>} maps to the dependency {@code <type>} and
+     * defaults to {@link #ZIP_DEPENDENCY_TYPE} (the OpenL artefact). Returns {@code null} when the
+     * segment count is out of the 3–5 range.
+     * <p>
+     * The returned {@link Dependency} carries no scope/optional flag — callers decide those (e.g. the
+     * synthesiser marks {@code jar} entries {@code <optional>true</>} so downstream OpenL consumers
+     * don't inherit a project's bundled Java libs).
+     */
+    public static Dependency parseMavenArtifact(String coordinates) {
+        if (coordinates == null || coordinates.isBlank()) {
+            return null;
+        }
+        var parts = coordinates.trim().split(":");
+        if (parts.length < 3 || parts.length > 5) {
+            return null;
+        }
+        var dep = new Dependency();
+        dep.setGroupId(parts[0]);
+        dep.setArtifactId(parts[1]);
+        dep.setVersion(parts[parts.length - 1]); // version is the last segment
+        dep.setType(parts.length >= 4 ? parts[2] : ZIP_DEPENDENCY_TYPE);
+        if (parts.length == 5) {
+            dep.setClassifier(parts[3]);
+        }
+        return dep;
     }
 
     /**

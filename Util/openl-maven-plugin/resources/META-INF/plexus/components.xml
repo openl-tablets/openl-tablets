@@ -12,6 +12,9 @@
                         <id>default</id>
 
                         <phases>
+                            <validate>
+                                org.openl.rules:openl-maven-plugin:sync-versions
+                            </validate>
                             <process-resources>
                                 org.apache.maven.plugins:maven-resources-plugin:resources
                             </process-resources>
@@ -73,6 +76,9 @@
                         <id>default</id>
 
                         <phases>
+                            <validate>
+                                org.openl.rules:openl-maven-plugin:sync-versions
+                            </validate>
                             <process-resources>
                                 org.apache.maven.plugins:maven-resources-plugin:resources
                             </process-resources>

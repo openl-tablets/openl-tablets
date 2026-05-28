@@ -84,9 +84,26 @@ final class OpenLModelSynthesizer {
     private static Dependency toMavenDependency(ProjectDependencyDescriptor dep,
                                                 String projectVersion,
                                                 Map<String, OpenLCoordinates> names) {
-        var explicit = parseMavenArtifact(dep.getMavenArtifact());
+        var mavenArtifact = dep.getMavenArtifact();
+        var explicit = OpenLPackagings.parseMavenArtifact(mavenArtifact);
         if (explicit != null) {
+            // Java libs declared via <mavenArtifact>g:a:jar:v</mavenArtifact> are self-contained inside
+            // the OpenL project's lib/ — the package filter still includes them in this project's zip
+            // (optional is not checked there), but <optional>true</> stops downstream OpenL consumers
+            // from inheriting the jar (and its transitives) through this project's installed pom. The
+            // OpenL zip type stays non-optional: sibling OpenL projects must remain visible to consumers.
+            if (OpenLPackagings.JAR_DEPENDENCY_TYPE.equals(explicit.getType())) {
+                explicit.setOptional(true);
+            }
             return explicit;
+        }
+        if (mavenArtifact != null && !mavenArtifact.isBlank()) {
+            // A <mavenArtifact> was declared but doesn't parse. Fail the build deterministically rather
+            // than silently falling back to <name> resolution (or dropping the dependency), which would
+            // hide the typo and ship a project missing a dependency the author clearly intended.
+            throw new IllegalArgumentException("Invalid <mavenArtifact> coordinate '" + mavenArtifact.trim()
+                    + "' on OpenL dependency '" + dep.getName()
+                    + "'. Expected Aether format groupId:artifactId[:type[:classifier]]:version.");
         }
         var name = dep.getName();
         if (name == null || name.isBlank() || names == null) {
@@ -120,39 +137,5 @@ final class OpenLModelSynthesizer {
         if (managed != null && managed.getVersion() != null && !managed.getVersion().isBlank()) {
             dep.setVersion(managed.getVersion());
         }
-    }
-
-    /**
-     * Parses a {@code <mavenArtifact>} coordinate in Aether's {@code DefaultArtifact} format —
-     * {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>} (the version is always
-     * last). The {@code <extension>} maps to the dependency {@code <type>} and defaults to {@code zip}
-     * (the OpenL artifact). Returns {@code null} when the field count is out of the 3–5 range.
-     */
-    private static Dependency parseMavenArtifact(String coordinates) {
-        if (coordinates == null || coordinates.isBlank()) {
-            return null;
-        }
-        var parts = coordinates.trim().split(":");
-        if (parts.length < 3 || parts.length > 5) {
-            return null;
-        }
-        var dep = new Dependency();
-        dep.setGroupId(parts[0]);
-        dep.setArtifactId(parts[1]);
-        dep.setVersion(parts[parts.length - 1]); // version is the last segment
-        var type = parts.length >= 4 ? parts[2] : OpenLPackagings.ZIP_DEPENDENCY_TYPE;
-        dep.setType(type);
-        if (parts.length == 5) {
-            dep.setClassifier(parts[3]);
-        }
-        // Java libs declared via <mavenArtifact>g:a:jar:v</mavenArtifact> are self-contained inside
-        // the OpenL project's lib/ — the package filter still includes them in this project's zip
-        // (optional is not checked there), but <optional>true</> stops downstream OpenL consumers
-        // from inheriting the jar (and its transitives) through this project's installed pom. The
-        // OpenL zip type stays non-optional: sibling OpenL projects must remain visible to consumers.
-        if (OpenLPackagings.JAR_DEPENDENCY_TYPE.equals(type)) {
-            dep.setOptional(true);
-        }
-        return dep;
     }
 }
