@@ -2,17 +2,13 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-
-import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Materialises the in-memory {@link MavenProject#getOriginalModel()} of a pom-less OpenL project as
@@ -21,18 +17,21 @@ import org.openl.rules.project.model.ProjectDescriptor;
  * {@link MavenProject#setFile} at the generated file so the standard install/deploy plugins read a
  * valid XML pom. The project root is never touched — only files in {@code target/} are produced.
  * <p>
- * Bound first in the {@code install} lifecycle phase by the {@code openl} packaging mapping in
- * {@code components.xml}, so it also runs on {@code mvn deploy} (which includes install).
+ * Bound to the {@code verify} phase (after {@code openl:verify}) by the {@code openl} packaging mapping in
+ * {@code components.xml}. {@code verify} — not {@code install} — so a sibling reactor project that depends on
+ * this pom-less OpenL zip can resolve its POM during {@code mvn verify}: by then {@code getFile()} already
+ * points at the on-disk {@code target/openl-pom.xml} (without this, Maven's reactor reader returns
+ * {@code rules.xml} and Aether fails to parse it). The change is safe: every preceding OpenL phase that
+ * needs {@code basedir = <OpenL folder>} ({@code compile}, {@code test}, {@code package}, {@code verify})
+ * has already run; {@code install}/{@code deploy} consume the now-correct {@code getFile()} unchanged.
  * <p>
  * Has no effect on classic OpenL projects whose {@code project.getFile()} already points at a real
  * {@code pom.xml}.
  *
  * @author Yury Molchan
  */
-@Mojo(name = "prepare-pom", defaultPhase = LifecyclePhase.INSTALL, threadSafe = true)
+@Mojo(name = "prepare-pom", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class PrepareRepositoryPomMojo extends AbstractMojo {
-
-    static final String GENERATED_POM_FILE_NAME = "openl-pom.xml";
 
     /** Plugin-configuration element name for the {@link #flattenGroupId} flag. */
     public static final String FLATTEN_GROUP_ID_PARAM = "flattenGroupId";
@@ -66,30 +65,23 @@ public class PrepareRepositoryPomMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
         var current = project.getFile();
-        if (current == null || !ProjectDescriptor.FILE_NAME.equals(current.getName())) {
-            // Not a pom-less OpenL project — install plugin already has a real pom to install.
+        if (current == null || !OpenLPackagings.INSTALL_POM_FILE_NAME.equals(current.getName())) {
+            // Not a pom-less OpenL project — the participant retargets pom-less projects' getFile() at
+            // 'openl-pom.xml'. Anything else (classic pom.xml) means there's nothing to re-materialise here.
             return;
         }
-        // Use the ORIGINAL (raw) model, not the effective one. Super-pom additions
-        // (<repositories>/<pluginRepositories>/<reporting>) only land on the effective model and
-        // would otherwise leak into the installed pom.
-        var minimal = project.getOriginalModel().clone();
-        minimal.setBuild(null);   // strip the openl-maven-plugin bootstrap stub
-        minimal.setParent(null);  // defensive — pom-less projects never declare a parent
-        // The participant sets flatten.skip in-memory to neutralise an inherited flatten-maven-plugin;
-        // it has no meaning in the published artefact pom, so drop it.
-        minimal.getProperties().remove(OpenLPackagings.FLATTEN_SKIP_PROPERTY);
-
-        var pomFile = buildDirectory.toPath().resolve(GENERATED_POM_FILE_NAME);
+        // Re-create the install pom — clean:clean wiped target/ between the participant's eager session-start
+        // write and this validate-phase invocation; downstream consumers in the same reactor (a war that
+        // depends on this pom-less zip) resolve project.getFile() and need it to exist on disk by now.
+        // Uses the original (raw) model so super-pom additions (<repositories>/<reporting>/...) don't leak
+        // into the published artefact pom. Does NOT call setFile — the participant's reflection set it once;
+        // re-setting would re-derive basedir at target/ and break later phases.
         try {
-            Files.createDirectories(pomFile.getParent());
-            try (var out = Files.newBufferedWriter(pomFile)) {
-                new MavenXpp3Writer().write(out, minimal);
-            }
+            var pomFile = OpenLPackagings.materialiseInstallPom(project.getOriginalModel(),
+                    buildDirectory.toPath());
+            getLog().info("Generated repository pom: " + pomFile);
         } catch (IOException e) {
-            throw new MojoExecutionException("Failed to generate repository pom at " + pomFile, e);
+            throw new MojoExecutionException("Failed to generate repository pom under " + buildDirectory, e);
         }
-        project.setFile(pomFile.toFile());
-        getLog().info("Generated repository pom: " + pomFile);
     }
 }

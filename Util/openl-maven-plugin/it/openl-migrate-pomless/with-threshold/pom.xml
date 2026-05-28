@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>openl-migrate-pomless</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <artifactId>with-threshold</artifactId>
+    <packaging>openl</packaging>
+
+    <!-- Config has only portable/ignorable keys → convertible:
+         - <deploymentPackage> is a deprecated no-op (auto-discovered) → ignored.
+         - <dependenciesThreshold> is reconciled on the anchor as the max across all projects
+           (here 4; blocked-config declares 5 → anchor max 5). -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <deploymentPackage>true</deploymentPackage>
+                    <dependenciesThreshold>4</dependenciesThreshold>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

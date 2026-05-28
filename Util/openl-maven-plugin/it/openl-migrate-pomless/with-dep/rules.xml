@@ -1,0 +1,17 @@
+<project>
+    <name>with-dep</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+    <!-- Pre-existing OpenL sibling reference by logical <name>. The migrator must look the sibling
+         up by GAV in the reactor, read its rules.xml to discover the same logical name, and inject
+         the <mavenArtifact> coordinate INTO this entry — not append a new one keyed on the artifactId. -->
+    <dependencies>
+        <dependency>
+            <name>Clean Leaf Domain</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>openl-migrate-pomless</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <artifactId>with-dep</artifactId>
+    <packaging>openl</packaging>
+
+    <!-- Three deps that route differently:
+         - commons-text: optional compile jar → packaged into this project's lib/ → moves into
+           with-dep/rules.xml as <mavenArtifact>…:jar</mavenArtifact>.
+         - commons-lang3: provided → not packaged, shared → hoisted to the anchor.
+         - clean-leaf (zip): OpenL sibling → its GAV is merged into the existing
+           <dependency><name>Clean Leaf Domain</name></dependency> entry in this project's rules.xml.
+           The name is read from clean-leaf/rules.xml (NOT inferred from the artifactId). -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.15.0</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.20.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>clean-leaf</artifactId>
+            <version>0.0.0</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
