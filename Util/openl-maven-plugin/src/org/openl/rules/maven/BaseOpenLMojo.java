@@ -38,7 +38,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
      * @since 5.19.0
      */
     @Parameter(defaultValue = "${project.build.sourceDirectory}/../openl")
-    private File sourceDirectory;
+    File sourceDirectory;
 
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
