@@ -5076,6 +5076,15 @@ Content-Type: application/json
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -5266,6 +5275,15 @@ Content-Type: application/json
             "in": "path",
             "name": "project-id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -5478,6 +5496,15 @@ Content-Type: application/json
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -5578,6 +5605,15 @@ Content-Type: application/json
             "name": "principal",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -5976,6 +6012,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -6248,6 +6293,17 @@ Content-Type: application/json
         "summary": "Get all roles",
         "tags": [
           "ACL Management: Roles"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -9025,6 +9081,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Tags"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "post": {
@@ -9810,6 +9877,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -10228,6 +10304,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "History"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -10327,6 +10414,15 @@ Content-Type: application/json
             "in": "path",
             "name": "username",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -10490,6 +10586,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Mail"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "put": {
@@ -11015,6 +11122,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Production Repository"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -11198,6 +11316,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -11287,6 +11414,15 @@ Content-Type: application/json
             "in": "path",
             "name": "projectId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -11472,6 +11608,15 @@ Content-Type: application/json
             "in": "path",
             "name": "projectId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -11673,6 +11818,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -11785,6 +11939,15 @@ Content-Type: application/json
             "schema": {
               "type": "boolean",
               "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -11971,6 +12134,15 @@ Content-Type: application/json
             "in": "path",
             "name": "projectId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -12185,6 +12357,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -12394,6 +12575,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -12477,6 +12667,15 @@ Content-Type: application/json
             "in": "path",
             "name": "projectId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -13953,6 +14152,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14067,6 +14275,15 @@ Content-Type: application/json
             "schema": {
               "type": "boolean",
               "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -14282,6 +14499,15 @@ Content-Type: application/json
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -15402,6 +15628,15 @@ Content-Type: application/json
                 "NESTED"
               ]
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -15652,6 +15887,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Design Repository"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -15841,6 +16087,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -15931,6 +16186,15 @@ Content-Type: application/json
             "in": "path",
             "name": "repo-name",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16133,6 +16397,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16235,6 +16508,15 @@ Content-Type: application/json
             "in": "path",
             "name": "project-name",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16436,6 +16718,15 @@ Content-Type: application/json
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16595,6 +16886,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       }
     },
@@ -16890,6 +17192,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16989,6 +17300,15 @@ Content-Type: application/json
             "in": "path",
             "name": "projectId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -17112,6 +17432,15 @@ Content-Type: application/json
             "schema": {
               "type": "boolean",
               "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -17327,6 +17656,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -17506,6 +17844,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Users"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "put": {
@@ -17839,6 +18188,17 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Users"
+        ],
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ]
       },
       "put": {
@@ -18019,6 +18379,15 @@ Content-Type: application/json
             "in": "path",
             "name": "username",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -18515,6 +18884,15 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
             "schema": {
               "type": "string"
             }

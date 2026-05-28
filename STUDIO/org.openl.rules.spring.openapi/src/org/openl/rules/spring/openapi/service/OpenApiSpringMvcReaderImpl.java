@@ -27,6 +27,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.tags.Tag;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -64,19 +65,23 @@ public class OpenApiSpringMvcReaderImpl {
     private final OpenApiParameterService apiParameterService;
     private final OpenApiSecurityService apiSecurityService;
     private final OpenApiPropertyResolver apiPropertyResolver;
+    private final List<OpenApiOperationCustomizer> operationCustomizers;
 
     public OpenApiSpringMvcReaderImpl(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
                                       OpenApiResponseService apiResponseService,
                                       OpenApiRequestServiceImpl apiRequestService,
                                       OpenApiParameterService apiParameterService,
                                       OpenApiSecurityService apiSecurityService,
-                                      OpenApiPropertyResolver apiPropertyResolver) {
+                                      OpenApiPropertyResolver apiPropertyResolver,
+                                      ObjectProvider<OpenApiOperationCustomizer> operationCustomizers) {
         this.handlerMethodsHelper = handlerMethodsHelper;
         this.apiResponseService = apiResponseService;
         this.apiRequestService = apiRequestService;
         this.apiParameterService = apiParameterService;
         this.apiSecurityService = apiSecurityService;
         this.apiPropertyResolver = apiPropertyResolver;
+        // Optional: empty unless a feature (e.g. response field projection) contributes a customizer bean.
+        this.operationCustomizers = operationCustomizers.orderedStream().toList();
     }
 
     /**
@@ -259,6 +264,11 @@ public class OpenApiSpringMvcReaderImpl {
             } else {
                 operation.requestBody(sourceRequestBody);
             }
+        }
+
+        // apply optional cross-cutting customizers (e.g. response field projection 'fields' parameter)
+        for (var customizer : operationCustomizers) {
+            customizer.customize(methodInfo, operation);
         }
 
         // register parsed operation method

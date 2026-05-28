@@ -9,6 +9,7 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
 - **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
 - **API documentation**: Use OpenAPI annotations on REST controllers
+- **Response field projection**: Clients may add `?fields=id,name,modules(id,name)` to reduce JSON to selected fields, including nested objects/arrays (hierarchical, GraphQL-like). Applied globally during serialization (`org.openl.studio.common.projection`), so controllers need no extra parameter. Nested sub-selection only recurses into DTOs in the configured `*.model` packages (other nested types are returned whole); errors, binary and non-JSON responses are never touched. New response-DTO packages must be added to `openl.rest.field-projection.base-packages`; unknown-field handling is toggled with `openl.rest.field-projection.fail-on-unknown-field`.
 
 ## Submodules
 
