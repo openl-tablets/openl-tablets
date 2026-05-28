@@ -38,6 +38,7 @@ Integrates OpenL rules compilation into the Maven lifecycle.
 
 | Goal            | Default Phase      | Purpose                                                       |
 |-----------------|--------------------|---------------------------------------------------------------|
+| `sync-versions` | `validate`         | Actualize dependency versions in `rules.xml`                  |
 | `compile`       | `compile`          | Compile OpenL rules; validate syntax and types                |
 | `test`          | `test`             | Execute Test tables; generate JUnit XML + XLSX reports        |
 | `verify`        | `verify`           | Run all validations including OpenAPI reconciliation          |
@@ -117,6 +118,10 @@ A `rules.xml` `<dependency>` becomes a Maven dependency:
 - **By name** — `<name>` only; resolved against reactor sibling OpenL projects, emitted with `<type>zip</type>`.
 
 `<mavenArtifact>` wins when both present. Every `<dependency>` needs a `<name>` (OpenL loader requirement).
+
+Versions can live solely in the anchor's `<dependencyManagement>`: `openl:sync-versions` (bound to `validate`)
+rewrites each managed `<mavenArtifact>`'s version in `rules.xml` to the managed value, in place. Idempotent — only
+coordinates whose `groupId:artifactId` is managed change; a routine build keeps `rules.xml` aligned.
 
 ### Discovery rules
 

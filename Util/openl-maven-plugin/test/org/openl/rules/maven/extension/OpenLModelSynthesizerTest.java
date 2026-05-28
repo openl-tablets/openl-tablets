@@ -3,6 +3,8 @@ package org.openl.rules.maven.extension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -148,6 +150,24 @@ class OpenLModelSynthesizerTest {
 
         assertNotNull(model.getDependencies());
         assertEquals(0, model.getDependencies().size());
+    }
+
+    @Test
+    void malformedMavenArtifactFailsFast() {
+        var coords = new OpenLCoordinates("com.example", "consumer");
+        var desc = new ProjectDescriptor();
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Domain");
+        // Only two segments — not a valid Aether coordinate. A resolvable <name> is also present, but a
+        // declared-yet-malformed <mavenArtifact> must abort rather than silently fall back to it.
+        dep.setMavenArtifact("com.other:domain");
+        desc.setDependencies(List.of(dep));
+        var domainCoords = new OpenLCoordinates("com.example", "domain");
+
+        var ex = assertThrows(IllegalArgumentException.class, () -> OpenLModelSynthesizer.synthesize(
+                coords, "1.0.0", desc, Map.of("Domain", domainCoords), null, null));
+        assertTrue(ex.getMessage().contains("com.other:domain"), "error must name the offending coordinate");
+        assertTrue(ex.getMessage().contains("Domain"), "error must name the dependency so the user can locate it");
     }
 
     @Test
