@@ -146,6 +146,10 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             throw new MavenExecutionException(
                     "Failed to resort reactor after adding pom-less OpenL projects.", e);
         }
+        // Maven 3.9.x ReactorReader snapshots session.getProjects() once in its constructor and never
+        // refreshes — without this poke a sibling war module's dependency resolution can't see the
+        // pom-less zip and falls through to the remote repositories. See ReactorReaderInjector.
+        ReactorReaderInjector.inject(session, added);
     }
 
     /**
