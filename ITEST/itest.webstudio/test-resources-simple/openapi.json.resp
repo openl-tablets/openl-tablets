@@ -8141,6 +8141,15 @@ Content-Type: application/json
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               ]
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -13834,6 +13843,15 @@ Content-Type: application/json
                 "application/json",
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],

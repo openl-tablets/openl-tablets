@@ -1,6 +1,7 @@
 package org.openl.studio.openapi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.openl.rules.spring.openapi.model.MethodInfo;
@@ -26,8 +28,13 @@ class FieldProjectionOpenApiCustomizerTest {
             new FieldProjectionSupport());
 
     private static Parameter customize(Type returnType) {
+        return customize(returnType, new String[0]);
+    }
+
+    private static Parameter customize(Type returnType, String[] produces) {
         var methodInfo = mock(MethodInfo.class);
         when(methodInfo.getReturnType()).thenReturn(returnType);
+        when(methodInfo.getProduces()).thenReturn(produces);
         var operation = new Operation();
         CUSTOMIZER.customize(methodInfo, operation);
         if (operation.getParameters() == null) {
@@ -78,5 +85,38 @@ class FieldProjectionOpenApiCustomizerTest {
 
     /** In-scope interface used to verify the OpenAPI customizer treats interfaces as projectable. */
     public interface InScopeInterface {
+    }
+
+    /**
+     * Controllers may declare {@code ResponseEntity<?>} (wildcard) when the response content type
+     * varies. When the endpoint produces JSON, the parameter must still be advertised -- the runtime
+     * advice will project a projectable body and pass through anything else.
+     */
+    @Test
+    void addsParameterForWildcardResponseEntityThatProducesJson() throws Exception {
+        var method = WildcardController.class.getDeclaredMethod("getResult");
+        assertNotNull(customize(method.getGenericReturnType(),
+                new String[]{MediaType.APPLICATION_JSON_VALUE,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+    }
+
+    @Test
+    void skipsWildcardResponseEntityThatDoesNotProduceJson() throws Exception {
+        var method = WildcardController.class.getDeclaredMethod("getResult");
+        assertNull(customize(method.getGenericReturnType(),
+                new String[]{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+    }
+
+    @Test
+    void skipsWildcardResponseEntityWithoutAnyProducesDeclaration() throws Exception {
+        var method = WildcardController.class.getDeclaredMethod("getResult");
+        assertNull(customize(method.getGenericReturnType(), new String[0]));
+    }
+
+    /** Fixture with a wildcard {@code ResponseEntity<?>} return type. */
+    static class WildcardController {
+        public ResponseEntity<?> getResult() {
+            return null;
+        }
     }
 }
