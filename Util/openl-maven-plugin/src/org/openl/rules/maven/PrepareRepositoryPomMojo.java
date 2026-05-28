@@ -76,6 +76,9 @@ public class PrepareRepositoryPomMojo extends AbstractMojo {
         var minimal = project.getOriginalModel().clone();
         minimal.setBuild(null);   // strip the openl-maven-plugin bootstrap stub
         minimal.setParent(null);  // defensive — pom-less projects never declare a parent
+        // The participant sets flatten.skip in-memory to neutralise an inherited flatten-maven-plugin;
+        // it has no meaning in the published artefact pom, so drop it.
+        minimal.getProperties().remove(OpenLPackagings.FLATTEN_SKIP_PROPERTY);
 
         var pomFile = buildDirectory.toPath().resolve(GENERATED_POM_FILE_NAME);
         try {

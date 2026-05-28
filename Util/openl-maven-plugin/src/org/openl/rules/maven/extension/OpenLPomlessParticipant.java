@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
 import org.apache.maven.model.Build;
@@ -249,7 +250,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             throws IOException, ProjectBuildingException {
         var model = OpenLModelSynthesizer.synthesize(
                 s.coordinates, version, s.descriptor, names, dependencyManagement, anchor);
-        decorateForModelBuilder(model, openlPluginVersion);
+        decorateForModelBuilder(model, openlPluginVersion, findFlattenPlugin(anchor.getModel()));
 
         var rulesXml = s.folder.resolve(ProjectDescriptor.FILE_NAME);
         var built = projectBuilder.build(new InMemoryModelSource(model, rulesXml), request).getProject();
@@ -300,8 +301,12 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * in time for validation. Pinning the version (read from the anchor) avoids Maven resolving the
      * plugin to whatever LATEST is in central. {@code PrepareRepositoryPomMojo} strips the stub
      * before the installed pom is written.
+     * <p>
+     * When the anchor's lineage declares {@code flatten-maven-plugin}, it is neutralised too: a pom-less
+     * project has no on-disk pom for flatten to read ({@code getFile()} points at {@code rules.xml}), and
+     * {@code openl:prepare-pom} already emits the flattened install/deploy pom. See {@link #disableFlatten}.
      */
-    private static void decorateForModelBuilder(Model model, String openlPluginVersion) {
+    static void decorateForModelBuilder(Model model, String openlPluginVersion, Plugin inheritedFlatten) {
         var plugin = new Plugin();
         plugin.setGroupId(OpenLPackagings.PLUGIN_GROUP_ID);
         plugin.setArtifactId(OpenLPackagings.PLUGIN_ARTIFACT_ID);
@@ -309,7 +314,68 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         plugin.setExtensions(true);
         var build = new Build();
         build.addPlugin(plugin);
+        if (inheritedFlatten != null) {
+            disableFlatten(model, build, inheritedFlatten.getVersion());
+        }
         model.setBuild(build);
+    }
+
+    /**
+     * Neutralises an inherited {@code flatten-maven-plugin} on a pom-less project. The skip switch
+     * ({@code flatten.skip}) only exists since {@link OpenLPackagings#FLATTEN_MIN_VERSION}, so the effective
+     * version is bumped to it (via an explicit {@code <build><plugins>} entry that overrides the inherited
+     * version) when older, then the goal is skipped through the {@code flatten.skip} project property — which
+     * the mojo honours regardless of how the inherited execution is configured. {@code PrepareRepositoryPomMojo}
+     * strips the synthesised {@code <build>} and this property from the installed pom, so neither leaks.
+     */
+    private static void disableFlatten(Model model, Build build, String inheritedVersion) {
+        model.getProperties().setProperty(OpenLPackagings.FLATTEN_SKIP_PROPERTY, "true");
+        if (needsVersionBump(inheritedVersion)) {
+            var flatten = new Plugin();
+            flatten.setGroupId(OpenLPackagings.FLATTEN_GROUP_ID);
+            flatten.setArtifactId(OpenLPackagings.FLATTEN_ARTIFACT_ID);
+            flatten.setVersion(OpenLPackagings.FLATTEN_MIN_VERSION);
+            build.addPlugin(flatten);
+        }
+    }
+
+    /** True when {@code version} is missing or older than {@link OpenLPackagings#FLATTEN_MIN_VERSION}. */
+    static boolean needsVersionBump(String version) {
+        if (version == null || version.isBlank()) {
+            return true;
+        }
+        return new ComparableVersion(version)
+                .compareTo(new ComparableVersion(OpenLPackagings.FLATTEN_MIN_VERSION)) < 0;
+    }
+
+    /**
+     * Finds {@code org.codehaus.mojo:flatten-maven-plugin} in a model's {@code <build>} (plugins or
+     * pluginManagement), or {@code null}. Run against the anchor's effective model to detect a flatten
+     * plugin inherited from its lineage, so it can be neutralised on the pom-less projects beneath it.
+     */
+    static Plugin findFlattenPlugin(Model model) {
+        if (model == null || model.getBuild() == null) {
+            return null;
+        }
+        var match = matchFlattenPlugin(model.getBuild().getPlugins());
+        if (match != null) {
+            return match;
+        }
+        var mgmt = model.getBuild().getPluginManagement();
+        return mgmt == null ? null : matchFlattenPlugin(mgmt.getPlugins());
+    }
+
+    private static Plugin matchFlattenPlugin(List<Plugin> plugins) {
+        if (plugins == null) {
+            return null;
+        }
+        for (var p : plugins) {
+            if (OpenLPackagings.FLATTEN_GROUP_ID.equals(p.getGroupId())
+                    && OpenLPackagings.FLATTEN_ARTIFACT_ID.equals(p.getArtifactId())) {
+                return p;
+            }
+        }
+        return null;
     }
 
     /**
