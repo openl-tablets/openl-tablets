@@ -37,9 +37,11 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.resources.CopyResourceRequest;
 import org.openl.studio.projects.model.resources.CreateResourceRequest;
 import org.openl.studio.projects.model.resources.MoveResourceRequest;
+import org.openl.studio.projects.model.resources.ProjectFileLookupResponse;
 import org.openl.studio.projects.model.resources.Resource;
 import org.openl.studio.projects.model.resources.UpdateResourceRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.resources.ProjectFileLookupService;
 import org.openl.studio.projects.service.resources.ProjectResourcesService;
 import org.openl.studio.projects.service.resources.ResourceCriteriaQuery;
 import org.openl.studio.projects.service.resources.ResourceViewMode;
@@ -59,12 +61,30 @@ public class ProjectResourcesController {
     private static final String PATH_SEPARATOR = "/";
 
     private final ProjectResourcesService resourcesService;
+    private final ProjectFileLookupService fileLookupService;
     private final BeanValidationProvider validationProvider;
     private final ResourceCriteriaQueryValidator queryValidator;
 
     @Lookup
     public WebStudio getWebStudio() {
         return null;
+    }
+
+    @GetMapping
+    @Operation(summary = "projects.resources.lookup.summary", description = "projects.resources.lookup.desc")
+    public ProjectFileLookupResponse lookupFile(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam("path")
+            @Parameter(description = "projects.resources.lookup.param.path.desc")
+            String path,
+            @RequestParam(value = "searchParents", defaultValue = "false")
+            @Parameter(description = "projects.resources.lookup.param.search-parents.desc")
+            boolean searchParents,
+            @RequestParam(value = "includeContent", defaultValue = "false")
+            @Parameter(description = "projects.resources.lookup.param.include-content.desc")
+            boolean includeContent
+    ) throws IOException {
+        return fileLookupService.lookup(project, path, searchParents, includeContent);
     }
 
     @GetMapping("/list/{*path}")
