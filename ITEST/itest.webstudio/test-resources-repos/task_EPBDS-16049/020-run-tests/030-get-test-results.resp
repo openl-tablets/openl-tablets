@@ -1,0 +1,52 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "executionTimeMs": "*",
+  "numberOfTests": 1,
+  "numberOfFailures": 1,
+  "testCases": [
+    {
+      "name": "doValidation",
+      "tableId": "c18d68333cc156a8f01500b9680b9878",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "expectedValue": null,
+              "actualValue": "Incorrect value state",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "i",
+              "description": "i",
+              "value": -1,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ],
+          "errors": [
+            {
+              "id": 93,
+              "summary": "Incorrect value state",
+              "severity": "ERROR"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
