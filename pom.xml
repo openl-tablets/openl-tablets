@@ -132,7 +132,7 @@
         <jetty.version>12.1.9</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.44.1</amazonaws.version>
+        <amazonaws.version>2.45.0</amazonaws.version>
         <azure.version>12.34.0</azure.version>
         <netty.version>4.2.14.Final</netty.version>
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
