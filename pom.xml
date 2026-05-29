@@ -175,7 +175,7 @@
         <greenmail.version>2.1.8</greenmail.version>
 
         <!-- XML -->
-        <jaxb-runtime.version>4.0.8</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
 
         <!-- Commons and utils -->
         <commons-codec.version>1.22.0</commons-codec.version>
