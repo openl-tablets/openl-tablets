@@ -9,7 +9,7 @@
     "npm": ">=11.0.0"
   },
   "dependencies": {
-    "@ant-design/icons": "^6.2.3",
+    "@ant-design/icons": "^6.2.5",
     "@stomp/stompjs": "^7.3.0",
     "antd": "6.4.3",
     "antd-style": "^4.1.0",
