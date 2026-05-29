@@ -108,7 +108,7 @@
         <opentelemetry.version>2.28.1</opentelemetry.version>
 
         <!-- REST -->
-        <jackson.version>2.21.3</jackson.version>
+        <jackson.version>2.21.4</jackson.version>
         <cxf.version>4.1.6</cxf.version>
 
         <!-- gRPC -->
