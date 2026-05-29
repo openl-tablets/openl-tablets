@@ -21,6 +21,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
@@ -74,52 +77,20 @@ class ProjectFileLookupServiceImplTest {
 
     // --- Path validation ---
 
-    @Test
-    void lookup_nullPath_throwsBadRequest() {
+    @ParameterizedTest(name = "[{index}] invalid path: \"{0}\"")
+    @NullSource
+    @ValueSource(strings = {
+            "   ",                       // blank
+            "/AGENTS.md",                // absolute
+            "../AGENTS.md",              // parent traversal
+            "config/../../AGENTS.md",    // embedded parent traversal
+            "config\\AGENTS.md"          // backslash separator
+    })
+    void lookup_invalidPath_throwsBadRequest(String path) {
         configureProjectRoot("services/rating", true);
 
         assertThrows(BadRequestException.class,
-                () -> service.lookup(project, null, false, false));
-    }
-
-    @Test
-    void lookup_blankPath_throwsBadRequest() {
-        configureProjectRoot("services/rating", true);
-
-        assertThrows(BadRequestException.class,
-                () -> service.lookup(project, "   ", false, false));
-    }
-
-    @Test
-    void lookup_absolutePath_throwsBadRequest() {
-        configureProjectRoot("services/rating", true);
-
-        assertThrows(BadRequestException.class,
-                () -> service.lookup(project, "/AGENTS.md", false, false));
-    }
-
-    @Test
-    void lookup_pathWithParentTraversal_throwsBadRequest() {
-        configureProjectRoot("services/rating", true);
-
-        assertThrows(BadRequestException.class,
-                () -> service.lookup(project, "../AGENTS.md", false, false));
-    }
-
-    @Test
-    void lookup_pathWithEmbeddedParentTraversal_throwsBadRequest() {
-        configureProjectRoot("services/rating", true);
-
-        assertThrows(BadRequestException.class,
-                () -> service.lookup(project, "config/../../AGENTS.md", false, false));
-    }
-
-    @Test
-    void lookup_pathWithBackslash_throwsBadRequest() {
-        configureProjectRoot("services/rating", true);
-
-        assertThrows(BadRequestException.class,
-                () -> service.lookup(project, "config\\AGENTS.md", false, false));
+                () -> service.lookup(project, path, false, false));
     }
 
     // --- searchParents=false ---
