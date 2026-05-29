@@ -11,8 +11,10 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -32,10 +34,12 @@ import org.openl.studio.projects.model.resources.ProjectFileLookupResponse;
 import org.openl.util.IOUtils;
 
 /**
- * Integration test that drives {@link ProjectFileLookupServiceImpl} against a real Git
- * repository on disk (created with JGit, opened via {@link GitRepositoryFactory}).
+ * Verifies {@link ProjectFileLookupServiceImpl} lookup behavior against an on-disk
+ * repository with a real folder hierarchy.
  *
- * <p>The repository tree seeded in {@link #setUp()} looks like:
+ * <p>The repository holds {@code AGENTS.md} at every level — repository root,
+ * intermediate ancestor, project root, and a nested project folder — plus a
+ * non-text {@code rules.xlsx} project file:
  * <pre>
  *   AGENTS.md                        (repository root)
  *   services/
@@ -47,9 +51,9 @@ import org.openl.util.IOUtils;
  *         AGENTS.md                  (nested project file)
  * </pre>
  *
- * <p>The {@link AProject} is constructed directly on top of the repository — no
- * {@code MappedRepository}, no Spring context — so the project's folder path equals
- * the repository-relative path.
+ * <p>The tests assert that a lookup returns only the project file when
+ * {@code searchParents=false}, and walks from the project root up to the
+ * repository root (nearest to farthest ancestor) when {@code searchParents=true}.
  */
 class ProjectFileLookupServiceImplGitTest {
 
@@ -192,12 +196,12 @@ class ProjectFileLookupServiceImplGitTest {
     }
 
     private static void writeFile(File file, String content) throws IOException {
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new IOException("Could not create folder " + parent);
+        Path path = file.toPath();
+        Path parent = path.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
         }
-        try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
-            writer.write(content);
-        }
+        Files.writeString(path, content, StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

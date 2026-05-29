@@ -11,10 +11,13 @@ import org.jspecify.annotations.Nullable;
  * Response of the project file lookup API.
  *
  * <p>The {@code files} list is ordered from nearest to farthest ancestor: the
- * project root match comes first, then each parent directory in turn, ending
- * with the repository root.
+ * match at the requested path comes first, followed by matches in each
+ * enclosing directory in turn, ending at the repository root.
  *
- * <p>For {@code scope=exact} the list contains at most one entry.
+ * <p>The {@code searchParents} flag controls the scope. When it is {@code false}
+ * the list contains at most one entry — the match at the requested path. When it
+ * is {@code true} the list also includes matches from enclosing directories up
+ * to the repository root.
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)

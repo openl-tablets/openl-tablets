@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -136,7 +137,14 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             return;
         }
         var resource = (AProjectResource) found;
-        String content = includeContent ? readContent(resource) : null;
+        String content = null;
+        if (includeContent) {
+            content = readContent(resource);
+            if (content == null) {
+                // Too large to surface (or unreadable) — skip rather than risk an unbounded read.
+                return;
+            }
+        }
         matches.add(ProjectFileMatch.builder()
                 .path(repositoryRelativePath(project, relativePath))
                 .content(content)
@@ -162,7 +170,14 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         if (exceedsSizeLimit(data)) {
             return;
         }
-        String content = includeContent ? readContent(repository, fullPath) : null;
+        String content = null;
+        if (includeContent) {
+            content = readContent(repository, fullPath);
+            if (content == null) {
+                // Too large to surface (or unreadable) — skip rather than risk an unbounded read.
+                return;
+            }
+        }
         matches.add(ProjectFileMatch.builder()
                 .path(fullPath)
                 .content(content)
@@ -171,7 +186,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
 
     private static boolean isTextFile(String fileName) {
         String ext = FileUtils.getExtension(fileName);
-        return ext != null && !ext.isEmpty() && TEXT_FILE_EXTENSIONS.contains(ext.toLowerCase());
+        return ext != null && !ext.isEmpty() && TEXT_FILE_EXTENSIONS.contains(ext.toLowerCase(Locale.ROOT));
     }
 
     private static boolean exceedsSizeLimit(FileData data) {
@@ -189,7 +204,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
 
     private static String readContent(AProjectResource resource) throws IOException {
         try (InputStream in = resource.getContent()) {
-            return in == null ? null : new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            return in == null ? null : readBoundedText(in);
         } catch (ProjectException e) {
             throw new ConflictException("resource.read.failed.message");
         }
@@ -200,8 +215,25 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             if (item == null || item.getStream() == null) {
                 return null;
             }
-            return new String(item.getStream().readAllBytes(), StandardCharsets.UTF_8);
+            return readBoundedText(item.getStream());
         }
+    }
+
+    /**
+     * Reads UTF-8 text from the stream while keeping memory use bounded.
+     *
+     * <p>At most {@link #MAX_FILE_SIZE_BYTES} bytes are loaded. When the stream holds more,
+     * the file is treated as too large and {@code null} is returned so the caller can skip it.
+     *
+     * <p>This protects against repositories that do not report a file size up front, where the
+     * metadata size check is unable to reject an oversized file before it is read.
+     */
+    private static String readBoundedText(InputStream in) throws IOException {
+        byte[] data = in.readNBytes((int) (MAX_FILE_SIZE_BYTES + 1));
+        if (data.length > MAX_FILE_SIZE_BYTES) {
+            return null;
+        }
+        return new String(data, StandardCharsets.UTF_8);
     }
 
     /**

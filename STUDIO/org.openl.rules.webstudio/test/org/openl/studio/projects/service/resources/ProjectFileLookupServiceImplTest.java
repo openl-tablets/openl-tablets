@@ -28,7 +28,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -128,7 +127,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_noSearchParents_fileFoundInProject_returnsSingleMatch() throws IOException {
         configureProjectRoot("services/rating", true);
-        addProjectFile(project, "AGENTS.md", "hello", "services/rating/AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "hello");
 
         ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, false);
 
@@ -150,7 +149,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_noSearchParents_includeContentTrue_returnsContent() throws IOException {
         configureProjectRoot("services/rating", true);
-        addProjectFile(project, "AGENTS.md", "hello world", "services/rating/AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "hello world");
 
         ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, true);
 
@@ -174,7 +173,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_noSearchParents_pathIsFolder_returnsEmpty() throws IOException {
         configureProjectRoot("services/rating", true);
-        AProjectFolder folder = mock(AProjectFolder.class);
+        var folder = mock(AProjectFolder.class);
         when(folder.isFolder()).thenReturn(true);
         Map<String, AProjectArtefact> artefacts = new HashMap<>();
         artefacts.put("AGENTS.md", folder);
@@ -188,7 +187,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_noSearchParents_noReadPermissionOnArtefact_returnsEmpty() throws IOException {
         configureProjectRoot("services/rating", true);
-        AProjectResource resource = addProjectFile(project, "AGENTS.md", "x", "services/rating/AGENTS.md");
+        var resource = addProjectFile(project, "AGENTS.md", "x");
         when(aclProjectsHelper.hasPermission(resource, BasePermission.READ)).thenReturn(false);
 
         ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, false);
@@ -201,7 +200,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_collectsFromNearestToFarthest() throws IOException {
         configureProjectRoot("services/rating", true);
-        addProjectFile(project, "AGENTS.md", "rating", "services/rating/AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "rating");
         when(repository.check("services/AGENTS.md")).thenReturn(fileData("services/AGENTS.md"));
         when(repository.check("AGENTS.md")).thenReturn(fileData("AGENTS.md"));
 
@@ -216,7 +215,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_skipsMissingAncestors() throws IOException {
         configureProjectRoot("services/rating", true);
-        addProjectFile(project, "AGENTS.md", "rating", "services/rating/AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "rating");
         // services/AGENTS.md missing; AGENTS.md at root exists
         when(repository.check("AGENTS.md")).thenReturn(fileData("AGENTS.md"));
 
@@ -230,7 +229,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_skipsDeletedAncestors() throws IOException {
         configureProjectRoot("services/rating", true);
-        FileData deleted = fileData("AGENTS.md");
+        var deleted = fileData("AGENTS.md");
         deleted.setDeleted(true);
         when(repository.check("AGENTS.md")).thenReturn(deleted);
 
@@ -267,7 +266,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_projectAtRepositoryRoot_noWalk() throws IOException {
         configureProjectRoot("", true);
-        addProjectFile(project, "AGENTS.md", "x", "AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "x");
 
         ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", true, false);
 
@@ -279,7 +278,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_flatRepository_noWalk() throws IOException {
         configureProjectRoot("services/rating", false);
-        addProjectFile(project, "AGENTS.md", "x", "services/rating/AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "x");
 
         ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", true, false);
 
@@ -291,7 +290,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_includeContent_readsAncestorContent() throws IOException {
         configureProjectRoot("services/rating", true);
-        addProjectFile(project, "AGENTS.md", "in-project", "services/rating/AGENTS.md");
+        addProjectFile(project, "AGENTS.md", "in-project");
 
         when(repository.check("services/AGENTS.md")).thenReturn(fileData("services/AGENTS.md"));
         when(repository.read("services/AGENTS.md"))
@@ -351,7 +350,7 @@ class ProjectFileLookupServiceImplTest {
     void lookup_nonTextExtension_returnsEmpty() throws IOException {
         configureProjectRoot("services/rating", true);
         // The artefact exists but the extension is not in the text whitelist.
-        addProjectFile(project, "rules.xlsx", "binary", "services/rating/rules.xlsx");
+        addProjectFile(project, "rules.xlsx", "binary");
 
         ProjectFileLookupResponse response = service.lookup(project, "rules.xlsx", false, false);
 
@@ -361,7 +360,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_noExtension_returnsEmpty() throws IOException {
         configureProjectRoot("services/rating", true);
-        addProjectFile(project, "LICENSE", "MIT", "services/rating/LICENSE");
+        addProjectFile(project, "LICENSE", "MIT");
 
         ProjectFileLookupResponse response = service.lookup(project, "LICENSE", false, false);
 
@@ -371,8 +370,7 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_nonTextAncestor_isSkipped() throws IOException {
         configureProjectRoot("services/rating", true);
-        // Ancestor entry is non-text → must be skipped even though the file exists.
-        when(repository.check("services/rules.xlsx")).thenReturn(fileData("services/rules.xlsx"));
+        // The leaf is non-text, so the ancestor walk must skip it before ever touching the repository.
 
         ProjectFileLookupResponse response = service.lookup(project, "rules.xlsx", true, false);
 
@@ -383,8 +381,8 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_projectFileTooLarge_returnsEmpty() throws IOException {
         configureProjectRoot("services/rating", true);
-        AProjectResource resource = addProjectFile(project, "AGENTS.md", "x", "services/rating/AGENTS.md");
-        FileData data = fileData("services/rating/AGENTS.md");
+        var resource = addProjectFile(project, "AGENTS.md", "x");
+        var data = fileData("services/rating/AGENTS.md");
         data.setSize(ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
         when(resource.getFileData()).thenReturn(data);
 
@@ -394,9 +392,22 @@ class ProjectFileLookupServiceImplTest {
     }
 
     @Test
+    void lookup_includeContent_undefinedSizeButOversizeContent_isSkipped() throws IOException {
+        configureProjectRoot("services/rating", true);
+        // The repository reports no size up front (UNDEFINED_SIZE), but the content exceeds the cap.
+        // The bounded read must reject it instead of loading the whole blob into memory.
+        var oversize = "a".repeat((int) ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
+        addProjectFile(project, "AGENTS.md", oversize);
+
+        ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, true);
+
+        assertTrue(response.files().isEmpty());
+    }
+
+    @Test
     void lookup_searchParents_ancestorTooLarge_isSkipped() throws IOException {
         configureProjectRoot("services/rating", true);
-        FileData large = fileData("AGENTS.md");
+        var large = fileData("AGENTS.md");
         large.setSize(ProjectFileLookupServiceImpl.MAX_FILE_SIZE_BYTES + 1);
         when(repository.check("AGENTS.md")).thenReturn(large);
         // services/AGENTS.md is a normal-sized ancestor and must still be returned.
@@ -411,12 +422,9 @@ class ProjectFileLookupServiceImplTest {
     @Test
     void lookup_searchParents_countLimit_truncatesAncestorWalk() throws IOException {
         // Project sits very deep so the walk has more ancestors than the cap.
-        StringBuilder deep = new StringBuilder("a");
-        for (int i = 0; i < ProjectFileLookupServiceImpl.MAX_FILES_COUNT + 5; i++) {
-            deep.append("/a");
-        }
-        configureProjectRoot(deep.toString(), true);
-        addProjectFile(project, "AGENTS.md", "x", deep + "/AGENTS.md");
+        var deep = "a" + "/a".repeat(ProjectFileLookupServiceImpl.MAX_FILES_COUNT + 5);
+        configureProjectRoot(deep, true);
+        addProjectFile(project, "AGENTS.md", "x");
         // Every ancestor has the file → without a cap we'd add way more than allowed.
         when(repository.check(any())).thenAnswer(invocation -> {
             String name = invocation.getArgument(0);
@@ -432,7 +440,7 @@ class ProjectFileLookupServiceImplTest {
 
     private void configureProjectRoot(String realPath, boolean supportsFolders) {
         when(project.getRealPath()).thenReturn(realPath);
-        Features features = new FeaturesBuilder(repository).setFolders(supportsFolders).build();
+        var features = new FeaturesBuilder(repository).setFolders(supportsFolders).build();
         when(repository.supports()).thenReturn(features);
         // No artefacts by default — concrete tests override this.
         when(project.isFolder()).thenReturn(true);
@@ -440,9 +448,8 @@ class ProjectFileLookupServiceImplTest {
 
     private AProjectResource addProjectFile(AProjectFolder folder,
                                             String name,
-                                            String content,
-                                            String repoRelativePath) throws IOException {
-        AProjectResource resource = mock(AProjectResource.class);
+                                            String content) throws IOException {
+        var resource = mock(AProjectResource.class);
         when(resource.isFolder()).thenReturn(false);
         try {
             when(resource.getContent())
@@ -450,7 +457,7 @@ class ProjectFileLookupServiceImplTest {
         } catch (ProjectException e) {
             throw new IllegalStateException(e);
         }
-        Map<String, AProjectArtefact> artefacts = new HashMap<>();
+        var artefacts = new HashMap<String, AProjectArtefact>();
         artefacts.put(name, resource);
         stubArtefacts(folder, artefacts);
         return resource;
@@ -460,11 +467,11 @@ class ProjectFileLookupServiceImplTest {
         if (nameContentPairs.length % 2 != 0) {
             throw new IllegalArgumentException("Expected (name, content) pairs");
         }
-        Map<String, AProjectArtefact> artefacts = new HashMap<>();
+        var artefacts = new HashMap<String, AProjectArtefact>();
         for (int i = 0; i < nameContentPairs.length; i += 2) {
             String name = nameContentPairs[i];
             String content = nameContentPairs[i + 1];
-            AProjectResource resource = mock(AProjectResource.class);
+            var resource = mock(AProjectResource.class);
             when(resource.isFolder()).thenReturn(false);
             try {
                 when(resource.getContent())
@@ -482,7 +489,7 @@ class ProjectFileLookupServiceImplTest {
         try {
             when(folder.getArtefact(any())).thenAnswer(invocation -> {
                 String name = invocation.getArgument(0);
-                AProjectArtefact artefact = artefacts.get(name);
+                var artefact = artefacts.get(name);
                 if (artefact == null) {
                     throw new ProjectException("Cannot find ''{0}''", null, name);
                 }
@@ -494,7 +501,7 @@ class ProjectFileLookupServiceImplTest {
     }
 
     private static FileData fileData(String name) {
-        FileData data = new FileData();
+        var data = new FileData();
         data.setName(name);
         return data;
     }
