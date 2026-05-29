@@ -1,0 +1,160 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Studio API",
+    "version": "*"
+  },
+  "servers": [
+    { "url": "http://localhost" }
+  ],
+  "paths": {
+    "/projects/{id}/name": {
+      "get": {
+        "operationId": "name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": { "*/*": { "schema": { "type": "string" } } },
+            "description": "***"
+          }
+        }
+      }
+    },
+    "/projects/{id}": {
+      "get": {
+        "operationId": "get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/ProjectTestView" } } },
+            "description": "***"
+          }
+        }
+      }
+    },
+    "/projects/page": {
+      "get": {
+        "operationId": "page",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/PageResponseProjectTestView" } } },
+            "description": "***"
+          }
+        }
+      }
+    },
+    "/projects": {
+      "get": {
+        "operationId": "list",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProjectTestView" }
+                }
+              }
+            },
+            "description": "***"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProjectTestView": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "members": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserTestView" }
+          },
+          "name": { "type": "string" },
+          "owner": { "$ref": "#/components/schemas/UserTestView" },
+          "status": { "type": "string" },
+          "writeOnly": { "type": "string", "writeOnly": true }
+        }
+      },
+      "UserTestView": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "login": { "type": "string" }
+        }
+      },
+      "PageResponseProjectTestView": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": { "$ref": "#/components/schemas/ProjectTestView" }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          }
+        },
+        "required": ["numberOfElements", "pageNumber", "pageSize"]
+      }
+    }
+  }
+}

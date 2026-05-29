@@ -6,9 +6,10 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
-- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text bloks and etc.)
+- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text blocks and etc.)
   and features (Virtual Threads, Sequenced Collections, new String, Collections & IO/NIO methods and etc.)
-- Use Lombok for boilerplate reduction
+- Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
+- When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter automatically
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
@@ -16,7 +17,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - No HTML in Markdown when equivalents exist (see Markdown Rules below)
 - All new file names must be only in ASCII alphanumeric without spaces and any special characters, except for `-_.`
 - Existed file names contains spaces and `,+%$#` symbols for tests purposes and must not be renamed during refactoring.
-- Execute `mvn validate -N` after changes and before commiting to ensure all files are formatted correctly.
+- Execute `mvn validate -N` after changes and before committing to ensure all files are formatted correctly.
 
 ## Repository Layout
 
@@ -73,3 +74,14 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
 - No version stamp in headings
 - Mermaid for structural diagrams
 - Admonitions: `> [!Note]` (single blockquote level only without title and nesting)
+
+## JavaDoc Rules
+
+- Describe **what** the code does, not **how** it is implemented
+- Keep sentences short — prefer several short sentences over one long multi-clause sentence
+- Use domain language (`path`, `field`, `parent object`, `collection element`) instead of internal jargon (`chain`, `deepest-first traversal`, `segments produced by iteration`)
+- Skip implementation details (specific collections, algorithms, iteration order, internal APIs) unless they affect observable behavior
+- Preserve behavioral details — edge cases, special behavior, invariants, constraints, assumptions
+- Structure for scanning: short intro sentence, then separate paragraphs for behavior and special cases
+- Aim for 3 short paragraphs rather than 1 dense paragraph
+- Refactor only for readability — do not change behavior, contracts, or assumptions
