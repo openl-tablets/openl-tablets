@@ -128,8 +128,30 @@ These work in both plain text and JSON responses. In JSON, wildcards are matched
 - File pairs: same name, different extension (`EPBDS-13489.req` + `EPBDS-13489.resp`)
 - Numeric prefixes for ordering: `00-login.req`, `01-get-data.req`
 - Group related tests in subdirectories
-- Use `000` subdirectory for setup steps if needed
-- Use `999` subdirectory to restore state at end of suite
+
+### Suite Folder Structure
+
+Each test suite (typically one `task_EPBDS-NNNNN/` folder per ticket) **MUST** follow this three-phase layout:
+
+```
+task_EPBDS-NNNNN/
+├── itest.env                    # Per-suite environment variables
+├── 010-setup/                   # Bring the system to the state under test
+│   ├── 010-initialize-project.req/.resp
+│   └── 020-open-project.req/.resp
+├── 0X0-<scenario>/              # One or more scenario folders (020-…, 030-…, …)
+│   ├── 010-<step>.req/.resp
+│   └── 020-<step>.req/.resp
+└── 999-tierdown/                # Always last — undo what setup did
+    ├── 010-close-project.req/.resp
+    └── 020-delete-project.req/.resp
+```
+
+- `010-setup/` — first folder; pushes projects, opens them, seeds users/branches, etc.
+- `0X0-<scenario>/` — one folder per scenario, numbered `020`, `030`, … in execution order. Steps inside a scenario start at `010` and increment by `010`.
+- `999-tierdown/` — last folder (spelled `tierdown` to match the existing tree); closes/deletes projects and restores shared state so later suites start clean.
+- Step prefixes are always 3-digit, increment by `010`, and reset to `010` inside each subfolder.
+- Cookies reset at the suite root (first-level subfolder boundary), so do not rely on a session crossing scenario folders.
 
 ### Debugging Failed Tests
 

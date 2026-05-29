@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -17,6 +18,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ParameterValue;
 
+@RequiredArgsConstructor
 public class TestsExecutionSummaryResponseMapper {
 
     private static final double NANOS_IN_MILLISECOND = 1_000_000.0;
@@ -27,11 +29,6 @@ public class TestsExecutionSummaryResponseMapper {
 
     private final ObjectMapper objectMapper;
     private final SchemaGenerator schemaGenerator;
-
-    public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper, SchemaGenerator schemaGenerator) {
-        this.objectMapper = objectMapper;
-        this.schemaGenerator = schemaGenerator;
-    }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
         var builder = TestsExecutionSummary.builder().page(page);
@@ -55,8 +52,8 @@ public class TestsExecutionSummaryResponseMapper {
             numberOfFailures += testCase.getNumberOfFailures();
         }
         builder.executionTimeMs(executionTimeMs)
-               .numberOfTests(numberOfTests)
-               .numberOfFailures(numberOfFailures);
+                .numberOfTests(numberOfTests)
+                .numberOfFailures(numberOfFailures);
     }
 
     public TestCaseExecutionResult mapToTestCaseResult(TestUnitsResults testCase, TestExecutionSummaryQuery query) {
@@ -91,7 +88,10 @@ public class TestsExecutionSummaryResponseMapper {
                     ? testCase.getTestErrorColumnDisplayNames()
                     : testCase.getTestResultColumnDisplayNames();
             IntStream.range(0, results.size())
-                    .mapToObj(i -> mapToTestAssertionResult(results.get(i), resultColumnNames[i]))
+                    .mapToObj(i -> mapToTestAssertionResult(results.get(i),
+                            i < resultColumnNames.length
+                                    ? resultColumnNames[i]
+                                    : null))
                     .forEach(builder::testAssertion);
         }
 
