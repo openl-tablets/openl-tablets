@@ -18,10 +18,13 @@ import org.openl.rules.project.model.ProjectDescriptor;
  * {@code <distributionManagement>}, and so on through natural Maven inheritance), optional
  * {@code <name>}, and {@code rules.xml} dependencies translated to Maven dependencies (using
  * {@code <mavenArtifact>} when given, otherwise resolving {@code <name>} against the supplied
- * name → coordinates index). When the anchor declares {@code <dependencyManagement>}, the
- * synthesiser explicitly overrides matching dependency versions at synth time — needed because
- * the translated dependencies carry an explicit {@code <version>}, which Maven's own management
- * resolution would otherwise skip.
+ * name → coordinates index). A {@code <mavenArtifact>} that points at an OpenL artefact already in
+ * the reactor takes that artefact's reactor version, overriding the (possibly placeholder) version
+ * written in {@code rules.xml} — a reactor module resolves only at its reactor version. When the
+ * anchor declares {@code <dependencyManagement>}, the synthesiser explicitly overrides matching
+ * dependency versions at synth time (after the reactor-version step, so management can still pin a
+ * sibling GA to a published version on purpose) — needed because the translated dependencies carry
+ * an explicit {@code <version>}, which Maven's own management resolution would otherwise skip.
  * <p>
  * The synthesised model carries {@code <parent>} with an empty {@code <relativePath/>} (forces
  * reactor/repo lookup since the anchor is always in the session at synth time). The participant
@@ -43,7 +46,8 @@ final class OpenLModelSynthesizer {
                             ProjectDescriptor descriptor,
                             Map<String, OpenLCoordinates> names,
                             Map<String, Dependency> dependencyManagement,
-                            MavenProject anchor) {
+                            MavenProject anchor,
+                            Map<String, String> reactorVersions) {
         var model = new Model();
         model.setModelVersion("4.0.0");
         model.setGroupId(coordinates.groupId());
@@ -71,7 +75,7 @@ final class OpenLModelSynthesizer {
         }
         if (descriptor.getDependencies() != null) {
             for (var dep : descriptor.getDependencies()) {
-                var maven = toMavenDependency(dep, version, names);
+                var maven = toMavenDependency(dep, version, names, reactorVersions);
                 if (maven != null) {
                     applyManagement(maven, dependencyManagement);
                     model.addDependency(maven);
@@ -83,7 +87,8 @@ final class OpenLModelSynthesizer {
 
     private static Dependency toMavenDependency(ProjectDependencyDescriptor dep,
                                                 String projectVersion,
-                                                Map<String, OpenLCoordinates> names) {
+                                                Map<String, OpenLCoordinates> names,
+                                                Map<String, String> reactorVersions) {
         var mavenArtifact = dep.getMavenArtifact();
         var explicit = OpenLPackagings.parseMavenArtifact(mavenArtifact);
         if (explicit != null) {
@@ -92,8 +97,20 @@ final class OpenLModelSynthesizer {
             // (optional is not checked there), but <optional>true</> stops downstream OpenL consumers
             // from inheriting the jar (and its transitives) through this project's installed pom. The
             // OpenL zip type stays non-optional: sibling OpenL projects must remain visible to consumers.
+            // A jar is never an OpenL reactor sibling, so it keeps the literal version from rules.xml.
             if (OpenLPackagings.JAR_DEPENDENCY_TYPE.equals(explicit.getType())) {
                 explicit.setOptional(true);
+                return explicit;
+            }
+            // When the coordinate points at an OpenL artefact that is itself in the reactor, the reactor
+            // version wins over whatever rules.xml declares — a placeholder (e.g. 000000) or a stale
+            // literal. A reactor module resolves only at its reactor version; any other version misses
+            // the reactor's exact-GAV index and falls through to the remote repositories.
+            if (reactorVersions != null) {
+                var reactorVersion = reactorVersions.get(explicit.getGroupId() + ':' + explicit.getArtifactId());
+                if (reactorVersion != null) {
+                    explicit.setVersion(reactorVersion);
+                }
             }
             return explicit;
         }

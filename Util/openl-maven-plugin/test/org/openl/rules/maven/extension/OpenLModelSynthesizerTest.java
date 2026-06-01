@@ -25,7 +25,7 @@ class OpenLModelSynthesizerTest {
         var desc = new ProjectDescriptor();
         desc.setName("Auto Rules");
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null, Map.of());
 
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("com.example.pricing", model.getGroupId());
@@ -48,7 +48,7 @@ class OpenLModelSynthesizerTest {
         anchorModel.setVersion("2.0.0");
         var anchor = new MavenProject(anchorModel);
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "2.0.0", desc, Map.of(), null, anchor);
+        var model = OpenLModelSynthesizer.synthesize(coords, "2.0.0", desc, Map.of(), null, anchor, Map.of());
 
         assertNotNull(model.getParent(),
                 "anchor must be wired as parent so the pom-less project inherits anchor's <build>");
@@ -68,7 +68,7 @@ class OpenLModelSynthesizerTest {
         dep.setMavenArtifact("com.other:domain:2.0.0");
         desc.setDependencies(List.of(dep));
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null, Map.of());
 
         assertEquals(1, model.getDependencies().size());
         var maven = model.getDependencies().get(0);
@@ -89,7 +89,7 @@ class OpenLModelSynthesizerTest {
         dep.setMavenArtifact("com.other:domain:jar:tests:2.0.0");
         desc.setDependencies(List.of(dep));
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null, Map.of());
 
         var maven = model.getDependencies().get(0);
         assertEquals("2.0.0", maven.getVersion());
@@ -108,7 +108,7 @@ class OpenLModelSynthesizerTest {
         dep.setMavenArtifact("org.apache.commons:commons-text:jar:1.13.1");
         desc.setDependencies(List.of(dep));
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null, Map.of());
 
         var maven = model.getDependencies().get(0);
         assertEquals("jar", maven.getType());
@@ -127,7 +127,7 @@ class OpenLModelSynthesizerTest {
         var domainCoords = new OpenLCoordinates("com.example", "domain");
 
         var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc,
-                Map.of("Domain", domainCoords), null, null);
+                Map.of("Domain", domainCoords), null, null, Map.of());
 
         assertEquals(1, model.getDependencies().size());
         var maven = model.getDependencies().get(0);
@@ -146,7 +146,7 @@ class OpenLModelSynthesizerTest {
         dep.setName("Missing");
         desc.setDependencies(List.of(dep));
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null, Map.of());
 
         assertNotNull(model.getDependencies());
         assertEquals(0, model.getDependencies().size());
@@ -165,7 +165,7 @@ class OpenLModelSynthesizerTest {
         var domainCoords = new OpenLCoordinates("com.example", "domain");
 
         var ex = assertThrows(IllegalArgumentException.class, () -> OpenLModelSynthesizer.synthesize(
-                coords, "1.0.0", desc, Map.of("Domain", domainCoords), null, null));
+                coords, "1.0.0", desc, Map.of("Domain", domainCoords), null, null, Map.of()));
         assertTrue(ex.getMessage().contains("com.other:domain"), "error must name the offending coordinate");
         assertTrue(ex.getMessage().contains("Domain"), "error must name the dependency so the user can locate it");
     }
@@ -181,7 +181,7 @@ class OpenLModelSynthesizerTest {
         var domainCoords = new OpenLCoordinates("com.example", "domain");
 
         var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc,
-                Map.of("Domain", domainCoords), null, null);
+                Map.of("Domain", domainCoords), null, null, Map.of());
 
         var maven = model.getDependencies().get(0);
         assertEquals("com.external", maven.getGroupId());
@@ -200,7 +200,7 @@ class OpenLModelSynthesizerTest {
         var managed = managementEntry("com.other", "domain", "2.0.0");
         var dm = Map.of("com.other:domain", managed);
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), dm, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), dm, null, Map.of());
 
         var maven = model.getDependencies().get(0);
         assertEquals("2.0.0", maven.getVersion(),
@@ -221,7 +221,7 @@ class OpenLModelSynthesizerTest {
         var dm = Map.of("com.example:domain", managed);
 
         var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc,
-                Map.of("Domain", domainCoords), dm, null);
+                Map.of("Domain", domainCoords), dm, null, Map.of());
 
         assertEquals("9.9.9", model.getDependencies().get(0).getVersion(),
                 "management applies uniformly — name-resolved deps too");
@@ -239,10 +239,86 @@ class OpenLModelSynthesizerTest {
         var other = managementEntry("com.unrelated", "thing", "5.0.0");
         var dm = Map.of("com.unrelated:thing", other);
 
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), dm, null);
+        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), dm, null, Map.of());
 
         assertEquals("1.0.0", model.getDependencies().get(0).getVersion(),
                 "without a matching management entry the version from <mavenArtifact> wins");
+    }
+
+    @Test
+    void mavenArtifactReactorSiblingTakesReactorVersion() {
+        var coords = new OpenLCoordinates("com.example", "consumer");
+        var desc = new ProjectDescriptor();
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Domain");
+        // Placeholder version in rules.xml — the GA is a reactor sibling, so the reactor version wins.
+        dep.setMavenArtifact("com.example:domain:000000");
+        desc.setDependencies(List.of(dep));
+
+        var reactor = Map.of("com.example:domain", "3.5-SNAPSHOT");
+        var model = OpenLModelSynthesizer.synthesize(coords, "3.5-SNAPSHOT", desc, Map.of(), null, null, reactor);
+
+        var maven = model.getDependencies().get(0);
+        assertEquals("com.example", maven.getGroupId());
+        assertEquals("domain", maven.getArtifactId());
+        assertEquals("zip", maven.getType());
+        assertEquals("3.5-SNAPSHOT", maven.getVersion(),
+                "a <mavenArtifact> pointing at a reactor sibling must take the reactor version, not the placeholder");
+    }
+
+    @Test
+    void mavenArtifactNonReactorKeepsLiteralVersion() {
+        var coords = new OpenLCoordinates("com.example", "consumer");
+        var desc = new ProjectDescriptor();
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Remote");
+        dep.setMavenArtifact("com.external:remote:2.0.0");
+        desc.setDependencies(List.of(dep));
+
+        // Reactor index covers a different GA — the external coordinate must keep its literal version.
+        var reactor = Map.of("com.example:domain", "3.5-SNAPSHOT");
+        var model = OpenLModelSynthesizer.synthesize(coords, "3.5-SNAPSHOT", desc, Map.of(), null, null, reactor);
+
+        assertEquals("2.0.0", model.getDependencies().get(0).getVersion(),
+                "a coordinate that is not a reactor artefact keeps the literal <mavenArtifact> version");
+    }
+
+    @Test
+    void jarMavenArtifactIgnoresReactorIndex() {
+        var coords = new OpenLCoordinates("com.example", "consumer");
+        var desc = new ProjectDescriptor();
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Lib");
+        dep.setMavenArtifact("com.example:lib:jar:1.13.1");
+        desc.setDependencies(List.of(dep));
+
+        // A jar is a bundled Java lib, never an OpenL reactor sibling — it keeps its literal version
+        // and stays optional even when its GA collides with a reactor index entry.
+        var reactor = Map.of("com.example:lib", "3.5-SNAPSHOT");
+        var model = OpenLModelSynthesizer.synthesize(coords, "3.5-SNAPSHOT", desc, Map.of(), null, null, reactor);
+
+        var maven = model.getDependencies().get(0);
+        assertEquals("1.13.1", maven.getVersion(), "jar deps keep their literal version regardless of the reactor index");
+        assertEquals("true", maven.getOptional());
+    }
+
+    @Test
+    void managementWinsOverReactorSiblingVersion() {
+        var coords = new OpenLCoordinates("com.example", "consumer");
+        var desc = new ProjectDescriptor();
+        var dep = new ProjectDependencyDescriptor();
+        dep.setName("Domain");
+        dep.setMavenArtifact("com.example:domain:000000");
+        desc.setDependencies(List.of(dep));
+
+        // The GA is both a reactor sibling and managed. <dependencyManagement> is the explicit opt-out
+        // for pinning a sibling GA to a published version, so it wins over the reactor version.
+        var reactor = Map.of("com.example:domain", "3.5-SNAPSHOT");
+        var dm = Map.of("com.example:domain", managementEntry("com.example", "domain", "9.9.9"));
+        var model = OpenLModelSynthesizer.synthesize(coords, "3.5-SNAPSHOT", desc, Map.of(), dm, null, reactor);
+
+        assertEquals("9.9.9", model.getDependencies().get(0).getVersion(),
+                "anchor <dependencyManagement> overrides even a reactor sibling's version");
     }
 
     private static Dependency managementEntry(String groupId, String artifactId, String version) {

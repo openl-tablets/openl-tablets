@@ -189,14 +189,18 @@ public final class PomlessMojo extends AbstractMojo {
     /** Removes the pass-through aggregator poms after their content has been collapsed onto the anchor. */
     private void deletePassThroughPoms(Set<Path> passThroughDirs) throws MojoExecutionException {
         for (var dir : passThroughDirs) {
-            var pom = dir.resolve("pom.xml");
-            try {
-                if (Files.deleteIfExists(pom)) {
-                    getLog().info("Deleted (pass-through) " + pom);
-                }
-            } catch (IOException e) {
-                throw new MojoExecutionException("Failed to delete pass-through pom '" + pom + "'.", e);
+            deletePom(dir.resolve("pom.xml"), "(pass-through) ");
+        }
+    }
+
+    /** Deletes a pom file when present and logs the removal. {@code label} annotates the log line. */
+    private void deletePom(Path pom, String label) throws MojoExecutionException {
+        try {
+            if (Files.deleteIfExists(pom)) {
+                getLog().info("Deleted " + label + pom);
             }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to delete '" + pom + "'.", e);
         }
     }
 
@@ -510,8 +514,7 @@ public final class PomlessMojo extends AbstractMojo {
         if (flatten || anchor.getBasedir() == null) {
             return anchorGroup;
         }
-        var dotted = dottedPath(anchor.getBasedir().toPath().toAbsolutePath().normalize(), leafFolder);
-        return dotted.isEmpty() ? anchorGroup : anchorGroup + '.' + dotted;
+        return pathDerivedGroupId(anchorGroup, anchor.getBasedir().toPath().toAbsolutePath().normalize(), leafFolder);
     }
 
     /**
@@ -561,8 +564,7 @@ public final class PomlessMojo extends AbstractMojo {
         if (anchorBasedir == null) {
             return false;
         }
-        var dotted = dottedPath(anchorBasedir.toPath().toAbsolutePath().normalize(), leafFolder);
-        var path = dotted.isEmpty() ? anchorGroup : anchorGroup + '.' + dotted;
+        var path = pathDerivedGroupId(anchorGroup, anchorBasedir.toPath().toAbsolutePath().normalize(), leafFolder);
         return path.equals(origGroupId);
     }
 
@@ -683,9 +685,7 @@ public final class PomlessMojo extends AbstractMojo {
             if (anchorGroup.equals(orig)) {
                 matchesFlat++;
             }
-            var dotted = dottedPath(anchorDir, planDir(leaf));
-            var pathGroup = dotted.isEmpty() ? anchorGroup : anchorGroup + '.' + dotted;
-            if (pathGroup.equals(orig)) {
+            if (pathDerivedGroupId(anchorGroup, anchorDir, planDir(leaf)).equals(orig)) {
                 matchesPath++;
             }
         }
@@ -707,6 +707,16 @@ public final class PomlessMojo extends AbstractMojo {
             return "";
         }
         return rel.replace(java.io.File.separatorChar, '.').replace('/', '.');
+    }
+
+    /**
+     * The path-derived groupId {@code OpenLCoordinates.of} would produce for a leaf at {@code leafFolder}
+     * anchored at {@code anchorDir} with {@code flattenGroupId=false}: {@code anchorGroup} plus the dotted
+     * intermediate path, or {@code anchorGroup} verbatim when the leaf sits directly under the anchor.
+     */
+    private static String pathDerivedGroupId(String anchorGroup, Path anchorDir, Path leafFolder) {
+        var dotted = dottedPath(anchorDir, leafFolder);
+        return dotted.isEmpty() ? anchorGroup : anchorGroup + '.' + dotted;
     }
 
     private static void recordThreshold(PomlessConverter.Plan plan, Map<Path, MavenProject> reactorByDir,
@@ -968,15 +978,8 @@ public final class PomlessMojo extends AbstractMojo {
     private void deletePoms(List<PomlessConverter.Plan> convertible) throws MojoExecutionException {
         for (var plan : convertible) {
             var pom = plan.pomFile();
-            if (pom == null) {
-                continue;
-            }
-            try {
-                if (Files.deleteIfExists(pom)) {
-                    getLog().info("Deleted " + pom);
-                }
-            } catch (IOException e) {
-                throw new MojoExecutionException("Failed to delete '" + pom + "'.", e);
+            if (pom != null) {
+                deletePom(pom, "");
             }
         }
         getLog().info("Converted " + convertible.size() + " project(s) to pom-less. Review the edited poms' diff.");
