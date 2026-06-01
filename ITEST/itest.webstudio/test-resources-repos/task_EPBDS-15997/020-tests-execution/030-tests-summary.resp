@@ -23,7 +23,7 @@ Content-Type: application/json
           "parameters": "*",
           "errors": [
             {
-              "id": 88,
+              "id": "*",
               "summary": "java.lang.UnsupportedOperationException: You are trying to run openl code with a compile error in it\r\nOpenl Code Fragment:\r\n=======================\r\n $LimitIndex * MaxLimit выв\r\n               ^^^^^^^^^^^^\r\n=======================\r\n    at EPBDS-15997/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&cell=G22&start=16&end=27\r\n",
               "severity": "ERROR"
             }

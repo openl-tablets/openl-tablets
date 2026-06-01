@@ -40,7 +40,7 @@ Content-Type: application/json
           ],
           "errors": [
             {
-              "id": 93,
+              "id": "*",
               "summary": "Incorrect value state",
               "severity": "ERROR"
             }
