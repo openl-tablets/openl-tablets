@@ -114,7 +114,8 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             }
             stagings.add(staging);
             for (var s : staging.staged()) {
-                reactorVersions.putIfAbsent(ga(s.coordinates().groupId(), s.coordinates().artifactId()),
+                reactorVersions.putIfAbsent(
+                        OpenLPackagings.ga(s.coordinates().groupId(), s.coordinates().artifactId()),
                         staging.version());
             }
         }
@@ -433,7 +434,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         }
         var map = new HashMap<String, Dependency>(dm.getDependencies().size());
         for (var d : dm.getDependencies()) {
-            map.put(ga(d.getGroupId(), d.getArtifactId()), d);
+            map.put(OpenLPackagings.ga(d.getGroupId(), d.getArtifactId()), d);
         }
         return map;
     }
@@ -522,10 +523,6 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
 
     private static String gav(String groupId, String artifactId, String version) {
         return groupId + ':' + artifactId + ':' + version;
-    }
-
-    private static String ga(String groupId, String artifactId) {
-        return groupId + ':' + artifactId;
     }
 
     private record Staged(Path folder, OpenLCoordinates coordinates, ProjectDescriptor descriptor) {

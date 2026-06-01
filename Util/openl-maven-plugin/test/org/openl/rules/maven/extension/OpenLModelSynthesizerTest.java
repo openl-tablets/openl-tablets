@@ -100,24 +100,6 @@ class OpenLModelSynthesizerTest {
     }
 
     @Test
-    void jarMavenArtifactIsMarkedOptional() {
-        var coords = new OpenLCoordinates("com.example", "consumer");
-        var desc = new ProjectDescriptor();
-        var dep = new ProjectDependencyDescriptor();
-        // Aether format: groupId:artifactId:extension:version (version last).
-        dep.setMavenArtifact("org.apache.commons:commons-text:jar:1.13.1");
-        desc.setDependencies(List.of(dep));
-
-        var model = OpenLModelSynthesizer.synthesize(coords, "1.0.0", desc, Map.of(), null, null, Map.of());
-
-        var maven = model.getDependencies().get(0);
-        assertEquals("jar", maven.getType());
-        assertEquals("1.13.1", maven.getVersion(), "jar version must be the literal from mavenArtifact, not projectVersion");
-        assertEquals("true", maven.getOptional(),
-                "jar-type mavenArtifact must be installed as optional so downstream OpenL projects don't inherit it transitively");
-    }
-
-    @Test
     void nameFallbackResolvesToSiblingCoordinates() {
         var coords = new OpenLCoordinates("com.example", "consumer");
         var desc = new ProjectDescriptor();

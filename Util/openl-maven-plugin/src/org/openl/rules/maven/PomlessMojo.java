@@ -201,7 +201,7 @@ public final class PomlessMojo extends AbstractMojo {
      * The file is rewritten via a JAXB round-trip, so comments and whitespace are not preserved.
      * Already-declared coordinates are skipped (idempotent).
      */
-    private void writeRulesXmlDeps(PomlessConverter.Plan plan) throws MojoExecutionException {
+    void writeRulesXmlDeps(PomlessConverter.Plan plan) throws MojoExecutionException {
         if (plan.rulesXmlDeps().isEmpty()) {
             return;
         }
@@ -220,40 +220,31 @@ public final class PomlessMojo extends AbstractMojo {
                 declaredCoords.add(d.getMavenArtifact());
             }
         }
-
         var merged = 0;
         var appended = 0;
         for (var dep : plan.rulesXmlDeps()) {
             var coords = mavenArtifactCoords(dep);
-            if (declaredCoords.contains(coords)) {
-                continue; // already declared
+            if (!declaredCoords.add(coords)) {
+                continue; // already declared in the file or earlier in this batch
             }
-            var isSibling = OpenLPackagings.ZIP_DEPENDENCY_TYPE.equals(dep.getType());
-            if (isSibling) {
-                var siblingName = lookupSiblingName(dep);
-                var match = findMatchingNameEntry(existing, siblingName);
+            var newDep = new ProjectDependencyDescriptor();
+            newDep.setMavenArtifact(coords);
+            if (OpenLPackagings.ZIP_DEPENDENCY_TYPE.equals(dep.getType())) {
+                // OpenL sibling: reuse the existing <name> entry when present, else append a fresh one with the
+                // sibling's logical <name> (falling back to the artifactId when it isn't in the reactor).
+                var name = lookupSiblingName(dep);
+                var match = findMatchingNameEntry(existing, name);
                 if (match != null) {
                     match.setMavenArtifact(coords);
                     merged++;
-                } else {
-                    var newDep = new ProjectDependencyDescriptor();
-                    // Keep the sibling's logical <name> for reactor name-resolution; fall back to artifactId
-                    // when the sibling isn't in the reactor.
-                    newDep.setName(siblingName != null ? siblingName : dep.getArtifactId());
-                    newDep.setMavenArtifact(coords);
-                    existing.add(newDep);
-                    appended++;
+                    continue;
                 }
-            } else {
-                // Bare jar — a name-less <mavenArtifact> is treated as a plain jar on the classpath.
-                var newDep = new ProjectDependencyDescriptor();
-                newDep.setMavenArtifact(coords);
-                existing.add(newDep);
-                appended++;
+                newDep.setName(name != null ? name : dep.getArtifactId());
             }
-            declaredCoords.add(coords);
+            // else: bare jar — a name-less <mavenArtifact> is treated as a plain jar on the classpath.
+            existing.add(newDep);
+            appended++;
         }
-
         if (merged == 0 && appended == 0) {
             return;
         }
@@ -264,7 +255,8 @@ public final class PomlessMojo extends AbstractMojo {
         }
         var msg = new StringBuilder("Updated ").append(rulesXml);
         if (merged > 0) {
-            msg.append(" — merged ").append(merged).append(" <mavenArtifact> into existing OpenL <name> entry(ies)");
+            msg.append(" — merged ").append(merged)
+                    .append(" <mavenArtifact> into existing OpenL <name> entry(ies)");
         }
         if (appended > 0) {
             msg.append(merged > 0 ? "," : " —").append(" appended ").append(appended).append(" new entry(ies)");
@@ -435,7 +427,7 @@ public final class PomlessMojo extends AbstractMojo {
      * ancestor that would preserve the original groupId — the sub-anchor the user is asked to confirm. Leaves
      * the heuristic already preserves, and pass-throughs that wouldn't help, are not proposed.
      */
-    private Map<MavenProject, List<PomlessConverter.Plan>> proposeSubAnchors(
+    static Map<MavenProject, List<PomlessConverter.Plan>> proposeSubAnchors(
             Map<PomlessConverter.Plan, MavenProject> leafToCollapseAnchor,
             Map<Path, MavenProject> reactorByDir,
             Set<Path> passThroughDirs,
@@ -482,14 +474,16 @@ public final class PomlessMojo extends AbstractMojo {
      * Returns the highest pass-through ancestor below {@code leaf}'s collapse anchor whose pom would preserve
      * the leaf's original groupId, or {@code null} when none exists.
      */
-    private static MavenProject findPreservingSubAnchor(PomlessConverter.Plan leaf,
-                                                        MavenProject collapseAnchor,
-                                                        Map<Path, MavenProject> reactorByDir,
-                                                        Set<Path> passThroughDirs,
-                                                        Path anchorDir) {
+    static MavenProject findPreservingSubAnchor(PomlessConverter.Plan leaf,
+                                                MavenProject collapseAnchor,
+                                                Map<Path, MavenProject> reactorByDir,
+                                                Set<Path> passThroughDirs,
+                                                Path anchorDir) {
         var collapseDir = collapseAnchor.getBasedir().toPath().toAbsolutePath().normalize();
         MavenProject highest = null;
-        for (var dir = planDir(leaf).getParent(); dir != null && !dir.equals(collapseDir.getParent()); dir = dir.getParent()) {
+        for (var dir = planDir(leaf).getParent();
+                dir != null && !dir.equals(collapseDir.getParent());
+                dir = dir.getParent()) {
             if (dir.equals(collapseDir)) {
                 break; // sub-anchor must be strictly below the collapse anchor
             }
@@ -831,8 +825,8 @@ public final class PomlessMojo extends AbstractMojo {
                               List<PomlessConverter.Plan> convertibles, boolean flattenGroupId) {
     }
 
-    private static void ensurePluginConfigured(Model model, Integer maxThreshold, String pluginVersion,
-                                               boolean flattenGroupId) {
+    static void ensurePluginConfigured(Model model, Integer maxThreshold, String pluginVersion,
+                                       boolean flattenGroupId) {
         var build = model.getBuild();
         if (build == null) {
             build = new Build();
@@ -878,7 +872,7 @@ public final class PomlessMojo extends AbstractMojo {
         plugin.setConfiguration(config);
     }
 
-    private static void hoistDependencies(Model model, List<Dependency> hoist) {
+    static void hoistDependencies(Model model, List<Dependency> hoist) {
         if (hoist.isEmpty()) {
             return;
         }
@@ -894,7 +888,7 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /** Removes {@code <module>} entries that resolve (against {@code baseDir}) to a converted project. */
-    private static boolean removeModules(Model model, Path baseDir, Set<Path> convertedDirs) {
+    static boolean removeModules(Model model, Path baseDir, Set<Path> convertedDirs) {
         var modules = model.getModules();
         if (modules == null || modules.isEmpty()) {
             return false;
@@ -981,7 +975,7 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /** Union of every convertible project's hoistable deps, de-duplicated by full coordinates. */
-    private static List<Dependency> unionHoistDependencies(List<PomlessConverter.Plan> convertible) {
+    static List<Dependency> unionHoistDependencies(List<PomlessConverter.Plan> convertible) {
         var byKey = new LinkedHashMap<String, Dependency>();
         for (var plan : convertible) {
             for (var dep : plan.hoistDeps()) {
@@ -997,7 +991,7 @@ public final class PomlessMojo extends AbstractMojo {
                 + ':' + (dep.getScope() == null ? "" : dep.getScope());
     }
 
-    private static String renderDependencies(List<Dependency> deps) {
+    static String renderDependencies(List<Dependency> deps) {
         var sb = new StringBuilder();
         for (var dep : deps) {
             sb.append("    <dependency>\n");

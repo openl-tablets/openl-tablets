@@ -11,6 +11,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.project.MavenProject;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.model.RulesDeploy;
 
@@ -97,6 +98,11 @@ public final class OpenLPackagings {
         return OPENL_PACKAGING.equals(packaging) || OPENL_JAR_PACKAGING.equals(packaging);
     }
 
+    /** The {@code groupId:artifactId} key used to index OpenL artefacts across the reactor. */
+    public static String ga(String groupId, String artifactId) {
+        return groupId + ':' + artifactId;
+    }
+
     /**
      * Maps every OpenL artefact in {@code projects} to its version, keyed by {@code groupId:artifactId} (first
      * occurrence wins). The returned {@link HashMap} is mutable so callers can fold in further entries.
@@ -105,7 +111,7 @@ public final class OpenLPackagings {
         var map = new HashMap<String, String>();
         for (var p : projects) {
             if (isOpenL(p.getPackaging())) {
-                map.putIfAbsent(p.getGroupId() + ':' + p.getArtifactId(), p.getVersion());
+                map.putIfAbsent(ga(p.getGroupId(), p.getArtifactId()), p.getVersion());
             }
         }
         return map;
@@ -127,7 +133,7 @@ public final class OpenLPackagings {
      * <p>
      * The returned {@link Dependency} has no scope/optional flag — callers set those.
      */
-    public static Dependency parseMavenArtifact(String coordinates) {
+    public static @Nullable Dependency parseMavenArtifact(@Nullable String coordinates) {
         if (coordinates == null || coordinates.isBlank()) {
             return null;
         }

@@ -2,11 +2,13 @@ package org.openl.rules.maven;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
@@ -20,14 +22,20 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
- * Unit coverage for {@link PomlessMojo#collapseAnchorOf} (the rule that decides which pom receives the
- * {@code openl-maven-plugin} declaration) and {@link PomlessMojo#isPassThrough} (which marks an
- * aggregator as empty scaffolding that the migrator can delete on collapse).
+ * Unit coverage for {@link PomlessMojo}'s pure planning logic: the anchor-resolution rules
+ * ({@link PomlessMojo#collapseAnchorOf}, {@link PomlessMojo#isPassThrough},
+ * {@link PomlessMojo#inferFlattenGroupId}, {@link PomlessMojo#proposeSubAnchors}), the coordinate form
+ * ({@link PomlessMojo#mavenArtifactCoords}), the {@code rules.xml} dependency merge
+ * ({@link PomlessMojo#writeRulesXmlDeps}), and the anchor-pom edits
+ * ({@link PomlessMojo#ensurePluginConfigured}, {@link PomlessMojo#removeModules}).
  */
 class PomlessMojoTest {
 
@@ -307,6 +315,13 @@ class PomlessMojoTest {
                 PomlessMojo.mavenArtifactCoords(dep("com.example", "rules", "1.0.0", "zip", "variant")));
     }
 
+    @Test
+    void coordsForNullTypeDefaultsToJar() {
+        assertEquals("com.example:lib:jar:1.0.0",
+                PomlessMojo.mavenArtifactCoords(dep("com.example", "lib", "1.0.0", null, null)),
+                "a dependency with no <type> is treated as a plain jar (Maven's default)");
+    }
+
     // ---- findMatchingNameEntry -----------------------------------------------------------------
     // Sibling-name merge: the migrator looks up the sibling reactor project's logical <name> (from its
     // rules.xml) and feeds that into findMatchingNameEntry — NOT the Maven artifactId. The match is by
@@ -371,5 +386,245 @@ class PomlessMojoTest {
         dm.addDependency(dep);
         model.setDependencyManagement(dm);
         assertFalse(PomlessMojo.isPassThrough(model));
+    }
+
+    // ---- writeRulesXmlDeps ----------------------------------------------------------------------
+
+    @Test
+    void writeRulesXmlDepsAppendsFreshSiblingAndBareJar(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve(ProjectDescriptor.FILE_NAME), "<project><name>consumer</name></project>");
+        // An OpenL sibling (zip) absent from the reactor and a packaged jar — neither has a matching <name>
+        // entry, so both are appended: the sibling with its artifactId as <name>, the jar name-less.
+        var plan = new PomlessConverter.Plan("consumer", "g", dir.resolve("pom.xml"), true,
+                List.of(dep("com.example", "domain", "1.0.0", "zip", null),
+                        dep("org.apache.commons", "commons-text", "1.15.0", "jar", null)),
+                List.of(), List.of(), null);
+        var mojo = new PomlessMojo();
+        setField(mojo, "reactorProjects", List.<MavenProject>of());
+
+        mojo.writeRulesXmlDeps(plan);
+
+        var xml = Files.readString(dir.resolve(ProjectDescriptor.FILE_NAME));
+        assertTrue(xml.contains("<name>domain</name>"),
+                "an OpenL sibling absent from the reactor is appended with its artifactId as <name>");
+        assertTrue(xml.contains("<mavenArtifact>com.example:domain:1.0.0</mavenArtifact>"));
+        assertTrue(xml.contains("<mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>"),
+                "a packaged jar is appended as a name-less <mavenArtifact>");
+    }
+
+    // ---- proposeSubAnchors / findPreservingSubAnchor --------------------------------------------
+    // When collapsing pass-throughs would shift a leaf's installed groupId, the migrator proposes promoting
+    // the highest pass-through ancestor that preserves the original groupId to a sub-anchor.
+
+    @Test
+    void proposesSubAnchorWhenCollapseWouldShiftGroupId() {
+        var root = anchorAt("com.example", Path.of("/repo"));
+        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
+        var leaf = leafPlan("com.example.lookups", Path.of("/repo/lookups/colombia/leaf"));
+        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+
+        var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root), reactor,
+                Set.of(Path.of("/repo/lookups")), Path.of("/repo"));
+
+        assertEquals(1, proposals.size());
+        assertSame(lookups, proposals.keySet().iterator().next(),
+                "the pass-through that preserves the leaf's original groupId is proposed as a sub-anchor");
+        assertEquals(List.of(leaf), proposals.get(lookups));
+    }
+
+    @Test
+    void noProposalWhenCollapseAnchorAlreadyPreservesGroupId() {
+        // The leaf's original groupId already equals the path-derived form the collapse anchor would install.
+        var root = anchorAt("com.example", Path.of("/repo"));
+        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
+        var leaf = leafPlan("com.example.lookups.colombia", Path.of("/repo/lookups/colombia/leaf"));
+        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+
+        var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root), reactor,
+                Set.of(Path.of("/repo/lookups")), Path.of("/repo"));
+
+        assertTrue(proposals.isEmpty(), "no conflict — the collapse anchor already installs the original groupId");
+    }
+
+    @Test
+    void noProposalWhenNoPassThroughPreservesGroupId() {
+        var root = anchorAt("com.example", Path.of("/repo"));
+        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
+        var leaf = leafPlan("com.unrelated.group", Path.of("/repo/lookups/colombia/leaf"));
+        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+
+        var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root), reactor,
+                Set.of(Path.of("/repo/lookups")), Path.of("/repo"));
+
+        assertTrue(proposals.isEmpty(), "no pass-through ancestor can preserve an unrelated groupId");
+    }
+
+    @Test
+    void noProposalForLeafWithoutGroupId() {
+        var root = anchorAt("com.example", Path.of("/repo"));
+        var leaf = leafPlan(null, Path.of("/repo/leaf"));
+
+        var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root),
+                Map.of(Path.of("/repo"), root), Set.of(), Path.of("/repo"));
+
+        assertTrue(proposals.isEmpty());
+    }
+
+    @Test
+    void findPreservingSubAnchorReturnsHighestPreservingAncestor() {
+        // Both pass-throughs share the leaf's groupId; the highest (nearest the collapse anchor) wins.
+        var root = anchorAt("com.example", Path.of("/repo"));
+        var outer = anchorAt("com.acme", Path.of("/repo/outer"));
+        var inner = anchorAt("com.acme", Path.of("/repo/outer/inner"));
+        var leaf = leafPlan("com.acme", Path.of("/repo/outer/inner/leaf"));
+        var reactor = Map.of(
+                Path.of("/repo"), root,
+                Path.of("/repo/outer"), outer,
+                Path.of("/repo/outer/inner"), inner);
+        var passThroughs = Set.of(Path.of("/repo/outer"), Path.of("/repo/outer/inner"));
+
+        var found = PomlessMojo.findPreservingSubAnchor(leaf, root, reactor, passThroughs, Path.of("/repo"));
+
+        assertSame(outer, found, "the highest pass-through ancestor below the collapse anchor wins");
+    }
+
+    @Test
+    void findPreservingSubAnchorReturnsNullWhenNoneArePassThroughs() {
+        var root = anchorAt("com.example", Path.of("/repo"));
+        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
+        var leaf = leafPlan("com.example.lookups", Path.of("/repo/lookups/colombia/leaf"));
+        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+
+        // /repo/lookups would preserve, but it isn't flagged as a pass-through → not a candidate.
+        var found = PomlessMojo.findPreservingSubAnchor(leaf, root, reactor, Set.of(), Path.of("/repo"));
+
+        assertNull(found);
+    }
+
+    // ---- ensurePluginConfigured -----------------------------------------------------------------
+
+    @Test
+    void addsOpenLPluginWithExtensionsVersionThresholdAndFlatten() {
+        var model = new Model();
+
+        PomlessMojo.ensurePluginConfigured(model, 7, "6.1.0", true);
+
+        var plugin = openLPluginOf(model);
+        assertNotNull(plugin, "the openl-maven-plugin must be declared on the anchor");
+        assertTrue(plugin.isExtensions());
+        assertEquals("6.1.0", plugin.getVersion());
+        assertEquals("7", configValue(plugin, PackageMojo.DEPENDENCIES_THRESHOLD_PARAM));
+        assertEquals("true", configValue(plugin, PrepareRepositoryPomMojo.FLATTEN_GROUP_ID_PARAM));
+    }
+
+    @Test
+    void keepsExplicitPluginVersionAndOmitsOptionalConfig() {
+        var model = new Model();
+        var declared = new Plugin();
+        declared.setGroupId(OpenLPackagings.PLUGIN_GROUP_ID);
+        declared.setArtifactId(OpenLPackagings.PLUGIN_ARTIFACT_ID);
+        declared.setVersion("5.0.0");
+        var build = new Build();
+        build.addPlugin(declared);
+        model.setBuild(build);
+
+        PomlessMojo.ensurePluginConfigured(model, null, "6.1.0", false);
+
+        var plugin = openLPluginOf(model);
+        assertEquals("5.0.0", plugin.getVersion(), "an explicit plugin version is never overridden");
+        assertNull(plugin.getConfiguration(), "no threshold and no flatten → no <configuration> added");
+    }
+
+    // ---- removeModules --------------------------------------------------------------------------
+
+    @Test
+    void removesModulesResolvingToConvertedDirs() {
+        var model = new Model();
+        model.addModule("leaf-a");
+        model.addModule("leaf-b");
+
+        var changed = PomlessMojo.removeModules(model, Path.of("/repo"), Set.of(Path.of("/repo/leaf-a")));
+
+        assertTrue(changed);
+        assertEquals(List.of("leaf-b"), model.getModules());
+    }
+
+    @Test
+    void removeModulesReturnsFalseWhenNothingResolves() {
+        var model = new Model();
+        model.addModule("leaf-a");
+
+        assertFalse(PomlessMojo.removeModules(model, Path.of("/repo"), Set.of(Path.of("/repo/other"))));
+        assertEquals(List.of("leaf-a"), model.getModules());
+    }
+
+    @Test
+    void removeModulesReturnsFalseWhenNoModules() {
+        assertFalse(PomlessMojo.removeModules(new Model(), Path.of("/repo"), Set.of(Path.of("/repo/x"))));
+    }
+
+    // ---- unionHoistDependencies / renderDependencies --------------------------------------------
+
+    @Test
+    void unionDedupesHoistDepsAcrossPlans() {
+        var shared = dep("com.eisgroup", "message-bundle", "1.0", "tile", null);
+        var unique = dep("com.eisgroup", "service-api", "2.0", "jar", null);
+
+        var union = PomlessMojo.unionHoistDependencies(List.of(planWithHoist(shared), planWithHoist(shared, unique)));
+
+        assertEquals(2, union.size(), "deps shared across plans are de-duplicated by coordinates");
+    }
+
+    @Test
+    void rendersDependencyXmlOmittingDefaultJarTypeAndNulls() {
+        var jar = dep("com.example", "lib", "1.0", "jar", null);
+        jar.setScope("provided");
+
+        var xml = PomlessMojo.renderDependencies(List.of(jar));
+
+        assertTrue(xml.contains("<groupId>com.example</groupId>"));
+        assertTrue(xml.contains("<version>1.0</version>"));
+        assertTrue(xml.contains("<scope>provided</scope>"));
+        assertFalse(xml.contains("<type>"), "the default jar type is omitted");
+        assertFalse(xml.contains("<classifier>"), "no classifier was set");
+    }
+
+    @Test
+    void rendersNonJarTypeAndClassifier() {
+        var tile = dep("com.eisgroup", "bundle", "1.0", "tile", "shaded");
+
+        var xml = PomlessMojo.renderDependencies(List.of(tile));
+
+        assertTrue(xml.contains("<type>tile</type>"), "a non-jar type is rendered");
+        assertTrue(xml.contains("<classifier>shaded</classifier>"));
+    }
+
+    private static Plugin openLPluginOf(Model model) {
+        if (model.getBuild() == null) {
+            return null;
+        }
+        for (var p : model.getBuild().getPlugins()) {
+            if (OpenLPackagings.isOpenLPlugin(p.getGroupId(), p.getArtifactId())) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    private static String configValue(Plugin plugin, String name) {
+        var dom = (Xpp3Dom) plugin.getConfiguration();
+        var child = dom == null ? null : dom.getChild(name);
+        return child == null ? null : child.getValue();
+    }
+
+    private static PomlessConverter.Plan planWithHoist(Dependency... hoist) {
+        return new PomlessConverter.Plan("p", "g", Path.of("/repo/p/pom.xml"), true,
+                List.of(), List.of(hoist), List.of(), null);
+    }
+
+    private static void setField(Object target, String name, Object value) throws ReflectiveOperationException {
+        var field = PomlessMojo.class.getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 }
