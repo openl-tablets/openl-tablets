@@ -3,6 +3,7 @@ package org.openl.rules.project.model;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +32,29 @@ class ProjectDescriptorTest {
         ProjectDescriptor pd = new ProjectDescriptor();
         pd.setProjectFolder(Path.of("test/rules/test xls"));
         assertEquals("test%20xls", pd.getRelativeUri());
+    }
+
+    @Test
+    void equalsAndHashCodeAreNullNameSafe() {
+        // 'name' is nullable until expand() fills it - equals()/hashCode() must not throw on a null name
+        ProjectDescriptor nullName1 = new ProjectDescriptor();
+        ProjectDescriptor nullName2 = new ProjectDescriptor();
+        ProjectDescriptor named = new ProjectDescriptor();
+        named.setName("project");
+
+        assertEquals(nullName1, nullName1);
+        assertEquals(nullName1, nullName2);
+        assertEquals(nullName1.hashCode(), nullName2.hashCode());
+
+        assertNotEquals(nullName1, named);
+        assertNotEquals(named, nullName1);
+        assertNotEquals(nullName1, "project");
+
+        // a null-name descriptor must survive hash-based collections (relies on both equals() and hashCode())
+        Set<ProjectDescriptor> descriptors = new HashSet<>();
+        descriptors.add(nullName1);
+        assertTrue(descriptors.contains(nullName2));
+        assertFalse(descriptors.contains(named));
     }
 
     @Test

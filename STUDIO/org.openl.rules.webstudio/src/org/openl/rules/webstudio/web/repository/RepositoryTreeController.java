@@ -836,7 +836,9 @@ public class RepositoryTreeController {
                 }
                 if (fileData != null) {
                     final String name = fileData.getName();
-                    final String rootName = projectDescriptor.getName();
+                    // rules.xml may omit the name (it then defaults to the folder name) - use the physical name
+                    String rootName = Objects.requireNonNullElseGet(projectDescriptor.getName(),
+                            selectedProject::getName);
                     String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
                     if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
                         projectDescriptor.setOpenapi(null);

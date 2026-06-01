@@ -1001,10 +1001,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return false;
     }
 
-    private String validateUploadedFiles(ProjectFile zipFile,
-                                         PathFilter zipFilter,
-                                         ProjectDescriptor oldProjectDescriptor,
-                                         Charset charset) throws IOException {
+    // Package-private for testing
+    String validateUploadedFiles(ProjectFile zipFile,
+                                 PathFilter zipFilter,
+                                 ProjectDescriptor oldProjectDescriptor,
+                                 Charset charset) throws IOException {
         ProjectDescriptor newProjectDescriptor;
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
@@ -1012,8 +1013,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (ProjectDescriptionException e) {
             return e.getMessage();
         }
-        if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
-            return validateProjectName(newProjectDescriptor.getName());
+        // A blank name in the uploaded rules.xml is legal - it defaults to the folder name, so it is not a rename
+        String newName = newProjectDescriptor == null ? null : newProjectDescriptor.getName();
+        if (StringUtils.isNotBlank(newName) && !newName.equals(oldProjectDescriptor.getName())) {
+            return validateProjectName(newName);
         }
 
         return null;

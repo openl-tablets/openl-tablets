@@ -17,6 +17,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Resolves specified OpenL project revision's dependencies.
@@ -82,9 +83,10 @@ public class ProjectDescriptorArtefactResolver {
                     e.getMessage(),
                     e);
         }
-        if (pd != null) {
+        if (pd != null && StringUtils.isNotBlank(pd.getName())) {
             return pd.getName();
         }
+        // rules.xml is absent or does not declare a name - fall back to the physical project folder name
         String actualPath = project.getRealPath();
         return actualPath.substring(actualPath.lastIndexOf('/') + 1);
     }

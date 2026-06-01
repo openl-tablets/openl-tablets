@@ -275,7 +275,7 @@ public class ProjectDescriptor {
             return true;
         if (!(o instanceof ProjectDescriptor that))
             return false;
-        return name.equals(that.name);
+        return Objects.equals(name, that.name);
     }
 
     @Override
