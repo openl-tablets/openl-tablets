@@ -33,28 +33,19 @@ import org.openl.rules.project.model.ProjectDescriptor;
 /**
  * Converts classic (pom-ful) OpenL projects in the reactor to the pom-less form.
  * <p>
- * An <b>aggregator</b> goal — runs once from the project it's invoked on (the anchor), scanning every
- * reactor OpenL project ({@code openl}/{@code openl-jar} packaging) under the anchor's basedir. Each is
- * classified by {@link PomlessConverter}:
- * <ul>
- *     <li><b>Convertible</b> — the raw {@code pom.xml} adds nothing the pom-less participant + anchor
- *         inheritance can't reproduce.</li>
- *     <li><b>Blocked</b> — per-project plugin configuration (other than {@code dependenciesThreshold} /
- *         deprecated {@code deploymentPackage}), {@code <executions>}, extra plugins, {@code <profiles>},
- *         custom resources, etc. Left untouched and reported.</li>
- * </ul>
- * When applied (not a dry run) the goal:
- * <ol>
- *     <li>edits the <b>anchor</b> pom — ensures {@code openl-maven-plugin} is declared in
- *         {@code <build><plugins>} with {@code <extensions>true</extensions>}, sets its
- *         {@code <dependenciesThreshold>} to the max across all projects, and adds the union of the
- *         convertible projects' non-OpenL dependencies to {@code <dependencies>};</li>
- *     <li>removes the converted modules from every aggregator {@code <modules>} list;</li>
- *     <li>deletes the convertible projects' {@code pom.xml}.</li>
- * </ol>
- * Pom edits go through {@code MavenXpp3Writer}, which re-serialises the model — comments and exact
- * formatting in the edited poms are not preserved, so review the diff before committing. Dry-run by
- * default; nothing changes until {@code -Dopenl.pomless.dryRun=false}.
+ * An aggregator goal: runs once from the anchor it's invoked on, scanning every reactor OpenL project
+ * under the anchor's basedir. {@link PomlessConverter} classifies each as <b>convertible</b> (its
+ * {@code pom.xml} adds nothing pom-less inheritance can't reproduce) or <b>blocked</b> (per-project
+ * plugin config, {@code <executions>}, extra plugins, {@code <profiles>}, custom resources — left
+ * untouched and reported).
+ * <p>
+ * When applied, the goal edits each anchor pom (declares {@code openl-maven-plugin} with
+ * {@code <extensions>true</extensions>}, sets {@code <dependenciesThreshold>} to the max across its
+ * projects, hoists the convertibles' non-OpenL dependencies), prunes converted modules from every
+ * {@code <modules>} list, and deletes the convertible poms.
+ * <p>
+ * Edited poms are re-serialised, so their comments and formatting are not preserved — review the diff.
+ * Dry-run by default; set {@code -Dopenl.pomless.dryRun=false} to apply.
  *
  * @author Yury Molchan
  */
@@ -96,10 +87,6 @@ public final class PomlessMojo extends AbstractMojo {
             (plan.deletable() ? convertible : blocked).add(plan);
         }
 
-        // Build the full migration plan: each convertible's collapse-anchor (the nearest non-pass-through
-        // ancestor, or ${project}) + the pass-through aggregator poms to delete in the same pass. The
-        // openl-maven-plugin declaration, threshold, hoisted deps, and <flattenGroupId> all land on the
-        // surviving anchor pom.
         var plan = planMigration(convertible, blocked);
         report(convertible, blocked, plan);
 
@@ -116,10 +103,9 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * The {@code openl-maven-plugin} version the converted projects already resolve to (from their effective
-     * model — declared or inherited). Used to pin the version when the migrator has to add the plugin to an
-     * anchor that didn't declare it, so the synthesised pom-less projects bind to the same plugin version
-     * rather than letting Maven resolve LATEST. Returns {@code null} when none of the members expose one.
+     * The {@code openl-maven-plugin} version the members already resolve to (declared or inherited). Used to
+     * pin the plugin when the migrator adds it to an anchor that didn't declare one, so the synthesised
+     * pom-less projects bind to that version instead of LATEST. Returns {@code null} when no member exposes one.
      */
     private static String openLPluginVersion(List<MavenProject> members) {
         for (var member : members) {
@@ -168,8 +154,8 @@ public final class PomlessMojo extends AbstractMojo {
                 convertedDirs.add(planDir(converted));
             }
         }
-        // Surviving anchors filter both the converted OpenL leaves AND the collapsed pass-through aggregators
-        // out of their <modules>; pass-through poms themselves are then deleted alongside the leaf poms.
+        // Surviving anchors prune both converted leaves and collapsed pass-throughs from their <modules>;
+        // the pass-through poms are then deleted alongside the leaf poms.
         var deletedDirs = new HashSet<>(convertedDirs);
         deletedDirs.addAll(plan.passThroughDirs());
 
@@ -205,22 +191,15 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Updates the project's {@code rules.xml} with the deps the classic pom carried. Two flavours:
-     * <ul>
-     *   <li><b>Packaged jars</b> ({@code <type>} default or {@code jar}) — appended as bare
-     *       {@code <dependency><mavenArtifact>g:a:jar[:classifier]:v</mavenArtifact></dependency>} entries
-     *       (no {@code <name>}/{@code <autoIncluded>}; the runtime treats a name-less {@code <mavenArtifact>}
-     *       as a plain jar on the classpath, and the synthesiser marks it {@code <optional>true</>}).</li>
-     *   <li><b>OpenL siblings</b> ({@code <type>zip</type>}) — looked up by GAV in the reactor; the
-     *       sibling's <i>logical</i> {@code <name>} (from its own {@code rules.xml}, e.g. "DocGen Mapping
-     *       Common") is then matched against the consumer's existing {@code <dependency><name>…</></>}
-     *       entries. On a match, {@code <mavenArtifact>g:a:v</>} (3-seg Aether form, default extension zip)
-     *       is set on that entry so the GAV is explicit alongside the OpenL {@code <name>}. Otherwise a
-     *       fresh {@code <dependency>} with both {@code <name>} and {@code <mavenArtifact>} is appended.</li>
-     * </ul>
-     * The file is read and rewritten via {@link ProjectDescriptor#read}/{@link ProjectDescriptor#toBytes}
-     * (JAXB round-trip) — comments and whitespace are not preserved, but the structure and field order are
-     * stable. Already-declared coordinates are skipped (idempotent).
+     * Adds the dependencies the classic pom carried to the project's own {@code rules.xml}.
+     * <p>
+     * Packaged jars become bare {@code <mavenArtifact>g:a:jar[:classifier]:v</>} entries (no {@code <name>}).
+     * OpenL siblings ({@code zip} type) get a 3-seg {@code <mavenArtifact>g:a:v</>}: merged into the existing
+     * {@code <name>} entry matching the sibling's logical name when one exists, otherwise appended as a fresh
+     * entry carrying both {@code <name>} and {@code <mavenArtifact>}.
+     * <p>
+     * The file is rewritten via a JAXB round-trip, so comments and whitespace are not preserved.
+     * Already-declared coordinates are skipped (idempotent).
      */
     private void writeRulesXmlDeps(PomlessConverter.Plan plan) throws MojoExecutionException {
         if (plan.rulesXmlDeps().isEmpty()) {
@@ -258,17 +237,15 @@ public final class PomlessMojo extends AbstractMojo {
                     merged++;
                 } else {
                     var newDep = new ProjectDependencyDescriptor();
-                    // Use the sibling's logical <name> when available (so reactor name-resolution still works
-                    // for projects that re-deploy without an explicit mavenArtifact). Fall back to artifactId
-                    // when the sibling isn't in the reactor — we couldn't read its rules.xml to learn the name.
+                    // Keep the sibling's logical <name> for reactor name-resolution; fall back to artifactId
+                    // when the sibling isn't in the reactor.
                     newDep.setName(siblingName != null ? siblingName : dep.getArtifactId());
                     newDep.setMavenArtifact(coords);
                     existing.add(newDep);
                     appended++;
                 }
             } else {
-                // Bare jar — no <name>/<autoIncluded>; the runtime treats a name-less <mavenArtifact> as a
-                // plain jar on the classpath.
+                // Bare jar — a name-less <mavenArtifact> is treated as a plain jar on the classpath.
                 var newDep = new ProjectDependencyDescriptor();
                 newDep.setMavenArtifact(coords);
                 existing.add(newDep);
@@ -296,14 +273,11 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Reads the sibling reactor project's {@code rules.xml} (located by matching {@code groupId:artifactId}
-     * against {@link MavenProject#getGroupId()}/{@link MavenProject#getArtifactId()}) and returns its
-     * logical {@code <name>} — which the consumer's {@code rules.xml} references in
-     * {@code <dependency><name>…</name></dependency>}. The reactor lookup is necessary because the rules.xml
-     * {@code <name>} is decoupled from Maven's artifactId (e.g. artifactId {@code cidp-docgen-openl-rules}
-     * with {@code <name>DocGen Mapping Common</>}). Returns {@code null} when the sibling isn't in the
-     * reactor, has no basedir, has no readable {@code rules.xml}, or its rules.xml carries no {@code <name>}
-     * — callers then fall back to the artifactId.
+     * Returns the logical {@code <name>} from the sibling reactor project's {@code rules.xml} — the name the
+     * consumer references in {@code <dependency><name>…</name></dependency>}. The lookup is by
+     * {@code groupId:artifactId}, needed because the rules.xml {@code <name>} is decoupled from Maven's
+     * artifactId. Returns {@code null} when the sibling isn't in the reactor or has no readable {@code <name>};
+     * callers then fall back to the artifactId.
      */
     private String lookupSiblingName(Dependency dep) {
         for (var p : reactorProjects) {
@@ -331,10 +305,9 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Finds the first {@link ProjectDependencyDescriptor} whose {@code <name>} equals {@code siblingName}
-     * and that doesn't yet declare an explicit {@code <mavenArtifact>} — the slot we want to fill. Returns
-     * {@code null} when {@code siblingName} is null/blank or no matching entry exists; the caller then
-     * appends a fresh entry instead.
+     * Finds the first dependency whose {@code <name>} equals {@code siblingName} and that has no
+     * {@code <mavenArtifact>} yet — the slot to fill. Returns {@code null} when {@code siblingName} is
+     * null/blank or no such entry exists; the caller appends a fresh entry instead.
      */
     static ProjectDependencyDescriptor findMatchingNameEntry(List<ProjectDependencyDescriptor> deps,
                                                              String siblingName) {
@@ -385,27 +358,21 @@ public final class PomlessMojo extends AbstractMojo {
 
     /**
      * Groups the convertible projects by their <b>collapse anchor</b> — the nearest non-pass-through reactor
-     * ancestor (or {@code ${project}} if all ancestors collapse). Pass-through aggregators that <i>still host a
-     * surviving descendant</i> (a blocked OpenL leaf that stays classic, or a non-pass-through sub-aggregator)
-     * are <i>not</i> collapsible — they remain real anchors so their descendants' {@code <parent>} chain isn't
-     * stranded. Each anchor's {@code <dependenciesThreshold>} is reconciled to the maximum across the OpenL
-     * projects under it. The {@code <flattenGroupId>true</>} flag is set per anchor via a compatibility
-     * heuristic — only when it preserves the leaves' original groupIds better than the default path-derived
-     * derivation would (see {@link #inferFlattenGroupId}).
+     * ancestor (or {@code ${project}} when all ancestors collapse). A pass-through aggregator that still hosts
+     * a surviving descendant stays a real anchor so its descendants' {@code <parent>} chain isn't stranded.
+     * Each anchor's {@code <dependenciesThreshold>} is reconciled to the max across the OpenL projects under
+     * it, and {@code <flattenGroupId>} is set per the {@link #inferFlattenGroupId} heuristic.
      */
     private MigrationPlan planMigration(List<PomlessConverter.Plan> convertible,
                                         List<PomlessConverter.Plan> blocked) throws MojoExecutionException {
         var anchorDir = project.getBasedir().toPath().toAbsolutePath().normalize();
         var reactorByDir = indexReactorByDir();
-        // Initial pass-through identification, then keep any pass-through that still has a surviving descendant
-        // (a blocked OpenL leaf or a non-pass-through sub-aggregator) so the survivor's <parent> stays valid
-        // and the participant won't try to scan past its preserved pom.
+        // Keep any pass-through that still has a surviving descendant so the survivor's <parent> stays valid.
         var passThroughDirs = identifyPassThroughs(anchorDir);
         var survivorDirs = identifySurvivors(anchorDir, passThroughDirs, blocked);
         retainOnlyDeletable(passThroughDirs, survivorDirs);
 
-        // First pass: assign each leaf to its collapse anchor (today's behaviour). This is the fallback
-        // assignment used when the user declines a sub-anchor proposal.
+        // First pass: assign each leaf to its collapse anchor — the fallback when a sub-anchor is declined.
         var leafToCollapseAnchor = new LinkedHashMap<PomlessConverter.Plan, MavenProject>();
         for (var plan : convertible) {
             var anchor = collapseAnchorOf(planDir(plan), reactorByDir, passThroughDirs, anchorDir, new HashSet<>());
@@ -420,11 +387,8 @@ public final class PomlessMojo extends AbstractMojo {
             return new MigrationPlan(List.of(), Set.of());
         }
 
-        // Conflict detection: for each leaf, walk every parent folder and find a HIGHER-preservation
-        // pass-through anchor — i.e. one that keeps the leaf's original groupId where its collapse anchor
-        // would shift it. Such pass-throughs are sub-anchor proposals; the user decides whether to promote
-        // each (Y default — preserve original coordinates; N — drop the proposal and fall back to the
-        // majority/most-compatible flatten at the collapse anchor).
+        // For each leaf whose collapse anchor would shift its groupId, propose the highest pass-through
+        // ancestor that would preserve it as a sub-anchor; the user confirms each (Y default).
         var subAnchorProposals = proposeSubAnchors(leafToCollapseAnchor, reactorByDir, passThroughDirs, anchorDir);
         var confirmedSubAnchors = promptForSubAnchors(subAnchorProposals);
 
@@ -433,9 +397,8 @@ public final class PomlessMojo extends AbstractMojo {
             passThroughDirs.remove(subAnchor.getBasedir().toPath().toAbsolutePath().normalize());
         }
 
-        // Final assignment: a confirmed sub-anchor takes its leaves; everyone else stays at the collapse
-        // anchor. Because we removed confirmed sub-anchor dirs from passThroughDirs, collapseAnchorOf now
-        // stops at them naturally for any other leaf physically beneath.
+        // Final assignment: with confirmed sub-anchors removed from passThroughDirs, collapseAnchorOf now
+        // stops at them naturally; every other leaf stays at its collapse anchor.
         var convByAnchor = new LinkedHashMap<MavenProject, List<PomlessConverter.Plan>>();
         for (var plan : convertible) {
             if (!leafToCollapseAnchor.containsKey(plan)) {
@@ -447,8 +410,8 @@ public final class PomlessMojo extends AbstractMojo {
             }
             convByAnchor.computeIfAbsent(anchor, a -> new ArrayList<>()).add(plan);
         }
-        // Reconcile <dependenciesThreshold> per anchor across ALL OpenL projects under it (convertible +
-        // blocked) — the most permissive value never fails a stricter project that stays classic.
+        // Reconcile <dependenciesThreshold> per anchor across all OpenL projects under it (convertible +
+        // blocked) — the max value never fails a stricter project that stays classic.
         var thresholds = new HashMap<MavenProject, Integer>();
         for (var plan : convertible) {
             recordThreshold(plan, reactorByDir, passThroughDirs, anchorDir, convByAnchor.keySet(), thresholds);
@@ -468,11 +431,9 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Walks every parent folder from each leaf up to its current collapse anchor and identifies the highest
-     * pass-through ancestor that would preserve the leaf's original groupId. A leaf is treated as
-     * <i>unsatisfied</i> when the collapse anchor's heuristic-chosen flatten yields an installed groupId
-     * different from the leaf's original — that's the real conflict the user is asked to resolve. Pass-throughs
-     * that wouldn't help (no flatten at them yields the original) are not proposed.
+     * For each leaf whose collapse anchor would change its installed groupId, returns the highest pass-through
+     * ancestor that would preserve the original groupId — the sub-anchor the user is asked to confirm. Leaves
+     * the heuristic already preserves, and pass-throughs that wouldn't help, are not proposed.
      */
     private Map<MavenProject, List<PomlessConverter.Plan>> proposeSubAnchors(
             Map<PomlessConverter.Plan, MavenProject> leafToCollapseAnchor,
@@ -518,10 +479,8 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Walks up from {@code leaf}'s parent through the pass-through chain, stopping <i>below</i> the leaf's
-     * collapse anchor, and returns the highest pass-through ancestor whose pom would preserve the leaf's
-     * original groupId (with either flatten). Returns {@code null} when no such ancestor exists — the leaf
-     * truly can't keep its coordinates without a sub-anchor.
+     * Returns the highest pass-through ancestor below {@code leaf}'s collapse anchor whose pom would preserve
+     * the leaf's original groupId, or {@code null} when none exists.
      */
     private static MavenProject findPreservingSubAnchor(PomlessConverter.Plan leaf,
                                                         MavenProject collapseAnchor,
@@ -569,10 +528,9 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Asks the user (Y/n, default Y) whether to promote each proposed sub-anchor. In batch mode (no TTY /
-     * {@code -B}) or when the prompter is unavailable, defaults to Y — the original-coordinate-preserving
-     * choice. A leaf that opts out (user picks N) stays at its collapse anchor and inherits the
-     * majority/most-compatible flatten choice there (its installed groupId will shift).
+     * Asks the user (Y/n, default Y) whether to promote each proposed sub-anchor. Batch mode and a missing
+     * prompter both default to Y. A declined sub-anchor's leaves stay at the collapse anchor, so their
+     * installed groupId shifts to the anchor's flatten choice.
      */
     private Set<MavenProject> promptForSubAnchors(Map<MavenProject, List<PomlessConverter.Plan>> proposals)
             throws MojoExecutionException {
@@ -617,9 +575,9 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Survivors = reactor projects that keep their {@code pom.xml} after migration: ${project} itself, every
+     * Reactor projects that keep their {@code pom.xml} after migration: {@code ${project}}, every
      * non-pass-through aggregator under it, and every blocked OpenL leaf. Pass-through aggregators and
-     * converted OpenL leaves are <i>not</i> survivors (their poms are deleted).
+     * converted leaves are not survivors — their poms are deleted.
      */
     private Set<Path> identifySurvivors(Path anchorDir, Set<Path> passThroughDirs,
                                         List<PomlessConverter.Plan> blocked) {
@@ -645,9 +603,8 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Drops from {@code passThroughDirs} any pass-through aggregator that has a survivor strictly under it —
-     * deleting it would orphan the survivor's {@code <parent>} chain, and its preserved pom would block the
-     * participant from scanning past it. Such a pass-through stays in place and becomes an effective anchor.
+     * Drops from {@code passThroughDirs} any aggregator with a survivor strictly under it — deleting it would
+     * orphan the survivor's {@code <parent>} chain. Such a pass-through stays and becomes an effective anchor.
      */
     private static void retainOnlyDeletable(Set<Path> passThroughDirs, Set<Path> survivorDirs) {
         passThroughDirs.removeIf(d -> {
@@ -661,13 +618,11 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Compatibility heuristic: sets {@code <flattenGroupId>true</>} on an anchor only when more of its leaves'
-     * <i>original</i> groupIds match the anchor's groupId verbatim than match the default path-derived form
-     * ({@code anchor.groupId + ".<dotted-path>"}). For corporate repos where every OpenL leaf inherits the
-     * same groupId from a shared parent, this picks the flat form so installed coordinates don't shift after
-     * the collapse. When the repo encodes the directory path into per-leaf groupIds, the heuristic leaves
-     * the default (path-derived) form intact. Returns {@code false} on a tie — the default needs no extra
-     * configuration on the anchor.
+     * Compatibility heuristic for {@code <flattenGroupId>}: returns {@code true} when more of the anchor's
+     * leaves' original groupIds match the anchor groupId verbatim than match the default path-derived form
+     * ({@code anchorGroup + ".<dotted-path>"}). This keeps installed coordinates stable across the collapse —
+     * flat when leaves share one corporate groupId, path-derived when they encode the directory path. Returns
+     * {@code false} on a tie (the default needs no extra config).
      */
     static boolean inferFlattenGroupId(MavenProject anchor, List<PomlessConverter.Plan> leaves) {
         var anchorGroup = anchor.getGroupId();
@@ -753,13 +708,10 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Walks up from {@code projectDir} through <i>pass-through</i> aggregators (poms whose only content is
-     * structural — no build, deps, profiles, properties, dependencyManagement, etc.) and returns the first
-     * non-pass-through ancestor reactor project. {@code ${project}} is always treated as a valid anchor even
-     * when pass-through, because we cannot reach above the invocation root. Pass-through aggregators walked
-     * past are added to {@code collapsedOut} so the caller deletes them — flattening the tree into a single
-     * surviving anchor that the participant can scan to discover every {@code rules.xml} folder. Returns
-     * {@code null} when no ancestor reactor pom exists.
+     * Returns the first non-pass-through ancestor reactor project above {@code projectDir}, walking up through
+     * pass-through aggregators. {@code invocationRootDir} ({@code ${project}}) is always a valid anchor — we
+     * cannot reach above it. Every pass-through walked past is added to {@code collapsedOut} for the caller to
+     * delete. Returns {@code null} when no ancestor reactor pom exists.
      */
     static MavenProject collapseAnchorOf(Path projectDir,
                                          Map<Path, MavenProject> reactorByDir,
@@ -784,12 +736,10 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * Pass-through aggregator detection — packaging {@code pom} whose body is purely structural
-     * (parent/GAV/modules/metadata) with nothing that would influence the build: no plugins (or
-     * pluginManagement plugins), no profiles, no properties, no dependencies, no dependencyManagement entries,
-     * no repositories or pluginRepositories, no reporting, no distributionManagement, no custom source/resource
-     * directories or finalName. These poms exist only to organise the directory tree and can be safely removed
-     * when collapsing the migration into a single top-level anchor.
+     * True when {@code model} is a {@code pom}-packaging aggregator whose body is purely structural
+     * (parent/GAV/modules/metadata) — no build, plugins, profiles, properties, dependencies,
+     * dependencyManagement, repositories, reporting, or distributionManagement. Such poms only organise the
+     * directory tree and can be deleted when collapsing the migration onto a single anchor.
      */
     static boolean isPassThrough(Model model) {
         if (model == null || !"pom".equals(model.getPackaging())) {
@@ -874,10 +824,8 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     /**
-     * A single anchor pom to edit: where the plugin/threshold/hoist land, and its convertible members.
-     * {@code flattenGroupId} is {@code true} when at least one of the anchor's leaves reached it through a
-     * pass-through aggregator that was collapsed — those leaves would otherwise pick up the dotted
-     * intermediate path in their derived groupId, so the flag keeps coordinates stable across the collapse.
+     * A single anchor pom to edit: where the plugin, threshold, and hoisted deps land, plus its convertible
+     * members and the resolved {@code flattenGroupId} flag.
      */
     private record AnchorEdit(MavenProject anchor, Integer threshold, List<Dependency> hoist,
                               List<PomlessConverter.Plan> convertibles, boolean flattenGroupId) {
@@ -904,8 +852,8 @@ public final class PomlessMojo extends AbstractMojo {
             build.addPlugin(plugin);
         }
         plugin.setExtensions(true);
-        // Pin a version when the anchor didn't already declare one — the participant binds the synthesised
-        // pom-less projects to the anchor plugin's version. Never overrides an explicit version.
+        // Pin a version only when the anchor didn't declare one — the participant binds the pom-less projects
+        // to it. Never overrides an explicit version.
         if (plugin.getVersion() == null && pluginVersion != null) {
             plugin.setVersion(pluginVersion);
         }
@@ -913,9 +861,8 @@ public final class PomlessMojo extends AbstractMojo {
             setConfigChild(plugin, PackageMojo.DEPENDENCIES_THRESHOLD_PARAM, Integer.toString(maxThreshold));
         }
         if (flattenGroupId) {
-            // Pass-throughs were collapsed under this anchor; tell the participant to use the anchor's groupId
-            // verbatim for every pom-less leaf below it (skip the path-based dotted derivation) so the leaves'
-            // installed coordinates don't change because of the collapse.
+            // Use the anchor's groupId verbatim for every pom-less leaf below it (skip the dotted path
+            // derivation) so installed coordinates don't shift because of the collapse.
             setConfigChild(plugin, PrepareRepositoryPomMojo.FLATTEN_GROUP_ID_PARAM, "true");
         }
     }

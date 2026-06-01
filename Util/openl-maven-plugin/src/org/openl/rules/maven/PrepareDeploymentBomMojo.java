@@ -26,36 +26,21 @@ import org.apache.maven.project.MavenProjectHelper;
 /**
  * Generates and attaches a <i>deployment BOM</i> listing every OpenL project under this anchor.
  * <p>
- * Members are the reactor projects whose packaging is {@code openl} or {@code openl-jar} and whose
- * basedir sits under this project's basedir (pom-less projects discovered by
- * {@code OpenLPomlessParticipant} plus any classic OpenL modules declared in {@code <modules>}).
+ * Members are the reactor {@code openl}/{@code openl-jar} projects whose basedir sits under this anchor
+ * (pom-less projects plus classic OpenL modules). The generated pom shares the anchor's GAV with packaging
+ * {@code pom} and is attached via classifier {@code deployment-bom}, so it installs/deploys alongside the
+ * anchor.
  * <p>
- * For each member two entries are considered:
- * <ul>
- *     <li>the <b>main artefact</b> (type {@code zip} for {@code openl} packaging,
- *         {@code jar} for {@code openl-jar});</li>
- *     <li>the <b>deployment artefact</b> ({@code classifier=deployment}) — {@code PackageMojo}
- *         auto-attaches one whenever a project has any OpenL dependency AND its
- *         {@code rules-deploy.xml} does not declare empty {@code <publishers/>}. This mojo
- *         predicts which projects will produce it (since the BOM runs at the anchor's package
- *         phase, before child projects are packaged).</li>
- * </ul>
- * The generated pom carries the same GAV as this anchor, packaging {@code pom}, and contains:
- * <ul>
- *     <li>{@code <dependencyManagement>} — Maven-canonical BOM. Lists every main entry plus every
- *         predicted deployment entry, so consumers using {@code <scope>import</scope>} get versions
- *         managed for both forms.</li>
- *     <li>{@code <dependencies>} — single-import bundle. Includes only members that <i>can be
- *         deployed</i> (their {@code rules-deploy.xml} does not declare empty
- *         {@code <publishers/>}). For deployable members that produce a deployment artefact, the
- *         bundle lists the deployment entry (it already contains the main project's contents).
- *         For deployable leaf members, the bundle lists the main entry. Members with empty
- *         publishers are intentionally skipped from the bundle — they're still version-managed in
- *         {@code <dependencyManagement>} for consumers that opt in explicitly.</li>
- * </ul>
- * Attached to this project via {@code MavenProjectHelper.attachArtifact} with type {@code pom} and
- * classifier {@code deployment-bom}, so the BOM is installed/deployed alongside the anchor under
- * the same GA. Consumer usage:
+ * {@code <dependencyManagement>} (canonical BOM, for {@code <scope>import</scope>}) lists every member's main
+ * entry plus a {@code deployment}-classifier entry for each member predicted to produce a
+ * {@code *-deployment.zip} ({@code PackageMojo} attaches one when a project has an OpenL dependency and
+ * non-empty {@code <publishers/>}).
+ * <p>
+ * {@code <dependencies>} (single-import bundle) lists only deployable members (non-empty
+ * {@code <publishers/>}): the deployment entry when they produce one, else the main entry. Members with empty
+ * publishers are skipped from the bundle but stay version-managed.
+ * <p>
+ * Consumer usage:
  * <pre>{@code
  * <dependency>
  *     <groupId>com.example</groupId>
@@ -63,7 +48,7 @@ import org.apache.maven.project.MavenProjectHelper;
  *     <version>1.0</version>
  *     <classifier>deployment-bom</classifier>
  *     <type>pom</type>
- *     <scope>import</scope>      <!-- canonical BOM mode -->
+ *     <scope>import</scope>
  * </dependency>
  * }</pre>
  * Skips silently when no OpenL projects sit under this anchor.

@@ -14,24 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Patches {@code org.apache.maven.ReactorReader}'s internal indexes via reflection so synthesised
- * pom-less OpenL projects are discoverable by dependency resolution.
+ * Patches {@code org.apache.maven.ReactorReader}'s internal indexes via reflection so synthesised pom-less
+ * OpenL projects are discoverable by dependency resolution.
  * <p>
- * In Maven 3.9.x {@code ReactorReader} snapshots {@code session.getProjects()} once in its
- * constructor (see {@code maven-core/org/apache/maven/ReactorReader.java} lines 78-85) and never
- * refreshes the index. {@code AbstractMavenLifecycleParticipant#afterProjectsRead} mutates
- * {@code session.setProjects(...)} too late: the workspace reader is typically already constructed
- * (eagerly during repository-session setup, or lazily on the first {@code projectBuilder.build})
- * with the pre-extension snapshot — so a sibling reactor module looking up a pom-less GA via
- * {@link WorkspaceReader#findArtifact} sees {@code null} and Aether falls through to the remote
- * repositories. This injector pokes the missing projects directly into the snapshot.
+ * Maven 3.9.x {@code ReactorReader} snapshots {@code session.getProjects()} once in its constructor and never
+ * refreshes. The participant's {@code afterProjectsRead} mutates the session too late — the workspace reader
+ * already holds the pre-extension snapshot, so a sibling looking up a pom-less GA via
+ * {@link WorkspaceReader#findArtifact} sees {@code null} and Aether falls through to the remote repositories.
+ * This injector pokes the missing projects into the two private (but mutable) index maps,
+ * {@code projectsByGAV} and {@code projectsByGA}.
  * <p>
- * Reflective access is intentionally scoped to two private maps ({@code projectsByGAV},
- * {@code projectsByGA}) populated with {@link java.util.HashMap} in {@code ReactorReader}'s
- * constructor — both are mutable despite their {@code final} reference. The workaround is the same
- * shape Tycho applies when running its pom-less builder against legacy Maven 3.x. When future
- * maven-core releases expose a public refresh API (Maven 4 has {@code DefaultModelResolver}/registry
- * additions for exactly this case), this injector becomes a no-op.
+ * No-ops on distributions that wire a different workspace reader (Maven 4, some mvnd modes), where the bug
+ * doesn't apply.
  *
  * @author Yury Molchan
  */
@@ -48,12 +42,9 @@ final class ReactorReaderInjector {
     }
 
     /**
-     * Registers each project in {@code added} with the session's {@code ReactorReader} so a
-     * downstream {@link WorkspaceReader#findArtifact} call resolves the artefact from the reactor
-     * instead of falling through to Aether's remote repositories. No-ops when no
-     * {@code ReactorReader} is found in the workspace reader chain — that happens on Maven
-     * distributions that wire a different workspace reader (Maven 4, mvnd in some modes), where
-     * the eager snapshot bug doesn't apply.
+     * Registers each project in {@code added} with the session's {@code ReactorReader} so a downstream
+     * {@link WorkspaceReader#findArtifact} resolves it from the reactor. No-ops when no {@code ReactorReader}
+     * is on the workspace reader chain.
      */
     static void inject(MavenSession session, Collection<MavenProject> added) {
         if (added.isEmpty()) {
