@@ -132,6 +132,14 @@ Tests are co-located with sources (e.g. `src/containers/DeployModal.test.tsx` ne
   source-level fix (e.g. `Not implemented: navigation`, rc-form's orphan `useForm` warning, jsdom CSSOM parse failures,
   AntD deprecation warnings). Other noise must be fixed at the source.
 
+## Code Coverage
+
+```bash
+npm test   # runs vitest run --coverage; prints a text-summary
+```
+
+Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
+
 ## Quality Rules
 
 - Use the `apiCall` wrapper, never raw `fetch`.

@@ -46,6 +46,17 @@ mvn test -pl <module-path>                 # Test specific module
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
 
+## Code Coverage
+
+New or changed Java code **MUST** keep ≥80% line coverage, measured on the diff (not the whole project).
+Add tests until new lines reach ≥80%.
+
+```bash
+mvn verify -Dsonar   # JaCoCo runs ONLY with -Dsonar; the default build collects nothing
+```
+
+Report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`. A line is uncovered when `ci="0"`.
+
 ## Docker
 
 ```bash
