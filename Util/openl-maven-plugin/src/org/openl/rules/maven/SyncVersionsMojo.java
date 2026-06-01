@@ -90,7 +90,7 @@ public final class SyncVersionsMojo extends AbstractMojo {
         var map = new HashMap<String, String>();
         for (var dep : dm.getDependencies()) {
             if (dep.getVersion() != null && !dep.getVersion().isBlank()) {
-                map.putIfAbsent(dep.getGroupId() + ':' + dep.getArtifactId(), dep.getVersion());
+                map.putIfAbsent(OpenLPackagings.ga(dep.getGroupId(), dep.getArtifactId()), dep.getVersion());
             }
         }
         return map;
@@ -131,7 +131,7 @@ public final class SyncVersionsMojo extends AbstractMojo {
         if (dep == null) {
             return null;
         }
-        var ga = dep.getGroupId() + ':' + dep.getArtifactId();
+        var ga = OpenLPackagings.ga(dep.getGroupId(), dep.getArtifactId());
         var version = managed.get(ga);
         if (version == null && !OpenLPackagings.JAR_DEPENDENCY_TYPE.equals(dep.getType())) {
             version = reactor.get(ga);

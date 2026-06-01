@@ -95,7 +95,8 @@ final class OpenLModelSynthesizer {
             // A coordinate pointing at a reactor OpenL sibling takes the reactor version over whatever
             // rules.xml declares (a placeholder or stale literal) — a module resolves only at its reactor version.
             if (reactorVersions != null) {
-                var reactorVersion = reactorVersions.get(explicit.getGroupId() + ':' + explicit.getArtifactId());
+                var reactorVersion = reactorVersions.get(
+                        OpenLPackagings.ga(explicit.getGroupId(), explicit.getArtifactId()));
                 if (reactorVersion != null) {
                     explicit.setVersion(reactorVersion);
                 }
@@ -136,7 +137,7 @@ final class OpenLModelSynthesizer {
         if (management == null) {
             return;
         }
-        var managed = management.get(dep.getGroupId() + ':' + dep.getArtifactId());
+        var managed = management.get(OpenLPackagings.ga(dep.getGroupId(), dep.getArtifactId()));
         if (managed != null && managed.getVersion() != null && !managed.getVersion().isBlank()) {
             dep.setVersion(managed.getVersion());
         }
