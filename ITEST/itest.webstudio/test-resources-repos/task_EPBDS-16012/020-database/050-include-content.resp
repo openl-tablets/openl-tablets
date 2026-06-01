@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "files": [
+    {
+      "path": "DESIGN/rules/EPBDS-16012-db/AGENTS.md",
+      "content": "project-root"
+    }
+  ]
+}
