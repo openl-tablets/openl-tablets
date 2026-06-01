@@ -11,22 +11,16 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Materialises the in-memory {@link MavenProject#getOriginalModel()} of a pom-less OpenL project as
- * a standard Maven XML pom inside {@code target/openl-pom.xml}, strips the {@code <build>}
- * bootstrap stub the participant injected for {@code ModelBuilder} validation, and points
- * {@link MavenProject#setFile} at the generated file so the standard install/deploy plugins read a
- * valid XML pom. The project root is never touched — only files in {@code target/} are produced.
+ * Re-materialises a pom-less OpenL project's install/deploy pom at {@code target/openl-pom.xml} — the raw
+ * model stripped of {@code <parent>} and the {@code <build>} bootstrap stub — so the install/deploy plugins
+ * read a valid flat pom. The project root is never touched.
  * <p>
- * Bound to the {@code verify} phase (after {@code openl:verify}) by the {@code openl} packaging mapping in
- * {@code components.xml}. {@code verify} — not {@code install} — so a sibling reactor project that depends on
- * this pom-less OpenL zip can resolve its POM during {@code mvn verify}: by then {@code getFile()} already
- * points at the on-disk {@code target/openl-pom.xml} (without this, Maven's reactor reader returns
- * {@code rules.xml} and Aether fails to parse it). The change is safe: every preceding OpenL phase that
- * needs {@code basedir = <OpenL folder>} ({@code compile}, {@code test}, {@code package}, {@code verify})
- * has already run; {@code install}/{@code deploy} consume the now-correct {@code getFile()} unchanged.
+ * Bound to {@code validate} so the file exists early: the participant writes it eagerly at session start, but
+ * {@code clean} may wipe {@code target/} first, and a sibling depending on this pom-less zip must resolve its
+ * pom. Does not call {@code setFile} — the participant already retargeted {@code getFile()} at the generated
+ * file, and re-setting would re-derive {@code basedir} at {@code target/} and break later phases.
  * <p>
- * Has no effect on classic OpenL projects whose {@code project.getFile()} already points at a real
- * {@code pom.xml}.
+ * Has no effect on classic OpenL projects, whose {@code getFile()} already points at a real {@code pom.xml}.
  *
  * @author Yury Molchan
  */
@@ -66,16 +60,10 @@ public class PrepareRepositoryPomMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         var current = project.getFile();
         if (current == null || !OpenLPackagings.INSTALL_POM_FILE_NAME.equals(current.getName())) {
-            // Not a pom-less OpenL project — the participant retargets pom-less projects' getFile() at
-            // 'openl-pom.xml'. Anything else (classic pom.xml) means there's nothing to re-materialise here.
-            return;
+            return; // not a pom-less project (the participant retargets getFile() at openl-pom.xml)
         }
-        // Re-create the install pom — clean:clean wiped target/ between the participant's eager session-start
-        // write and this validate-phase invocation; downstream consumers in the same reactor (a war that
-        // depends on this pom-less zip) resolve project.getFile() and need it to exist on disk by now.
-        // Uses the original (raw) model so super-pom additions (<repositories>/<reporting>/...) don't leak
-        // into the published artefact pom. Does NOT call setFile — the participant's reflection set it once;
-        // re-setting would re-derive basedir at target/ and break later phases.
+        // Re-create the install pom in case clean wiped target/ since the participant's session-start write.
+        // Uses the raw model so super-pom additions (<repositories>/<reporting>/...) don't leak into the pom.
         try {
             var pomFile = OpenLPackagings.materialiseInstallPom(project.getOriginalModel(),
                     buildDirectory.toPath());

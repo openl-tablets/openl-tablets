@@ -13,21 +13,15 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
- * Pure analysis of a classic (pom-ful) OpenL project, deciding whether it can be safely converted to
- * the pom-less form by simply deleting its {@code pom.xml}.
+ * Pure analysis of a classic (pom-ful) OpenL project: decides whether deleting its {@code pom.xml} is safe.
  * <p>
- * A project is <b>deletable</b> when everything its raw {@code pom.xml} declares is reproduced by the
- * pom-less participant + anchor inheritance:
- * <ul>
- *     <li>coordinates — re-derived from the folder path under the anchor;</li>
- *     <li>{@code <name>} — re-read from {@code rules.xml};</li>
- *     <li>OpenL ({@code zip}-type) dependencies — re-derived from {@code rules.xml} {@code <dependency>} entries;</li>
- *     <li>non-OpenL dependencies — <i>hoistable</i>: they must be moved to the anchor (reported, not auto-applied).</li>
- * </ul>
- * Anything that changes the build when removed and can't be reproduced per-project pom-less is a
- * <b>blocker</b>: a per-project {@code openl-maven-plugin} {@code <configuration>}/{@code <executions>},
- * any other plugin, {@code <profiles>}, custom {@code <resources>}/{@code <finalName>}/source dirs, or
- * project-level {@code <properties>}.
+ * A project is <b>deletable</b> when everything its {@code pom.xml} declares is reproduced pom-less:
+ * coordinates from the folder path, {@code <name>} from {@code rules.xml}, OpenL ({@code zip}) dependencies
+ * from {@code rules.xml}, and non-OpenL dependencies hoisted to the anchor.
+ * <p>
+ * Anything else that affects the build is a <b>blocker</b>: a per-project {@code openl-maven-plugin}
+ * {@code <configuration>}/{@code <executions>}, any other plugin, {@code <profiles>}, custom
+ * {@code <resources>}/{@code <finalName>}/source dirs, or project-level {@code <properties>}.
  *
  * @author Yury Molchan
  */
@@ -38,23 +32,16 @@ final class PomlessConverter {
 
     /**
      * @param artifactId           project artifactId (for reporting)
-     * @param groupId              project groupId (effective — used by the migrator's flattenGroupId heuristic
-     *                             to decide whether the pom-less leaf's derived groupId would match the original)
+     * @param groupId              effective project groupId (input to the {@code flattenGroupId} heuristic)
      * @param pomFile              the {@code pom.xml} that would be deleted
      * @param deletable            {@code true} when {@link #blockers} is empty
      * @param rulesXmlDeps         dependencies that move into this project's own {@code rules.xml} as
-     *                             {@code <mavenArtifact>} entries. Two flavours: packaged jars
-     *                             ({@code <mavenArtifact>g:a:jar:v</>}, bundled into {@code lib/}; the
-     *                             synthesiser marks them optional) and OpenL siblings
-     *                             ({@code <mavenArtifact>g:a:v</>}, merged into the matching existing
-     *                             {@code <dependency><name>artifactId</name></dependency>} so the GAV
-     *                             becomes explicit alongside the OpenL {@code <name>}). Distinguished
-     *                             by {@link Dependency#getType()}.
+     *                             {@code <mavenArtifact>} entries: packaged jars and OpenL siblings,
+     *                             distinguished by {@link Dependency#getType()}
      * @param hoistDeps            shared non-OpenL dependencies (provided/tile/pom, …) that move to the anchor
-     * @param blockers             human-readable reasons the project can't be auto-converted (empty when deletable)
-     * @param dependenciesThreshold the project's openl-maven-plugin {@code <dependenciesThreshold>}, or {@code null}
-     *                             when not declared. The mojo sets the anchor's threshold to the max across all
-     *                             projects (the most permissive value never fails a stricter project's build).
+     * @param blockers             reasons the project can't be auto-converted (empty when deletable)
+     * @param dependenciesThreshold the {@code <dependenciesThreshold>}, or {@code null}; the anchor takes the
+     *                             max across its projects
      */
     record Plan(String artifactId, String groupId, Path pomFile, boolean deletable,
                 List<Dependency> rulesXmlDeps, List<Dependency> hoistDeps, List<String> blockers,
@@ -86,26 +73,19 @@ final class PomlessConverter {
             var resolvedVersions = effectiveVersions(project);
             for (var raw : model.getDependencies()) {
                 if (raw.getExclusions() != null && !raw.getExclusions().isEmpty()) {
-                    // <exclusions> can't be expressed in rules.xml's <mavenArtifact> or in a hoisted anchor dep
-                    // (where they'd over-apply across siblings), so a dep with exclusions blocks conversion —
-                    // dropping them would silently change the project's transitive resolution.
+                    // <exclusions> can't be expressed in rules.xml or in a hoisted anchor dep (they'd
+                    // over-apply across siblings), so a dep with exclusions blocks conversion.
                     blockers.add("dependency '" + raw.getGroupId() + ":" + raw.getArtifactId()
                             + "' declares <exclusions> (non-migratable)");
                     continue;
                 }
                 var dep = withResolvedVersion(raw, resolvedVersions);
                 if (OpenLPackagings.ZIP_DEPENDENCY_TYPE.equals(dep.getType())) {
-                    // OpenL sibling — merged into rules.xml as <mavenArtifact>g:a:v</> alongside the
-                    // matching <name>artifactId</name> (when present), so the GAV is explicit and not
-                    // dependent on reactor name-resolution.
-                    rulesXmlDeps.add(dep);
+                    rulesXmlDeps.add(dep); // OpenL sibling → rules.xml as <mavenArtifact>g:a:v</>
                 } else if (isPackagedJar(dep)) {
-                    // Project-specific jar bundled into this project's lib/ → goes to its own rules.xml
-                    // as <mavenArtifact>…:jar</mavenArtifact> (the synthesiser marks it optional).
-                    rulesXmlDeps.add(dep);
+                    rulesXmlDeps.add(dep); // jar bundled into this project's lib/ → its own rules.xml
                 } else {
-                    // Shared, non-packaged (provided/tile/pom, …) → anchor.
-                    hoist.add(dep);
+                    hoist.add(dep); // shared, non-packaged (provided/tile/pom, …) → anchor
                 }
             }
         }
@@ -128,11 +108,9 @@ final class PomlessConverter {
     }
 
     /**
-     * Indexes the project's <i>effective</i> dependencies (after Maven's dependency-management injection)
-     * by {@code groupId:artifactId:type:classifier}. The raw {@code pom.xml} entries from
-     * {@link MavenProject#getOriginalModel()} may omit {@code <version>} when a parent pom or an imported
-     * BOM supplies it; this index backfills the concrete version so the migrator never writes a
-     * {@code null} coordinate into {@code rules.xml} or the anchor.
+     * Indexes the project's effective dependencies (after dependency-management injection) by
+     * {@code groupId:artifactId:type:classifier}. The raw model may omit {@code <version>} when a parent or
+     * BOM supplies it; this backfills the concrete version so the migrator never writes a null coordinate.
      */
     private static Map<String, String> effectiveVersions(MavenProject project) {
         var index = new HashMap<String, String>();
@@ -148,11 +126,9 @@ final class PomlessConverter {
     }
 
     /**
-     * Prefers the <i>effective</i> version (post-interpolation, post-management) over the raw declaration.
-     * The raw model may carry {@code ${revision}} or another property placeholder that's still uninterpolated
-     * — emitting it verbatim into {@code <mavenArtifact>} would (a) write garbage into the rules.xml and
-     * (b) break {@code String.replaceFirst} which treats {@code $} as a backreference. Falls back to the raw
-     * declaration when the effective model offers nothing better.
+     * Returns {@code dep} with its effective (post-interpolation, post-management) version when that differs
+     * from the raw one, else the original. The raw model may carry an uninterpolated {@code ${revision}} that
+     * must not reach {@code <mavenArtifact>}. Falls back to the raw declaration when nothing better exists.
      */
     private static Dependency withResolvedVersion(Dependency dep, Map<String, String> effectiveVersions) {
         var effective = effectiveVersions.get(versionKey(dep));
@@ -197,12 +173,11 @@ final class PomlessConverter {
     }
 
     /**
-     * Inspects a plugin entry. Returns the openl-maven-plugin {@code <dependenciesThreshold>} value when present
-     * (or {@code null}); appends blockers for anything that can't go pom-less.
+     * Inspects a plugin entry: returns the {@code openl-maven-plugin} {@code <dependenciesThreshold>} (or
+     * {@code null}) and appends blockers for anything that can't go pom-less.
      * <p>
-     * {@code <dependenciesThreshold>} is the one configuration key that does NOT block: it's reconciled on the
-     * anchor as the max across all projects. Any other configuration child (skipITs, deploymentName, …) still
-     * blocks, because those vary per project with no safe anchor-wide value.
+     * {@code <dependenciesThreshold>} is the only config key that doesn't block (it's reconciled to the
+     * anchor max). Any other child (skipITs, deploymentName, …) blocks — those have no safe anchor-wide value.
      */
     private static Integer analyzePlugin(Plugin plugin, List<String> blockers) {
         if (!OpenLPackagings.isOpenLPlugin(plugin.getGroupId(), plugin.getArtifactId())) {

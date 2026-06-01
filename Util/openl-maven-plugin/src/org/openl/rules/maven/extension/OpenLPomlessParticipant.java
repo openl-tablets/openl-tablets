@@ -44,29 +44,20 @@ import org.openl.rules.project.model.ProjectDescriptor;
  * Adds OpenL projects with no {@code pom.xml} to the reactor.
  * <p>
  * Activated when any reactor pom declares {@code openl-maven-plugin} with
- * {@code <extensions>true</extensions>}. Every reactor project that <i>directly</i> declares the
- * plugin (and isn't itself an OpenL packaging) acts as its own anchor: its basedir is scanned for
- * {@code rules.xml} folders, its groupId is the base for derived coordinates, and its plugin
- * {@code <configuration>} feeds the {@code flattenGroupId} flag. Multiple anchors coexist in the
- * same build — the scanner won't descend past any folder containing a {@code pom.xml}, so nested
- * anchors don't double-scan the same subtree.
+ * {@code <extensions>true</extensions>}. Each project that directly declares the plugin (and isn't itself
+ * an OpenL packaging) acts as an anchor: its basedir is scanned for {@code rules.xml} folders, its groupId
+ * is the base for derived coordinates, and its plugin config feeds the {@code flattenGroupId} flag. The
+ * scanner never descends past a folder with a {@code pom.xml}, so multiple anchors don't double-scan.
  * <p>
- * For each discovered folder the participant synthesises a Maven {@link Model} (see
- * {@link OpenLModelSynthesizer}) with the anchor wired as {@code <parent>} — so the pom-less
- * project's effective model inherits the anchor's {@code <build>}, {@code <pluginManagement>},
- * {@code <properties>}, {@code <dependencyManagement>}, {@code <distributionManagement>} and the
- * rest through standard Maven semantics. Additional build plugins declared on the anchor (e.g. a
- * source generator bound to {@code generate-sources}) therefore fire on every pom-less project as
- * well; mark them {@code <inherited>false</inherited>} on the anchor to opt out. The model is run
- * through {@code ProjectBuilder} via an in-memory {@link InMemoryModelSource}, {@code project.setFile}
- * is pointed at the project's {@code rules.xml} so basedir resolves correctly, and the resulting
- * projects are added to the reactor in topological order. <b>No synthesised pom is ever written
- * to the project root.</b> The XML representation needed by install/deploy is generated to
- * {@code target/openl-pom.xml} by {@code openl:prepare-pom}, which strips {@code <parent>} and
- * {@code <build>} so the installed pom is flat.
+ * Each discovered folder is synthesised into a Maven {@link Model} (see {@link OpenLModelSynthesizer}) with
+ * the anchor as {@code <parent>}, so it inherits the anchor's {@code <build>}, {@code <pluginManagement>},
+ * {@code <properties>}, {@code <dependencyManagement>}, etc. Anchor build plugins therefore fire on every
+ * pom-less project too; mark them {@code <inherited>false</inherited>} to opt out. The model is built via an
+ * in-memory {@link InMemoryModelSource} and the projects are added to the reactor in topological order.
+ * <b>No pom is ever written to the project root</b> — the install/deploy pom is generated to
+ * {@code target/openl-pom.xml} by {@code openl:prepare-pom}.
  * <p>
- * Classic OpenL projects ({@code <packaging>openl</packaging>} alongside a real {@code pom.xml})
- * are untouched.
+ * Classic OpenL projects (a real {@code pom.xml}) are untouched.
  *
  * @author Yury Molchan
  */
@@ -76,12 +67,10 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     private static final String TARGET_DIR = "target";
 
     /**
-     * Session-data key marking that the participant has already injected pom-less projects in this
-     * session. Maven calls {@code afterProjectsRead} once per extension realm in which this class
-     * is loaded, so when multiple reactor poms declare {@code openl-maven-plugin} with
-     * {@code <extensions>true</extensions>} the participant otherwise runs more than once in the
-     * same session — repeating the scan and tripping {@code DuplicateProjectException} on the
-     * second add.
+     * Session-data key marking that pom-less projects were already injected this session. Maven calls
+     * {@code afterProjectsRead} once per extension realm, so without this guard the participant would
+     * re-run when several reactor poms declare the plugin — repeating the scan and tripping
+     * {@code DuplicateProjectException} on the second add.
      */
     private static final String SESSION_DONE_KEY = OpenLPomlessParticipant.class.getName() + ".done";
 
@@ -103,23 +92,19 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             return;
         }
 
-        // Auto-bind the deployment-BOM execution on every anchor (covers both pom-less and
-        // classic OpenL subtrees). The mojo skips silently when an anchor has no OpenL members.
+        // Auto-bind the deployment-BOM execution on every anchor; the mojo skips when it has no OpenL members.
         for (var anchor : anchors) {
             bindDeploymentBomExecution(anchor);
         }
 
         var request = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
-        // Disable transitive resolution: sibling artefacts aren't in the local repo yet and a
-        // failed lookup here would poison Aether's negative-resolution cache for the real lookup
-        // during compile.
+        // Sibling artefacts aren't in the local repo yet; a failed lookup here would poison Aether's
+        // negative-resolution cache for the real lookup during compile.
         request.setResolveDependencies(false);
 
-        // Phase 1 — stage every anchor (scan + coordinates + descriptors) and build the session-wide
-        // reactor index: groupId:artifactId → version for every OpenL artefact in the build. It spans
-        // classic <packaging>openl</packaging> modules already in the session and every pom-less
-        // project under any anchor, so the synthesiser can force a reactor sibling's version onto a
-        // <mavenArtifact> dependency that points at it (see OpenLModelSynthesizer).
+        // Phase 1 — stage every anchor and build the session-wide reactor index (groupId:artifactId →
+        // version) so the synthesiser can force a reactor sibling's version onto a <mavenArtifact> pointing
+        // at it (see OpenLModelSynthesizer).
         var reactorVersions = OpenLPackagings.reactorOpenLVersions(session.getAllProjects());
         var stagings = new ArrayList<AnchorStaging>();
         for (var anchor : anchors) {
@@ -137,10 +122,8 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             return;
         }
 
-        // Phase 2 — synthesise every staged project against the session-wide reactor index.
-        // Belt-and-braces dedup: skip any synthesised project whose GAV already sits in the reactor
-        // (e.g. a parallel anchor declared the same coordinates). Cheap to compute and makes the
-        // participant safe to re-run in tooling that re-fires the lifecycle.
+        // Phase 2 — synthesise every staged project against the reactor index, skipping any whose GAV is
+        // already in the reactor (a parallel anchor with the same coordinates, or a re-fired lifecycle).
         var existing = new HashSet<String>();
         for (var p : session.getAllProjects()) {
             existing.add(gav(p.getGroupId(), p.getArtifactId(), p.getVersion()));
@@ -178,17 +161,15 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             throw new MavenExecutionException(
                     "Failed to resort reactor after adding pom-less OpenL projects.", e);
         }
-        // Maven 3.9.x ReactorReader snapshots session.getProjects() once in its constructor and never
-        // refreshes — without this poke a sibling war module's dependency resolution can't see the
-        // pom-less zip and falls through to the remote repositories. See ReactorReaderInjector.
+        // Maven 3.9.x ReactorReader snapshots session.getProjects() once and never refreshes — without this
+        // poke a sibling can't resolve the pom-less zip from the reactor. See ReactorReaderInjector.
         ReactorReaderInjector.inject(session, added);
     }
 
     /**
      * Returns every reactor project that declares {@code openl-maven-plugin} in its own raw
-     * {@code <build><plugins>} and isn't an OpenL packaging itself. Inherited declarations and
-     * {@code <pluginManagement>}-only entries don't count — the latter never bind the plugin to
-     * the build, so they never execute. Each returned project acts as an independent anchor.
+     * {@code <build><plugins>} and isn't an OpenL packaging. Inherited and {@code <pluginManagement>}-only
+     * entries don't count — they never bind the plugin to the build. Each is an independent anchor.
      */
     private static List<MavenProject> findAnchors(MavenSession session) {
         var result = new ArrayList<MavenProject>();
@@ -205,14 +186,12 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Scans a single anchor's basedir and stages each discovered {@code rules.xml} folder: reads its
-     * descriptor, computes its coordinates, and builds the anchor-local name → coordinates index used
-     * to resolve {@code <name>} dependencies. Returns {@code null} when the anchor hosts no readable
-     * pom-less project.
+     * Scans an anchor's basedir and stages each discovered {@code rules.xml} folder: reads its descriptor,
+     * computes its coordinates, and builds the name → coordinates index used to resolve {@code <name>}
+     * dependencies. Returns {@code null} when the anchor hosts no readable pom-less project.
      * <p>
-     * Synthesis is deferred to {@link #buildPomlessProject} so it can run against the session-wide
-     * reactor index assembled across all anchors — a {@code <mavenArtifact>} pointing at a sibling
-     * under a different anchor still picks up that sibling's reactor version.
+     * Synthesis is deferred to {@link #buildPomlessProject} so it runs against the session-wide reactor
+     * index, letting a {@code <mavenArtifact>} pick up a sibling's reactor version across anchors.
      */
     private AnchorStaging stageAnchor(MavenProject anchor, MavenSession session)
             throws MavenExecutionException {
@@ -266,10 +245,8 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Synthesises a single pom-less {@link MavenProject} against the session-wide reactor index.
-     * {@code request.setResolveDependencies(false)} keeps {@code ProjectBuilder} from calling Aether
-     * on sibling artefacts that aren't installed yet — the real resolution happens later in the
-     * per-project lifecycle.
+     * Synthesises a single pom-less {@link MavenProject} against the session-wide reactor index. Dependency
+     * resolution is left to the per-project lifecycle (siblings aren't installed yet).
      */
     private MavenProject buildPomlessProject(Staged s, AnchorStaging staging,
                                              Map<String, String> reactorVersions,
@@ -282,24 +259,21 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
 
         var rulesXml = s.folder().resolve(ProjectDescriptor.FILE_NAME);
         var built = projectBuilder.build(new InMemoryModelSource(model, rulesXml), request).getProject();
-        // First call setFile to derive basedir = the OpenL folder (rulesXml.getParent()), then write the
-        // install pom to target/ and retarget getFile() at it via reflection — see materialiseInstallPom.
+        // setFile derives basedir from rules.xml's folder; materialiseInstallPom then retargets getFile()
+        // at target/openl-pom.xml via reflection, keeping basedir intact.
         built.setFile(rulesXml.toFile());
         materialiseInstallPom(built, s.folder());
         return built;
     }
 
     /**
-     * Eagerly materialises the pom-less project's install/deploy pom to {@code <folder>/target/openl-pom.xml}
-     * and retargets {@code project.getFile()} at it. This way {@code ReactorReader} returns a valid POM the
-     * very first time a downstream consumer looks the project up (the workspace reader caches that file for
-     * the rest of the session, so a war sibling's {@code mvn verify} resolves the pom-less zip correctly even
-     * before {@code install} runs). {@code openl:prepare-pom} runs again at {@code validate} to re-create the
-     * file after {@code clean:clean} wipes {@code target/}.
+     * Eagerly materialises the install/deploy pom to {@code <folder>/target/openl-pom.xml} and retargets
+     * {@code project.getFile()} at it, so {@code ReactorReader} returns a valid POM the first time a consumer
+     * looks the project up (before {@code install} runs). {@code openl:prepare-pom} re-creates it at
+     * {@code validate} after {@code clean} wipes {@code target/}.
      * <p>
-     * The retarget goes through reflection on {@link MavenProject#file} rather than {@link MavenProject#setFile}
-     * so that {@code basedir} keeps pointing at the OpenL folder — every OpenL phase that follows still finds
-     * {@code rules.xml}, the rules sources, and the build directory in the right place.
+     * The retarget uses reflection rather than {@link MavenProject#setFile} so {@code basedir} keeps pointing
+     * at the OpenL folder — see {@link #retargetProjectFile}.
      */
     private static void materialiseInstallPom(MavenProject built, Path folder) throws IOException {
         var pomFile = OpenLPackagings.materialiseInstallPom(built.getOriginalModel(), folder.resolve("target"));
@@ -307,10 +281,9 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Sets {@link MavenProject#file} via reflection without going through {@link MavenProject#setFile(File)},
-     * so the already-derived {@code basedir} (= the OpenL folder) is preserved. {@code setFile} would re-derive
-     * {@code basedir} from the new file's parent ({@code target/}), which would break every OpenL phase that
-     * reads {@code ${project.basedir}}.
+     * Sets {@link MavenProject#file} via reflection, bypassing {@link MavenProject#setFile(File)} so the
+     * derived {@code basedir} (the OpenL folder) is preserved. {@code setFile} would re-derive it from the new
+     * file's parent ({@code target/}) and break every OpenL phase that reads {@code ${project.basedir}}.
      */
     private static void retargetProjectFile(MavenProject project, File pomFile) {
         try {
@@ -323,16 +296,12 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Adds a transient {@code <build><plugin openl-maven-plugin extensions=true></build>} stub to
-     * the synthesised model. ModelBuilder loads the plugin's extension descriptor during the
-     * in-memory model build, which registers the {@code ArtifactHandler} for {@code packaging=openl}
-     * in time for validation. Pinning the version (read from the anchor) avoids Maven resolving the
-     * plugin to whatever LATEST is in central. {@code PrepareRepositoryPomMojo} strips the stub
-     * before the installed pom is written.
+     * Adds a transient {@code openl-maven-plugin} {@code <build>} stub to the synthesised model so ModelBuilder
+     * loads its extension descriptor and registers the {@code openl} {@code ArtifactHandler} in time for
+     * validation. The version is pinned from the anchor to avoid resolving LATEST.
+     * {@code PrepareRepositoryPomMojo} strips the stub before the installed pom is written.
      * <p>
-     * When the anchor's lineage declares {@code flatten-maven-plugin}, it is neutralised too: a pom-less
-     * project has no on-disk pom for flatten to read ({@code getFile()} points at {@code rules.xml}), and
-     * {@code openl:prepare-pom} already emits the flattened install/deploy pom. See {@link #disableFlatten}.
+     * An inherited {@code flatten-maven-plugin} is neutralised too — see {@link #disableFlatten}.
      */
     static void decorateForModelBuilder(Model model, String openlPluginVersion, Plugin inheritedFlatten) {
         var plugin = new Plugin();
@@ -349,12 +318,11 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Neutralises an inherited {@code flatten-maven-plugin} on a pom-less project. The skip switch
-     * ({@code flatten.skip}) only exists since {@link OpenLPackagings#FLATTEN_MIN_VERSION}, so the effective
-     * version is bumped to it (via an explicit {@code <build><plugins>} entry that overrides the inherited
-     * version) when older, then the goal is skipped through the {@code flatten.skip} project property — which
-     * the mojo honours regardless of how the inherited execution is configured. {@code PrepareRepositoryPomMojo}
-     * strips the synthesised {@code <build>} and this property from the installed pom, so neither leaks.
+     * Neutralises an inherited {@code flatten-maven-plugin} on a pom-less project (it has no on-disk pom to
+     * flatten; {@code openl:prepare-pom} emits the install pom). Sets the {@code flatten.skip} property, and
+     * — since that switch only exists since {@link OpenLPackagings#FLATTEN_MIN_VERSION} — bumps an older
+     * inherited version via an explicit {@code <build>} entry. {@code PrepareRepositoryPomMojo} strips both
+     * from the installed pom.
      */
     private static void disableFlatten(Model model, Build build, String inheritedVersion) {
         model.getProperties().setProperty(OpenLPackagings.FLATTEN_SKIP_PROPERTY, "true");
@@ -377,21 +345,17 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Finds {@code org.codehaus.mojo:flatten-maven-plugin} in a model's {@code <build>} (plugins or
-     * pluginManagement), or {@code null}. Run against the anchor's effective model to detect a flatten
-     * plugin inherited from its lineage, so it can be neutralised on the pom-less projects beneath it.
+     * Finds {@code flatten-maven-plugin} in a model's {@code <build>} (plugins or pluginManagement), or
+     * {@code null}. Run against the anchor's effective model to detect an inherited flatten plugin.
      */
     static Plugin findFlattenPlugin(Model model) {
         return findPlugin(model, OpenLPackagings::isFlattenPlugin);
     }
 
     /**
-     * Auto-attaches the {@code prepare-bom} goal to the {@code <build><plugins>} openl-maven-plugin
-     * execution list (bound to the {@code package} phase). Adds the BOM artefact (classifier
-     * {@code deployment-bom}, type {@code pom}) to the anchor's install/deploy without the user
-     * having to declare {@code <executions>} explicitly. Idempotent: skips when the execution is
-     * already present (e.g. the anchor declared it manually, or this participant fires a second
-     * time in the same session).
+     * Auto-attaches the {@code prepare-bom} goal (bound to {@code package}) to the anchor's
+     * {@code openl-maven-plugin} so the deployment BOM is installed without an explicit {@code <executions>}
+     * block. Idempotent: skips when the execution is already present.
      */
     private static void bindDeploymentBomExecution(MavenProject anchor) {
         var plugin = findOpenLPluginInBuildPlugins(anchor.getModel());
@@ -412,11 +376,9 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Resolves the {@code flattenGroupId} flag using the same precedence Maven applies to
-     * {@code @Parameter} injection: CLI/system property ({@code -Dopenl.flattenGroupId=...}) first,
-     * then the anchor plugin's {@code <configuration><flattenGroupId>...</flattenGroupId>}, then the
-     * declared default ({@code false}). Keeps {@link PrepareRepositoryPomMojo} as the single source
-     * of truth for both names.
+     * Resolves the {@code flattenGroupId} flag with Maven's {@code @Parameter} precedence: the
+     * {@code -Dopenl.flattenGroupId} system property first, then the anchor plugin's
+     * {@code <configuration><flattenGroupId>}, then the default {@code false}.
      */
     private static boolean resolveFlattenGroupId(MavenSession session, Plugin anchorPlugin) {
         var fromCli = systemProperty(session, PrepareRepositoryPomMojo.FLATTEN_GROUP_ID_PROPERTY);
@@ -461,10 +423,8 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Indexes the anchor's effective {@code <dependencyManagement>} by {@code groupId:artifactId}
-     * so the synthesiser can override the version on each translated dependency. Returns
-     * {@code null} when the anchor declares no management — saves an empty-map allocation per
-     * synthesised project.
+     * Indexes the anchor's effective {@code <dependencyManagement>} by {@code groupId:artifactId} so the
+     * synthesiser can override translated dependency versions. Returns {@code null} when none is declared.
      */
     private static Map<String, Dependency> collectDependencyManagement(Model anchor) {
         var dm = anchor.getDependencyManagement();
@@ -479,27 +439,21 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Returns the {@code openl-maven-plugin} {@link Plugin} entry declared by the given model in
-     * either {@code <build><plugins>} or {@code <build><pluginManagement><plugins>}, or {@code null}
-     * if absent.
+     * Returns the {@code openl-maven-plugin} entry from the model's {@code <build><plugins>} or
+     * {@code <pluginManagement>}, or {@code null}.
      * <p>
-     * Use this only to read default configuration values (plugin version, {@code flattenGroupId})
-     * that {@code <pluginManagement>} may legitimately supply. To decide whether a project is an
-     * anchor or to host the auto-bound {@code prepare-bom} execution, use
-     * {@link #findOpenLPluginInBuildPlugins} instead — those concern the plugin that actually
-     * executes, which pluginManagement alone never makes happen.
+     * Use only to read default config values (plugin version, {@code flattenGroupId}) that
+     * {@code <pluginManagement>} may supply. To decide anchor status or host the {@code prepare-bom}
+     * execution, use {@link #findOpenLPluginInBuildPlugins} — those need the plugin that actually executes.
      */
     private static Plugin findOpenLPlugin(Model model) {
         return findPlugin(model, OpenLPackagings::isOpenLPlugin);
     }
 
     /**
-     * Returns the {@code openl-maven-plugin} {@link Plugin} entry declared in the model's
-     * {@code <build><plugins>}, or {@code null} if absent.
-     * <p>
-     * Ignores {@code <pluginManagement>}: a plugin managed there is not bound to the build and never
-     * executes, so it can neither act as an anchor nor host the auto-bound {@code prepare-bom}
-     * execution.
+     * Returns the {@code openl-maven-plugin} entry from the model's {@code <build><plugins>}, or {@code null}.
+     * Ignores {@code <pluginManagement>} — a managed-only plugin never binds to the build, so it can't be an
+     * anchor or host the {@code prepare-bom} execution.
      */
     static Plugin findOpenLPluginInBuildPlugins(Model model) {
         if (model == null || model.getBuild() == null) {
@@ -578,11 +532,10 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * One anchor's staged state, captured before synthesis so the session-wide reactor index can be
-     * assembled across all anchors first. Holds the anchor, the shared version applied to its pom-less
-     * projects, the {@code openl-maven-plugin} version pinned on the synthesised models, the anchor's
-     * {@code <name>} → coordinates index, its effective {@code <dependencyManagement>}, and the staged
-     * projects awaiting synthesis.
+     * One anchor's staged state, captured before synthesis so the reactor index can be assembled across all
+     * anchors first: the anchor, the version applied to its pom-less projects, the pinned
+     * {@code openl-maven-plugin} version, the name → coordinates index, the effective
+     * {@code <dependencyManagement>}, and the staged projects awaiting synthesis.
      */
     private record AnchorStaging(MavenProject anchor, String version, String openlPluginVersion,
                                  Map<String, OpenLCoordinates> names,

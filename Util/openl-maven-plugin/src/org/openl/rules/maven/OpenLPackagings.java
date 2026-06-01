@@ -15,23 +15,12 @@ import org.apache.maven.project.MavenProject;
 import org.openl.rules.project.model.RulesDeploy;
 
 /**
- * Single source of truth for OpenL packaging constants and the small pure functions shared between
- * openl-maven-plugin mojos and {@code OpenLPomlessParticipant}.
+ * Shared OpenL packaging constants and pure helpers used by the openl-maven-plugin mojos and
+ * {@code OpenLPomlessParticipant}: the {@code openl}/{@code openl-jar} packaging strings and their Maven
+ * dependency types, the {@link #isOpenL(String)} predicate, the {@link #dependencyType(String)} mapping, and
+ * the {@link #hasEmptyPublishers(Path)} check.
  * <p>
- * Centralises:
- * <ul>
- *     <li>Packaging type strings — {@link #OPENL_PACKAGING}, {@link #OPENL_JAR_PACKAGING} —
- *         and their corresponding Maven dependency types ({@link #ZIP_DEPENDENCY_TYPE},
- *         {@link #JAR_DEPENDENCY_TYPE}). The same strings appear in
- *         {@code META-INF/plexus/components.xml} — keep them in sync.</li>
- *     <li>{@link #isOpenL(String)} — predicate used to skip OpenL projects when looking for
- *         pom-less anchors and to include them when assembling the deployment BOM.</li>
- *     <li>{@link #dependencyType(String)} — packaging → {@code <type>} mapping for synthesised
- *         {@code <dependency>} entries.</li>
- *     <li>{@link #hasEmptyPublishers(Path)} — empty-{@code <publishers/>} check that
- *         {@code PackageMojo} uses to suppress the {@code *-deployment.zip} attachment and that
- *         {@code PrepareDeploymentBomMojo} uses to predict the same.</li>
- * </ul>
+ * The packaging strings also appear in {@code META-INF/plexus/components.xml} — keep them in sync.
  *
  * @author Yury Molchan
  */
@@ -71,10 +60,9 @@ public final class OpenLPackagings {
     public static final String INSTALL_POM_FILE_NAME = "openl-pom.xml";
 
     /**
-     * Writes a pom-less project's install/deploy pom into {@code targetDir} — the {@link Model#getOriginalModel()
-     * raw model} stripped of {@code <parent>}, {@code <build>}, and the transient {@code flatten.skip} property.
-     * Returns the path to the written file. Idempotent: overwrites any previous content (lets the participant
-     * write eagerly at session start AND {@code openl:prepare-pom} re-create the file after {@code clean}).
+     * Writes a pom-less project's install/deploy pom into {@code targetDir}: the raw model stripped of
+     * {@code <parent>}, {@code <build>}, and the transient {@code flatten.skip} property. Returns the written
+     * file. Idempotent — overwrites any previous content.
      */
     public static Path materialiseInstallPom(Model rawModel, Path targetDir) throws IOException {
         var minimal = rawModel.clone();
@@ -110,9 +98,8 @@ public final class OpenLPackagings {
     }
 
     /**
-     * Maps every OpenL artefact ({@code openl}/{@code openl-jar} packaging) in {@code projects} to its
-     * version, keyed by {@code groupId:artifactId}. The first occurrence of a coordinate wins. The
-     * returned map is a mutable {@link HashMap} so callers can fold in further entries.
+     * Maps every OpenL artefact in {@code projects} to its version, keyed by {@code groupId:artifactId} (first
+     * occurrence wins). The returned {@link HashMap} is mutable so callers can fold in further entries.
      */
     public static Map<String, String> reactorOpenLVersions(Collection<MavenProject> projects) {
         var map = new HashMap<String, String>();
@@ -125,25 +112,20 @@ public final class OpenLPackagings {
     }
 
     /**
-     * Maps OpenL packaging to the Maven dependency type used in synthesised {@code <dependency>}
-     * entries: {@code openl} → {@code zip}, {@code openl-jar} → {@code jar}. Returns
-     * {@link #ZIP_DEPENDENCY_TYPE} for any non-OpenL packaging so callers can use this as a safe
-     * default.
+     * Maps OpenL packaging to its Maven dependency type: {@code openl} → {@code zip}, {@code openl-jar} →
+     * {@code jar}. Returns {@link #ZIP_DEPENDENCY_TYPE} for any other packaging.
      */
     public static String dependencyType(String packaging) {
         return OPENL_JAR_PACKAGING.equals(packaging) ? JAR_DEPENDENCY_TYPE : ZIP_DEPENDENCY_TYPE;
     }
 
     /**
-     * Parses a {@code rules.xml} {@code <mavenArtifact>} coordinate in Aether's {@code DefaultArtifact}
-     * format — {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>} (the version is
-     * always the last segment). The {@code <extension>} maps to the dependency {@code <type>} and
-     * defaults to {@link #ZIP_DEPENDENCY_TYPE} (the OpenL artefact). Returns {@code null} when the
-     * segment count is out of the 3–5 range.
+     * Parses a {@code <mavenArtifact>} coordinate in Aether's {@code DefaultArtifact} format —
+     * {@code groupId:artifactId[:extension[:classifier]]:version} (version is always last). The extension maps
+     * to the dependency {@code <type>} and defaults to {@link #ZIP_DEPENDENCY_TYPE}. Returns {@code null} when
+     * the segment count is outside 3–5.
      * <p>
-     * The returned {@link Dependency} carries no scope/optional flag — callers decide those (e.g. the
-     * synthesiser marks {@code jar} entries {@code <optional>true</>} so downstream OpenL consumers
-     * don't inherit a project's bundled Java libs).
+     * The returned {@link Dependency} has no scope/optional flag — callers set those.
      */
     public static Dependency parseMavenArtifact(String coordinates) {
         if (coordinates == null || coordinates.isBlank()) {
@@ -165,10 +147,9 @@ public final class OpenLPackagings {
     }
 
     /**
-     * Returns {@code true} when {@code basedir/rules-deploy.xml} declares an empty
-     * {@code <publishers/>} element — the signal {@code PackageMojo} uses to suppress the
-     * auto-attached {@code *-deployment.zip} artefact. Returns {@code false} when the file is
-     * missing or declares any publisher.
+     * Returns {@code true} when {@code basedir/rules-deploy.xml} declares an empty {@code <publishers/>} —
+     * the signal to suppress the auto-attached {@code *-deployment.zip}. Returns {@code false} when the file
+     * is missing or declares any publisher.
      */
     public static boolean hasEmptyPublishers(Path basedir) {
         var rulesDeploy = RulesDeploy.read(basedir);
