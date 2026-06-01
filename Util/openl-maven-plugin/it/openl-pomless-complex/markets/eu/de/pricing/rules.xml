@@ -5,7 +5,10 @@
         </dependency>
         <dependency>
             <name>public-api</name>
-            <mavenArtifact>com.example.api:public-api:0.0.0</mavenArtifact>
+            <!-- public-api is a reactor sibling but NOT managed by the anchor. The placeholder version
+                 below is rewritten to the reactor version (0.0.0) by openl:sync-versions via the
+                 session-wide index; the synthesiser already resolves it against the reactor at build. -->
+            <mavenArtifact>com.example.api:public-api:77.77.77</mavenArtifact>
         </dependency>
     </dependencies>
 </project>

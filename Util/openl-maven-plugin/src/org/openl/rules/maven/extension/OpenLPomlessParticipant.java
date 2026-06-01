@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -20,7 +21,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -115,18 +115,50 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         // during compile.
         request.setResolveDependencies(false);
 
-        // Belt-and-braces dedup: skip any synthesised project whose GAV already sits in the
-        // reactor (e.g. a parallel anchor declared the same coordinates). Cheap to compute and
-        // makes the participant safe to re-run in tooling that re-fires the lifecycle.
+        // Phase 1 — stage every anchor (scan + coordinates + descriptors) and build the session-wide
+        // reactor index: groupId:artifactId → version for every OpenL artefact in the build. It spans
+        // classic <packaging>openl</packaging> modules already in the session and every pom-less
+        // project under any anchor, so the synthesiser can force a reactor sibling's version onto a
+        // <mavenArtifact> dependency that points at it (see OpenLModelSynthesizer).
+        var reactorVersions = OpenLPackagings.reactorOpenLVersions(session.getAllProjects());
+        var stagings = new ArrayList<AnchorStaging>();
+        for (var anchor : anchors) {
+            var staging = stageAnchor(anchor, session);
+            if (staging == null) {
+                continue;
+            }
+            stagings.add(staging);
+            for (var s : staging.staged()) {
+                reactorVersions.putIfAbsent(ga(s.coordinates().groupId(), s.coordinates().artifactId()),
+                        staging.version());
+            }
+        }
+        if (stagings.isEmpty()) {
+            return;
+        }
+
+        // Phase 2 — synthesise every staged project against the session-wide reactor index.
+        // Belt-and-braces dedup: skip any synthesised project whose GAV already sits in the reactor
+        // (e.g. a parallel anchor declared the same coordinates). Cheap to compute and makes the
+        // participant safe to re-run in tooling that re-fires the lifecycle.
         var existing = new HashSet<String>();
         for (var p : session.getAllProjects()) {
             existing.add(gav(p.getGroupId(), p.getArtifactId(), p.getVersion()));
         }
         var added = new ArrayList<MavenProject>();
-        for (var anchor : anchors) {
-            for (var p : discoverUnder(anchor, session, request)) {
-                if (existing.add(gav(p.getGroupId(), p.getArtifactId(), p.getVersion()))) {
-                    added.add(p);
+        for (var staging : stagings) {
+            for (var s : staging.staged()) {
+                MavenProject built;
+                try {
+                    built = buildPomlessProject(s, staging, reactorVersions, request);
+                } catch (IOException | ProjectBuildingException e) {
+                    throw new MavenExecutionException(
+                            "Failed to build pom-less OpenL project at '" + s.folder() + "'.", e);
+                }
+                LOG.info("Discovered pom-less OpenL project '{}:{}' at '{}'.",
+                        s.coordinates().groupId(), s.coordinates().artifactId(), s.folder());
+                if (existing.add(gav(built.getGroupId(), built.getArtifactId(), built.getVersion()))) {
+                    added.add(built);
                 }
             }
         }
@@ -173,12 +205,16 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     }
 
     /**
-     * Scans a single anchor's basedir, stages each discovered {@code rules.xml} folder, and runs
-     * each through {@code ProjectBuilder}. Returns the synthesised projects ready to be added to
-     * the reactor.
+     * Scans a single anchor's basedir and stages each discovered {@code rules.xml} folder: reads its
+     * descriptor, computes its coordinates, and builds the anchor-local name → coordinates index used
+     * to resolve {@code <name>} dependencies. Returns {@code null} when the anchor hosts no readable
+     * pom-less project.
+     * <p>
+     * Synthesis is deferred to {@link #buildPomlessProject} so it can run against the session-wide
+     * reactor index assembled across all anchors — a {@code <mavenArtifact>} pointing at a sibling
+     * under a different anchor still picks up that sibling's reactor version.
      */
-    private List<MavenProject> discoverUnder(MavenProject anchor, MavenSession session,
-                                             ProjectBuildingRequest request)
+    private AnchorStaging stageAnchor(MavenProject anchor, MavenSession session)
             throws MavenExecutionException {
         var baseGroupId = anchor.getGroupId();
         if (baseGroupId == null || baseGroupId.isBlank()) {
@@ -197,13 +233,13 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
                     "Failed to scan for pom-less OpenL projects under '" + anchorDir + "'.", e);
         }
         if (folders.isEmpty()) {
-            return List.of();
+            return null;
         }
 
         var anchorPlugin = findOpenLPlugin(anchor.getModel());
         var flattenGroupId = resolveFlattenGroupId(session, anchorPlugin);
 
-        // Pass 1 — read descriptors, compute coordinates, build the name → coordinates index.
+        // Read descriptors, compute coordinates, build the name → coordinates index.
         var staged = new ArrayList<Staged>(folders.size());
         var names = new HashMap<String, OpenLCoordinates>();
         for (var folder : folders) {
@@ -220,48 +256,36 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
             names.putIfAbsent(coords.artifactId(), coords);
         }
         if (staged.isEmpty()) {
-            return List.of();
+            return null;
         }
 
         var openlPluginVersion = anchorPlugin == null ? null : anchorPlugin.getVersion();
         var dependencyManagement = collectDependencyManagement(anchor.getModel());
-        var version = anchor.getVersion();
-        var built = new ArrayList<MavenProject>(staged.size());
-        for (var s : staged) {
-            try {
-                built.add(buildPomlessProject(s, version, openlPluginVersion, names,
-                        dependencyManagement, anchor, request));
-            } catch (IOException | ProjectBuildingException e) {
-                throw new MavenExecutionException(
-                        "Failed to build pom-less OpenL project at '" + s.folder + "'.", e);
-            }
-            LOG.info("Discovered pom-less OpenL project '{}:{}' at '{}'.",
-                    s.coordinates.groupId(), s.coordinates.artifactId(), s.folder);
-        }
-        return built;
+        return new AnchorStaging(anchor, anchor.getVersion(), openlPluginVersion, names,
+                dependencyManagement, staged);
     }
 
     /**
-     * Synthesises a single pom-less {@link MavenProject}. {@code request.setResolveDependencies(false)}
-     * keeps {@code ProjectBuilder} from calling Aether on sibling artefacts that aren't installed
-     * yet — the real resolution happens later in the per-project lifecycle.
+     * Synthesises a single pom-less {@link MavenProject} against the session-wide reactor index.
+     * {@code request.setResolveDependencies(false)} keeps {@code ProjectBuilder} from calling Aether
+     * on sibling artefacts that aren't installed yet — the real resolution happens later in the
+     * per-project lifecycle.
      */
-    private MavenProject buildPomlessProject(Staged s, String version, String openlPluginVersion,
-                                             Map<String, OpenLCoordinates> names,
-                                             Map<String, Dependency> dependencyManagement,
-                                             MavenProject anchor,
+    private MavenProject buildPomlessProject(Staged s, AnchorStaging staging,
+                                             Map<String, String> reactorVersions,
                                              ProjectBuildingRequest request)
             throws IOException, ProjectBuildingException {
-        var model = OpenLModelSynthesizer.synthesize(
-                s.coordinates, version, s.descriptor, names, dependencyManagement, anchor);
-        decorateForModelBuilder(model, openlPluginVersion, findFlattenPlugin(anchor.getModel()));
+        var anchor = staging.anchor();
+        var model = OpenLModelSynthesizer.synthesize(s.coordinates(), staging.version(), s.descriptor(),
+                staging.names(), staging.dependencyManagement(), anchor, reactorVersions);
+        decorateForModelBuilder(model, staging.openlPluginVersion(), findFlattenPlugin(anchor.getModel()));
 
-        var rulesXml = s.folder.resolve(ProjectDescriptor.FILE_NAME);
+        var rulesXml = s.folder().resolve(ProjectDescriptor.FILE_NAME);
         var built = projectBuilder.build(new InMemoryModelSource(model, rulesXml), request).getProject();
         // First call setFile to derive basedir = the OpenL folder (rulesXml.getParent()), then write the
         // install pom to target/ and retarget getFile() at it via reflection — see materialiseInstallPom.
         built.setFile(rulesXml.toFile());
-        materialiseInstallPom(built, s.folder);
+        materialiseInstallPom(built, s.folder());
         return built;
     }
 
@@ -358,28 +382,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * plugin inherited from its lineage, so it can be neutralised on the pom-less projects beneath it.
      */
     static Plugin findFlattenPlugin(Model model) {
-        if (model == null || model.getBuild() == null) {
-            return null;
-        }
-        var match = matchFlattenPlugin(model.getBuild().getPlugins());
-        if (match != null) {
-            return match;
-        }
-        var mgmt = model.getBuild().getPluginManagement();
-        return mgmt == null ? null : matchFlattenPlugin(mgmt.getPlugins());
-    }
-
-    private static Plugin matchFlattenPlugin(List<Plugin> plugins) {
-        if (plugins == null) {
-            return null;
-        }
-        for (var p : plugins) {
-            if (OpenLPackagings.FLATTEN_GROUP_ID.equals(p.getGroupId())
-                    && OpenLPackagings.FLATTEN_ARTIFACT_ID.equals(p.getArtifactId())) {
-                return p;
-            }
-        }
-        return null;
+        return findPlugin(model, OpenLPackagings::isFlattenPlugin);
     }
 
     /**
@@ -464,13 +467,13 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * synthesised project.
      */
     private static Map<String, Dependency> collectDependencyManagement(Model anchor) {
-        DependencyManagement dm = anchor.getDependencyManagement();
+        var dm = anchor.getDependencyManagement();
         if (dm == null || dm.getDependencies() == null || dm.getDependencies().isEmpty()) {
             return null;
         }
         var map = new HashMap<String, Dependency>(dm.getDependencies().size());
         for (var d : dm.getDependencies()) {
-            map.put(d.getGroupId() + ':' + d.getArtifactId(), d);
+            map.put(ga(d.getGroupId(), d.getArtifactId()), d);
         }
         return map;
     }
@@ -487,15 +490,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * executes, which pluginManagement alone never makes happen.
      */
     private static Plugin findOpenLPlugin(Model model) {
-        if (model == null || model.getBuild() == null) {
-            return null;
-        }
-        var match = matchOpenLPlugin(model.getBuild().getPlugins());
-        if (match != null) {
-            return match;
-        }
-        var mgmt = model.getBuild().getPluginManagement();
-        return mgmt == null ? null : matchOpenLPlugin(mgmt.getPlugins());
+        return findPlugin(model, OpenLPackagings::isOpenLPlugin);
     }
 
     /**
@@ -510,15 +505,32 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         if (model == null || model.getBuild() == null) {
             return null;
         }
-        return matchOpenLPlugin(model.getBuild().getPlugins());
+        return matchPlugin(model.getBuild().getPlugins(), OpenLPackagings::isOpenLPlugin);
     }
 
-    private static Plugin matchOpenLPlugin(List<Plugin> plugins) {
+    /**
+     * Finds the first plugin in the model's {@code <build>} — {@code <plugins>} first, then
+     * {@code <pluginManagement>} — whose {@code groupId}/{@code artifactId} satisfies {@code matches},
+     * or {@code null} when the model declares no {@code <build>} or nothing matches.
+     */
+    private static Plugin findPlugin(Model model, BiPredicate<String, String> matches) {
+        if (model == null || model.getBuild() == null) {
+            return null;
+        }
+        var match = matchPlugin(model.getBuild().getPlugins(), matches);
+        if (match != null) {
+            return match;
+        }
+        var mgmt = model.getBuild().getPluginManagement();
+        return mgmt == null ? null : matchPlugin(mgmt.getPlugins(), matches);
+    }
+
+    private static Plugin matchPlugin(List<Plugin> plugins, BiPredicate<String, String> matches) {
         if (plugins == null) {
             return null;
         }
         for (var p : plugins) {
-            if (OpenLPackagings.isOpenLPlugin(p.getGroupId(), p.getArtifactId())) {
+            if (matches.test(p.getGroupId(), p.getArtifactId())) {
                 return p;
             }
         }
@@ -558,6 +570,22 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         return groupId + ':' + artifactId + ':' + version;
     }
 
+    private static String ga(String groupId, String artifactId) {
+        return groupId + ':' + artifactId;
+    }
+
     private record Staged(Path folder, OpenLCoordinates coordinates, ProjectDescriptor descriptor) {
+    }
+
+    /**
+     * One anchor's staged state, captured before synthesis so the session-wide reactor index can be
+     * assembled across all anchors first. Holds the anchor, the shared version applied to its pom-less
+     * projects, the {@code openl-maven-plugin} version pinned on the synthesised models, the anchor's
+     * {@code <name>} → coordinates index, its effective {@code <dependencyManagement>}, and the staged
+     * projects awaiting synthesis.
+     */
+    private record AnchorStaging(MavenProject anchor, String version, String openlPluginVersion,
+                                 Map<String, OpenLCoordinates> names,
+                                 Map<String, Dependency> dependencyManagement, List<Staged> staged) {
     }
 }

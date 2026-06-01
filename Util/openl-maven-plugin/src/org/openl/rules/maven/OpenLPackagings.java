@@ -3,10 +3,14 @@ package org.openl.rules.maven;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.project.MavenProject;
 
 import org.openl.rules.project.model.RulesDeploy;
 
@@ -92,12 +96,32 @@ public final class OpenLPackagings {
         return PLUGIN_GROUP_ID.equals(groupId) && PLUGIN_ARTIFACT_ID.equals(artifactId);
     }
 
+    /** True when the plugin coordinates identify {@code org.codehaus.mojo:flatten-maven-plugin}. */
+    public static boolean isFlattenPlugin(String groupId, String artifactId) {
+        return FLATTEN_GROUP_ID.equals(groupId) && FLATTEN_ARTIFACT_ID.equals(artifactId);
+    }
+
     private OpenLPackagings() {
     }
 
     /** True when {@code packaging} is one of the OpenL types ({@code openl} or {@code openl-jar}). */
     public static boolean isOpenL(String packaging) {
         return OPENL_PACKAGING.equals(packaging) || OPENL_JAR_PACKAGING.equals(packaging);
+    }
+
+    /**
+     * Maps every OpenL artefact ({@code openl}/{@code openl-jar} packaging) in {@code projects} to its
+     * version, keyed by {@code groupId:artifactId}. The first occurrence of a coordinate wins. The
+     * returned map is a mutable {@link HashMap} so callers can fold in further entries.
+     */
+    public static Map<String, String> reactorOpenLVersions(Collection<MavenProject> projects) {
+        var map = new HashMap<String, String>();
+        for (var p : projects) {
+            if (isOpenL(p.getPackaging())) {
+                map.putIfAbsent(p.getGroupId() + ':' + p.getArtifactId(), p.getVersion());
+            }
+        }
+        return map;
     }
 
     /**

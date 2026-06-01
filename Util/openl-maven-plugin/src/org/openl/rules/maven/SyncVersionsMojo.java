@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -18,21 +19,28 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Reconciles the {@code <mavenArtifact>} versions declared in a project's {@code rules.xml} with the
- * versions managed by the inherited {@code <dependencyManagement>}.
+ * versions resolved from the build — the inherited {@code <dependencyManagement>} and every OpenL
+ * artefact in the reactor (a pom-less project under any anchor, or a classic {@code openl} module).
  * <p>
  * Bound to the {@code validate} phase of the {@code openl}/{@code openl-jar} lifecycles
- * ({@code META-INF/plexus/components.xml}), so it runs at the very start of every OpenL build. For a
- * pom-less project the anchor is wired as {@code <parent>}, so the project's effective
- * {@code <dependencyManagement>} carries the anchor's entries (plus any imported BOMs). This mojo
- * walks every {@code <mavenArtifact>} in {@code rules.xml}; when an entry's {@code groupId:artifactId}
- * is managed, it rewrites the coordinate's version (the last Aether segment) to the managed value.
+ * ({@code META-INF/plexus/components.xml}), so it runs at the very start of every OpenL build — after
+ * the participant has added every pom-less project to the reactor. For a pom-less project the anchor
+ * is wired as {@code <parent>}, so the project's effective {@code <dependencyManagement>} carries the
+ * anchor's entries (plus any imported BOMs). This mojo walks every {@code <mavenArtifact>} in
+ * {@code rules.xml} and rewrites the coordinate's version (the last Aether segment) to the resolved
+ * value.
  * <p>
- * The anchor's {@code <dependencyManagement>} is therefore the single source of truth: bump a version
- * there and the next build aligns every {@code rules.xml} placeholder to it. Entries whose
- * {@code groupId:artifactId} is <i>not</i> managed are left untouched (e.g. a project-local Java lib
- * pinned in {@code rules.xml}). The edit is surgical text replacement — only the version segment of a
- * managed coordinate changes, so the rest of the coordinate, the surrounding XML, comments and
- * formatting are preserved. Idempotent: a {@code rules.xml} already in sync is not rewritten.
+ * Version precedence per coordinate: the inherited {@code <dependencyManagement>} wins (the explicit
+ * opt-out — pin a sibling to a published version); otherwise an OpenL coordinate whose
+ * {@code groupId:artifactId} is a reactor artefact takes the reactor version. {@code jar}-type
+ * coordinates follow management only — they are bundled Java libs, never reactor OpenL siblings. This
+ * mirrors what {@code OpenLModelSynthesizer} writes into each synthesised pom, so the on-disk
+ * {@code rules.xml} stays aligned with the resolved build.
+ * <p>
+ * A coordinate that is neither managed nor a reactor artefact is left untouched (e.g. an external
+ * library pinned in {@code rules.xml}). The edit is surgical text replacement — only the version
+ * segment changes, so the rest of the coordinate, the surrounding XML, comments and formatting are
+ * preserved. Idempotent: a {@code rules.xml} already in sync is not rewritten.
  *
  * @author Yury Molchan
  */
@@ -43,6 +51,9 @@ public final class SyncVersionsMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    private MavenSession session;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -55,7 +66,8 @@ public final class SyncVersionsMojo extends AbstractMojo {
             return; // not a rules.xml-bearing folder
         }
         var managed = managedVersions(project);
-        if (managed.isEmpty()) {
+        var reactor = OpenLPackagings.reactorOpenLVersions(session.getAllProjects());
+        if (managed.isEmpty() && reactor.isEmpty()) {
             return; // nothing to reconcile against
         }
         String original;
@@ -64,7 +76,7 @@ public final class SyncVersionsMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Cannot read '" + rulesXml + "'.", e);
         }
-        var result = sync(original, managed);
+        var result = sync(original, managed, reactor);
         if (result.changed() == 0) {
             return; // already in sync — leave the file (and the working tree) untouched
         }
@@ -73,8 +85,7 @@ public final class SyncVersionsMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write '" + rulesXml + "'.", e);
         }
-        getLog().info("Synced " + result.changed() + " <mavenArtifact> version(s) in " + rulesXml
-                + " from the inherited <dependencyManagement>.");
+        getLog().info("Synced " + result.changed() + " <mavenArtifact> version(s) in " + rulesXml + ".");
     }
 
     /**
@@ -101,18 +112,18 @@ public final class SyncVersionsMojo extends AbstractMojo {
      * {@code groupId:artifactId} is managed, leaving the rest of the coordinate (extension,
      * classifier) and the surrounding XML untouched. Pure and side-effect free for unit testing.
      */
-    static Result sync(String rulesXml, Map<String, String> managed) {
+    static Result sync(String rulesXml, Map<String, String> managed, Map<String, String> reactor) {
         var matcher = MAVEN_ARTIFACT.matcher(rulesXml);
         var out = new StringBuilder();
         var changed = 0;
         while (matcher.find()) {
-            var synced = syncCoordinate(matcher.group(1).trim(), managed);
+            var synced = syncCoordinate(matcher.group(1).trim(), managed, reactor);
             if (synced != null) {
                 changed++;
                 matcher.appendReplacement(out,
                         Matcher.quoteReplacement("<mavenArtifact>" + synced + "</mavenArtifact>"));
             }
-            // Unmanaged / already-synced entries are skipped; appendTail (or the next replacement)
+            // Unresolved / already-synced entries are skipped; appendTail (or the next replacement)
             // copies their original text verbatim.
         }
         matcher.appendTail(out);
@@ -120,15 +131,22 @@ public final class SyncVersionsMojo extends AbstractMojo {
     }
 
     /**
-     * Returns the coordinate with its version segment replaced by the managed version, or {@code null}
-     * when the coordinate is malformed, unmanaged, or already in sync.
+     * Returns the coordinate with its version segment replaced by the resolved version, or {@code null}
+     * when the coordinate is malformed, unresolved, or already in sync. The inherited management wins;
+     * otherwise a non-{@code jar} coordinate whose {@code groupId:artifactId} is a reactor OpenL
+     * artefact takes the reactor version.
      */
-    private static String syncCoordinate(String coordinates, Map<String, String> managed) {
+    private static String syncCoordinate(String coordinates, Map<String, String> managed,
+                                         Map<String, String> reactor) {
         var dep = OpenLPackagings.parseMavenArtifact(coordinates);
         if (dep == null) {
             return null;
         }
-        var version = managed.get(dep.getGroupId() + ':' + dep.getArtifactId());
+        var ga = dep.getGroupId() + ':' + dep.getArtifactId();
+        var version = managed.get(ga);
+        if (version == null && !OpenLPackagings.JAR_DEPENDENCY_TYPE.equals(dep.getType())) {
+            version = reactor.get(ga);
+        }
         if (version == null || version.equals(dep.getVersion())) {
             return null;
         }
