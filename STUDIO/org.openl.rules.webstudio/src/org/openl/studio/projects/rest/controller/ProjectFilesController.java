@@ -143,14 +143,16 @@ public class ProjectFilesController {
             @RequestParam(value = "viewMode", defaultValue = "FLAT")
             @Parameter(description = "projects.files.param.view-mode.desc") FileViewMode viewMode,
             @RequestParam(value = "branch", required = false)
-            @Parameter(description = "projects.files.param.branch.desc") String branch
+            @Parameter(description = "projects.files.param.branch.desc") String branch,
+            @RequestParam(value = "version", required = false)
+            @Parameter(description = "projects.files.param.version.desc") String version
     ) throws ProjectException, IOException {
         BranchGuard.requireBranch(project, branch);
         if (isFolderPath(path)) {
             var basePath = stripSlashes(path);
             if (download != null) {
                 String zipName = (basePath.isEmpty() ? "files" : basePath.substring(basePath.lastIndexOf('/') + 1)) + ".zip";
-                StreamingResponseBody body = out -> resourcesService.writeFolderAsZip(project, basePath, out);
+                StreamingResponseBody body = out -> resourcesService.writeFolderAsZip(project, basePath, out, version);
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType("application/zip"))
                         .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName))
@@ -167,15 +169,15 @@ public class ProjectFilesController {
             validationProvider.validate(query, queryValidator);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(resourcesService.getResources(project, query, recursive, viewMode));
+                    .body(resourcesService.getResources(project, query, recursive, viewMode, version));
         }
         var filePath = stripLeadingSlash(path);
         if ("meta".equalsIgnoreCase(view)) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(resourcesService.getNode(project, filePath));
+                    .body(resourcesService.getNode(project, filePath, version));
         }
-        var resource = resourcesService.getResource(project, filePath);
+        var resource = resourcesService.getResource(project, filePath, version);
         var output = new ByteArrayOutputStream();
         try (var stream = resource.getContent()) {
             stream.transferTo(output);
