@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT_ID}/resources/move/rules/Algorithm.xlsx HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/files/move/rules/Algorithm.xlsx HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

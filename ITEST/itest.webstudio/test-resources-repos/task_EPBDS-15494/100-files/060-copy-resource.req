@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT_ID}/resources/copy/rules/Model.xlsx HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/files/copy/rules/Model.xlsx HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

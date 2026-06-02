@@ -1,4 +1,4 @@
-GET /rest/projects/{PROJECT_GIT_NAME}/resources?path=MISSING.md HTTP/1.1
+GET /rest/projects/{PROJECT_GIT_NAME}/files?path=MISSING.md HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Accept: application/json
 
