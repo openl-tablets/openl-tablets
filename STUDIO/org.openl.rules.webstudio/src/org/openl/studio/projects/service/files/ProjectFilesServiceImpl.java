@@ -85,6 +85,11 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
+    public FsNode getNode(@NotNull RulesProject project, @NotBlank String path) {
+        return resourceMapper.map(getResource(project, path));
+    }
+
+    @Override
     public void updateResource(@NotNull RulesProject project,
                                @NotBlank String path,
                                @NotNull InputStream content) {
