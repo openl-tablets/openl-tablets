@@ -180,6 +180,34 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         }
     }
 
+    @Override
+    public void createFolder(@NotNull RulesProject project, @NotBlank String path, boolean createParents) {
+        requireModifiable(project);
+        validateResourcePath(path);
+        String[] segments = path.split("/");
+        try {
+            AProjectFolder current = project;
+            for (int i = 0; i < segments.length; i++) {
+                String segment = segments[i];
+                if (current.hasArtefact(segment)) {
+                    AProjectArtefact artefact = current.getArtefact(segment);
+                    if (!artefact.isFolder()) {
+                        throw new ConflictException("file.path.not.folder.message", artefact.getInternalPath());
+                    }
+                    current = (AProjectFolder) artefact;
+                } else {
+                    if (!createParents && i < segments.length - 1) {
+                        throw new NotFoundException("file.parent.not.found.message", segment);
+                    }
+                    requirePermission(current, BasePermission.CREATE);
+                    current = current.addFolder(segment);
+                }
+            }
+        } catch (ProjectException e) {
+            throw new ConflictException("file.create.failed.message");
+        }
+    }
+
     /**
      * Checks that the project can be modified and user has WRITE permission.
      */
