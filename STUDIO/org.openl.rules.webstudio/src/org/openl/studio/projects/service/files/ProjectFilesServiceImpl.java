@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -205,6 +208,44 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
         } catch (ProjectException e) {
             throw new ConflictException("file.create.failed.message");
+        }
+    }
+
+    @Override
+    public void writeFolderAsZip(@NotNull RulesProject project, @NotBlank String path, @NotNull OutputStream out)
+            throws IOException {
+        requirePermission(project, BasePermission.READ);
+        AProjectArtefact artefact = findExistingArtefact(project, path);
+        if (!artefact.isFolder()) {
+            throw new BadRequestException("file.base-path.not-folder.message", new Object[]{path});
+        }
+        requirePermission(artefact, BasePermission.READ);
+        try (var zos = new ZipOutputStream(out)) {
+            zipFolder((AProjectFolder) artefact, "", zos);
+        }
+    }
+
+    /**
+     * Recursively writes the readable files of a folder into the open ZIP stream.
+     * Entry names are relative to the folder the archive was requested for.
+     */
+    private void zipFolder(AProjectFolder folder, String prefix, ZipOutputStream zos) throws IOException {
+        for (AProjectArtefact artefact : folder.getArtefacts()) {
+            if (!aclProjectsHelper.hasPermission(artefact, BasePermission.READ)) {
+                continue;
+            }
+            String entryName = prefix.isEmpty() ? artefact.getName() : prefix + "/" + artefact.getName();
+            if (artefact.isFolder()) {
+                zipFolder((AProjectFolder) artefact, entryName, zos);
+            } else {
+                zos.putNextEntry(new ZipEntry(entryName));
+                try (var in = ((AProjectResource) artefact).getContent()) {
+                    in.transferTo(zos);
+                } catch (ProjectException e) {
+                    throw new ConflictException("file.read.failed.message");
+                }
+                zos.closeEntry();
+            }
         }
     }
 

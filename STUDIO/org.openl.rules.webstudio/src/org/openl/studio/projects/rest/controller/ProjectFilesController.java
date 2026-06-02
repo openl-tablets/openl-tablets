@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -118,6 +119,8 @@ public class ProjectFilesController {
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam(value = "view", required = false)
             @Parameter(description = "projects.files.param.view.desc") String view,
+            @RequestParam(value = "download", required = false)
+            @Parameter(description = "projects.files.param.download.desc") String download,
             @RequestParam(value = "extensions", required = false)
             @Parameter(description = "projects.files.param.extensions.desc") Set<String> extensions,
             @RequestParam(value = "namePattern", required = false)
@@ -131,6 +134,14 @@ public class ProjectFilesController {
     ) throws ProjectException, IOException {
         if (isFolderPath(path)) {
             var basePath = stripSlashes(path);
+            if (download != null) {
+                String zipName = (basePath.isEmpty() ? "files" : basePath.substring(basePath.lastIndexOf('/') + 1)) + ".zip";
+                StreamingResponseBody body = out -> resourcesService.writeFolderAsZip(project, basePath, out);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType("application/zip"))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName))
+                        .body(body);
+            }
             var queryBuilder = FileCriteriaQuery.builder()
                     .basePath(basePath.isEmpty() ? null : basePath)
                     .namePattern(namePattern)
