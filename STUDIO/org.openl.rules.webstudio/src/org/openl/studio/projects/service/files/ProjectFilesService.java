@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.files;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -106,4 +108,14 @@ public interface ProjectFilesService {
      *                      if {@code false}, every parent folder must already exist
      */
     void createFolder(@NotNull RulesProject project, @NotBlank String path, boolean createParents);
+
+    /**
+     * Write a folder and all of its descendants to the stream as a ZIP archive. Entry paths
+     * are relative to the requested folder. Files the user cannot read are skipped.
+     *
+     * @param project the rules project
+     * @param path    project-relative folder path (e.g. "folder")
+     * @param out     stream the archive is written to
+     */
+    void writeFolderAsZip(@NotNull RulesProject project, @NotBlank String path, @NotNull OutputStream out) throws IOException;
 }
