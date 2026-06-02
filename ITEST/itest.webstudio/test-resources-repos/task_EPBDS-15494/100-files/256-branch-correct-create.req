@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/branch-probe.dat?branch=master HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+Created on the current branch.
