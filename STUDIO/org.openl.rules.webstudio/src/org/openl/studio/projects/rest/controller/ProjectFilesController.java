@@ -151,11 +151,15 @@ public class ProjectFilesController {
             }
             var query = queryBuilder.build();
             validationProvider.validate(query, queryValidator);
-            return ResponseEntity.ok(resourcesService.getResources(project, query, recursive, viewMode));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(resourcesService.getResources(project, query, recursive, viewMode));
         }
         var filePath = stripLeadingSlash(path);
         if ("meta".equalsIgnoreCase(view)) {
-            return ResponseEntity.ok(resourcesService.getNode(project, filePath));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(resourcesService.getNode(project, filePath));
         }
         var resource = resourcesService.getResource(project, filePath);
         var output = new ByteArrayOutputStream();
@@ -195,7 +199,7 @@ public class ProjectFilesController {
         }
     }
 
-    @PutMapping("/{*path}")
+    @PutMapping(value = "/{*path}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create-folder.summary", description = "projects.files.create-folder.desc")
     public void createFolder(
