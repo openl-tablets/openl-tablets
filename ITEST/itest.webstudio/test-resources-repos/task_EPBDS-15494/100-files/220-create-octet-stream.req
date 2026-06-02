@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/rules/UK/notes.txt?createFolders=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+Hello from octet-stream upload.

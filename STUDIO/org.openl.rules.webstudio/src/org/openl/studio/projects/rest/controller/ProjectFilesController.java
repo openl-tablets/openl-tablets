@@ -2,8 +2,8 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
-import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,15 +25,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.projects.model.files.CreateFileRequest;
 import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
-import org.openl.studio.projects.model.files.UpdateFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
@@ -52,8 +50,6 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 @Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
 @Validated
 public class ProjectFilesController {
-
-    private static final String PATH_SEPARATOR = "/";
 
     private final ProjectFilesService resourcesService;
     private final ProjectFileLookupService fileLookupService;
@@ -87,13 +83,28 @@ public class ProjectFilesController {
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
     public void createResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.files.param.base-path.desc") String path,
-            @ModelAttribute @Valid CreateFileRequest request) throws IOException {
-        var basePath = stripLeadingSlash(path);
-        var fullPath = basePath.isEmpty() ? request.relativePath() : String.join(PATH_SEPARATOR, basePath, request.relativePath());
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file,
+            @RequestParam(value = "createFolders", defaultValue = "false")
+            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders) throws IOException {
         try {
-            resourcesService.createResource(project, fullPath, request.file().getInputStream(),
-                    request.createFolders());
+            resourcesService.createResource(project, stripLeadingSlash(path), file.getInputStream(), createFolders);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @PostMapping(value = "/{*path}")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
+    public void createResourceRaw(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam(value = "createFolders", defaultValue = "false")
+            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            InputStream content) {
+        try {
+            resourcesService.createResource(project, stripLeadingSlash(path), content, createFolders);
         } finally {
             getWebStudio().reset();
         }
@@ -151,9 +162,22 @@ public class ProjectFilesController {
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
-            @ModelAttribute @Valid UpdateFileRequest request) throws IOException {
+            @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file) throws IOException {
         try {
-            resourcesService.updateResource(project, stripLeadingSlash(path), request.file().getInputStream());
+            resourcesService.updateResource(project, stripLeadingSlash(path), file.getInputStream());
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @PutMapping(value = "/{*path}")
+    @Operation(summary = "projects.files.update.summary", description = "projects.files.update.desc")
+    public void updateResourceRaw(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            InputStream content) {
+        try {
+            resourcesService.updateResource(project, stripLeadingSlash(path), content);
         } finally {
             getWebStudio().reset();
         }

@@ -1,15 +1,7 @@
-POST /rest/projects/{PROJECT_ID}/files/rules HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/files/rules/UK/Rating.xlsx?createFolders=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 
---WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="relativePath"
-
-UK/Rating.xlsx
---WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="createFolders"
-
-true
 --WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="file"; filename="Rating.xlsx"
 Content-Transfer-Encoding: binary
