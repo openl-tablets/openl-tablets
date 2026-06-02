@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -30,21 +29,17 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
-import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -63,21 +58,16 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private static final long MAX_CONTENT_SEARCH_BYTES = 1024L * 1024L;
 
     private final AclProjectsHelper aclProjectsHelper;
-    private final ProjectStateValidator projectStateValidator;
     private final FileNodeMapper resourceMapper;
-    private final ProjectFileLookupService fileLookupService;
 
     @Override
-    public List<FsNode> getResources(@NotNull RulesProject project,
+    public List<FsNode> getResources(@NotNull FileRoot root,
                                        @NotNull FileCriteriaQuery query,
                                        boolean recursive,
                                        @NotNull FileViewMode viewMode,
                                        String version) {
-        // Verify user has READ permission on the project
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
-            throw new ForbiddenException("default.message");
-        }
-        AProjectFolder projectFolder = resolveReadRoot(project, version);
+        root.requireReadable();
+        AProjectFolder projectFolder = root.readFolder(version);
         AProjectFolder baseFolder = resolveBaseFolder(projectFolder, query);
 
         var filter = buildFilterCriteria(query);
@@ -90,24 +80,24 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path, String version) {
-        requirePermission(project, BasePermission.READ);
-        var resource = findFileArtefact(resolveReadRoot(project, version), path);
+    public AProjectResource getResource(@NotNull FileRoot root, @NotBlank String path, String version) {
+        root.requireReadable();
+        var resource = findFileArtefact(root.readFolder(version), path);
         requirePermission(resource, BasePermission.READ);
         return resource;
     }
 
     @Override
-    public FsNode getNode(@NotNull RulesProject project, @NotBlank String path, String version) {
-        return resourceMapper.map(getResource(project, path, version));
+    public FsNode getNode(@NotNull FileRoot root, @NotBlank String path, String version) {
+        return resourceMapper.map(getResource(root, path, version));
     }
 
     @Override
-    public void updateResource(@NotNull RulesProject project,
+    public void updateResource(@NotNull FileRoot root,
                                @NotBlank String path,
                                @NotNull InputStream content) {
-        requireModifiable(project);
-        var resource = findFileArtefact(convertToFolder(project), path);
+        root.requireModifiable();
+        var resource = findFileArtefact(root.readFolder(null), path);
         requirePermission(resource, BasePermission.WRITE);
         InputStream validatedContent = validateContent(resource.getName(), content);
         try {
@@ -118,10 +108,10 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void deleteResource(@NotNull RulesProject project, @NotBlank String path) {
-        requireModifiable(project);
+    public void deleteResource(@NotNull FileRoot root, @NotBlank String path) {
+        root.requireModifiable();
         validateResourcePath(path);
-        AProjectArtefact found = findArtefactByPath(convertToFolder(project), path);
+        AProjectArtefact found = findArtefactByPath(root.readFolder(null), path);
         if (found == null) {
             throw new NotFoundException("file.not.found.message");
         }
@@ -134,17 +124,17 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void copyResource(@NotNull RulesProject project,
+    public void copyResource(@NotNull FileRoot root,
                              @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
-        requireModifiable(project);
+        root.requireModifiable();
         validateResourcePath(destinationPath);
-        var source = findExistingArtefact(convertToFolder(project), sourcePath);
+        var source = findExistingArtefact(root.readFolder(null), sourcePath);
         requirePermission(source, BasePermission.READ);
         requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.copy.into.itself.message");
 
         try {
-            var targetFolder = resolveOrCreateFolders(project, destinationPath,
+            var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.copy.path.conflict.message");
             copyArtefact(source, targetFolder, getFileName(destinationPath));
         } catch (ProjectException | IOException e) {
@@ -153,18 +143,18 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void moveResource(@NotNull RulesProject project,
+    public void moveResource(@NotNull FileRoot root,
                              @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
-        requireModifiable(project);
+        root.requireModifiable();
         validateResourcePath(destinationPath);
-        var source = findExistingArtefact(convertToFolder(project), sourcePath);
+        var source = findExistingArtefact(root.readFolder(null), sourcePath);
         requirePermission(source, BasePermission.READ);
         requirePermission(source, BasePermission.DELETE);
         requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.move.into.itself.message");
 
         try {
-            var targetFolder = resolveOrCreateFolders(project, destinationPath,
+            var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.move.path.conflict.message");
             String fileName = getFileName(destinationPath);
             copyArtefact(source, targetFolder, fileName);
@@ -175,15 +165,15 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void createResource(@NotNull RulesProject project,
+    public void createResource(@NotNull FileRoot root,
                                @NotBlank String path,
                                @NotNull InputStream content,
                                boolean createFolders) {
-        requireModifiable(project);
+        root.requireModifiable();
         validateResourcePath(path);
 
         try {
-            var targetFolder = resolveOrCreateFolders(project, path,
+            var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
                     createFolders, "file.path.not.folder.message");
             String fileName = getFileName(path);
             InputStream validatedContent = validateContent(fileName, content);
@@ -194,12 +184,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void createFolder(@NotNull RulesProject project, @NotBlank String path, boolean createParents) {
-        requireModifiable(project);
+    public void createFolder(@NotNull FileRoot root, @NotBlank String path, boolean createParents) {
+        root.requireModifiable();
         validateResourcePath(path);
         String[] segments = path.split("/");
         try {
-            AProjectFolder current = project;
+            AProjectFolder current = root.writeFolder();
             for (int i = 0; i < segments.length; i++) {
                 String segment = segments[i];
                 if (current.hasArtefact(segment)) {
@@ -222,10 +212,10 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void writeFolderAsZip(@NotNull RulesProject project, @NotBlank String path, @NotNull OutputStream out,
+    public void writeFolderAsZip(@NotNull FileRoot root, @NotBlank String path, @NotNull OutputStream out,
                                  String version) throws IOException {
-        requirePermission(project, BasePermission.READ);
-        AProjectArtefact artefact = findExistingArtefact(resolveReadRoot(project, version), path);
+        root.requireReadable();
+        AProjectArtefact artefact = findExistingArtefact(root.readFolder(version), path);
         if (!artefact.isFolder()) {
             throw new BadRequestException("file.base-path.not-folder.message", new Object[]{path});
         }
@@ -275,15 +265,15 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private static final long MAX_ARCHIVE_TOTAL_BYTES = 200L * 1024 * 1024;
 
     @Override
-    public void uploadArchive(@NotNull RulesProject project,
+    public void uploadArchive(@NotNull FileRoot root,
                               @NotNull String path,
                               @NotNull InputStream archive,
                               boolean createParents,
                               @NotNull ConflictPolicy conflictPolicy) throws IOException {
-        requireModifiable(project);
+        root.requireModifiable();
         if (!path.isEmpty()) {
             validateResourcePath(path);
-            requirePermission(project, BasePermission.CREATE);
+            requirePermission(root.writeFolder(), BasePermission.CREATE);
         }
         try (var zis = new ZipInputStream(archive)) {
             ZipEntry entry;
@@ -309,7 +299,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 if (total > MAX_ARCHIVE_TOTAL_BYTES) {
                     throw new BadRequestException("file.archive.too-large.message");
                 }
-                addArchiveEntry(project, fullPath, data, conflictPolicy);
+                addArchiveEntry(root.writeFolder(), fullPath, data, conflictPolicy);
             }
         } catch (ProjectException e) {
             throw new ConflictException("file.archive.upload.failed.message");
@@ -321,11 +311,11 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     /**
      * Validates one archive entry and writes it into the target folder, honoring the conflict policy.
      */
-    private void addArchiveEntry(RulesProject project, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
+    private void addArchiveEntry(AProjectFolder writeFolder, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
             throws ProjectException {
         String fileName = getFileName(fullPath);
         InputStream validated = validateContent(fileName, new ByteArrayInputStream(data));
-        AProjectFolder targetFolder = resolveOrCreateFolders(project, fullPath, true, "file.path.not.folder.message");
+        AProjectFolder targetFolder = resolveOrCreateFolders(writeFolder, fullPath, true, "file.path.not.folder.message");
         if (targetFolder.hasArtefact(fileName)) {
             switch (conflictPolicy) {
                 case FAIL -> throw new ConflictException("file.archive.entry.exists.message", fullPath);
@@ -347,12 +337,10 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public List<FsNode> search(@NotNull RulesProject project, @NotNull FileSearchQuery query) {
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
-            throw new ForbiddenException("default.message");
-        }
+    public List<FsNode> search(@NotNull FileRoot root, @NotNull FileSearchQuery query) {
+        root.requireReadable();
         if (query.scope() == FileSearchQuery.Scope.ANCESTORS) {
-            return searchAncestors(project, query);
+            return searchAncestors(root, query);
         }
         Set<String> extensions = query.extensions().stream()
                 .map(String::toLowerCase)
@@ -363,7 +351,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
         List<FsNode> result = new ArrayList<>();
         Deque<AProjectFolder> queue = new ArrayDeque<>();
-        queue.add(resolveReadRoot(project, query.version()));
+        queue.add(root.readFolder(query.version()));
         while (!queue.isEmpty()) {
             AProjectFolder folder = queue.poll();
             for (AProjectArtefact artefact : folder.getArtefacts()) {
@@ -438,39 +426,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         }
     }
 
-    private List<FsNode> searchAncestors(RulesProject project, FileSearchQuery query) {
+    private static List<FsNode> searchAncestors(FileRoot root, FileSearchQuery query) {
         String leaf = StringUtils.isBlank(query.pattern()) ? "" : query.pattern();
         String lookupPath = StringUtils.isBlank(query.from()) ? leaf : query.from() + "/" + leaf;
         if (lookupPath.isEmpty()) {
             return List.of();
         }
-        try {
-            return fileLookupService.lookup(project, lookupPath, true, false).files().stream()
-                    .map(match -> (FsNode) FileNode.builder()
-                            .path(match.path())
-                            .name(getFileName(match.path()))
-                            .basePath(parentPath(match.path()))
-                            .extension(FileUtils.getExtension(getFileName(match.path())))
-                            .build())
-                    .toList();
-        } catch (IOException e) {
-            throw new ConflictException("file.read.failed.message");
-        }
-    }
-
-    private static String parentPath(String path) {
-        int slash = path.lastIndexOf('/');
-        return slash < 0 ? "" : path.substring(0, slash);
-    }
-
-    /**
-     * Checks that the project can be modified and user has WRITE permission.
-     */
-    private void requireModifiable(RulesProject project) {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
-        }
-        requirePermission(project, BasePermission.WRITE);
+        return root.searchAncestors(lookupPath);
     }
 
     /**
@@ -564,19 +526,19 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * Resolves existing parent folders of the given path within the project, optionally creating
      * missing intermediate folders. Checks CREATE permission on the deepest existing folder.
      *
-     * @param project            the project root
+     * @param rootFolder         the writable root folder
      * @param fullPath           full resource path including file name
      * @param createMissing      if {@code true}, create missing intermediate folders;
      *                           if {@code false}, throw {@link NotFoundException}
      * @param conflictMessageKey error message key when a path segment is not a folder
      * @return the parent folder where the resource should be placed
      */
-    private AProjectFolder resolveOrCreateFolders(RulesProject project,
+    private AProjectFolder resolveOrCreateFolders(AProjectFolder rootFolder,
                                                   String fullPath,
                                                   boolean createMissing,
                                                   String conflictMessageKey) throws ProjectException {
         String[] segments = fullPath.split("/");
-        AProjectFolder targetFolder = project;
+        AProjectFolder targetFolder = rootFolder;
         int firstMissing = segments.length - 1;
 
         for (int i = 0; i < segments.length - 1; i++) {
@@ -724,42 +686,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             out.add(mapped);
         }
         return out;
-    }
-
-
-    private AProjectFolder convertToFolder(RulesProject project) {
-        AProjectFolder filteredFolder = new AProjectFolder(new HashMap<>(),
-                project.getProject(),
-                project.getRepository(),
-                project.getFolderPath());
-        project.getArtefacts().forEach(filteredFolder::addArtefact);
-        return filteredFolder;
-    }
-
-    /**
-     * Resolves the artefact tree to read from. A blank version reads the project's current state.
-     * A non-blank version reads that historical revision; an unknown revision is reported as not found.
-     */
-    private AProjectFolder resolveReadRoot(RulesProject project, String version) {
-        if (StringUtils.isBlank(version)) {
-            return convertToFolder(project);
-        }
-        var historical = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
-        try {
-            if (historical.getFileData() == null) {
-                throw new NotFoundException("file.version.not.found.message");
-            }
-            AProjectFolder root = new AProjectFolder(new HashMap<>(),
-                    historical.getProject(),
-                    historical.getRepository(),
-                    historical.getFolderPath());
-            historical.getArtefacts().forEach(root::addArtefact);
-            return root;
-        } catch (NotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw new NotFoundException("file.version.not.found.message");
-        }
     }
 
     private AProjectFolder resolveBaseFolder(AProjectFolder folder, FileCriteriaQuery query) {

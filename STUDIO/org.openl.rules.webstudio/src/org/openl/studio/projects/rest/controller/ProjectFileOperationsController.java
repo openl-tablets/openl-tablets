@@ -26,6 +26,7 @@ import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.model.files.MoveFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.FileSearchQuery;
+import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 
 /**
@@ -45,6 +46,7 @@ import org.openl.studio.projects.service.files.ProjectFilesService;
 public class ProjectFileOperationsController {
 
     private final ProjectFilesService filesService;
+    private final ProjectFileRootFactory fileRootFactory;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -60,7 +62,7 @@ public class ProjectFileOperationsController {
                          @RequestBody @Valid CopyFileRequest request) {
         BranchGuard.requireBranch(project, branch);
         try {
-            filesService.copyResource(project, request.sourcePath(), request.destinationPath());
+            filesService.copyResource(fileRootFactory.of(project), request.sourcePath(), request.destinationPath());
         } finally {
             getWebStudio().reset();
         }
@@ -74,7 +76,7 @@ public class ProjectFileOperationsController {
                          @RequestBody @Valid MoveFileRequest request) {
         BranchGuard.requireBranch(project, branch);
         try {
-            filesService.moveResource(project, request.sourcePath(), request.destinationPath());
+            filesService.moveResource(fileRootFactory.of(project), request.sourcePath(), request.destinationPath());
         } finally {
             getWebStudio().reset();
         }
@@ -87,6 +89,6 @@ public class ProjectFileOperationsController {
                                     @Parameter(description = "projects.files.param.branch.desc") String branch,
                                     @RequestBody FileSearchQuery query) {
         BranchGuard.requireBranch(project, branch);
-        return filesService.search(project, query);
+        return filesService.search(fileRootFactory.of(project), query);
     }
 }

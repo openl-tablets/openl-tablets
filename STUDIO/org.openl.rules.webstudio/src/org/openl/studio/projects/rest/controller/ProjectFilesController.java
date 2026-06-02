@@ -38,6 +38,7 @@ import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
+import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
@@ -53,6 +54,7 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 public class ProjectFilesController {
 
     private final ProjectFilesService resourcesService;
+    private final ProjectFileRootFactory fileRootFactory;
     private final BeanValidationProvider validationProvider;
     private final FileCriteriaQueryValidator queryValidator;
 
@@ -74,7 +76,7 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
         BranchGuard.requireBranch(project, branch);
         try {
-            resourcesService.createResource(project, stripLeadingSlash(path), file.getInputStream(), createFolders);
+            resourcesService.createResource(fileRootFactory.of(project), stripLeadingSlash(path), file.getInputStream(), createFolders);
         } finally {
             getWebStudio().reset();
         }
@@ -93,7 +95,7 @@ public class ProjectFilesController {
             InputStream content) {
         BranchGuard.requireBranch(project, branch);
         try {
-            resourcesService.createResource(project, stripLeadingSlash(path), content, createFolders);
+            resourcesService.createResource(fileRootFactory.of(project), stripLeadingSlash(path), content, createFolders);
         } finally {
             getWebStudio().reset();
         }
@@ -117,7 +119,7 @@ public class ProjectFilesController {
             throw new BadRequestException("file.path.requires.content.message");
         }
         try {
-            resourcesService.uploadArchive(project, stripSlashes(path), content, createFolders, conflictPolicy);
+            resourcesService.uploadArchive(fileRootFactory.of(project), stripSlashes(path), content, createFolders, conflictPolicy);
         } finally {
             getWebStudio().reset();
         }
@@ -152,7 +154,7 @@ public class ProjectFilesController {
             var basePath = stripSlashes(path);
             if (download != null) {
                 String zipName = (basePath.isEmpty() ? "files" : basePath.substring(basePath.lastIndexOf('/') + 1)) + ".zip";
-                StreamingResponseBody body = out -> resourcesService.writeFolderAsZip(project, basePath, out, version);
+                StreamingResponseBody body = out -> resourcesService.writeFolderAsZip(fileRootFactory.of(project), basePath, out, version);
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType("application/zip"))
                         .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName))
@@ -169,15 +171,15 @@ public class ProjectFilesController {
             validationProvider.validate(query, queryValidator);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(resourcesService.getResources(project, query, recursive, viewMode, version));
+                    .body(resourcesService.getResources(fileRootFactory.of(project), query, recursive, viewMode, version));
         }
         var filePath = stripLeadingSlash(path);
         if ("meta".equalsIgnoreCase(view)) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(resourcesService.getNode(project, filePath, version));
+                    .body(resourcesService.getNode(fileRootFactory.of(project), filePath, version));
         }
-        var resource = resourcesService.getResource(project, filePath, version);
+        var resource = resourcesService.getResource(fileRootFactory.of(project), filePath, version);
         var output = new ByteArrayOutputStream();
         try (var stream = resource.getContent()) {
             stream.transferTo(output);
@@ -199,7 +201,7 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
         BranchGuard.requireBranch(project, branch);
         try {
-            resourcesService.updateResource(project, stripLeadingSlash(path), file.getInputStream());
+            resourcesService.updateResource(fileRootFactory.of(project), stripLeadingSlash(path), file.getInputStream());
         } finally {
             getWebStudio().reset();
         }
@@ -215,7 +217,7 @@ public class ProjectFilesController {
             InputStream content) {
         BranchGuard.requireBranch(project, branch);
         try {
-            resourcesService.updateResource(project, stripLeadingSlash(path), content);
+            resourcesService.updateResource(fileRootFactory.of(project), stripLeadingSlash(path), content);
         } finally {
             getWebStudio().reset();
         }
@@ -236,7 +238,7 @@ public class ProjectFilesController {
             throw new BadRequestException("file.path.requires.content.message");
         }
         try {
-            resourcesService.createFolder(project, stripSlashes(path), createFolders);
+            resourcesService.createFolder(fileRootFactory.of(project), stripSlashes(path), createFolders);
         } finally {
             getWebStudio().reset();
         }
@@ -251,7 +253,7 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch) {
         BranchGuard.requireBranch(project, branch);
         try {
-            resourcesService.deleteResource(project, stripLeadingSlash(path));
+            resourcesService.deleteResource(fileRootFactory.of(project), stripLeadingSlash(path));
         } finally {
             getWebStudio().reset();
         }
