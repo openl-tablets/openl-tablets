@@ -26,7 +26,9 @@ public record FileSearchQuery(
 
         Scope scope,
 
-        String from
+        String from,
+
+        String version
 
 ) {
 

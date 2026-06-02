@@ -24,30 +24,34 @@ public interface ProjectFilesService {
      * @param query     filtering criteria
      * @param recursive whether to include nested resources recursively
      * @param viewMode  FLAT returns a flat list, NESTED returns tree structure
+     * @param version   optional historical revision to read; {@code null} or blank reads the latest
      * @return list of resources matching the criteria
      */
     List<FsNode> getResources(@NotNull RulesProject project,
                                 @NotNull FileCriteriaQuery query,
                                 boolean recursive,
-                                @NotNull FileViewMode viewMode);
+                                @NotNull FileViewMode viewMode,
+                                String version);
 
     /**
      * Get a file resource by its path.
      *
      * @param project the rules project
      * @param path    project-relative path to the resource (e.g. "folder/rules.xlsx")
+     * @param version optional historical revision to read; {@code null} or blank reads the latest
      * @return the project resource
      */
-    AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path);
+    AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path, String version);
 
     /**
      * Get metadata for a single file by its path.
      *
      * @param project the rules project
      * @param path    project-relative path to the file (e.g. "folder/rules.xlsx")
+     * @param version optional historical revision to read; {@code null} or blank reads the latest
      * @return file metadata
      */
-    FsNode getNode(@NotNull RulesProject project, @NotBlank String path);
+    FsNode getNode(@NotNull RulesProject project, @NotBlank String path, String version);
 
     /**
      * Update a file resource with new content.
@@ -116,8 +120,10 @@ public interface ProjectFilesService {
      * @param project the rules project
      * @param path    project-relative folder path (e.g. "folder")
      * @param out     stream the archive is written to
+     * @param version optional historical revision to read; {@code null} or blank reads the latest
      */
-    void writeFolderAsZip(@NotNull RulesProject project, @NotBlank String path, @NotNull OutputStream out) throws IOException;
+    void writeFolderAsZip(@NotNull RulesProject project, @NotBlank String path, @NotNull OutputStream out, String version)
+            throws IOException;
 
     /**
      * Expand a ZIP archive into a folder. Entry paths are resolved relative to the folder and
