@@ -71,40 +71,40 @@ public class ProjectFilesController {
     }
 
     @GetMapping
-    @Operation(summary = "projects.resources.lookup.summary", description = "projects.resources.lookup.desc")
+    @Operation(summary = "projects.files.lookup.summary", description = "projects.files.lookup.desc")
     public ProjectFileLookupResponse lookupFile(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam("path")
-            @Parameter(description = "projects.resources.lookup.param.path.desc")
+            @Parameter(description = "projects.files.lookup.param.path.desc")
             String path,
             @RequestParam(value = "searchParents", defaultValue = "false")
-            @Parameter(description = "projects.resources.lookup.param.search-parents.desc")
+            @Parameter(description = "projects.files.lookup.param.search-parents.desc")
             boolean searchParents,
             @RequestParam(value = "includeContent", defaultValue = "false")
-            @Parameter(description = "projects.resources.lookup.param.include-content.desc")
+            @Parameter(description = "projects.files.lookup.param.include-content.desc")
             boolean includeContent
     ) throws IOException {
         return fileLookupService.lookup(project, path, searchParents, includeContent);
     }
 
     @GetMapping("/list/{*path}")
-    @Operation(summary = "projects.resources.get.summary", description = "projects.resources.get.desc")
+    @Operation(summary = "projects.files.get.summary", description = "projects.files.get.desc")
     public List<FsNode> getResources(@ProjectId @PathVariable("projectId") RulesProject project,
-                                       @PathVariable @Parameter(description = "projects.resources.param.base-path.desc") String path,
+                                       @PathVariable @Parameter(description = "projects.files.param.base-path.desc") String path,
                                        @RequestParam(value = "extensions", required = false)
-                                       @Parameter(description = "projects.resources.param.extensions.desc")
+                                       @Parameter(description = "projects.files.param.extensions.desc")
                                        Set<String> extensions,
                                        @RequestParam(value = "namePattern", required = false)
-                                       @Parameter(description = "projects.resources.param.name-pattern.desc")
+                                       @Parameter(description = "projects.files.param.name-pattern.desc")
                                        String namePattern,
                                        @RequestParam(value = "foldersOnly", defaultValue = "false")
-                                       @Parameter(description = "projects.resources.param.folders-only.desc")
+                                       @Parameter(description = "projects.files.param.folders-only.desc")
                                        boolean foldersOnly,
                                        @RequestParam(value = "recursive", defaultValue = "false")
-                                       @Parameter(description = "projects.resources.param.recursive.desc")
+                                       @Parameter(description = "projects.files.param.recursive.desc")
                                        boolean recursive,
                                        @RequestParam(value = "viewMode", defaultValue = "FLAT")
-                                       @Parameter(description = "projects.resources.param.view-mode.desc")
+                                       @Parameter(description = "projects.files.param.view-mode.desc")
                                        FileViewMode viewMode
     ) {
         var basePath = stripLeadingSlash(path);
@@ -124,10 +124,10 @@ public class ProjectFilesController {
 
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "projects.resources.create.summary", description = "projects.resources.create.desc")
+    @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
     public void createResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.resources.param.base-path.desc") String path,
+            @PathVariable @Parameter(description = "projects.files.param.base-path.desc") String path,
             @ModelAttribute @Valid CreateFileRequest request) throws IOException {
         var basePath = stripLeadingSlash(path);
         var fullPath = basePath.isEmpty() ? request.relativePath() : String.join(PATH_SEPARATOR, basePath, request.relativePath());
@@ -140,10 +140,10 @@ public class ProjectFilesController {
     }
 
     @GetMapping(value = "/{*path}", produces = MediaType.ALL_VALUE)
-    @Operation(summary = "projects.resources.download.summary", description = "projects.resources.download.desc")
+    @Operation(summary = "projects.files.download.summary", description = "projects.files.download.desc")
     public ResponseEntity<byte[]> downloadResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path) throws ProjectException, IOException {
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path) throws ProjectException, IOException {
         var resource = resourcesService.getResource(project, stripLeadingSlash(path));
         var output = new ByteArrayOutputStream();
         try (var stream = resource.getContent()) {
@@ -157,10 +157,10 @@ public class ProjectFilesController {
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "projects.resources.update.summary", description = "projects.resources.update.desc")
+    @Operation(summary = "projects.files.update.summary", description = "projects.files.update.desc")
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @ModelAttribute @Valid UpdateFileRequest request) throws IOException {
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), request.file().getInputStream());
@@ -171,10 +171,10 @@ public class ProjectFilesController {
 
     @PostMapping("/copy/{*path}")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "projects.resources.copy.summary", description = "projects.resources.copy.desc")
+    @Operation(summary = "projects.files.copy.summary", description = "projects.files.copy.desc")
     public void copyResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestBody @Valid CopyFileRequest request) {
         try {
             resourcesService.copyResource(project, stripLeadingSlash(path), request.destinationPath());
@@ -184,10 +184,10 @@ public class ProjectFilesController {
     }
 
     @PostMapping("/move/{*path}")
-    @Operation(summary = "projects.resources.move.summary", description = "projects.resources.move.desc")
+    @Operation(summary = "projects.files.move.summary", description = "projects.files.move.desc")
     public void moveResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestBody @Valid MoveFileRequest request) {
         try {
             resourcesService.moveResource(project, stripLeadingSlash(path), request.destinationPath());
@@ -197,10 +197,10 @@ public class ProjectFilesController {
     }
 
     @DeleteMapping("/{*path}")
-    @Operation(summary = "projects.resources.delete.summary", description = "projects.resources.delete.desc")
+    @Operation(summary = "projects.files.delete.summary", description = "projects.files.delete.desc")
     public void deleteResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path) {
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path) {
         try {
             resourcesService.deleteResource(project, stripLeadingSlash(path));
         } finally {

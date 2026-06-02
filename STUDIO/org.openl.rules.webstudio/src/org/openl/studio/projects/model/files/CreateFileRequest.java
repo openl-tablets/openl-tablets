@@ -11,15 +11,15 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public record CreateFileRequest(
 
-        @Schema(description = "projects.resources.param.relative-path.desc")
+        @Schema(description = "projects.files.param.relative-path.desc")
         @NotBlank
         String relativePath,
 
-        @Schema(description = "projects.resources.param.file.desc")
+        @Schema(description = "projects.files.param.file.desc")
         @NotNull
         MultipartFile file,
 
-        @Schema(description = "projects.resources.param.create-folders.desc")
+        @Schema(description = "projects.files.param.create-folders.desc")
         boolean createFolders
 
 ) {

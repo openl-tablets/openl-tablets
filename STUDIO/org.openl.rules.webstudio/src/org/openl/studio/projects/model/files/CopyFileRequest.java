@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public record CopyFileRequest(
 
-        @Schema(description = "projects.resources.copy.param.dest-path.desc")
+        @Schema(description = "projects.files.copy.param.dest-path.desc")
         @NotBlank
         String destinationPath
 

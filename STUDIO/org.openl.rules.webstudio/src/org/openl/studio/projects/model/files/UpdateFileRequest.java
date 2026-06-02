@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public record UpdateFileRequest(
 
-        @Schema(description = "projects.resources.param.file.desc")
+        @Schema(description = "projects.files.param.file.desc")
         @NotNull
         MultipartFile file
 

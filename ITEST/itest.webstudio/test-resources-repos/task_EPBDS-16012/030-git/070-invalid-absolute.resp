@@ -2,6 +2,6 @@ HTTP/1.1 400
 Content-Type: application/json
 
 {
-  "code": "openl.error.400.resource.path.invalid.message",
+  "code": "openl.error.400.file.path.invalid.message",
   "message": "The resource path is not valid."
 }

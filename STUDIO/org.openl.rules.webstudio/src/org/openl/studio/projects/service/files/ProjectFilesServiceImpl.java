@@ -95,7 +95,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             resource.setContent(validatedContent);
         } catch (ProjectException e) {
-            throw new ConflictException("resource.update.failed.message");
+            throw new ConflictException("file.update.failed.message");
         }
     }
 
@@ -105,13 +105,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         validateResourcePath(path);
         AProjectArtefact found = findArtefactByPath(convertToFolder(project), path);
         if (found == null) {
-            throw new NotFoundException("resource.not.found.message");
+            throw new NotFoundException("file.not.found.message");
         }
         requirePermission(found, BasePermission.DELETE);
         try {
             found.delete();
         } catch (ProjectException e) {
-            throw new ConflictException("resource.delete.failed.message");
+            throw new ConflictException("file.delete.failed.message");
         }
     }
 
@@ -126,13 +126,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
         try {
             var targetFolder = resolveOrCreateFolders(project, destinationPath,
-                    true, "resource.copy.path.conflict.message");
+                    true, "file.copy.path.conflict.message");
             String fileName = getFileName(destinationPath);
             try (var content = source.getContent()) {
                 targetFolder.addResource(fileName, content);
             }
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("resource.copy.failed.message");
+            throw new ConflictException("file.copy.failed.message");
         }
     }
 
@@ -148,14 +148,14 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
         try {
             var targetFolder = resolveOrCreateFolders(project, destinationPath,
-                    true, "resource.move.path.conflict.message");
+                    true, "file.move.path.conflict.message");
             String fileName = getFileName(destinationPath);
             try (var content = source.getContent()) {
                 targetFolder.addResource(fileName, content);
             }
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("resource.move.failed.message");
+            throw new ConflictException("file.move.failed.message");
         }
     }
 
@@ -169,12 +169,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
         try {
             var targetFolder = resolveOrCreateFolders(project, path,
-                    createFolders, "resource.path.not.folder.message");
+                    createFolders, "file.path.not.folder.message");
             String fileName = getFileName(path);
             InputStream validatedContent = validateContent(fileName, content);
             targetFolder.addResource(fileName, validatedContent);
         } catch (ProjectException e) {
-            throw new ConflictException("resource.create.failed.message");
+            throw new ConflictException("file.create.failed.message");
         }
     }
 
@@ -223,7 +223,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         validateResourcePath(path);
         AProjectArtefact found = findArtefactByPath(convertToFolder(project), path);
         if (found == null || found.isFolder()) {
-            throw new NotFoundException("resource.not.found.message");
+            throw new NotFoundException("file.not.found.message");
         }
         return (AProjectResource) found;
     }
@@ -251,7 +251,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             String segment = segments[i];
             if (!targetFolder.hasArtefact(segment)) {
                 if (!createMissing) {
-                    throw new NotFoundException("resource.parent.not.found.message", segment);
+                    throw new NotFoundException("file.parent.not.found.message", segment);
                 }
                 firstMissing = i;
                 break;
@@ -297,15 +297,15 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             String lcName = fileName.toLowerCase();
             if (lcName.endsWith(".xls") && !lcName.endsWith(".xlsx") && !lcName.endsWith(".xlsm")) {
                 if (!FileSignatureHelper.isOle2Sign(sign)) {
-                    throw new BadRequestException("resource.content.invalid.message");
+                    throw new BadRequestException("file.content.invalid.message");
                 }
             } else {
                 if (!FileSignatureHelper.isArchiveSign(sign)) {
-                    throw new BadRequestException("resource.content.invalid.message");
+                    throw new BadRequestException("file.content.invalid.message");
                 }
             }
         } catch (IOException e) {
-            throw new BadRequestException("resource.content.invalid.message");
+            throw new BadRequestException("file.content.invalid.message");
         }
         return buffered;
     }
@@ -319,7 +319,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             NameChecker.validatePath(path);
         } catch (IOException e) {
-            throw new BadRequestException("resource.path.invalid.message");
+            throw new BadRequestException("file.path.invalid.message");
         }
     }
 
@@ -423,7 +423,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             artefact = null;
         }
         if (artefact == null || !artefact.isFolder()) {
-            throw new BadRequestException("resource.base-path.not-folder.message", new Object[]{query.basePath()});
+            throw new BadRequestException("file.base-path.not-folder.message", new Object[]{query.basePath()});
         }
         return (AProjectFolder) artefact;
     }
