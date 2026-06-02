@@ -1,0 +1,9 @@
+POST /rest/projects/{PROJECT_ID}/file-search HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "pattern": "**/sub",
+  "type": "FOLDER",
+  "recursive": true
+}

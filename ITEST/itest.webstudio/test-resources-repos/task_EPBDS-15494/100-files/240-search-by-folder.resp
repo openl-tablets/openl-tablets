@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "imported/sub",
+    "name": "sub",
+    "type": "folder",
+    "basePath": "imported"
+  }
+]
