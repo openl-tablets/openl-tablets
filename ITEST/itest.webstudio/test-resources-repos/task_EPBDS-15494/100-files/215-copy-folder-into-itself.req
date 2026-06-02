@@ -1,0 +1,8 @@
+POST /rest/projects/{PROJECT_ID}/file-copy HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "sourcePath": "rules",
+  "destinationPath": "rules/nested"
+}

@@ -121,16 +121,14 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                              @NotBlank String destinationPath) {
         requireModifiable(project);
         validateResourcePath(destinationPath);
-        var source = findFileArtefact(project, sourcePath);
+        var source = findExistingArtefact(project, sourcePath);
         requirePermission(source, BasePermission.READ);
+        requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.copy.into.itself.message");
 
         try {
             var targetFolder = resolveOrCreateFolders(project, destinationPath,
                     true, "file.copy.path.conflict.message");
-            String fileName = getFileName(destinationPath);
-            try (var content = source.getContent()) {
-                targetFolder.addResource(fileName, content);
-            }
+            copyArtefact(source, targetFolder, getFileName(destinationPath));
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.copy.failed.message");
         }
@@ -142,17 +140,16 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                              @NotBlank String destinationPath) {
         requireModifiable(project);
         validateResourcePath(destinationPath);
-        var source = findFileArtefact(project, sourcePath);
+        var source = findExistingArtefact(project, sourcePath);
         requirePermission(source, BasePermission.READ);
         requirePermission(source, BasePermission.DELETE);
+        requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.move.into.itself.message");
 
         try {
             var targetFolder = resolveOrCreateFolders(project, destinationPath,
                     true, "file.move.path.conflict.message");
             String fileName = getFileName(destinationPath);
-            try (var content = source.getContent()) {
-                targetFolder.addResource(fileName, content);
-            }
+            copyArtefact(source, targetFolder, fileName);
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.move.failed.message");
@@ -226,6 +223,53 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             throw new NotFoundException("file.not.found.message");
         }
         return (AProjectResource) found;
+    }
+
+    /**
+     * Validates the path and locates an artefact, which may be a file or a folder.
+     *
+     * @throws BadRequestException if the path is invalid
+     * @throws NotFoundException   if nothing exists at the path
+     */
+    private AProjectArtefact findExistingArtefact(RulesProject project, String path) {
+        validateResourcePath(path);
+        AProjectArtefact found = findArtefactByPath(convertToFolder(project), path);
+        if (found == null) {
+            throw new NotFoundException("file.not.found.message");
+        }
+        return found;
+    }
+
+    /**
+     * Rejects copying or moving a folder into itself or into one of its own descendants.
+     * Such a destination would otherwise cause the recursive copy to never finish.
+     */
+    private static void requireNotPlacedIntoItself(AProjectArtefact source,
+                                                   String sourcePath,
+                                                   String destinationPath,
+                                                   String messageKey) {
+        if (source.isFolder()
+                && (destinationPath.equals(sourcePath) || destinationPath.startsWith(sourcePath + "/"))) {
+            throw new ConflictException(messageKey, sourcePath);
+        }
+    }
+
+    /**
+     * Copies an artefact into the target folder under the given name. A file is copied by
+     * content. A folder is replicated together with all of its descendants.
+     */
+    private void copyArtefact(AProjectArtefact source, AProjectFolder targetFolder, String name)
+            throws ProjectException, IOException {
+        if (source.isFolder()) {
+            AProjectFolder created = targetFolder.addFolder(name);
+            for (AProjectArtefact child : ((AProjectFolder) source).getArtefacts()) {
+                copyArtefact(child, created, child.getName());
+            }
+        } else {
+            try (var content = ((AProjectResource) source).getContent()) {
+                targetFolder.addResource(name, content);
+            }
+        }
     }
 
     /**
