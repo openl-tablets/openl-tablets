@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "EPBDS-16012-git/services/rating/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "EPBDS-16012-git/services/rating",
+    "extension": "md"
+  },
+  {
+    "path": "EPBDS-16012-git/services/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "EPBDS-16012-git/services",
+    "extension": "md"
+  },
+  {
+    "path": "EPBDS-16012-git/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "EPBDS-16012-git",
+    "extension": "md"
+  }
+]

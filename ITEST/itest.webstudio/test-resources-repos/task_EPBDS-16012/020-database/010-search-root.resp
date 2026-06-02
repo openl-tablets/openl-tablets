@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "DESIGN/rules/EPBDS-16012-db/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "DESIGN/rules/EPBDS-16012-db",
+    "extension": "md"
+  }
+]
