@@ -1,4 +1,4 @@
-package org.openl.studio.projects.validator.resource;
+package org.openl.studio.projects.validator.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,38 +12,38 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.BindingResult;
 
 import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
-import org.openl.studio.projects.service.resources.ResourceCriteriaQuery;
+import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.validator.MockConfiguration;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
-class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest {
+class FileCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest {
 
     @Autowired
-    private ResourceCriteriaQueryValidator validator;
+    private FileCriteriaQueryValidator validator;
 
     // --- valid queries ---
 
     @Test
     void validate_defaultQuery_noErrors() {
-        var query = ResourceCriteriaQuery.builder().build();
+        var query = FileCriteriaQuery.builder().build();
         assertNull(validateAndGetResult(query, validator));
     }
 
     @Test
     void validate_validBasePath_noErrors() {
-        var query = ResourceCriteriaQuery.builder().basePath("rules/UK").build();
+        var query = FileCriteriaQuery.builder().basePath("rules/UK").build();
         assertNull(validateAndGetResult(query, validator));
     }
 
     @Test
     void validate_validExtensions_noErrors() {
-        var query = ResourceCriteriaQuery.builder().extensions(Set.of("xlsx", "xml")).build();
+        var query = FileCriteriaQuery.builder().extensions(Set.of("xlsx", "xml")).build();
         assertNull(validateAndGetResult(query, validator));
     }
 
     @Test
     void validate_validNamePattern_noErrors() {
-        var query = ResourceCriteriaQuery.builder().namePattern("Model").build();
+        var query = FileCriteriaQuery.builder().namePattern("Model").build();
         assertNull(validateAndGetResult(query, validator));
     }
 
@@ -51,7 +51,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_basePathWithNullByte_rejectsBasePath() {
-        var query = ResourceCriteriaQuery.builder().basePath("rules/\0evil").build();
+        var query = FileCriteriaQuery.builder().basePath("rules/\0evil").build();
         var result = validateAndGetResult(query, validator);
         assertFieldError("basePath", "The base path 'rules/\0evil' is not valid.", "rules/\0evil",
                 result.getFieldError("basePath"));
@@ -59,25 +59,25 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_basePathStartingWithSlash_rejectsBasePath() {
-        var query = ResourceCriteriaQuery.builder().basePath("/etc/passwd").build();
+        var query = FileCriteriaQuery.builder().basePath("/etc/passwd").build();
         assertBasePathInvalid(query, "/etc/passwd");
     }
 
     @Test
     void validate_basePathStartingWithBackslash_rejectsBasePath() {
-        var query = ResourceCriteriaQuery.builder().basePath("\\windows").build();
+        var query = FileCriteriaQuery.builder().basePath("\\windows").build();
         assertBasePathInvalid(query, "\\windows");
     }
 
     @Test
     void validate_basePathWithTraversal_rejectsBasePath() {
-        var query = ResourceCriteriaQuery.builder().basePath("rules/../../../etc").build();
+        var query = FileCriteriaQuery.builder().basePath("rules/../../../etc").build();
         assertBasePathInvalid(query, "rules/../../../etc");
     }
 
     @Test
     void validate_basePathWithDotDot_rejectsBasePath() {
-        var query = ResourceCriteriaQuery.builder().basePath("..").build();
+        var query = FileCriteriaQuery.builder().basePath("..").build();
         assertBasePathInvalid(query, "..");
     }
 
@@ -86,7 +86,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
     @Test
     void validate_namePatternTooLong_rejectsNamePattern() {
         var longPattern = "a".repeat(256);
-        var query = ResourceCriteriaQuery.builder().namePattern(longPattern).build();
+        var query = FileCriteriaQuery.builder().namePattern(longPattern).build();
         var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertNotNull(result.getFieldError());
@@ -95,13 +95,13 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_namePatternMaxLength_noErrors() {
-        var query = ResourceCriteriaQuery.builder().namePattern("a".repeat(255)).build();
+        var query = FileCriteriaQuery.builder().namePattern("a".repeat(255)).build();
         assertNull(validateAndGetResult(query, validator));
     }
 
     @Test
     void validate_namePatternWithForwardSlash_rejectsNamePattern() {
-        var query = ResourceCriteriaQuery.builder().namePattern("foo/bar").build();
+        var query = FileCriteriaQuery.builder().namePattern("foo/bar").build();
         var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertNotNull(result.getFieldError());
@@ -110,7 +110,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_namePatternWithBackslash_rejectsNamePattern() {
-        var query = ResourceCriteriaQuery.builder().namePattern("foo\\bar").build();
+        var query = FileCriteriaQuery.builder().namePattern("foo\\bar").build();
         var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertNotNull(result.getFieldError());
@@ -121,7 +121,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_extensionTooLong_rejectsExtension() {
-        var query = ResourceCriteriaQuery.builder().extension("a".repeat(21)).build();
+        var query = FileCriteriaQuery.builder().extension("a".repeat(21)).build();
         var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertNotNull(result.getFieldError());
@@ -130,7 +130,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_extensionWithSpecialChars_rejectsExtension() {
-        var query = ResourceCriteriaQuery.builder().extension("xl$x").build();
+        var query = FileCriteriaQuery.builder().extension("xl$x").build();
         var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertNotNull(result.getFieldError());
@@ -139,7 +139,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_extensionWithDot_rejectsExtension() {
-        var query = ResourceCriteriaQuery.builder().extension(".xlsx").build();
+        var query = FileCriteriaQuery.builder().extension(".xlsx").build();
         var result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
     }
@@ -148,7 +148,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_foldersOnlyWithExtensions_rejectsConflict() {
-        var query = ResourceCriteriaQuery.builder()
+        var query = FileCriteriaQuery.builder()
                 .foldersOnly(true)
                 .extension("xlsx")
                 .build();
@@ -160,19 +160,19 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
 
     @Test
     void validate_foldersOnlyWithoutExtensions_noErrors() {
-        var query = ResourceCriteriaQuery.builder().foldersOnly(true).build();
+        var query = FileCriteriaQuery.builder().foldersOnly(true).build();
         assertNull(validateAndGetResult(query, validator));
     }
 
     @Test
     void validate_extensionsWithoutFoldersOnly_noErrors() {
-        var query = ResourceCriteriaQuery.builder().extension("xlsx").build();
+        var query = FileCriteriaQuery.builder().extension("xlsx").build();
         assertNull(validateAndGetResult(query, validator));
     }
 
     // --- helpers ---
 
-    private void assertBasePathInvalid(ResourceCriteriaQuery query, String basePath) {
+    private void assertBasePathInvalid(FileCriteriaQuery query, String basePath) {
         BindingResult result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertFieldError("basePath",

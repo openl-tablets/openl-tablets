@@ -1,4 +1,4 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +30,8 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.studio.projects.model.resources.ProjectFileLookupResponse;
-import org.openl.studio.projects.model.resources.ProjectFileLookupResponse.ProjectFileMatch;
+import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
+import org.openl.studio.projects.model.files.ProjectFileLookupResponse.ProjectFileMatch;
 import org.openl.util.FileUtils;
 
 /**

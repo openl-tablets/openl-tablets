@@ -1,4 +1,4 @@
-package org.openl.studio.projects.validator.resource;
+package org.openl.studio.projects.validator.file;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import org.openl.studio.projects.service.resources.ResourceCriteriaQuery;
+import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.util.StringUtils;
 
 /**
- * Validator for {@link ResourceCriteriaQuery}.
+ * Validator for {@link FileCriteriaQuery}.
  * Validates query parameters for security and correctness.
  */
 @Component
-public class ResourceCriteriaQueryValidator implements Validator {
+public class FileCriteriaQueryValidator implements Validator {
 
     private static final int MAX_NAME_PATTERN_LENGTH = 255;
     private static final int MAX_EXTENSION_LENGTH = 20;
@@ -25,12 +25,12 @@ public class ResourceCriteriaQueryValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return ResourceCriteriaQuery.class.isAssignableFrom(clazz);
+        return FileCriteriaQuery.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        var query = (ResourceCriteriaQuery) target;
+        var query = (FileCriteriaQuery) target;
 
         validateBasePath(query.basePath(), errors);
         validateNamePattern(query.namePattern(), errors);
@@ -107,7 +107,7 @@ public class ResourceCriteriaQueryValidator implements Validator {
         }
     }
 
-    private void validateConflictingFilters(ResourceCriteriaQuery query, Errors errors) {
+    private void validateConflictingFilters(FileCriteriaQuery query, Errors errors) {
         if (query.foldersOnly() && query.extensions() != null && !query.extensions().isEmpty()) {
             errors.rejectValue(EXTENSIONS_FIELD, "resource.filters.conflict.message");
         }

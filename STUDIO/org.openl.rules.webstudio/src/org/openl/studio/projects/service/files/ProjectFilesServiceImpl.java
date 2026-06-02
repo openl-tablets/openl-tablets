@@ -1,4 +1,4 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -33,8 +33,8 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.resources.FolderResource;
-import org.openl.studio.projects.model.resources.Resource;
+import org.openl.studio.projects.model.files.FolderNode;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.FileTypeHelper;
@@ -42,24 +42,24 @@ import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Implementation of {@link ProjectResourcesService}.
+ * Implementation of {@link ProjectFilesService}.
  * Uses iterative queue-based traversal instead of recursion to avoid stack overflow.
  */
 @Slf4j
 @RequiredArgsConstructor
 @Service
 @Validated
-public class ProjectResourcesServiceImpl implements ProjectResourcesService {
+public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStateValidator projectStateValidator;
-    private final ResourceMapper resourceMapper;
+    private final FileNodeMapper resourceMapper;
 
     @Override
-    public List<Resource> getResources(@NotNull RulesProject project,
-                                       @NotNull ResourceCriteriaQuery query,
+    public List<FsNode> getResources(@NotNull RulesProject project,
+                                       @NotNull FileCriteriaQuery query,
                                        boolean recursive,
-                                       @NotNull ResourceViewMode viewMode) {
+                                       @NotNull FileViewMode viewMode) {
         // Verify user has READ permission on the project
         if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
             throw new ForbiddenException("default.message");
@@ -69,7 +69,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
         var filter = buildFilterCriteria(query);
 
-        if (viewMode == ResourceViewMode.NESTED && recursive) {
+        if (viewMode == FileViewMode.NESTED && recursive) {
             return buildNested(baseFolder, filter);
         } else {
             return buildFlatList(baseFolder, filter, recursive);
@@ -339,9 +339,9 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         return current;
     }
 
-    private List<Resource> buildNested(AProjectFolder rootFolder,
+    private List<FsNode> buildNested(AProjectFolder rootFolder,
                                        Predicate<AProjectArtefact> filter) {
-        var builtChildren = new IdentityHashMap<AProjectFolder, List<Resource>>();
+        var builtChildren = new IdentityHashMap<AProjectFolder, List<FsNode>>();
         record Frame(AProjectFolder folder, boolean expanded) {}
 
         Deque<Frame> stack = new ArrayDeque<>();
@@ -360,7 +360,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
                 }
             } else {
                 var children = buildNestedChildren(folder, filter, builtChildren);
-                children.sort(ResourceMapper.RESOURCE_COMPARATOR);
+                children.sort(FileNodeMapper.NODE_COMPARATOR);
                 builtChildren.put(folder, children);
             }
         }
@@ -368,10 +368,10 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         return builtChildren.getOrDefault(rootFolder, List.of());
     }
 
-    private List<Resource> buildNestedChildren(AProjectFolder folder,
+    private List<FsNode> buildNestedChildren(AProjectFolder folder,
                                                Predicate<AProjectArtefact> filter,
-                                               IdentityHashMap<AProjectFolder, List<Resource>> builtChildren) {
-        List<Resource> out = new ArrayList<>();
+                                               IdentityHashMap<AProjectFolder, List<FsNode>> builtChildren) {
+        List<FsNode> out = new ArrayList<>();
         for (var artefact : folder.getArtefacts()) {
             if (!artefact.isFolder()) {
                 if (filter.test(artefact)) {
@@ -383,10 +383,10 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             if (!filter.test(artefact) && childChildren.isEmpty()) {
                 continue;
             }
-            Resource mapped = resourceMapper.map(artefact);
-            if (mapped instanceof FolderResource fr && !childChildren.isEmpty()) {
+            FsNode mapped = resourceMapper.map(artefact);
+            if (mapped instanceof FolderNode fr && !childChildren.isEmpty()) {
                 mapped = fr.withChildren(childChildren.stream()
-                        .sorted(ResourceMapper.RESOURCE_COMPARATOR)
+                        .sorted(FileNodeMapper.NODE_COMPARATOR)
                         .toList());
             }
             out.add(mapped);
@@ -404,7 +404,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         return filteredFolder;
     }
 
-    private AProjectFolder resolveBaseFolder(AProjectFolder folder, ResourceCriteriaQuery query) {
+    private AProjectFolder resolveBaseFolder(AProjectFolder folder, FileCriteriaQuery query) {
         if (StringUtils.isBlank(query.basePath())) {
             return folder;
         }
@@ -432,7 +432,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
      * Builds a filter predicate based on the query criteria and ACL permissions.
      * The filter is applied before mapping to DTO to minimize overhead.
      */
-    private Predicate<AProjectArtefact> buildFilterCriteria(ResourceCriteriaQuery query) {
+    private Predicate<AProjectArtefact> buildFilterCriteria(FileCriteriaQuery query) {
         Predicate<AProjectArtefact> filter = artefact -> true;
 
         // Folders only filter
@@ -467,10 +467,10 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     /**
      * Builds a flat list of resources using iterative queue-based traversal.
      */
-    private List<Resource> buildFlatList(AProjectFolder rootFolder,
+    private List<FsNode> buildFlatList(AProjectFolder rootFolder,
                                          Predicate<AProjectArtefact> filter,
                                          boolean recursive) {
-        List<Resource> result = new ArrayList<>();
+        List<FsNode> result = new ArrayList<>();
 
         Deque<AProjectFolder> queue = new ArrayDeque<>();
         queue.add(rootFolder);
@@ -488,7 +488,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             }
         }
 
-        result.sort(ResourceMapper.RESOURCE_COMPARATOR);
+        result.sort(FileNodeMapper.NODE_COMPARATOR);
         return result;
     }
 

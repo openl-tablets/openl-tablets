@@ -1,4 +1,4 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 import java.io.InputStream;
 import java.util.List;
@@ -7,13 +7,13 @@ import jakarta.validation.constraints.NotNull;
 
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.studio.projects.model.resources.Resource;
+import org.openl.studio.projects.model.files.FsNode;
 
 /**
  * Service for retrieving project resources (files and folders).
  *
  */
-public interface ProjectResourcesService {
+public interface ProjectFilesService {
 
     /**
      * Get resources from a project.
@@ -24,10 +24,10 @@ public interface ProjectResourcesService {
      * @param viewMode  FLAT returns a flat list, NESTED returns tree structure
      * @return list of resources matching the criteria
      */
-    List<Resource> getResources(@NotNull RulesProject project,
-                                @NotNull ResourceCriteriaQuery query,
+    List<FsNode> getResources(@NotNull RulesProject project,
+                                @NotNull FileCriteriaQuery query,
                                 boolean recursive,
-                                @NotNull ResourceViewMode viewMode);
+                                @NotNull FileViewMode viewMode);
 
     /**
      * Get a file resource by its path.

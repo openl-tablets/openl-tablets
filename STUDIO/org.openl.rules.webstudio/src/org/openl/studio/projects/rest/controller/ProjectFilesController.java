@@ -34,18 +34,18 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.projects.model.resources.CopyResourceRequest;
-import org.openl.studio.projects.model.resources.CreateResourceRequest;
-import org.openl.studio.projects.model.resources.MoveResourceRequest;
-import org.openl.studio.projects.model.resources.ProjectFileLookupResponse;
-import org.openl.studio.projects.model.resources.Resource;
-import org.openl.studio.projects.model.resources.UpdateResourceRequest;
+import org.openl.studio.projects.model.files.CopyFileRequest;
+import org.openl.studio.projects.model.files.CreateFileRequest;
+import org.openl.studio.projects.model.files.MoveFileRequest;
+import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
+import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.model.files.UpdateFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
-import org.openl.studio.projects.service.resources.ProjectFileLookupService;
-import org.openl.studio.projects.service.resources.ProjectResourcesService;
-import org.openl.studio.projects.service.resources.ResourceCriteriaQuery;
-import org.openl.studio.projects.service.resources.ResourceViewMode;
-import org.openl.studio.projects.validator.resource.ResourceCriteriaQueryValidator;
+import org.openl.studio.projects.service.files.ProjectFileLookupService;
+import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.files.FileCriteriaQuery;
+import org.openl.studio.projects.service.files.FileViewMode;
+import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
 /**
  * REST controller for project resources (files and folders).
@@ -54,16 +54,16 @@ import org.openl.studio.projects.validator.resource.ResourceCriteriaQueryValidat
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/projects/{projectId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Projects: Resources (BETA)", description = "APIs for managing project resources")
+@Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
 @Validated
-public class ProjectResourcesController {
+public class ProjectFilesController {
 
     private static final String PATH_SEPARATOR = "/";
 
-    private final ProjectResourcesService resourcesService;
+    private final ProjectFilesService resourcesService;
     private final ProjectFileLookupService fileLookupService;
     private final BeanValidationProvider validationProvider;
-    private final ResourceCriteriaQueryValidator queryValidator;
+    private final FileCriteriaQueryValidator queryValidator;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -89,7 +89,7 @@ public class ProjectResourcesController {
 
     @GetMapping("/list/{*path}")
     @Operation(summary = "projects.resources.get.summary", description = "projects.resources.get.desc")
-    public List<Resource> getResources(@ProjectId @PathVariable("projectId") RulesProject project,
+    public List<FsNode> getResources(@ProjectId @PathVariable("projectId") RulesProject project,
                                        @PathVariable @Parameter(description = "projects.resources.param.base-path.desc") String path,
                                        @RequestParam(value = "extensions", required = false)
                                        @Parameter(description = "projects.resources.param.extensions.desc")
@@ -105,11 +105,11 @@ public class ProjectResourcesController {
                                        boolean recursive,
                                        @RequestParam(value = "viewMode", defaultValue = "FLAT")
                                        @Parameter(description = "projects.resources.param.view-mode.desc")
-                                       ResourceViewMode viewMode
+                                       FileViewMode viewMode
     ) {
         var basePath = stripLeadingSlash(path);
 
-        var queryBuilder = ResourceCriteriaQuery.builder()
+        var queryBuilder = FileCriteriaQuery.builder()
                 .basePath(basePath.isEmpty() ? null : basePath)
                 .namePattern(namePattern)
                 .foldersOnly(foldersOnly);
@@ -128,7 +128,7 @@ public class ProjectResourcesController {
     public void createResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.resources.param.base-path.desc") String path,
-            @ModelAttribute @Valid CreateResourceRequest request) throws IOException {
+            @ModelAttribute @Valid CreateFileRequest request) throws IOException {
         var basePath = stripLeadingSlash(path);
         var fullPath = basePath.isEmpty() ? request.relativePath() : String.join(PATH_SEPARATOR, basePath, request.relativePath());
         try {
@@ -161,7 +161,7 @@ public class ProjectResourcesController {
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
-            @ModelAttribute @Valid UpdateResourceRequest request) throws IOException {
+            @ModelAttribute @Valid UpdateFileRequest request) throws IOException {
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), request.file().getInputStream());
         } finally {
@@ -175,7 +175,7 @@ public class ProjectResourcesController {
     public void copyResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
-            @RequestBody @Valid CopyResourceRequest request) {
+            @RequestBody @Valid CopyFileRequest request) {
         try {
             resourcesService.copyResource(project, stripLeadingSlash(path), request.destinationPath());
         } finally {
@@ -188,7 +188,7 @@ public class ProjectResourcesController {
     public void moveResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
-            @RequestBody @Valid MoveResourceRequest request) {
+            @RequestBody @Valid MoveFileRequest request) {
         try {
             resourcesService.moveResource(project, stripLeadingSlash(path), request.destinationPath());
         } finally {
