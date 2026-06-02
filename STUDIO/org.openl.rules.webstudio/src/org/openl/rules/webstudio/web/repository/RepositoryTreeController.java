@@ -240,7 +240,7 @@ public class RepositoryTreeController {
     /**
      * Adds new file to active node (project or folder).
      *
-     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API instead.
+     * @deprecated Use {@code POST /projects/{projectId}/files/{path}} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     public String addFile() {
@@ -269,7 +269,7 @@ public class RepositoryTreeController {
     }
 
     /**
-     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API with {@code createFolders=true} instead.
+     * @deprecated Use {@code PUT /projects/{projectId}/files/{path}/} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     public String addFolder() {
@@ -857,7 +857,7 @@ public class RepositoryTreeController {
     }
 
     /**
-     * @deprecated Use {@code DELETE /projects/{projectId}/resources/{resourceId}} REST API instead.
+     * @deprecated Use {@code DELETE /projects/{projectId}/files/{path}} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     public String deleteElement() {
@@ -1298,7 +1298,7 @@ public class RepositoryTreeController {
     }
 
     /**
-     * @deprecated Use {@code POST /projects/{projectId}/resources/{resourceId}/copy} REST API instead.
+     * @deprecated Use {@code POST /projects/{projectId}/file-copy} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     public String copyFileVersion() {
@@ -1909,7 +1909,7 @@ public class RepositoryTreeController {
     /**
      * Updates file (active node)
      *
-     * @deprecated Use {@code PUT /projects/{projectId}/resources/{resourceId}} REST API instead.
+     * @deprecated Use {@code PUT /projects/{projectId}/files/{path}} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     public String updateFile() {
@@ -2012,7 +2012,7 @@ public class RepositoryTreeController {
     }
 
     /**
-     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API instead.
+     * @deprecated Use {@code POST /projects/{projectId}/files/{path}} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     private String uploadAndAddFile() {
@@ -2116,7 +2116,7 @@ public class RepositoryTreeController {
     }
 
     /**
-     * @deprecated Use {@code PUT /projects/{projectId}/resources/{resourceId}} REST API instead.
+     * @deprecated Use {@code PUT /projects/{projectId}/files/{path}} REST API instead.
      */
     @Deprecated(forRemoval = true, since = "6.1.0")
     private String uploadAndUpdateFile() {

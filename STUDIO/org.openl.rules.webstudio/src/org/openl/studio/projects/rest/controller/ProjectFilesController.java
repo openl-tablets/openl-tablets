@@ -53,7 +53,7 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/projects/{projectId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/projects/{projectId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
 @Validated
 public class ProjectFilesController {

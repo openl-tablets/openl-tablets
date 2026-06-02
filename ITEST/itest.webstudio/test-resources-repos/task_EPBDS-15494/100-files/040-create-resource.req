@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT_ID}/resources/rules HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/files/rules HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 
