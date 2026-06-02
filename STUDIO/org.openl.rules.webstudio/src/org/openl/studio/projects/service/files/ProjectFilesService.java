@@ -118,4 +118,21 @@ public interface ProjectFilesService {
      * @param out     stream the archive is written to
      */
     void writeFolderAsZip(@NotNull RulesProject project, @NotBlank String path, @NotNull OutputStream out) throws IOException;
+
+    /**
+     * Expand a ZIP archive into a folder. Entry paths are resolved relative to the folder and
+     * missing intermediate folders are created. Each entry is validated for a safe path and for
+     * content consistency. The upload is bounded to guard against malicious archives.
+     *
+     * @param project        the rules project
+     * @param path           project-relative target folder (e.g. "folder"); empty for the project root
+     * @param archive        the ZIP archive stream
+     * @param createParents  if {@code true}, the target folder and missing parents are created
+     * @param conflictPolicy how to handle an entry whose target file already exists
+     */
+    void uploadArchive(@NotNull RulesProject project,
+                       @NotNull String path,
+                       @NotNull InputStream archive,
+                       boolean createParents,
+                       @NotNull ConflictPolicy conflictPolicy) throws IOException;
 }
