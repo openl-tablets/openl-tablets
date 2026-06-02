@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public record MoveFileRequest(
 
-        @Schema(description = "projects.resources.move.param.dest-path.desc")
+        @Schema(description = "projects.files.move.param.dest-path.desc")
         @NotBlank
         String destinationPath
 

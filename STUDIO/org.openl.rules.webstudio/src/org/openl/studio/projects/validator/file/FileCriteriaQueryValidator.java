@@ -20,7 +20,7 @@ public class FileCriteriaQueryValidator implements Validator {
     private static final int MAX_NAME_PATTERN_LENGTH = 255;
     private static final int MAX_EXTENSION_LENGTH = 20;
     private static final String BASE_PATH_FIELD = "basePath";
-    private static final String BASE_PATH_INVALID = "resource.base-path.invalid.message";
+    private static final String BASE_PATH_INVALID = "file.base-path.invalid.message";
     private static final String EXTENSIONS_FIELD = "extensions";
 
     @Override
@@ -85,12 +85,12 @@ public class FileCriteriaQueryValidator implements Validator {
         }
 
         if (namePattern.length() > MAX_NAME_PATTERN_LENGTH) {
-            errors.rejectValue("namePattern", "resource.name-pattern.too-long.message");
+            errors.rejectValue("namePattern", "file.name-pattern.too-long.message");
             return;
         }
 
         if (namePattern.contains("/") || namePattern.contains("\\")) {
-            errors.rejectValue("namePattern", "resource.name-pattern.invalid.message");
+            errors.rejectValue("namePattern", "file.name-pattern.invalid.message");
         }
     }
 
@@ -101,7 +101,7 @@ public class FileCriteriaQueryValidator implements Validator {
 
         for (String ext : extensions) {
             if (ext == null || ext.length() > MAX_EXTENSION_LENGTH || !ext.matches("^[a-zA-Z0-9]+$")) {
-                errors.rejectValue(EXTENSIONS_FIELD, "resource.extension.invalid.message", new Object[]{ext}, null);
+                errors.rejectValue(EXTENSIONS_FIELD, "file.extension.invalid.message", new Object[]{ext}, null);
                 return;
             }
         }
@@ -109,7 +109,7 @@ public class FileCriteriaQueryValidator implements Validator {
 
     private void validateConflictingFilters(FileCriteriaQuery query, Errors errors) {
         if (query.foldersOnly() && query.extensions() != null && !query.extensions().isEmpty()) {
-            errors.rejectValue(EXTENSIONS_FIELD, "resource.filters.conflict.message");
+            errors.rejectValue(EXTENSIONS_FIELD, "file.filters.conflict.message");
         }
     }
 }

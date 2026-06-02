@@ -206,7 +206,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         try (InputStream in = resource.getContent()) {
             return in == null ? null : readBoundedText(in);
         } catch (ProjectException e) {
-            throw new ConflictException("resource.read.failed.message");
+            throw new ConflictException("file.read.failed.message");
         }
     }
 
@@ -291,16 +291,16 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
 
     private static String validatePath(String path) {
         if (path == null) {
-            throw new BadRequestException("resource.path.invalid.message");
+            throw new BadRequestException("file.path.invalid.message");
         }
         String trimmed = path.trim();
         if (trimmed.isEmpty()) {
-            throw new BadRequestException("resource.path.invalid.message");
+            throw new BadRequestException("file.path.invalid.message");
         }
         try {
             Repository.validatePath(trimmed);
         } catch (InvalidPathException e) {
-            throw new BadRequestException("resource.path.invalid.message");
+            throw new BadRequestException("file.path.invalid.message");
         }
         return trimmed;
     }
