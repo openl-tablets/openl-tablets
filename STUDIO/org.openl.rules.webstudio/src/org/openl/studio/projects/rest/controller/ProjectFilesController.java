@@ -2,7 +2,6 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import jakarta.validation.Valid;
 
@@ -34,7 +33,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.CreateFileRequest;
-import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
 import org.openl.studio.projects.model.files.UpdateFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -84,41 +82,6 @@ public class ProjectFilesController {
         return fileLookupService.lookup(project, path, searchParents, includeContent);
     }
 
-    @GetMapping("/list/{*path}")
-    @Operation(summary = "projects.files.get.summary", description = "projects.files.get.desc")
-    public List<FsNode> getResources(@ProjectId @PathVariable("projectId") RulesProject project,
-                                       @PathVariable @Parameter(description = "projects.files.param.base-path.desc") String path,
-                                       @RequestParam(value = "extensions", required = false)
-                                       @Parameter(description = "projects.files.param.extensions.desc")
-                                       Set<String> extensions,
-                                       @RequestParam(value = "namePattern", required = false)
-                                       @Parameter(description = "projects.files.param.name-pattern.desc")
-                                       String namePattern,
-                                       @RequestParam(value = "foldersOnly", defaultValue = "false")
-                                       @Parameter(description = "projects.files.param.folders-only.desc")
-                                       boolean foldersOnly,
-                                       @RequestParam(value = "recursive", defaultValue = "false")
-                                       @Parameter(description = "projects.files.param.recursive.desc")
-                                       boolean recursive,
-                                       @RequestParam(value = "viewMode", defaultValue = "FLAT")
-                                       @Parameter(description = "projects.files.param.view-mode.desc")
-                                       FileViewMode viewMode
-    ) {
-        var basePath = stripLeadingSlash(path);
-
-        var queryBuilder = FileCriteriaQuery.builder()
-                .basePath(basePath.isEmpty() ? null : basePath)
-                .namePattern(namePattern)
-                .foldersOnly(foldersOnly);
-        if (extensions != null) {
-            queryBuilder.extensions(extensions);
-        }
-        var query = queryBuilder.build();
-        validationProvider.validate(query, queryValidator);
-
-        return resourcesService.getResources(project, query, recursive, viewMode);
-    }
-
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
@@ -137,11 +100,41 @@ public class ProjectFilesController {
     }
 
     @GetMapping(value = "/{*path}", produces = MediaType.ALL_VALUE)
-    @Operation(summary = "projects.files.download.summary", description = "projects.files.download.desc")
-    public ResponseEntity<byte[]> downloadResource(
+    @Operation(summary = "projects.files.get.summary", description = "projects.files.get.desc")
+    public ResponseEntity<?> getFile(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path) throws ProjectException, IOException {
-        var resource = resourcesService.getResource(project, stripLeadingSlash(path));
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam(value = "view", required = false)
+            @Parameter(description = "projects.files.param.view.desc") String view,
+            @RequestParam(value = "extensions", required = false)
+            @Parameter(description = "projects.files.param.extensions.desc") Set<String> extensions,
+            @RequestParam(value = "namePattern", required = false)
+            @Parameter(description = "projects.files.param.name-pattern.desc") String namePattern,
+            @RequestParam(value = "foldersOnly", defaultValue = "false")
+            @Parameter(description = "projects.files.param.folders-only.desc") boolean foldersOnly,
+            @RequestParam(value = "recursive", defaultValue = "false")
+            @Parameter(description = "projects.files.param.recursive.desc") boolean recursive,
+            @RequestParam(value = "viewMode", defaultValue = "FLAT")
+            @Parameter(description = "projects.files.param.view-mode.desc") FileViewMode viewMode
+    ) throws ProjectException, IOException {
+        if (isFolderPath(path)) {
+            var basePath = stripSlashes(path);
+            var queryBuilder = FileCriteriaQuery.builder()
+                    .basePath(basePath.isEmpty() ? null : basePath)
+                    .namePattern(namePattern)
+                    .foldersOnly(foldersOnly);
+            if (extensions != null) {
+                queryBuilder.extensions(extensions);
+            }
+            var query = queryBuilder.build();
+            validationProvider.validate(query, queryValidator);
+            return ResponseEntity.ok(resourcesService.getResources(project, query, recursive, viewMode));
+        }
+        var filePath = stripLeadingSlash(path);
+        if ("meta".equalsIgnoreCase(view)) {
+            return ResponseEntity.ok(resourcesService.getNode(project, filePath));
+        }
+        var resource = resourcesService.getResource(project, filePath);
         var output = new ByteArrayOutputStream();
         try (var stream = resource.getContent()) {
             stream.transferTo(output);
@@ -176,6 +169,25 @@ public class ProjectFilesController {
         } finally {
             getWebStudio().reset();
         }
+    }
+
+    /**
+     * Determines whether the captured path addresses a folder. A trailing slash, or the
+     * empty/root path, denotes a folder; any other path denotes a file.
+     */
+    private static boolean isFolderPath(String path) {
+        return path == null || path.isEmpty() || path.equals("/") || path.endsWith("/");
+    }
+
+    /**
+     * Strips leading and trailing slashes from the path captured by {@code {*path}}.
+     */
+    private static String stripSlashes(String path) {
+        var result = stripLeadingSlash(path);
+        while (result != null && result.endsWith("/")) {
+            result = result.substring(0, result.length() - 1);
+        }
+        return result;
     }
 
     /**

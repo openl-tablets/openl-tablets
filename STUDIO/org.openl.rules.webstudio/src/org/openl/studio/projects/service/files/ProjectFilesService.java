@@ -39,6 +39,15 @@ public interface ProjectFilesService {
     AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path);
 
     /**
+     * Get metadata for a single file by its path.
+     *
+     * @param project the rules project
+     * @param path    project-relative path to the file (e.g. "folder/rules.xlsx")
+     * @return file metadata
+     */
+    FsNode getNode(@NotNull RulesProject project, @NotBlank String path);
+
+    /**
      * Update a file resource with new content.
      *
      * @param project the rules project
