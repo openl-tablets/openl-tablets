@@ -4,6 +4,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,7 +55,10 @@ public class ProjectFileOperationsController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.copy.summary", description = "projects.files.copy.desc")
     public void copyFile(@ProjectId @PathVariable("projectId") RulesProject project,
+                         @RequestParam(value = "branch", required = false)
+                         @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid CopyFileRequest request) {
+        BranchGuard.requireBranch(project, branch);
         try {
             filesService.copyResource(project, request.sourcePath(), request.destinationPath());
         } finally {
@@ -64,7 +69,10 @@ public class ProjectFileOperationsController {
     @PostMapping("/file-move")
     @Operation(summary = "projects.files.move.summary", description = "projects.files.move.desc")
     public void moveFile(@ProjectId @PathVariable("projectId") RulesProject project,
+                         @RequestParam(value = "branch", required = false)
+                         @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid MoveFileRequest request) {
+        BranchGuard.requireBranch(project, branch);
         try {
             filesService.moveResource(project, request.sourcePath(), request.destinationPath());
         } finally {
@@ -75,7 +83,10 @@ public class ProjectFileOperationsController {
     @PostMapping("/file-search")
     @Operation(summary = "projects.files.search.summary", description = "projects.files.search.desc")
     public List<FsNode> searchFiles(@ProjectId @PathVariable("projectId") RulesProject project,
+                                    @RequestParam(value = "branch", required = false)
+                                    @Parameter(description = "projects.files.param.branch.desc") String branch,
                                     @RequestBody FileSearchQuery query) {
+        BranchGuard.requireBranch(project, branch);
         return filesService.search(project, query);
     }
 }

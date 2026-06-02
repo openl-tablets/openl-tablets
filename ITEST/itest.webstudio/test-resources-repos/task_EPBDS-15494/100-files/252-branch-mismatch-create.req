@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/branch-probe.dat?branch=feature HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+This must not be created on a non-current branch.

@@ -69,7 +69,10 @@ public class ProjectFilesController {
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file,
             @RequestParam(value = "createFolders", defaultValue = "false")
-            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders) throws IOException {
+            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
+        BranchGuard.requireBranch(project, branch);
         try {
             resourcesService.createResource(project, stripLeadingSlash(path), file.getInputStream(), createFolders);
         } finally {
@@ -85,7 +88,10 @@ public class ProjectFilesController {
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam(value = "createFolders", defaultValue = "false")
             @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) {
+        BranchGuard.requireBranch(project, branch);
         try {
             resourcesService.createResource(project, stripLeadingSlash(path), content, createFolders);
         } finally {
@@ -103,7 +109,10 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
             @RequestParam(value = "conflictPolicy", defaultValue = "FAIL")
             @Parameter(description = "projects.files.param.conflict-policy.desc") ConflictPolicy conflictPolicy,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) throws IOException {
+        BranchGuard.requireBranch(project, branch);
         if (!isFolderPath(path)) {
             throw new BadRequestException("file.path.requires.content.message");
         }
@@ -132,8 +141,11 @@ public class ProjectFilesController {
             @RequestParam(value = "recursive", defaultValue = "false")
             @Parameter(description = "projects.files.param.recursive.desc") boolean recursive,
             @RequestParam(value = "viewMode", defaultValue = "FLAT")
-            @Parameter(description = "projects.files.param.view-mode.desc") FileViewMode viewMode
+            @Parameter(description = "projects.files.param.view-mode.desc") FileViewMode viewMode,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch
     ) throws ProjectException, IOException {
+        BranchGuard.requireBranch(project, branch);
         if (isFolderPath(path)) {
             var basePath = stripSlashes(path);
             if (download != null) {
@@ -180,7 +192,10 @@ public class ProjectFilesController {
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
-            @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file) throws IOException {
+            @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
+        BranchGuard.requireBranch(project, branch);
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), file.getInputStream());
         } finally {
@@ -193,7 +208,10 @@ public class ProjectFilesController {
     public void updateResourceRaw(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) {
+        BranchGuard.requireBranch(project, branch);
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), content);
         } finally {
@@ -208,7 +226,10 @@ public class ProjectFilesController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam(value = "createFolders", defaultValue = "true")
-            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders) {
+            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch) {
+        BranchGuard.requireBranch(project, branch);
         if (!isFolderPath(path)) {
             throw new BadRequestException("file.path.requires.content.message");
         }
@@ -223,7 +244,10 @@ public class ProjectFilesController {
     @Operation(summary = "projects.files.delete.summary", description = "projects.files.delete.desc")
     public void deleteResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path) {
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam(value = "branch", required = false)
+            @Parameter(description = "projects.files.param.branch.desc") String branch) {
+        BranchGuard.requireBranch(project, branch);
         try {
             resourcesService.deleteResource(project, stripLeadingSlash(path));
         } finally {
