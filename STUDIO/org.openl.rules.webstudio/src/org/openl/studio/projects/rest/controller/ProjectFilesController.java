@@ -36,6 +36,7 @@ import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileLookupService;
@@ -107,6 +108,27 @@ public class ProjectFilesController {
             InputStream content) {
         try {
             resourcesService.createResource(project, stripLeadingSlash(path), content, createFolders);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @PostMapping(value = "/{*path}", consumes = "application/zip")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "projects.files.upload-archive.summary", description = "projects.files.upload-archive.desc")
+    public void uploadArchive(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam(value = "createFolders", defaultValue = "true")
+            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            @RequestParam(value = "conflictPolicy", defaultValue = "FAIL")
+            @Parameter(description = "projects.files.param.conflict-policy.desc") ConflictPolicy conflictPolicy,
+            InputStream content) throws IOException {
+        if (!isFolderPath(path)) {
+            throw new BadRequestException("file.path.requires.content.message");
+        }
+        try {
+            resourcesService.uploadArchive(project, stripSlashes(path), content, createFolders, conflictPolicy);
         } finally {
             getWebStudio().reset();
         }

@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.files;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -247,6 +249,93 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 zos.closeEntry();
             }
         }
+    }
+
+    /**
+     * Maximum number of files a single uploaded archive may contain.
+     */
+    private static final int MAX_ARCHIVE_ENTRIES = 10_000;
+
+    /**
+     * Maximum uncompressed size of a single archive entry (guards against zip bombs).
+     */
+    private static final long MAX_ARCHIVE_ENTRY_BYTES = 100L * 1024 * 1024;
+
+    /**
+     * Maximum total uncompressed size of an uploaded archive (guards against zip bombs).
+     */
+    private static final long MAX_ARCHIVE_TOTAL_BYTES = 200L * 1024 * 1024;
+
+    @Override
+    public void uploadArchive(@NotNull RulesProject project,
+                              @NotNull String path,
+                              @NotNull InputStream archive,
+                              boolean createParents,
+                              @NotNull ConflictPolicy conflictPolicy) throws IOException {
+        requireModifiable(project);
+        if (!path.isEmpty()) {
+            validateResourcePath(path);
+            requirePermission(project, BasePermission.CREATE);
+        }
+        try (var zis = new ZipInputStream(archive)) {
+            ZipEntry entry;
+            int count = 0;
+            long total = 0;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (++count > MAX_ARCHIVE_ENTRIES) {
+                    throw new BadRequestException("file.archive.too-many-entries.message");
+                }
+                String entryName = stripLeadingSlashes(entry.getName().replace('\\', '/'));
+                String fullPath = path.isEmpty() ? entryName : path + "/" + entryName;
+                // Reject zip-slip: absolute paths, '..' segments and other unsafe names.
+                validateResourcePath(fullPath);
+
+                byte[] data = zis.readNBytes((int) MAX_ARCHIVE_ENTRY_BYTES + 1);
+                if (data.length > MAX_ARCHIVE_ENTRY_BYTES) {
+                    throw new BadRequestException("file.archive.entry.too-large.message", new Object[]{entryName});
+                }
+                total += data.length;
+                if (total > MAX_ARCHIVE_TOTAL_BYTES) {
+                    throw new BadRequestException("file.archive.too-large.message");
+                }
+                addArchiveEntry(project, fullPath, data, conflictPolicy);
+            }
+        } catch (ProjectException e) {
+            throw new ConflictException("file.archive.upload.failed.message");
+        } catch (IOException e) {
+            throw new BadRequestException("file.archive.invalid.message");
+        }
+    }
+
+    /**
+     * Validates one archive entry and writes it into the target folder, honoring the conflict policy.
+     */
+    private void addArchiveEntry(RulesProject project, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
+            throws ProjectException {
+        String fileName = getFileName(fullPath);
+        InputStream validated = validateContent(fileName, new ByteArrayInputStream(data));
+        AProjectFolder targetFolder = resolveOrCreateFolders(project, fullPath, true, "file.path.not.folder.message");
+        if (targetFolder.hasArtefact(fileName)) {
+            switch (conflictPolicy) {
+                case FAIL -> throw new ConflictException("file.archive.entry.exists.message", fullPath);
+                case SKIP -> {
+                    return;
+                }
+                case OVERWRITE -> targetFolder.getArtefact(fileName).delete();
+            }
+        }
+        targetFolder.addResource(fileName, validated);
+    }
+
+    private static String stripLeadingSlashes(String value) {
+        String result = value;
+        while (result.startsWith("/")) {
+            result = result.substring(1);
+        }
+        return result;
     }
 
     /**
