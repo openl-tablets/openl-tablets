@@ -69,7 +69,10 @@ public class AProjectArtefact implements IProjectArtefact {
 
     public String getInternalPath() {
         String projectPath = getProject().getFileData().getName();
-        return getFileData().getName().substring(projectPath.length() + 1);
+        String path = getFileData().getName();
+        // A root artefact (e.g. a repository-rooted folder) has an empty project path; its relative
+        // path is then the full name. Stripping projectPath.length() + 1 would drop the first character.
+        return projectPath.isEmpty() ? path : path.substring(projectPath.length() + 1);
     }
 
     @Override
