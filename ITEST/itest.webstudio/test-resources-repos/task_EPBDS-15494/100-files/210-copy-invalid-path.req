@@ -1,7 +1,8 @@
-POST /rest/projects/{PROJECT_ID}/files/copy/rules/Model.xlsx HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/file-copy HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
+  "sourcePath": "rules/Model.xlsx",
   "destinationPath": "../escape/Model.xlsx"
 }

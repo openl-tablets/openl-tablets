@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,17 +33,15 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.projects.model.files.CopyFileRequest;
 import org.openl.studio.projects.model.files.CreateFileRequest;
-import org.openl.studio.projects.model.files.MoveFileRequest;
-import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
 import org.openl.studio.projects.model.files.UpdateFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
-import org.openl.studio.projects.service.files.ProjectFileLookupService;
-import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
+import org.openl.studio.projects.service.files.ProjectFileLookupService;
+import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
 /**
@@ -164,33 +161,6 @@ public class ProjectFilesController {
             @ModelAttribute @Valid UpdateFileRequest request) throws IOException {
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), request.file().getInputStream());
-        } finally {
-            getWebStudio().reset();
-        }
-    }
-
-    @PostMapping("/copy/{*path}")
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "projects.files.copy.summary", description = "projects.files.copy.desc")
-    public void copyResource(
-            @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
-            @RequestBody @Valid CopyFileRequest request) {
-        try {
-            resourcesService.copyResource(project, stripLeadingSlash(path), request.destinationPath());
-        } finally {
-            getWebStudio().reset();
-        }
-    }
-
-    @PostMapping("/move/{*path}")
-    @Operation(summary = "projects.files.move.summary", description = "projects.files.move.desc")
-    public void moveResource(
-            @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
-            @RequestBody @Valid MoveFileRequest request) {
-        try {
-            resourcesService.moveResource(project, stripLeadingSlash(path), request.destinationPath());
         } finally {
             getWebStudio().reset();
         }
