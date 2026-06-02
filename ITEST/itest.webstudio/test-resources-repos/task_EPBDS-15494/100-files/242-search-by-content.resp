@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "imported/sub/b.dat",
+    "name": "b.dat",
+    "type": "file",
+    "basePath": "imported/sub",
+    "extension": "dat",
+    "size": 20,
+    "lastModified": "*"
+  }
+]

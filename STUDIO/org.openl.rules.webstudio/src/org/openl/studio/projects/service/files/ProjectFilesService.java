@@ -135,4 +135,16 @@ public interface ProjectFilesService {
                        @NotNull InputStream archive,
                        boolean createParents,
                        @NotNull ConflictPolicy conflictPolicy) throws IOException;
+
+    /**
+     * Search project files and folders. {@code SUBTREE} scope matches entries within the project
+     * by ant-glob path pattern, file extensions, type and a case-insensitive content substring.
+     * {@code ANCESTORS} scope walks up from a path to the repository root and returns matches of
+     * the pattern at each level, nearest first.
+     *
+     * @param project the rules project
+     * @param query   the search criteria
+     * @return matching files and folders, sorted (folders first); empty if nothing matches
+     */
+    List<FsNode> search(@NotNull RulesProject project, @NotNull FileSearchQuery query);
 }

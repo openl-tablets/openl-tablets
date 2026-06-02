@@ -1,5 +1,6 @@
 package org.openl.studio.projects.rest.controller;
 
+import java.util.List;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.files.CopyFileRequest;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.model.files.MoveFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 
 /**
@@ -67,5 +70,12 @@ public class ProjectFileOperationsController {
         } finally {
             getWebStudio().reset();
         }
+    }
+
+    @PostMapping("/file-search")
+    @Operation(summary = "projects.files.search.summary", description = "projects.files.search.desc")
+    public List<FsNode> searchFiles(@ProjectId @PathVariable("projectId") RulesProject project,
+                                    @RequestBody FileSearchQuery query) {
+        return filesService.search(project, query);
     }
 }
