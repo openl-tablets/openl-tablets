@@ -41,4 +41,9 @@ public class FolderNode extends FsNode {
                 .children(children)
                 .build();
     }
+
+    @Override
+    public String getType() {
+        return "folder";
+    }
 }

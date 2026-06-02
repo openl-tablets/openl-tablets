@@ -1,8 +1,6 @@
 package org.openl.studio.projects.model.files;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -13,12 +11,7 @@ import lombok.experimental.SuperBuilder;
  */
 @Getter
 @SuperBuilder
-@JsonPropertyOrder({"path"})
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = FileNode.class, name = "file"),
-        @JsonSubTypes.Type(value = FolderNode.class, name = "folder")
-})
+@JsonPropertyOrder({"path", "name", "type", "basePath"})
 @Schema(description = "Base resource representing a file or folder in the project")
 public abstract class FsNode {
 
@@ -30,4 +23,10 @@ public abstract class FsNode {
 
     @Schema(description = "Parent directory path (project-relative)")
     private final String basePath;
+
+    /**
+     * Discriminator distinguishing a file from a folder: {@code "file"} or {@code "folder"}.
+     */
+    @Schema(description = "Resource type: 'file' or 'folder'", allowableValues = {"file", "folder"})
+    public abstract String getType();
 }

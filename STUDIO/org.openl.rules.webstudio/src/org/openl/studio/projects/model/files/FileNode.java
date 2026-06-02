@@ -27,4 +27,9 @@ public class FileNode extends FsNode {
 
     @Schema(description = "Last modification timestamp")
     private final ZonedDateTime lastModified;
+
+    @Override
+    public String getType() {
+        return "file";
+    }
 }
