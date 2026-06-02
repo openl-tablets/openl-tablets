@@ -448,6 +448,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                             .path(match.path())
                             .name(getFileName(match.path()))
                             .basePath(parentPath(match.path()))
+                            .extension(FileUtils.getExtension(getFileName(match.path())))
                             .build())
                     .toList();
         } catch (IOException e) {

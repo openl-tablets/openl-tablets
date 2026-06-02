@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "EPBDS-16012-git/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "EPBDS-16012-git",
+    "extension": "md"
+  }
+]

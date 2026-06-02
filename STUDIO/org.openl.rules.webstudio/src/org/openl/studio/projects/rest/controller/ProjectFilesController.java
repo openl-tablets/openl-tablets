@@ -34,12 +34,10 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
-import org.openl.studio.projects.service.files.ProjectFileLookupService;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
@@ -55,30 +53,12 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 public class ProjectFilesController {
 
     private final ProjectFilesService resourcesService;
-    private final ProjectFileLookupService fileLookupService;
     private final BeanValidationProvider validationProvider;
     private final FileCriteriaQueryValidator queryValidator;
 
     @Lookup
     public WebStudio getWebStudio() {
         return null;
-    }
-
-    @GetMapping
-    @Operation(summary = "projects.files.lookup.summary", description = "projects.files.lookup.desc")
-    public ProjectFileLookupResponse lookupFile(
-            @ProjectId @PathVariable("projectId") RulesProject project,
-            @RequestParam("path")
-            @Parameter(description = "projects.files.lookup.param.path.desc")
-            String path,
-            @RequestParam(value = "searchParents", defaultValue = "false")
-            @Parameter(description = "projects.files.lookup.param.search-parents.desc")
-            boolean searchParents,
-            @RequestParam(value = "includeContent", defaultValue = "false")
-            @Parameter(description = "projects.files.lookup.param.include-content.desc")
-            boolean includeContent
-    ) throws IOException {
-        return fileLookupService.lookup(project, path, searchParents, includeContent);
     }
 
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
