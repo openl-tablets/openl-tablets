@@ -1,4 +1,4 @@
-package org.openl.studio.projects.model.resources;
+package org.openl.studio.projects.model.files;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * Request model for updating an existing file resource.
  */
-public record UpdateResourceRequest(
+public record UpdateFileRequest(
 
         @Schema(description = "projects.resources.param.file.desc")
         @NotNull

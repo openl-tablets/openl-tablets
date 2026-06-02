@@ -1,4 +1,4 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -8,32 +8,32 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.api.FileData;
-import org.openl.studio.projects.model.resources.FileResource;
-import org.openl.studio.projects.model.resources.FolderResource;
-import org.openl.studio.projects.model.resources.Resource;
+import org.openl.studio.projects.model.files.FileNode;
+import org.openl.studio.projects.model.files.FolderNode;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.FileUtils;
 
 /**
- * Maps project artefacts to Resource DTOs.
+ * Maps project artefacts to FsNode DTOs.
  */
 @Component
-class ResourceMapperImpl implements ResourceMapper {
+class FileNodeMapperImpl implements FileNodeMapper {
 
     @Override
-    public Resource map(AProjectArtefact artefact) {
+    public FsNode map(AProjectArtefact artefact) {
         String path = artefact.getInternalPath();
         String name = artefact.getName();
         String basePath = getParentPath(path);
 
         if (artefact.isFolder()) {
-            return FolderResource.builder()
+            return FolderNode.builder()
                     .path(path)
                     .name(name)
                     .basePath(basePath)
                     .build();
         }
 
-        var builder = FileResource.builder()
+        var builder = FileNode.builder()
                 .path(path)
                 .name(name)
                 .basePath(basePath)

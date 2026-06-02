@@ -1,4 +1,4 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 import java.util.Set;
 
@@ -10,7 +10,7 @@ import lombok.Singular;
  *
  */
 @Builder
-public record ResourceCriteriaQuery(
+public record FileCriteriaQuery(
 
         String basePath,
 
@@ -23,7 +23,7 @@ public record ResourceCriteriaQuery(
 
 ) {
 
-    public ResourceCriteriaQuery {
+    public FileCriteriaQuery {
         extensions = extensions != null ? Set.copyOf(extensions) : Set.of();
     }
 }

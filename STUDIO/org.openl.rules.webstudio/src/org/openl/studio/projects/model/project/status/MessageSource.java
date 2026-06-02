@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * without unwrapping a union of optional fields.
  *
  * <p>The discriminator is emitted as the {@code type} property, the same convention
- * used by {@link org.openl.studio.projects.model.resources.Resource} so existing
+ * used by {@link org.openl.studio.projects.model.files.FsNode} so existing
  * client code can reuse the dispatch pattern.</p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

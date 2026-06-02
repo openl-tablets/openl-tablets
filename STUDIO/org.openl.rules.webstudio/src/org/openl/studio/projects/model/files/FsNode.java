@@ -1,4 +1,4 @@
-package org.openl.studio.projects.model.resources;
+package org.openl.studio.projects.model.files;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -16,11 +16,11 @@ import lombok.experimental.SuperBuilder;
 @JsonPropertyOrder({"path"})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FileResource.class, name = "file"),
-        @JsonSubTypes.Type(value = FolderResource.class, name = "folder")
+        @JsonSubTypes.Type(value = FileNode.class, name = "file"),
+        @JsonSubTypes.Type(value = FolderNode.class, name = "folder")
 })
 @Schema(description = "Base resource representing a file or folder in the project")
-public abstract class Resource {
+public abstract class FsNode {
 
     @Schema(description = "Project-relative path (e.g. 'folder/rules.xlsx')")
     private final String path;

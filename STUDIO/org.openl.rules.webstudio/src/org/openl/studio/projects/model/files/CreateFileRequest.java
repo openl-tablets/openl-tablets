@@ -1,4 +1,4 @@
-package org.openl.studio.projects.model.resources;
+package org.openl.studio.projects.model.files;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * Request model for uploading a new file to the project.
  */
-public record CreateResourceRequest(
+public record CreateFileRequest(
 
         @Schema(description = "projects.resources.param.relative-path.desc")
         @NotBlank

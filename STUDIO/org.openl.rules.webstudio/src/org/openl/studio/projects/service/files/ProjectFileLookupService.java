@@ -1,11 +1,11 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 import java.io.IOException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.studio.projects.model.resources.ProjectFileLookupResponse;
+import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
 
 /**
  * Resolves a file path relative to an OpenL project.

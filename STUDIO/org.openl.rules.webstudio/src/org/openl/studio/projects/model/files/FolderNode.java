@@ -1,4 +1,4 @@
-package org.openl.studio.projects.model.resources;
+package org.openl.studio.projects.model.files;
 
 import java.util.List;
 
@@ -19,22 +19,22 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonPropertyOrder({"path", "name", "type", "basePath", "children"})
 @Schema(description = "A folder resource in the project")
-public class FolderResource extends Resource {
+public class FolderNode extends FsNode {
 
     @Schema(description = "Child resources (files and folders). Only populated in NESTED view mode.")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @Singular
-    private final List<Resource> children;
+    private final List<FsNode> children;
 
     /**
      * Creates a copy of this folder with the specified children.
      * Used for building nested structures.
      *
      * @param children the children to set
-     * @return a new FolderResource with the specified children
+     * @return a new FolderNode with the specified children
      */
-    public FolderResource withChildren(List<Resource> children) {
-        return FolderResource.builder()
+    public FolderNode withChildren(List<FsNode> children) {
+        return FolderNode.builder()
                 .path(getPath())
                 .name(getName())
                 .basePath(getBasePath())

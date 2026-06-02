@@ -1,10 +1,10 @@
-package org.openl.studio.projects.service.resources;
+package org.openl.studio.projects.service.files;
 
 /**
  * Defines how project resources should be returned.
  *
  */
-public enum ResourceViewMode {
+public enum FileViewMode {
 
     /**
      * Returns a flat list of all resources.
@@ -14,7 +14,7 @@ public enum ResourceViewMode {
 
     /**
      * Returns a nested tree structure.
-     * FolderResource instances contain their children in the 'children' field.
+     * FolderNode instances contain their children in the 'children' field.
      * When recursive=false, folders have empty children arrays.
      * When recursive=true, the full tree structure is built.
      */

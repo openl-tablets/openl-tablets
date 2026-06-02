@@ -1,4 +1,4 @@
-package org.openl.studio.projects.model.resources;
+package org.openl.studio.projects.model.files;
 
 import java.time.ZonedDateTime;
 
@@ -17,7 +17,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonPropertyOrder({"path", "name", "type", "basePath", "extension", "size", "lastModified"})
 @Schema(description = "A file resource in the project")
-public class FileResource extends Resource {
+public class FileNode extends FsNode {
 
     @Schema(description = "File size in bytes")
     private final Long size;
