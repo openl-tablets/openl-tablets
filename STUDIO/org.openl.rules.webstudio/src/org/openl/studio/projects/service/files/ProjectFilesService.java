@@ -95,4 +95,15 @@ public interface ProjectFilesService {
                         @NotBlank String path,
                         @NotNull InputStream content,
                         boolean createFolders);
+
+    /**
+     * Create a folder at the given path. The operation is idempotent — an existing folder
+     * is left unchanged.
+     *
+     * @param project       the rules project
+     * @param path          project-relative folder path (e.g. "folder/subfolder")
+     * @param createParents if {@code true}, missing intermediate folders are created automatically;
+     *                      if {@code false}, every parent folder must already exist
+     */
+    void createFolder(@NotNull RulesProject project, @NotBlank String path, boolean createParents);
 }

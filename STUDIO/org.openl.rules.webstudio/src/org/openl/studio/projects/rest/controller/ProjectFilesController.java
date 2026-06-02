@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
@@ -178,6 +179,24 @@ public class ProjectFilesController {
             InputStream content) {
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), content);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @PutMapping("/{*path}")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "projects.files.create-folder.summary", description = "projects.files.create-folder.desc")
+    public void createFolder(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
+            @RequestParam(value = "createFolders", defaultValue = "true")
+            @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders) {
+        if (!isFolderPath(path)) {
+            throw new BadRequestException("file.path.requires.content.message");
+        }
+        try {
+            resourcesService.createFolder(project, stripSlashes(path), createFolders);
         } finally {
             getWebStudio().reset();
         }
