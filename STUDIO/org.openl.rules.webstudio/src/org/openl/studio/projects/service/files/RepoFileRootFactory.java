@@ -28,6 +28,7 @@ public class RepoFileRootFactory {
 
     private final AclProjectsHelper aclProjectsHelper;
     private final UserManagementService userManagementService;
+    private final ProjectFileLookupService fileLookupService;
 
     public FileRoot of(Repository repository, String branch) {
         // The design repository is wrapped in a (secured) MappedRepository that presents a virtual
@@ -48,7 +49,7 @@ public class RepoFileRootFactory {
         Repository authored = resolved instanceof BranchRepository branchRepo
                 ? new AuthoringRepository(branchRepo, currentAuthor())
                 : resolved;
-        return new RepoFileRoot(authored, "", aclProjectsHelper);
+        return new RepoFileRoot(authored, "", aclProjectsHelper, fileLookupService);
     }
 
     /**

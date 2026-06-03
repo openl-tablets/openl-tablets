@@ -1,0 +1,9 @@
+POST /rest/repos/design-flat/file-search HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "scope": "ANCESTORS",
+  "from": "{PROJECT_BUSINESS_NAME}/rules",
+  "pattern": "absent-marker.txt"
+}

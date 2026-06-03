@@ -1,7 +1,7 @@
 package org.openl.studio.projects.service.files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -13,10 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,25 +25,19 @@ import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.IOUtils;
 
 /**
- * Verifies version-aware reads of {@link ProjectFilesServiceImpl} against an on-disk repository
- * that holds two committed revisions of the same file.
- *
- * <p>A blank version reads the latest revision, an explicit revision reads that historical content,
- * and an unknown revision is reported as not found.
+ * Verifies the repository-mount ancestor search walks from a path up to the repository root,
+ * returning matches nearest first.
  *
  * @author Yury Molchan
  */
-class ProjectFilesServiceImplVersionGitTest {
-
-    private static final String FILE_PATH = "data/sample.txt";
+class RepoFileRootAncestorsGitTest {
 
     @TempDir
     private File remoteRoot;
@@ -52,9 +46,6 @@ class ProjectFilesServiceImplVersionGitTest {
 
     private Repository repository;
     private RepoFileRoot root;
-    private ProjectFilesServiceImpl service;
-    private String firstVersion;
-    private String secondVersion;
 
     @BeforeEach
     void setUp() throws GitAPIException, IOException {
@@ -69,7 +60,6 @@ class ProjectFilesServiceImplVersionGitTest {
 
         root = new RepoFileRoot(repository, "", aclProjectsHelper,
                 new ProjectFileLookupServiceImpl(aclProjectsHelper));
-        service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class));
     }
 
     @AfterEach
@@ -80,52 +70,30 @@ class ProjectFilesServiceImplVersionGitTest {
     }
 
     @Test
-    void blankVersionReadsLatestRevision() throws Exception {
-        assertEquals("version two", read(service.getResource(root, FILE_PATH, null)));
+    void walksFromPathUpToRepositoryRoot() {
+        List<FsNode> matches = root.searchAncestors("services/rating/AGENTS.md");
+
+        assertEquals(3, matches.size());
+        assertEquals("services/rating/AGENTS.md", matches.get(0).getPath());
+        assertEquals("services/AGENTS.md", matches.get(1).getPath());
+        assertEquals("AGENTS.md", matches.get(2).getPath());
+        assertEquals("AGENTS.md", matches.get(0).getName());
+        assertEquals("services/rating", matches.get(0).getBasePath());
     }
 
     @Test
-    void firstVersionReadsOriginalRevision() throws Exception {
-        assertEquals("version one", read(service.getResource(root, FILE_PATH, firstVersion)));
-    }
-
-    @Test
-    void secondVersionReadsUpdatedRevision() throws Exception {
-        assertEquals("version two", read(service.getResource(root, FILE_PATH, secondVersion)));
-    }
-
-    @Test
-    void unknownVersionIsReportedAsNotFound() {
-        var notFound = assertThrows(NotFoundException.class,
-                () -> service.getResource(root, FILE_PATH, "0000000000000000000000000000000000000000"));
-        assertEquals("openl.error.404.file.version.not.found.message", notFound.getErrorCode());
-    }
-
-    private static String read(AProjectResource resource) throws Exception {
-        try (var in = resource.getContent()) {
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        }
+    void missingLeafYieldsNoMatches() {
+        assertTrue(root.searchAncestors("services/rating/MISSING.md").isEmpty());
     }
 
     private void seedRemoteRepository() throws GitAPIException, IOException {
         try (Git git = Git.init().setDirectory(remoteRoot).call()) {
             File rootDir = git.getRepository().getDirectory().getParentFile();
-
-            writeFile(new File(rootDir, FILE_PATH), "version one");
+            writeFile(new File(rootDir, "AGENTS.md"), "# root");
+            writeFile(new File(rootDir, "services/AGENTS.md"), "# services");
+            writeFile(new File(rootDir, "services/rating/AGENTS.md"), "# rating");
             git.add().addFilepattern(".").call();
-            RevCommit first = git.commit()
-                    .setMessage("Add sample")
-                    .setCommitter("Test", "test@openl.org")
-                    .call();
-            firstVersion = first.getName();
-
-            writeFile(new File(rootDir, FILE_PATH), "version two");
-            git.add().addFilepattern(".").call();
-            RevCommit second = git.commit()
-                    .setMessage("Update sample")
-                    .setCommitter("Test", "test@openl.org")
-                    .call();
-            secondVersion = second.getName();
+            git.commit().setMessage("Seed ancestor fixture").setCommitter("Test", "test@openl.org").call();
         }
     }
 
