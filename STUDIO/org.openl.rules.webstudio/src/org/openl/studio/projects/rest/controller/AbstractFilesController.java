@@ -1,11 +1,11 @@
 package org.openl.studio.projects.rest.controller;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.studio.common.exception.BadRequestException;
@@ -100,18 +99,18 @@ public abstract class AbstractFilesController {
      */
     protected ResponseEntity<?> handleGetFile(FileRoot root, String path, String view, String download,
                                               Set<String> extensions, String namePattern, boolean foldersOnly,
-                                              boolean recursive, FileViewMode viewMode, String version)
+                                              boolean recursive, FileViewMode viewMode, String version,
+                                              HttpServletResponse response)
             throws ProjectException, IOException {
         if (isFolderPath(path)) {
             var basePath = stripSlashes(path);
             if (download != null) {
                 String zipName = (basePath.isEmpty()
                         ? "files" : basePath.substring(basePath.lastIndexOf('/') + 1)) + ".zip";
-                StreamingResponseBody body = out -> filesService.writeFolderAsZip(root, basePath, out, version);
-                return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType("application/zip"))
-                        .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName))
-                        .body(body);
+                response.setContentType("application/zip");
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName));
+                filesService.writeFolderAsZip(root, basePath, response.getOutputStream(), version);
+                return null;
             }
             var queryBuilder = FileCriteriaQuery.builder()
                     .basePath(basePath.isEmpty() ? null : basePath)
@@ -132,16 +131,19 @@ public abstract class AbstractFilesController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(filesService.getNode(root, filePath, version));
         }
+        // Stream the content synchronously to the response. The servlet filter chain is not declared
+        // async-supported (see web.xml), so an asynchronous StreamingResponseBody would fail; writing in
+        // the request thread streams without buffering the whole file in memory. Existence and
+        // permissions are resolved first, so a missing or forbidden file fails before anything is written.
         var resource = filesService.getResource(root, filePath, version);
-        var output = new ByteArrayOutputStream();
-        try (var stream = resource.getContent()) {
-            stream.transferTo(output);
-        }
         String fileName = resource.getName();
-        return ResponseEntity.ok()
-                .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
-                .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-                .body(output.toByteArray());
+        response.setContentType(MediaTypeFactory.getMediaType(fileName)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM).toString());
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName));
+        try (var content = resource.getContent()) {
+            content.transferTo(response.getOutputStream());
+        }
+        return null;
     }
 
     /**
