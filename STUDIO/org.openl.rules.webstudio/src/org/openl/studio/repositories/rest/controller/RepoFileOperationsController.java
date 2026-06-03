@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.repository.api.Repository;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.rest.controller.AbstractFileOperationsController;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.files.RepoFileRootFactory;
+import org.openl.studio.projects.validator.file.FileSearchQueryValidator;
 import org.openl.studio.repositories.rest.resolver.DesignRepository;
 
 /**
@@ -42,8 +44,10 @@ public class RepoFileOperationsController extends AbstractFileOperationsControll
     private final RepoFileRootFactory fileRootFactory;
 
     public RepoFileOperationsController(ProjectFilesService filesService,
-                                        RepoFileRootFactory fileRootFactory) {
-        super(filesService);
+                                        RepoFileRootFactory fileRootFactory,
+                                        BeanValidationProvider validationProvider,
+                                        FileSearchQueryValidator searchValidator) {
+        super(filesService, validationProvider, searchValidator);
         this.fileRootFactory = fileRootFactory;
     }
 
