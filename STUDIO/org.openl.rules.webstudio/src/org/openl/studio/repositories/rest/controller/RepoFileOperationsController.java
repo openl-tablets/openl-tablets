@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.studio.projects.model.files.CopyFileRequest;
+import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
-import org.openl.studio.projects.model.files.MoveFileRequest;
 import org.openl.studio.projects.rest.controller.AbstractFileOperationsController;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFilesService;
@@ -54,7 +53,7 @@ public class RepoFileOperationsController extends AbstractFileOperationsControll
     public void copyFile(@DesignRepository("repo-name") Repository repository,
                          @RequestParam(value = "branch", required = false)
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
-                         @RequestBody @Valid CopyFileRequest request) {
+                         @RequestBody @Valid FilePathPairRequest request) {
         handleCopy(fileRootFactory.of(repository, branch), request);
     }
 
@@ -63,7 +62,7 @@ public class RepoFileOperationsController extends AbstractFileOperationsControll
     public void moveFile(@DesignRepository("repo-name") Repository repository,
                          @RequestParam(value = "branch", required = false)
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
-                         @RequestBody @Valid MoveFileRequest request) {
+                         @RequestBody @Valid FilePathPairRequest request) {
         handleMove(fileRootFactory.of(repository, branch), request);
     }
 

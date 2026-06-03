@@ -4,9 +4,8 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
-import org.openl.studio.projects.model.files.CopyFileRequest;
+import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
-import org.openl.studio.projects.model.files.MoveFileRequest;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFilesService;
@@ -34,7 +33,7 @@ public abstract class AbstractFileOperationsController {
         // no-op by default
     }
 
-    protected void handleCopy(FileRoot root, CopyFileRequest request) {
+    protected void handleCopy(FileRoot root, FilePathPairRequest request) {
         try {
             filesService.copyResource(root, request.sourcePath(), request.destinationPath());
         } finally {
@@ -42,7 +41,7 @@ public abstract class AbstractFileOperationsController {
         }
     }
 
-    protected void handleMove(FileRoot root, MoveFileRequest request) {
+    protected void handleMove(FileRoot root, FilePathPairRequest request) {
         try {
             filesService.moveResource(root, request.sourcePath(), request.destinationPath());
         } finally {
