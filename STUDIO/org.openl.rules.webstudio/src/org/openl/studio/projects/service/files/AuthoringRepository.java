@@ -12,14 +12,17 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.util.StringUtils;
 
 /**
- * A {@link BranchRepository} that stamps every committed change with a fixed author.
+ * A {@link BranchRepository} that stamps every committed change with a fixed author and a non-empty
+ * commit comment.
  *
  * <p>The repository files mount writes straight to a design repository, where each save is a git
- * commit that requires a committer. The artefact write helpers build {@code FileData} without an
- * author, so this wrapper supplies the current user. Reads, history and branch queries are delegated
- * unchanged.
+ * commit that requires a committer and benefits from a meaningful message. The artefact write helpers
+ * build {@code FileData} without an author or comment, so this wrapper supplies the current user and,
+ * when no comment is set, a short operation-derived default. Reads, history and branch queries are
+ * delegated unchanged.
  *
  * @author Yury Molchan
  */
@@ -27,8 +30,8 @@ import org.openl.rules.repository.api.UserInfo;
 public class AuthoringRepository implements BranchRepository {
 
     /**
-     * Write operations intercepted to stamp the author. Excluded from delegation so the methods
-     * below are used instead of generated pass-throughs.
+     * Write operations intercepted to stamp the author and comment. Excluded from delegation so the
+     * methods below are used instead of generated pass-throughs.
      */
     private interface Writes {
         FileData save(FileData data, InputStream stream) throws IOException;
@@ -52,49 +55,64 @@ public class AuthoringRepository implements BranchRepository {
     private final BranchRepository delegate;
     private final UserInfo author;
 
-    private FileData withAuthor(FileData data) {
+    /**
+     * Stamps the author on the data and, when no comment is set, a non-empty default.
+     */
+    private FileData stamp(FileData data, String defaultComment) {
         if (data != null) {
             data.setAuthor(author);
+            if (StringUtils.isBlank(data.getComment())) {
+                data.setComment(defaultComment);
+            }
         }
         return data;
     }
 
+    private static String nameOf(FileData data) {
+        String name = data == null ? null : data.getName();
+        if (StringUtils.isBlank(name)) {
+            return "files";
+        }
+        int slash = name.lastIndexOf('/');
+        return slash >= 0 ? name.substring(slash + 1) : name;
+    }
+
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        return delegate.save(withAuthor(data), stream);
+        return delegate.save(stamp(data, "Save " + nameOf(data)), stream);
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        fileItems.forEach(item -> withAuthor(item.getData()));
+        fileItems.forEach(item -> stamp(item.getData(), "Save " + nameOf(item.getData())));
         return delegate.save(fileItems);
     }
 
     @Override
     public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
-        files.forEach(item -> withAuthor(item.getData()));
-        return delegate.save(withAuthor(folderData), files, changesetType);
+        files.forEach(item -> stamp(item.getData(), "Save " + nameOf(item.getData())));
+        return delegate.save(stamp(folderData, "Update files"), files, changesetType);
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        return delegate.delete(withAuthor(data));
+        return delegate.delete(stamp(data, "Delete " + nameOf(data)));
     }
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
-        data.forEach(this::withAuthor);
+        data.forEach(item -> stamp(item, "Delete " + nameOf(item)));
         return delegate.delete(data);
     }
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        return delegate.deleteHistory(withAuthor(data));
+        return delegate.deleteHistory(stamp(data, "Delete " + nameOf(data)));
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        return delegate.copyHistory(srcName, withAuthor(destData), version);
+        return delegate.copyHistory(srcName, stamp(destData, "Copy " + nameOf(destData)), version);
     }
 
     @Override
