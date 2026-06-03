@@ -492,7 +492,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             buffered.reset();
 
             String lcName = fileName.toLowerCase();
-            if (lcName.endsWith(".xls") && !lcName.endsWith(".xlsx") && !lcName.endsWith(".xlsm")) {
+            // A ".xls" suffix is legacy OLE2; ".xlsx"/".xlsm" are ZIP-based and cannot end with ".xls".
+            if (lcName.endsWith(".xls")) {
                 if (!FileSignatureHelper.isOle2Sign(sign)) {
                     throw new BadRequestException("file.content.invalid.message");
                 }
@@ -582,9 +583,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
             FsNode mapped = resourceMapper.map(artefact);
             if (mapped instanceof FolderNode fr && !childChildren.isEmpty()) {
-                mapped = fr.withChildren(childChildren.stream()
-                        .sorted(FileNodeMapper.NODE_COMPARATOR)
-                        .toList());
+                // childChildren was already sorted when it was stored, so no need to sort again.
+                mapped = fr.withChildren(childChildren);
             }
             out.add(mapped);
         }
