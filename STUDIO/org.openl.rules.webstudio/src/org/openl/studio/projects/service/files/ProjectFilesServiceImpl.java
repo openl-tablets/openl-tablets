@@ -6,7 +6,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
@@ -59,10 +57,9 @@ import org.openl.util.StringUtils;
 @Validated
 public class ProjectFilesServiceImpl implements ProjectFilesService {
 
-    private static final long MAX_CONTENT_SEARCH_BYTES = 1024L * 1024L;
-
     private final AclProjectsHelper aclProjectsHelper;
     private final FileNodeMapper resourceMapper;
+    private final FileSearchSupport searchSupport;
 
     @Override
     public List<FsNode> getResources(@NotNull FileRoot root,
@@ -425,101 +422,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     @Override
     public List<FsNode> search(@NotNull FileRoot root, @NotNull FileSearchQuery query) {
-        root.requireReadable();
-        if (query.scope() == FileSearchQuery.Scope.ANCESTORS) {
-            return searchAncestors(root, query);
-        }
-        Set<String> extensions = query.extensions().stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
-        String pattern = StringUtils.isBlank(query.pattern()) ? null : query.pattern();
-        AntPathMatcher matcher = pattern == null ? null : new AntPathMatcher();
-        String contentNeedle = StringUtils.isBlank(query.content()) ? null : query.content().toLowerCase();
-
-        List<FsNode> result = new ArrayList<>();
-        Deque<AProjectFolder> queue = new ArrayDeque<>();
-        queue.add(root.readFolder(query.version()));
-        while (!queue.isEmpty()) {
-            AProjectFolder folder = queue.poll();
-            for (AProjectArtefact artefact : folder.getArtefacts()) {
-                if (matchesSearch(artefact, query, pattern, matcher, extensions, contentNeedle)) {
-                    result.add(resourceMapper.map(artefact));
-                }
-                if (query.recursive() && artefact.isFolder()) {
-                    queue.add((AProjectFolder) artefact);
-                }
-            }
-        }
-        result.sort(FileNodeMapper.NODE_COMPARATOR);
-        return result;
-    }
-
-    /**
-     * Tests one artefact against the search criteria. The expensive checks (content read, ACL)
-     * run last.
-     */
-    private boolean matchesSearch(AProjectArtefact artefact,
-                                  FileSearchQuery query,
-                                  String pattern,
-                                  AntPathMatcher matcher,
-                                  Set<String> extensions,
-                                  String contentNeedle) {
-        if (query.type() == FileSearchQuery.FileType.FILE && artefact.isFolder()) {
-            return false;
-        }
-        if (query.type() == FileSearchQuery.FileType.FOLDER && !artefact.isFolder()) {
-            return false;
-        }
-        if (!extensions.isEmpty()) {
-            if (artefact.isFolder()) {
-                return false;
-            }
-            String ext = FileUtils.getExtension(artefact.getName());
-            if (ext == null || !extensions.contains(ext.toLowerCase())) {
-                return false;
-            }
-        }
-        if (matcher != null && !matcher.match(pattern, artefact.getInternalPath())) {
-            return false;
-        }
-        if (contentNeedle != null) {
-            if (artefact.isFolder()) {
-                return false;
-            }
-            String text = readBoundedText((AProjectResource) artefact);
-            if (text == null || !text.toLowerCase().contains(contentNeedle)) {
-                return false;
-            }
-        }
-        return aclProjectsHelper.hasPermission(artefact, BasePermission.READ);
-    }
-
-    /**
-     * Reads UTF-8 text from a file while keeping memory use bounded. Files larger than the limit
-     * (or unreadable) yield {@code null} so they are treated as a content non-match.
-     */
-    private static String readBoundedText(AProjectResource resource) {
-        try (var in = resource.getContent()) {
-            if (in == null) {
-                return null;
-            }
-            byte[] data = in.readNBytes((int) MAX_CONTENT_SEARCH_BYTES + 1);
-            if (data.length > MAX_CONTENT_SEARCH_BYTES) {
-                return null;
-            }
-            return new String(data, StandardCharsets.UTF_8);
-        } catch (ProjectException | IOException e) {
-            return null;
-        }
-    }
-
-    private static List<FsNode> searchAncestors(FileRoot root, FileSearchQuery query) {
-        String leaf = StringUtils.isBlank(query.pattern()) ? "" : query.pattern();
-        String lookupPath = StringUtils.isBlank(query.from()) ? leaf : query.from() + "/" + leaf;
-        if (lookupPath.isEmpty()) {
-            return List.of();
-        }
-        return root.searchAncestors(lookupPath);
+        return searchSupport.search(root, query);
     }
 
     /**
