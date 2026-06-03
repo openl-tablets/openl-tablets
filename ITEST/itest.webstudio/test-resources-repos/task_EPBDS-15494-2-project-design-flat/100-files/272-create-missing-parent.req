@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/gaps/missing/x.txt HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+No parent and no createFolders.

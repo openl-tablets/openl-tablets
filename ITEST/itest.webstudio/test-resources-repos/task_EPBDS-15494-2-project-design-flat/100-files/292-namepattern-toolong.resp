@@ -1,0 +1,9 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "*",
+  "fields": [
+    { "code": "openl.error.file.name-pattern.too-long.message", "message": "*", "field": "namePattern", "rejectedValue": "*" }
+  ]
+}

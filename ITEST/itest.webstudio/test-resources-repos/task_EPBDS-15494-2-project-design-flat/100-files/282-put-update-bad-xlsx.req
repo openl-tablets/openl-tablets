@@ -1,0 +1,5 @@
+PUT /rest/projects/{PROJECT_ID}/files/rules/Model.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+This is not valid OOXML content.

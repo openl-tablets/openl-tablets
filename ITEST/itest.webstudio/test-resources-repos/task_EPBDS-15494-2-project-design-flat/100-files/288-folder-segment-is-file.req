@@ -1,0 +1,4 @@
+PUT /rest/projects/{PROJECT_ID}/files/rules.xml/subfolder/?createFolders=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
