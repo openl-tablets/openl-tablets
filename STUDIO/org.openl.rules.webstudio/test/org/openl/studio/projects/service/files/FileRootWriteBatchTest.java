@@ -50,7 +50,7 @@ class FileRootWriteBatchTest {
     @Test
     void repositoryMountCommitsBatchAsOneChangeset() throws Exception {
         BranchRepository repository = mock(BranchRepository.class);
-        var root = new RepoFileRoot(repository, "", mock(AclProjectsHelper.class),
+        var root = new RepoFileRoot(repository, mock(AclProjectsHelper.class),
                 mock(ProjectFileLookupService.class));
         var items = List.of(item("data/a.txt"), item("data/sub/b.txt"));
 
@@ -66,7 +66,7 @@ class FileRootWriteBatchTest {
     @Test
     void emptyBatchDoesNotTouchRepository() {
         BranchRepository repository = mock(BranchRepository.class);
-        var root = new RepoFileRoot(repository, "", mock(AclProjectsHelper.class),
+        var root = new RepoFileRoot(repository, mock(AclProjectsHelper.class),
                 mock(ProjectFileLookupService.class));
 
         root.writeBatch(List.of(), "no-op");
