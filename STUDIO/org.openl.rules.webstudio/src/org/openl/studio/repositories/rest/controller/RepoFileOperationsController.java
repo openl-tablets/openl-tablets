@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +20,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.studio.projects.model.files.CopyFileRequest;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.model.files.MoveFileRequest;
+import org.openl.studio.projects.rest.controller.AbstractFileOperationsController;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.files.RepoFileRootFactory;
@@ -34,15 +34,19 @@ import org.openl.studio.repositories.rest.resolver.DesignRepository;
  *
  * @author Yury Molchan
  */
-@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/repos/{repo-name}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Repositories: Files (BETA)", description = "APIs for managing repository files")
 @Validated
-public class RepoFileOperationsController {
+public class RepoFileOperationsController extends AbstractFileOperationsController {
 
-    private final ProjectFilesService filesService;
     private final RepoFileRootFactory fileRootFactory;
+
+    public RepoFileOperationsController(ProjectFilesService filesService,
+                                        RepoFileRootFactory fileRootFactory) {
+        super(filesService);
+        this.fileRootFactory = fileRootFactory;
+    }
 
     @PostMapping("/file-copy")
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,7 +55,7 @@ public class RepoFileOperationsController {
                          @RequestParam(value = "branch", required = false)
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid CopyFileRequest request) {
-        filesService.copyResource(fileRootFactory.of(repository, branch), request.sourcePath(), request.destinationPath());
+        handleCopy(fileRootFactory.of(repository, branch), request);
     }
 
     @PostMapping("/file-move")
@@ -60,7 +64,7 @@ public class RepoFileOperationsController {
                          @RequestParam(value = "branch", required = false)
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid MoveFileRequest request) {
-        filesService.moveResource(fileRootFactory.of(repository, branch), request.sourcePath(), request.destinationPath());
+        handleMove(fileRootFactory.of(repository, branch), request);
     }
 
     @PostMapping("/file-search")
@@ -69,6 +73,6 @@ public class RepoFileOperationsController {
                                     @RequestParam(value = "branch", required = false)
                                     @Parameter(description = "projects.files.param.branch.desc") String branch,
                                     @RequestBody FileSearchQuery query) {
-        return filesService.search(fileRootFactory.of(repository, branch), query);
+        return handleSearch(fileRootFactory.of(repository, branch), query);
     }
 }

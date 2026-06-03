@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,7 +29,7 @@ import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 
 /**
- * REST controller for project file operations that involve two paths: copy and move.
+ * REST controller for project file operations that involve two paths: copy and move, plus search.
  *
  * <p>These operations live outside the {@code /files/{*path}} address space. Both paths
  * travel in the request body, so a command name can never shadow a real file whose path
@@ -38,19 +37,28 @@ import org.openl.studio.projects.service.files.ProjectFilesService;
  *
  * @author Yury Molchan
  */
-@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/projects/{projectId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
 @Validated
-public class ProjectFileOperationsController {
+public class ProjectFileOperationsController extends AbstractFileOperationsController {
 
-    private final ProjectFilesService filesService;
     private final ProjectFileRootFactory fileRootFactory;
+
+    public ProjectFileOperationsController(ProjectFilesService filesService,
+                                           ProjectFileRootFactory fileRootFactory) {
+        super(filesService);
+        this.fileRootFactory = fileRootFactory;
+    }
 
     @Lookup
     public WebStudio getWebStudio() {
         return null;
+    }
+
+    @Override
+    protected void postWrite() {
+        getWebStudio().reset();
     }
 
     @PostMapping("/file-copy")
@@ -61,11 +69,7 @@ public class ProjectFileOperationsController {
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid CopyFileRequest request) {
         BranchGuard.requireBranch(project, branch);
-        try {
-            filesService.copyResource(fileRootFactory.of(project), request.sourcePath(), request.destinationPath());
-        } finally {
-            getWebStudio().reset();
-        }
+        handleCopy(fileRootFactory.of(project), request);
     }
 
     @PostMapping("/file-move")
@@ -75,11 +79,7 @@ public class ProjectFileOperationsController {
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid MoveFileRequest request) {
         BranchGuard.requireBranch(project, branch);
-        try {
-            filesService.moveResource(fileRootFactory.of(project), request.sourcePath(), request.destinationPath());
-        } finally {
-            getWebStudio().reset();
-        }
+        handleMove(fileRootFactory.of(project), request);
     }
 
     @PostMapping("/file-search")
@@ -89,6 +89,6 @@ public class ProjectFileOperationsController {
                                     @Parameter(description = "projects.files.param.branch.desc") String branch,
                                     @RequestBody FileSearchQuery query) {
         BranchGuard.requireBranch(project, branch);
-        return filesService.search(fileRootFactory.of(project), query);
+        return handleSearch(fileRootFactory.of(project), query);
     }
 }
