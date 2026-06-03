@@ -1,0 +1,15 @@
+POST /rest/repos/design-flat/files/{PROJECT_BUSINESS_NAME}/uploads/ HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="alpha.txt"
+Content-Type: text/plain
+
+&multi-alpha.txt
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="beta.txt"
+Content-Type: text/plain
+
+&multi-beta.txt
+--MULTIBOUND--

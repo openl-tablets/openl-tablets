@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "type": "file",
+  "path": "EPBDS-15494-repo/rules/Model.xlsx",
+  "name": "Model.xlsx",
+  "basePath": "EPBDS-15494-repo/rules",
+  "extension": "xlsx",
+  "size": "*",
+  "lastModified": "*"
+}

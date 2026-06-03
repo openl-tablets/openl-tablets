@@ -1,0 +1,5 @@
+PUT /rest/projects/{PROJECT_ID}/files/i18n/messages.properties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+greeting=updated via raw text/plain PUT

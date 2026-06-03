@@ -1,0 +1,6 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  { "path": "EPBDS-15494/rules.xml", "name": "rules.xml", "type": "file", "basePath": "EPBDS-15494", "extension": "xml" }
+]

@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "type": "file",
+  "path": "EPBDS-15494-repo/imported/sub/b.dat",
+  "name": "b.dat",
+  "basePath": "EPBDS-15494-repo/imported/sub",
+  "extension": "dat",
+  "size": "*",
+  "lastModified": "*"
+}

@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/val/old.xls?createFolders=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+This is plain text, not an OLE2 workbook.
