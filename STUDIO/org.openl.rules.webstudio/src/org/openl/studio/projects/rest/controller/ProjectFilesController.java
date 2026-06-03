@@ -1,21 +1,16 @@
 package org.openl.studio.projects.rest.controller;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,42 +23,49 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
-import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.ConflictPolicy;
-import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
-import org.openl.studio.projects.service.files.ProjectFilesService.UploadedFile;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
 /**
- * REST controller for project resources (files and folders).
+ * REST controller for project files and folders.
  *
+ * <p>Mounts the files API on a project's working copy: {@code /projects/{projectId}/files/{*path}}.
+ * Writes stage in the working copy. The {@code branch} parameter asserts the project is on the
+ * expected branch; it does not switch branches.
  */
-@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/projects/{projectId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
 @Validated
-public class ProjectFilesController {
+public class ProjectFilesController extends AbstractFilesController {
 
-    private final ProjectFilesService resourcesService;
     private final ProjectFileRootFactory fileRootFactory;
-    private final BeanValidationProvider validationProvider;
-    private final FileCriteriaQueryValidator queryValidator;
+
+    public ProjectFilesController(ProjectFilesService filesService,
+                                  ProjectFileRootFactory fileRootFactory,
+                                  BeanValidationProvider validationProvider,
+                                  FileCriteriaQueryValidator queryValidator) {
+        super(filesService, validationProvider, queryValidator);
+        this.fileRootFactory = fileRootFactory;
+    }
 
     @Lookup
     public WebStudio getWebStudio() {
         return null;
+    }
+
+    @Override
+    protected void postWrite() {
+        getWebStudio().reset();
     }
 
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -80,24 +82,7 @@ public class ProjectFilesController {
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
         BranchGuard.requireBranch(project, branch);
-        var root = fileRootFactory.of(project);
-        try {
-            if (isFolderPath(path)) {
-                resourcesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
-            } else {
-                resourcesService.createResource(root, stripLeadingSlash(path), files.get(0).getInputStream(), createFolders);
-            }
-        } finally {
-            getWebStudio().reset();
-        }
-    }
-
-    private static List<UploadedFile> toUploadedFiles(List<MultipartFile> files) throws IOException {
-        List<UploadedFile> uploaded = new ArrayList<>();
-        for (MultipartFile file : files) {
-            uploaded.add(new UploadedFile(file.getOriginalFilename(), file.getBytes()));
-        }
-        return uploaded;
+        handleCreate(fileRootFactory.of(project), path, files, createFolders, conflictPolicy);
     }
 
     @PostMapping(value = "/{*path}")
@@ -112,11 +97,7 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) {
         BranchGuard.requireBranch(project, branch);
-        try {
-            resourcesService.createResource(fileRootFactory.of(project), stripLeadingSlash(path), content, createFolders);
-        } finally {
-            getWebStudio().reset();
-        }
+        handleCreateRaw(fileRootFactory.of(project), path, createFolders, content);
     }
 
     @PostMapping(value = "/{*path}", consumes = "application/zip")
@@ -133,14 +114,7 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) throws IOException {
         BranchGuard.requireBranch(project, branch);
-        if (!isFolderPath(path)) {
-            throw new BadRequestException("file.path.requires.content.message");
-        }
-        try {
-            resourcesService.uploadArchive(fileRootFactory.of(project), stripSlashes(path), content, createFolders, conflictPolicy);
-        } finally {
-            getWebStudio().reset();
-        }
+        handleUploadArchive(fileRootFactory.of(project), path, createFolders, conflictPolicy, content);
     }
 
     @GetMapping(value = "/{*path}", produces = MediaType.ALL_VALUE)
@@ -168,45 +142,8 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.version.desc") String version
     ) throws ProjectException, IOException {
         BranchGuard.requireBranch(project, branch);
-        if (isFolderPath(path)) {
-            var basePath = stripSlashes(path);
-            if (download != null) {
-                String zipName = (basePath.isEmpty() ? "files" : basePath.substring(basePath.lastIndexOf('/') + 1)) + ".zip";
-                StreamingResponseBody body = out -> resourcesService.writeFolderAsZip(fileRootFactory.of(project), basePath, out, version);
-                return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType("application/zip"))
-                        .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName))
-                        .body(body);
-            }
-            var queryBuilder = FileCriteriaQuery.builder()
-                    .basePath(basePath.isEmpty() ? null : basePath)
-                    .namePattern(namePattern)
-                    .foldersOnly(foldersOnly);
-            if (extensions != null) {
-                queryBuilder.extensions(extensions);
-            }
-            var query = queryBuilder.build();
-            validationProvider.validate(query, queryValidator);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(resourcesService.getResources(fileRootFactory.of(project), query, recursive, viewMode, version));
-        }
-        var filePath = stripLeadingSlash(path);
-        if ("meta".equalsIgnoreCase(view)) {
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(resourcesService.getNode(fileRootFactory.of(project), filePath, version));
-        }
-        var resource = resourcesService.getResource(fileRootFactory.of(project), filePath, version);
-        var output = new ByteArrayOutputStream();
-        try (var stream = resource.getContent()) {
-            stream.transferTo(output);
-        }
-        String fileName = resource.getName();
-        return ResponseEntity.ok()
-                .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
-                .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-                .body(output.toByteArray());
+        return handleGetFile(fileRootFactory.of(project), path, view, download, extensions, namePattern,
+                foldersOnly, recursive, viewMode, version);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -218,11 +155,7 @@ public class ProjectFilesController {
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
         BranchGuard.requireBranch(project, branch);
-        try {
-            resourcesService.updateResource(fileRootFactory.of(project), stripLeadingSlash(path), file.getInputStream());
-        } finally {
-            getWebStudio().reset();
-        }
+        handleUpdate(fileRootFactory.of(project), path, file);
     }
 
     @PutMapping(value = "/{*path}")
@@ -234,11 +167,7 @@ public class ProjectFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) {
         BranchGuard.requireBranch(project, branch);
-        try {
-            resourcesService.updateResource(fileRootFactory.of(project), stripLeadingSlash(path), content);
-        } finally {
-            getWebStudio().reset();
-        }
+        handleUpdateRaw(fileRootFactory.of(project), path, content);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -252,14 +181,7 @@ public class ProjectFilesController {
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch) {
         BranchGuard.requireBranch(project, branch);
-        if (!isFolderPath(path)) {
-            throw new BadRequestException("file.path.requires.content.message");
-        }
-        try {
-            resourcesService.createFolder(fileRootFactory.of(project), stripSlashes(path), createFolders);
-        } finally {
-            getWebStudio().reset();
-        }
+        handleCreateFolder(fileRootFactory.of(project), path, createFolders);
     }
 
     @DeleteMapping("/{*path}")
@@ -270,40 +192,6 @@ public class ProjectFilesController {
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch) {
         BranchGuard.requireBranch(project, branch);
-        try {
-            resourcesService.deleteResource(fileRootFactory.of(project), stripLeadingSlash(path));
-        } finally {
-            getWebStudio().reset();
-        }
-    }
-
-    /**
-     * Determines whether the captured path addresses a folder. A trailing slash, or the
-     * empty/root path, denotes a folder; any other path denotes a file.
-     */
-    private static boolean isFolderPath(String path) {
-        return path == null || path.isEmpty() || path.equals("/") || path.endsWith("/");
-    }
-
-    /**
-     * Strips leading and trailing slashes from the path captured by {@code {*path}}.
-     */
-    private static String stripSlashes(String path) {
-        var result = stripLeadingSlash(path);
-        while (result != null && result.endsWith("/")) {
-            result = result.substring(0, result.length() - 1);
-        }
-        return result;
-    }
-
-    /**
-     * Strips the leading slash from the path captured by {@code {*path}}.
-     * Spring's catch-all path variable includes a leading '/' (e.g., "/folder/file.xlsx").
-     */
-    private static String stripLeadingSlash(String path) {
-        if (path != null && path.startsWith("/")) {
-            return path.substring(1);
-        }
-        return path;
+        handleDelete(fileRootFactory.of(project), path);
     }
 }
