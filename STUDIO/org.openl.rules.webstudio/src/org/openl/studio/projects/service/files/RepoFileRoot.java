@@ -14,10 +14,12 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -35,6 +37,7 @@ public class RepoFileRoot implements FileRoot {
     private final Repository repository;
     private final String basePath;
     private final AclProjectsHelper aclProjectsHelper;
+    private final ProjectFileLookupService fileLookupService;
 
     @Override
     public AProjectFolder readFolder(String version) {
@@ -71,7 +74,32 @@ public class RepoFileRoot implements FileRoot {
 
     @Override
     public List<FsNode> searchAncestors(String lookupPath) {
-        throw new BadRequestException("file.search.ancestors.unsupported.message");
+        // Anchor the walk at the mount root: the lookup walks from the path's folder up to the
+        // repository root, matching the leaf name at each level. The "above the project" phase is a
+        // no-op here, because the mount root has no parent directory.
+        try {
+            return fileLookupService.lookup(new AProject(repository, basePath), lookupPath, true, false)
+                    .files().stream()
+                    .map(match -> (FsNode) FileNode.builder()
+                            .path(match.path())
+                            .name(fileName(match.path()))
+                            .basePath(parentPath(match.path()))
+                            .extension(FileUtils.getExtension(fileName(match.path())))
+                            .build())
+                    .toList();
+        } catch (IOException e) {
+            throw new ConflictException("file.read.failed.message");
+        }
+    }
+
+    private static String fileName(String path) {
+        int slash = path.lastIndexOf('/');
+        return slash >= 0 ? path.substring(slash + 1) : path;
+    }
+
+    private static String parentPath(String path) {
+        int slash = path.lastIndexOf('/');
+        return slash < 0 ? "" : path.substring(0, slash);
     }
 
     /**
