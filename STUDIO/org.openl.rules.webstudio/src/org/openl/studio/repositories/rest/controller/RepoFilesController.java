@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
+import jakarta.servlet.http.HttpServletResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -127,10 +128,11 @@ public class RepoFilesController extends AbstractFilesController {
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch,
             @RequestParam(value = "version", required = false)
-            @Parameter(description = "projects.files.param.version.desc") String version
+            @Parameter(description = "projects.files.param.version.desc") String version,
+            HttpServletResponse response
     ) throws ProjectException, IOException {
         return handleGetFile(fileRootFactory.of(repository, branch), path, view, download, extensions, namePattern,
-                foldersOnly, recursive, viewMode, version);
+                foldersOnly, recursive, viewMode, version, response);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -1,0 +1,5 @@
+HTTP/1.1 200
+Content-Type: application/zip
+Content-Disposition: attachment; filename=uploads.zip; filename*=UTF-8''uploads.zip
+
+&../../task_EPBDS-15494-2-project-design-flat/100-files/multi-upload.zip
