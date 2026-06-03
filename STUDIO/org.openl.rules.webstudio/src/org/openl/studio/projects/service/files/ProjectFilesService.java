@@ -142,6 +142,27 @@ public interface ProjectFilesService {
                        @NotNull ConflictPolicy conflictPolicy) throws IOException;
 
     /**
+     * Upload several files into a folder as one operation. Each file's name is resolved relative to
+     * the folder, missing intermediate folders are created, and the name and content are validated.
+     * On a repository mount the files are committed as a single changeset.
+     *
+     * @param root           the file root
+     * @param path           mount-relative target folder (e.g. "folder"); empty for the mount root
+     * @param files          the files to upload, each carrying a name and content
+     * @param conflictPolicy how to handle a file whose target already exists
+     */
+    void uploadFiles(@NotNull FileRoot root,
+                     @NotNull String path,
+                     @NotNull List<UploadedFile> files,
+                     @NotNull ConflictPolicy conflictPolicy);
+
+    /**
+     * A file to upload: its folder-relative name and content bytes.
+     */
+    record UploadedFile(String name, byte[] content) {
+    }
+
+    /**
      * Search files and folders. {@code SUBTREE} scope matches entries within the mount by ant-glob
      * path pattern, file extensions, type and a case-insensitive content substring. {@code ANCESTORS}
      * scope walks up from a path to the repository root and returns matches of the pattern at each

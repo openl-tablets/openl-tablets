@@ -3,6 +3,8 @@ package org.openl.studio.projects.rest.controller;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +42,7 @@ import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.files.ProjectFilesService.UploadedFile;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
 /**
@@ -69,17 +72,32 @@ public class ProjectFilesController {
     public void createResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
-            @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file,
+            @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") List<MultipartFile> files,
             @RequestParam(value = "createFolders", defaultValue = "false")
             @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            @RequestParam(value = "conflictPolicy", defaultValue = "FAIL")
+            @Parameter(description = "projects.files.param.conflict-policy.desc") ConflictPolicy conflictPolicy,
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
         BranchGuard.requireBranch(project, branch);
+        var root = fileRootFactory.of(project);
         try {
-            resourcesService.createResource(fileRootFactory.of(project), stripLeadingSlash(path), file.getInputStream(), createFolders);
+            if (isFolderPath(path)) {
+                resourcesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
+            } else {
+                resourcesService.createResource(root, stripLeadingSlash(path), files.get(0).getInputStream(), createFolders);
+            }
         } finally {
             getWebStudio().reset();
         }
+    }
+
+    private static List<UploadedFile> toUploadedFiles(List<MultipartFile> files) throws IOException {
+        List<UploadedFile> uploaded = new ArrayList<>();
+        for (MultipartFile file : files) {
+            uploaded.add(new UploadedFile(file.getOriginalFilename(), file.getBytes()));
+        }
+        return uploaded;
     }
 
     @PostMapping(value = "/{*path}")

@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/files/rules/multi-upload/alpha.txt?view=meta HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

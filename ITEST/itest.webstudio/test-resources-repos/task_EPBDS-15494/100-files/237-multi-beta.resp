@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "type": "file",
+  "path": "rules/multi-upload/beta.txt",
+  "name": "beta.txt",
+  "basePath": "rules/multi-upload",
+  "extension": "txt",
+  "size": "*",
+  "lastModified": "*"
+}
