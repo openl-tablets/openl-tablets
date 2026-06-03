@@ -108,7 +108,7 @@ public class FileCriteriaQueryValidator implements Validator {
     }
 
     private void validateConflictingFilters(FileCriteriaQuery query, Errors errors) {
-        if (query.foldersOnly() && query.extensions() != null && !query.extensions().isEmpty()) {
+        if (query.foldersOnly() && !query.extensions().isEmpty()) {
             errors.rejectValue(EXTENSIONS_FIELD, "file.filters.conflict.message");
         }
     }
