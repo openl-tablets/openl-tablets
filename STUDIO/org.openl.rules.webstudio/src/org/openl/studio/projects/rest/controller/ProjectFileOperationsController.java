@@ -20,9 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
-import org.openl.studio.projects.model.files.CopyFileRequest;
+import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
-import org.openl.studio.projects.model.files.MoveFileRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
@@ -67,7 +66,7 @@ public class ProjectFileOperationsController extends AbstractFileOperationsContr
     public void copyFile(@ProjectId @PathVariable("projectId") RulesProject project,
                          @RequestParam(value = "branch", required = false)
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
-                         @RequestBody @Valid CopyFileRequest request) {
+                         @RequestBody @Valid FilePathPairRequest request) {
         BranchGuard.requireBranch(project, branch);
         handleCopy(fileRootFactory.of(project), request);
     }
@@ -77,7 +76,7 @@ public class ProjectFileOperationsController extends AbstractFileOperationsContr
     public void moveFile(@ProjectId @PathVariable("projectId") RulesProject project,
                          @RequestParam(value = "branch", required = false)
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
-                         @RequestBody @Valid MoveFileRequest request) {
+                         @RequestBody @Valid FilePathPairRequest request) {
         BranchGuard.requireBranch(project, branch);
         handleMove(fileRootFactory.of(project), request);
     }
