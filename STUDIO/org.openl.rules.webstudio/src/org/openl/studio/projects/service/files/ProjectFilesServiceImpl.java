@@ -32,6 +32,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.studio.common.exception.BadRequestException;
@@ -275,6 +277,27 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             validateResourcePath(path);
             requirePermission(root.writeFolder(), BasePermission.CREATE);
         }
+        List<ArchiveEntry> entries = readArchive(path, archive);
+        if (root.supportsAtomicWrite()) {
+            writeArchiveAtomically(root, entries, conflictPolicy, archiveComment(path));
+        } else {
+            AProjectFolder writeFolder = root.writeFolder();
+            try {
+                for (ArchiveEntry entry : entries) {
+                    addArchiveEntry(writeFolder, entry.fullPath(), entry.data(), conflictPolicy);
+                }
+            } catch (ProjectException e) {
+                throw new ConflictException("file.archive.upload.failed.message");
+            }
+        }
+    }
+
+    /**
+     * Reads every archive entry into memory, applying the zip-slip and zip-bomb guards. A malformed
+     * archive is reported as a bad request.
+     */
+    private List<ArchiveEntry> readArchive(String path, InputStream archive) {
+        List<ArchiveEntry> entries = new ArrayList<>();
         try (var zis = new ZipInputStream(archive)) {
             ZipEntry entry;
             int count = 0;
@@ -299,13 +322,49 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 if (total > MAX_ARCHIVE_TOTAL_BYTES) {
                     throw new BadRequestException("file.archive.too-large.message");
                 }
-                addArchiveEntry(root.writeFolder(), fullPath, data, conflictPolicy);
+                entries.add(new ArchiveEntry(fullPath, data));
             }
-        } catch (ProjectException e) {
-            throw new ConflictException("file.archive.upload.failed.message");
         } catch (IOException e) {
             throw new BadRequestException("file.archive.invalid.message");
         }
+        return entries;
+    }
+
+    /**
+     * Validates and commits every archive entry as a single changeset, honoring the conflict policy.
+     * The mount overwrites existing files only for the {@code OVERWRITE} policy.
+     */
+    private void writeArchiveAtomically(FileRoot root,
+                                        List<ArchiveEntry> entries,
+                                        ConflictPolicy conflictPolicy,
+                                        String comment) {
+        AProjectFolder current = root.readFolder(null);
+        List<FileItem> items = new ArrayList<>();
+        for (ArchiveEntry entry : entries) {
+            if (findArtefactByPath(current, entry.fullPath()) != null) {
+                switch (conflictPolicy) {
+                    case FAIL -> throw new ConflictException("file.archive.entry.exists.message", entry.fullPath());
+                    case SKIP -> {
+                        continue;
+                    }
+                    case OVERWRITE -> {
+                        // kept: the changeset overwrites the existing file
+                    }
+                }
+            }
+            InputStream validated = validateContent(getFileName(entry.fullPath()), new ByteArrayInputStream(entry.data()));
+            var fileData = new FileData();
+            fileData.setName(entry.fullPath());
+            items.add(new FileItem(fileData, validated));
+        }
+        root.writeBatch(items, comment);
+    }
+
+    private static String archiveComment(String path) {
+        return "Upload archive to " + (path.isEmpty() ? "repository root" : path);
+    }
+
+    private record ArchiveEntry(String fullPath, byte[] data) {
     }
 
     /**

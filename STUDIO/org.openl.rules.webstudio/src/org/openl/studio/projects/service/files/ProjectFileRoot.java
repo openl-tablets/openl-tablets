@@ -10,6 +10,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -74,6 +75,17 @@ public class ProjectFileRoot implements FileRoot {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");
         }
+    }
+
+    @Override
+    public boolean supportsAtomicWrite() {
+        // The working copy stages writes and commits them on check-in, so they are written per file.
+        return false;
+    }
+
+    @Override
+    public void writeBatch(List<FileItem> items, String comment) {
+        throw new UnsupportedOperationException("Workspace mount is written per file");
     }
 
     @Override
