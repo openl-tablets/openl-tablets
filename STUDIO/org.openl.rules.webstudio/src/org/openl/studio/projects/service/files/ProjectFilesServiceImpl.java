@@ -273,21 +273,55 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                               boolean createParents,
                               @NotNull ConflictPolicy conflictPolicy) throws IOException {
         root.requireModifiable();
+        requireWritableBase(root, path);
+        writeEntries(root, readArchive(path, archive), conflictPolicy, uploadComment("Upload archive to ", path));
+    }
+
+    @Override
+    public void uploadFiles(@NotNull FileRoot root,
+                            @NotNull String path,
+                            @NotNull List<UploadedFile> files,
+                            @NotNull ConflictPolicy conflictPolicy) {
+        root.requireModifiable();
+        requireWritableBase(root, path);
+        List<FileEntry> entries = new ArrayList<>();
+        for (UploadedFile file : files) {
+            String name = stripLeadingSlashes(StringUtils.trimToEmpty(file.name()).replace('\\', '/'));
+            if (name.isEmpty()) {
+                throw new BadRequestException("file.path.invalid.message");
+            }
+            String fullPath = path.isEmpty() ? name : path + "/" + name;
+            validateResourcePath(fullPath);
+            entries.add(new FileEntry(fullPath, file.content()));
+        }
+        writeEntries(root, entries, conflictPolicy, uploadComment("Upload files to ", path));
+    }
+
+    /**
+     * Validates the target folder and verifies it may be created or written, unless it is the mount root.
+     */
+    private void requireWritableBase(FileRoot root, String path) {
         if (!path.isEmpty()) {
             validateResourcePath(path);
             requirePermission(root.writeFolder(), BasePermission.CREATE);
         }
-        List<ArchiveEntry> entries = readArchive(path, archive);
+    }
+
+    /**
+     * Writes the entries to the mount: a single changeset on an atomic (repository) mount, file by
+     * file otherwise.
+     */
+    private void writeEntries(FileRoot root, List<FileEntry> entries, ConflictPolicy conflictPolicy, String comment) {
         if (root.supportsAtomicWrite()) {
-            writeArchiveAtomically(root, entries, conflictPolicy, archiveComment(path));
+            writeEntriesAtomically(root, entries, conflictPolicy, comment);
         } else {
             AProjectFolder writeFolder = root.writeFolder();
             try {
-                for (ArchiveEntry entry : entries) {
-                    addArchiveEntry(writeFolder, entry.fullPath(), entry.data(), conflictPolicy);
+                for (FileEntry entry : entries) {
+                    addFileEntry(writeFolder, entry.fullPath(), entry.data(), conflictPolicy);
                 }
             } catch (ProjectException e) {
-                throw new ConflictException("file.archive.upload.failed.message");
+                throw new ConflictException("file.create.failed.message");
             }
         }
     }
@@ -296,8 +330,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * Reads every archive entry into memory, applying the zip-slip and zip-bomb guards. A malformed
      * archive is reported as a bad request.
      */
-    private List<ArchiveEntry> readArchive(String path, InputStream archive) {
-        List<ArchiveEntry> entries = new ArrayList<>();
+    private List<FileEntry> readArchive(String path, InputStream archive) {
+        List<FileEntry> entries = new ArrayList<>();
         try (var zis = new ZipInputStream(archive)) {
             ZipEntry entry;
             int count = 0;
@@ -322,7 +356,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 if (total > MAX_ARCHIVE_TOTAL_BYTES) {
                     throw new BadRequestException("file.archive.too-large.message");
                 }
-                entries.add(new ArchiveEntry(fullPath, data));
+                entries.add(new FileEntry(fullPath, data));
             }
         } catch (IOException e) {
             throw new BadRequestException("file.archive.invalid.message");
@@ -334,13 +368,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * Validates and commits every archive entry as a single changeset, honoring the conflict policy.
      * The mount overwrites existing files only for the {@code OVERWRITE} policy.
      */
-    private void writeArchiveAtomically(FileRoot root,
-                                        List<ArchiveEntry> entries,
+    private void writeEntriesAtomically(FileRoot root,
+                                        List<FileEntry> entries,
                                         ConflictPolicy conflictPolicy,
                                         String comment) {
         AProjectFolder current = root.readFolder(null);
         List<FileItem> items = new ArrayList<>();
-        for (ArchiveEntry entry : entries) {
+        for (FileEntry entry : entries) {
             if (findArtefactByPath(current, entry.fullPath()) != null) {
                 switch (conflictPolicy) {
                     case FAIL -> throw new ConflictException("file.archive.entry.exists.message", entry.fullPath());
@@ -360,17 +394,17 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         root.writeBatch(items, comment);
     }
 
-    private static String archiveComment(String path) {
-        return "Upload archive to " + (path.isEmpty() ? "repository root" : path);
+    private static String uploadComment(String action, String path) {
+        return action + (path.isEmpty() ? "repository root" : path);
     }
 
-    private record ArchiveEntry(String fullPath, byte[] data) {
+    private record FileEntry(String fullPath, byte[] data) {
     }
 
     /**
      * Validates one archive entry and writes it into the target folder, honoring the conflict policy.
      */
-    private void addArchiveEntry(AProjectFolder writeFolder, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
+    private void addFileEntry(AProjectFolder writeFolder, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
             throws ProjectException {
         String fileName = getFileName(fullPath);
         InputStream validated = validateContent(fileName, new ByteArrayInputStream(data));

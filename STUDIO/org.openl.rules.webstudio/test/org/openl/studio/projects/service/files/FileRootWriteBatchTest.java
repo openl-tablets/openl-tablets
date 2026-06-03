@@ -105,6 +105,31 @@ class FileRootWriteBatchTest {
         assertEquals("data/a.txt", items.getValue().get(0).getData().getName());
     }
 
+    @Test
+    void uploadFilesToAtomicMountCommitsEveryFileAsOneBatch() {
+        AclProjectsHelper acl = mock(AclProjectsHelper.class);
+        when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
+        var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class));
+
+        var emptyTree = new AProjectFolder(new HashMap<>(), null, null, "");
+        FileRoot root = mock(FileRoot.class);
+        when(root.supportsAtomicWrite()).thenReturn(true);
+        when(root.writeFolder()).thenReturn(emptyTree);
+        when(root.readFolder(null)).thenReturn(emptyTree);
+
+        var files = List.of(
+                new ProjectFilesService.UploadedFile("x.txt", "X".getBytes(StandardCharsets.UTF_8)),
+                new ProjectFilesService.UploadedFile("sub/y.txt", "Y".getBytes(StandardCharsets.UTF_8)));
+        service.uploadFiles(root, "data", files, ConflictPolicy.FAIL);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<FileItem>> items = ArgumentCaptor.forClass(List.class);
+        verify(root).writeBatch(items.capture(), eq("Upload files to data"));
+        assertEquals(2, items.getValue().size());
+        assertEquals("data/x.txt", items.getValue().get(0).getData().getName());
+        assertEquals("data/sub/y.txt", items.getValue().get(1).getData().getName());
+    }
+
     private static byte[] zip(String... nameThenContent) throws IOException {
         var bytes = new ByteArrayOutputStream();
         try (var zos = new ZipOutputStream(bytes)) {
