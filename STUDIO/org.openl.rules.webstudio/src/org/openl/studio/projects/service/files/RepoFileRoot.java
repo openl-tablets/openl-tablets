@@ -85,24 +85,14 @@ public class RepoFileRoot implements FileRoot {
                     .files().stream()
                     .map(match -> (FsNode) FileNode.builder()
                             .path(match.path())
-                            .name(fileName(match.path()))
-                            .basePath(parentPath(match.path()))
-                            .extension(FileUtils.getExtension(fileName(match.path())))
+                            .name(FilePaths.name(match.path()))
+                            .basePath(FilePaths.parent(match.path()))
+                            .extension(FileUtils.getExtension(FilePaths.name(match.path())))
                             .build())
                     .toList();
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }
-    }
-
-    private static String fileName(String path) {
-        int slash = path.lastIndexOf('/');
-        return slash >= 0 ? path.substring(slash + 1) : path;
-    }
-
-    private static String parentPath(String path) {
-        int slash = path.lastIndexOf('/');
-        return slash < 0 ? "" : path.substring(0, slash);
     }
 
     @Override

@@ -52,11 +52,7 @@ class FileNodeMapperImpl implements FileNodeMapper {
         if (path == null || path.isEmpty()) {
             return null;
         }
-        int lastSlash = path.lastIndexOf('/');
-        if (lastSlash < 0) {
-            return "";
-        }
-        return lastSlash == 0 ? "" : path.substring(0, lastSlash);
+        return FilePaths.parent(path);
     }
 
     private static ZonedDateTime toZonedDateTime(Date date) {
