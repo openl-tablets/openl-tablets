@@ -138,7 +138,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.copy.path.conflict.message");
-            copyArtefact(source, targetFolder, getFileName(destinationPath));
+            copyArtefact(source, targetFolder, FilePaths.name(destinationPath));
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.copy.failed.message");
         }
@@ -158,7 +158,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.move.path.conflict.message");
-            String fileName = getFileName(destinationPath);
+            String fileName = FilePaths.name(destinationPath);
             copyArtefact(source, targetFolder, fileName);
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
         } catch (ProjectException | IOException e) {
@@ -177,7 +177,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
                     createFolders, "file.path.not.folder.message");
-            String fileName = getFileName(path);
+            String fileName = FilePaths.name(path);
             InputStream validatedContent = validateContent(fileName, content);
             targetFolder.addResource(fileName, validatedContent);
         } catch (ProjectException e) {
@@ -286,7 +286,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         requireWritableBase(root, path);
         List<FileEntry> entries = new ArrayList<>();
         for (UploadedFile file : files) {
-            String name = stripLeadingSlashes(StringUtils.trimToEmpty(file.name()).replace('\\', '/'));
+            String name = FilePaths.stripLeadingSlashes(StringUtils.trimToEmpty(file.name()).replace('\\', '/'));
             if (name.isEmpty()) {
                 throw new BadRequestException("file.path.invalid.message");
             }
@@ -343,7 +343,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 if (++count > MAX_ARCHIVE_ENTRIES) {
                     throw new BadRequestException("file.archive.too-many-entries.message");
                 }
-                String entryName = stripLeadingSlashes(entry.getName().replace('\\', '/'));
+                String entryName = FilePaths.stripLeadingSlashes(entry.getName().replace('\\', '/'));
                 String fullPath = path.isEmpty() ? entryName : path + "/" + entryName;
                 // Reject zip-slip: absolute paths, '..' segments and other unsafe names.
                 validateResourcePath(fullPath);
@@ -386,7 +386,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                     }
                 }
             }
-            InputStream validated = validateContent(getFileName(entry.fullPath()), new ByteArrayInputStream(entry.data()));
+            InputStream validated = validateContent(FilePaths.name(entry.fullPath()), new ByteArrayInputStream(entry.data()));
             var fileData = new FileData();
             fileData.setName(entry.fullPath());
             items.add(new FileItem(fileData, validated));
@@ -406,7 +406,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      */
     private void addFileEntry(AProjectFolder writeFolder, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
             throws ProjectException {
-        String fileName = getFileName(fullPath);
+        String fileName = FilePaths.name(fullPath);
         InputStream validated = validateContent(fileName, new ByteArrayInputStream(data));
         AProjectFolder targetFolder = resolveOrCreateFolders(writeFolder, fullPath, true, "file.path.not.folder.message");
         if (targetFolder.hasArtefact(fileName)) {
@@ -419,14 +419,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
         }
         targetFolder.addResource(fileName, validated);
-    }
-
-    private static String stripLeadingSlashes(String value) {
-        String result = value;
-        while (result.startsWith("/")) {
-            result = result.substring(1);
-        }
-        return result;
     }
 
     @Override
@@ -657,11 +649,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         }
 
         return targetFolder;
-    }
-
-    private static String getFileName(String path) {
-        int lastSlash = path.lastIndexOf('/');
-        return lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
     }
 
     /**

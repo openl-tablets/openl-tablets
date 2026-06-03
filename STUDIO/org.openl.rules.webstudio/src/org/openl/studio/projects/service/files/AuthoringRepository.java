@@ -70,11 +70,7 @@ public class AuthoringRepository implements BranchRepository {
 
     private static String nameOf(FileData data) {
         String name = data == null ? null : data.getName();
-        if (StringUtils.isBlank(name)) {
-            return "files";
-        }
-        int slash = name.lastIndexOf('/');
-        return slash >= 0 ? name.substring(slash + 1) : name;
+        return StringUtils.isBlank(name) ? "files" : FilePaths.name(name);
     }
 
     @Override

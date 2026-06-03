@@ -87,14 +87,14 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         addProjectMatch(matches, project, relativePath, includeContent);
 
         if (searchParents) {
-            String leafName = fileName(relativePath);
+            String leafName = FilePaths.name(relativePath);
 
             // Walk WITHIN the project: from the looked-up file's directory up to the project
             // root, looking for the leaf name at each ancestor. Goes through the project's
             // own artefact tree so it works for both folder and flat (zip-backed) repositories.
-            String inProjectDir = parentOf(relativePath);
+            String inProjectDir = FilePaths.parent(relativePath);
             while (!inProjectDir.isEmpty() && matches.size() < MAX_FILES_COUNT) {
-                inProjectDir = parentOf(inProjectDir);
+                inProjectDir = FilePaths.parent(inProjectDir);
                 String inProjectPath = inProjectDir.isEmpty() ? leafName : inProjectDir + "/" + leafName;
                 addProjectMatch(matches, project, inProjectPath, includeContent);
             }
@@ -105,9 +105,9 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             // simply skip this phase.
             if (project.getRepository().supports().folders()) {
                 Repository rawRepository = unwrapRepository(project.getRepository());
-                String currentDir = trimSlashes(project.getRealPath());
+                String currentDir = FilePaths.trimSlashes(project.getRealPath());
                 while (!currentDir.isEmpty() && matches.size() < MAX_FILES_COUNT) {
-                    currentDir = parentOf(currentDir);
+                    currentDir = FilePaths.parent(currentDir);
                     addAncestorMatch(matches, rawRepository, currentDir, leafName, includeContent);
                 }
             }
@@ -123,7 +123,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         if (matches.size() >= MAX_FILES_COUNT) {
             return;
         }
-        if (!isTextFile(fileName(relativePath))) {
+        if (!isTextFile(FilePaths.name(relativePath))) {
             return;
         }
         AProjectArtefact found = findArtefactByPath(project, relativePath);
@@ -160,7 +160,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             return;
         }
         String fullPath = dir.isEmpty() ? relativePath : dir + "/" + relativePath;
-        if (!isTextFile(fileName(fullPath))) {
+        if (!isTextFile(FilePaths.name(fullPath))) {
             return;
         }
         FileData data = repository.check(fullPath);
@@ -195,11 +195,6 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         }
         long size = data.getSize();
         return size != FileData.UNDEFINED_SIZE && size > MAX_FILE_SIZE_BYTES;
-    }
-
-    private static String fileName(String path) {
-        int slash = path.lastIndexOf('/');
-        return slash >= 0 ? path.substring(slash + 1) : path;
     }
 
     private static String readContent(AProjectResource resource) throws IOException {
@@ -255,7 +250,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     }
 
     private static String repositoryRelativePath(AProject project, String relativePath) {
-        String real = trimSlashes(project.getRealPath());
+        String real = FilePaths.trimSlashes(project.getRealPath());
         return real.isEmpty() ? relativePath : real + "/" + relativePath;
     }
 
@@ -268,25 +263,6 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             current = mapper.getDelegate();
         }
         return current;
-    }
-
-    private static String parentOf(String path) {
-        int slash = path.lastIndexOf('/');
-        return slash < 0 ? "" : path.substring(0, slash);
-    }
-
-    private static String trimSlashes(String value) {
-        if (value == null) {
-            return "";
-        }
-        String trimmed = value;
-        while (trimmed.startsWith("/")) {
-            trimmed = trimmed.substring(1);
-        }
-        while (trimmed.endsWith("/")) {
-            trimmed = trimmed.substring(0, trimmed.length() - 1);
-        }
-        return trimmed;
     }
 
     private static String validatePath(String path) {
