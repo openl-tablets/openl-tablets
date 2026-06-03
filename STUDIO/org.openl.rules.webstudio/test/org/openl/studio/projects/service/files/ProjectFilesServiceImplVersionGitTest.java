@@ -67,7 +67,7 @@ class ProjectFilesServiceImplVersionGitTest {
         lenient().when(aclProjectsHelper.hasPermission(any(AProjectArtefact.class), eq(BasePermission.READ)))
                 .thenReturn(true);
 
-        root = new RepoFileRoot(repository, "", aclProjectsHelper,
+        root = new RepoFileRoot(repository, aclProjectsHelper,
                 new ProjectFileLookupServiceImpl(aclProjectsHelper));
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class));
     }

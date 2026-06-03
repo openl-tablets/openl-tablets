@@ -24,7 +24,7 @@ import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.StringUtils;
 
 /**
- * {@link FileRoot} backed by a design repository subtree.
+ * {@link FileRoot} backed by a design repository, rooted at the repository root.
  *
  * <p>The mount addresses files across the repository on an already-resolved branch. There is no
  * workspace copy, so reads and writes go straight to the repository. Authorization is checked at
@@ -35,8 +35,12 @@ import org.openl.util.StringUtils;
 @RequiredArgsConstructor
 public class RepoFileRoot implements FileRoot {
 
+    /**
+     * The mount is rooted at the repository root, so every path is repository-relative.
+     */
+    private static final String ROOT_PATH = "";
+
     private final Repository repository;
-    private final String basePath;
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectFileLookupService fileLookupService;
 
@@ -61,14 +65,14 @@ public class RepoFileRoot implements FileRoot {
 
     @Override
     public void requireReadable() {
-        if (!aclProjectsHelper.hasPermission(new AProject(repository, basePath), BasePermission.READ)) {
+        if (!aclProjectsHelper.hasPermission(new AProject(repository, ROOT_PATH), BasePermission.READ)) {
             throw new ForbiddenException("default.message");
         }
     }
 
     @Override
     public void requireModifiable() {
-        if (!aclProjectsHelper.hasPermission(new AProject(repository, basePath), BasePermission.WRITE)) {
+        if (!aclProjectsHelper.hasPermission(new AProject(repository, ROOT_PATH), BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");
         }
     }
@@ -80,7 +84,7 @@ public class RepoFileRoot implements FileRoot {
         // no-op here, because the mount root has no parent directory.
         try {
             return FileRoot.ancestorNodes(
-                    fileLookupService.lookup(new AProject(repository, basePath), lookupPath, true, false));
+                    fileLookupService.lookup(new AProject(repository, ROOT_PATH), lookupPath, true, false));
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }
@@ -97,7 +101,7 @@ public class RepoFileRoot implements FileRoot {
             return;
         }
         var folderData = new FileData();
-        folderData.setName(basePath);
+        folderData.setName(ROOT_PATH);
         folderData.setComment(comment);
         try {
             // DIFF adds and overwrites only the listed files in one commit, leaving others intact.
@@ -116,8 +120,8 @@ public class RepoFileRoot implements FileRoot {
      * and supports navigation, listing and writes.
      */
     private AProjectFolder buildTree(String version) {
-        var source = new AProject(repository, basePath, version);
-        var root = new AProjectFolder(new HashMap<>(), source.getProject(), repository, basePath);
+        var source = new AProject(repository, ROOT_PATH, version);
+        var root = new AProjectFolder(new HashMap<>(), source.getProject(), repository, ROOT_PATH);
         Map<String, AProjectFolder> topFolders = new HashMap<>();
         for (AProjectArtefact artefact : listArtefacts(source, version)) {
             String path = artefact.getFileData().getName();
@@ -147,9 +151,8 @@ public class RepoFileRoot implements FileRoot {
         if (version == null) {
             return source.getArtefacts();
         }
-        String prefix = basePath.isEmpty() ? "" : basePath + "/";
         try {
-            return repository.listFiles(prefix, version).stream()
+            return repository.listFiles(ROOT_PATH, version).stream()
                     .filter(fileData -> !fileData.isDeleted())
                     .map(fileData -> new AProjectResource(source.getProject(), repository, fileData))
                     .toList();

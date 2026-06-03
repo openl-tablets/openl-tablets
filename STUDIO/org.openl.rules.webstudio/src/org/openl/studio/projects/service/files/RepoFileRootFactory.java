@@ -49,7 +49,7 @@ public class RepoFileRootFactory {
         Repository authored = resolved instanceof BranchRepository branchRepo
                 ? new AuthoringRepository(branchRepo, currentAuthor())
                 : resolved;
-        return new RepoFileRoot(authored, "", aclProjectsHelper, fileLookupService);
+        return new RepoFileRoot(authored, aclProjectsHelper, fileLookupService);
     }
 
     /**
