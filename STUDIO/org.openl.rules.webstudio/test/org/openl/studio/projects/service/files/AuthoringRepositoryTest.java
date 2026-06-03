@@ -64,6 +64,19 @@ class AuthoringRepositoryTest {
         verify(delegate).save(captor.capture(), eq(stream));
         assertSame(author, captor.getValue().getAuthor());
         assertEquals("rules/file.txt", captor.getValue().getName());
+        assertEquals("Save file.txt", captor.getValue().getComment());
+    }
+
+    @Test
+    void existingCommentIsPreserved() throws Exception {
+        var data = named("rules/file.txt");
+        data.setComment("Custom message");
+
+        repository.save(data, emptyStream());
+
+        var captor = ArgumentCaptor.forClass(FileData.class);
+        verify(delegate).save(captor.capture(), any());
+        assertEquals("Custom message", captor.getValue().getComment());
     }
 
     @Test
@@ -98,6 +111,7 @@ class AuthoringRepositoryTest {
         var captor = ArgumentCaptor.forClass(FileData.class);
         verify(delegate).delete(captor.capture());
         assertSame(author, captor.getValue().getAuthor());
+        assertEquals("Delete file.txt", captor.getValue().getComment());
     }
 
     @Test
