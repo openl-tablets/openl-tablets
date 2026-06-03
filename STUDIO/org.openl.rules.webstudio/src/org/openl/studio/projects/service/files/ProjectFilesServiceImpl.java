@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -60,6 +57,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final AclProjectsHelper aclProjectsHelper;
     private final FileNodeMapper resourceMapper;
     private final FileSearchSupport searchSupport;
+    private final FileArchiveSupport archiveSupport;
 
     @Override
     public List<FsNode> getResources(@NotNull FileRoot root,
@@ -221,49 +219,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             throw new BadRequestException("file.base-path.not-folder.message", new Object[]{path});
         }
         requirePermission(artefact, BasePermission.READ);
-        try (var zos = new ZipOutputStream(out)) {
-            zipFolder((AProjectFolder) artefact, "", zos);
-        }
+        archiveSupport.writeZip((AProjectFolder) artefact, out);
     }
-
-    /**
-     * Recursively writes the readable files of a folder into the open ZIP stream.
-     * Entry names are relative to the folder the archive was requested for.
-     */
-    private void zipFolder(AProjectFolder folder, String prefix, ZipOutputStream zos) throws IOException {
-        for (AProjectArtefact artefact : folder.getArtefacts()) {
-            if (!aclProjectsHelper.hasPermission(artefact, BasePermission.READ)) {
-                continue;
-            }
-            String entryName = prefix.isEmpty() ? artefact.getName() : prefix + "/" + artefact.getName();
-            if (artefact.isFolder()) {
-                zipFolder((AProjectFolder) artefact, entryName, zos);
-            } else {
-                zos.putNextEntry(new ZipEntry(entryName));
-                try (var in = ((AProjectResource) artefact).getContent()) {
-                    in.transferTo(zos);
-                } catch (ProjectException e) {
-                    throw new ConflictException("file.read.failed.message");
-                }
-                zos.closeEntry();
-            }
-        }
-    }
-
-    /**
-     * Maximum number of files a single uploaded archive may contain.
-     */
-    private static final int MAX_ARCHIVE_ENTRIES = 10_000;
-
-    /**
-     * Maximum uncompressed size of a single archive entry (guards against zip bombs).
-     */
-    private static final long MAX_ARCHIVE_ENTRY_BYTES = 100L * 1024 * 1024;
-
-    /**
-     * Maximum total uncompressed size of an uploaded archive (guards against zip bombs).
-     */
-    private static final long MAX_ARCHIVE_TOTAL_BYTES = 200L * 1024 * 1024;
 
     @Override
     public void uploadArchive(@NotNull FileRoot root,
@@ -273,7 +230,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                               @NotNull ConflictPolicy conflictPolicy) throws IOException {
         root.requireModifiable();
         requireWritableBase(root, path);
-        writeEntries(root, readArchive(path, archive), conflictPolicy, uploadComment("Upload archive to ", path));
+        writeEntries(root, archiveSupport.readArchive(path, archive), conflictPolicy,
+                uploadComment("Upload archive to ", path));
     }
 
     @Override
@@ -290,7 +248,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 throw new BadRequestException("file.path.invalid.message");
             }
             String fullPath = path.isEmpty() ? name : path + "/" + name;
-            validateResourcePath(fullPath);
             entries.add(new FileEntry(fullPath, file.content()));
         }
         writeEntries(root, entries, conflictPolicy, uploadComment("Upload files to ", path));
@@ -308,9 +265,11 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     /**
      * Writes the entries to the mount: a single changeset on an atomic (repository) mount, file by
-     * file otherwise.
+     * file otherwise. Every entry path is validated first, rejecting zip-slip and other unsafe names
+     * before anything is written.
      */
     private void writeEntries(FileRoot root, List<FileEntry> entries, ConflictPolicy conflictPolicy, String comment) {
+        entries.forEach(entry -> validateResourcePath(entry.fullPath()));
         if (root.supportsAtomicWrite()) {
             writeEntriesAtomically(root, entries, conflictPolicy, comment);
         } else {
@@ -323,44 +282,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 throw new ConflictException("file.create.failed.message");
             }
         }
-    }
-
-    /**
-     * Reads every archive entry into memory, applying the zip-slip and zip-bomb guards. A malformed
-     * archive is reported as a bad request.
-     */
-    private List<FileEntry> readArchive(String path, InputStream archive) {
-        List<FileEntry> entries = new ArrayList<>();
-        try (var zis = new ZipInputStream(archive)) {
-            ZipEntry entry;
-            int count = 0;
-            long total = 0;
-            while ((entry = zis.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                if (++count > MAX_ARCHIVE_ENTRIES) {
-                    throw new BadRequestException("file.archive.too-many-entries.message");
-                }
-                String entryName = FilePaths.stripLeadingSlashes(entry.getName().replace('\\', '/'));
-                String fullPath = path.isEmpty() ? entryName : path + "/" + entryName;
-                // Reject zip-slip: absolute paths, '..' segments and other unsafe names.
-                validateResourcePath(fullPath);
-
-                byte[] data = zis.readNBytes((int) MAX_ARCHIVE_ENTRY_BYTES + 1);
-                if (data.length > MAX_ARCHIVE_ENTRY_BYTES) {
-                    throw new BadRequestException("file.archive.entry.too-large.message", new Object[]{entryName});
-                }
-                total += data.length;
-                if (total > MAX_ARCHIVE_TOTAL_BYTES) {
-                    throw new BadRequestException("file.archive.too-large.message");
-                }
-                entries.add(new FileEntry(fullPath, data));
-            }
-        } catch (IOException e) {
-            throw new BadRequestException("file.archive.invalid.message");
-        }
-        return entries;
     }
 
     /**
@@ -395,9 +316,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     private static String uploadComment(String action, String path) {
         return action + (path.isEmpty() ? "repository root" : path);
-    }
-
-    private record FileEntry(String fullPath, byte[] data) {
     }
 
     /**

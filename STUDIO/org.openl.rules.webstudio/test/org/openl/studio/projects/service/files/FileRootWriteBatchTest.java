@@ -87,7 +87,8 @@ class FileRootWriteBatchTest {
     void uploadArchiveToAtomicMountCommitsEveryEntryAsOneBatch() throws Exception {
         AclProjectsHelper acl = mock(AclProjectsHelper.class);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
-        var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class));
+        var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
+                new FileArchiveSupport(acl));
 
         var emptyTree = new AProjectFolder(new HashMap<>(), null, null, "");
         FileRoot root = mock(FileRoot.class);
@@ -109,7 +110,8 @@ class FileRootWriteBatchTest {
     void uploadFilesToAtomicMountCommitsEveryFileAsOneBatch() {
         AclProjectsHelper acl = mock(AclProjectsHelper.class);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
-        var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class));
+        var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
+                new FileArchiveSupport(acl));
 
         var emptyTree = new AProjectFolder(new HashMap<>(), null, null, "");
         FileRoot root = mock(FileRoot.class);
