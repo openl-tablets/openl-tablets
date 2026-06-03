@@ -20,12 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.validator.file.FileSearchQueryValidator;
 
 /**
  * REST controller for project file operations that involve two paths: copy and move, plus search.
@@ -45,8 +47,10 @@ public class ProjectFileOperationsController extends AbstractFileOperationsContr
     private final ProjectFileRootFactory fileRootFactory;
 
     public ProjectFileOperationsController(ProjectFilesService filesService,
-                                           ProjectFileRootFactory fileRootFactory) {
-        super(filesService);
+                                           ProjectFileRootFactory fileRootFactory,
+                                           BeanValidationProvider validationProvider,
+                                           FileSearchQueryValidator searchValidator) {
+        super(filesService, validationProvider, searchValidator);
         this.fileRootFactory = fileRootFactory;
     }
 

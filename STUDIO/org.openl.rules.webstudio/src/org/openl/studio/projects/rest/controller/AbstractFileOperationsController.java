@@ -4,11 +4,13 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.validator.file.FileSearchQueryValidator;
 
 /**
  * Shared logic for two-path file operations (copy and move) and search, which live outside the
@@ -24,6 +26,8 @@ import org.openl.studio.projects.service.files.ProjectFilesService;
 public abstract class AbstractFileOperationsController {
 
     protected final ProjectFilesService filesService;
+    protected final BeanValidationProvider validationProvider;
+    protected final FileSearchQueryValidator searchValidator;
 
     /**
      * Refreshes state derived from the mount after a write. The default does nothing; a mount backed
@@ -50,6 +54,7 @@ public abstract class AbstractFileOperationsController {
     }
 
     protected List<FsNode> handleSearch(FileRoot root, FileSearchQuery query) {
+        validationProvider.validate(query, searchValidator);
         return filesService.search(root, query);
     }
 }
