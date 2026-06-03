@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
+import org.openl.util.FileUtils;
 
 /**
  * A mount the files service operates on — a project's working copy or a repository subtree.
@@ -60,4 +63,19 @@ public interface FileRoot {
      * Only called when {@link #supportsAtomicWrite()} returns {@code true}.
      */
     void writeBatch(List<FileItem> items, String comment);
+
+    /**
+     * Maps the matches of an ancestor lookup to file nodes, preserving the nearest-first order.
+     * Shared by the implementations so {@link #searchAncestors} differs only in the lookup anchor.
+     */
+    static List<FsNode> ancestorNodes(ProjectFileLookupResponse response) {
+        return response.files().stream()
+                .map(match -> (FsNode) FileNode.builder()
+                        .path(match.path())
+                        .name(FilePaths.name(match.path()))
+                        .basePath(FilePaths.parent(match.path()))
+                        .extension(FileUtils.getExtension(FilePaths.name(match.path())))
+                        .build())
+                .toList();
+    }
 }
