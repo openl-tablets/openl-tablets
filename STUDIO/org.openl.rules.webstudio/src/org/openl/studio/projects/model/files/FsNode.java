@@ -6,22 +6,22 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Base class representing a project resource (file or folder).
+ * Base type for a file or folder in a mount (a project working copy or a repository subtree).
  *
  */
 @Getter
 @SuperBuilder
 @JsonPropertyOrder({"path", "name", "type", "basePath"})
-@Schema(description = "Base resource representing a file or folder in the project")
+@Schema(description = "Base resource representing a file or folder in the mount")
 public abstract class FsNode {
 
-    @Schema(description = "Project-relative path (e.g. 'folder/rules.xlsx')")
+    @Schema(description = "Mount-relative path (e.g. 'folder/rules.xlsx')")
     private final String path;
 
     @Schema(description = "Simple file or folder name")
     private final String name;
 
-    @Schema(description = "Parent directory path (project-relative)")
+    @Schema(description = "Parent directory path (mount-relative)")
     private final String basePath;
 
     /**
