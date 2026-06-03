@@ -9,14 +9,14 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 /**
- * Represents a file resource in the project.
+ * Represents a file in a mount.
  *
  */
 @Getter
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"path", "name", "type", "basePath", "extension", "size", "lastModified"})
-@Schema(description = "A file resource in the project")
+@Schema(description = "A file resource in the mount")
 public class FileNode extends FsNode {
 
     @Schema(description = "File size in bytes")

@@ -49,7 +49,9 @@ import org.openl.util.StringUtils;
 
 /**
  * Implementation of {@link ProjectFilesService}.
- * Uses iterative queue-based traversal instead of recursion to avoid stack overflow.
+ *
+ * <p>Listing and search walk the artefact tree iteratively, so a deeply nested mount does not exhaust
+ * the stack. Copy and ZIP streaming recurse, bounded by the depth of the copied or zipped subtree.
  */
 @Slf4j
 @RequiredArgsConstructor

@@ -13,6 +13,9 @@ import org.openl.studio.projects.model.files.FsNode;
 /**
  * Service for managing files and folders of a mount (a project's working copy or a repository subtree).
  *
+ * <p>How a write is persisted depends on the mount. A project mount stages writes in the working copy;
+ * they reach the design repository only on a later save. A repository mount commits each write
+ * immediately, and groups a multi-file write into a single changeset.
  */
 public interface ProjectFilesService {
 

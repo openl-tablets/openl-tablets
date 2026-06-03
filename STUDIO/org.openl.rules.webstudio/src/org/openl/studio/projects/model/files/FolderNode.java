@@ -11,14 +11,14 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 /**
- * Represents a folder resource in the project.
+ * Represents a folder in a mount.
  *
  */
 @Getter
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"path", "name", "type", "basePath", "children"})
-@Schema(description = "A folder resource in the project")
+@Schema(description = "A folder resource in the mount")
 public class FolderNode extends FsNode {
 
     @Schema(description = "Child resources (files and folders). Only populated in NESTED view mode.")
