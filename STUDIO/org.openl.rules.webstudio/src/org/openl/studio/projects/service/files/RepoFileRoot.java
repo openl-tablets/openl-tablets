@@ -20,9 +20,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FsNode;
-import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -81,15 +79,8 @@ public class RepoFileRoot implements FileRoot {
         // repository root, matching the leaf name at each level. The "above the project" phase is a
         // no-op here, because the mount root has no parent directory.
         try {
-            return fileLookupService.lookup(new AProject(repository, basePath), lookupPath, true, false)
-                    .files().stream()
-                    .map(match -> (FsNode) FileNode.builder()
-                            .path(match.path())
-                            .name(FilePaths.name(match.path()))
-                            .basePath(FilePaths.parent(match.path()))
-                            .extension(FileUtils.getExtension(FilePaths.name(match.path())))
-                            .build())
-                    .toList();
+            return FileRoot.ancestorNodes(
+                    fileLookupService.lookup(new AProject(repository, basePath), lookupPath, true, false));
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }

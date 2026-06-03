@@ -15,10 +15,8 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.validator.ProjectStateValidator;
-import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -91,14 +89,7 @@ public class ProjectFileRoot implements FileRoot {
     @Override
     public List<FsNode> searchAncestors(String lookupPath) {
         try {
-            return fileLookupService.lookup(project, lookupPath, true, false).files().stream()
-                    .map(match -> (FsNode) FileNode.builder()
-                            .path(match.path())
-                            .name(FilePaths.name(match.path()))
-                            .basePath(FilePaths.parent(match.path()))
-                            .extension(FileUtils.getExtension(FilePaths.name(match.path())))
-                            .build())
-                    .toList();
+            return FileRoot.ancestorNodes(fileLookupService.lookup(project, lookupPath, true, false));
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }
