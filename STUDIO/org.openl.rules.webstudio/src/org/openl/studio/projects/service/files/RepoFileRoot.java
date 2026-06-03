@@ -12,6 +12,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ConflictException;
@@ -100,6 +103,28 @@ public class RepoFileRoot implements FileRoot {
     private static String parentPath(String path) {
         int slash = path.lastIndexOf('/');
         return slash < 0 ? "" : path.substring(0, slash);
+    }
+
+    @Override
+    public boolean supportsAtomicWrite() {
+        return true;
+    }
+
+    @Override
+    public void writeBatch(List<FileItem> items, String comment) {
+        if (items.isEmpty()) {
+            return;
+        }
+        var folderData = new FileData();
+        folderData.setName(basePath);
+        folderData.setComment(comment);
+        try {
+            // DIFF adds and overwrites only the listed files in one commit, leaving others intact.
+            // The author is stamped by the AuthoringRepository wrapper.
+            repository.save(folderData, items, ChangesetType.DIFF);
+        } catch (IOException e) {
+            throw new ConflictException("file.archive.upload.failed.message");
+        }
     }
 
     /**
