@@ -1,0 +1,8 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <url>defaultDateFormatZone</url>
+    <serviceName>defaultDateFormatZone</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+</rules-deploy>
