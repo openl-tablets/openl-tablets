@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.1.0</version>
     </parent>
 
     <artifactId>itest.webstudio</artifactId>
@@ -119,7 +119,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <webservice-webapp>../../STUDIO/org.openl.rules.webstudio/target/webapp</webservice-webapp>
-                        <readiness-url/>
+                        <readiness-url />
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
