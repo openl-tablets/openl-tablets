@@ -98,7 +98,7 @@
 
         <!-- Bytecode manipulation -->
         <asm.version>9.10.1</asm.version>
-        <byte-buddy.version>1.18.8</byte-buddy.version>
+        <byte-buddy.version>1.18.10</byte-buddy.version>
 
         <!-- Kafka -->
         <kafka.version>4.3.0</kafka.version>
