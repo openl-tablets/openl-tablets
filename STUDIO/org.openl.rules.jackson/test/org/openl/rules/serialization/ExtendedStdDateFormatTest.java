@@ -67,7 +67,7 @@ public class ExtendedStdDateFormatTest {
     /**
      * A trailing {@code Z} after the milliseconds is not consumed by the custom
      * {@code yyyy-MM-dd'T'HH:mm:ss.SSS} pattern, so parsing falls back to {@code StdDateFormat} and the
-     * {@code Z} (UTC) IS honored. The server timezone is forced to GMT+05:00 so a honored vs. dropped
+     * {@code Z} (UTC) IS honored. The server time zone is forced to GMT+05:00 so an honored vs. dropped
      * {@code Z} yields different instants.
      */
     @Test
