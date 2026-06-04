@@ -79,6 +79,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
+        <lombok.delombok.skip>${maven.deploy.skip}</lombok.delombok.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <dockerized>false</dockerized>
         <skipTestsForQuick>false</skipTestsForQuick>
@@ -1887,6 +1888,31 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok-maven-plugin</artifactId>
+                        <version>1.18.20.0</version>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src</sourceDirectory>
+                            <addOutputDirectory>false</addOutputDirectory>
+                        </configuration>
+                        <dependencies>
+                            <!-- Plugin bundles Lombok 1.18.20; force the project version for Java 21 support -->
+                            <dependency>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>delombok</id>
+                                <goals>
+                                    <goal>delombok</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>3.12.0</version>
@@ -1895,6 +1921,12 @@
                             <!-- http://openjdk.java.net/jeps/172 -->
                             <doclint>none</doclint>
                             <skip>${maven.deploy.skip}</skip>
+                            <!-- Read delomboked sources (Lombok-generated members materialized) plus generated sources -->
+                            <sourcepath>${project.build.directory}/generated-sources/delombok:
+                                ${project.build.directory}/generated-sources/javacc:
+                                ${project.build.directory}/generated-sources/annotations:
+                                ${project.build.directory}/generated-sources/protobuf/java:
+                                ${project.build.directory}/generated-sources/protobuf/grpc-java:</sourcepath>
                         </configuration>
                         <executions>
                             <execution>

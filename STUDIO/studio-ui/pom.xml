@@ -18,6 +18,7 @@
     <properties>
         <!-- Tests are co-located with sources under src/; sonar.test.inclusions reclassifies them as tests. -->
         <sonar.tests>src</sonar.tests>
+        <lombok.delombok.skip>true</lombok.delombok.skip>
     </properties>
 
     <build>
