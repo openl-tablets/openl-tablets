@@ -68,12 +68,22 @@ docker compose up --build   # From project root, uses compose.yaml (NOT docker-c
 ## Commit Convention
 
 ```
-<type>: <subject>
+EPBDS-NNNNN <subject>
 
-<body>
+<optional body>
 ```
 
-Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
+- **One logical change per commit.** Amend related follow-up code into the latest commit instead of adding a new one.
+- **Prefix with the Jira ticket** (`EPBDS-NNNNN`), usually equal to the branch name.
+- **The subject explains _why_ the change is needed or _what_ it achieves** — not the mechanical move, which is already visible in the diff and history. Start it with an imperative verb.
+  - Good — `EPBDS-15494 Stream file downloads instead of buffering`
+  - Avoid — `EPBDS-15494 Move FileService into the rest package`
+- **For bug fixes, name the cause and its observable effect**, not the symptom:
+  - `EPBDS-15981 Fix NPE when ProjectDescriptor.name is null` — not `Fix 'something went wrong' message`
+  - `Fix date parsing which breaks UI rendering` — not `Fix missed input`
+- **Subject line only.** Add a body only when a single line cannot explain the change.
+- **No `Co-Authored-By:` or other co-author trailers.**
+- **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a misconfiguration, or a dependency bump.
 
 ## Markdown Rules
 
