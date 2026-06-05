@@ -9,11 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 
@@ -78,6 +80,25 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
         var entry = new Entry(projectId, branch, new CompilationJobImpl(model));
         ref.set(entry);
         return entry.job();
+    }
+
+    /**
+     * Drop the cached compilation job so the status endpoint no longer reports a stale
+     * compile state after the workspace is reset. Cancels the tracked future if it is
+     * still running. The next {@link #acquire(ProjectIdModel, ProjectModel)} registers a
+     * fresh job.
+     */
+    @Override
+    public synchronized void clear() {
+        var previous = ref.getAndSet(null);
+        if (previous != null && !previous.job().isFinished()) {
+            previous.job().future().cancel(false);
+        }
+    }
+
+    @EventListener
+    public void onWorkspaceReset(WorkspaceResetEvent event) {
+        clear();
     }
 
     @Override

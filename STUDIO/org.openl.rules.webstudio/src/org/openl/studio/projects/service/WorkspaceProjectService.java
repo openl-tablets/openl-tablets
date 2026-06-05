@@ -592,6 +592,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Start an asynchronous compilation of the project's default module and register it, so
+     * that {@code GET /status} reflects the current on-disk state after a table edit. Does
+     * not wait for the compilation to finish — callers observe progress through the status
+     * endpoint, which reports {@code compiling} and then the terminal state.
+     *
+     * @param project workspace project to compile
+     */
+    public void compile(RulesProject project) {
+        openProject(project);
+    }
+
+    /**
      * Open a specific module of the given project and return a non-blocking
      * handle.
      *

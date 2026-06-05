@@ -5,6 +5,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.springframework.context.event.EventListener;
+
+import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -64,6 +67,15 @@ public abstract class AbstractExecutionResultRegistry<T> {
         if (e != null && !e.task().isDone()) {
             e.task().cancel(true);
         }
+    }
+
+    /**
+     * Drop cached execution results when the session workspace is reset: results computed
+     * against the previous compiled state are no longer valid.
+     */
+    @EventListener
+    public void onWorkspaceReset(WorkspaceResetEvent event) {
+        clear();
     }
 
     /**

@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "projectId": "ZGVzaWduOkVQQkRTLTE2MDY4",
+  "revision": "*",
+  "compileState": "idle",
+  "lastModifiedBy": {
+    "author": "admin",
+    "date": "*"
+  },
+  "pendingChanges": {
+    "total": 1,
+    "files": [
+      {
+        "path": "DESIGN/rules/EPBDS-16068/Main.xlsx",
+        "type": "modified"
+      }
+    ]
+  }
+}

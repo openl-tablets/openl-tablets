@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "772f5200782799668d84a673443e2042",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "Categorize",
+  "returnType": "String",
+  "signature": "Categorize(Integer x)",
+  "file": "EPBDS-16068/Main.xlsx",
+  "pos": "B2:C4"
+}

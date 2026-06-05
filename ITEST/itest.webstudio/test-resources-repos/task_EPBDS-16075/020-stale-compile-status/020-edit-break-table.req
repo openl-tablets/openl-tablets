@@ -1,0 +1,30 @@
+PUT /rest/projects/{PROJECT_ID}/tables/{CATEGORIZE_TID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "Categorize",
+  "returnType": "NoSuchTypeXYZ",
+  "args": [
+    {
+      "name": "x",
+      "type": "Integer"
+    }
+  ],
+  "headers": [
+    {
+      "title": "X"
+    },
+    {
+      "title": "Y"
+    }
+  ],
+  "rules": [
+    {
+      "X": "< 10",
+      "Y": "LOW"
+    }
+  ]
+}

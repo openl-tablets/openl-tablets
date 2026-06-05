@@ -40,4 +40,11 @@ public interface CompilationJobRegistry {
      */
     @NotNull
     Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch);
+
+    /**
+     * Drop the cached compilation job so that read-only callers no longer observe a stale
+     * compile state. Any in-flight compilation future is cancelled. Invoked when the session
+     * workspace is reset.
+     */
+    void clear();
 }

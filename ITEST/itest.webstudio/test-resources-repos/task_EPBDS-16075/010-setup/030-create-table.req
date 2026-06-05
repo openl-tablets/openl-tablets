@@ -1,0 +1,33 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "table": {
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "Categorize",
+    "returnType": "String",
+    "args": [
+      {
+        "name": "x",
+        "type": "Integer"
+      }
+    ],
+    "headers": [
+      {
+        "title": "X"
+      },
+      {
+        "title": "Y"
+      }
+    ],
+    "rules": [
+      {
+        "X": "< 10",
+        "Y": "LOW"
+      }
+    ]
+  }
+}

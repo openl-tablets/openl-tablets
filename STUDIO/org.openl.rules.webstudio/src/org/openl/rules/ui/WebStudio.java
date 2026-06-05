@@ -555,6 +555,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
         doResetProjects();
         currentModule = null;
         currentProject = null;
+        // Signal session-scoped caches (compile status, test/run/trace results) to drop
+        // stale entries derived from the now-invalidated workspace state. A subscriber
+        // failure must never break reset(): several critical flows (e.g. merge-conflict
+        // resolution) rely on reset() completing so the workspace is left consistent.
+        if (eventPublisher != null) {
+            try {
+                eventPublisher.publishEvent(new WorkspaceResetEvent(this));
+            } catch (RuntimeException e) {
+                log.warn("Failed to publish workspace reset event", e);
+            }
+        }
     }
 
     private void reset(ReloadType reloadType) {

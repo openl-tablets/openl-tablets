@@ -4,10 +4,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.ui.WorkspaceResetEvent;
 
 /**
  * Session-scoped registry for storing trace parameters for lazy loading.
@@ -58,5 +60,14 @@ public class TraceParameterRegistry {
     public void clear() {
         parameters.clear();
         counter.set(0);
+    }
+
+    /**
+     * Drop cached trace parameters when the session workspace is reset: they reference
+     * values from a trace computed against the previous compiled state.
+     */
+    @EventListener
+    public void onWorkspaceReset(WorkspaceResetEvent event) {
+        clear();
     }
 }
