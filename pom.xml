@@ -1683,6 +1683,9 @@
                                 <exclude>.*/**</exclude>
                                 <exclude>**/.*/**</exclude>
                                 <exclude>**/pom.xml</exclude>
+                                <!-- Flyway migration scripts are immutable: reformatting them
+                                     changes Flyway's content checksum and breaks upgrades. -->
+                                <exclude>**/db/flyway/**</exclude>
                             </excludes>
                             <trimTrailingWhitespace/>
                             <endWithNewline/>
