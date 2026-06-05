@@ -7,6 +7,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
@@ -40,6 +41,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 @Component
 @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
 @RequiredArgsConstructor
@@ -98,7 +100,11 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 
     @EventListener
     public void onWorkspaceReset(WorkspaceResetEvent event) {
-        clear();
+        try {
+            clear();
+        } catch (Exception e) {
+            log.warn("onWorkspaceReset failed", e);
+        }
     }
 
     @Override

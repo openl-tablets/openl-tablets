@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 
 import org.openl.rules.ui.WorkspaceResetEvent;
@@ -20,6 +21,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  * @param <T> the result type of the execution task
  */
+@Slf4j
 public abstract class AbstractExecutionResultRegistry<T> {
 
     private record Entry<T>(ProjectIdModel projectId,
@@ -75,7 +77,11 @@ public abstract class AbstractExecutionResultRegistry<T> {
      */
     @EventListener
     public void onWorkspaceReset(WorkspaceResetEvent event) {
-        clear();
+        try {
+            clear();
+        } catch (Exception e) {
+            log.warn("onWorkspaceReset failed", e);
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
@@ -25,6 +26,7 @@ import org.openl.rules.ui.WorkspaceResetEvent;
  * when the trace is explicitly released.
  * </p>
  */
+@Slf4j
 @Component
 @SessionScope
 public class TraceParameterRegistry {
@@ -38,7 +40,7 @@ public class TraceParameterRegistry {
      * @param param the parameter to register
      * @return unique ID for later retrieval
      */
-    public int register(ParameterWithValueDeclaration param) {
+    public synchronized int register(ParameterWithValueDeclaration param) {
         int id = counter.incrementAndGet();
         parameters.put(id, param);
         return id;
@@ -57,7 +59,7 @@ public class TraceParameterRegistry {
     /**
      * Clears all registered parameters.
      */
-    public void clear() {
+    public synchronized void clear() {
         parameters.clear();
         counter.set(0);
     }
@@ -68,6 +70,10 @@ public class TraceParameterRegistry {
      */
     @EventListener
     public void onWorkspaceReset(WorkspaceResetEvent event) {
-        clear();
+        try {
+            clear();
+        } catch (Exception e) {
+            log.warn("onWorkspaceReset failed", e);
+        }
     }
 }
