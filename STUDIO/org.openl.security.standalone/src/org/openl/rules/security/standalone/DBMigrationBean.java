@@ -38,6 +38,11 @@ public class DBMigrationBean {
         flyway.setDataSource(dataSource);
         flyway.setBaselineVersionAsString("0");
         flyway.setBaselineOnMigrate(true);
+        // Tolerate cosmetic changes (for example, tabs reformatted to spaces) to already-applied
+        // migration scripts: such edits change the Flyway checksum but not the SQL. Strict
+        // validation would otherwise block the upgrade, and the bundled Flyway 4.2 repair() is
+        // incompatible with the embedded H2. New migrations are still applied by version.
+        flyway.setValidateOnMigrate(false);
         flyway.setTable("openl_security_flyway");
         flyway.setPlaceholders(placeholders);
 
