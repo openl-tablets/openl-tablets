@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
-    <version>6.1.1</version>
+    <version>6.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>OpenL Tablets</name>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -72,7 +72,7 @@
     <scm>
         <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
         <developerConnection>scm:git:git@github.com:openl-tablets/openl-tablets.git</developerConnection>
-        <tag>6.1.1</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/openl-tablets/openl-tablets</url>
     </scm>
     <properties>
