@@ -1,303 +1,169 @@
 ---
 name: openl-release-notes
-description: Generate OpenL Tablets release notes by collecting Jira tickets and producing markdown documentation matching the official OpenL website style.
+description: Generate OpenL Tablets release notes by collecting Jira tickets and producing markdown documentation
+    matching the official OpenL website style.
 ---
 
 # OpenL Release Notes Generator Skill
 
-## Template Reference
-**Template file:** `openl-tablets/.claude/skills/release-notes-skill/templates/release-notes-template.md`
+Generate — and validate or update — release notes for OpenL Tablets versions under `Docs/release-notes/<version>/`.
 
-Always consult this template for exact structure, section ordering, and formatting. The template defines which sections to include and how to format each one.
+## Source of Truth
 
-## Overview
-Generate release notes for OpenL Tablets versions. Output matches the official OpenL website style (https://openl-tablets.org/release-notes).
+[`Docs/release-notes/README.md`](../../../Docs/release-notes/README.md) defines the **structure, section list, ordering,
+front matter, and formatting** of release notes. Always follow it, and use the latest published version (e.g. `6.0.0`)
+as the reference for tone and style.
 
-## Core Rules
-1. **NO Jira ticket numbers** in output
-2. **Follow the template structure exactly** - only include sections with content
-3. **Keep descriptions concise** - New Features: 1-3 sentences; Improvements and Bug Fixes: 1 line each
-4. **Prose-first for features, bullets for lists** - New Features use sentences; bullet lists are optional additions, not replacements
-5. **Output format:** Markdown (.md)
-6. **Use `---` horizontal rules** between individual items within each section (between features, between improvement areas, between breaking changes, between migration topics) — **omit the trailing `---` after the last item in each section**
-7. **Bold section headings** - use `## **Section Name**` for top-level sections, `### **Item Title**` for items within sections
+This skill covers only what the README does not: collecting the source tickets from Jira, mapping them to sections, the
+writing tone, and the file-generation and placeholder steps. Do not restate the README's rules here. If this skill and
+the README ever disagree, the README wins.
 
-## Writing Style
+Also honor [`Docs/AGENTS.md`](../../../Docs/AGENTS.md): the Jekyll `release-notes` layout auto-generates the table of
+contents from `##` headings and auto-appends `migration.md`. So never add a ToC, never set `layout` in front matter, and
+never link to `migration.md` from `index.md`.
 
-Write each item as a unified description — do not split features by audience or add sub-sections labelled "For Developers" or "For Administrators". All readers (rule authors, admins, and developers) read the same release notes. Describe the feature holistically: what it is, what users and integrators can do with it, and why it matters. Include technical details (endpoint names, configuration properties, supported formats) naturally in the prose when they add value, not hidden in a sub-section.
+## Writing Tone (not covered by the README)
 
-**The single governing principle:** describe what changed and what it enables — not how it was implemented.
-
-**Do:**
-- Start bullets with action verbs (Added, Improved, Fixed, Enhanced)
-- Be specific but brief
-- Describe the feature holistically — UI capability, API surface, and configuration in one place
-- Include technical details (endpoint paths, property names) inline when they are user-actionable
-- For bug fixes: describe what the user experienced and what now works correctly
-
-**Don't:**
-- Split a single feature into BA-facing and developer-facing sub-sections
-- Lead with implementation details — exception class names, internal component names, database identifiers
-- Use vague language ("various improvements", "minor fixes")
-- Add Jira ticket numbers
-- Create a subsection for a single improvement bullet
+- **No Jira ticket numbers** anywhere in the output.
+- Write each item as one unified description for all readers — never split a feature into "For Developers" / "For
+  Administrators" sub-sections.
+- Describe what changed and what it enables. Preserve the exact technical details from the source — endpoint paths,
+  configuration properties, class and method names — as inline code, per the README; do not generalize them away.
+- Prefer a code or configuration sample over a prose description of it. When an item involves a property, an XML/JSON
+  element, or a Groovy snippet, show the actual fenced code block (`properties`, `xml`, `json`, or `groovy`) copied
+  verbatim from the source instead of describing it in words — in both `index.md` and `migration.md`.
+- Start improvement and bug-fix bullets with an action verb (Added, Improved, Fixed, Enhanced, Removed).
+- Avoid vague phrasing ("various improvements", "minor fixes"). For bug fixes, name the cause and its observable effect.
+- Lengths: New Feature — 1–3 sentences plus optional bullets (at least two if a list is used); Improvement and Bug Fix —
+  one line each.
+- Group Improvements by area; fold a lone item into the nearest group instead of creating a one-item subsection.
 
 ## Workflow
 
-### Step 1: Get Version
-Ask for version if not provided (format: X.Y.Z).
+### 1. Get the version and date
 
-**Version tag and GitHub URL format:**
-- Version tag `X.Y.Z`, GitHub URL `https://github.com/openl-tablets/openl-tablets/releases/tag/X.Y.Z`
+- Version format `X.Y.Z`. Ask if not provided.
+- The front-matter `date` is the Git tag date: `git log -1 --format=%ai <version>` (use the `YYYY-MM-DD` part). If the
+  tag is absent, use the current date.
 
-These are used to fill the `[{{version_tag}}]({{github_tag_url}}) on the GitHub` line in the template.
+### 2. Collect source material
 
-### Step 2: Collect Jira Tickets
+Use two sources together for the full picture — the release-notes-flagged Jira tickets and the Git commit messages for
+the version.
 
-**Use Jira MCP tools** to search for tickets:
-
-```
-Tool: jira:jira_search
-JQL: project = EPBDS AND fixVersion = "OpenL [VERSION]" AND cf[12243] = "Yes, include ticket in Release Notes" AND status in (Closed, Resolved, "In Testing")
-Fields: summary, description, issuetype, priority, labels
-MaxResults: 100
-StartAt: 0
-```
-
-**Important:**
-- Fix version names in EPBDS follow the format `OpenL X.Y.Z` (e.g. `OpenL 6.1.0`) — always prefix the version with `OpenL`
-- If the search returns 0 results, verify the exact fix version name using `jira_get_project_versions` for the EPBDS project and retry with the correct name
-- Only use `jira:jira_search` MCP tool to retrieve tickets
-- Paginate using `startAt` increments of 100 until the returned list is smaller than `maxResults`
-
-### Step 3: Categorize & Write
-
-**Refer to template for section structure.** Use these writing guidelines:
-
-#### Overview (1-2 paragraphs max)
-- Summarize the release highlights
-- Keep it brief and scannable
-
-#### New Features
-- Each feature gets `### **Title**` heading
-- **1-3 sentences** describing what it is, what users and integrators can do with it, and why it matters — all in one unified description
-- Include technical details (API endpoint, config property, supported formats) inline when they are actionable, not in a separate sub-section
-- For complex features with multiple logical sub-areas, use `####` sub-headings to improve navigability
-- Bullets for listing capabilities (if needed) — minimum 2 bullets if using a bullet list; don't create a list for a single item
-- Image reference if applicable
-- **Separate each feature with `---`**
-
-**Example:**
-```markdown
-### **Table Formula Smart Edit**
-
-Users can now describe a formula change in plain language — for example, "multiply the base rate by 1.15 for platinum tier" — and OpenL Studio proposes a valid OpenL expression to review and apply. This works with decision tables, spreadsheets, and lookup tables. The feature requires `openl.ai.enabled=true` to be set in the configuration.
-
-  * Proposed change is shown as a preview before applying
-  * Original formula is preserved until the user confirms
-
-![Table Formula Smart Edit](images/formula-smart-edit.png)
-```
-
-#### Improvements
-- Group by area using `### **Area Name**` headings
-- **One line per improvement** - action verb + what changed
-- No explanatory paragraphs unless absolutely necessary
-- Do not create a subsection for a single improvement item — fold it into the nearest logical group instead
-- **Separate each area group with `---`**
-
-**Example:**
-```markdown
-### **Rules Editor**
-
-  * Improved autocomplete performance for large rule sets
-  * Added syntax highlighting for custom data types
-  * Enhanced find-and-replace with regex support
-
----
-
-### **Security Hardening**
-
-  * Removed VBScript execution under Windows
-  * Password fields no longer returned by any API
-```
-
-#### Breaking Changes
-- Each breaking change gets `### **Title**` heading
-- Describe what changed and the impact in plain language
-- Include `#### **Migration Steps**` sub-section when applicable
-- **Separate each breaking change with `---`**
-
-#### Bug Fixes
-- Flat bullet list (no area grouping needed)
-- **One line per fix** - describe what now works correctly
-- User-facing language, not technical — avoid exception class names and internal component references unless unavoidable
-
-**Example:**
-```markdown
-  * Fixed GitLFS issues with BitBucket repositories
-  * Fixed tracing and dependency graph issues
-  * Fixed flat folder structure display issue
-```
-
-#### Known Issues
-- Flat bullet list (no area grouping needed)
-- **One line per issue** — describe what is broken and any workaround if known
-- Only include if there are open, unresolved issues shipping with this version
-
-**Example:**
-```markdown
-  * When executing test tables in OpenL Studio, a `ClassCastException` is encountered when the `SpreadsheetResult` cell type combines array and scalar values.
-```
-
-#### Security & Library Updates
-- Use **FORMAT A** (the default): `## **Security & Library Updates**` with `### **Security Vulnerability Fixes**` and `### **Major Library Upgrades**` subsections, each further split by `#### **Runtime Dependencies**`, `#### **Test Dependencies**`, `#### **Removed Dependencies**` as applicable.
-- Use **FORMAT B** (flat bullet list, no headings) only for older or simpler releases where no structured breakdown was provided. Do not mix both formats.
-- Omit subsections that have no entries (e.g., omit `#### **Removed Dependencies**` if nothing was removed).
-
-#### Migration Notes
-- Each topic gets `### **Topic Title**` heading
-- **Separate each topic with `---`**
-- Keep brief, actionable guidance
-- Only include if applicable.
-
-### Step 4: Section Completeness Check
-
-Before generating files, explicitly confirm the presence or intentional absence of each optional section:
-
-| Section | Status | Note |
-|---|---|---|
-| New Features | present / absent | |
-| Improvements | present / absent | |
-| Breaking Changes | **present / confirmed absent** | State why if absent |
-| Bug Fixes | present / absent | |
-| Security & Library Updates | **present / confirmed absent** | If absent, confirm no library tickets were in fix version |
-| Known Issues | present / absent | |
-| Migration Notes | **present / confirmed absent** | State why if absent |
-
-Sections marked **confirmed absent** require an explicit statement, not silent omission. Include this table in the delivery summary.
-
-### Step 5: Generate Folder Structure & Files
-
-**Create the following structure:**
+**Jira tickets** — use the `jira_search` MCP tool:
 
 ```
-Docs/
-└── release-notes/
-    └── [VERSION]/
-        ├── index.md          <- Main release notes file
-        └── images/
-            └── .DELETE_ME     <- Placeholder so Git tracks the empty folder; delete once real images are added
+JQL: project = EPBDS AND fixVersion = "OpenL <VERSION>" AND cf[12243] = "Yes, include ticket in Release Notes" AND status in (Closed, Resolved, "In Testing")
+Fields: summary, description, issuetype, priority, labels, components, comment
 ```
 
-**Folder creation order:**
-1. `Docs/release-notes/` (if doesn't exist)
-2. `Docs/release-notes/[VERSION]/`
-3. `Docs/release-notes/[VERSION]/images/`
+- Fix-version names are prefixed with `OpenL` (e.g. `OpenL 6.1.0`). If the search returns 0 results, confirm the exact
+  name with `jira_get_project_versions` for `EPBDS` and retry.
+- Paginate with `start_at` until a page returns fewer rows than the page size.
+- The result can be large. Extract `key`, `summary`, `issuetype`, `priority`, `description`, `labels`, `components`, and
+  `comment` with a script or subagent rather than loading the whole payload into context. If the search does not return
+  comment bodies, fetch them per ticket with `jira_get_issue`.
+- **Read the ticket comments**, not just the summary and description. They often hold the final agreed behavior, edge
+  cases, configuration examples, and decisions that never made it back into the description — all valuable for an
+  accurate item.
+- Use **components** and **labels** to classify and group items. A component usually maps to the product area (OpenL
+  Studio, OpenL Rule Services, Maven plugin, core engine) and drives the Improvements grouping and product wording;
+  labels (e.g. `security`, `api`, `performance`) flag the nature of a change and can signal a Breaking Change or a
+  security item.
 
-**Files to generate:**
+**Git commit messages** — they capture changes and the rationale behind them, including work that has no
+release-notes-flagged ticket. List the commits between the previous release tag and this one:
 
-1. **Main release notes:** `Docs/release-notes/[VERSION]/index.md`
-   - Contains full release notes following template structure
-
-2. **Images placeholder:** `Docs/release-notes/[VERSION]/images/.DELETE_ME`
-   - Empty file whose only purpose is to make Git track the `images/` directory
-   - Delete this file once actual screenshot images are added
-
-### Step 6: Deliver
-
-Provide:
-- Generated `index.md` file
-- Generated `images/.DELETE_ME` placeholder
-- Section completeness table (from Step 4)
-- Brief summary: count of features, improvements, fixes
-- List of image placeholders needing screenshots
-
-**Delivery message format:**
-```
-Release notes generated for OpenL Tablets [VERSION]
-
-Files created:
-- Docs/release-notes/[VERSION]/index.md
-- Docs/release-notes/[VERSION]/images/.DELETE_ME
-
-Section completeness:
-[paste Step 4 table here]
-
-Summary:
-- X New Features
-- X Improvements
-- X Bug Fixes
-
-Images needed:
-[List image placeholders, or "None" if no images referenced]
+```bash
+git log "$(git describe --tags --abbrev=0 <version>^)"..<version> --no-merges --format='%s%n%b'
 ```
 
-## Quick Reference: Item Length
+- Exclude non-informative commits — dependency and version bumps (e.g. `Bump <lib> from x to y`, Dependabot,
+  `[maven-release-plugin] prepare …`) do not belong in release notes.
+- Use the remaining messages to enrich item descriptions and to catch user-facing changes missing from Jira. Still
+  follow the writing tone — no ticket numbers in the output.
 
-| Item Type | Length |
-|-----------|--------|
-| Overview | 1-2 paragraphs |
-| New Feature | 1-3 sentences + optional bullets (unified, no audience sub-sections) |
-| Improvement | 1 line |
-| Bug Fix | 1 line |
-| Library Update | 1 line |
+### 3. Map tickets to sections
 
-## Validation & Updates
+Map by Jira issue type and content, then write each item per the README structure and the tone above:
 
-This skill can also be used to validate and update existing release notes.
+- **New Feature** → New Features
+- **Improvement** → Improvements (grouped by area — usually the ticket's component)
+- **Bug** → Bug Fixes
+- **Task / dependency bumps** → Library Updates, or the section that best fits the content
+- Any ticket that changes behavior or needs user action → also summarize under **Breaking Changes** (impact only). Put
+  the upgrade steps in `migration.md`, never in `index.md`.
 
-### When to Use
-- User wants to edit/modify generated release notes
-- User asks to review or validate a release notes file
-- User wants to check structure, style, or formatting
-- User submits a draft for review
+### 4. Generate the files
 
-### Validation Checklist
+Create, following the README template:
 
-**Structure (compare against template):**
-- [ ] Starts with `## Release Notes` header
-- [ ] Version tag link is present and correctly formatted (X.Y.Z)
-- [ ] Overview is 1-2 paragraphs max
-- [ ] Only sections with content are included
-- [ ] Sections appear in correct order per template: New Features → Improvements → Breaking Changes → Bug Fixes → Security & Library Updates → Known Issues → Migration Notes
-- [ ] Known Issues section is included when there are open unresolved issues, omitted otherwise
-- [ ] Proper heading levels: `## **Section**` for top-level, `### **Item**` for items, `#### **Sub**` for sub-sections
-- [ ] `---` horizontal rules between individual items within each section
+- `Docs/release-notes/<version>/index.md` — front matter, intro paragraph, then `##` sections.
+- `Docs/release-notes/<version>/migration.md` — only when there are breaking changes or upgrade steps.
+- `Docs/release-notes/<version>/images/` — screenshots referenced by `index.md`.
 
-**Formatting:**
-- [ ] Bullet indentation is consistent (2 spaces before `*`)
-- [ ] Section and item headings are bold (e.g., `## **New Features**`, `### **Feature Title**`)
-- [ ] Image syntax: `![Image](images/filename.png)`
-- [ ] No excessive blank lines
-- [ ] No single-item improvement subsections (lone items folded into a broader group)
+### 5. Images
 
-**Style:**
-- [ ] No Jira ticket numbers anywhere
-- [ ] Bullets start with action verbs
-- [ ] One line per improvement/fix (not paragraphs)
-- [ ] Features are 1-3 sentences + optional bullets
-- [ ] No vague phrases ("various improvements", "minor fixes")
+Reference images with relative paths (`images/<descriptive-name>.png`), named lowercase-with-hyphens, as the README
+describes.
 
-**Content:**
-- [ ] All items are meaningful (no filler)
-- [ ] Grouped logically by area
-- [ ] No duplicate items
-- [ ] Consistent terminology
-- [ ] Section completeness table present in delivery summary
+**Prefer real screenshots.** If an OpenL application can be run, capture the functionality directly: start OpenL Studio
+with `docker compose up` (serves http://localhost:8080) or the project's run/preview workflow, navigate to the relevant
+screen, and save the screenshot into the version's `images/` folder under the descriptive name.
 
-### Update Workflow
+**Placeholder fallback** — when a screenshot cannot be captured (the app cannot be run or the screen cannot be reached),
+use the standard placeholder shipped with this skill: copy it into the version's `images/` folder under the intended
+descriptive name and reference it normally.
 
-1. **Read existing file** from `Docs/release-notes/[VERSION]/index.md`
+```bash
+cp .claude/skills/release-notes-skill/templates/placeholder.png \
+   Docs/release-notes/<version>/images/<descriptive-name>.png
+```
 
-2. **Compare against template** structure
+The placeholder is a valid image that renders as "REPLACE WITH SCREENSHOT", so the page stays clean and Git tracks the
+folder. Replace it with the real screenshot when one is available. Do not reference image files that do not exist, and
+do not leave an empty `images/` folder with a marker file.
 
-3. **Apply requested changes** while:
-   - Preserving correct existing content
-   - Maintaining consistent style
-   - Keeping proper formatting
-   - Following template structure
+### 6. Verify against the source
 
-4. **Validate result** using checklist above
+Double-check every factual claim in `index.md` and `migration.md` against the actual commit diffs — not just the Jira
+summary. **The Git source has higher priority than the Jira description**: Jira text is often written before
+implementation and can be outdated or aspirational, so when they disagree, trust the code.
 
-5. **Report changes made** and any issues found
+```bash
+git log -p "$(git describe --tags --abbrev=0 <version>^)"..<version> -- <changed-paths>
+git show <commit>
+```
+
+Confirm against the diff: property names and default values, XML/JSON/Groovy and other configuration samples, endpoint
+paths and HTTP methods, and the described behavior of breaking changes and migration steps. Copy every code and
+configuration sample verbatim from the diff.
+
+If the diff contradicts a drafted item or makes it misleading, and you cannot resolve it confidently from the code, *
+*stop and ask the user** instead of guessing.
+
+### 7. Deliver
+
+Report:
+
+- The files created.
+- A section-completeness note: for each README section, present or intentionally absent. State the reason for absence of
+  Breaking Changes, Library Updates, and Known Issues (e.g. "no dependency-bump tickets in this fix version").
+- Counts: New Features, Improvements, Bug Fixes.
+- An **images table** for the user's reference (not part of the published notes): each image's filename, the feature it
+  illustrates, the source Jira ticket(s), and its status — real screenshot or placeholder. This shows at a glance which
+  screenshots are still required and where they belong.
+
+## Validating or Updating Existing Release Notes
+
+When asked to review or edit existing notes:
+
+1. Read the file under `Docs/release-notes/<version>/`.
+2. Check it against the README — structure, section list and order, no bold in headings, front matter, library table,
+   and no migration steps in `index.md` — and against the writing tone above.
+3. Verify its factual claims against the commit diffs as in step 6 (config samples, property names, defaults, endpoints,
+   breaking-change behavior). The Git source outranks Jira; if something is misleading and you cannot resolve it from
+   the code, ask the user.
+4. Apply changes, preserving correct content and consistent terminology.
+5. Report what changed and any remaining issues.
