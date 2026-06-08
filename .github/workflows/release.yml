@@ -54,7 +54,7 @@ jobs:
           -DreleaseVersion=${{ github.event.inputs.release }}
           -DautoVersionSubmodules=true
           -DtagNameFormat=@{project.version}
-          -DpreparationGoals="clean"
+          -DpreparationGoals="clean validate"
           -DpushChanges=false
           -Psonar
 
