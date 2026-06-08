@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
@@ -99,7 +100,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
     }
 
     @EventListener
-    public void onWorkspaceReset(WorkspaceResetEvent event) {
+    public void onWorkspaceReset(@NonNull WorkspaceResetEvent event) {
         try {
             clear();
         } catch (Exception e) {

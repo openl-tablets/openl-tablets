@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.event.EventListener;
 
 import org.openl.rules.ui.WorkspaceResetEvent;
@@ -76,7 +77,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * against the previous compiled state are no longer valid.
      */
     @EventListener
-    public void onWorkspaceReset(WorkspaceResetEvent event) {
+    public void onWorkspaceReset(@NonNull WorkspaceResetEvent event) {
         try {
             clear();
         } catch (Exception e) {

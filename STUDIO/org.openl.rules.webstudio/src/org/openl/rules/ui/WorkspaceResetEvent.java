@@ -1,5 +1,6 @@
 package org.openl.rules.ui;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -14,7 +15,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public class WorkspaceResetEvent extends ApplicationEvent {
 
-    public WorkspaceResetEvent(Object source) {
+    public WorkspaceResetEvent(@NonNull Object source) {
         super(source);
     }
 }

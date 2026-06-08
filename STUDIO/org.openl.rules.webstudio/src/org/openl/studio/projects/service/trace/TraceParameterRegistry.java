@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
@@ -69,7 +70,7 @@ public class TraceParameterRegistry {
      * values from a trace computed against the previous compiled state.
      */
     @EventListener
-    public void onWorkspaceReset(WorkspaceResetEvent event) {
+    public void onWorkspaceReset(@NonNull WorkspaceResetEvent event) {
         try {
             clear();
         } catch (Exception e) {
