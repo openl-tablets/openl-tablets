@@ -56,6 +56,7 @@ jobs:
           -DtagNameFormat=@{project.version}
           -DpreparationGoals="clean"
           -DpushChanges=false
+          -Psonar
 
       - name: Show commits
         working-directory: ./release
