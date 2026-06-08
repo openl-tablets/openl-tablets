@@ -181,7 +181,7 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <reportSets>
                     <reportSet>
-                        <reports />
+                        <reports/>
                     </reportSet>
                 </reportSets>
             </plugin>
@@ -209,7 +209,7 @@
                 </property>
             </activation>
             <properties>
-                <invoker.mavenOpts />
+                <invoker.mavenOpts/>
                 <invoker.noPerf>true</invoker.noPerf>
             </properties>
         </profile>
