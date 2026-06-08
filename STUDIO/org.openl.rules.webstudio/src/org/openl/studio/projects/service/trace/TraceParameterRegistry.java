@@ -4,10 +4,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.ui.WorkspaceResetEvent;
 
 /**
  * Session-scoped registry for storing trace parameters for lazy loading.
@@ -23,6 +27,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
  * when the trace is explicitly released.
  * </p>
  */
+@Slf4j
 @Component
 @SessionScope
 public class TraceParameterRegistry {
@@ -36,7 +41,7 @@ public class TraceParameterRegistry {
      * @param param the parameter to register
      * @return unique ID for later retrieval
      */
-    public int register(ParameterWithValueDeclaration param) {
+    public synchronized int register(ParameterWithValueDeclaration param) {
         int id = counter.incrementAndGet();
         parameters.put(id, param);
         return id;
@@ -55,8 +60,21 @@ public class TraceParameterRegistry {
     /**
      * Clears all registered parameters.
      */
-    public void clear() {
+    public synchronized void clear() {
         parameters.clear();
         counter.set(0);
+    }
+
+    /**
+     * Drop cached trace parameters when the session workspace is reset: they reference
+     * values from a trace computed against the previous compiled state.
+     */
+    @EventListener
+    public void onWorkspaceReset(@NonNull WorkspaceResetEvent event) {
+        try {
+            clear();
+        } catch (Exception e) {
+            log.warn("onWorkspaceReset failed", e);
+        }
     }
 }

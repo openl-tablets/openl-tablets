@@ -5,6 +5,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.context.event.EventListener;
+
+import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -17,6 +22,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  * @param <T> the result type of the execution task
  */
+@Slf4j
 public abstract class AbstractExecutionResultRegistry<T> {
 
     private record Entry<T>(ProjectIdModel projectId,
@@ -63,6 +69,19 @@ public abstract class AbstractExecutionResultRegistry<T> {
         Entry<T> e = ref.getAndSet(null);
         if (e != null && !e.task().isDone()) {
             e.task().cancel(true);
+        }
+    }
+
+    /**
+     * Drop cached execution results when the session workspace is reset: results computed
+     * against the previous compiled state are no longer valid.
+     */
+    @EventListener
+    public void onWorkspaceReset(@NonNull WorkspaceResetEvent event) {
+        try {
+            clear();
+        } catch (Exception e) {
+            log.warn("onWorkspaceReset failed", e);
         }
     }
 
