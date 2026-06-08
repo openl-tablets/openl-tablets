@@ -165,6 +165,7 @@
         <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
+        <jakarta.activation-api.version>2.1.4</jakarta.activation-api.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
 
         <!-- Cache -->
@@ -215,7 +216,7 @@
         <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx61m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
-        <surefire.argLine.opts />
+        <surefire.argLine.opts/>
         <!-- Extra settings per a maven module for the surefire plugin -->
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
@@ -726,6 +727,15 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
+            </dependency>
+            <!-- Pin the Jakarta (2.1.x) Activation API. Jackson's jackson-module-jaxb-annotations drags in the
+                 legacy javax-namespace jakarta.activation-api:1.2.2 (no jakarta.activation.DataSource), which wins
+                 nearest-wins mediation and breaks JAXBContext creation. Managing it here forces the correct version
+                 onto every BOM consumer. -->
+            <dependency>
+                <groupId>jakarta.activation</groupId>
+                <artifactId>jakarta.activation-api</artifactId>
+                <version>${jakarta.activation-api.version}</version>
             </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
@@ -1421,7 +1431,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
-                            <openl.config.location />
+                            <openl.config.location/>
                         </systemPropertyVariables>
                         <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} @{jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
                     </configuration>
@@ -1565,9 +1575,9 @@
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
-                        <removeUnusedImports />
-                        <trimTrailingWhitespace />
-                        <endWithNewline />
+                        <removeUnusedImports/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
                         <indent>
                             <spaces>true</spaces>
                             <spacesPerTab>4</spacesPerTab>
@@ -1591,9 +1601,9 @@
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
-                        <removeSemicolons />
-                        <trimTrailingWhitespace />
-                        <endWithNewline />
+                        <removeSemicolons/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
                         <indent>
                             <spaces>true</spaces>
                             <spacesPerTab>4</spacesPerTab>
@@ -1615,7 +1625,7 @@
                             <exclude>.*/**</exclude>
                             <exclude>**/.*/**</exclude>
                         </excludes>
-                        <prettier />
+                        <prettier/>
                     </yaml>
                     <pom>
                         <includes>
@@ -1674,8 +1684,8 @@
                                 <exclude>**/.*/**</exclude>
                                 <exclude>**/pom.xml</exclude>
                             </excludes>
-                            <trimTrailingWhitespace />
-                            <endWithNewline />
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
                             <indent>
                                 <spaces>true</spaces>
                                 <spacesPerTab>4</spacesPerTab>
@@ -1797,7 +1807,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -1812,8 +1822,8 @@
                 <module>jacoco-report</module>
             </modules>
             <properties>
-                <sonar />
-                <surefire.argLine />
+                <sonar/>
+                <surefire.argLine/>
                 <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
                 <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
                 <sonar.test.inclusions>**/*Test.java,**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx</sonar.test.inclusions>

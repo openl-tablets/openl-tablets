@@ -119,7 +119,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <webservice-webapp>../../STUDIO/org.openl.rules.webstudio/target/webapp</webservice-webapp>
-                        <readiness-url />
+                        <readiness-url/>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
