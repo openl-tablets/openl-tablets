@@ -22,6 +22,31 @@ gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
 apk del wget gnupg
 EOT
 
+FROM alpine AS log4j
+
+ENV LOG4J_VER 2.26.0
+
+RUN <<EOT
+set -euxv
+
+# Install tools
+apk add --no-cache wget gnupg
+
+# Download the log4j2 JSON Template Layout (provides the Elastic Common Schema layout). It is added to the
+# webapp by the Docker image so the .war itself carries no dependency on it.
+# LOG4J_VER must match log4j.version in the root pom.xml.
+ARTIFACT=https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-layout-template-json/$LOG4J_VER/log4j-layout-template-json-$LOG4J_VER.jar
+wget  --progress=dot:giga -O log4j-layout-template-json.jar "$ARTIFACT"
+wget  --progress=dot:giga -O log4j-layout-template-json.jar.asc "$ARTIFACT.asc"
+
+# GPG verification (ASF Logging Services release manager key)
+gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 56E73BA9A0B592D0
+gpg --batch --verify log4j-layout-template-json.jar.asc log4j-layout-template-json.jar
+
+# Remove tools
+apk del wget gnupg
+EOT
+
 FROM eclipse-temurin:25-jre-alpine-3.23 AS openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
@@ -60,6 +85,7 @@ echo "--------------------------------------------------------------------------
 echo "|    To define OpenTelemetry endpoint:    OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-host:4318    |"
 echo "|    To disable OpenL rules tracing:      OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false         |"
 echo "|    To disable OpenTelemetry:            OTEL_JAVAAGENT_ENABLED=false                           |"
+echo "|    To set the root log level:           LOGGING_LEVEL_ROOT=DEBUG  (default INFO)               |"
 echo "--------------------------------------------------------------------------------------------------"
 
 if [ -z "$OTEL_JAVAAGENT_ENABLED" ] && [ -z "$(env | grep -E '^OTEL_EXPORTER_')" ]; then
@@ -82,11 +108,41 @@ EOT
 # Create setenv.sh file for configuration customization purpose
 RUN <<'EOT' cat > $OPENL_DIR/setenv.sh && chmod +x $OPENL_DIR/setenv.sh
 export JAVA_OPTS="$JAVA_OPTS \
+-Dlog4j2.configurationFile=$OPENL_DIR/log4j2.properties \
 -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
 -Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 \
 -Djetty.httpConfig.requestHeaderSize=32768 \
 -Djetty.httpConfig.responseHeaderSize=32768 \
 "
+EOT
+
+# Create log4j2 configuration for cloud-friendly logging in Elastic Common Schema (ECS) JSON format on stdout.
+# It overrides the plain-text configuration bundled in the .war and is applied only inside the container.
+RUN <<'EOT' cat > $OPENL_DIR/log4j2.properties
+status = warn
+
+appender.console.type = Console
+appender.console.name = STDOUT
+appender.console.layout.type = JsonTemplateLayout
+appender.console.layout.eventTemplateUri = classpath:EcsLayout.json
+# Identify each log line's origin so it can be told apart from other services/instances.
+# service.name reuses the OpenTelemetry service name; host.name is the container/pod hostname.
+# EventTemplateAdditionalField rejects blank values, so every value keeps a non-blank default.
+appender.console.layout.svc.type = EventTemplateAdditionalField
+appender.console.layout.svc.key = service.name
+appender.console.layout.svc.value = ${env:OTEL_SERVICE_NAME:-OpenL}
+appender.console.layout.host.type = EventTemplateAdditionalField
+appender.console.layout.host.key = host.name
+appender.console.layout.host.value = ${env:HOSTNAME:-unknown}
+appender.console.layout.ver.type = EventTemplateAdditionalField
+appender.console.layout.ver.key = service.version
+appender.console.layout.ver.value = ${env:SERVICE_VERSION:-0}
+appender.console.layout.env.type = EventTemplateAdditionalField
+appender.console.layout.env.key = service.environment
+appender.console.layout.env.value = ${env:ENVIRONMENT:-production}
+
+rootLogger.level = ${env:LOGGING_LEVEL_ROOT:-INFO}
+rootLogger.appenderRef.console.ref = STDOUT
 EOT
 
 RUN <<EOT
@@ -122,6 +178,9 @@ EXPOSE 8080
 
 COPY $OTEL_APP $OTEL_DIR
 COPY $APP $OPENL_APP/webapps/ROOT
+# Add the ECS JSON layout to the webapp. It is intentionally not bundled in the .war (which stays
+# logging-agnostic); the image supplies it so container logging can use the ECS layout.
+COPY --from=log4j /log4j-layout-template-json.jar $OPENL_APP/webapps/ROOT/WEB-INF/lib/
 
 WORKDIR $OPENL_DIR
 
