@@ -92,6 +92,28 @@ public final class PackageMojo extends BaseOpenLMojo {
     String classpathFolder;
 
     /**
+     * Whether to pack the jar with the project's own compiled Java classes (generated datatype beans, the service
+     * interface, etc.) into the produced archive under the {@link #classpathFolder}.
+     * <p>
+     * When the parameter is not set, the decision is automatic. The jar is excluded when the project depends on
+     * other OpenL projects and runs the {@code generate} goal. In that case the jar would carry copies of the
+     * datatypes that those dependencies (re)generate at runtime in their own classloaders, and the duplicated
+     * {@link Class} identities break the engine's interface-to-implementation mapping. In any other case the jar
+     * is included, preserving the historical behaviour.
+     * <p>
+     * {@code true} always includes the jar, even when the automatic decision would exclude it. {@code false}
+     * always excludes it: the compiled classes are not placed on the runtime classpath and datatypes are
+     * (re)generated at runtime from the rules. The supplemental {@code classes} artifact is attached to the
+     * project in any case, so consumers that need the compiled classes for Java code (for example to implement
+     * the generated service interface) should depend on it via Maven instead of relying on the in-archive copy.
+     *
+     * @since 6.1.2
+     */
+    @Parameter
+    @Nullable
+    Boolean includeGeneratedClasspathJar;
+
+    /**
      * Classifier that identifies the generated artifact as a supplemental one. By default, if a classifier is not
      * provided, the system creates the artifact as the main one. Maven does not support using multiple main artifacts.
      * Upon the second attempt to create the main artifact without using a classifier, the build fails.
@@ -221,11 +243,16 @@ public final class PackageMojo extends BaseOpenLMojo {
         final boolean openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
-            dependencyLib = getOutputFile(outputDirectory, finalName, CLASSES_CLASSIFIER, OpenLPackagings.JAR_DEPENDENCY_TYPE);
-            JarArchiver.archive(classesDirectory, dependencyLib);
+            var classesJar = getOutputFile(outputDirectory, finalName, CLASSES_CLASSIFIER, OpenLPackagings.JAR_DEPENDENCY_TYPE);
+            JarArchiver.archive(classesDirectory, classesJar);
 
-            info("Attaching the classes artifact '", dependencyLib, "'");
-            projectHelper.attachArtifact(project, OpenLPackagings.JAR_DEPENDENCY_TYPE, CLASSES_CLASSIFIER, dependencyLib);
+            info("Attaching the classes artifact '", classesJar, "'");
+            projectHelper.attachArtifact(project, OpenLPackagings.JAR_DEPENDENCY_TYPE, CLASSES_CLASSIFIER, classesJar);
+
+            if (shouldIncludeGeneratedClasspathJar(hasDependencies)) {
+                // the jar goes into the produced archive under the classpath folder
+                dependencyLib = classesJar;
+            }
         }
 
         final var includedFiles = scanFiles(openLSourceDir, includes, getExcludes());
@@ -325,6 +352,37 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private Set<Artifact> getDependencies() {
         return getFilteredDependencies(BaseOpenLMojo::isRuntimeScope);
+    }
+
+    /**
+     * Resolves the {@link #includeGeneratedClasspathJar} parameter. An explicitly configured value always wins.
+     * When the parameter is not set, the jar is excluded only for projects that depend on other OpenL projects
+     * and pre-generate classes with the {@code generate} goal - the combination that puts copies of the
+     * dependencies' datatypes on the deployed runtime classpath.
+     * <p>
+     * The decision affects only the copy embedded into the produced archive. The supplemental {@code classes}
+     * artifact is attached to the project regardless of it.
+     */
+    boolean shouldIncludeGeneratedClasspathJar(boolean hasOpenLDependencies) {
+        if (includeGeneratedClasspathJar != null) {
+            return includeGeneratedClasspathJar;
+        }
+        if (hasOpenLDependencies && isGenerateGoalConfigured()) {
+            info("Excluding the generated classes jar from the archive: the project depends on other OpenL ",
+                    "projects and pre-generates their datatype classes, which would duplicate the classes ",
+                    "regenerated at runtime. Set 'includeGeneratedClasspathJar=true' to force packing the jar.");
+            return false;
+        }
+        return true;
+    }
+
+    /** Checks whether any execution of this very plugin in the project's build runs the 'generate' goal. */
+    boolean isGenerateGoalConfigured() {
+        return project.getBuildPlugins().stream()
+                .filter(p -> plugin.getGroupId().equals(p.getGroupId())
+                        && plugin.getArtifactId().equals(p.getArtifactId()))
+                .flatMap(p -> p.getExecutions().stream())
+                .anyMatch(e -> e.getGoals().contains("generate"));
     }
 
     @Override
