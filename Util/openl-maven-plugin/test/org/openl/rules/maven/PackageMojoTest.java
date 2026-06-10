@@ -18,7 +18,11 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.junit.jupiter.api.Test;
@@ -31,6 +35,10 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>The jar is not built when the classes folder is empty, when a main jar artifact already exists, or for
  * the {@code openl-jar} packaging where the classes are packed into the root of the main artifact.
+ *
+ * <p>The {@code includeGeneratedClasspathJar} parameter and its automatic decision control only the copy
+ * embedded into the archive; the {@code classes} artifact is attached regardless, so Java consumers can
+ * always depend on it.
  *
  * @author Yury Molchan
  */
@@ -104,6 +112,63 @@ class PackageMojoTest {
     }
 
     @Test
+    void autoDecisionAttachesClassesArtifactButKeepsItOffTheArchive(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "zip");
+        configureGenerateGoal(mojo);
+        touch(mojo.classesDirectory.toPath().resolve("com/example/Service.class"));
+
+        // The project depends on other OpenL projects and pre-generates classes: the automatic decision
+        // keeps the jar off the deployed runtime classpath, but Java consumers still get the artifact.
+        mojo.execute(openlSources(tmp), true);
+
+        var classesJar = new File(mojo.outputDirectory, FINAL_NAME + "-classes.jar");
+        assertTrue(classesJar.isFile());
+        assertEquals(List.of(new Attached("jar", "classes", classesJar)),
+                ((RecordingProjectHelper) mojo.projectHelper).attached);
+        assertEquals(Set.of("rules/Main.xlsx"), zipEntries(mojo.project.getArtifact().getFile()));
+    }
+
+    @Test
+    void autoDecisionKeepsTheJarInTheArchiveWithoutGenerateGoal(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "zip");
+        touch(mojo.classesDirectory.toPath().resolve("com/example/Handwritten.class"));
+
+        // OpenL dependencies alone do not trigger the exclusion: without the generate goal the classes
+        // folder holds only hand-written classes or resources which exist nowhere else.
+        mojo.execute(openlSources(tmp), true);
+
+        assertEquals(Set.of("rules/Main.xlsx", "lib/" + FINAL_NAME + ".jar"),
+                zipEntries(mojo.project.getArtifact().getFile()));
+    }
+
+    @Test
+    void explicitFalseKeepsTheJarOffTheArchiveButAttachesClassesArtifact(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "zip");
+        mojo.includeGeneratedClasspathJar = Boolean.FALSE;
+        touch(mojo.classesDirectory.toPath().resolve("com/example/Service.class"));
+
+        mojo.execute(openlSources(tmp), false);
+
+        var classesJar = new File(mojo.outputDirectory, FINAL_NAME + "-classes.jar");
+        assertEquals(List.of(new Attached("jar", "classes", classesJar)),
+                ((RecordingProjectHelper) mojo.projectHelper).attached);
+        assertEquals(Set.of("rules/Main.xlsx"), zipEntries(mojo.project.getArtifact().getFile()));
+    }
+
+    @Test
+    void explicitTrueOverridesTheAutomaticExclusion(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "zip");
+        configureGenerateGoal(mojo);
+        mojo.includeGeneratedClasspathJar = Boolean.TRUE;
+        touch(mojo.classesDirectory.toPath().resolve("com/example/Service.class"));
+
+        mojo.execute(openlSources(tmp), true);
+
+        assertEquals(Set.of("rules/Main.xlsx", "lib/" + FINAL_NAME + ".jar"),
+                zipEntries(mojo.project.getArtifact().getFile()));
+    }
+
+    @Test
     void repackagingOverwritesTheClassesJarInsteadOfAccumulatingCopies(@TempDir Path tmp) throws Exception {
         var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
         touch(mojo.classesDirectory.toPath().resolve("com/example/Service.class"));
@@ -140,6 +205,25 @@ class PackageMojoTest {
         mojo.classpathFolder = "lib/";
         mojo.projectBaseDir = tmp.toString();
         return mojo;
+    }
+
+    /** Declares this plugin's {@code generate} goal in the test project's build, the way a real POM does. */
+    private static void configureGenerateGoal(PackageMojo mojo) {
+        var descriptor = new PluginDescriptor();
+        descriptor.setGroupId("org.openl.rules");
+        descriptor.setArtifactId("openl-maven-plugin");
+        mojo.plugin = descriptor;
+
+        var execution = new PluginExecution();
+        execution.addGoal("generate");
+        var plugin = new Plugin();
+        plugin.setGroupId("org.openl.rules");
+        plugin.setArtifactId("openl-maven-plugin");
+        plugin.addExecution(execution);
+
+        var build = new Build();
+        build.addPlugin(plugin);
+        mojo.project.getModel().setBuild(build);
     }
 
     /** Creates the OpenL source folder with a single rules file and returns its path. */

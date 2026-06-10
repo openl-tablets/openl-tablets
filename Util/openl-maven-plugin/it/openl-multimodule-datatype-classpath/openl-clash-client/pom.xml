@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.internal.openl-multimodule-datatype-classpath</groupId>
+        <artifactId>openl-multimodule-datatype-classpath</artifactId>
+        <version>0.0.0</version>
+    </parent>
+    <artifactId>openl-clash-client</artifactId>
+    <packaging>jar</packaging>
+    <description>Java consumer: implements the generated interface; must compile (no ClassNotFound) if datatypes resolve.</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.internal.openl-multimodule-datatype-classpath</groupId>
+            <artifactId>openl-clash-api</artifactId>
+            <version>0.0.0</version>
+            <classifier>classes</classifier>
+        </dependency>
+        <!-- The generated MyService interface references SpreadsheetResult in its signatures; the 'classes'
+             artifact is thin, so the consumer brings the OpenL core types itself. -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
+            <version>${org.openl.version}</version>
+        </dependency>
+    </dependencies>
+</project>

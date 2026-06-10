@@ -1,0 +1,12 @@
+<project>
+    <name>OpenL Clash Api</name>
+    <dependencies>
+        <dependency>
+            <name>OpenL Clash Model</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+    <exposed-methods>
+        <include>calc</include>
+    </exposed-methods>
+</project>
