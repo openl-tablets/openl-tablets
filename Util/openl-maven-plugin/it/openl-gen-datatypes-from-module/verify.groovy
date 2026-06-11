@@ -15,7 +15,7 @@ try {
 
     assert new File(basedir, 'target/openl-gen-datatypes-from-module-0.0.0.zip').exists()
 
-    assert new File(basedir, 'target').list({ File file, String name -> name.startsWith("openl-gen-datatypes-from-module-0.0.0") && name.endsWith("-lib.jar") }).length == 1
+    assert new File(basedir, 'target/openl-gen-datatypes-from-module-0.0.0-classes.jar').exists()
 
     assert new File(basedir, 'build.log').text.contains("Total tests run: 4, Failures: 0, Errors: 0")
 
