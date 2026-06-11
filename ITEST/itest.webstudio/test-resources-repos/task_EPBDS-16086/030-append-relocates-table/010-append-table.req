@@ -1,0 +1,21 @@
+POST /rest/projects/{PROJECT_NAME}/tables/289df33dcb8abb0700906a6253a002f6/lines HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "fields": [
+    {
+      "name": "field2",
+      "type": "String"
+    },
+    {
+      "name": "field3",
+      "type": "String"
+    },
+    {
+      "name": "field4",
+      "type": "String"
+    }
+  ]
+}

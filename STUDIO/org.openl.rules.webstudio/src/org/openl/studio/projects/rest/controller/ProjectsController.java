@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -65,6 +66,7 @@ import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
@@ -298,28 +300,56 @@ public class ProjectsController {
         return (EditableTableView) projectService.getTable(project, tableId);
     }
 
-    @Operation(summary = "Update project table (BETA)")
+    @Operation(summary = "project.table.update.summary", description = "project.table.update.desc")
+    @ApiResponse(responseCode = "200", description = "project.table.update.200.desc", headers = @Header(name = HttpHeaders.LOCATION, description = "header.location.desc"))
+    @ApiResponse(responseCode = "204", description = "project.table.update.204.desc")
     @PutMapping("/{projectId}/tables/{tableId}")
-    public void updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                            @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                            @RequestBody EditableTableView editTable) throws ProjectException {
+    public ResponseEntity<TableIdView> updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                   @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                                   @RequestBody EditableTableView editTable) throws ProjectException {
         try {
-            projectService.updateTable(project, tableId, editTable);
+            var newTableId = projectService.updateTable(project, tableId, editTable);
+            return tableWriteResponse(tableId, newTableId);
         } finally {
             getWebStudio().reset();
         }
     }
 
-    @Operation(summary = "Append project table (BETA)")
+    @Operation(summary = "project.table.append.summary", description = "project.table.append.desc")
+    @ApiResponse(responseCode = "200", description = "project.table.append.200.desc", headers = @Header(name = HttpHeaders.LOCATION, description = "header.location.desc"))
+    @ApiResponse(responseCode = "204", description = "project.table.append.204.desc")
     @PostMapping("/{projectId}/tables/{tableId}/lines")
-    public void appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                            @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                            @RequestBody AppendTableView editTable) throws ProjectException {
+    public ResponseEntity<TableIdView> appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                   @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                                   @RequestBody AppendTableView editTable) throws ProjectException {
         try {
-            projectService.appendTableLines(project, tableId, editTable);
+            var newTableId = projectService.appendTableLines(project, tableId, editTable);
+            return tableWriteResponse(tableId, newTableId);
         } finally {
             getWebStudio().reset();
         }
+    }
+
+    /**
+     * Builds the response for a table write.
+     * <p>
+     * When the table ID is unchanged, returns 204 No Content with no headers. When the table was relocated and its ID
+     * changed, returns 200 OK with the new ID in the body and a Location header pointing to the table resource under its
+     * new ID.
+     *
+     * @param requestedTableId table ID from the request path
+     * @param currentTableId   table ID after the write
+     * @return 204 response when the ID is unchanged, otherwise a 200 response carrying the new ID
+     */
+    private static ResponseEntity<TableIdView> tableWriteResponse(String requestedTableId, String currentTableId) {
+        if (currentTableId.equals(requestedTableId)) {
+            return ResponseEntity.noContent().build();
+        }
+        var requestUrl = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toUriString();
+        var tableUrl = requestUrl.substring(0, requestUrl.indexOf("/tables/")) + "/tables/" + currentTableId;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.LOCATION, tableUrl)
+                .body(new TableIdView(currentTableId));
     }
 
     @Operation(summary = "Run all tests in the project or in a specific table (BETA)")

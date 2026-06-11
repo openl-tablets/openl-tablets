@@ -721,16 +721,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project   project
      * @param tableId   table id
      * @param tableView new table data
+     * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
-    public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+    public String updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
         var context = getOpenLTable(project, tableId);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        tableWriterExecutor.executeWrite(writer, tableView);
+        return tableWriterExecutor.executeWrite(writer, tableView);
     }
 
     /**
@@ -739,18 +740,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project   project
      * @param tableId   table id
      * @param tableView lines to append
+     * @return table id after the append; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
-    public void appendTableLines(RulesProject project,
-                                 String tableId,
-                                 AppendTableView tableView) throws ProjectException {
+    public String appendTableLines(RulesProject project,
+                                   String tableId,
+                                   AppendTableView tableView) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
         var context = getOpenLTable(project, tableId);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        tableWriterExecutor.executeAppend(writer, tableView);
+        return tableWriterExecutor.executeAppend(writer, tableView);
     }
 
     public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {

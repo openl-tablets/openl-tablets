@@ -1,0 +1,7 @@
+HTTP/1.1 200
+Location: http://example.com/rest/projects/EPBDS-16086/tables/618e0fae196e9a3dc759e30ef8661d44
+Content-Type: application/json
+
+{
+  "id": "618e0fae196e9a3dc759e30ef8661d44"
+}
