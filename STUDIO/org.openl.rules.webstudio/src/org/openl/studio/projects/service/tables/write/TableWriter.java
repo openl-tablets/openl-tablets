@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
@@ -75,6 +76,20 @@ public abstract class TableWriter<T extends TableView> {
         } finally {
             getGridTable().stopEditing();
         }
+    }
+
+    /**
+     * Returns the identifier of the table reflecting its current position.
+     * <p>
+     * The identifier is derived from the table location, so it changes when the table is relocated during a write (for
+     * example, when there was no room to grow at the original position). Call after the write completes to obtain the
+     * up-to-date identifier.
+     *
+     * @return current table identifier
+     */
+    public String getTableId() {
+        originalTable.resetUri();
+        return TableUtils.makeTableId(originalTable.getUri());
     }
 
     protected abstract void updateHeader(T tableView);

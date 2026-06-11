@@ -28,7 +28,7 @@ import org.openl.studio.projects.model.tables.VocabularyView;
 @Component
 public class TableWriterExecutor {
 
-    public void executeWrite(TableWriter<? extends TableView> writer, EditableTableView tableView) {
+    public String executeWrite(TableWriter<? extends TableView> writer, EditableTableView tableView) {
         switch (writer) {
             case VocabularyTableWriter vocabularyTableWriter -> vocabularyTableWriter.write((VocabularyView) tableView);
             case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.write((DatatypeView) tableView);
@@ -44,9 +44,10 @@ public class TableWriterExecutor {
             case RawTableWriter rawTableWriter -> rawTableWriter.write((RawTableView) tableView);
             default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
         }
+        return writer.getTableId();
     }
 
-    public void executeAppend(TableWriter<? extends TableView> writer, AppendTableView tableView) {
+    public String executeAppend(TableWriter<? extends TableView> writer, AppendTableView tableView) {
         switch (writer) {
             case VocabularyTableWriter vocabularyTableWriter ->
                     vocabularyTableWriter.append((VocabularyAppend) tableView);
@@ -61,6 +62,7 @@ public class TableWriterExecutor {
             case RawTableWriter rawTableWriter -> rawTableWriter.append((RawTableAppend) tableView);
             default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
         }
+        return writer.getTableId();
     }
 
 }

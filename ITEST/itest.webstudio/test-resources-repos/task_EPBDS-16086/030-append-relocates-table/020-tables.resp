@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "618e0fae196e9a3dc759e30ef8661d44",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "TypeA",
+      "file": "EPBDS-16086/EPBDS-16086.xlsx",
+      "pos": "B11:C15"
+    },
+    {
+      "id": "91e1b83d71ebd6206c0bff53079bdcb1",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "TypeB",
+      "file": "EPBDS-16086/EPBDS-16086.xlsx",
+      "pos": "B18:C22"
+    },
+    {
+      "id": "dec94b5ec4595b84a118532580fdb200",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "TypeC",
+      "file": "EPBDS-16086/EPBDS-16086.xlsx",
+      "pos": "B8:C9"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}
