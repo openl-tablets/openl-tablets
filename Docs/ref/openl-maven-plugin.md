@@ -61,6 +61,20 @@ left untouched and reported. Pom edits re-serialise the model — review the dif
 > [!Note]
 > `generate` creates a Java interface from the project's `<exposed-methods>` filter, for type-safe rule invocation.
 
+## Supplementary artifacts
+
+`openl:package` attaches supplementary artifacts next to the main archive:
+
+| Classifier   | When attached                                                               |
+|--------------|-----------------------------------------------------------------------------|
+| `classes`    | `target/classes` is not empty — built as `<finalName>-classes.jar`          |
+| `tests`      | The OpenL source folder contains `tests/**`                                 |
+| `deployment` | Depends on other OpenL projects and `rules-deploy.xml` publishers not empty |
+
+- The `classes` jar is also embedded into the zip archive as `lib/<finalName>.jar` (runtime classpath);
+  depend on it with `<classifier>classes</classifier>`.
+- Not built when a main jar artifact already exists or for `openl-jar` packaging (classes go to the jar root).
+
 ## Pom-less OpenL projects
 
 Anchor `pom.xml`:

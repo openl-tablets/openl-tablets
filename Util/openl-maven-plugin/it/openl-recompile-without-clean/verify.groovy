@@ -18,8 +18,9 @@ try {
 
     assert new File(folder, 'target/openl-recompile-without-clean-0.0.0.zip').exists()
 
-    // Second time we package the project without clean that's why we have 2 jar files
-    assert new File(folder, 'target').list({ File file, String name -> name.startsWith('openl-recompile-without-clean-0.0.0') && name.endsWith('-lib.jar') }).length == 2
+    // The project is packaged the second time without clean; the classes jar name is deterministic,
+    // so the repeated packaging overwrites the file instead of leaving an extra randomly named copy
+    assert new File(folder, 'target').list({ File file, String name -> name.startsWith('openl-recompile-without-clean-0.0.0') && name.endsWith('-classes.jar') }).length == 1
 
     int threadCount = Runtime.runtime.availableProcessors() * 2.5
 

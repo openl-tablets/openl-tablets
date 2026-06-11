@@ -51,6 +51,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     /** Classifier of the auto-attached deployment artifact; consumed by {@code PrepareDeploymentBomMojo}. */
     public static final String DEPLOYMENT_CLASSIFIER = "deployment";
     private static final String TESTS_CLASSIFIER = "tests";
+    /** Classifier of the auto-attached jar with the project's compiled classes, like 'attachClasses' in war packaging. */
+    private static final String CLASSES_CLASSIFIER = "classes";
 
     private static final byte[] EMPTY_PUBLISHERS_RULES_DEPLOY = """
             <rules-deploy>
@@ -59,34 +61,35 @@ public final class PackageMojo extends BaseOpenLMojo {
             """.getBytes(StandardCharsets.UTF_8);
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
-    private String packaging;
+    String packaging;
 
     @Component
-    private MavenProjectHelper projectHelper;
+    MavenProjectHelper projectHelper;
 
     /**
      * Directory containing the generated artifact.
      */
     @Parameter(defaultValue = "${project.build.directory}", required = true)
-    private File outputDirectory;
+    File outputDirectory;
 
     @Parameter(defaultValue = "${project.build.finalName}", readonly = true)
-    private String finalName;
+    String finalName;
 
     @Parameter(defaultValue = "${project.build.outputDirectory}", required = true, readonly = true)
-    private File classesDirectory;
+    File classesDirectory;
 
     /**
      * Comma separated list of packaging formats. Supported values: zip, jar.
      */
     @Parameter(defaultValue = "zip")
-    private String format;
+    String format;
 
     /**
      * Folder to store dependencies inside the OpenL Tablets project.
      */
+    @Deprecated(forRemoval = true, since = "6.1.2")
     @Parameter(defaultValue = "lib/")
-    private String classpathFolder;
+    String classpathFolder;
 
     /**
      * Classifier that identifies the generated artifact as a supplemental one. By default, if a classifier is not
@@ -117,7 +120,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      * {@code rules-deploy.xml} is always replaced with a stub that declares empty {@code <publishers/>}, suppressing
      * publication of the dependency — only the main project is published as a service.
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "6.1.0")
     @Parameter
     private Boolean deploymentPackage;
 
@@ -176,7 +179,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     private final String[] excludes = StringUtils.EMPTY_STRING_ARRAY;
 
     @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
-    private String projectBaseDir;
+    String projectBaseDir;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -218,9 +221,11 @@ public final class PackageMojo extends BaseOpenLMojo {
         final boolean openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
-            dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
-
+            dependencyLib = getOutputFile(outputDirectory, finalName, CLASSES_CLASSIFIER, OpenLPackagings.JAR_DEPENDENCY_TYPE);
             JarArchiver.archive(classesDirectory, dependencyLib);
+
+            info("Attaching the classes artifact '", dependencyLib, "'");
+            projectHelper.attachArtifact(project, OpenLPackagings.JAR_DEPENDENCY_TYPE, CLASSES_CLASSIFIER, dependencyLib);
         }
 
         final var includedFiles = scanFiles(openLSourceDir, includes, getExcludes());
