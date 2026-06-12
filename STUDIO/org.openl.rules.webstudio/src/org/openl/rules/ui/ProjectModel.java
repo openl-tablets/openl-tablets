@@ -19,6 +19,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.CompiledOpenClass;
@@ -137,6 +141,19 @@ public class ProjectModel {
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Delivers {@link ProjectStatusChangedEvent}s outside the compilation threads.
+     * Per-module completion listeners run while the compilation monitor is held, so the
+     * status update is handed off here instead of being published inline. A single worker
+     * keeps the updates ordered and guarantees no compilation lock is held while the
+     * model monitor is acquired to read the current status.
+     */
+    private final ExecutorService statusNotifier = Executors.newSingleThreadExecutor(runnable -> {
+        var thread = new Thread(runnable, "project-status-notifier");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     @Getter
     private Module moduleInfo;
@@ -1366,9 +1383,22 @@ public class ProjectModel {
         if (publisher == null) {
             return;
         }
-        // Compilation runs on a worker thread without Spring Security's thread-local
-        // context, so `getProject()` (which goes through SecureUserWorkspace) would NPE
-        // on the ACL check. Bind the session's captured Authentication for this call.
+        // This may run on a compilation worker while the compilation monitor is held (see
+        // addCompiledDependency). Publishing inline would acquire this model's monitor via
+        // getProject() and deadlock against a foreground setModuleInfo() that holds the model
+        // monitor and waits for the compilation monitor. Hand the update off to a dedicated
+        // worker so no compilation lock is held while the model status is read and delivered.
+        try {
+            statusNotifier.execute(() -> doPublishStatusChanged(publisher));
+        } catch (RejectedExecutionException e) {
+            // The model is being torn down (destroy()); a stale status update is safe to drop.
+            log.debug("Project status notifier is shut down; skipping status update", e);
+        }
+    }
+
+    private void doPublishStatusChanged(ApplicationEventPublisher publisher) {
+        // The notifier thread has no Spring Security context, and getProject() goes through
+        // SecureUserWorkspace, so bind the session's captured Authentication for this call.
         studio.runAsSessionUser(() -> {
             try {
                 var project = getProject();
@@ -1575,6 +1605,9 @@ public class ProjectModel {
 
     public void destroy() {
         clearModuleInfo();
+        // Discard queued notifications and interrupt any in-flight publish: once the model is
+        // torn down, a pending status update is stale and safe to drop (see publishStatusChanged).
+        statusNotifier.shutdownNow();
     }
 
     private void clearModuleResources() {
