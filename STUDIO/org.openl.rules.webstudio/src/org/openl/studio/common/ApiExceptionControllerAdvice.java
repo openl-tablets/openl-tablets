@@ -94,6 +94,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return handleExceptionInternal(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
     }
 
+    /**
+     * A malformed file path (absolute, or with illegal characters) is a client error, not a server
+     * fault — answer 400 instead of letting it fall through to a 500.
+     */
+    @ExceptionHandler(java.nio.file.InvalidPathException.class)
+    public ResponseEntity<Object> handleInvalidPath(java.nio.file.InvalidPathException e, WebRequest request) {
+        log.debug(e.getMessage(), e);
+        return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
     @ExceptionHandler({Exception.class, RuntimeException.class})
     public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
         var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
