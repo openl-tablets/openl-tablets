@@ -63,6 +63,7 @@
             var reqs = 0;
             var lastSavedHash = $location.getHash();
             var fullreload = false;
+            var moduleLoading = false;
             var projectPageChanged = false;
 
             var urlRewrite = {
@@ -644,6 +645,11 @@
 
                 $(window).bind("hashchange", function() {
                     var ch = $location.getHash();
+                    if (moduleLoading && ch != lastSavedHash) {
+                        // A module is still loading. Ignore navigation until it finishes.
+                        location.hash = lastSavedHash;
+                        return;
+                    }
                     if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
                         // Workaround for a bug in firefox.
                         // Sometimes it decodes a loading url and then loads decoded url.
@@ -964,7 +970,9 @@
                     }
                 }
 
+                moduleLoading = true;
                 api.ajax.get(initUrl, function () {
+                        moduleLoading = false;
                         // Load all pages after project/module model initialized
                         api.ajax.load(content, function () {
                                 for (var i = 0; i < callbacks.length; i++) {
@@ -974,6 +982,7 @@
                         );
                     },
                     function (response) {
+                        moduleLoading = false;
                         // Something gone wrong
                         if (response.status == 404) {
                             // Project or module is not found
