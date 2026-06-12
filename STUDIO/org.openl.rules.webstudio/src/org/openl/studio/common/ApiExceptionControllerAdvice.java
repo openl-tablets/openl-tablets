@@ -1,8 +1,13 @@
 package org.openl.studio.common;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import jakarta.validation.ConstraintViolationException;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -11,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -139,6 +145,23 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                 request);
     }
 
+    /**
+     * Answers a malformed JSON request body with a sanitized message (e.g. an invalid enum value)
+     * instead of leaking the framework's {@code ProblemDetail} text.
+     */
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatusCode status,
+                                                                  WebRequest request) {
+        log.debug(e.getMessage(), e);
+        var body = BaseError.builder()
+                .code(exceptionMappingService.buildDefaultErrorCode(status))
+                .message(describeJsonError(e.getCause()))
+                .build();
+        return handleExceptionInternal(e, body, new HttpHeaders(), status, request);
+    }
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception e,
                                                              Object body,
@@ -188,6 +211,61 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         }
         var handledEx = super.handleTypeMismatch(ex, headers, status, request);
         return new ResponseEntity<>(exceptionMappingService.processException(ex), handledEx.getHeaders(), handledEx.getStatusCode());
+    }
+
+    /**
+     * Builds a sanitized, user-friendly message for a malformed JSON request body. Raw Jackson
+     * messages are deliberately discarded — they expose internal class names, package paths and
+     * framework details. Mirrors the rule services' {@code JsonProcessingExceptionMapper}.
+     */
+    static String describeJsonError(Throwable cause) {
+        if (cause instanceof UnrecognizedPropertyException upe) {
+            var field = formatPath(upe.getPath());
+            return field.isEmpty() ? "Unknown field in request" : "Unknown field '%s'".formatted(field);
+        }
+        if (cause instanceof InvalidFormatException ife) {
+            var field = formatPath(ife.getPath());
+            var typeName = friendlyType(ife.getTargetType());
+            return field.isEmpty() ? "Invalid %s format".formatted(typeName)
+                    : "Invalid %s format for field '%s'".formatted(typeName, field);
+        }
+        if (cause instanceof JsonMappingException jme) {
+            var field = formatPath(jme.getPath());
+            return field.isEmpty() ? "Invalid request body" : "Invalid value for field '%s'".formatted(field);
+        }
+        return "Request body is malformed";
+    }
+
+    private static String formatPath(List<JsonMappingException.Reference> path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        var sb = new StringBuilder();
+        for (var ref : path) {
+            var name = ref.getFieldName();
+            if (name != null) {
+                if (!sb.isEmpty()) {
+                    sb.append('.');
+                }
+                sb.append(name);
+            } else if (ref.getIndex() >= 0) {
+                sb.append('[').append(ref.getIndex()).append(']');
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String friendlyType(Class<?> type) {
+        return switch (type) {
+            case Class<?> t when Date.class.isAssignableFrom(t) || t.getName().startsWith("java.time.") -> "date";
+            case Class<?> t when t == Boolean.class || t == boolean.class -> "boolean";
+            case Class<?> t when Number.class.isAssignableFrom(t) || t.isPrimitive() && t != char.class && t != void.class ->
+                    "number";
+            case Class<?> t when CharSequence.class.isAssignableFrom(t) || t == char.class || t == Character.class ->
+                    "string";
+            case Class<?> t when t.isEnum() -> "enum";
+            case null, default -> "value";
+        };
     }
 
 }
