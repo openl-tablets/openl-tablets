@@ -1,0 +1,15 @@
+PUT /rest/users HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "displayName": "EPBDS-16012-acl-user",
+  "groups": [],
+  "username": "EPBDS-16012-acl-user",
+  "internalPassword": {
+    "password": "EPBDS-16012-acl-user"
+  },
+  "firstName": "Acl",
+  "lastName": "User",
+  "email": "acl@email"
+}

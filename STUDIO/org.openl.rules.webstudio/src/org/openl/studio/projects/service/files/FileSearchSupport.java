@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.files;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -18,7 +19,9 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -27,8 +30,9 @@ import org.openl.util.StringUtils;
  * Searches a mount for files and folders.
  *
  * <p>{@code SUBTREE} scope walks the mount tree and matches each entry by path pattern, extension,
- * type and a case-insensitive content substring. {@code ANCESTORS} scope walks up from a path to the
- * repository root through the mount, returning matches nearest first.
+ * type and a case-insensitive content substring. {@code ANCESTORS} scope walks up from the anchor
+ * path to the repository root, returning the same-named file at each level — not limited to the
+ * project — nearest first, each with its content.
  *
  * @author Yury Molchan
  */
@@ -135,6 +139,12 @@ class FileSearchSupport {
         String lookupPath = StringUtils.isBlank(query.from()) ? leaf : query.from() + "/" + leaf;
         if (lookupPath.isEmpty()) {
             return List.of();
+        }
+        // Reject absolute paths and parent traversal before they are anchored to a mount path.
+        try {
+            Repository.validatePath(lookupPath);
+        } catch (InvalidPathException e) {
+            throw new BadRequestException("file.path.invalid.message");
         }
         return root.searchAncestors(lookupPath);
     }

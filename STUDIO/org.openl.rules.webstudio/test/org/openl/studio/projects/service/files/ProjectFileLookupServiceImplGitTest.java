@@ -1,13 +1,15 @@
 package org.openl.studio.projects.service.files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -23,23 +26,25 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.projects.model.files.FileNode;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.IOUtils;
 
 /**
- * Verifies {@link ProjectFileLookupServiceImpl} lookup behavior against an on-disk
- * repository with a real folder hierarchy.
+ * Verifies {@link ProjectFileLookupServiceImpl} against an on-disk repository with a real folder
+ * hierarchy.
  *
- * <p>The repository holds {@code AGENTS.md} at every level — repository root,
- * intermediate ancestor, project root, and a nested project folder — plus a
- * non-text {@code rules.xlsx} project file:
+ * <p>The repository holds {@code AGENTS.md} at every level — repository root, intermediate ancestor,
+ * project root, and a nested project folder — plus a non-text {@code rules.xlsx}:
  * <pre>
  *   AGENTS.md                        (repository root)
  *   services/
@@ -51,13 +56,12 @@ import org.openl.util.IOUtils;
  *         AGENTS.md                  (nested project file)
  * </pre>
  *
- * <p>The tests assert that a lookup returns only the project file when
- * {@code searchParents=false}, and walks from the project root up to the
- * repository root (nearest to farthest ancestor) when {@code searchParents=true}.
+ * <p>The lookup walks up from the anchor to the repository root, collecting the same-named file at
+ * each level, ordered nearest first; it crosses the project boundary but does not descend into
+ * subfolders. The nested {@code config/} file therefore appears only when the anchor sits at or below
+ * it.
  */
 class ProjectFileLookupServiceImplGitTest {
-
-    private static final String PROJECT_FOLDER = "services/rating";
 
     @TempDir
     private File remoteRoot;
@@ -65,23 +69,22 @@ class ProjectFileLookupServiceImplGitTest {
     private File localRepositoriesFolder;
 
     private Repository repository;
-    private AProject project;
+    private RepositoryAclService aclService;
     private ProjectFileLookupServiceImpl service;
 
     @BeforeEach
     void setUp() throws GitAPIException, IOException {
         seedRemoteRepository();
         repository = openGitRepository();
-        FileData projectData = repository.check(PROJECT_FOLDER);
-        assertNotNull(projectData, "Test setup error: project folder not committed");
-        project = new AProject(repository, projectData);
-
         AclProjectsHelper aclProjectsHelper = mock(AclProjectsHelper.class);
-        lenient().when(aclProjectsHelper.hasPermission(any(AProject.class), eq(BasePermission.READ)))
-                .thenReturn(true);
         lenient().when(aclProjectsHelper.hasPermission(any(AProjectArtefact.class), eq(BasePermission.READ)))
                 .thenReturn(true);
-        service = new ProjectFileLookupServiceImpl(aclProjectsHelper);
+        aclService = mock(RepositoryAclService.class);
+        lenient().when(aclService.isGranted(anyString(), anyString(), anyBoolean(), any(Permission.class)))
+                .thenReturn(true);
+        var aclProvider = mock(RepositoryAclServiceProvider.class);
+        lenient().when(aclProvider.getDesignRepoAclService()).thenReturn(aclService);
+        service = new ProjectFileLookupServiceImpl(aclProjectsHelper, aclProvider);
     }
 
     @AfterEach
@@ -94,77 +97,102 @@ class ProjectFileLookupServiceImplGitTest {
     // --- scenarios ---
 
     @Test
-    void noSearchParents_findsProjectFile_metadataOnly() throws IOException {
-        ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, false);
+    void collectsAncestorsUpToRoot_nearestFirst() throws IOException {
+        List<FsNode> files = service.lookup(repository, "services/rating/AGENTS.md", true);
 
-        assertEquals(1, response.files().size());
-        assertEquals("services/rating/AGENTS.md", response.files().getFirst().path());
-        assertNull(response.files().getFirst().content(),
-                "content should be omitted when includeContent=false");
+        // Walk up from services/rating: the file itself (d0), the intermediate ancestor (d1), the
+        // repository root (d2). The nested config/ file is a descendant and is not visited.
+        assertEquals(3, files.size());
+        assertEquals("services/rating/AGENTS.md", files.get(0).getPath());
+        assertEquals("# project agents", content(files.get(0)));
+        assertEquals("services/AGENTS.md", files.get(1).getPath());
+        assertEquals("# services agents", content(files.get(1)));
+        assertEquals("AGENTS.md", files.get(2).getPath());
+        assertEquals("# root agents", content(files.get(2)));
     }
 
     @Test
-    void noSearchParents_includeContent_returnsProjectFileBody() throws IOException {
-        ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, true);
+    void includeContentFalse_returnsMetadataOnly() throws IOException {
+        List<FsNode> files = service.lookup(repository, "services/rating/AGENTS.md", false);
 
-        assertEquals(1, response.files().size());
-        assertEquals("# project agents", response.files().getFirst().content());
+        assertEquals(3, files.size());
+        assertNull(content(files.getFirst()), "content should be omitted when includeContent=false");
     }
 
     @Test
-    void noSearchParents_missingFile_returnsEmpty() throws IOException {
-        ProjectFileLookupResponse response = service.lookup(project, "MISSING.md", false, false);
+    void anchorAtRepositoryRoot_returnsRootOnly() throws IOException {
+        List<FsNode> files = service.lookup(repository, "AGENTS.md", false);
 
-        assertNotNull(response.files());
-        assertTrue(response.files().isEmpty());
+        // There is nothing above the repository root, and descendants are not visited.
+        assertEquals(1, files.size());
+        assertEquals("AGENTS.md", files.get(0).getPath());
     }
 
     @Test
-    void noSearchParents_doesNotSeeAncestorFiles() throws IOException {
-        // services/AGENTS.md and root AGENTS.md exist in the repo, but searchParents=false must ignore them.
-        ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", false, true);
+    void anchorAtNestedFolder_ordersFromThatFolder() throws IOException {
+        List<FsNode> files = service.lookup(repository, "services/rating/config/AGENTS.md", false);
 
-        assertEquals(1, response.files().size());
-        assertEquals("services/rating/AGENTS.md", response.files().getFirst().path());
+        // The deepest anchor reaches every level above it, up to the repository root.
+        assertEquals(4, files.size());
+        assertEquals("services/rating/config/AGENTS.md", files.get(0).getPath());
+        assertEquals("services/rating/AGENTS.md", files.get(1).getPath());
+        assertEquals("services/AGENTS.md", files.get(2).getPath());
+        assertEquals("AGENTS.md", files.get(3).getPath());
     }
 
     @Test
-    void searchParents_collectsFromProjectRootToRepoRoot() throws IOException {
-        ProjectFileLookupResponse response = service.lookup(project, "AGENTS.md", true, true);
-
-        assertEquals(3, response.files().size());
-        assertEquals("services/rating/AGENTS.md", response.files().get(0).path());
-        assertEquals("# project agents", response.files().get(0).content());
-        assertEquals("services/AGENTS.md", response.files().get(1).path());
-        assertEquals("# services agents", response.files().get(1).content());
-        assertEquals("AGENTS.md", response.files().get(2).path());
-        assertEquals("# root agents", response.files().get(2).content());
+    void missingFile_returnsEmpty() throws IOException {
+        assertTrue(service.lookup(repository, "services/rating/MISSING.md", true).isEmpty());
     }
 
     @Test
-    void searchParents_missingFile_returnsEmpty() throws IOException {
-        ProjectFileLookupResponse response = service.lookup(project, "MISSING.md", true, false);
-
-        assertNotNull(response.files());
-        assertTrue(response.files().isEmpty());
+    void nonTextFile_returnsEmpty() throws IOException {
+        assertTrue(service.lookup(repository, "services/rating/rules.xlsx", true).isEmpty());
     }
 
     @Test
-    void searchParents_nestedRelativePath_walksLeafThroughDirectories() throws IOException {
-        // Looking up "config/AGENTS.md" with searchParents=true walks up from services/rating/config
-        // and looks for the leaf name (AGENTS.md) at every parent — including the project's own
-        // subfolders. The fixture has AGENTS.md at every level, so we see them all.
-        ProjectFileLookupResponse response = service.lookup(project, "config/AGENTS.md", true, true);
+    void projectMount_combinesInProjectTreeAndOutsideRepository() throws IOException {
+        // The services/rating project tree supplies its own AGENTS.md (project root); the design
+        // repository supplies the ancestors above the project (services + repository root). The nested
+        // config/ file is a descendant and is not visited.
+        var project = new AProject(repository, repository.check("services/rating"));
 
-        assertEquals(4, response.files().size());
-        assertEquals("services/rating/config/AGENTS.md", response.files().get(0).path());
-        assertEquals("# nested project agents", response.files().get(0).content());
-        assertEquals("services/rating/AGENTS.md", response.files().get(1).path());
-        assertEquals("# project agents", response.files().get(1).content());
-        assertEquals("services/AGENTS.md", response.files().get(2).path());
-        assertEquals("# services agents", response.files().get(2).content());
-        assertEquals("AGENTS.md", response.files().get(3).path());
-        assertEquals("# root agents", response.files().get(3).content());
+        List<FsNode> files = service.lookup(project, repository, "services/rating/AGENTS.md", true);
+
+        assertEquals(3, files.size());
+        assertEquals("services/rating/AGENTS.md", files.get(0).getPath());
+        assertEquals("# project agents", content(files.get(0)));
+        assertEquals("services/AGENTS.md", files.get(1).getPath());
+        assertEquals("AGENTS.md", files.get(2).getPath());
+    }
+
+    @Test
+    void localProject_nullRepository_searchesWithinProjectOnly() throws IOException {
+        // A local-only project has no design repository; the walk up stays within the project
+        // (config -> project root) and never reaches files above it (services, repository root).
+        var project = new AProject(repository, repository.check("services/rating"));
+
+        List<FsNode> files = service.lookup(project, null, "services/rating/config/AGENTS.md", true);
+
+        assertEquals(2, files.size());
+        assertEquals("services/rating/config/AGENTS.md", files.get(0).getPath());
+        assertEquals("services/rating/AGENTS.md", files.get(1).getPath());
+    }
+
+    @Test
+    void excludesFilesTheUserCannotRead() throws IOException {
+        // Deny READ on the repository-root AGENTS.md: it must not appear among the ancestors.
+        when(aclService.isGranted(anyString(), eq("AGENTS.md"), anyBoolean(), any(Permission.class)))
+                .thenReturn(false);
+
+        List<FsNode> files = service.lookup(repository, "services/rating/AGENTS.md", false);
+
+        assertEquals(List.of("services/rating/AGENTS.md", "services/AGENTS.md"),
+                files.stream().map(FsNode::getPath).toList());
+    }
+
+    private static String content(FsNode node) {
+        return ((FileNode) node).getContent();
     }
 
     // --- helpers ---

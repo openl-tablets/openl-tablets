@@ -4,10 +4,7 @@ import java.util.List;
 
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FsNode;
-import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
-import org.openl.util.FileUtils;
 
 /**
  * A mount the files service operates on — a project's working copy or a repository subtree.
@@ -42,8 +39,10 @@ public interface FileRoot {
     void requireModifiable();
 
     /**
-     * Walks up from {@code lookupPath} to the repository root, returning matches nearest first.
-     * The path includes the trailing file/folder name to match at each level.
+     * Finds files named like the trailing segment of {@code lookupPath} by walking up from the anchor
+     * to the repository root, returning the match at each level nearest to the anchor first. The walk
+     * goes up only — descendants and sibling branches are not visited — and is not limited to the
+     * mount's project scope.
      */
     List<FsNode> searchAncestors(String lookupPath);
 
@@ -63,19 +62,4 @@ public interface FileRoot {
      * Only called when {@link #supportsAtomicWrite()} returns {@code true}.
      */
     void writeBatch(List<FileItem> items, String comment);
-
-    /**
-     * Maps the matches of an ancestor lookup to file nodes, preserving the nearest-first order.
-     * Shared by the implementations so {@link #searchAncestors} differs only in the lookup anchor.
-     */
-    static List<FsNode> ancestorNodes(ProjectFileLookupResponse response) {
-        return response.files().stream()
-                .map(match -> (FsNode) FileNode.builder()
-                        .path(match.path())
-                        .name(FilePaths.name(match.path()))
-                        .basePath(FilePaths.parent(match.path()))
-                        .extension(FileUtils.getExtension(FilePaths.name(match.path())))
-                        .build())
-                .toList();
-    }
 }

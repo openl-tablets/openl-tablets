@@ -168,8 +168,8 @@ public interface ProjectFilesService {
     /**
      * Search files and folders. {@code SUBTREE} scope matches entries within the mount by ant-glob
      * path pattern, file extensions, type and a case-insensitive content substring. {@code ANCESTORS}
-     * scope walks up from a path to the repository root and returns matches of the pattern at each
-     * level, nearest first.
+     * scope walks up from the anchor path to the repository root, returning the same-named file at
+     * each level — not limited to the mount's project — nearest first, each with its content.
      *
      * @param root  the file root
      * @param query the search criteria

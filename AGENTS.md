@@ -11,6 +11,7 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
 - When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter automatically
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
+- Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) — extract per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes

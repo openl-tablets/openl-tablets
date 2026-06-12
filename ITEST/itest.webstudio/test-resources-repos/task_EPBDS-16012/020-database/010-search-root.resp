@@ -7,6 +7,10 @@ Content-Type: application/json
     "name": "AGENTS.md",
     "type": "file",
     "basePath": "DESIGN/rules/EPBDS-16012-db",
-    "extension": "md"
+    "extension": "md",
+    "size": 12,
+    "lastModified": "*",
+    "content": "project-root"
   }
 ]
+

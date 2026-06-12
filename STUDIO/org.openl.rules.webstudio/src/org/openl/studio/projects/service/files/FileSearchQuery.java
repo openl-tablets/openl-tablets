@@ -43,7 +43,10 @@ public record FileSearchQuery(
         SUBTREE,
 
         /**
-         * Walk up from {@code from} to the repository root, returning matches nearest first.
+         * Walk up from {@code from} to the repository root, returning the same-named file found at
+         * each level — the {@code from} file itself and every ancestor — nearest first, each with its
+         * content. The walk goes up only and is not limited to the mount's project; descendants of
+         * {@code from} and sibling branches are not visited.
          */
         ANCESTORS
     }

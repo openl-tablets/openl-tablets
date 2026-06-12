@@ -1,4 +1,4 @@
-PATCH /rest/projects/{PROJECT_DB_NAME} HTTP/1.1
+PATCH /rest/projects/{PROJECT_DB_ID} HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

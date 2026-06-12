@@ -88,8 +88,16 @@ public class ProjectFileRoot implements FileRoot {
 
     @Override
     public List<FsNode> searchAncestors(String lookupPath) {
+        // The project's artefact tree covers files inside it (working copy, flat projects included).
+        // Outside the project the search spans the whole design repository, not just this project, so
+        // resolve the design repository explicitly: getRepository() is the local working copy for an
+        // open-for-editing project. A local-only project has no design repository (null), so the search
+        // stays within the project. getRealPath() is the project's matching repository-internal path,
+        // so the anchor lands in the same namespace the search walks.
+        String real = FilePaths.trimSlashes(project.getRealPath());
+        String anchor = real.isEmpty() ? lookupPath : real + "/" + lookupPath;
         try {
-            return FileRoot.ancestorNodes(fileLookupService.lookup(project, lookupPath, true, false));
+            return fileLookupService.lookup(project, project.getDesignRepository(), anchor, true);
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }
