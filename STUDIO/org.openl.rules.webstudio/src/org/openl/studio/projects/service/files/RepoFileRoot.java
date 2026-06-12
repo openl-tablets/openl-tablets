@@ -79,12 +79,10 @@ public class RepoFileRoot implements FileRoot {
 
     @Override
     public List<FsNode> searchAncestors(String lookupPath) {
-        // Anchor the walk at the mount root: the lookup walks from the path's folder up to the
-        // repository root, matching the leaf name at each level. The "above the project" phase is a
-        // no-op here, because the mount root has no parent directory.
+        // The mount already addresses the repository by real, repository-relative paths, so the
+        // lookup path is the anchor as-is. The search walks up from the anchor to the repository root.
         try {
-            return FileRoot.ancestorNodes(
-                    fileLookupService.lookup(new AProject(repository, ROOT_PATH), lookupPath, true, false));
+            return fileLookupService.lookup(repository, lookupPath, true);
         } catch (IOException e) {
             throw new ConflictException("file.read.failed.message");
         }

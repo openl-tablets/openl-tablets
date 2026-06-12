@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "foo/Project-2/sub/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "foo/Project-2/sub",
+    "extension": "md",
+    "size": 11,
+    "lastModified": "*",
+    "content": "project-sub"
+  },
+  {
+    "path": "foo/Project-2/AGENTS.md",
+    "name": "AGENTS.md",
+    "type": "file",
+    "basePath": "foo/Project-2",
+    "extension": "md",
+    "size": 7,
+    "lastModified": "*",
+    "content": "project"
+  }
+]
+

@@ -1,0 +1,8 @@
+POST /rest/projects/{PROJECT_GIT_NAME}/file-search HTTP/1.1
+Authorization: ${ACL_USER_AUTH}
+Content-Type: application/json
+
+{
+  "pattern": "AGENTS.md",
+  "scope": "ANCESTORS"
+}

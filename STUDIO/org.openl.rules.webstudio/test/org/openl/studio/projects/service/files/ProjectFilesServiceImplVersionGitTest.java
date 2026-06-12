@@ -29,6 +29,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.util.IOUtils;
 
@@ -68,7 +69,7 @@ class ProjectFilesServiceImplVersionGitTest {
                 .thenReturn(true);
 
         root = new RepoFileRoot(repository, aclProjectsHelper,
-                new ProjectFileLookupServiceImpl(aclProjectsHelper));
+                new ProjectFileLookupServiceImpl(aclProjectsHelper, mock(RepositoryAclServiceProvider.class)));
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
                 mock(FileSearchSupport.class), mock(FileArchiveSupport.class));
     }

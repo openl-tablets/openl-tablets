@@ -3,6 +3,8 @@ package org.openl.studio.projects.service.files;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -22,12 +24,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.IOUtils;
 
@@ -58,8 +63,14 @@ class RepoFileRootAncestorsGitTest {
         lenient().when(aclProjectsHelper.hasPermission(any(AProjectArtefact.class), eq(BasePermission.READ)))
                 .thenReturn(true);
 
+        var aclService = mock(RepositoryAclService.class);
+        lenient().when(aclService.isGranted(anyString(), anyString(), anyBoolean(), any(Permission.class)))
+                .thenReturn(true);
+        var aclProvider = mock(RepositoryAclServiceProvider.class);
+        lenient().when(aclProvider.getDesignRepoAclService()).thenReturn(aclService);
+
         root = new RepoFileRoot(repository, aclProjectsHelper,
-                new ProjectFileLookupServiceImpl(aclProjectsHelper));
+                new ProjectFileLookupServiceImpl(aclProjectsHelper, aclProvider));
     }
 
     @AfterEach
@@ -70,7 +81,10 @@ class RepoFileRootAncestorsGitTest {
     }
 
     @Test
-    void walksFromPathUpToRepositoryRoot() {
+    void searchesAncestorsUpToRepositoryRoot() {
+        // From services/rating the search walks up, returning the same-named file at each level
+        // (services, root), nearest first. It crosses the project boundary but does not descend into
+        // config/.
         List<FsNode> matches = root.searchAncestors("services/rating/AGENTS.md");
 
         assertEquals(3, matches.size());
@@ -92,6 +106,7 @@ class RepoFileRootAncestorsGitTest {
             writeFile(new File(rootDir, "AGENTS.md"), "# root");
             writeFile(new File(rootDir, "services/AGENTS.md"), "# services");
             writeFile(new File(rootDir, "services/rating/AGENTS.md"), "# rating");
+            writeFile(new File(rootDir, "services/rating/config/AGENTS.md"), "# config");
             git.add().addFilepattern(".").call();
             git.commit().setMessage("Seed ancestor fixture").setCommitter("Test", "test@openl.org").call();
         }

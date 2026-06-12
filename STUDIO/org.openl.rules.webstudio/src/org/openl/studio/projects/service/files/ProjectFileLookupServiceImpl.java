@@ -3,18 +3,19 @@ package org.openl.studio.projects.service.files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.InvalidPathException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -27,26 +28,30 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.studio.common.exception.BadRequestException;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.studio.projects.model.files.ProjectFileLookupResponse;
-import org.openl.studio.projects.model.files.ProjectFileLookupResponse.ProjectFileMatch;
+import org.openl.studio.projects.model.files.FileNode;
+import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.FileUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Default {@link ProjectFileLookupService} implementation.
  *
- * <p>Project-internal matches are resolved through the project's artefact tree so that
- * per-artefact permissions and zip-backed projects are handled uniformly.
+ * <p>Walks up from the anchor folder to the repository root, collecting the same-named file found at
+ * each level — the anchor itself first, then each ancestor, ordered nearest first. Descendants of the
+ * anchor and sibling branches are not visited.
  *
- * <p>Ancestor matches are read directly from the underlying raw repository (after
- * unwrapping {@link RepositoryDelegate} and {@link FolderMapper}), since those paths
- * live outside any project's artefact tree.
+ * <p>Files inside the anchor's project are resolved through the project's artefact tree, so the
+ * working copy is reflected and zip-backed (flat) projects — whose inner files a repository listing
+ * never exposes — are handled uniformly. Ancestor files above the project are read from the underlying
+ * repository (after unwrapping {@link RepositoryDelegate} and {@link FolderMapper}); only
+ * folder-supporting repositories expose a hierarchy outside a project, so flat repositories surface
+ * the project's own files alone.
  */
 @RequiredArgsConstructor
 @Service
-@Validated
+@Slf4j
 public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
 
     /**
@@ -56,7 +61,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     static final long MAX_FILE_SIZE_BYTES = 1024L * 1024L;
 
     /**
-     * Maximum number of files the response may contain. Once reached the ancestor walk stops.
+     * Maximum number of files the response may contain. Once reached the scan stops collecting.
      */
     static final int MAX_FILES_COUNT = 32;
 
@@ -72,116 +77,187 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     );
 
     private final AclProjectsHelper aclProjectsHelper;
+    private final RepositoryAclServiceProvider aclServiceProvider;
 
     @Override
-    public ProjectFileLookupResponse lookup(@NotNull AProject project,
-                                            @NotBlank String path,
-                                            boolean searchParents,
-                                            boolean includeContent) throws IOException {
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
-            throw new ForbiddenException("default.message");
+    public List<FsNode> lookup(AProject project, Repository repository, String anchorPath, boolean includeContent)
+            throws IOException {
+        String fileName = FilePaths.name(FilePaths.trimSlashes(anchorPath));
+        if (StringUtils.isBlank(fileName) || !isTextFile(fileName)) {
+            return List.of();
         }
-        String relativePath = validatePath(path);
+        String anchorDir = FilePaths.parent(FilePaths.trimSlashes(anchorPath));
+        String base = FilePaths.trimSlashes(project.getRealPath());
 
-        List<ProjectFileMatch> matches = new ArrayList<>();
-        addProjectMatch(matches, project, relativePath, includeContent);
+        List<Candidate> candidates = new ArrayList<>();
+        // Inside the project: the artefact tree reflects the working copy and unpacks flat projects.
+        collectInProject(project, base, anchorDir, fileName, candidates);
+        // Outside the project: only a folder design repository exposes anything beyond a project. The
+        // current project is skipped here, since the artefact tree already covers it. A local-only
+        // project has no design repository ({@code null}), so the search covers just its own files.
+        // Each match is authorized individually, so the search never surfaces a file the user cannot read.
+        if (repository != null && repository.supports().folders()) {
+            collectFromRepository(unwrapRepository(repository), repository.getId(), anchorDir, fileName, base,
+                    candidates);
+        }
+        return finish(candidates, anchorDir, includeContent);
+    }
 
-        if (searchParents) {
-            String leafName = FilePaths.name(relativePath);
+    @Override
+    public List<FsNode> lookup(Repository repository, String anchorPath, boolean includeContent) throws IOException {
+        String fileName = FilePaths.name(FilePaths.trimSlashes(anchorPath));
+        if (StringUtils.isBlank(fileName) || !isTextFile(fileName)) {
+            return List.of();
+        }
+        String anchorDir = FilePaths.parent(FilePaths.trimSlashes(anchorPath));
+        List<Candidate> candidates = new ArrayList<>();
+        collectFromRepository(unwrapRepository(repository), repository.getId(), anchorDir, fileName, null, candidates);
+        return finish(candidates, anchorDir, includeContent);
+    }
 
-            // Walk WITHIN the project: from the looked-up file's directory up to the project
-            // root, looking for the leaf name at each ancestor. Goes through the project's
-            // own artefact tree so it works for both folder and flat (zip-backed) repositories.
-            String inProjectDir = FilePaths.parent(relativePath);
-            while (!inProjectDir.isEmpty() && matches.size() < MAX_FILES_COUNT) {
-                inProjectDir = FilePaths.parent(inProjectDir);
-                String inProjectPath = inProjectDir.isEmpty() ? leafName : inProjectDir + "/" + leafName;
-                addProjectMatch(matches, project, inProjectPath, includeContent);
-            }
-
-            // Walk OUTSIDE the project: from the project's parent directory up to the
-            // repository root via the raw underlying repository. Only folder-supporting
-            // repositories expose a directory hierarchy above a project, so flat repos
-            // simply skip this phase.
-            if (project.getRepository().supports().folders()) {
-                Repository rawRepository = unwrapRepository(project.getRepository());
-                String currentDir = FilePaths.trimSlashes(project.getRealPath());
-                while (!currentDir.isEmpty() && matches.size() < MAX_FILES_COUNT) {
-                    currentDir = FilePaths.parent(currentDir);
-                    addAncestorMatch(matches, rawRepository, currentDir, leafName, includeContent);
+    private void collectInProject(AProjectFolder folder, String base, String anchorDir, String fileName,
+                                  List<Candidate> out) {
+        for (AProjectArtefact artefact : folder.getArtefacts()) {
+            if (artefact.isFolder()) {
+                collectInProject((AProjectFolder) artefact, base, anchorDir, fileName, out);
+            } else {
+                Candidate candidate = candidateFromArtefact(artefact, base, anchorDir, fileName);
+                if (candidate != null) {
+                    out.add(candidate);
                 }
             }
         }
-
-        return ProjectFileLookupResponse.builder().files(matches).build();
     }
 
-    private void addProjectMatch(List<ProjectFileMatch> matches,
-                                 AProject project,
-                                 String relativePath,
-                                 boolean includeContent) throws IOException {
-        if (matches.size() >= MAX_FILES_COUNT) {
-            return;
+    /**
+     * Builds a candidate for a project file that matches by name, lies on the anchor's upward line and
+     * is readable by the current user; {@code null} when any of these does not hold.
+     */
+    private Candidate candidateFromArtefact(AProjectArtefact artefact, String base, String anchorDir,
+                                            String fileName) {
+        if (!fileName.equals(artefact.getName()) || exceedsSizeLimit(artefact.getFileData())) {
+            return null;
         }
-        if (!isTextFile(FilePaths.name(relativePath))) {
-            return;
+        String rel = FilePaths.trimSlashes(artefact.getInternalPath());
+        String path = base.isEmpty() ? rel : base + "/" + rel;
+        if (!isAncestorOrSelf(FilePaths.parent(path), anchorDir)
+                || !aclProjectsHelper.hasPermission(artefact, BasePermission.READ)) {
+            return null;
         }
-        AProjectArtefact found = findArtefactByPath(project, relativePath);
-        if (found == null || found.isFolder()) {
-            return;
-        }
-        if (exceedsSizeLimit(found.getFileData())) {
-            return;
-        }
-        if (!aclProjectsHelper.hasPermission(found, BasePermission.READ)) {
-            return;
-        }
-        var resource = (AProjectResource) found;
-        String content = null;
-        if (includeContent) {
-            content = readContent(resource);
-            if (content == null) {
-                // Too large to surface (or unreadable) — skip rather than risk an unbounded read.
-                return;
-            }
-        }
-        matches.add(ProjectFileMatch.builder()
-                .path(repositoryRelativePath(project, relativePath))
-                .content(content)
-                .build());
+        var resource = (AProjectResource) artefact;
+        return new Candidate(path, sizeOf(artefact.getFileData()), modifiedOf(artefact.getFileData()),
+                () -> readContent(resource));
     }
 
-    private void addAncestorMatch(List<ProjectFileMatch> matches,
-                                  Repository repository,
-                                  String dir,
-                                  String relativePath,
-                                  boolean includeContent) throws IOException {
-        if (matches.size() >= MAX_FILES_COUNT) {
-            return;
-        }
-        String fullPath = dir.isEmpty() ? relativePath : dir + "/" + relativePath;
-        if (!isTextFile(FilePaths.name(fullPath))) {
-            return;
-        }
-        FileData data = repository.check(fullPath);
-        if (data == null || data.isDeleted()) {
-            return;
-        }
-        if (exceedsSizeLimit(data)) {
-            return;
-        }
-        String content = null;
-        if (includeContent) {
-            content = readContent(repository, fullPath);
-            if (content == null) {
-                // Too large to surface (or unreadable) — skip rather than risk an unbounded read.
-                return;
+    /**
+     * Collects matches from a repository listing that lie on the anchor's upward line — the anchor
+     * folder and its ancestors up to the repository root, never a descendant or a sibling branch —
+     * keeping only files the current user is granted READ on. {@code excludeBase}, when set, drops the
+     * current project (already covered by its artefact tree).
+     */
+    private void collectFromRepository(Repository repository, String repositoryId, String anchorDir, String fileName,
+                                       String excludeBase, List<Candidate> out) throws IOException {
+        var aclService = aclServiceProvider.getDesignRepoAclService();
+        for (FileData data : repository.list("")) {
+            String path = FilePaths.trimSlashes(data.getName());
+            boolean match = !data.isDeleted()
+                    && !exceedsSizeLimit(data)
+                    && fileName.equals(FilePaths.name(path))
+                    && !isExcluded(path, excludeBase)
+                    && isAncestorOrSelf(FilePaths.parent(path), anchorDir)
+                    && aclService.isGranted(repositoryId, path, true, BasePermission.READ);
+            if (match) {
+                out.add(new Candidate(path, sizeOf(data), modifiedOf(data), () -> readContent(repository, path)));
             }
         }
-        matches.add(ProjectFileMatch.builder()
-                .path(fullPath)
+    }
+
+    /**
+     * Whether {@code path} is the excluded base project or one of its descendants — already covered by
+     * the project's own artefact tree. Nothing is excluded when {@code excludeBase} is blank.
+     */
+    private static boolean isExcluded(String path, String excludeBase) {
+        return !StringUtils.isBlank(excludeBase)
+                && (path.equals(excludeBase) || path.startsWith(excludeBase + "/"));
+    }
+
+    /**
+     * Whether a file in {@code dir} sits on the anchor's upward line: {@code dir} is the anchor folder
+     * itself or one of its ancestors, up to the repository root. The walk goes up only — descendants of
+     * the anchor and sibling branches are off the line and excluded.
+     */
+    private static boolean isAncestorOrSelf(String dir, String anchorDir) {
+        return dir.isEmpty() || dir.equals(anchorDir) || anchorDir.startsWith(dir + "/");
+    }
+
+    /**
+     * Orders candidates nearest to the anchor first, caps the count and (optionally) reads content.
+     */
+    private static List<FsNode> finish(List<Candidate> candidates, String anchorDir, boolean includeContent) {
+        candidates.sort(Comparator
+                .comparingInt((Candidate c) -> distance(anchorDir, FilePaths.parent(c.path())))
+                .thenComparing(Candidate::path));
+        List<FsNode> result = new ArrayList<>();
+        for (Candidate candidate : candidates) {
+            if (result.size() >= MAX_FILES_COUNT) {
+                break;
+            }
+            String content = null;
+            if (includeContent) {
+                content = readContentQuietly(candidate);
+                if (content == null) {
+                    // Too large, missing, or unreadable — skip this one rather than fail the whole lookup.
+                    continue;
+                }
+            }
+            result.add(toNode(candidate, content));
+        }
+        return result;
+    }
+
+    /**
+     * Reads a candidate's content, returning {@code null} when it is too large, missing or cannot be
+     * read. A read failure on a single file is swallowed so one unreadable ancestor is skipped instead
+     * of aborting the whole lookup.
+     */
+    private static String readContentQuietly(Candidate candidate) {
+        try {
+            return candidate.reader().read();
+        } catch (IOException | RuntimeException e) {
+            log.debug("Skipping unreadable file '{}'", candidate.path(), e);
+            return null;
+        }
+    }
+
+    private static FsNode toNode(Candidate candidate, String content) {
+        String name = FilePaths.name(candidate.path());
+        return FileNode.builder()
+                .path(candidate.path())
+                .name(name)
+                .basePath(FilePaths.parent(candidate.path()))
+                .extension(FileUtils.getExtension(name))
+                .size(candidate.size())
+                .lastModified(candidate.lastModified())
                 .content(content)
-                .build());
+                .build();
+    }
+
+    /**
+     * Directory steps between two folders in the repository tree: up to their common ancestor, then
+     * down to the target. A file in the anchor folder is distance {@code 0}, one in a child or parent
+     * folder is distance {@code 1}, and so on. Drives the nearest-first ordering.
+     */
+    private static int distance(String fromDir, String toDir) {
+        if (fromDir.equals(toDir)) {
+            return 0;
+        }
+        String[] from = fromDir.isEmpty() ? new String[0] : fromDir.split("/");
+        String[] to = toDir.isEmpty() ? new String[0] : toDir.split("/");
+        int common = 0;
+        while (common < from.length && common < to.length && from[common].equals(to[common])) {
+            common++;
+        }
+        return (from.length - common) + (to.length - common);
     }
 
     private static boolean isTextFile(String fileName) {
@@ -195,6 +271,18 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         }
         long size = data.getSize();
         return size != FileData.UNDEFINED_SIZE && size > MAX_FILE_SIZE_BYTES;
+    }
+
+    private static Long sizeOf(FileData data) {
+        if (data == null || data.getSize() == FileData.UNDEFINED_SIZE) {
+            return null;
+        }
+        return data.getSize();
+    }
+
+    private static ZonedDateTime modifiedOf(FileData data) {
+        Date date = data == null ? null : data.getModifiedAt();
+        return date == null ? null : date.toInstant().atZone(ZoneOffset.UTC);
     }
 
     private static String readContent(AProjectResource resource) throws IOException {
@@ -231,29 +319,6 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         return new String(data, StandardCharsets.UTF_8);
     }
 
-    /**
-     * Looks up an artefact stored directly under the project root.
-     *
-     * <p>{@link AProjectFolder#createInternalArtefacts()} flattens the project tree by
-     * storing every file with its full sub-path as the key (e.g. {@code "config/AGENTS.md"}),
-     * so a direct lookup by the relative path is enough — no segment-by-segment walk needed.
-     */
-    private static AProjectArtefact findArtefactByPath(AProjectFolder rootFolder, String path) {
-        if (!rootFolder.isFolder()) {
-            return null;
-        }
-        try {
-            return rootFolder.getArtefact(path);
-        } catch (ProjectException e) {
-            return null;
-        }
-    }
-
-    private static String repositoryRelativePath(AProject project, String relativePath) {
-        String real = FilePaths.trimSlashes(project.getRealPath());
-        return real.isEmpty() ? relativePath : real + "/" + relativePath;
-    }
-
     private static Repository unwrapRepository(Repository repo) {
         Repository current = repo;
         while (current instanceof RepositoryDelegate delegate) {
@@ -265,19 +330,15 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
         return current;
     }
 
-    private static String validatePath(String path) {
-        if (path == null) {
-            throw new BadRequestException("file.path.invalid.message");
-        }
-        String trimmed = path.trim();
-        if (trimmed.isEmpty()) {
-            throw new BadRequestException("file.path.invalid.message");
-        }
-        try {
-            Repository.validatePath(trimmed);
-        } catch (InvalidPathException e) {
-            throw new BadRequestException("file.path.invalid.message");
-        }
-        return trimmed;
+    /**
+     * A pending match: its repository-relative path, metadata and a way to read its content on demand,
+     * so content is read only for the entries that survive ordering and the count cap.
+     */
+    private record Candidate(String path, Long size, ZonedDateTime lastModified, ContentReader reader) {
+    }
+
+    @FunctionalInterface
+    private interface ContentReader {
+        String read() throws IOException;
     }
 }

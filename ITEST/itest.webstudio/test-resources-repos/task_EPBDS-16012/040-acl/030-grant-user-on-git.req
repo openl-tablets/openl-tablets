@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/{PROJECT_GIT_ID}?principal=true&sid=EPBDS-16012-acl-user HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "role": "VIEWER"
+}

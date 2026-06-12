@@ -1,0 +1,7 @@
+POST /rest/projects/EPBDS-15952-Project/file-search HTTP/1.1
+Content-Type: application/json
+
+{
+  "pattern": "rules.xml",
+  "scope": "ANCESTORS"
+}

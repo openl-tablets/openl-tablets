@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "EPBDS-15952-Project/rules.xml",
+    "name": "rules.xml",
+    "type": "file",
+    "basePath": "EPBDS-15952-Project",
+    "extension": "xml",
+    "size": 297,
+    "lastModified": "*",
+    "content": "<project>\n    <name>EPBDS-15952</name>\n    <modules>\n        <module>\n            <name>Main</name>\n            <rules-root path=\"Main.xlsx\"/>\n        </module>\n        <module>\n            <name>Main2</name>\n            <rules-root path=\"Main2.xlsx\"/>\n        </module>\n    </modules>\n</project>\n"
+  }
+]
+
