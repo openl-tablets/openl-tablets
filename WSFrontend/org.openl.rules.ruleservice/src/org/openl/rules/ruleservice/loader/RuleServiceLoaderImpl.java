@@ -255,7 +255,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Map<String, IProjectArtefact> resourceMap = new HashMap<>();
         for (FileData file : files) {
             String resourceName = file.getName().substring(folder.getName().length() + 1);
-            LocalProjectResource resource = new LocalProjectResource(resourceName, repository.read(file.getName()));
+            LocalProjectResource resource = new LocalProjectResource(resourceName, repository, file);
             resourceMap.put(resource.getName(), resource);
         }
         return resourceMap;
