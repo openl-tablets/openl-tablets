@@ -521,13 +521,15 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 OpenClassUtil.releaseClassLoader(cl);
             }
             externalJarsClassloaders.remove(projectDescriptor);
+            projectDescriptor.releaseClassPath();
         }
     }
 
     @Override
     public synchronized void resetAll() {
-        for (ClassLoader classLoader : externalJarsClassloaders.values()) {
-            OpenClassUtil.releaseClassLoader(classLoader);
+        for (var entry : externalJarsClassloaders.entrySet()) {
+            OpenClassUtil.releaseClassLoader(entry.getValue());
+            entry.getKey().releaseClassPath();
         }
         externalJarsClassloaders.clear();
         getDependencyLoaders().forEach(IDependencyLoader::reset);

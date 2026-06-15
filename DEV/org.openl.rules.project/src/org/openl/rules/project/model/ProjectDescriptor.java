@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.Cleaner;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -93,6 +94,19 @@ public class ProjectDescriptor {
     @XmlTransient
     private volatile URL[] classPathUrls;
 
+    private static final Cleaner CLASSPATH_CLEANER = Cleaner.create();
+
+    /** Temp jars extracted from nested archive classpath entries; deleted by {@link #releaseClassPath()} or on GC. */
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @XmlTransient
+    private final ClassPathTempFiles classPathTempFiles = new ClassPathTempFiles();
+
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @XmlTransient
+    private boolean classPathCleanupRegistered;
+
     public String getRelativeUri() {
         Path parent = projectFolder.getParent();
         if (parent == null) {
@@ -175,7 +189,7 @@ public class ProjectDescriptor {
                                     try {
                                         Path temp = Files.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
                                                 FileUtils.getExtension(path));
-                                        temp.toFile().deleteOnExit();
+                                        classPathTempFiles.add(temp);
                                         try (InputStream is = url.openStream()) {
                                             Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
                                         }
@@ -202,10 +216,60 @@ public class ProjectDescriptor {
                         }
                     }
                     classPathUrls = urls.toArray(new URL[0]);
+                    if (!classPathCleanupRegistered && !classPathTempFiles.isEmpty()) {
+                        CLASSPATH_CLEANER.register(this, classPathTempFiles);
+                        classPathCleanupRegistered = true;
+                    }
                 }
             }
         }
         return classPathUrls;
+    }
+
+    /**
+     * Deletes the temporary jars that {@link #getClassPathUrls()} extracts from nested archive classpath entries and
+     * drops the cached classpath URLs.
+     *
+     * <p>The extracted jars must stay on disk while the class loader built from the classpath URLs is in use, so call
+     * this only after that class loader is released. A later {@link #getClassPathUrls()} call recomputes the classpath.
+     */
+    public synchronized void releaseClassPath() {
+        classPathTempFiles.run();
+        classPathUrls = null;
+    }
+
+    /**
+     * Holds the temp jars {@link #getClassPathUrls()} extracts from nested archive classpath entries and deletes them
+     * when run — either explicitly via {@link #releaseClassPath()} or, for callers that never release, when the owning
+     * descriptor is garbage-collected. Keeps no reference back to the descriptor, so it never blocks its collection.
+     */
+    private static final class ClassPathTempFiles implements Runnable {
+
+        private final List<Path> files = new ArrayList<>();
+
+        synchronized void add(Path file) {
+            files.add(file);
+        }
+
+        synchronized boolean isEmpty() {
+            return files.isEmpty();
+        }
+
+        @Override
+        public synchronized void run() {
+            List<Path> failed = new ArrayList<>();
+            for (Path file : files) {
+                try {
+                    Files.deleteIfExists(file);
+                } catch (IOException e) {
+                    log.warn("Failed to delete temporary classpath file '{}'.", file, e);
+                    failed.add(file);
+                }
+            }
+            // Keep only the files that failed to delete so a later run() (e.g. on GC) can retry them.
+            files.clear();
+            files.addAll(failed);
+        }
     }
 
     private static final List<String> DEFAULT_CLASSPATH = List.of("groovy/", "lib/*.jar");
