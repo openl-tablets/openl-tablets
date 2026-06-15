@@ -67,14 +67,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
-        te.setPoolSize(1);
-        te.setThreadNamePrefix("ws-heartbeat-thread-");
-        te.initialize();
         registry.enableSimpleBroker("/topic", "/queue") // for broadcast messages to all subscribers
-                .setTaskScheduler(te);
+                .setTaskScheduler(messageBrokerTaskScheduler());
         registry.setUserDestinationPrefix("/user"); // for user-specific destinations
         registry.setApplicationDestinationPrefixes("/app"); // prefix for messages sent to the server
+    }
+
+    // Spring-managed so the heartbeat scheduler is shut down on context close. Its worker thread is
+    // non-daemon and would otherwise outlive the context and keep the JVM alive after Tomcat stops.
+    @Bean
+    public ThreadPoolTaskScheduler messageBrokerTaskScheduler() {
+        var scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("ws-heartbeat-thread-");
+        scheduler.setDaemon(true);
+        return scheduler;
     }
 
     @Override
