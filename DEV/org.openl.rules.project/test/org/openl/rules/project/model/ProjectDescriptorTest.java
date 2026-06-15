@@ -10,9 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -282,6 +285,46 @@ class ProjectDescriptorTest {
             var projectDescriptor = ProjectDescriptor.read(fs.getPath("/internal/rules-clspth.xml")).expand();
             assertEquals(10, projectDescriptor.getClassPathUrls().length);
             assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
+        }
+    }
+
+    @Test
+    void zipArchive_releaseClassPathDeletesExtractedTempJars() throws Exception {
+        try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
+            var projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
+
+            // Nested jars inside the project archive are extracted to temp files in java.io.tmpdir.
+            List<Path> tempJars = new ArrayList<>();
+            for (URL url : projectDescriptor.getClassPathUrls()) {
+                Path path = toFilePath(url);
+                if (path != null && path.getFileName().toString().startsWith("tmp-")) {
+                    tempJars.add(path);
+                }
+            }
+            assertFalse(tempJars.isEmpty(), "expected nested jars to be extracted to temp files");
+            for (Path tempJar : tempJars) {
+                assertTrue(Files.exists(tempJar), "temp jar must exist before release: " + tempJar);
+            }
+
+            projectDescriptor.releaseClassPath();
+
+            for (Path tempJar : tempJars) {
+                assertFalse(Files.exists(tempJar), "temp jar must be deleted after release: " + tempJar);
+            }
+        }
+    }
+
+    @Test
+    void zipArchive_extractedTempJarsAreDeletedWhenDescriptorIsCollected() throws Exception {
+        try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
+            List<Path> tempJars = extractClasspathTempJars(fs);
+            assertFalse(tempJars.isEmpty(), "expected nested jars to be extracted to temp files");
+            tempJars.forEach(p -> assertTrue(Files.exists(p), "temp jar must exist before GC: " + p));
+
+            // No explicit releaseClassPath(): the descriptor is dropped, like callers that never release it
+            // (PropertiesFileNameProcessorBuilder / ProjectResourceLoader). The Cleaner must delete the temp jars
+            // once the descriptor is garbage-collected.
+            awaitDeleted(tempJars);
         }
     }
 
@@ -729,5 +772,37 @@ class ProjectDescriptorTest {
 
     private static FileSystem openZipFile(Path path) throws IOException {
         return FileSystems.newFileSystem(path, Thread.currentThread().getContextClassLoader());
+    }
+
+    private static Path toFilePath(URL url) {
+        try {
+            return "file".equals(url.getProtocol()) ? Path.of(url.toURI()) : null;
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+
+    private static List<Path> extractClasspathTempJars(FileSystem fs) throws Exception {
+        // Kept in a separate method so the descriptor reference does not survive on the caller's frame
+        // and can be garbage-collected.
+        ProjectDescriptor projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
+        List<Path> tempJars = new ArrayList<>();
+        for (URL url : projectDescriptor.getClassPathUrls()) {
+            Path path = toFilePath(url);
+            if (path != null && path.getFileName().toString().startsWith("tmp-")) {
+                tempJars.add(path);
+            }
+        }
+        return tempJars;
+    }
+
+    private static void awaitDeleted(List<Path> files) throws InterruptedException {
+        // Generous timeout (~10s) so the GC + Cleaner have time under CI load; the loop exits early once deleted.
+        for (int i = 0; i < 200 && files.stream().anyMatch(Files::exists); i++) {
+            System.gc();
+            Thread.sleep(50);
+        }
+        files.forEach(p -> assertFalse(Files.exists(p),
+                "temp jar must be deleted after the descriptor is garbage-collected: " + p));
     }
 }
