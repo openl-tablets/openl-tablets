@@ -2,6 +2,8 @@ package org.openl.rules.core.ce;
 
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
@@ -11,7 +13,7 @@ import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+    private volatile ForkJoinPool forkJoinPool;
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
@@ -19,6 +21,47 @@ public final class ServiceMT {
 
     public static ServiceMT getInstance() {
         return ServiceMTHolder.INSTANCE;
+    }
+
+    private ForkJoinPool pool() {
+        ForkJoinPool pool = forkJoinPool;
+        if (pool == null || pool.isShutdown()) {
+            synchronized (this) {
+                pool = forkJoinPool;
+                if (pool == null || pool.isShutdown()) {
+                    pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+                    forkJoinPool = pool;
+                }
+            }
+        }
+        return pool;
+    }
+
+    /**
+     * Shuts down the parallel-execution pool and waits briefly for its worker threads to terminate.
+     *
+     * <p>Call this when the owning context is closed (e.g. on web application undeploy) so the pool threads do not
+     * outlive it — the servlet container reports such threads as a leak. A later {@link #execute(IRuntimeEnv, Runnable)}
+     * lazily recreates the pool.
+     */
+    public void shutdown() {
+        ForkJoinPool pool;
+        synchronized (this) {
+            pool = forkJoinPool;
+            forkJoinPool = null;
+        }
+        if (pool == null) {
+            return;
+        }
+        pool.shutdown();
+        try {
+            if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+                pool.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            pool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void execute(IRuntimeEnv env, Runnable runnable) {
@@ -34,7 +77,13 @@ public final class ServiceMT {
         if (simpleRuntimeEnv instanceof SimpleRulesRuntimeEnvMT) {
             action.fork();
         } else {
-            forkJoinPool.execute(action);
+            try {
+                pool().execute(action);
+            } catch (RejectedExecutionException e) {
+                // The pool can be shut down concurrently (e.g. on context close) between pool() and execute(). Run the
+                // already-pushed action inline so it still completes and join() does not block on an unscheduled task.
+                action.quietlyInvoke();
+            }
         }
     }
 
