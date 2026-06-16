@@ -27,6 +27,11 @@
             <groupId>org.openl.jgit</groupId>
             <artifactId>org.eclipse.jgit.lfs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- OpenL dependencies -->
         <dependency>

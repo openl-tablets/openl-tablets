@@ -18,6 +18,7 @@ import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.Git;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -102,7 +103,6 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         Migrator.migrate();
 
         applicationContext.refresh();
-        applicationContext.registerShutdownHook();
         // Store Spring context object for accessing from code.
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
@@ -141,6 +141,9 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         servletContext.removeAttribute(THIS);
         servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         applicationContext.close();
+        // Release JGit's process-wide resources only after the context has closed every repository, so a repository
+        // teardown cannot submit work to an already-terminated JGit worker.
+        Git.shutdown();
         releaseTimer();
     }
 
