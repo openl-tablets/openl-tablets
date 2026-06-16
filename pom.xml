@@ -174,7 +174,7 @@
 
         <!-- Mail -->
         <angus-mail.version>2.0.5</angus-mail.version>
-        <greenmail.version>2.1.8</greenmail.version>
+        <greenmail.version>2.1.9</greenmail.version>
 
         <!-- XML -->
         <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
