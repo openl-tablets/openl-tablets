@@ -32,7 +32,7 @@ vi.mock('react-i18next', () => {
 vi.mock('antd', () => {
     return {
         Space: ({ children }: any) => <div>{children}</div>,
-        Button: ({ children, onClick, disabled, loading, icon, size, type: _, ...rest }: any) => (
+        Button: ({ children, onClick, disabled, loading, icon }: any) => (
             <button disabled={disabled || loading} onClick={onClick}>{icon}{children}</button>
         ),
         Alert: ({ title, type }: any) => <div data-type={type} role="alert">{title}</div>,
@@ -56,14 +56,14 @@ vi.mock('antd', () => {
             }
         ),
         Typography: {
-            Text: ({ children, strong, type: _, ellipsis, ...rest }: any) => (
+            Text: ({ children, strong }: any) => (
                 <span style={strong ? { fontWeight: 'bold' } : undefined}>{children}</span>
             ),
         },
         Input: Object.assign(
             (props: any) => <input {...props} />,
             {
-                TextArea: ({ value, onChange, placeholder, autoSize, ...rest }: any) => (
+                TextArea: ({ value, onChange, placeholder }: any) => (
                     <textarea
                         onChange={onChange}
                         placeholder={placeholder}
@@ -72,8 +72,8 @@ vi.mock('antd', () => {
                 ),
             }
         ),
-        Tooltip: ({ children, title }: any) => <>{children}</>,
-        Upload: ({ children, beforeUpload, maxCount, showUploadList }: any) => (
+        Tooltip: ({ children }: any) => <>{children}</>,
+        Upload: ({ children }: any) => (
             <div data-testid="upload">{children}</div>
         ),
         Table: ({ dataSource, columns }: any) => (
@@ -104,7 +104,7 @@ vi.mock('antd', () => {
                 ),
             }
         ),
-        Spin: ({ children, size }: any) => <div data-testid="spin">{children}</div>,
+        Spin: ({ children }: any) => <div data-testid="spin">{children}</div>,
         notification: {
             success: vi.fn(),
             warning: vi.fn(),

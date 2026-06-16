@@ -104,7 +104,7 @@ export const Header = () => {
                         />
                     </Col>
                     <Col>
-                        <Avatar icon={<UserOutlined />}  onClick={onOpenUserMenu}/>
+                        <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
                     </Col>
                 </Row>
                 <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />

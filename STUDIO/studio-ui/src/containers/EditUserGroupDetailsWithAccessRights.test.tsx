@@ -28,7 +28,7 @@ vi.mock('antd', async () => {
     const actual = await vi.importActual('antd')
     return {
         ...actual,
-        Drawer: ({ open, title, extra, children, onClose }: any) => {
+        Drawer: ({ open, title, extra, children }: any) => {
             if (!open) return null
             return (
                 <div data-testid="drawer">

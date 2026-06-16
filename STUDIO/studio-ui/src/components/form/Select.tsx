@@ -93,9 +93,9 @@ const Select: FC<SelectProps> = ({
                 defaultActiveFirstOption={defaultActiveFirstOption}
                 disabled={isDisabled}
                 filterOption={filterOption}
-                showSearch={showSearch}
                 // @ts-ignore
                 options={predefinedOptions || options}
+                showSearch={showSearch}
                 {...(mode !== undefined && { mode })}
                 {...(notFoundContent !== undefined && { notFoundContent })}
                 {...(onBlur !== undefined && { onBlur })}

@@ -260,7 +260,7 @@ export const DeployModal: React.FC = () => {
                 </div>
             }
         >
-            <Spin spinning={isDeploying} description={t('deploy:messages.deploying_configuration')}>
+            <Spin description={t('deploy:messages.deploying_configuration')} spinning={isDeploying}>
                 <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
                     <Form
                         labelWrap

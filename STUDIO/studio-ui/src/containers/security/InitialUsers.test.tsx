@@ -15,7 +15,7 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('components', () => ({
-    Select: ({ label, name, mode, options, ...rest }: any) => (
+    Select: ({ label, name, mode, options }: any) => (
         <div data-testid={`select-${name}`}>
             <label>{label}</label>
             {mode === 'tags' ? (

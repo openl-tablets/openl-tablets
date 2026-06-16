@@ -445,7 +445,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
 
     // Render the tabs with repositories
     return (
-        <Spin spinning={isLoading} description={t('repository:messages.waiting_for_repository_operation')}>
+        <Spin description={t('repository:messages.waiting_for_repository_operation')} spinning={isLoading}>
             <Tabs
                 destroyOnHidden
                 hideAdd

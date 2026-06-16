@@ -433,13 +433,11 @@ describe('Security', () => {
     it('shows error notification on save failure', async () => {
         mockUserMode = SecurityUserMode.MULTI
 
-        let saveCallCount = 0
         mockApiCall.mockImplementation((url: string, options?: any) => {
             // The save call is the one with Content-Type: application/merge-patch+json
             if (options?.headers?.['Content-Type'] === 'application/merge-patch+json') {
                 return Promise.reject(new Error('Save failed'))
             }
-            saveCallCount++
             return Promise.resolve(defaultSettings)
         })
 
