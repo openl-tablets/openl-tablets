@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
+import perfectionist from 'eslint-plugin-perfectionist'
 import stylistic from '@stylistic/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import globals from 'globals'
@@ -25,6 +26,7 @@ export default [
             '@stylistic': stylistic,
             'react-hooks': reactHooks,
             '@typescript-eslint': tsPlugin,
+            'perfectionist': perfectionist,
         },
         rules: {
             'no-unused-vars': 'off',
@@ -68,15 +70,14 @@ export default [
             '@stylistic/jsx-newline': ['error', { 'prevent': true }],
             '@stylistic/no-multi-spaces': 'error',
             '@stylistic/jsx-self-closing-comp': ['error', { 'component': true, 'html': true }],
-            '@stylistic/jsx-sort-props': ['warn', {
-                'callbacksLast': false,
-                'shorthandFirst': true,
-                'shorthandLast': false,
-                'multiline': 'last',
+            'perfectionist/sort-jsx-props': ['warn', {
+                'type': 'alphabetical',
+                'order': 'asc',
                 'ignoreCase': true,
-                'noSortAlphabetically': false,
-                'reservedFirst': true,
-                'locale': 'auto'
+                'groups': ['reserved', 'shorthand-prop', 'unknown', 'multiline-prop'],
+                'customGroups': [
+                    { 'groupName': 'reserved', 'elementNamePattern': '^(?:key|ref)$' },
+                ],
             }],
             '@stylistic/jsx-tag-spacing': ['error', { 'beforeSelfClosing': 'always' }],
             '@stylistic/jsx-wrap-multilines': ['warn', {
