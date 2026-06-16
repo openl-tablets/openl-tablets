@@ -273,7 +273,7 @@ This section describes test execution. Proceed as follows:
 2.  Navigate to the **Run** button above the Test table and click the small black arrow ![](images/run-dropdown-arrow-icon.png).
 3.  In the pop-up window that appears, select or clear the check boxes for the appropriate IDs, and to run several particular test cases, define them in the **Use the Range** field.
 
-    ![](images/select-test-cases-range.jpeg)
+    ![](images/select-test-cases-range.png)
 
     *Select test cases via Range field to be executed*
 
@@ -362,13 +362,13 @@ When using the tracing functionality, users can check the result of each step of
 2.  Enter parameters to be traced in the pop-up window.
 3.  If necessary, specify whether tracing must be applied to the rules of the current module and its dependent modules only.
 
-    ![](images/trace-rule-table-form.jpeg)
+    ![](images/trace-rule-table-form.png)
 
     *Tracing a rule for a rule table*
 
 1.  To use JSON data and prefill fields with data extracted from log or provided by developers, select **JSON.**
 
-    ![](images/trace-json-option.jpeg)
+    ![](images/trace-json-option.png)
 
     *Selecting the JSON option for tracing*
 
@@ -381,7 +381,7 @@ If there is a set of test cases and the result of each step of the rule and how 
 1.  Open the required Test table.
 2.  To open a pop-up with test cases to be traced, click the **Trace** button.
 
-    ![](images/trace-test-table-popup.jpeg)
+    ![](images/trace-test-table-popup.png)
 
     *Tracing of a Test table*
 
@@ -423,7 +423,7 @@ OpenL Studio provides benchmarking tools for measuring execution time for all ap
 
 The benchmarking icon is displayed above the table to be traced.
 
-![](images/benchmarking-controls.jpeg)
+![](images/benchmarking-controls.png)
 
 *Controls for measuring performance*
 

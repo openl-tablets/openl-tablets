@@ -325,7 +325,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     -   Right-click anywhere in the table and click **Edit**.
     -   Double click the cell to edit.
 
-    Alternatively, the file can be edited in Excel. Clicking the **Open** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or via the repository.
+    Alternatively, the file can be edited in Excel. Clicking the **Export** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or via the repository.
 
     The following table is switched to the edit mode:
 
@@ -578,7 +578,7 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
 1.  Click **Search** to run the search.
 
-As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **Edit Table** links leading to the table editing page.
+As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **View Table** links leading to the table editing page.
 
 ![](images/advanced-search-results.png)
 
