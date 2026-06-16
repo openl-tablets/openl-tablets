@@ -1,4 +1,4 @@
-import { createContext }  from 'react'
+import { createContext } from 'react'
 import { OpenlInfo, SystemSettings } from '../types/system'
 
 type SystemContextType = {

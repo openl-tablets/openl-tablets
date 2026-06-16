@@ -63,11 +63,10 @@ export default [
             '@stylistic/jsx-curly-spacing': [2, 'never'],
             '@stylistic/jsx-equals-spacing': ['error', 'never'],
             '@stylistic/jsx-first-prop-new-line': ['error', 'multiline'],
-            '@stylistic/jsx-indent': ['error', 4, { 'checkAttributes': true, 'indentLogicalExpressions': true }],
             '@stylistic/jsx-indent-props': ['error', 4],
             '@stylistic/jsx-max-props-per-line': ['error', { 'maximum': 1, 'when': 'multiline' }],
             '@stylistic/jsx-newline': ['error', { 'prevent': true }],
-            '@stylistic/jsx-props-no-multi-spaces': 'error',
+            '@stylistic/no-multi-spaces': 'error',
             '@stylistic/jsx-self-closing-comp': ['error', { 'component': true, 'html': true }],
             '@stylistic/jsx-sort-props': ['warn', {
                 'callbacksLast': false,

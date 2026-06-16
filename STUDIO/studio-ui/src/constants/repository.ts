@@ -13,5 +13,5 @@ export enum RepositoryType {
  */
 export const ROOT_REPOSITORY_ID_MAP: Record<RepositoryType, string> = {
     [RepositoryType.DESIGN]: 'REVTSUdO', // Base64('DESIGN')
-    [RepositoryType.PROD]: 'UFJPRA=='    // Base64('PROD')
+    [RepositoryType.PROD]: 'UFJPRA==' // Base64('PROD')
 }

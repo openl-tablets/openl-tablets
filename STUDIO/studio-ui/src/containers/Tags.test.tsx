@@ -60,8 +60,8 @@ describe('Tags', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockApiCall
-            .mockResolvedValueOnce(mockTagTypes)   // fetchTagTypes
-            .mockResolvedValueOnce(['%Domain%-*'])  // fetchTemplates
+            .mockResolvedValueOnce(mockTagTypes) // fetchTagTypes
+            .mockResolvedValueOnce(['%Domain%-*']) // fetchTemplates
     })
 
     it('renders and loads tag types and templates on mount', async () => {
@@ -168,7 +168,7 @@ describe('Tags', () => {
         mockApiCall.mockReset()
         mockApiCall
             .mockResolvedValueOnce(undefined) // fetchTagTypes returns undefined on error
-            .mockResolvedValueOnce([])        // fetchTemplates
+            .mockResolvedValueOnce([]) // fetchTemplates
 
         await act(async () => {
             render(<Tags />)

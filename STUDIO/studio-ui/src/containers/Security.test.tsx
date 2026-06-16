@@ -297,7 +297,7 @@ describe('Security', () => {
         const groupsResponse = { Admins: {}, Viewers: {} }
         mockApiCall
             .mockResolvedValueOnce(adSettings) // fetchSecuritySettings
-            .mockResolvedValueOnce(groupsResponse)  // fetchUserGroups
+            .mockResolvedValueOnce(groupsResponse) // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
 
         await act(async () => {
@@ -365,9 +365,9 @@ describe('Security', () => {
     it('fetches template when userMode changes from initial', async () => {
         const templateResponse = { ...defaultSettings, userMode: 'ad' }
         mockApiCall
-            .mockResolvedValueOnce(defaultSettings)  // fetchSecuritySettings
-            .mockResolvedValueOnce(templateResponse)  // fetchSecuritySettingsTemplate
-            .mockResolvedValueOnce({ Admins: {} })    // fetchUserGroups
+            .mockResolvedValueOnce(defaultSettings) // fetchSecuritySettings
+            .mockResolvedValueOnce(templateResponse) // fetchSecuritySettingsTemplate
+            .mockResolvedValueOnce({ Admins: {} }) // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
 
         await act(async () => {

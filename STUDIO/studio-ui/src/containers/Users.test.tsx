@@ -280,9 +280,9 @@ describe('Users', () => {
 
     it('calls delete API and refreshes users on confirm', async () => {
         mockApiCall
-            .mockResolvedValueOnce(mockUsers)     // initial fetchUsers
-            .mockResolvedValueOnce(undefined)       // DELETE /users/viewer
-            .mockResolvedValueOnce([mockUsers[0]])  // refetch after delete
+            .mockResolvedValueOnce(mockUsers) // initial fetchUsers
+            .mockResolvedValueOnce(undefined) // DELETE /users/viewer
+            .mockResolvedValueOnce([mockUsers[0]]) // refetch after delete
 
         await act(async () => {
             renderUsers()

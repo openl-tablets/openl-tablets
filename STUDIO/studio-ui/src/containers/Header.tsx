@@ -44,7 +44,7 @@ export const Header = () => {
     ]
 
     const goTo = (key = `${CONFIG.CONTEXT}/`) => {
-        window.location.href =  key
+        window.location.href = key
     }
 
     const Notify = useMemo(() => {

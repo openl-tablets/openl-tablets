@@ -24,7 +24,7 @@ export const UserProfile: React.FC = () => {
     const handleSubmit = async (values: UserProfileFormFields) => {
         const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
         const { username: _, displayNameSelect, changePassword, ...restFormValues } = values
-        const { newPassword = '', currentPassword = '', confirmPassword = '' }  = changePassword || {}
+        const { newPassword = '', currentPassword = '', confirmPassword = '' } = changePassword || {}
 
         // Show verification warning only when user changed an existing email to another (not when adding email to empty field)
         const emailChanged = userProfile?.email !== values.email
