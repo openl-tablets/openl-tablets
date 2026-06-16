@@ -1,6 +1,6 @@
 import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
-import stylisticJsx from '@stylistic/eslint-plugin-jsx'
+import stylistic from '@stylistic/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import globals from 'globals'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
@@ -22,7 +22,7 @@ export default [
             },
         },
         plugins: {
-            '@stylistic/jsx': stylisticJsx,
+            '@stylistic': stylistic,
             'react-hooks': reactHooks,
             '@typescript-eslint': tsPlugin,
         },
@@ -55,21 +55,21 @@ export default [
                 'functions': 'never',
             }],
             // JSX stylistic rules
-            '@stylistic/jsx/jsx-child-element-spacing': ['error'],
-            '@stylistic/jsx/jsx-closing-bracket-location': ['error', 'line-aligned'],
-            '@stylistic/jsx/jsx-closing-tag-location': 'error',
-            '@stylistic/jsx/jsx-curly-brace-presence': ['error', { 'props': 'never', 'children': 'never', 'propElementValues': 'always' }],
-            '@stylistic/jsx/jsx-curly-newline': ['error', { 'multiline': 'consistent', 'singleline': 'consistent' }],
-            '@stylistic/jsx/jsx-curly-spacing': [2, 'never'],
-            '@stylistic/jsx/jsx-equals-spacing': ['error', 'never'],
-            '@stylistic/jsx/jsx-first-prop-new-line': ['error', 'multiline'],
-            '@stylistic/jsx/jsx-indent': ['error', 4, { 'checkAttributes': true, 'indentLogicalExpressions': true }],
-            '@stylistic/jsx/jsx-indent-props': ['error', 4],
-            '@stylistic/jsx/jsx-max-props-per-line': ['error', { 'maximum': 1, 'when': 'multiline' }],
-            '@stylistic/jsx/jsx-newline': ['error', { 'prevent': true }],
-            '@stylistic/jsx/jsx-props-no-multi-spaces': 'error',
-            '@stylistic/jsx/jsx-self-closing-comp': ['error', { 'component': true, 'html': true }],
-            '@stylistic/jsx/jsx-sort-props': ['warn', {
+            '@stylistic/jsx-child-element-spacing': ['error'],
+            '@stylistic/jsx-closing-bracket-location': ['error', 'line-aligned'],
+            '@stylistic/jsx-closing-tag-location': 'error',
+            '@stylistic/jsx-curly-brace-presence': ['error', { 'props': 'never', 'children': 'never', 'propElementValues': 'always' }],
+            '@stylistic/jsx-curly-newline': ['error', { 'multiline': 'consistent', 'singleline': 'consistent' }],
+            '@stylistic/jsx-curly-spacing': [2, 'never'],
+            '@stylistic/jsx-equals-spacing': ['error', 'never'],
+            '@stylistic/jsx-first-prop-new-line': ['error', 'multiline'],
+            '@stylistic/jsx-indent': ['error', 4, { 'checkAttributes': true, 'indentLogicalExpressions': true }],
+            '@stylistic/jsx-indent-props': ['error', 4],
+            '@stylistic/jsx-max-props-per-line': ['error', { 'maximum': 1, 'when': 'multiline' }],
+            '@stylistic/jsx-newline': ['error', { 'prevent': true }],
+            '@stylistic/jsx-props-no-multi-spaces': 'error',
+            '@stylistic/jsx-self-closing-comp': ['error', { 'component': true, 'html': true }],
+            '@stylistic/jsx-sort-props': ['warn', {
                 'callbacksLast': false,
                 'shorthandFirst': true,
                 'shorthandLast': false,
@@ -79,8 +79,8 @@ export default [
                 'reservedFirst': true,
                 'locale': 'auto'
             }],
-            '@stylistic/jsx/jsx-tag-spacing': ['error', { 'beforeSelfClosing': 'always' }],
-            '@stylistic/jsx/jsx-wrap-multilines': ['warn', {
+            '@stylistic/jsx-tag-spacing': ['error', { 'beforeSelfClosing': 'always' }],
+            '@stylistic/jsx-wrap-multilines': ['warn', {
                 'declaration': 'parens',
                 'assignment': 'parens',
                 'return': 'parens',
