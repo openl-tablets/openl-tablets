@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -112,6 +114,26 @@ public class FileSystemRepositoryTest {
         assertSave(repo, "folder", "multiple", calendar.getTime(), "folder/file1");
         assertSave(repo, "fol/der/", "text", calendar.getTime(), "fol/der/file1", "fol/der/file2");
 
+    }
+
+    @Test
+    public void listMustStayInsideRoot() throws IOException {
+        var root = tmpDir.resolve("repo");
+        FileSystemRepository repo = new FileSystemRepository();
+        repo.setRoot(root);
+        repo.initialize();
+        assertSave(repo, "folder/text", "The file in the folder");
+
+        // A blank project name resolves to the path "/". It must not escape to the file-system root
+        // and walk the whole machine. Out-of-root paths are rejected instead.
+        assertThrows(InvalidPathException.class, () -> repo.list("/"), "Absolute path must be rejected");
+        assertThrows(InvalidPathException.class, () -> repo.list("../"), "Parent path must be rejected");
+        assertThrows(InvalidPathException.class, () -> repo.listFolders("/"), "Absolute path must be rejected");
+        assertThrows(InvalidPathException.class, () -> repo.listFolders("../"), "Parent path must be rejected");
+
+        // Valid relative paths keep working.
+        assertList(repo, "", 1);
+        assertList(repo, "folder/", 1);
     }
 
     private void assertNoRead(Repository repo, String name) throws IOException {

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
@@ -77,9 +78,28 @@ public class FileSystemRepository implements Repository, Closeable {
         return name;
     }
 
+    /**
+     * Resolves a repository path against the root folder and keeps it inside the root.
+     *
+     * A path that points outside the root, such as an absolute path or one with leading parent
+     * segments, is rejected. This keeps listing and traversal within the repository.
+     *
+     * @param path repository path to resolve
+     * @return the resolved path located inside the repository root
+     * @throws InvalidPathException if the path points outside the repository root
+     */
+    private Path resolveInRoot(String path) {
+        var base = root.toAbsolutePath().normalize();
+        var resolved = root.resolve(path);
+        if (!resolved.toAbsolutePath().normalize().startsWith(base)) {
+            throw new InvalidPathException(path, "Path is outside the repository root");
+        }
+        return resolved;
+    }
+
     @Override
     public List<FileData> list(String path) throws IOException {
-        var directory = root.resolve(path);
+        var directory = resolveInRoot(path);
         if (Files.isDirectory(directory)) {
             try (var stream = Files.walk(directory)) {
                 var list = new ArrayList<FileData>();
@@ -101,7 +121,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileData check(String name) throws IOException {
-        var file = root.resolve(name);
+        var file = resolveInRoot(name);
         if (Files.exists(file)) {
             return getFileData(file);
         }
@@ -110,7 +130,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileItem read(String name) throws IOException {
-        var file = root.resolve(name);
+        var file = resolveInRoot(name);
         if (Files.exists(file)) {
             var data = getFileData(file);
             var stream = Files.newInputStream(file);
@@ -128,7 +148,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     private FileData write(FileData data, InputStream stream) throws IOException {
         var dataName = data.getName();
-        var file = root.resolve(dataName);
+        var file = resolveInRoot(dataName);
         var parent = file.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
@@ -155,7 +175,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        var file = root.resolve(data.getName());
+        var file = resolveInRoot(data.getName());
         try {
             FileUtils.delete(file); //FIXME: Use Files.delete() because this API should delete only one file
         } catch (FileNotFoundException e) {
@@ -172,7 +192,7 @@ public class FileSystemRepository implements Repository, Closeable {
     public boolean delete(List<FileData> data) throws IOException {
         boolean deleted = false;
         for (var fd : data) {
-            var f = root.resolve(fd.getName());
+            var f = resolveInRoot(fd.getName());
             try {
                 Files.delete(f);
                 deleted = true;
@@ -206,8 +226,8 @@ public class FileSystemRepository implements Repository, Closeable {
     }
 
     private FileData copy(String srcName, FileData destData) throws IOException {
-        var srcFile = root.resolve(srcName);
-        var destFile = root.resolve(destData.getName());
+        var srcFile = resolveInRoot(srcName);
+        var destFile = resolveInRoot(destData.getName());
         Files.createDirectories(destFile.getParent());
         Files.copy(srcFile, destFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
         return getFileData(destFile);
@@ -223,7 +243,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listHistory(String name) {
-        var file = root.resolve(name);
+        var file = resolveInRoot(name);
         try {
             if (Files.exists(file)) {
                 FileData data = getFileData(file);
@@ -317,7 +337,7 @@ public class FileSystemRepository implements Repository, Closeable {
     @Override
     public List<FileData> listFolders(String path) {
         var files = new ArrayList<FileData>();
-        var directory = root.resolve(path);
+        var directory = resolveInRoot(path);
         if (Files.isDirectory(directory)) {
             try (var stream = Files.list(directory)) {
                 stream.filter(Files::isDirectory).forEach(file -> {
@@ -359,7 +379,7 @@ public class FileSystemRepository implements Repository, Closeable {
         var savedFiles = new ArrayList<Path>();
         for (var change : files) {
             var data = change.getData();
-            var file = root.resolve(data.getName());
+            var file = resolveInRoot(data.getName());
             savedFiles.add(file);
             Files.createDirectories(file.getParent());
 
@@ -374,7 +394,7 @@ public class FileSystemRepository implements Repository, Closeable {
             }
         }
 
-        var folder = root.resolve(folderData.getName());
+        var folder = resolveInRoot(folderData.getName());
         if (changesetType == ChangesetType.FULL) {
             removeAbsentFiles(folder, savedFiles);
         }
