@@ -206,24 +206,28 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public void setListener(final Listener callback) {
-        delegate.setListener(() -> {
-            indexLock.writeLock().lock();
-            try {
-                ProjectIndex working = getUpToDateMapping(false);
-                boolean modified = syncProjectIndex(delegate, working);
-                if (modified) {
-                    indexCache.set(new ProjectIndexCache(working));
+        if (callback == null) {
+            // Removing the listener must actually stop the monitor; wrapping null would restart it and trigger a fetch.
+            // As a result, application cannot correctly release all resources at shutdown
+            delegate.setListener(null);
+        } else {
+            delegate.setListener(() -> {
+                indexLock.writeLock().lock();
+                try {
+                    ProjectIndex working = getUpToDateMapping(false);
+                    boolean modified = syncProjectIndex(delegate, working);
+                    if (modified) {
+                        indexCache.set(new ProjectIndexCache(working));
+                    }
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                } finally {
+                    indexLock.writeLock().unlock();
                 }
-            } catch (Exception e) {
-                log.warn(e.getMessage(), e);
-            } finally {
-                indexLock.writeLock().unlock();
-            }
 
-            if (callback != null) {
                 callback.onChange();
-            }
-        });
+            });
+        }
     }
 
     @Override
