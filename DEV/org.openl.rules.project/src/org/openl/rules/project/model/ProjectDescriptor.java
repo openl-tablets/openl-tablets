@@ -44,6 +44,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -426,14 +429,29 @@ public class ProjectDescriptor {
         if (StringUtils.isNotBlank(getName())) {
             return;
         }
+        setName(resolveName(getName(), getProjectFolderName()));
+    }
+
+    private String getProjectFolderName() {
         var projectFolderName = getProjectFolder().getFileName();
         if (projectFolderName != null) {
-            setName(projectFolderName.toString());
-        } else {
-            var path = getProjectFolder().toUri().getSchemeSpecificPart();
-            var zipName = FileUtils.getBaseName(path.substring(0, path.length() - 2));
-            setName(zipName);
+            return projectFolderName.toString();
         }
+        var path = getProjectFolder().toUri().getSchemeSpecificPart();
+        return FileUtils.getBaseName(path.substring(0, path.length() - 2));
+    }
+
+    /**
+     * Returns the project name, or the folder name when the descriptor has no name.
+     *
+     * A project without a name in rules.xml is named after its folder.
+     *
+     * @param name       project name from the descriptor, may be blank
+     * @param folderName project folder name
+     * @return the resolved project name
+     */
+    public static @NonNull String resolveName(@Nullable String name, @NonNull String folderName) {
+        return StringUtils.isBlank(name) ? folderName : name;
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {

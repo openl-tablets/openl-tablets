@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.project.abstraction.ArtefactProperties;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
@@ -464,7 +465,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             if (fileData != null) {
                 FileItem descriptorItem = delegate.read(fullName);
                 try (InputStream is = descriptorItem.getStream()) {
-                    project = new ProjectInfo(getProjectName(is), internal);
+                    project = new ProjectInfo(getProjectName(is, internal), internal);
                 }
             } else {
                 project = new ProjectInfo(internal.substring(internal.lastIndexOf('/') + 1), internal);
@@ -731,7 +732,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
                         FileItem descriptorItem = delegate.read(fullName);
                         try (InputStream is = descriptorItem.getStream()) {
-                            project.setName(getProjectName(is));
+                            project.setName(getProjectName(is, project.getPath()));
                         }
                         log.info("Sync project index: update name to '{}' the project in path '{}'",
                                 project.getName(),
@@ -843,19 +844,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
         FileItem fileItem = delegate.read(descriptorPath);
         try (InputStream stream = fileItem.getStream()) {
-            String projectName = getProjectName(stream);
-            if (projectName != null) {
-                String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-                ProjectInfo projectInfo = new ProjectInfo(
-                        externalPath.substring(baseFolder.length()),
-                        folderPath
-                );
-                projectInfo.setModifiedAt(fileItem.getData().getModifiedAt());
-                return projectInfo;
-            }
+            String projectName = getProjectName(stream, folderPath);
+            String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+            ProjectInfo projectInfo = new ProjectInfo(
+                    externalPath.substring(baseFolder.length()),
+                    folderPath
+            );
+            projectInfo.setModifiedAt(fileItem.getData().getModifiedAt());
+            return projectInfo;
         }
-
-        return null;
     }
 
     /**
@@ -974,6 +971,18 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         } catch (XPathExpressionException e) {
             return null;
         }
+    }
+
+    /**
+     * Reads the project name from a rules.xml descriptor, or uses the folder name when the descriptor
+     * has no project name. The naming rule is shared with {@link ProjectDescriptor#resolveName}.
+     *
+     * @param inputStream rules.xml content
+     * @param folderPath  project folder path
+     * @return the project name, never blank
+     */
+    private String getProjectName(InputStream inputStream, String folderPath) {
+        return ProjectDescriptor.resolveName(getProjectName(inputStream), FileUtils.getName(folderPath));
     }
 
     private boolean isUpdateConfigNeeded(FileData folderData) throws IOException {
