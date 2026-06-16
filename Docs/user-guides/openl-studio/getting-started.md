@@ -190,7 +190,7 @@ For more information on tasks that can be performed in Rules Editor, see [Using 
 
 **Rules Editor** enables users to browse rule modules and modify table data. A default editor is displayed when a user opens a table in a module.
 
-![](images/rules-editor-overview.jpeg)
+![](images/rules-editor-overview.png)
 
 *OpenL Studio Rules Editor*
 

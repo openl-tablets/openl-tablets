@@ -376,16 +376,6 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
-                                        onclick="return onBeforeEdit();"
-                                        rendered="#{tableBean.canOpenInExcel}"
-                                        title="Open the table in Excel" target="hidden">
-                                        <f:param name="id" value="#{tableBean.id}" />
-                                        <img src="#{contextPath}/webresource/images/excel.png" />
-                                        <div>Open</div>
-                                    </h:outputLink>
-                                </td>
-                                <td>
                                     <a4j:commandLink rendered="#{tableBean.copyable}"
                                         onclick="return onBeforeEdit();"
                                         oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
@@ -731,10 +721,6 @@
                 </div>
             </h:panelGroup>
 
-            <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
-                <input type="hidden" name="tableId" value="" />
-            </form>
-
             <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}"
                                rowIndex="#{tableBean.rowIndex}"
                                linkBuilder="#{studio.linkBuilder}" mode="#{tableBean.mode}"
@@ -747,10 +733,6 @@
                                onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
                                onRequestStart="ws.ui.showLoader();" onRequestEnd="ws.ui.hideLoader();"
                                onError="javascript:onError(data);" excludeScripts="prototype">
-
-                <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
-                              rendered="#{tableBean.editable}">Edit in Excel
-                </h:outputLink>
                 <h:outputLink value="javascript:ws.nav.search($j(PopupMenu.lastTarget).text(), '#{studio.url('')}')">Search</h:outputLink>
             </rules:tableEditor>
         </div>
@@ -1060,14 +1042,6 @@
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
             ws.ui.showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
-        }
-
-        function editInExcel(f) {
-            if (!onBeforeEdit()) {
-                return false;
-            }
-            f.tableId.value = "#{tableBean.id}";
-            f.submit();
         }
 
         function onBeforeEdit() {
