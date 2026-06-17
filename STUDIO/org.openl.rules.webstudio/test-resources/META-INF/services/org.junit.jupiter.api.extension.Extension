@@ -1,1 +1,2 @@
 org.openl.rules.webstudio.GitShutdownExtension
+org.openl.rules.webstudio.JGitHandleReleaseExtension
