@@ -30,3 +30,10 @@
 **/*.resp text eol=crlf
 **/*.http text eol=crlf
 **/*.eml text eol=crlf
+
+# Stabilize EOL-sensitive tests under MS Windows
+**/test-resources*/**/*.txt text eol=lf
+**/test-resources*/**/*.xml text eol=lf
+**/test-resources*/**/*.groovy text eol=lf
+**/test-resources*/**/*.properties text eol=lf
+**/openl-repository/workspace/**/*.xml text eol=lf
