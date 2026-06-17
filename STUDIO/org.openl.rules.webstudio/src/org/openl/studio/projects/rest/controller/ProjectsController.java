@@ -31,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -223,6 +224,19 @@ public class ProjectsController {
     @Operation(summary = "Get all available branches for the project (BETA)")
     public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project) throws ProjectException {
         return projectService.getBranches(project);
+    }
+
+    @DeleteMapping("/{projectId}/branches/{*branch}")
+    @Operation(summary = "projects.branch.delete.summary", description = "projects.branch.delete.desc")
+    public void deleteBranch(@ProjectId @PathVariable("projectId") RulesProject project,
+                             @Parameter(description = "repo.param.branch-name.desc") @PathVariable("branch") String branch,
+                             @Parameter(description = "projects.merge.param.force.desc")
+                             @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
+        // Branch names may contain '/' (e.g. "project/user/date"), so the branch is captured as a trailing path
+        // segment via {*branch}, which Spring exposes with a leading slash that must be removed.
+        var branchName = branch.startsWith("/") ? branch.substring(1) : branch;
+        projectService.deleteBranch(project, branchName, force);
+        getWebStudio().reset();
     }
 
     @GetMapping("/{projectId}/tables")

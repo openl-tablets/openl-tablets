@@ -461,7 +461,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
         }
-        if (!hasCreateBranchPermissions(project)) {
+        if (!hasManageBranchPermissions(project)) {
             throw new ForbiddenException("default.message");
         }
         var repository = (BranchRepository) project.getDesignRepository();
@@ -501,7 +501,63 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    private boolean hasCreateBranchPermissions(RulesProject project) {
+    /**
+     * Delete a branch from the repository that hosts the project.
+     *
+     * <p>The repository main branch cannot be deleted, and a missing branch is reported as not found. When the project
+     * is currently opened on the branch being deleted, it is released first. Deleting a protected branch requires an
+     * eligible user and the {@code force} flag.
+     *
+     * @param project    project that identifies the target repository
+     * @param branchName branch to delete
+     * @param force      confirmation flag to bypass protected-branch restrictions
+     */
+    public void deleteBranch(RulesProject project, String branchName, boolean force) {
+        if (!project.isSupportsBranches()) {
+            throw new ConflictException("project.branch.unsupported.message");
+        }
+        if (!hasManageBranchPermissions(project)) {
+            throw new ForbiddenException("default.message");
+        }
+        var repository = (BranchRepository) project.getDesignRepository();
+        if (Objects.equals(repository.getBaseBranch(), branchName)) {
+            throw new ConflictException("project.branch.delete.base.message");
+        }
+        try {
+            if (!repository.branchExists(branchName)) {
+                throw new NotFoundException("repository.branch.message");
+            }
+            bypassService.requireBypassOrThrow(repository, branchName, project, force);
+            releaseProjectOnBranch(project, branchName);
+            repository.deleteBranch(null, branchName);
+        } catch (IOException | ProjectException e) {
+            log.warn("Failed to delete branch '{}' from project '{}'", branchName, project.getBusinessName(), e);
+            throw new ConflictException("project.branch.delete.failed.message");
+        }
+        getUserWorkspace().refresh();
+    }
+
+    /**
+     * Release the project when it is currently opened on the branch being deleted. Clears the cached history and module
+     * info and closes the project so that no resources keep referencing the branch.
+     *
+     * @param project    project to release
+     * @param branchName branch about to be deleted
+     * @throws IOException      if the project history cannot be cleared
+     * @throws ProjectException if the project cannot be closed
+     */
+    private void releaseProjectOnBranch(RulesProject project, String branchName) throws IOException, ProjectException {
+        if (!Objects.equals(project.getBranch(), branchName)) {
+            return;
+        }
+        ProjectHistoryService.deleteHistory(project.getBusinessName());
+        getWebStudio().getModel().clearModuleInfo();
+        if (project.isOpened()) {
+            project.close();
+        }
+    }
+
+    private boolean hasManageBranchPermissions(RulesProject project) {
         if (project.isSupportsBranches()) {
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
