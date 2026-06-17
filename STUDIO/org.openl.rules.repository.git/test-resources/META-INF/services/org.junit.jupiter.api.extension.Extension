@@ -1,1 +1,2 @@
 org.openl.rules.repository.git.GitShutdownExtension
+org.openl.rules.repository.git.JGitHandleReleaseExtension
