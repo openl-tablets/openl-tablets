@@ -21,6 +21,44 @@ vi.mock('services', () => {
     }
 })
 
+// Replace AntD's Modal with an `open`-gated wrapper so child removal tracks `open`
+// synchronously. The real Modal's leave animation never ends in jsdom (no
+// transitionend/animationend, no motionDeadline), so rc-dialog's MemoChildren freezes
+// the prior step's DOM after close, and `destroyOnHidden` never unmounts it. That makes
+// "child is gone after onCancel" depend on commit ordering and flake under load.
+// `notification` is stubbed because the real static API renders a portal outside the
+// test tree and leaks across tests. Typography stays real (used inside the title).
+vi.mock('antd', async () => {
+    const actual = await vi.importActual<typeof import('antd')>('antd')
+    const MockModal = ({
+        open,
+        title,
+        children,
+        footer,
+    }: {
+        open?: boolean
+        title?: React.ReactNode
+        children?: React.ReactNode
+        footer?: React.ReactNode
+    }) =>
+        open ? (
+            <div role="dialog">
+                {title && <div data-testid="modal-title">{title}</div>}
+                {children}
+                {footer && <div data-testid="modal-footer">{footer}</div>}
+            </div>
+        ) : null
+    return {
+        ...actual,
+        Modal: MockModal,
+        notification: {
+            success: vi.fn(),
+            error: vi.fn(),
+            warning: vi.fn(),
+        },
+    }
+})
+
 vi.mock('store', () => ({
     useUserStore: () => ({ userProfile: { username: 'testuser' } }),
 }))
@@ -454,11 +492,7 @@ describe('MergeModal', () => {
                 expect(screen.getByTestId('conflict-resolution-step')).toBeInTheDocument()
             })
 
-            // Close, then reopen without conflicts. Antd Modal's Panel wraps children in
-            // a `MemoChildren` whose `shouldUpdate` is gated on `visible`, so after close
-            // the previous step DOM is held in memo until the leave motion ends — which
-            // never happens in jsdom. The reopen below flips `visible` back to true,
-            // forcing MemoChildren to take the new children.
+            // Close, then reopen without conflicts; the step must reset to branches.
             await dispatchOpenModal(null)
 
             mockApiCall.mockRejectedValueOnce(new MockNotFoundError())
