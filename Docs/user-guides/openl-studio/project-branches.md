@@ -50,7 +50,7 @@ This section describes how to view existing branches, switch between them in the
 
     The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage branches** list. The project in the branch is erased. If the non-default branch contains commits not merged to the default branch, a warning message is displayed upon deletion attempt.
 
-    ![](images/delete-branch-unmerged-commits.jpeg)
+    ![](images/delete-branch-unmerged-commits.png)
 
     *Deleting a non-default branch with unmerged commits*
 
