@@ -112,7 +112,7 @@
                                          onclick="onShowModalDeleteNode('#{repositoryTreeController.currentNodeRepositoryType}');return false;"
                                          title="#{deleteMessage}"/>
                         <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}" value="Delete Branch"
-                                         onclick="openDeleteBranchDialog();return false;"
+                                         onclick="openDeleteBranchDialog('#{artefact.repository.id}', '#{artefact.name}', '#{artefact.branch}', '#{repositoryTreeController.getMainBranch(artefact)}');return false;"
                                          title="#{deleteBranchMessage}"/>
 
                         <h:commandButton id="unlockId1"

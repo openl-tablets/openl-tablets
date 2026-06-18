@@ -3,6 +3,7 @@ import { Layout } from 'antd'
 import { Header } from 'containers/Header'
 import { DeployModal } from 'containers/DeployModal'
 import { MergeModal } from 'containers/MergeModal'
+import { DeleteBranchModal } from 'containers/DeleteBranchModal'
 import { TraceExecutionModal } from 'containers/TraceExecutionModal'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
@@ -50,6 +51,7 @@ export const DefaultLayout = () => {
             </AntContent>
             <DeployModal />
             <MergeModal />
+            <DeleteBranchModal />
             <TraceExecutionModal />
         </Layout>
     )

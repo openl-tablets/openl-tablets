@@ -26,7 +26,11 @@ public class ProjectIdModel {
 
     @JsonCreator
     public static ProjectIdModel decode(String encoded) {
-        String decoded = new String(Base64.getDecoder().decode(encoded));
+        // Accept both the standard and the URL-safe Base64 alphabets. Callers that put the id in a URL path
+        // segment use '-'/'_' instead of '+'/'/' to avoid an encoded slash, which servlet containers reject.
+        // Standard ids never contain '-'/'_', so this mapping is a no-op for them and stays backward compatible.
+        String normalized = encoded.replace('-', '+').replace('_', '/');
+        String decoded = new String(Base64.getDecoder().decode(normalized));
         var parts = decoded.indexOf(ID_SEPARATOR);
         if (parts == -1) {
             throw new IllegalArgumentException("Invalid projectId: " + encoded);

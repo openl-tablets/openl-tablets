@@ -1190,38 +1190,6 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public void deleteBranch() {
-        UserWorkspaceProject project = getSelectedProject();
-        if (!(project instanceof RulesProject)) {
-            return;
-        }
-        try {
-            String branch = project.getBranch();
-
-            Repository mainRepo = userWorkspace.getDesignTimeRepository()
-                    .getRepository(project.getRepository().getId());
-            if (mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch()
-                    .equals(branch)) {
-                ProjectHistoryService.deleteHistory(project.getBusinessName());
-                closeProjectAndReleaseResources(project);
-
-                // Delete secondary branch
-                ((BranchRepository) mainRepo).deleteBranch(null, branch);
-                workspaceManager.refreshWorkspaces();
-
-                repositoryTreeState.invalidateTree();
-                repositoryTreeState.invalidateSelection();
-
-                resetStudioModel();
-                WebStudioUtils.addInfoMessage("Branch '" + branch + "' was deleted successfully.");
-            }
-        } catch (Exception e) {
-            String msg = "Cannot delete the branch '" + project.getBranch() + "'.";
-            log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg);
-        }
-    }
-
     public String exportProjectVersion() {
         File zipFile = null;
         String zipFileName = null;
@@ -2309,7 +2277,7 @@ public class RepositoryTreeController {
 
     public boolean canDeleteBranch(UserWorkspaceProject project) {
         try {
-            if (project.isLocalOnly()) {
+            if (project.isLocalOnly() || project.isDeleted()) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2925,24 +2893,6 @@ public class RepositoryTreeController {
         this.editAlgorithmsPath = editAlgorithmsPath;
     }
 
-    public boolean isMergedIntoMain(UserWorkspaceProject project) {
-        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository()
-                .supports()
-                .branches()) {
-            return false;
-        }
-
-        try {
-            BranchRepository repository = ((BranchRepository) project.getDesignRepository());
-            return repository.isMergedInto(project.getBranch(), repository.getBaseBranch());
-        } catch (AccessDeniedException e) {
-            return false;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
     public String getMainBranch(UserWorkspaceProject project) {
         if (project == null || project.getDesignRepository() == null || !project.getDesignRepository()
                 .supports()
@@ -2950,46 +2900,6 @@ public class RepositoryTreeController {
             return null;
         }
         return ((BranchRepository) project.getDesignRepository()).getBaseBranch();
-    }
-
-    public void checkBranchIsDeletable() {
-        UserWorkspaceProject project = getSelectedProject();
-        String message = "Branch cannot be deleted: ";
-
-        if (project == null) {
-            WebStudioUtils.addErrorMessage(message + " project associated with this branch is absent.");
-        } else if (project.isLocalOnly()) {
-            WebStudioUtils.addErrorMessage(message + " project associated with this branch is local.");
-        } else if (project.isDeleted()) {
-            WebStudioUtils.addErrorMessage(message + " project associated with this branch is archived.");
-        } else {
-            if (!hasPermissionsForArtefactsInProject(project)) {
-                WebStudioUtils.addErrorMessage(message + " access denied.");
-            }
-        }
-    }
-
-    private boolean hasPermissionsForArtefactsInProject(UserWorkspaceProject project) {
-        if (project == null) {
-            return false;
-        }
-        // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
-        for (AProjectArtefact artefact : project.getArtefacts()) {
-            if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                    List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isBranchDeletable() {
-        UserWorkspaceProject project = getSelectedProject();
-        boolean f = project != null && !project.isLocalOnly() && !project.isDeleted();
-        if (!f) {
-            return false;
-        }
-        return hasPermissionsForArtefactsInProject(project);
     }
 
     public boolean isTagsAreConfigured() {
