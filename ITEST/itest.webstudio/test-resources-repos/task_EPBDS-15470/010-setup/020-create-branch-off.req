@@ -1,0 +1,7 @@
+POST /rest/projects/{PROJECT_NAME}/branches HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "branch": "EPBDS-15470_off"
+}
