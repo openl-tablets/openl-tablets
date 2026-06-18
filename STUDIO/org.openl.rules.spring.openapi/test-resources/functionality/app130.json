@@ -1,0 +1,35 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Studio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost"
+    }
+  ],
+  "paths": {
+    "/alpha": {
+      "get": {
+        "operationId": "status",
+        "responses": {
+          "default": {
+            "description": "default response"
+          }
+        }
+      }
+    },
+    "/beta": {
+      "get": {
+        "operationId": "status_1",
+        "responses": {
+          "default": {
+            "description": "default response"
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -50,6 +51,12 @@ import org.openl.util.StringUtils;
  */
 @Component
 public class OpenApiParameterServiceImpl implements OpenApiParameterService {
+
+    /**
+     * Header parameters with these (case-insensitive) names are ignored by the OpenAPI specification; their values are
+     * conveyed by the request/response media types and the security schemes.
+     */
+    private static final Set<String> IGNORED_HEADERS = Set.of("accept", "content-type", "authorization");
 
     private final OpenApiPropertyResolver apiPropertyResolver;
     private final RequestMappingHandlerAdapter mappingHandlerAdapter;
@@ -135,7 +142,11 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
                 }
             }
         }
-        return parameters.values();
+        // Drop the Accept, Content-Type and Authorization header parameters that the OpenAPI specification ignores,
+        // regardless of whether they came from a method argument or a swagger @Parameter / @Operation annotation.
+        return parameters.values().stream()
+                .filter(parameter -> !isReservedHeader(parameter))
+                .toList();
     }
 
     private void mergeParameters(Parameter firstParam, Parameter secondParam) {
@@ -271,6 +282,14 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         }
 
         return Optional.of(parameter);
+    }
+
+    private static boolean isReservedHeader(Parameter parameter) {
+        return ParameterIn.HEADER.toString().equals(parameter.getIn()) && isIgnoredHeader(parameter.getName());
+    }
+
+    private static boolean isIgnoredHeader(String name) {
+        return name != null && IGNORED_HEADERS.contains(name.toLowerCase(Locale.ROOT));
     }
 
     /**

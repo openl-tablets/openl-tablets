@@ -2,6 +2,7 @@ package org.openl.rules.spring.openapi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,6 +38,26 @@ public abstract class AbstractSpringOpenApiTest {
         var result = mockMvcResult.getResponse().getContentAsString();
         var expected = getResource(TEST_RESOURCE.formatted(getTestNumber()));
         assertJsonEquals(expected, result);
+    }
+
+    @Test
+    public void testGeneratedSchemaHasSortedMaps() throws Exception {
+        var mockMvcResult = mockMvc.perform(get("/openapi.json")).andExpect(status().isOk()).andReturn();
+        var schema = OBJECT_MAPPER.readTree(mockMvcResult.getResponse().getContentAsString());
+        assertKeysSorted(schema.path("paths"), "paths");
+        assertKeysSorted(schema.path("components").path("schemas"), "components.schemas");
+    }
+
+    private static void assertKeysSorted(JsonNode node, String path) {
+        String previous = null;
+        for (var entry : node.properties()) {
+            var name = entry.getKey();
+            if (previous != null) {
+                assertTrue(previous.compareTo(name) < 0,
+                        "Keys are not sorted at '" + path + "': '" + previous + "' precedes '" + name + "'");
+            }
+            previous = name;
+        }
     }
 
     private String getTestNumber() {
