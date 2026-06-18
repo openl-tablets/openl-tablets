@@ -73,5 +73,16 @@ i18next.addResourceBundle('en', 'repository', {
         repository_deleted_description: 'The repository has been successfully deleted.',
         configuration_applied: 'Configuration applied',
         configuration_applied_description: 'Repository configuration changes have been successfully applied.',
+        branch_deleted: 'Branch deleted',
+        branch_deleted_description: 'Branch "{{- branch}}" was deleted successfully.',
+        branch_delete_failed: 'Branch deletion failed',
+    },
+    delete_branch: {
+        title: 'Delete branch',
+        confirm: 'Are you sure you want to delete branch "{{- branch}}"?',
+        modified_warning: 'The project is modified. If you delete the branch, all changes will be lost.',
+        not_merged_warning: 'Branch "{{- branch}}" is not merged into the "{{- mainBranch}}" branch. All unmerged changes will be lost and cannot be restored.',
+        confirm_button: 'Delete',
+        confirm_button_unsafe: 'I understand the consequences, delete this branch',
     },
 })

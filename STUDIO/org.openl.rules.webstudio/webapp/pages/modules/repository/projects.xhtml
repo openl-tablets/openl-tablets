@@ -87,14 +87,8 @@
                   </h:panelGroup>
                     <h:panelGroup rendered="#{repositoryTreeController.canDeleteBranch(prj.data)}">
                         &#160;
-                        <h:commandLink immediate="true"
-                                       title="Delete branch" styleClass="delete-icon">
-                            <f:param name="repositoryId" value="#{prj.data.repository.id}" />
-                            <f:param name="projectName" value="#{prj.data.name}" />
-                            <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}"
-                                    render=":deleteBranchForm"
-                                    onevent="function(data) { if (data.status === 'success') openDeleteBranchDialog() }"/>
-                        </h:commandLink>
+                        <h:commandLink immediate="true" title="Delete branch" styleClass="delete-icon"
+                                       onclick="openDeleteBranchDialog('#{prj.data.repository.id}', '#{prj.data.name}', '#{prj.data.branch}', '#{repositoryTreeController.getMainBranch(prj.data)}'); return false;"/>
                     </h:panelGroup>
                   <h:panelGroup rendered="#{not prj.data.project.opened and not prj.data.project.localOnly}">
                       &#160;

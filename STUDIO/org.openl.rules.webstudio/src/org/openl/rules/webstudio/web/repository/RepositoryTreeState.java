@@ -753,7 +753,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanDeleteBranch() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
-            if (selectedProject.isLocalOnly()) {
+            if (selectedProject.isLocalOnly() || selectedProject.isDeleted()) {
                 return false;
             }
             if (selectedProject.isLocked() && !selectedProject.isLockedByUser(userWorkspace.getUser())) {
