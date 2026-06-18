@@ -34,6 +34,7 @@ import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
 import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.XSSFOptimizer;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
@@ -205,6 +206,19 @@ public abstract class TableWriter<T extends TableView> {
         var action = new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter());
         action.doAction(gridTable);
         actionsQueue.addNewAction(action);
+    }
+
+    /**
+     * Verifies that an appended row does not widen the table. Appending lines must not introduce new columns.
+     *
+     * @param appendedColumns number of columns in the appended row
+     * @param tableColumns    number of columns the table currently has
+     * @throws BadRequestException if the appended row has more columns than the table
+     */
+    protected void requireColumnsWithinTable(int appendedColumns, int tableColumns) {
+        if (appendedColumns > tableColumns) {
+            throw new BadRequestException("table.append.column.count.message");
+        }
     }
 
     private MetaInfoWriter getMetaInfoWriter() {

@@ -128,6 +128,10 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
+        int tableColumns = getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth();
+        for (var dataRow : rows) {
+            requireColumnsWithinTable(dataRow.values.size(), tableColumns);
+        }
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);

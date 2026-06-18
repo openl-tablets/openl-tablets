@@ -1,0 +1,61 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "572eb024e1c3f2b1b94d76740067e605",
+  "tableType": "Data",
+  "kind": "Data",
+  "name": "CoverageFormData",
+  "dataType": "CoverageForm",
+  "headers": [
+    {
+      "fieldName": "_PK_",
+      "displayName": "Primary Key"
+    },
+    {
+      "fieldName": "coverageType",
+      "displayName": "Coverage Type"
+    },
+    {
+      "fieldName": "limit",
+      "displayName": "Limit"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        1,
+        "Basic",
+        100
+      ]
+    },
+    {
+      "values": [
+        2,
+        "Basic",
+        25
+      ]
+    },
+    {
+      "values": [
+        3,
+        "Additional",
+        7001
+      ]
+    },
+    {
+      "values": [
+        4,
+        "Additional",
+        4002
+      ]
+    },
+    {
+      "values": [
+        5,
+        "Additional",
+        401
+      ]
+    }
+  ]
+}

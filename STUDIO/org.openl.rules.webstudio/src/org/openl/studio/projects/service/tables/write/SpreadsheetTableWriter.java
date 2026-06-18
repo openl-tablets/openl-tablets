@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.tables.write;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -8,6 +10,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.SpreadsheetAppend;
 import org.openl.studio.projects.model.tables.SpreadsheetCellView;
 import org.openl.studio.projects.model.tables.SpreadsheetRowView;
@@ -101,18 +104,39 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
+        var rows = appendTable.getRows();
+        var cells = appendTable.getCells();
+        validateAppend(rows, cells);
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
             int rowId = IGridRegion.Tool.height(tableBody.getRegion());
-            var rows = appendTable.getRows();
-            var cells = appendTable.getCells();
             for (int i = 0; i < rows.size(); i++) {
                 appendRow(tableBody, rowId + i, rows.get(i), cells[i]);
             }
             save();
         } finally {
             table.getGridTable().stopEditing();
+        }
+    }
+
+    /**
+     * Verifies the request before editing: the number of rows must match the number of cell rows, and an appended row
+     * must not be wider than the spreadsheet's data columns (appending must not add columns).
+     */
+    private void validateAppend(List<SpreadsheetRowView> rows, SpreadsheetCellView[][] cells) {
+        if (rows == null || cells == null || rows.size() != cells.length) {
+            throw new BadRequestException("spreadsheet.append.rows.cells.mismatch.message");
+        }
+        // The first column holds the row headers; the remaining columns hold the cell values.
+        int dataColumns = table.getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth() - FIRST_DATA_COL_IDX;
+        for (int i = 0; i < rows.size(); i++) {
+            var cellRow = cells[i];
+            // A cell value may be null (an empty cell), but a missing row or cell object cannot be written.
+            if (rows.get(i) == null || cellRow == null || Arrays.stream(cellRow).anyMatch(Objects::isNull)) {
+                throw new BadRequestException("spreadsheet.append.empty.message");
+            }
+            requireColumnsWithinTable(cellRow.length, dataColumns);
         }
     }
 
