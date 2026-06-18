@@ -1,0 +1,46 @@
+POST /rest/projects/{PROJECT_NAME}/tables/8c9074f72b0f996f3dce688449a76dd2/lines HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Spreadsheet",
+  "rows": [
+    {
+      "name": "StepR9"
+    },
+    {
+      "name": "StepR10",
+      "type": "Integer"
+    }
+  ],
+  "cells": [
+    [
+      {
+        "value": 16
+      },
+      {
+        "value": 26
+      },
+      {
+        "value": 36
+      },
+      {
+        "value": 46
+      }
+    ],
+    [
+      {
+        "value": 17
+      },
+      {
+        "value": 27
+      },
+      {
+        "value": 37
+      },
+      {
+        "value": 47
+      }
+    ]
+  ]
+}
