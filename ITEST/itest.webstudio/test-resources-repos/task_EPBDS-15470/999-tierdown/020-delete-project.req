@@ -1,0 +1,5 @@
+DELETE /rest/user-workspace/design-flat/projects/{PROJECT_TECHNICAL_NAME_ENC}/delete HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/x-www-form-urlencoded
+
+comment=EPBDS-15470 Cleanup
