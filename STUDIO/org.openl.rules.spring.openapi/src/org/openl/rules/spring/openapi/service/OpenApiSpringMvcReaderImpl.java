@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.ReflectionUtils;
@@ -98,6 +103,11 @@ public class OpenApiSpringMvcReaderImpl {
                 .entrySet()
                 .stream()
                 .filter(e -> isRestControllers(e.getValue()))
+                // Process handlers in a deterministic order. Several handlers can collapse into one operation (e.g.
+                // the multipart/raw/archive variants of one path); the merged parameters, their order, and the _1/_2
+                // suffixes of duplicate operation ids are all assigned in processing order, which Spring does not keep
+                // stable between runs.
+                .sorted(Comparator.comparing(e -> e.getValue().getMethod().toString()))
                 .forEach(e -> visitHandlerMethod(openApiContext,
                         e.getKey(),
                         e.getValue(),
@@ -108,10 +118,32 @@ public class OpenApiSpringMvcReaderImpl {
         }
 
         try {
-            return Json.mapper().writeValueAsString(openApiContext.getOpenAPI());
+            // Sort map entries (paths, component schemas, schema properties, ...) by key so the document keeps the
+            // same order on every run regardless of the order in which controllers were registered or schemas were
+            // first referenced. ORDER_MAP_ENTRIES_BY_KEYS is the feature; only the legacy mapper-level setter for it
+            // is deprecated, so it is enabled on the writer instead.
+            return Json.mapper()
+                    .writer(standardPrettyPrinter())
+                    .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                    .writeValueAsString(openApiContext.getOpenAPI());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to copy calculated OpenAPI schema", e);
+            throw new RuntimeException("Failed to serialize the calculated OpenAPI schema", e);
         }
+    }
+
+    /**
+     * Pretty printer that renders the document in the conventional JSON style: a two-space indent, each array element
+     * on its own line, and a single space after (not before) the {@code :} separator.
+     *
+     * @return pretty printer for the OpenAPI document
+     */
+    private static DefaultPrettyPrinter standardPrettyPrinter() {
+        var indenter = new DefaultIndenter("  ", "\n");
+        return new DefaultPrettyPrinter()
+                .withObjectIndenter(indenter)
+                .withArrayIndenter(indenter)
+                .withSeparators(Separators.createDefaultInstance()
+                        .withObjectFieldValueSpacing(Separators.Spacing.AFTER));
     }
 
     private void visitHandlerMethod(OpenApiContext openApiContext,
@@ -250,9 +282,11 @@ public class OpenApiSpringMvcReaderImpl {
                 parameters.add(parameterInfo);
             }
         }
-        // parse parameters
-        apiParameterService.generateParameters(apiContext, methodInfo, parameters, requestBodyParams)
-                .forEach(operation::addParametersItem);
+        // parse parameters; when several handler methods map to the same path and HTTP method (e.g. the
+        // multipart, raw and archive variants of one endpoint) OpenAPI collapses them into a single operation,
+        // so add each parameter only once to avoid duplicating the shared path and query parameters.
+        addDistinctParameters(operation,
+                apiParameterService.generateParameters(apiContext, methodInfo, parameters, requestBodyParams));
 
         // parse request body
         var sourceRequestBody = apiRequestService
@@ -279,6 +313,62 @@ public class OpenApiSpringMvcReaderImpl {
             apiContext.getPaths().addPathItem(methodInfo.getPathPattern(), pathItem);
         }
         pathItem.operation(PathItem.HttpMethod.valueOf(methodInfo.getRequestMethod().name()), operation);
+    }
+
+    /**
+     * Adds parameters to the operation, skipping any whose name and location are already present.
+     * <p>
+     * Several handler methods may map to the same path and HTTP method, for example the multipart, raw and
+     * archive variants of one endpoint. They collapse into a single OpenAPI operation, so their shared path and
+     * query parameters must be added only once. When the collapsed methods declare the same parameter with a
+     * different default, the merged operation cannot advertise one variant's value, so that default is dropped.
+     *
+     * @param operation  target operation, possibly already holding parameters from a sibling handler method
+     * @param parameters parameters produced for the current handler method
+     */
+    private static void addDistinctParameters(Operation operation,
+                                              Collection<io.swagger.v3.oas.models.parameters.Parameter> parameters) {
+        var present = new HashMap<String, io.swagger.v3.oas.models.parameters.Parameter>();
+        if (operation.getParameters() != null) {
+            operation.getParameters().forEach(parameter -> present.put(parameterKey(parameter), parameter));
+        }
+        for (var parameter : parameters) {
+            var existing = present.putIfAbsent(parameterKey(parameter), parameter);
+            if (existing == null) {
+                operation.addParametersItem(parameter);
+            } else {
+                dropConflictingDefault(existing, parameter);
+            }
+        }
+    }
+
+    /**
+     * Reconciles a parameter shared by several handler methods that collapse into one operation. When the sibling
+     * declarations disagree on the default value, no single default is correct for the merged operation, so the
+     * default is removed rather than advertising one variant's value as if it applied to all.
+     *
+     * @param kept      parameter already added to the operation
+     * @param duplicate same-named parameter from another collapsed handler method
+     */
+    private static void dropConflictingDefault(io.swagger.v3.oas.models.parameters.Parameter kept,
+                                               io.swagger.v3.oas.models.parameters.Parameter duplicate) {
+        var keptSchema = kept.getSchema();
+        var duplicateSchema = duplicate.getSchema();
+        if (keptSchema != null && duplicateSchema != null
+                && !Objects.equals(keptSchema.getDefault(), duplicateSchema.getDefault())) {
+            keptSchema.setDefault(null);
+            // Clear the flag too, otherwise the serializer renders the absent default as an explicit "default": null.
+            keptSchema.setDefaultSetFlag(false);
+        }
+    }
+
+    private static String parameterKey(io.swagger.v3.oas.models.parameters.Parameter parameter) {
+        // A $ref parameter carries no name or location, so key ref-only parameters by their reference to keep distinct
+        // ones from colliding on "null:null".
+        if (parameter.get$ref() != null) {
+            return parameter.get$ref();
+        }
+        return parameter.getName() + ":" + parameter.getIn();
     }
 
     private void parseOperation(OpenApiContext apiContext,

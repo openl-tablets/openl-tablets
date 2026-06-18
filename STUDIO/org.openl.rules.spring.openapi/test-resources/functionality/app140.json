@@ -1,0 +1,55 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Studio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost"
+    }
+  ],
+  "paths": {
+    "/annotated-headers": {
+      "get": {
+        "operationId": "annotatedHeaders",
+        "parameters": [
+          {
+            "name": "X-Trace-Id",
+            "in": "header",
+            "description": "Custom header declared via annotation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response"
+          }
+        }
+      }
+    },
+    "/headers": {
+      "get": {
+        "operationId": "headers",
+        "parameters": [
+          {
+            "name": "X-Custom-Header",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response"
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}
