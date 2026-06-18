@@ -150,6 +150,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
+        int tableColumns = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER).getWidth();
+        for (var row : tableAppend.getRows()) {
+            requireColumnsWithinTable(row.size(), tableColumns);
+        }
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
