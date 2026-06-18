@@ -8,7 +8,9 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.SpreadsheetAppend;
 import org.openl.studio.projects.model.tables.SpreadsheetCellView;
+import org.openl.studio.projects.model.tables.SpreadsheetRowView;
 import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.util.CollectionUtils;
 
@@ -87,7 +89,15 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
         }
     }
 
-    public void insert(SpreadsheetCellView[][] cells) {
+    /**
+     * Appends new rows to the bottom of the Spreadsheet table without touching its header.
+     * <p>
+     * Each appended row carries its own row header (name and optional type) in the first column and its cell values
+     * across the existing columns. The column header row stays unchanged.
+     *
+     * @param appendTable rows and their cells to append
+     */
+    public void append(SpreadsheetAppend appendTable) {
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
@@ -95,17 +105,22 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
             int rowId = IGridRegion.Tool.height(tableBody.getRegion());
-            for (var row : cells) {
-                int colId = 1;
-                for (var cell : row) {
-                    createOrUpdateCell(tableBody, buildCellKey(colId, rowId), cell.value);
-                    colId++;
-                }
-                rowId++;
+            var rows = appendTable.getRows();
+            var cells = appendTable.getCells();
+            for (int i = 0; i < rows.size(); i++) {
+                appendRow(tableBody, rowId + i, rows.get(i), cells[i]);
             }
             save();
         } finally {
             table.getGridTable().stopEditing();
+        }
+    }
+
+    private void appendRow(IGridTable tableBody, int rowId, SpreadsheetRowView row, SpreadsheetCellView[] cells) {
+        var rowHeader = SimpleSpreadsheetTableWriter.createStep(row.name, row.type);
+        createOrUpdateCell(tableBody, buildCellKey(ROW_HEADER_COL_IDX, rowId), rowHeader);
+        for (int col = 0; col < cells.length; col++) {
+            createOrUpdateCell(tableBody, buildCellKey(col + FIRST_DATA_COL_IDX, rowId), cells[col].value);
         }
     }
 }

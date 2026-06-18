@@ -18,6 +18,7 @@ import org.openl.studio.projects.model.tables.SimpleSpreadsheetAppend;
 import org.openl.studio.projects.model.tables.SimpleSpreadsheetView;
 import org.openl.studio.projects.model.tables.SmartRulesAppend;
 import org.openl.studio.projects.model.tables.SmartRulesView;
+import org.openl.studio.projects.model.tables.SpreadsheetAppend;
 import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestAppend;
@@ -54,6 +55,8 @@ public class TableWriterExecutor {
             case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.append((DatatypeAppend) tableView);
             case SimpleSpreadsheetTableWriter simpleSpreadsheetTableWriter ->
                     simpleSpreadsheetTableWriter.append((SimpleSpreadsheetAppend) tableView);
+            case SpreadsheetTableWriter spreadsheetTableWriter ->
+                    spreadsheetTableWriter.append((SpreadsheetAppend) tableView);
             case SimpleRulesWriter simpleRulesWriter -> simpleRulesWriter.append((SimpleRulesAppend) tableView);
             case SmartRulesWriter smartRulesWriter -> smartRulesWriter.append((SmartRulesAppend) tableView);
             case LookupWriter smartLookupWriter -> smartLookupWriter.append((LookupAppend) tableView);
