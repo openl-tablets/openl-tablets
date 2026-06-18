@@ -8366,7 +8366,7 @@ Content-Type: application/json
                     "items": {
                       "$ref": "#/components/schemas/FileConflictResolution"
                     },
-                    "minLength": 1
+                    "minItems": 1
                   }
                 },
                 "required": [

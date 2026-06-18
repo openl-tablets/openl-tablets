@@ -3,6 +3,7 @@ package org.openl.rules.spring.openapi.service;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -466,15 +467,10 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             addRequiredItemIfAbsent(objectSchema, fieldName);
         }
 
-        // Check for @Size
+        // Check for @Size — apply the facet that matches the constrained type (length facets are for strings only)
         var sizeAnnotation = field.getAnnotation(Size.class);
         if (sizeAnnotation != null) {
-            if (sizeAnnotation.min() > 0) {
-                schema.setMinLength(sizeAnnotation.min());
-            }
-            if (sizeAnnotation.max() < Integer.MAX_VALUE) {
-                schema.setMaxLength(sizeAnnotation.max());
-            }
+            applySizeConstraints(field.getType(), schema, sizeAnnotation.min(), sizeAnnotation.max());
         }
 
         // Check for @Min / @Max
@@ -492,6 +488,36 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         var patternAnnotation = field.getAnnotation(Pattern.class);
         if (patternAnnotation != null) {
             schema.setPattern(patternAnnotation.regexp());
+        }
+    }
+
+    /**
+     * Applies a {@link Size} constraint using the facet that matches the constrained type. Collections and arrays use
+     * item bounds, maps use property bounds, and other types use string length bounds. A length facet has no effect on
+     * array or object schemas, so the facet must follow the type.
+     *
+     * <p>An unset bound (a zero minimum or an unbounded maximum) leaves the corresponding facet empty.
+     *
+     * @param type   constrained Java type
+     * @param schema schema to constrain
+     * @param min    minimum size from the constraint
+     * @param max    maximum size from the constraint
+     */
+    private static void applySizeConstraints(Class<?> type,
+                                             io.swagger.v3.oas.models.media.Schema<?> schema,
+                                             int min,
+                                             int max) {
+        Integer minValue = min > 0 ? min : null;
+        Integer maxValue = max < Integer.MAX_VALUE ? max : null;
+        if (Collection.class.isAssignableFrom(type) || type.isArray()) {
+            schema.setMinItems(minValue);
+            schema.setMaxItems(maxValue);
+        } else if (Map.class.isAssignableFrom(type)) {
+            schema.setMinProperties(minValue);
+            schema.setMaxProperties(maxValue);
+        } else {
+            schema.setMinLength(minValue);
+            schema.setMaxLength(maxValue);
         }
     }
 
