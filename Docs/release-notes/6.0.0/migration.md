@@ -5,7 +5,7 @@ title: OpenL Tablets 6.0.0 Migration Notes
 ### Quick Role-Based Pointers
 
 * **If you are a Rules Author** → pay special attention to sections **3, 4**
-* **If you are a Developer** → pay special attention to sections **2, 3, 5**
+* **If you are a Developer** → pay special attention to sections **2, 3, 5, 6**
 * **If you are an Administrator / Platform Owner** → pay special attention to sections **1, 2, 6**
 
 ---
@@ -19,24 +19,24 @@ title: OpenL Tablets 6.0.0 Migration Notes
 * Project creation and deletion are additionally controlled by the system property:
 
 ```properties
-security.allow-project-create-delete=true  # Default (allows creation)
-security.allow-project-create-delete=false # Hides create/delete buttons
+security.allow-project-create-delete = true  # Default (allows creation)
+security.allow-project-create-delete = false # Hides create/delete buttons
 ```
 
 * Role assignments and default group permissions should be reviewed after upgrade.
 
 #### User Access & Permission Mapping
 
-| Legacy Permission | New Behavior | Notes / Action |
-| :---- | :---- | :---- |
-| **View Projects** | Included in all roles | Deprecated as a standalone permission; project viewing is now available to all roles by default |
-| **Run and Trace Tables** | System action | No longer permission-restricted; available to all users regardless of role |
-| **Edit Projects** | Included in Contributor role | Covered by the Edit permission |
-| **Create Projects** | Separate Create permission | Included in Contributor and Manager roles; can be globally restricted |
-| **Delete Projects** | Separate Delete permission | Included in Contributor and Manager roles |
-| **Erase Projects** | Merged into Delete | Delete and erase are now the same action |
-| **Lock / Unlock Projects** | Removed | Project locking functionality was deprecated |
-| **Deploy Configuration (Create/Edit/Delete/Erase)** | System action | Available to users with Viewer access to Design repo and Edit access to Deploy repo |
+| Legacy Permission                                   | New Behavior                 | Notes / Action                                                                                  |
+|:----------------------------------------------------|:-----------------------------|:------------------------------------------------------------------------------------------------|
+| **View Projects**                                   | Included in all roles        | Deprecated as a standalone permission; project viewing is now available to all roles by default |
+| **Run and Trace Tables**                            | System action                | No longer permission-restricted; available to all users regardless of role                      |
+| **Edit Projects**                                   | Included in Contributor role | Covered by the Edit permission                                                                  |
+| **Create Projects**                                 | Separate Create permission   | Included in Contributor and Manager roles; can be globally restricted                           |
+| **Delete Projects**                                 | Separate Delete permission   | Included in Contributor and Manager roles                                                       |
+| **Erase Projects**                                  | Merged into Delete           | Delete and erase are now the same action                                                        |
+| **Lock / Unlock Projects**                          | Removed                      | Project locking functionality was deprecated                                                    |
+| **Deploy Configuration (Create/Edit/Delete/Erase)** | System action                | Available to users with Viewer access to Design repo and Edit access to Deploy repo             |
 
 ---
 
@@ -45,6 +45,8 @@ security.allow-project-create-delete=false # Hides create/delete buttons
 * Java **21** is required. Earlier Java versions are no longer supported.
 * All `javax.*` packages have been replaced with `jakarta.*`.
   Custom Java code must be updated accordingly and all dependencies must be Jakarta EE 10 compatible.
+* The `org.openl.core` and `org.openl.grammars` Maven modules have been merged into `org.openl.rules`.
+    * Code that embeds OpenL as a library must update its dependencies to `org.openl.rules`.
 
 ---
 
@@ -54,7 +56,8 @@ security.allow-project-create-delete=false # Hides create/delete buttons
     * Variation-based endpoints are no longer created.
     * Rules and services relying on variations must be rewritten using array-based or explicit rule logic.
 * The default value of `isProvideRuntimeContext` is now **false**.
-    * Rules that relied on implicit runtime context (for example, `currentDate`, `requestId`) may receive `null` unless enabled explicitly.
+    * Rules that relied on implicit runtime context (for example, `currentDate`, `requestId`) may receive `null` unless
+      enabled explicitly.
 
 ---
 
@@ -75,6 +78,11 @@ security.allow-project-create-delete=false # Hides create/delete buttons
     * Existing OAuth2 integrations should be verified after upgrade.
 * Embedded JDBC drivers are no longer included.
     * Required database drivers must be provided explicitly.
+* Rule Services customization annotations have been removed: `@AnyType`, `@InjectOpenClass`, `@InjectOpenMember`,
+  `@InjectRulesDeploy`, `@InjectServiceClassLoader`, and `@MixInClassFor`.
+    * Custom service interfaces relying on these annotations must be reworked.
+* Several public annotations, including `@ContextProperty`, have moved to the `org.openl.rules.annotations` package.
+    * Update imports in custom Java code accordingly.
 
 ---
 
@@ -89,3 +97,16 @@ security.allow-project-create-delete=false # Hides create/delete buttons
     * No functional loss; administrators should familiarize themselves with the new layout.
 * Demo distribution and deployment packaging have changed.
     * No breaking impact for production systems; primarily affects evaluation and onboarding scenarios.
+
+#### Removed Configuration Properties & Legacy Formats
+
+* `custom.spreadsheet.type` — removed. Custom `SpreadsheetResult` types are always generated; the legacy
+  `custom.spreadsheet.type=false` mode no longer exists.
+* `dispatching.mode` — removed. Overloaded-method dispatching always uses the Java approach.
+* `language` property — removed. Only the default OpenL language remains.
+* `OpenL.properties` configuration files are no longer loaded. Move any settings to system properties or environment
+  variables.
+* Deprecated operator classes `StringOperators`, `WholeNumberDivideOperators`, and `MulDivNullToOneOperators` have been
+  removed.
+* Legacy `rules.xml` (pre-5.25 format, deprecated tags, and the `CWPropertyFileNameProcessor` reference) is migrated
+  automatically on first save. No manual action is required.

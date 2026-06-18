@@ -449,6 +449,40 @@ The following features, protocols, and APIs have been completely removed from Op
   * setUpperBoundType(), getUpperBoundType()
   * StringRange.getLowerBoundType(), getUpperBoundType()
   * **Migration**: Update code to use alternative APIs
+* **Rule Services customization annotations** (`org.openl.rules.ruleservice.core.interceptors`)
+  * @AnyType, @InjectOpenClass, @InjectOpenMember, @InjectRulesDeploy, @InjectServiceClassLoader, @MixInClassFor
+  * **Migration**: Rework custom service interfaces that rely on these annotations
+* **Relocated annotations**
+  * Several public annotations, including @ContextProperty, moved to the `org.openl.rules.annotations` package
+  * **Migration**: Update imports in custom Java code
+
+#### Removed Configuration Properties
+
+* **custom.spreadsheet.type**
+  * Custom `SpreadsheetResult` types are now always generated; the legacy `custom.spreadsheet.type=false` mode is gone
+  * **Migration**: Remove the property from configuration
+* **dispatching.mode**
+  * Overloaded-method dispatching always uses the Java approach
+  * **Migration**: Remove the property from configuration
+* **language property**
+  * Only the default OpenL language remains
+  * **Migration**: Remove the property from configuration
+* **OpenL.properties configuration files**
+  * No longer loaded from the classpath
+  * **Migration**: Move settings to system properties or environment variables
+
+#### Removed Java Modules & Classes
+
+* **org.openl.core and org.openl.grammars Maven modules**
+  * Merged into `org.openl.rules`
+  * **Migration**: Update dependencies in code that embeds OpenL as a library
+* **Deprecated operator classes**
+  * StringOperators, WholeNumberDivideOperators, MulDivNullToOneOperators
+  * **Migration**: Remove references; use the standard operators
+* **Legacy rules.xml formats and CWPropertyFileNameProcessor**
+  * Pre-5.25 `rules.xml`, deprecated tags, and the `CWPropertyFileNameProcessor` reference are migrated automatically on
+    first save
+  * **Migration**: None required; legacy files are upgraded automatically
 
 #### Removed UI Features
 
