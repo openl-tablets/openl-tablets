@@ -70,7 +70,7 @@ This section describes how to view existing branches, switch between them in the
     | Receive their updates | Changes from a selected branch are copied to the currently active branch.     |
     | Send your updates     | Changes from the currently active branch are uploaded to the selected branch. |
 
-    If upon saving there is a conflict due to updates in the same module sheet, the **Resolve conflicts** window appears.
+    If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
 
     ![](images/resolve-conflicts-on-merge.png)
 
@@ -82,19 +82,20 @@ This section describes how to view existing branches, switch between them in the
     |--------------------|------------------------------------------------------------------------------------------------------------------------------|
     | Use yours          | Changes in the currently active branch are applied on merge. The changes applied by another user are lost.                   |
     | Use theirs         | Changes in the selected branch are applied on merge. The changes made by you are lost.                                       |
+    | Use base           | The common base version of the file is applied on merge. Changes from both branches are discarded.                          |
     | Upload merged file | Depending on the selected merging options, changes in the manually updated and uploaded file override changes in the branch. |
 
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
 
 ### Resolving Conflicts
 
-If the same version of the project is edited by several users, upon submitting their changes using different clients, the conflict error message appears asking which version must be saved. Changes in other versions are discarded.
+If the same version of the project is edited by several users, upon submitting their changes using different clients, the **Resolve Conflicts** dialog appears, listing the conflicting files and the resolution options for each one.
 
 ![](images/save-conflict-error-message.png)
 
-*An error message upon saving conflicting versions*
+*Resolving conflicts upon saving concurrent changes*
 
-The error message contains the **Compare** link that allows viewing both conflicting versions for comparison.
+The dialog contains the **Compare File Versions** link that allows viewing both conflicting versions for comparison.
 
 ![](images/compare-conflicting-versions.jpeg)
 
