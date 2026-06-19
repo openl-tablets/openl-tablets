@@ -48,8 +48,8 @@ export interface GraphModel {
 }
 
 /**
- * Finds the edges that take part in a cycle, using Tarjan's strongly connected components: an edge is cyclic when its
- * endpoints share an SCC of size &gt; 1, or it is a self-loop.
+ * Finds the edges between distinct tables that take part in a cycle, using Tarjan's strongly connected components: an
+ * edge is cyclic when its endpoints share an SCC of size &gt; 1. Self-loops (recursion) are handled by the caller.
  */
 const findCycleEdges = (ids: string[], dependencies: Map<string, string[]>): Set<string> => {
     let index = 0
@@ -97,8 +97,7 @@ const findCycleEdges = (ids: string[], dependencies: Map<string, string[]>): Set
     const cycleEdges = new Set<string>()
     dependencies.forEach((targets, source) => targets.forEach(target => {
         const sameComponent = component.get(source) === component.get(target)
-        const inCycle = source === target || (sameComponent && (componentSize.get(component.get(source) ?? -1) ?? 0) > 1)
-        if (inCycle) {
+        if (sameComponent && (componentSize.get(component.get(source) ?? -1) ?? 0) > 1) {
             cycleEdges.add(`${source}->${target}`)
         }
     }))
@@ -115,9 +114,15 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
     const idSet = new Set(ids)
     const dependencies = new Map<string, string[]>(ids.map(id => [id, []]))
     const dependents = new Map<string, string[]>(ids.map(id => [id, []]))
+    const selfLoops = new Set<string>()
 
     const link = (from: string, to: string): void => {
-        if (from === to || !idSet.has(from) || !idSet.has(to)) {
+        if (!idSet.has(from) || !idSet.has(to)) {
+            return
+        }
+        if (from === to) {
+            // a table that calls itself (recursion): drawn as a self-loop, kept out of the dependency counts
+            selfLoops.add(from)
             return
         }
         if (!dependencies.get(from)!.includes(to)) {
@@ -141,7 +146,7 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
     nodes.forEach(node => {
         const used = dependents.get(node.id)!.length
         const uses = dependencies.get(node.id)!.length
-        const orphan = used === 0 && uses === 0
+        const orphan = used === 0 && uses === 0 && !selfLoops.has(node.id)
         if (orphan) {
             isolated += 1
         }
@@ -164,6 +169,11 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         }
         elements.push(element)
     }))
+
+    // Recursive tables are drawn as red self-loops (same colour as cross-table cycles) but kept out of the counters.
+    selfLoops.forEach(id => {
+        elements.push({ data: { id: `${id}->${id}`, source: id, target: id }, classes: 'cycle' })
+    })
 
     const cyclicNodes = new Set<string>()
     cycleEdges.forEach(edge => edge.split('->').forEach(id => cyclicNodes.add(id)))

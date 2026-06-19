@@ -79,6 +79,22 @@ const buildStyle = (maxWeight: number) => [
         selector: 'edge.cycle',
         style: { 'line-color': '#f5222d', 'target-arrow-color': '#f5222d', 'line-style': 'dashed', 'width': 2 },
     },
+    {
+        // self-loops (a table that calls itself): dagre ignores them for ranking, so give them an explicit, compact
+        // loop on top of the node. A tight sweep keeps both ends anchored near the top-centre — otherwise the target
+        // endpoint lands on the node side and, on a wide node, the arrowhead is flung far past the box.
+        selector: 'edge:loop',
+        style: {
+            'curve-style': 'bezier',
+            'control-point-step-size': 36,
+            'loop-direction': '0deg',
+            'loop-sweep': '-28deg',
+            'line-color': '#f5222d',
+            'target-arrow-color': '#f5222d',
+            'line-style': 'dashed',
+            'width': 2,
+        },
+    },
 ] as unknown as cytoscape.StylesheetCSS[]
 
 /**
