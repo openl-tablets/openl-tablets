@@ -142,12 +142,16 @@ export interface TableGraphModalDetail {
     projectId: string
 }
 
-/** Opens the tapped table in the editor via the backend-resolved URL. */
+/**
+ * Opens the tapped table in the editor via the backend-resolved URL. The backend returns a page-relative fragment
+ * (e.g. {@code #repo/project/module/table}) that the editor shell hosting this modal resolves on hash change, so it is
+ * navigated as-is — prefixing the origin would leave the editor page and drop the context path.
+ */
 const openTable = (id: string): void => {
     apiCall(`/compile/table/${id}/url`, { method: 'GET' }, GRAPH_API_OPTIONS)
         .then((data: { url?: string | null }) => {
             if (data?.url) {
-                globalThis.location.href = `${globalThis.location.origin}/${data.url}?id=${id}`
+                globalThis.location.href = `${data.url}?id=${id}`
             }
         })
         .catch(() => undefined)
