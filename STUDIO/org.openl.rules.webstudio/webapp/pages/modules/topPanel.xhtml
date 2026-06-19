@@ -252,7 +252,8 @@
                         <li class="divider"></li>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module and studio.model.compiledSuccessfully}">
-                    <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
+                    <li><a tabindex="-1" href="#"
+                           onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}'}})); return false;">Table Dependencies</a></li>
                     </h:panelGroup>
                     <li><a tabindex="-1" target="_blank"
                         onclick="topPanelCompareWindowOpen(); return false;"
