@@ -141,10 +141,16 @@ export const TableGraphModal: React.FC = () => {
             layout: GRAPH_LAYOUT,
         })
         cyRef.current = cy
-        // Open the tapped table in the editor, mirroring the legacy `?id=` navigation.
+        // Resolve the table's editor URL from the backend (webStudio.url("table", uri)), then open it.
         cy.on('tap', 'node', event => {
             const id = event.target.id()
-            globalThis.location.href = `${globalThis.location.pathname}?id=${encodeURIComponent(id)}`
+            apiCall(`/compile/table/${id}/url`, { method: 'GET' }, GRAPH_API_OPTIONS)
+                .then((data: { url?: string | null }) => {
+                    if (data?.url) {
+                        globalThis.location.href = `${globalThis.location.origin}/${data.url}?id=${id}`
+                    }
+                })
+                .catch(() => undefined)
         })
         return () => {
             cy.destroy()
