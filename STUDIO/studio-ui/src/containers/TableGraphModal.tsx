@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Divider, Empty, Modal, Select, Space, Spin, Tag, Tooltip, Typography } from 'antd'
 import {
     AimOutlined,
+    BgColorsOutlined,
+    CloseOutlined,
     ExportOutlined,
     PartitionOutlined,
     RetweetOutlined,
@@ -30,9 +32,6 @@ cytoscape.use(dagre)
 const GRAPH_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
 type Direction = 'DEPENDENCIES' | 'DEPENDENTS' | 'BOTH'
-
-// Only technical/auxiliary kinds are worth excluding; content kinds (Rules, Spreadsheet…) always stay visible.
-const FILTERABLE_KINDS = [DISPATCHER_KIND, 'Test']
 
 // Upper bound on enumerated cycles, so a densely connected project cannot flood the UI.
 const CYCLE_SEARCH_LIMIT = 100
@@ -66,6 +65,17 @@ const GRAPH_LAYOUT = {
     animate: false,
 } as unknown as cytoscape.LayoutOptions
 
+// Schematic palette. One accent is reserved for selection and never names a table kind; red means "problem" only.
+const SELECT_ACCENT = '#fa8c16'
+const PROBLEM_ACCENT = '#f5222d'
+const DISPATCHER_ACCENT = '#ffc53d'
+const HAIRLINE = '#e8e8e8'
+// IDs, cells and signatures are code, so they are set in a monospace utility face.
+const MONO = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
+// A faint blueprint dot-grid behind the graph, so nodes read as placed on a board rather than floating in a void.
+const CANVAS_BG = '#fbfcfe'
+const DOT_GRID = 'radial-gradient(circle, #e6ebf2 1.1px, transparent 1.2px)'
+
 const buildStyle = (maxWeight: number) => [
     {
         selector: 'node',
@@ -73,7 +83,11 @@ const buildStyle = (maxWeight: number) => [
             'background-color': 'data(color)',
             'label': 'data(label)',
             'color': '#ffffff',
-            'font-size': 10,
+            'font-size': 11,
+            'font-weight': 500,
+            // a dark halo keeps the white label readable on light kind fills (e.g. Properties grey)
+            'text-outline-color': 'rgba(0, 0, 0, 0.45)',
+            'text-outline-width': 1.4,
             'text-valign': 'center',
             'text-halign': 'center',
             'text-wrap': 'ellipsis',
@@ -89,18 +103,27 @@ const buildStyle = (maxWeight: number) => [
     },
     {
         selector: 'node.isolated',
-        style: { 'border-width': 3, 'border-style': 'dashed', 'border-color': '#f5222d', 'border-opacity': 1 },
+        style: { 'border-width': 3, 'border-style': 'dashed', 'border-color': PROBLEM_ACCENT, 'border-opacity': 1 },
     },
     {
         // the technical dispatcher table that selects one overloaded version: a distinct cut-rectangle with a gold frame
         selector: 'node.dispatcher',
-        style: { 'shape': 'cut-rectangle', 'border-width': 3, 'border-color': '#ffc53d', 'border-opacity': 1 },
+        style: { 'shape': 'cut-rectangle', 'border-width': 3, 'border-color': DISPATCHER_ACCENT, 'border-opacity': 1 },
     },
     {
+        // selection is a detached ring (elevation), not a fill colour — so it never collides with a table kind
         selector: 'node.highlighted',
-        style: { 'border-width': 4, 'border-style': 'solid', 'border-color': '#fa8c16', 'border-opacity': 1 },
+        style: {
+            'outline-width': 3,
+            'outline-color': SELECT_ACCENT,
+            'outline-offset': 3,
+            'outline-opacity': 1,
+            'border-color': '#7a3b00',
+            'border-width': 2,
+            'border-opacity': 1,
+        },
     },
-    { selector: '.faded', style: { 'opacity': 0.1 } },
+    { selector: '.faded', style: { 'opacity': 0.12 } },
     { selector: '.hidden', style: { 'display': 'none' } },
     {
         selector: 'edge',
@@ -115,7 +138,7 @@ const buildStyle = (maxWeight: number) => [
     },
     {
         selector: 'edge.cycle',
-        style: { 'line-color': '#f5222d', 'target-arrow-color': '#f5222d', 'line-style': 'dashed', 'width': 2 },
+        style: { 'line-color': PROBLEM_ACCENT, 'target-arrow-color': PROBLEM_ACCENT, 'line-style': 'dashed', 'width': 2 },
     },
     {
         // self-loops (a table that calls itself): dagre ignores them for ranking, so give them an explicit, compact
@@ -127,8 +150,8 @@ const buildStyle = (maxWeight: number) => [
             'control-point-step-size': 36,
             'loop-direction': '0deg',
             'loop-sweep': '-28deg',
-            'line-color': '#f5222d',
-            'target-arrow-color': '#f5222d',
+            'line-color': PROBLEM_ACCENT,
+            'target-arrow-color': PROBLEM_ACCENT,
             'line-style': 'dashed',
             'width': 2,
         },
@@ -178,6 +201,7 @@ export const TableGraphModal: React.FC = () => {
     const [searchName, setSearchName] = useState<string>()
     const [cycles, setCycles] = useState<GraphCycle[] | null>(null)
     const [activeCycle, setActiveCycle] = useState<GraphCycle>()
+    const [legendOpen, setLegendOpen] = useState(true)
 
     const containerRef = useRef<HTMLDivElement>(null)
     const cyRef = useRef<Core | null>(null)
@@ -238,6 +262,12 @@ export const TableGraphModal: React.FC = () => {
     }, [nodes])
     const nodeOptions = useMemo(() => [...byName.keys()].sort().map(name => ({ label: name, value: name })), [byName])
     const nameMatches = useMemo(() => (searchName ? byName.get(searchName) ?? [] : []), [byName, searchName])
+    // Tables per kind, for the legend's counts (a kind with 0 tables is simply absent).
+    const kindCounts = useMemo(() => {
+        const counts = new Map<string, number>()
+        nodes.forEach(node => counts.set(node.kind ?? '', (counts.get(node.kind ?? '') ?? 0) + 1))
+        return counts
+    }, [nodes])
     const maxWeight = useMemo(() => Math.max(1, ...[...model.dependents.values()].map(list => list.length)), [model])
 
     // Nodes that are currently shown, taking the kind filter and the "show only" exploration into account.
@@ -403,12 +433,26 @@ export const TableGraphModal: React.FC = () => {
         [selected, model, visibleIds, kindHidden]
     )
     const hasGraph = !loading && !error && model.elements.length > 0
-    const filterableKinds = model.kinds.filter(kind => FILTERABLE_KINDS.includes(kind))
-    const statsText = [
-        t('graph:stats', model.stats),
-        model.stats.cyclic > 0 ? t('graph:stats_cyclic', model.stats) : null,
-        model.stats.isolated > 0 ? t('graph:stats_isolated', model.stats) : null,
-    ].filter(Boolean).join(' · ')
+
+    // The graph's vital signs, shown in the modal header: size, plus problem counts that reveal what they point at.
+    const renderVitalSigns = () => (
+        <Typography.Text style={{ fontWeight: 400, fontSize: 13 }} type="secondary">
+            {t('graph:stats', model.stats)}
+            {model.stats.cyclic > 0 && (
+                <>
+                    {' · '}
+                    <Typography.Text
+                        onClick={() => { setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT)); setActiveCycle(undefined) }}
+                        style={{ fontSize: 13, cursor: 'pointer' }}
+                        type="danger"
+                    >
+                        {t('graph:stats_cyclic', model.stats)}
+                    </Typography.Text>
+                </>
+            )}
+            {model.stats.isolated > 0 && <>{' · '}{t('graph:stats_isolated', model.stats)}</>}
+        </Typography.Text>
+    )
 
     // A titled list of linked table names. The pick handler decides what choosing one does — focus it (uses / used by),
     // or, for a dispatcher, isolate that version's path.
@@ -510,85 +554,164 @@ export const TableGraphModal: React.FC = () => {
             return null
         }
         return (
-            <div style={{ fontSize: 12, marginBottom: 8 }}>
-                {rows.map(([label, value]) => (
-                    <div key={label}>
-                        <Typography.Text type="secondary">{label}: </Typography.Text>
-                        <Typography.Text ellipsis={{ tooltip: value }}>{value}</Typography.Text>
+            <>
+                <Divider style={{ margin: '10px 0' }} />
+                {rows.length > 0 && (
+                    <div style={{ fontSize: 12, display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: 8, rowGap: 3 }}>
+                        {rows.map(([label, value]) => (
+                            <React.Fragment key={label}>
+                                <Typography.Text type="secondary">{label}</Typography.Text>
+                                <Typography.Text ellipsis={{ tooltip: value }} style={{ fontFamily: MONO, fontSize: 11 }}>
+                                    {value}
+                                </Typography.Text>
+                            </React.Fragment>
+                        ))}
                     </div>
-                ))}
+                )}
                 {properties.length > 0 && (
-                    <Space wrap size={4} style={{ marginTop: 2 }}>
+                    <Space wrap size={4} style={{ marginTop: rows.length > 0 ? 8 : 0 }}>
                         {properties.map(([key, value]) => (
-                            <Tag key={key} style={{ margin: 0 }}>{`${key}: ${String(value)}`}</Tag>
+                            <Tag key={key} style={{ margin: 0, fontFamily: MONO }}>{`${key}: ${String(value)}`}</Tag>
                         ))}
                     </Space>
                 )}
-            </div>
+            </>
         )
     }
 
-    const renderNodeInfo = (node: GraphNode) => (
-        <>
-            <Typography.Title ellipsis level={5} style={{ marginTop: 0 }}>
-                {node.name}
-            </Typography.Title>
-            <Space wrap size={4} style={{ marginBottom: 8 }}>
-                {node.kind && <Tag color={kindColor(node.kind)}>{node.kind}</Tag>}
-                {node.project && <Tag>{node.project}</Tag>}
-            </Space>
-            {node.dimensionProperties && Object.keys(node.dimensionProperties).length > 0 && (
-                <div style={{ marginBottom: 8 }}>
-                    <Typography.Text style={{ display: 'block' }} type="secondary">
-                        {t('graph:meta.business_dimension')}
-                    </Typography.Text>
-                    <Space wrap size={[4, 4]} style={{ marginTop: 2, width: '100%' }}>
-                        {Object.entries(node.dimensionProperties).map(([key, value]) => (
-                            <Tag key={key} color="gold" style={{ margin: 0, maxWidth: '100%' }}>
-                                <Typography.Text
-                                    ellipsis={{ tooltip: `${key}: ${value}` }}
-                                    style={{ color: 'inherit', maxWidth: 220 }}
-                                >
-                                    {`${key}: ${value}`}
-                                </Typography.Text>
-                            </Tag>
-                        ))}
-                    </Space>
-                </div>
-            )}
-            {renderMeta(node)}
-            {node.kind === DISPATCHER_KIND ? (
-                <Typography.Paragraph style={{ marginBottom: 0 }} type="secondary">
-                    {t('graph:panel.dispatcher_hint')}
-                </Typography.Paragraph>
-            ) : (
-                <Space wrap size={4}>
-                    <Button icon={<ExportOutlined />} onClick={() => openTable(node.id)} size="small" type="primary">
-                        {t('graph:panel.open')}
-                    </Button>
+    const renderNodeInfo = (node: GraphNode) => {
+        const isDispatcher = node.kind === DISPATCHER_KIND
+        const dims = Object.entries(node.dimensionProperties ?? {})
+        return (
+            <>
+                <Typography.Title ellipsis={{ tooltip: node.name }} level={5} style={{ marginTop: 0, marginBottom: 6 }}>
+                    {node.name}
+                </Typography.Title>
+                <Space wrap size={4} style={{ marginBottom: 8 }}>
+                    {node.kind && <Tag color={kindColor(node.kind)}>{node.kind}</Tag>}
+                    {node.project && <Tag>{node.project}</Tag>}
                 </Space>
-            )}
-            <div style={{ marginTop: 8 }}>
-                <Typography.Text type="secondary">{t('graph:panel.explore')}: </Typography.Text>
-                <Typography.Link onClick={() => setExplore({ id: node.id, direction: 'DEPENDENCIES' })}>
-                    {t('graph:panel.explore_uses')}
-                </Typography.Link>
-                {' · '}
-                <Typography.Link onClick={() => setExplore({ id: node.id, direction: 'DEPENDENTS' })}>
-                    {t('graph:panel.explore_used_by')}
-                </Typography.Link>
-                {' · '}
-                <Typography.Link onClick={() => setExplore({ id: node.id, direction: 'BOTH' })}>
-                    {t('graph:panel.explore_both')}
-                </Typography.Link>
+                {dims.length > 0 && (
+                    <div style={{ marginBottom: 8 }}>
+                        <Typography.Text style={{ display: 'block', marginBottom: 2 }} type="secondary">
+                            {t('graph:meta.business_dimension')}
+                        </Typography.Text>
+                        <Space wrap size={[4, 4]} style={{ width: '100%' }}>
+                            {dims.map(([key, value]) => (
+                                <Tag key={key} color="gold" style={{ margin: 0, maxWidth: '100%' }}>
+                                    <Typography.Text ellipsis={{ tooltip: `${key}: ${value}` }} style={{ color: 'inherit', maxWidth: 220 }}>
+                                        {`${key}: ${value}`}
+                                    </Typography.Text>
+                                </Tag>
+                            ))}
+                        </Space>
+                    </div>
+                )}
+                {renderMeta(node)}
+                <div style={{ marginTop: 10 }}>
+                    {isDispatcher ? (
+                        <Typography.Paragraph style={{ marginBottom: 8 }} type="secondary">
+                            {t('graph:panel.dispatcher_hint')}
+                        </Typography.Paragraph>
+                    ) : (
+                        <Button
+                            icon={<ExportOutlined />}
+                            onClick={() => openTable(node.id)}
+                            size="small"
+                            style={{ marginBottom: 10 }}
+                            type="primary"
+                        >
+                            {t('graph:panel.open')}
+                        </Button>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Typography.Text type="secondary">{t('graph:panel.focus')}</Typography.Text>
+                        <Space.Compact size="small">
+                            <Button onClick={() => setExplore({ id: node.id, direction: 'DEPENDENCIES' })}>
+                                {t('graph:panel.focus_uses')}
+                            </Button>
+                            <Button onClick={() => setExplore({ id: node.id, direction: 'DEPENDENTS' })}>
+                                {t('graph:panel.focus_used_by')}
+                            </Button>
+                            <Button onClick={() => setExplore({ id: node.id, direction: 'BOTH' })}>
+                                {t('graph:panel.focus_both')}
+                            </Button>
+                        </Space.Compact>
+                    </div>
+                </div>
+                {isDispatcher
+                    ? renderIdLinks(t('graph:panel.highlight_path'), model.dependencies.get(node.id) ?? [],
+                        id => setExplore({ id: node.id, direction: 'DEPENDENCIES', via: id }))
+                    : renderIdLinks(t('graph:panel.uses'), selectedUses, setSelectedId)}
+                {renderIdLinks(t('graph:panel.dependents'), selectedUsedBy, setSelectedId)}
+            </>
+        )
+    }
+
+    // The schematic's key: decodes every colour and marker actually on the graph, and doubles as a per-kind filter.
+    const renderLegend = () => {
+        const marker = (swatch: React.ReactNode, label: string) => (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 14, display: 'inline-flex', justifyContent: 'center', flex: '0 0 auto' }}>{swatch}</span>
+                <Typography.Text style={{ fontSize: 12 }}>{label}</Typography.Text>
             </div>
-            {node.kind === DISPATCHER_KIND
-                ? renderIdLinks(t('graph:panel.highlight_path'), model.dependencies.get(node.id) ?? [],
-                    id => setExplore({ id: node.id, direction: 'DEPENDENCIES', via: id }))
-                : renderIdLinks(t('graph:panel.uses'), selectedUses, setSelectedId)}
-            {renderIdLinks(t('graph:panel.dependents'), selectedUsedBy, setSelectedId)}
-        </>
-    )
+        )
+        return (
+            <div
+                data-testid="table-graph-legend"
+                style={{
+                    position: 'absolute', top: 8, left: 8, zIndex: 2, width: 210, maxHeight: 'calc(100% - 16px)',
+                    overflowY: 'auto', background: '#ffffff', border: `1px solid ${HAIRLINE}`, borderRadius: 8,
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)', padding: '8px 10px',
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <Typography.Text strong style={{ fontSize: 11, letterSpacing: 0.5 }}>
+                        {t('graph:legend.show').toUpperCase()}
+                    </Typography.Text>
+                    <Button icon={<CloseOutlined />} onClick={() => setLegendOpen(false)} size="small" type="text" />
+                </div>
+                <Space orientation="vertical" size={2} style={{ width: '100%' }}>
+                    {model.kinds.map(kind => {
+                        const hidden = hiddenKinds.has(kind)
+                        return (
+                            <div
+                                key={kind}
+                                onClick={() => toggleKind(kind)}
+                                style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', opacity: hidden ? 0.4 : 1, userSelect: 'none' }}
+                            >
+                                <span style={{ width: 12, height: 12, borderRadius: 3, background: kindColor(kind), flex: '0 0 auto' }} />
+                                <Typography.Text ellipsis style={{ fontSize: 12, flex: 1, textDecoration: hidden ? 'line-through' : 'none' }}>
+                                    {kind}
+                                </Typography.Text>
+                                <Typography.Text style={{ fontSize: 11, fontFamily: MONO }} type="secondary">
+                                    {kindCounts.get(kind) ?? 0}
+                                </Typography.Text>
+                            </div>
+                        )
+                    })}
+                </Space>
+                <Divider style={{ margin: '8px 0' }} />
+                <Space orientation="vertical" size={4} style={{ width: '100%' }}>
+                    {kindCounts.has(DISPATCHER_KIND)
+                        && marker(<span style={{ width: 11, height: 11, border: `2px solid ${DISPATCHER_ACCENT}` }} />, t('graph:legend.dispatcher'))}
+                    {model.stats.isolated > 0
+                        && marker(<span style={{ width: 11, height: 11, border: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.isolated'))}
+                    {marker(<span style={{ width: 14, height: 0, borderTop: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.cycle'))}
+                    {marker(
+                        <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
+                            <span style={{ width: 7, height: 11, border: '1px solid #999' }} />
+                            <span style={{ width: 7, height: 11, border: '3px solid #555' }} />
+                        </span>,
+                        t('graph:legend.weight')
+                    )}
+                </Space>
+                <Typography.Text style={{ fontSize: 11, display: 'block', marginTop: 8 }} type="secondary">
+                    {t('graph:legend.hint')}
+                </Typography.Text>
+            </div>
+        )
+    }
 
     return (
         <Modal
@@ -598,9 +721,12 @@ export const TableGraphModal: React.FC = () => {
             open={visible}
             width="92vw"
             title={
-                <Space>
-                    <PartitionOutlined />
-                    {t('graph:title')}
+                <Space wrap align="center" size={10}>
+                    <Space size={8}>
+                        <PartitionOutlined />
+                        {t('graph:title')}
+                    </Space>
+                    {hasGraph && renderVitalSigns()}
                 </Space>
             }
         >
@@ -609,7 +735,7 @@ export const TableGraphModal: React.FC = () => {
                     <Empty description={error ? t('graph:load_failed') : t('graph:empty')} />
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '74vh' }}>
-                        <Space wrap style={{ marginBottom: 8 }}>
+                        <Space wrap align="center" size={12} style={{ marginBottom: 8 }}>
                             <Select
                                 allowClear
                                 data-testid="table-graph-search"
@@ -625,59 +751,59 @@ export const TableGraphModal: React.FC = () => {
                                     setSelectedId(matches.length === 1 ? matches[0]?.id : undefined)
                                 }}
                             />
-                            <Tooltip title={t('graph:fit')}>
-                                <Button icon={<AimOutlined />} onClick={() => cyRef.current?.fit(undefined, 30)} />
-                            </Tooltip>
-                            <Tooltip title={t('graph:zoom_in')}>
-                                <Button icon={<ZoomInOutlined />} onClick={() => zoomBy(1.2)} />
-                            </Tooltip>
-                            <Tooltip title={t('graph:zoom_out')}>
-                                <Button icon={<ZoomOutOutlined />} onClick={() => zoomBy(1 / 1.2)} />
-                            </Tooltip>
-                            <Tooltip title={t('graph:find_cycles')}>
-                                <Button
-                                    data-testid="table-graph-find-cycles"
-                                    icon={<RetweetOutlined />}
-                                    type={cycles === null ? 'default' : 'primary'}
-                                    onClick={() => {
-                                        if (cycles === null) {
-                                            setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT))
-                                        } else {
-                                            setCycles(null)
-                                            setActiveCycle(undefined)
-                                        }
+                            <Space.Compact>
+                                <Tooltip title={t('graph:fit')}>
+                                    <Button icon={<AimOutlined />} onClick={() => cyRef.current?.fit(undefined, 30)} />
+                                </Tooltip>
+                                <Tooltip title={t('graph:zoom_in')}>
+                                    <Button icon={<ZoomInOutlined />} onClick={() => zoomBy(1.2)} />
+                                </Tooltip>
+                                <Tooltip title={t('graph:zoom_out')}>
+                                    <Button icon={<ZoomOutOutlined />} onClick={() => zoomBy(1 / 1.2)} />
+                                </Tooltip>
+                            </Space.Compact>
+                            <Button
+                                data-testid="table-graph-find-cycles"
+                                icon={<RetweetOutlined />}
+                                type={cycles === null ? 'default' : 'primary'}
+                                onClick={() => {
+                                    if (cycles === null) {
+                                        setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT))
+                                    } else {
+                                        setCycles(null)
+                                        setActiveCycle(undefined)
+                                    }
+                                }}
+                            >
+                                {t('graph:find_cycles')}
+                            </Button>
+                            <Button
+                                icon={<BgColorsOutlined />}
+                                onClick={() => setLegendOpen(open => !open)}
+                                type={legendOpen ? 'primary' : 'default'}
+                            >
+                                {t('graph:legend.show')}
+                            </Button>
+                            {explore && (
+                                <Button icon={<RollbackOutlined />} onClick={() => setExplore(undefined)}>
+                                    {t('graph:panel.back')}
+                                </Button>
+                            )}
+                        </Space>
+                        <div style={{ display: 'flex', flex: 1, minHeight: 0, gap: 8 }}>
+                            <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                                <div
+                                    ref={containerRef}
+                                    data-testid="table-graph"
+                                    style={{
+                                        width: '100%', height: '100%', border: `1px solid ${HAIRLINE}`, borderRadius: 8,
+                                        background: CANVAS_BG, backgroundImage: DOT_GRID, backgroundSize: '18px 18px',
                                     }}
                                 />
-                            </Tooltip>
-                            <Typography.Text type="secondary">{statsText}</Typography.Text>
-                        </Space>
-                        {(filterableKinds.length > 0 || explore) && (
-                            <Space wrap size={4} style={{ marginBottom: 8 }}>
-                                {filterableKinds.map(kind => (
-                                    <Tag
-                                        key={kind}
-                                        color={hiddenKinds.has(kind) ? 'default' : kindColor(kind)}
-                                        onClick={() => toggleKind(kind)}
-                                        style={{ cursor: 'pointer', opacity: hiddenKinds.has(kind) ? 0.45 : 1, userSelect: 'none' }}
-                                    >
-                                        {kind}
-                                    </Tag>
-                                ))}
-                                {explore && (
-                                    <Button icon={<RollbackOutlined />} onClick={() => setExplore(undefined)} size="small">
-                                        {t('graph:panel.back')}
-                                    </Button>
-                                )}
-                            </Space>
-                        )}
-                        <div style={{ display: 'flex', flex: 1, minHeight: 0, gap: 8 }}>
-                            <div
-                                ref={containerRef}
-                                data-testid="table-graph"
-                                style={{ flex: 1, minWidth: 0, border: '1px solid #f0f0f0', borderRadius: 6 }}
-                            />
+                                {legendOpen && renderLegend()}
+                            </div>
                             {selected && (
-                                <div style={{ width: 260, overflowY: 'auto', paddingLeft: 8, borderLeft: '1px solid #f0f0f0' }}>
+                                <div style={{ width: 296, overflowY: 'auto', paddingLeft: 12, borderLeft: `1px solid ${HAIRLINE}` }}>
                                     {renderNodeInfo(selected)}
                                 </div>
                             )}
