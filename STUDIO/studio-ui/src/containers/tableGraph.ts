@@ -214,11 +214,18 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
 }
 
 /**
- * Resolves a table's neighbours in a relation map (uses or used-by) to the visible tables only, bridging across any
- * hidden ones. When nothing is hidden it returns the direct neighbours unchanged. Used both to draw bridge edges and to
- * keep the side-panel lists clickable (every entry points at a visible table).
+ * Resolves a table's neighbours in a relation map (uses or used-by) to the visible tables only, bridging across the
+ * tables that were filtered out by kind ({@code passThrough}). Tables hidden for any other reason — e.g. excluded by a
+ * "show only" exploration — act as a hard boundary and are not crossed, so a dispatcher never inherits an edge that
+ * actually belongs to one of its hidden sibling versions. When nothing is bridged it returns the direct visible
+ * neighbours.
  */
-export const visibleNeighbours = (id: string, relations: Map<string, string[]>, visible: Set<string>): string[] => {
+export const visibleNeighbours = (
+    id: string,
+    relations: Map<string, string[]>,
+    visible: Set<string>,
+    passThrough: Set<string>
+): string[] => {
     const result = new Set<string>()
     const walked = new Set<string>()
     const queue = [id]
@@ -229,7 +236,7 @@ export const visibleNeighbours = (id: string, relations: Map<string, string[]>, 
             ;(relations.get(current) ?? []).forEach(next => {
                 if (visible.has(next)) {
                     result.add(next)
-                } else {
+                } else if (passThrough.has(next)) {
                     queue.push(next)
                 }
             })
@@ -240,16 +247,21 @@ export const visibleNeighbours = (id: string, relations: Map<string, string[]>, 
 }
 
 /**
- * Builds bridge edges that reconnect visible tables across hidden ones. When a table is filtered out (e.g. a
- * dispatcher), its incoming and outgoing links would otherwise be cut; bridging restores the transitive connection
- * (caller &#8594; version) so the graph stays readable. Direct links between visible tables are left untouched.
+ * Builds bridge edges that reconnect visible tables across the kind-filtered ones ({@code passThrough}). When a kind is
+ * hidden (e.g. a dispatcher), its incoming and outgoing links would otherwise be cut; bridging restores the transitive
+ * connection (caller &#8594; version). Only those tables are bridged — tables excluded by an exploration are a hard
+ * boundary — and direct links between visible tables are left untouched.
  */
-export const bridgeHiddenNodes = (visible: Set<string>, dependencies: Map<string, string[]>): ElementDefinition[] => {
+export const bridgeHiddenNodes = (
+    visible: Set<string>,
+    passThrough: Set<string>,
+    dependencies: Map<string, string[]>
+): ElementDefinition[] => {
     const bridges: ElementDefinition[] = []
     const added = new Set<string>()
     visible.forEach(source => {
         const direct = new Set((dependencies.get(source) ?? []).filter(dep => visible.has(dep)))
-        visibleNeighbours(source, dependencies, visible).forEach(target => {
+        visibleNeighbours(source, dependencies, visible, passThrough).forEach(target => {
             const key = `${source}->${target}`
             if (!direct.has(target) && !added.has(key)) {
                 added.add(key)

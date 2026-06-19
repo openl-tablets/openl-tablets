@@ -55,7 +55,7 @@ describe('bridgeHiddenNodes', () => {
     it('reconnects visible tables across a hidden dispatcher', () => {
         const deps = new Map<string, string[]>([['c', ['d']], ['d', ['v']], ['v', []]])
 
-        const bridges = bridgeHiddenNodes(new Set(['c', 'v']), deps)
+        const bridges = bridgeHiddenNodes(new Set(['c', 'v']), new Set(['d']), deps)
 
         expect(bridges.map(bridge => bridge.data.id)).toEqual(['bridge:c->v'])
         expect(bridges[0]?.data).toMatchObject({ source: 'c', target: 'v' })
@@ -64,7 +64,15 @@ describe('bridgeHiddenNodes', () => {
     it('does not duplicate an existing direct edge', () => {
         const deps = new Map<string, string[]>([['c', ['d', 'v']], ['d', ['v']], ['v', []]])
 
-        expect(bridgeHiddenNodes(new Set(['c', 'v']), deps)).toEqual([])
+        expect(bridgeHiddenNodes(new Set(['c', 'v']), new Set(['d']), deps)).toEqual([])
+    })
+
+    it('does not bridge through an explore-excluded node (only through filtered kinds)', () => {
+        // dispatcher D -> [V1, V2], both versions -> X; a "show only" of V1's path hides V2 (not a hidden kind)
+        const deps = new Map<string, string[]>([['D', ['V1', 'V2']], ['V1', ['X']], ['V2', ['X']], ['X', []]])
+
+        // nothing is filtered by kind, so V2 is a hard boundary — no phantom D -> X edge
+        expect(bridgeHiddenNodes(new Set(['D', 'V1', 'X']), new Set(), deps)).toEqual([])
     })
 })
 
@@ -72,13 +80,13 @@ describe('visibleNeighbours', () => {
     it('returns direct neighbours when nothing is hidden', () => {
         const deps = new Map<string, string[]>([['a', ['b', 'c']]])
 
-        expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c']))).toEqual(['b', 'c'])
+        expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c']), new Set())).toEqual(['b', 'c'])
     })
 
-    it('bridges across a hidden neighbour so panel links stay clickable', () => {
+    it('bridges across a filtered-out neighbour so panel links stay clickable', () => {
         const deps = new Map<string, string[]>([['a', ['h']], ['h', ['b', 'c']]])
 
-        expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c'])).sort()).toEqual(['b', 'c'])
+        expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c']), new Set(['h'])).sort()).toEqual(['b', 'c'])
     })
 })
 
