@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
@@ -151,9 +152,8 @@ public class ProjectTablesGraphService {
                                    Map<String, String> candidateToDispatcher,
                                    OpenMethodDispatcher dispatcher,
                                    Map<TableSyntaxNode, String> projectByTable) {
-        var candidateIds = dispatcher.getCandidates().stream()
-                .filter(ExecutableMethod.class::isInstance)
-                .map(candidate -> TableUtils.makeTableId(((ExecutableMethod) candidate).getSourceUrl()))
+        var candidateIds = executableCandidates(dispatcher)
+                .map(candidate -> TableUtils.makeTableId(candidate.getSourceUrl()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (candidateIds.size() <= 1) {
             return;
@@ -169,14 +169,20 @@ public class ProjectTablesGraphService {
     }
 
     private static String dispatcherProject(OpenMethodDispatcher dispatcher, Map<TableSyntaxNode, String> projectByTable) {
-        return dispatcher.getCandidates().stream()
-                .filter(ExecutableMethod.class::isInstance)
-                .map(candidate -> ((ExecutableMethod) candidate).getInfo().getSyntaxNode())
+        return executableCandidates(dispatcher)
+                .map(candidate -> candidate.getInfo().getSyntaxNode())
                 .filter(TableSyntaxNode.class::isInstance)
                 .map(projectByTable::get)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
+    }
+
+    /** The dispatched candidate versions that are real tables, narrowed to {@link ExecutableMethod}. */
+    private static Stream<ExecutableMethod> executableCandidates(OpenMethodDispatcher dispatcher) {
+        return dispatcher.getCandidates().stream()
+                .filter(ExecutableMethod.class::isInstance)
+                .map(ExecutableMethod.class::cast);
     }
 
     private static String dispatcherId(Set<String> candidateIds) {

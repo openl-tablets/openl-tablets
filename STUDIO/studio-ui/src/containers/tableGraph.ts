@@ -229,8 +229,9 @@ export const visibleNeighbours = (
     const result = new Set<string>()
     const walked = new Set<string>()
     const queue = [id]
-    while (queue.length > 0) {
-        const current = queue.shift() as string
+    // Dequeue with a moving head index; Array.shift() is O(n) and would make the traversal O(n²).
+    for (let head = 0; head < queue.length; head++) {
+        const current = queue[head] as string
         if (!walked.has(current)) {
             walked.add(current)
             ;(relations.get(current) ?? []).forEach(next => {
