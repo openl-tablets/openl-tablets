@@ -8,11 +8,13 @@ import type { MockedFunction } from 'vitest'
 
 const cyMocks = vi.hoisted(() => {
     const nodeAddClass = vi.fn()
+    const nodeRemoveClass = vi.fn()
     const chain = { removeClass: vi.fn(), addClass: vi.fn(), not: vi.fn() }
     chain.removeClass.mockReturnValue(chain)
     chain.addClass.mockReturnValue(chain)
     chain.not.mockReturnValue(chain)
-    const node = { empty: () => false, hasClass: () => false, addClass: nodeAddClass, closedNeighborhood: () => ({}) }
+    const node = { empty: () => false, hasClass: () => false, addClass: nodeAddClass, removeClass: nodeRemoveClass, closedNeighborhood: () => ({}) }
+    nodeRemoveClass.mockReturnValue(node)
     return {
         nodeAddClass,
         getElementById: vi.fn(() => node),
@@ -29,6 +31,7 @@ const cyMocks = vi.hoisted(() => {
         elements: vi.fn(() => chain),
         add: vi.fn(),
         remove: vi.fn(),
+        resize: vi.fn(),
     }
 })
 
@@ -53,6 +56,7 @@ vi.mock('cytoscape', () => {
             getElementById: cyMocks.getElementById,
             add: cyMocks.add,
             remove: cyMocks.remove,
+            resize: cyMocks.resize,
         })),
         { use: vi.fn() }
     )
@@ -167,6 +171,26 @@ describe('TableGraphModal', () => {
         expect(screen.queryByText('graph:panel.open')).not.toBeInTheDocument()
         expect(screen.getByText('graph:panel.dispatcher_hint')).toBeInTheDocument()
         expect(screen.getByText('graph:panel.highlight_path')).toBeInTheDocument()
+    })
+
+    it('finds call cycles and highlights the one picked from the list', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'a', name: 'A', dependencies: ['b']},
+            { id: 'b', name: 'B', dependencies: ['c']},
+            { id: 'c', name: 'C', dependencies: ['a']},
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByTestId('table-graph-find-cycles'))
+
+        const cycle = await screen.findByTestId('table-graph-cycle-0')
+        expect(cycle).toHaveTextContent('A → B → C → A')
+
+        await userEvent.click(cycle)
+        expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
     })
 
     it('shows the empty state when there are no tables', async () => {

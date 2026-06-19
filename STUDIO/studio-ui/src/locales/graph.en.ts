@@ -11,6 +11,10 @@ i18next.addResourceBundle('en', 'graph', {
     stats: '{{nodes}} tables · {{edges}} dependencies',
     stats_cyclic: '{{cyclic}} in cycles',
     stats_isolated: '{{isolated}} isolated',
+    find_cycles: 'Find call cycles',
+    cycles_found: 'Call cycles ({{count}})',
+    cycles_none: 'No call cycles found',
+    cycles_more: 'Showing the first {{count}}',
     panel: {
         open: 'Open in editor',
         uses: 'Uses',

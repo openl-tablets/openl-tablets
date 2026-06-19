@@ -1,4 +1,4 @@
-import { bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, visibleNeighbours } from 'containers/tableGraph'
+import { bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, findCycles, visibleNeighbours } from 'containers/tableGraph'
 
 const edge = (model: ReturnType<typeof buildGraphModel>, id: string) => model.elements.find(element => element.data.id === id)
 
@@ -79,5 +79,27 @@ describe('visibleNeighbours', () => {
         const deps = new Map<string, string[]>([['a', ['h']], ['h', ['b', 'c']]])
 
         expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c'])).sort()).toEqual(['b', 'c'])
+    })
+})
+
+describe('findCycles', () => {
+    it('finds an indirect cycle once, rooted at its smallest member', () => {
+        const deps = new Map<string, string[]>([['a', ['b']], ['b', ['c']], ['c', ['a']]])
+
+        const cycles = findCycles(deps)
+
+        expect(cycles).toHaveLength(1)
+        expect(cycles[0]?.nodes).toEqual(['a', 'b', 'c'])
+    })
+
+    it('ignores acyclic graphs and direct self-recursion', () => {
+        expect(findCycles(new Map([['a', ['b']], ['b', ['c']], ['c', []]]))).toEqual([])
+        expect(findCycles(new Map([['a', ['a']]]))).toEqual([])
+    })
+
+    it('finds multiple distinct cycles', () => {
+        const deps = new Map<string, string[]>([['a', ['b', 'c']], ['b', ['a']], ['c', ['d']], ['d', ['a']]])
+
+        expect(findCycles(deps).map(cycle => cycle.nodes.join('>')).sort()).toEqual(['a>b', 'a>c>d'])
     })
 })
