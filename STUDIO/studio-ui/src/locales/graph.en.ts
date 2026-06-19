@@ -5,6 +5,7 @@ i18next.addResourceBundle('en', 'graph', {
     empty: 'No table dependencies to display.',
     load_failed: 'Failed to load the table dependency graph.',
     search_placeholder: 'Find a table by name',
+    search_matches: '{{count}} tables named "{{name}}"',
     fit: 'Fit to screen',
     zoom_in: 'Zoom in',
     zoom_out: 'Zoom out',
