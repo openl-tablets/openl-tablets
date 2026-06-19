@@ -18,5 +18,7 @@ i18next.addResourceBundle('en', 'graph', {
         explore_used_by: 'who uses it',
         explore_both: 'both',
         back: 'Show full project',
+        highlight_path: "Show one version's path",
+        dispatcher_hint: 'Generated table that selects one version at runtime',
     },
 })

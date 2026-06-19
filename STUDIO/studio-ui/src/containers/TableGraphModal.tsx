@@ -13,7 +13,7 @@ import cytoscape, { type Core } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
-import { buildGraphModel, type GraphNode, kindColor } from './tableGraph'
+import { buildGraphModel, DISPATCHER_KIND, type GraphNode, kindColor } from './tableGraph'
 
 let extensionsRegistered = false
 if (!extensionsRegistered) {
@@ -57,6 +57,11 @@ const buildStyle = (maxWeight: number) => [
     {
         selector: 'node.isolated',
         style: { 'border-width': 3, 'border-style': 'dashed', 'border-color': '#f5222d', 'border-opacity': 1 },
+    },
+    {
+        // the technical dispatcher table that selects one overloaded version: a distinct cut-rectangle with a gold frame
+        selector: 'node.dispatcher',
+        style: { 'shape': 'cut-rectangle', 'border-width': 3, 'border-color': '#ffc53d', 'border-opacity': 1 },
     },
     {
         selector: 'node.highlighted',
@@ -131,7 +136,7 @@ export const TableGraphModal: React.FC = () => {
     const [error, setError] = useState(false)
     const [nodes, setNodes] = useState<GraphNode[]>([])
     const [hiddenKinds, setHiddenKinds] = useState<Set<string>>(new Set())
-    const [explore, setExplore] = useState<{ id: string, direction: Direction }>()
+    const [explore, setExplore] = useState<{ id: string, direction: Direction, via?: string }>()
     const [selectedId, setSelectedId] = useState<string>()
 
     const containerRef = useRef<HTMLDivElement>(null)
@@ -185,12 +190,16 @@ export const TableGraphModal: React.FC = () => {
             const queue = [start]
             while (queue.length) {
                 const current = queue.shift() as string
-                const next: string[] = []
+                let next: string[] = []
                 if (explore?.direction !== 'DEPENDENTS') {
                     next.push(...(model.dependencies.get(current) ?? []))
                 }
                 if (explore?.direction !== 'DEPENDENCIES') {
                     next.push(...(model.dependents.get(current) ?? []))
+                }
+                // dispatcher path: from the dispatcher node follow only the chosen version, then expand it in full
+                if (explore?.via && current === explore.id) {
+                    next = next.filter(id => id === explore.via)
                 }
                 next.filter(id => !seen.has(id)).forEach(id => {
                     seen.add(id)
@@ -310,6 +319,27 @@ export const TableGraphModal: React.FC = () => {
         )
     )
 
+    // For a dispatcher, list its versions as paths: picking one isolates that version and everything below it.
+    const renderPathSection = (dispatcherId: string, candidateIds: string[]) => (
+        candidateIds.length === 0 ? null : (
+            <>
+                <Divider style={{ margin: '8px 0' }} />
+                <Typography.Text strong>{t('graph:panel.highlight_path')}</Typography.Text>
+                <Space orientation="vertical" size={2} style={{ width: '100%' }}>
+                    {candidateIds.map(id => (
+                        <Typography.Link
+                            key={id}
+                            ellipsis
+                            onClick={() => setExplore({ id: dispatcherId, direction: 'DEPENDENCIES', via: id })}
+                        >
+                            {model.byId.get(id)?.name ?? id}
+                        </Typography.Link>
+                    ))}
+                </Space>
+            </>
+        )
+    )
+
     return (
         <Modal
             destroyOnHidden
@@ -383,11 +413,17 @@ export const TableGraphModal: React.FC = () => {
                                         {selected.kind && <Tag color={kindColor(selected.kind)}>{selected.kind}</Tag>}
                                         {selected.project && <Tag>{selected.project}</Tag>}
                                     </Space>
-                                    <Space wrap size={4}>
-                                        <Button icon={<ExportOutlined />} onClick={() => openTable(selected.id)} size="small" type="primary">
-                                            {t('graph:panel.open')}
-                                        </Button>
-                                    </Space>
+                                    {selected.kind === DISPATCHER_KIND ? (
+                                        <Typography.Paragraph style={{ marginBottom: 0 }} type="secondary">
+                                            {t('graph:panel.dispatcher_hint')}
+                                        </Typography.Paragraph>
+                                    ) : (
+                                        <Space wrap size={4}>
+                                            <Button icon={<ExportOutlined />} onClick={() => openTable(selected.id)} size="small" type="primary">
+                                                {t('graph:panel.open')}
+                                            </Button>
+                                        </Space>
+                                    )}
                                     <div style={{ marginTop: 8 }}>
                                         <Typography.Text type="secondary">{t('graph:panel.explore')}: </Typography.Text>
                                         <Typography.Link onClick={() => setExplore({ id: selected.id, direction: 'DEPENDENCIES' })}>
@@ -402,7 +438,9 @@ export const TableGraphModal: React.FC = () => {
                                             {t('graph:panel.explore_both')}
                                         </Typography.Link>
                                     </div>
-                                    {renderRelationSection(t('graph:panel.dependencies'), model.dependencies.get(selected.id) ?? [])}
+                                    {selected.kind === DISPATCHER_KIND
+                                        ? renderPathSection(selected.id, model.dependencies.get(selected.id) ?? [])
+                                        : renderRelationSection(t('graph:panel.dependencies'), model.dependencies.get(selected.id) ?? [])}
                                     {renderRelationSection(t('graph:panel.dependents'), model.dependents.get(selected.id) ?? [])}
                                 </div>
                             )}
