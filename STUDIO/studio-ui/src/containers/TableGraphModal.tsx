@@ -490,13 +490,13 @@ export const TableGraphModal: React.FC = () => {
                     </Typography.Text>
                     <Space wrap size={[4, 4]} style={{ marginTop: 2, width: '100%' }}>
                         {Object.entries(node.dimensionProperties).map(([key, value]) => (
-                            <Tag
-                                key={key}
-                                color="gold"
-                                style={{ margin: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                                title={`${key}: ${value}`}
-                            >
-                                {`${key}: ${value}`}
+                            <Tag key={key} color="gold" style={{ margin: 0, maxWidth: '100%' }}>
+                                <Typography.Text
+                                    ellipsis={{ tooltip: `${key}: ${value}` }}
+                                    style={{ color: 'inherit', maxWidth: 220 }}
+                                >
+                                    {`${key}: ${value}`}
+                                </Typography.Text>
                             </Tag>
                         ))}
                     </Space>
