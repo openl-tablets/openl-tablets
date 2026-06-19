@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_NAME}/tables/d932c8a19ef85e1d3b3871b48245f1e3/graph HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

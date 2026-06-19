@@ -68,6 +68,7 @@ import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableIdView;
+import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
@@ -80,6 +81,8 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.graph.GraphDirection;
+import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
@@ -110,6 +113,7 @@ public class ProjectsController {
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectStatusMapper projectStatusMapper;
+    private final ProjectTablesGraphService graphService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -312,6 +316,31 @@ public class ProjectsController {
             return projectService.getTableRaw(project, tableId);
         }
         return (EditableTableView) projectService.getTable(project, tableId);
+    }
+
+    @GetMapping("/{projectId}/tables/graph")
+    @Operation(summary = "Get project tables dependency graph (BETA)",
+            description = "Returns all project tables and the tables each one depends on. The whole project is covered by default; pass `module` to limit the graph to a single module.")
+    @Parameter(name = "module", description = "Module name to limit the graph to a single module", in = ParameterIn.QUERY)
+    public List<TableNodeView> getTablesGraph(@ProjectId @PathVariable("projectId") RulesProject project,
+                                              @RequestParam(value = "module", required = false) String module) {
+        var model = projectService.openProject(project, module).awaitCompiled();
+        return graphService.buildProjectGraph(model, module != null);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/graph")
+    @Operation(summary = "Get dependency graph for a table (BETA)",
+            description = "Returns the table together with the tables related to it, following dependencies, dependents, or both, optionally limited by depth.")
+    @Parameter(name = "direction", description = "Relations to include", in = ParameterIn.QUERY, schema = @Schema(implementation = GraphDirection.class))
+    public List<TableNodeView> getTableGraph(@ProjectId @PathVariable("projectId") RulesProject project,
+                                             @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                             @RequestParam(value = "direction", defaultValue = "BOTH") GraphDirection direction,
+                                             @RequestParam(value = "depth", required = false) @Min(1) @Parameter(description = "Maximum traversal depth from the table") Integer depth) {
+        var model = projectService.openProject(project).awaitCompiled();
+        if (model.getTableById(tableId) == null) {
+            throw new NotFoundException("table.message");
+        }
+        return graphService.buildTableGraph(model, tableId, direction, depth);
     }
 
     @Operation(summary = "project.table.update.summary", description = "project.table.update.desc")

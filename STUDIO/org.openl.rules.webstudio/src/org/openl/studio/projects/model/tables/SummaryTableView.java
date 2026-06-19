@@ -23,7 +23,7 @@ public class SummaryTableView extends TableView {
     @Schema(description = "Position of the table within the file")
     public final String pos;
 
-    private SummaryTableView(Builder builder) {
+    protected SummaryTableView(Builder builder) {
         super(builder);
         this.returnType = builder.returnType;
         this.signature = builder.signature;
