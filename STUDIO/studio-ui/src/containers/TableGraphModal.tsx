@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Empty, Modal, Space, Spin } from 'antd'
+import { Empty, Modal, Select, Space, Spin } from 'antd'
 import { PartitionOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import cytoscape, { type Core, type ElementDefinition } from 'cytoscape'
@@ -65,6 +65,14 @@ const GRAPH_STYLE = [
         },
     },
     {
+        selector: 'node.highlighted',
+        style: {
+            'background-color': '#fa8c16',
+            'border-width': 3,
+            'border-color': '#d46b08',
+        },
+    },
+    {
         selector: 'edge',
         style: {
             'width': 1.5,
@@ -91,6 +99,7 @@ export const TableGraphModal: React.FC = () => {
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
     const [nodes, setNodes] = useState<TableNode[]>([])
+    const [highlightedId, setHighlightedId] = useState<string>()
 
     const containerRef = useRef<HTMLDivElement>(null)
     const cyRef = useRef<Core | null>(null)
@@ -104,6 +113,7 @@ export const TableGraphModal: React.FC = () => {
         let cancelled = false
         setLoading(true)
         setNodes([])
+        setHighlightedId(undefined)
         // The id may arrive in the standard Base64 alphabet; normalize to the URL-safe form so it never
         // contains a slash, which servlet containers reject in a path segment (the backend decodes both).
         const projectId = detail.projectId.replaceAll('+', '-').replaceAll('/', '_')
@@ -129,6 +139,22 @@ export const TableGraphModal: React.FC = () => {
     }, [detail])
 
     const elements = useMemo(() => toElements(nodes), [nodes])
+    const nodeOptions = useMemo(() => nodes.map(node => ({ label: node.name, value: node.id })), [nodes])
+
+    // Center the graph on the picked table and highlight it; an empty value clears the highlight.
+    const highlightNode = useCallback((id?: string) => {
+        setHighlightedId(id)
+        const cy = cyRef.current
+        if (!cy) {
+            return
+        }
+        cy.nodes().removeClass('highlighted')
+        const node = id ? cy.getElementById(id) : null
+        if (node && !node.empty()) {
+            node.addClass('highlighted')
+            cy.animate({ center: { eles: node } }, { duration: 300 })
+        }
+    }, [])
 
     useEffect(() => {
         if (!visible || loading || !containerRef.current || elements.length === 0) {
@@ -180,7 +206,20 @@ export const TableGraphModal: React.FC = () => {
                 {!loading && elements.length === 0 ? (
                     <Empty description={t('graph:empty')} />
                 ) : (
-                    <div ref={containerRef} data-testid="table-graph" style={{ height: '70vh', width: '100%' }} />
+                    <>
+                        <Select
+                            allowClear
+                            showSearch
+                            data-testid="table-graph-search"
+                            onChange={highlightNode}
+                            optionFilterProp="label"
+                            options={nodeOptions}
+                            placeholder={t('graph:search_placeholder')}
+                            style={{ marginBottom: 8, width: 320 }}
+                            value={highlightedId}
+                        />
+                        <div ref={containerRef} data-testid="table-graph" style={{ height: '70vh', width: '100%' }} />
+                    </>
                 )}
             </Spin>
         </Modal>
