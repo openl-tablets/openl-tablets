@@ -418,11 +418,16 @@ export const TableGraphModal: React.FC = () => {
                 <Divider style={{ margin: '8px 0' }} />
                 <Typography.Text strong>{label}</Typography.Text>
                 <Space orientation="vertical" size={2} style={{ width: '100%' }}>
-                    {ids.map(id => (
-                        <Typography.Link key={id} ellipsis onClick={() => onPick(id)}>
-                            {model.byId.get(id)?.name ?? id}
-                        </Typography.Link>
-                    ))}
+                    {ids.map(id => {
+                        const name = model.byId.get(id)?.name ?? id
+                        return (
+                            <Typography.Link key={id} onClick={() => onPick(id)} style={{ display: 'block', maxWidth: '100%' }}>
+                                <Typography.Text ellipsis={{ tooltip: name }} style={{ color: 'inherit', maxWidth: '100%' }}>
+                                    {name}
+                                </Typography.Text>
+                            </Typography.Link>
+                        )
+                    })}
                 </Space>
             </>
         )
