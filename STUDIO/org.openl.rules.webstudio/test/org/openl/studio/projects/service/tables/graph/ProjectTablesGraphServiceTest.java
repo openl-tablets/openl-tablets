@@ -53,16 +53,30 @@ class ProjectTablesGraphServiceTest {
     @Test
     void wholeProjectGraph() {
         var nodes = service.buildProjectGraph(projectModel, false);
-        assertEquals(List.of("doSomething", "mySPR [state=AR]", "mySPR [state=AZ]", "theCall"),
+        // the overloaded mySPR appears as its own dispatcher node alongside its two versions
+        assertEquals(List.of("doSomething", "mySPR [state=AR]", "mySPR [state=AZ]", "mySPR(int param)", "theCall"),
                 nodes.stream().map(node -> node.name).toList());
         var byName = byName(nodes);
-        // a dispatched (overloaded) method is flattened into its candidates, which theCall depends on
-        assertEquals(2, byName.get("theCall").dependencies.size());
+        // theCall reaches the versions only through the dispatcher
+        assertEquals(1, byName.get("theCall").dependencies.size());
         assertEquals(1, byName.get("mySPR [state=AR]").dependencies.size());
         assertTrue(byName.get("doSomething").dependencies.isEmpty());
         assertNotNull(byName.get("theCall").project);
         // the project graph exposes forward dependencies only
         assertNull(byName.get("doSomething").dependents);
+    }
+
+    @Test
+    void dispatcherBecomesATechnicalNode() {
+        var byName = byName(service.buildProjectGraph(projectModel, false));
+        var dispatcher = byName.get("mySPR(int param)");
+        assertEquals("Dispatcher", dispatcher.kind);
+        assertNotNull(dispatcher.project);
+        // the dispatcher fans out to the overloaded versions...
+        assertEquals(Set.of(byName.get("mySPR [state=AR]").id, byName.get("mySPR [state=AZ]").id),
+                dispatcher.dependencies);
+        // ...and callers reach the versions only through it
+        assertEquals(Set.of(dispatcher.id), byName.get("theCall").dependencies);
     }
 
     @Test
@@ -73,17 +87,20 @@ class ProjectTablesGraphServiceTest {
     @Test
     void tableGraphBothDirections() {
         var byName = byName(service.buildTableGraph(projectModel, idOf("theCall"), GraphDirection.BOTH, null));
-        assertEquals(Set.of("theCall", "mySPR [state=AR]", "mySPR [state=AZ]", "doSomething"), byName.keySet());
-        assertEquals(2, byName.get("theCall").dependencies.size());
-        // upstream relations are exposed too in the BOTH direction
+        assertEquals(Set.of("theCall", "mySPR(int param)", "mySPR [state=AR]", "mySPR [state=AZ]", "doSomething"),
+                byName.keySet());
+        // theCall → dispatcher → versions
+        assertEquals(1, byName.get("theCall").dependencies.size());
+        assertEquals(2, byName.get("mySPR(int param)").dependencies.size());
+        // upstream relations are exposed too in the BOTH direction: the version is used by the dispatcher
         assertEquals(1, byName.get("mySPR [state=AR]").dependents.size());
     }
 
     @Test
     void tableGraphUpstreamOnly() {
         var byName = byName(service.buildTableGraph(projectModel, idOf("doSomething"), GraphDirection.DEPENDENTS, null));
-        // doSomething is used by the AR candidate, which is used by theCall; AZ does not use doSomething
-        assertEquals(Set.of("doSomething", "mySPR [state=AR]", "theCall"), byName.keySet());
+        // doSomething is used by the AR version, reached through the dispatcher from theCall; AZ does not use doSomething
+        assertEquals(Set.of("doSomething", "mySPR [state=AR]", "mySPR(int param)", "theCall"), byName.keySet());
         assertEquals(1, byName.get("doSomething").dependents.size());
         // the upstream-only direction does not expose forward dependencies
         assertNull(byName.get("theCall").dependencies);
@@ -101,9 +118,11 @@ class ProjectTablesGraphServiceTest {
 
     @Test
     void tableGraphDepthLimit() {
-        var nodes = service.buildTableGraph(projectModel, idOf("theCall"), GraphDirection.DEPENDENCIES, 1);
-        // depth 1 reaches the direct candidates but not doSomething (two hops away)
-        assertEquals(Set.of("theCall", "mySPR [state=AR]", "mySPR [state=AZ]"), names(nodes));
+        // depth 1 reaches the dispatcher; the overloaded versions are one hop deeper through it
+        assertEquals(Set.of("theCall", "mySPR(int param)"),
+                names(service.buildTableGraph(projectModel, idOf("theCall"), GraphDirection.DEPENDENCIES, 1)));
+        assertEquals(Set.of("theCall", "mySPR(int param)", "mySPR [state=AR]", "mySPR [state=AZ]"),
+                names(service.buildTableGraph(projectModel, idOf("theCall"), GraphDirection.DEPENDENCIES, 2)));
     }
 
     @Test

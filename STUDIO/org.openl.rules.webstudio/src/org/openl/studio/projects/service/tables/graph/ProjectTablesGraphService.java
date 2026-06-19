@@ -15,6 +15,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -38,6 +39,12 @@ import org.openl.util.CollectionUtils;
  */
 @Component
 public class ProjectTablesGraphService {
+
+    /**
+     * Kind assigned to the technical node that stands for an {@link OpenMethodDispatcher}. The dispatcher is a generated
+     * table that selects one overloaded version at runtime, so it is highlighted apart from regular rules tables.
+     */
+    static final String DISPATCHER_KIND = "Dispatcher";
 
     /**
      * Builds the dependency graph of the whole project, or of the opened module only. Every table is returned together
@@ -107,16 +114,83 @@ public class ProjectTablesGraphService {
         var formats = WebStudioFormats.getInstance();
 
         Map<String, RawNode> nodes = new LinkedHashMap<>();
+        Map<String, String> candidateToDispatcher = new LinkedHashMap<>();
         Deque<IOpenMethod> queue = new ArrayDeque<>(methods);
         while (!queue.isEmpty()) {
             var method = queue.poll();
             if (method instanceof OpenMethodDispatcher dispatcher) {
+                addDispatcherNode(nodes, candidateToDispatcher, dispatcher, projectByTable);
                 queue.addAll(dispatcher.getCandidates());
             } else if (method instanceof ExecutableMethod rulesMethod) {
                 addNode(nodes, rulesMethod, projectByTable, methodNodesDictionary, formats);
             }
         }
+        rewireThroughDispatchers(nodes, candidateToDispatcher);
         return nodes;
+    }
+
+    /**
+     * Adds a node for an {@link OpenMethodDispatcher} — the technical table that selects one overloaded version at
+     * runtime. The dispatcher depends on its candidate versions and is mapped so that callers can later be rewired to
+     * point at the dispatcher instead of the individual versions.
+     *
+     * <p>A dispatcher that wraps a single version is transparent: it gets no node, and callers keep pointing straight at
+     * that version.
+     */
+    private void addDispatcherNode(Map<String, RawNode> nodes,
+                                   Map<String, String> candidateToDispatcher,
+                                   OpenMethodDispatcher dispatcher,
+                                   Map<TableSyntaxNode, String> projectByTable) {
+        var candidateIds = dispatcher.getCandidates().stream()
+                .filter(ExecutableMethod.class::isInstance)
+                .map(candidate -> TableUtils.makeTableId(((ExecutableMethod) candidate).getSourceUrl()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (candidateIds.size() <= 1) {
+            return;
+        }
+        var id = dispatcherId(candidateIds);
+        candidateIds.forEach(candidateId -> candidateToDispatcher.put(candidateId, id));
+        nodes.computeIfAbsent(id, key -> {
+            var name = MethodUtil.printSignature(dispatcher.getCandidates().getFirst(), INamedThing.SHORT);
+            var node = new RawNode(key, name, DISPATCHER_KIND, dispatcherProject(dispatcher, projectByTable));
+            node.dependencies().addAll(candidateIds);
+            return node;
+        });
+    }
+
+    private static String dispatcherProject(OpenMethodDispatcher dispatcher, Map<TableSyntaxNode, String> projectByTable) {
+        return dispatcher.getCandidates().stream()
+                .filter(ExecutableMethod.class::isInstance)
+                .map(candidate -> ((ExecutableMethod) candidate).getInfo().getSyntaxNode())
+                .filter(TableSyntaxNode.class::isInstance)
+                .map(projectByTable::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static String dispatcherId(Set<String> candidateIds) {
+        // the candidate sets of two dispatchers never overlap, so the smallest candidate id uniquely keys the dispatcher
+        return "dispatcher:" + candidateIds.stream().min(Comparator.naturalOrder()).orElseThrow();
+    }
+
+    /**
+     * Redirects every caller's dependency on a dispatched version to the dispatcher node, so that the graph reads
+     * caller &#8594; dispatcher &#8594; versions. Dispatcher nodes keep their direct links to the versions.
+     */
+    private void rewireThroughDispatchers(Map<String, RawNode> nodes, Map<String, String> candidateToDispatcher) {
+        if (candidateToDispatcher.isEmpty()) {
+            return;
+        }
+        nodes.values().stream()
+                .filter(node -> !DISPATCHER_KIND.equals(node.kind()))
+                .forEach(node -> {
+                    var rewired = node.dependencies().stream()
+                            .map(dependencyId -> candidateToDispatcher.getOrDefault(dependencyId, dependencyId))
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                    node.dependencies().clear();
+                    node.dependencies().addAll(rewired);
+                });
     }
 
     private void addNode(Map<String, RawNode> nodes,
