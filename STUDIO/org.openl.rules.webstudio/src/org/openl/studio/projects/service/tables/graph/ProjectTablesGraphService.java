@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.annotation.Nullable;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.base.INamedThing;
@@ -19,12 +20,15 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.util.CollectionUtils;
@@ -38,6 +42,7 @@ import org.openl.util.CollectionUtils;
  * @author Vladyslav Pikus
  */
 @Component
+@RequiredArgsConstructor
 public class ProjectTablesGraphService {
 
     /**
@@ -45,6 +50,8 @@ public class ProjectTablesGraphService {
      * table that selects one overloaded version at runtime, so it is highlighted apart from regular rules tables.
      */
     static final String DISPATCHER_KIND = "Dispatcher";
+
+    private final SummaryTableReader summaryTableReader;
 
     /**
      * Builds the dependency graph of the whole project, or of the opened module only. Every table is returned together
@@ -203,7 +210,8 @@ public class ProjectTablesGraphService {
         var node = nodes.computeIfAbsent(id, key -> {
             var displayNames = TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, 0, methodNodesDictionary, formats);
             var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
-            return new RawNode(id, displayNames[INamedThing.SHORT], kind, projectByTable.get(tableSyntaxNode));
+            var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
+            return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, projectByTable.get(tableSyntaxNode));
         });
         var dependencies = rulesMethod.getDependencies();
         if (dependencies != null && dependencies.getRulesMethods() != null) {
@@ -265,8 +273,12 @@ public class ProjectTablesGraphService {
     }
 
     private TableNodeView toView(RawNode node, GraphDirection direction, Set<String> included) {
-        var builder = new TableNodeView.Builder()
-                .id(node.id())
+        var builder = new TableNodeView.Builder();
+        if (node.summary() != null) {
+            // map every SummaryTableView field (signature, file, pos, properties…); id/name/kind below stay graph-owned
+            builder.summary(node.summary());
+        }
+        builder.id(node.id())
                 .name(node.name())
                 .kind(node.kind())
                 .project(node.project());
@@ -286,10 +298,14 @@ public class ProjectTablesGraphService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private record RawNode(String id, String name, String kind, String project,
+    private record RawNode(String id, String name, String kind, @Nullable SummaryTableView summary, String project,
                            Set<String> dependencies, Set<String> dependents) {
         private RawNode(String id, String name, String kind, String project) {
-            this(id, name, kind, project, new LinkedHashSet<>(), new LinkedHashSet<>());
+            this(id, name, kind, null, project, new LinkedHashSet<>(), new LinkedHashSet<>());
+        }
+
+        private RawNode(String id, String name, String kind, SummaryTableView summary, String project) {
+            this(id, name, kind, summary, project, new LinkedHashSet<>(), new LinkedHashSet<>());
         }
     }
 }

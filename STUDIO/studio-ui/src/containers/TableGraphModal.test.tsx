@@ -193,6 +193,30 @@ describe('TableGraphModal', () => {
         expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
     })
 
+    it('shows summary meta for the selected table', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'a',
+                name: 'A',
+                signature: 'foo(int n)',
+                returnType: 'String',
+                file: 'rules/Main.xlsx',
+                pos: 'B2:C4',
+                properties: { state: 'AZ' },
+            },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'a')
+
+        expect(screen.getByText('foo(int n)')).toBeInTheDocument()
+        expect(screen.getByText('rules/Main.xlsx')).toBeInTheDocument()
+        expect(screen.getByText('state: AZ')).toBeInTheDocument()
+    })
+
     it('shows the empty state when there are no tables', async () => {
         mockApiCall.mockResolvedValueOnce([] as never)
 

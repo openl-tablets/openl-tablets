@@ -436,6 +436,37 @@ export const TableGraphModal: React.FC = () => {
         </div>
     )
 
+    // Summary meta read from the backend (signature, return type, location, properties), shown under the table name.
+    const renderMeta = (node: GraphNode) => {
+        const rows = [
+            [t('graph:meta.signature'), node.signature],
+            [t('graph:meta.returns'), node.returnType],
+            [t('graph:meta.file'), node.file],
+            [t('graph:meta.pos'), node.pos],
+        ].filter((row): row is [string, string] => Boolean(row[1]))
+        const properties = Object.entries(node.properties ?? {})
+        if (rows.length === 0 && properties.length === 0) {
+            return null
+        }
+        return (
+            <div style={{ fontSize: 12, marginBottom: 8 }}>
+                {rows.map(([label, value]) => (
+                    <div key={label}>
+                        <Typography.Text type="secondary">{label}: </Typography.Text>
+                        <Typography.Text ellipsis={{ tooltip: value }}>{value}</Typography.Text>
+                    </div>
+                ))}
+                {properties.length > 0 && (
+                    <Space wrap size={4} style={{ marginTop: 2 }}>
+                        {properties.map(([key, value]) => (
+                            <Tag key={key} style={{ margin: 0 }}>{`${key}: ${String(value)}`}</Tag>
+                        ))}
+                    </Space>
+                )}
+            </div>
+        )
+    }
+
     const renderNodeInfo = (node: GraphNode) => (
         <>
             <Typography.Title ellipsis level={5} style={{ marginTop: 0 }}>
@@ -445,6 +476,7 @@ export const TableGraphModal: React.FC = () => {
                 {node.kind && <Tag color={kindColor(node.kind)}>{node.kind}</Tag>}
                 {node.project && <Tag>{node.project}</Tag>}
             </Space>
+            {renderMeta(node)}
             {node.kind === DISPATCHER_KIND ? (
                 <Typography.Paragraph style={{ marginBottom: 0 }} type="secondary">
                     {t('graph:panel.dispatcher_hint')}
