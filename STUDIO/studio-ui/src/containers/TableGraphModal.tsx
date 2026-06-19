@@ -4,6 +4,7 @@ import {
     AimOutlined,
     ExportOutlined,
     PartitionOutlined,
+    RetweetOutlined,
     RollbackOutlined,
     ZoomInOutlined,
     ZoomOutOutlined,
@@ -13,7 +14,16 @@ import cytoscape, { type Core } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
-import { bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, type GraphNode, kindColor, visibleNeighbours } from './tableGraph'
+import {
+    bridgeHiddenNodes,
+    buildGraphModel,
+    DISPATCHER_KIND,
+    findCycles,
+    type GraphCycle,
+    type GraphNode,
+    kindColor,
+    visibleNeighbours,
+} from './tableGraph'
 
 let extensionsRegistered = false
 if (!extensionsRegistered) {
@@ -27,6 +37,19 @@ type Direction = 'DEPENDENCIES' | 'DEPENDENTS' | 'BOTH'
 
 // Only technical/auxiliary kinds are worth excluding; content kinds (Rules, Spreadsheet…) always stay visible.
 const FILTERABLE_KINDS = [DISPATCHER_KIND, 'Test']
+
+// Upper bound on enumerated cycles, so a densely connected project cannot flood the UI.
+const CYCLE_SEARCH_LIMIT = 100
+
+// A cycle longer than this many tables is shown truncated (…) in its chip; the full chain stays in the chip tooltip.
+const CYCLE_LABEL_HEAD = 3
+
+const cycleLabel = (names: string[]): string => {
+    if (names.length <= CYCLE_LABEL_HEAD) {
+        return [...names, names[0] ?? ''].join(' → ')
+    }
+    return `${names.slice(0, CYCLE_LABEL_HEAD).join(' → ')} → … (${names.length})`
+}
 
 const GRAPH_LAYOUT = {
     name: 'dagre',
@@ -141,6 +164,8 @@ export const TableGraphModal: React.FC = () => {
     const [hiddenKinds, setHiddenKinds] = useState<Set<string>>(new Set())
     const [explore, setExplore] = useState<{ id: string, direction: Direction, via?: string }>()
     const [selectedId, setSelectedId] = useState<string>()
+    const [cycles, setCycles] = useState<GraphCycle[] | null>(null)
+    const [activeCycle, setActiveCycle] = useState<GraphCycle>()
 
     const containerRef = useRef<HTMLDivElement>(null)
     const cyRef = useRef<Core | null>(null)
@@ -158,6 +183,8 @@ export const TableGraphModal: React.FC = () => {
         setSelectedId(undefined)
         setExplore(undefined)
         setHiddenKinds(new Set())
+        setCycles(null)
+        setActiveCycle(undefined)
         // The id may arrive in the standard Base64 alphabet; normalize to the URL-safe form (the backend decodes both).
         const projectId = detail.projectId.replaceAll('+', '-').replaceAll('/', '_')
         apiCall(`/projects/${projectId}/tables/graph`, { method: 'GET' }, GRAPH_API_OPTIONS)
@@ -229,6 +256,7 @@ export const TableGraphModal: React.FC = () => {
             const id = event.target.id()
             const now = Date.now()
             setSelectedId(id)
+            setActiveCycle(undefined)
             if (id === lastTap.id && now - lastTap.time < 350) {
                 openTable(id)
                 lastTap = { id: '', time: 0 }
@@ -239,6 +267,7 @@ export const TableGraphModal: React.FC = () => {
         cy.on('tap', event => {
             if (event.target === cy) {
                 setSelectedId(undefined)
+                setActiveCycle(undefined)
             }
         })
         return () => {
@@ -263,13 +292,24 @@ export const TableGraphModal: React.FC = () => {
         })
     }, [visibleIds, model])
 
-    // Focus the selected table: highlight it, fade everything outside its neighbourhood, and centre on it.
+    // Focus the selected table or the picked cycle: highlight it, fade the rest, and bring it into view.
     useEffect(() => {
         const cy = cyRef.current
         if (!cy) {
             return
         }
         cy.elements().removeClass('faded highlighted')
+        if (activeCycle) {
+            const ids = activeCycle.nodes
+            const cycleEdges = ids.map((id, index) => `${id}->${ids[(index + 1) % ids.length] ?? ''}`)
+            cy.batch(() => {
+                cy.elements().not('.hidden').addClass('faded')
+                ids.forEach(id => cy.getElementById(id).removeClass('faded').addClass('highlighted'))
+                cycleEdges.forEach(edgeId => cy.getElementById(edgeId).removeClass('faded'))
+            })
+            cy.animate({ center: { eles: cy.getElementById(ids[0] ?? '') }, zoom: Math.max(cy.zoom(), 1) }, { duration: 300 })
+            return
+        }
         if (!selectedId) {
             return
         }
@@ -281,7 +321,12 @@ export const TableGraphModal: React.FC = () => {
         cy.elements().not(neighbourhood).not('.hidden').addClass('faded')
         node.addClass('highlighted')
         cy.animate({ center: { eles: node }, zoom: Math.max(cy.zoom(), 1) }, { duration: 300 })
-    }, [selectedId])
+    }, [selectedId, activeCycle])
+
+    // The cycles bar takes vertical space from the graph; keep the canvas matched to its container.
+    useEffect(() => {
+        cyRef.current?.resize()
+    }, [cycles])
 
     const handleClose = useCallback(() => {
         globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
@@ -352,6 +397,86 @@ export const TableGraphModal: React.FC = () => {
         )
     )
 
+    // The found cycles, shown as a bar under the graph. Each chip is clickable and highlights the cycle; long chains are
+    // truncated with the full path kept in the chip tooltip.
+    const renderCyclesBar = () => (
+        <div data-testid="table-graph-cycles" style={{ borderTop: '1px solid #f0f0f0', marginTop: 8, paddingTop: 8 }}>
+            <Space size={8}>
+                <Typography.Text strong>
+                    {cycles && cycles.length > 0 ? t('graph:cycles_found', { count: cycles.length }) : t('graph:cycles_none')}
+                </Typography.Text>
+                {cycles && cycles.length >= CYCLE_SEARCH_LIMIT && (
+                    <Typography.Text type="secondary">{t('graph:cycles_more', { count: CYCLE_SEARCH_LIMIT })}</Typography.Text>
+                )}
+            </Space>
+            {cycles && cycles.length > 0 && (
+                <div style={{ height: 76, marginTop: 4, overflowY: 'auto' }}>
+                    <Space wrap size={4}>
+                        {cycles.map((cycle, index) => {
+                            const names = cycle.nodes.map(id => model.byId.get(id)?.name ?? id)
+                            return (
+                                <Tag
+                                    key={cycle.id}
+                                    color={activeCycle?.id === cycle.id ? 'red' : 'default'}
+                                    data-testid={`table-graph-cycle-${index}`}
+                                    style={{ cursor: 'pointer', margin: 0, userSelect: 'none' }}
+                                    title={[...names, names[0] ?? ''].join(' → ')}
+                                    onClick={() => {
+                                        setActiveCycle(cycle)
+                                        setSelectedId(undefined)
+                                    }}
+                                >
+                                    {cycleLabel(names)}
+                                </Tag>
+                            )
+                        })}
+                    </Space>
+                </div>
+            )}
+        </div>
+    )
+
+    const renderNodeInfo = (node: GraphNode) => (
+        <>
+            <Typography.Title ellipsis level={5} style={{ marginTop: 0 }}>
+                {node.name}
+            </Typography.Title>
+            <Space wrap size={4} style={{ marginBottom: 8 }}>
+                {node.kind && <Tag color={kindColor(node.kind)}>{node.kind}</Tag>}
+                {node.project && <Tag>{node.project}</Tag>}
+            </Space>
+            {node.kind === DISPATCHER_KIND ? (
+                <Typography.Paragraph style={{ marginBottom: 0 }} type="secondary">
+                    {t('graph:panel.dispatcher_hint')}
+                </Typography.Paragraph>
+            ) : (
+                <Space wrap size={4}>
+                    <Button icon={<ExportOutlined />} onClick={() => openTable(node.id)} size="small" type="primary">
+                        {t('graph:panel.open')}
+                    </Button>
+                </Space>
+            )}
+            <div style={{ marginTop: 8 }}>
+                <Typography.Text type="secondary">{t('graph:panel.explore')}: </Typography.Text>
+                <Typography.Link onClick={() => setExplore({ id: node.id, direction: 'DEPENDENCIES' })}>
+                    {t('graph:panel.explore_uses')}
+                </Typography.Link>
+                {' · '}
+                <Typography.Link onClick={() => setExplore({ id: node.id, direction: 'DEPENDENTS' })}>
+                    {t('graph:panel.explore_used_by')}
+                </Typography.Link>
+                {' · '}
+                <Typography.Link onClick={() => setExplore({ id: node.id, direction: 'BOTH' })}>
+                    {t('graph:panel.explore_both')}
+                </Typography.Link>
+            </div>
+            {node.kind === DISPATCHER_KIND
+                ? renderPathSection(node.id, model.dependencies.get(node.id) ?? [])
+                : renderRelationSection(t('graph:panel.uses'), visibleNeighbours(node.id, model.dependencies, visibleIds))}
+            {renderRelationSection(t('graph:panel.dependents'), visibleNeighbours(node.id, model.dependents, visibleIds))}
+        </>
+    )
+
     return (
         <Modal
             destroyOnHidden
@@ -375,12 +500,15 @@ export const TableGraphModal: React.FC = () => {
                             <Select
                                 allowClear
                                 data-testid="table-graph-search"
-                                onChange={setSelectedId}
                                 options={nodeOptions}
                                 placeholder={t('graph:search_placeholder')}
                                 showSearch={{ optionFilterProp: 'label' }}
                                 style={{ width: 260 }}
                                 value={selectedId}
+                                onChange={value => {
+                                    setSelectedId(value)
+                                    setActiveCycle(undefined)
+                                }}
                             />
                             <Tooltip title={t('graph:fit')}>
                                 <Button icon={<AimOutlined />} onClick={() => cyRef.current?.fit(undefined, 30)} />
@@ -390,6 +518,21 @@ export const TableGraphModal: React.FC = () => {
                             </Tooltip>
                             <Tooltip title={t('graph:zoom_out')}>
                                 <Button icon={<ZoomOutOutlined />} onClick={() => zoomBy(1 / 1.2)} />
+                            </Tooltip>
+                            <Tooltip title={t('graph:find_cycles')}>
+                                <Button
+                                    data-testid="table-graph-find-cycles"
+                                    icon={<RetweetOutlined />}
+                                    type={cycles === null ? 'default' : 'primary'}
+                                    onClick={() => {
+                                        if (cycles === null) {
+                                            setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT))
+                                        } else {
+                                            setCycles(null)
+                                            setActiveCycle(undefined)
+                                        }
+                                    }}
+                                />
                             </Tooltip>
                             <Typography.Text type="secondary">{statsText}</Typography.Text>
                         </Space>
@@ -420,45 +563,11 @@ export const TableGraphModal: React.FC = () => {
                             />
                             {selected && (
                                 <div style={{ width: 260, overflowY: 'auto', paddingLeft: 8, borderLeft: '1px solid #f0f0f0' }}>
-                                    <Typography.Title ellipsis level={5} style={{ marginTop: 0 }}>
-                                        {selected.name}
-                                    </Typography.Title>
-                                    <Space wrap size={4} style={{ marginBottom: 8 }}>
-                                        {selected.kind && <Tag color={kindColor(selected.kind)}>{selected.kind}</Tag>}
-                                        {selected.project && <Tag>{selected.project}</Tag>}
-                                    </Space>
-                                    {selected.kind === DISPATCHER_KIND ? (
-                                        <Typography.Paragraph style={{ marginBottom: 0 }} type="secondary">
-                                            {t('graph:panel.dispatcher_hint')}
-                                        </Typography.Paragraph>
-                                    ) : (
-                                        <Space wrap size={4}>
-                                            <Button icon={<ExportOutlined />} onClick={() => openTable(selected.id)} size="small" type="primary">
-                                                {t('graph:panel.open')}
-                                            </Button>
-                                        </Space>
-                                    )}
-                                    <div style={{ marginTop: 8 }}>
-                                        <Typography.Text type="secondary">{t('graph:panel.explore')}: </Typography.Text>
-                                        <Typography.Link onClick={() => setExplore({ id: selected.id, direction: 'DEPENDENCIES' })}>
-                                            {t('graph:panel.explore_uses')}
-                                        </Typography.Link>
-                                        {' · '}
-                                        <Typography.Link onClick={() => setExplore({ id: selected.id, direction: 'DEPENDENTS' })}>
-                                            {t('graph:panel.explore_used_by')}
-                                        </Typography.Link>
-                                        {' · '}
-                                        <Typography.Link onClick={() => setExplore({ id: selected.id, direction: 'BOTH' })}>
-                                            {t('graph:panel.explore_both')}
-                                        </Typography.Link>
-                                    </div>
-                                    {selected.kind === DISPATCHER_KIND
-                                        ? renderPathSection(selected.id, model.dependencies.get(selected.id) ?? [])
-                                        : renderRelationSection(t('graph:panel.uses'), visibleNeighbours(selected.id, model.dependencies, visibleIds))}
-                                    {renderRelationSection(t('graph:panel.dependents'), visibleNeighbours(selected.id, model.dependents, visibleIds))}
+                                    {renderNodeInfo(selected)}
                                 </div>
                             )}
                         </div>
+                        {cycles !== null && renderCyclesBar()}
                     </div>
                 )}
             </Spin>

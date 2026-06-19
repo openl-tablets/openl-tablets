@@ -250,3 +250,44 @@ export const bridgeHiddenNodes = (visible: Set<string>, dependencies: Map<string
     })
     return bridges
 }
+
+/** A simple call cycle: tables that, following their dependencies, lead back to the first one (e.g. A &#8594; B &#8594; C &#8594; A). */
+export interface GraphCycle {
+    /** stable key for the cycle */
+    id: string
+    /** the tables on the cycle, in call order; the last one calls back into the first */
+    nodes: string[]
+}
+
+/**
+ * Finds simple call cycles in the dependency graph. Direct self-recursion (a table calling itself) is excluded — it is
+ * drawn as a self-loop instead. Each cycle is reported once, rooted at its smallest member, so rotations are not
+ * duplicated. The search is bounded by {@code limit} cycles and a step budget so a densely connected graph cannot hang
+ * the UI.
+ */
+export const findCycles = (dependencies: Map<string, string[]>, minNodes = 2, limit = 100): GraphCycle[] => {
+    const cycles: GraphCycle[] = []
+    let steps = 0
+    const stepLimit = 200_000
+
+    const explore = (start: string, current: string, path: string[], onPath: Set<string>): void => {
+        if (cycles.length >= limit || steps >= stepLimit) {
+            return
+        }
+        steps += 1
+        ;(dependencies.get(current) ?? []).forEach(next => {
+            if (next === start && path.length >= minNodes && cycles.length < limit) {
+                cycles.push({ id: path.join('>'), nodes: [...path]})
+            } else if (next > start && !onPath.has(next)) {
+                onPath.add(next)
+                path.push(next)
+                explore(start, next, path, onPath)
+                path.pop()
+                onPath.delete(next)
+            }
+        })
+    }
+
+    ;[...dependencies.keys()].sort().forEach(start => explore(start, start, [start], new Set([start])))
+    return cycles
+}
