@@ -121,7 +121,11 @@ public class ProjectTablesGraphService {
         }
 
         var projectByTable = model.getTableSyntaxNodeProjects();
-        var methodNodesDictionary = model.getMethodNodesDictionary();
+        // The whole-project graph spans every module, so its overloaded-name disambiguation needs the all-module
+        // dictionary; the opened-module dictionary would leave versions from other modules with identical names.
+        var methodNodesDictionary = currentModuleOnly
+                ? model.getMethodNodesDictionary()
+                : model.getAllMethodNodesDictionary();
         var formats = WebStudioFormats.getInstance();
 
         Map<String, RawNode> nodes = new LinkedHashMap<>();
