@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -128,6 +129,17 @@ public class WorkspaceCompileController {
             response.tableRunState(state);
         }
         return response.build();
+    }
+
+    @Hidden
+    @GetMapping("table/{tableId}/url")
+    public TableUrl tableUrl(@PathVariable("tableId") final String tableId) {
+        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        if (webStudio == null || webStudio.getModel() == null) {
+            return new TableUrl(null);
+        }
+        IOpenLTable table = webStudio.getModel().getTableById(tableId);
+        return new TableUrl(table == null ? null : webStudio.url("table", table.getUri()));
     }
 
     private String getTestName(IOpenMethod method) {
