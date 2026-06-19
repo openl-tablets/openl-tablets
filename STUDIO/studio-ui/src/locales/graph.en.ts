@@ -27,4 +27,10 @@ i18next.addResourceBundle('en', 'graph', {
         highlight_path: "Show one version's path",
         dispatcher_hint: 'Generated table that selects one version at runtime',
     },
+    meta: {
+        signature: 'Signature',
+        returns: 'Returns',
+        file: 'File',
+        pos: 'Cells',
+    },
 })

@@ -21,11 +21,12 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.TableNodeView;
+import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 
 class ProjectTablesGraphServiceTest {
 
     private static ProjectModel projectModel;
-    private final ProjectTablesGraphService service = new ProjectTablesGraphService();
+    private final ProjectTablesGraphService service = new ProjectTablesGraphService(new SummaryTableReader());
 
     @BeforeAll
     static void compileProject() throws Exception {
@@ -64,6 +65,16 @@ class ProjectTablesGraphServiceTest {
         assertNotNull(byName.get("theCall").project);
         // the project graph exposes forward dependencies only
         assertNull(byName.get("doSomething").dependents);
+    }
+
+    @Test
+    void nodesCarrySummaryFields() {
+        // every SummaryTableView field is mapped onto the graph node, not only id/name/kind
+        var theCall = byName(service.buildProjectGraph(projectModel, false)).get("theCall");
+        assertNotNull(theCall.tableType);
+        assertNotNull(theCall.signature);
+        assertNotNull(theCall.file);
+        assertNotNull(theCall.pos);
     }
 
     @Test

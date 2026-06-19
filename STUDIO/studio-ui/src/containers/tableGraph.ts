@@ -10,6 +10,13 @@ export interface GraphNode {
     project?: string
     dependencies?: string[]
     dependents?: string[]
+    // summary meta, shown in the side panel on click
+    tableType?: string
+    returnType?: string
+    signature?: string
+    file?: string
+    pos?: string
+    properties?: Record<string, unknown>
 }
 
 /**

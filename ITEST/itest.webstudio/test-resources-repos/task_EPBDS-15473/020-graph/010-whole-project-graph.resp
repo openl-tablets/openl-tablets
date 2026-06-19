@@ -6,12 +6,22 @@ Content-Type: application/json
     "id": "*",
     "kind": "*",
     "name": "mySPR",
+    "tableType": "*",
+    "returnType": "*",
+    "signature": "*",
+    "file": "*",
+    "pos": "*",
     "project": "EPBDS-15473"
   },
   {
     "id": "*",
     "kind": "*",
     "name": "theCall",
+    "tableType": "*",
+    "returnType": "*",
+    "signature": "*",
+    "file": "*",
+    "pos": "*",
     "project": "EPBDS-15473",
     "dependencies": [
       "*"

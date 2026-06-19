@@ -42,6 +42,23 @@ public class TableNodeView extends SummaryTableView {
         private Set<String> dependencies;
         private Set<String> dependents;
 
+        /**
+         * Copies every {@link SummaryTableView} field from an already-read table view. Graph-specific fields (project,
+         * dependencies, dependents) and any id/name override are applied separately afterwards.
+         */
+        public Builder summary(SummaryTableView source) {
+            summary.id(source.id)
+                    .name(source.name)
+                    .kind(source.kind)
+                    .tableType(source.tableType)
+                    .properties(source.properties)
+                    .returnType(source.returnType)
+                    .signature(source.signature)
+                    .file(source.file)
+                    .pos(source.pos);
+            return this;
+        }
+
         public Builder id(String id) {
             summary.id(id);
             return this;
