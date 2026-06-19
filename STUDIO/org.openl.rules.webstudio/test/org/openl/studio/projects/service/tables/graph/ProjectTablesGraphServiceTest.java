@@ -110,4 +110,22 @@ class ProjectTablesGraphServiceTest {
     void tableGraphUnknownRootIsEmpty() {
         assertTrue(service.buildTableGraph(projectModel, "missing", GraphDirection.BOTH, null).isEmpty());
     }
+
+    @Test
+    void recursiveTableKeepsSelfDependency() throws Exception {
+        // a Spreadsheet whose cell calls itself: the binder records the self-reference, and the graph must keep it
+        var recursionModel = new ProjectModel(mock(WebStudio.class), null);
+        var module = ProjectResolver.getInstance()
+                .resolve(Path.of("test-resources/org/openl/studio/projects/service/tables/graph/Recursion"))
+                .getModules()
+                .getFirst();
+        recursionModel.setModuleInfo(module);
+
+        var selfReferencing = service.buildProjectGraph(recursionModel, false)
+                .stream()
+                .filter(node -> node.dependencies != null && node.dependencies.contains(node.id))
+                .toList();
+        assertEquals(1, selfReferencing.size(), "the recursive table is linked to itself");
+        assertTrue(selfReferencing.getFirst().name.contains("recCall"));
+    }
 }
