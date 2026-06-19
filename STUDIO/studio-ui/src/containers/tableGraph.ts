@@ -203,3 +203,50 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         stats: { nodes: nodes.length, edges, cyclic: cyclicNodes.size, isolated },
     }
 }
+
+/**
+ * Resolves a table's neighbours in a relation map (uses or used-by) to the visible tables only, bridging across any
+ * hidden ones. When nothing is hidden it returns the direct neighbours unchanged. Used both to draw bridge edges and to
+ * keep the side-panel lists clickable (every entry points at a visible table).
+ */
+export const visibleNeighbours = (id: string, relations: Map<string, string[]>, visible: Set<string>): string[] => {
+    const result = new Set<string>()
+    const walked = new Set<string>()
+    const queue = [id]
+    while (queue.length > 0) {
+        const current = queue.shift() as string
+        if (!walked.has(current)) {
+            walked.add(current)
+            ;(relations.get(current) ?? []).forEach(next => {
+                if (visible.has(next)) {
+                    result.add(next)
+                } else {
+                    queue.push(next)
+                }
+            })
+        }
+    }
+    result.delete(id)
+    return [...result]
+}
+
+/**
+ * Builds bridge edges that reconnect visible tables across hidden ones. When a table is filtered out (e.g. a
+ * dispatcher), its incoming and outgoing links would otherwise be cut; bridging restores the transitive connection
+ * (caller &#8594; version) so the graph stays readable. Direct links between visible tables are left untouched.
+ */
+export const bridgeHiddenNodes = (visible: Set<string>, dependencies: Map<string, string[]>): ElementDefinition[] => {
+    const bridges: ElementDefinition[] = []
+    const added = new Set<string>()
+    visible.forEach(source => {
+        const direct = new Set((dependencies.get(source) ?? []).filter(dep => visible.has(dep)))
+        visibleNeighbours(source, dependencies, visible).forEach(target => {
+            const key = `${source}->${target}`
+            if (!direct.has(target) && !added.has(key)) {
+                added.add(key)
+                bridges.push({ data: { id: `bridge:${key}`, source, target }, classes: 'bridge' })
+            }
+        })
+    })
+    return bridges
+}

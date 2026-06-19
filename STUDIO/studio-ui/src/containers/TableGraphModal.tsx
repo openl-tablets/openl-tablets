@@ -13,7 +13,7 @@ import cytoscape, { type Core } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
-import { buildGraphModel, DISPATCHER_KIND, type GraphNode, kindColor } from './tableGraph'
+import { bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, type GraphNode, kindColor, visibleNeighbours } from './tableGraph'
 
 let extensionsRegistered = false
 if (!extensionsRegistered) {
@@ -24,6 +24,9 @@ if (!extensionsRegistered) {
 const GRAPH_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
 type Direction = 'DEPENDENCIES' | 'DEPENDENTS' | 'BOTH'
+
+// Only technical/auxiliary kinds are worth excluding; content kinds (Rules, Spreadsheet…) always stay visible.
+const FILTERABLE_KINDS = [DISPATCHER_KIND, 'Test']
 
 const GRAPH_LAYOUT = {
     name: 'dagre',
@@ -254,8 +257,11 @@ export const TableGraphModal: React.FC = () => {
             cy.nodes().forEach(node => {
                 node.toggleClass('hidden', !visibleIds.has(node.id()))
             })
+            // reconnect tables across the ones just hidden, so filtering a kind rebuilds links instead of cutting them
+            cy.remove('edge.bridge')
+            cy.add(bridgeHiddenNodes(visibleIds, model.dependencies))
         })
-    }, [visibleIds])
+    }, [visibleIds, model])
 
     // Focus the selected table: highlight it, fade everything outside its neighbourhood, and centre on it.
     useEffect(() => {
@@ -268,7 +274,7 @@ export const TableGraphModal: React.FC = () => {
             return
         }
         const node = cy.getElementById(selectedId)
-        if (node.empty()) {
+        if (node.empty() || node.hasClass('hidden')) {
             return
         }
         const neighbourhood = node.closedNeighborhood()
@@ -302,6 +308,12 @@ export const TableGraphModal: React.FC = () => {
 
     const selected = selectedId ? model.byId.get(selectedId) : undefined
     const hasGraph = !loading && !error && model.elements.length > 0
+    const filterableKinds = model.kinds.filter(kind => FILTERABLE_KINDS.includes(kind))
+    const statsText = [
+        t('graph:stats', model.stats),
+        model.stats.cyclic > 0 ? t('graph:stats_cyclic', model.stats) : null,
+        model.stats.isolated > 0 ? t('graph:stats_isolated', model.stats) : null,
+    ].filter(Boolean).join(' · ')
 
     const renderRelationSection = (label: string, ids: string[]) => (
         ids.length === 0 ? null : (
@@ -379,25 +391,27 @@ export const TableGraphModal: React.FC = () => {
                             <Tooltip title={t('graph:zoom_out')}>
                                 <Button icon={<ZoomOutOutlined />} onClick={() => zoomBy(1 / 1.2)} />
                             </Tooltip>
-                            <Typography.Text type="secondary">{t('graph:stats', model.stats)}</Typography.Text>
+                            <Typography.Text type="secondary">{statsText}</Typography.Text>
                         </Space>
-                        <Space wrap size={4} style={{ marginBottom: 8 }}>
-                            {model.kinds.map(kind => (
-                                <Tag
-                                    key={kind}
-                                    color={hiddenKinds.has(kind) ? 'default' : kindColor(kind)}
-                                    onClick={() => toggleKind(kind)}
-                                    style={{ cursor: 'pointer', opacity: hiddenKinds.has(kind) ? 0.45 : 1, userSelect: 'none' }}
-                                >
-                                    {kind}
-                                </Tag>
-                            ))}
-                            {explore && (
-                                <Button icon={<RollbackOutlined />} onClick={() => setExplore(undefined)} size="small">
-                                    {t('graph:panel.back')}
-                                </Button>
-                            )}
-                        </Space>
+                        {(filterableKinds.length > 0 || explore) && (
+                            <Space wrap size={4} style={{ marginBottom: 8 }}>
+                                {filterableKinds.map(kind => (
+                                    <Tag
+                                        key={kind}
+                                        color={hiddenKinds.has(kind) ? 'default' : kindColor(kind)}
+                                        onClick={() => toggleKind(kind)}
+                                        style={{ cursor: 'pointer', opacity: hiddenKinds.has(kind) ? 0.45 : 1, userSelect: 'none' }}
+                                    >
+                                        {kind}
+                                    </Tag>
+                                ))}
+                                {explore && (
+                                    <Button icon={<RollbackOutlined />} onClick={() => setExplore(undefined)} size="small">
+                                        {t('graph:panel.back')}
+                                    </Button>
+                                )}
+                            </Space>
+                        )}
                         <div style={{ display: 'flex', flex: 1, minHeight: 0, gap: 8 }}>
                             <div
                                 ref={containerRef}
@@ -440,8 +454,8 @@ export const TableGraphModal: React.FC = () => {
                                     </div>
                                     {selected.kind === DISPATCHER_KIND
                                         ? renderPathSection(selected.id, model.dependencies.get(selected.id) ?? [])
-                                        : renderRelationSection(t('graph:panel.dependencies'), model.dependencies.get(selected.id) ?? [])}
-                                    {renderRelationSection(t('graph:panel.dependents'), model.dependents.get(selected.id) ?? [])}
+                                        : renderRelationSection(t('graph:panel.uses'), visibleNeighbours(selected.id, model.dependencies, visibleIds))}
+                                    {renderRelationSection(t('graph:panel.dependents'), visibleNeighbours(selected.id, model.dependents, visibleIds))}
                                 </div>
                             )}
                         </div>
