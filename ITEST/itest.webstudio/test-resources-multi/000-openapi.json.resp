@@ -19061,6 +19061,14 @@ Content-Type: application/json
       "TableNodeView": {
         "type": "object",
         "properties": {
+          "dimensionProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "***"
+            },
+            "description": "***"
+          },
           "dependencies": {
             "type": "array",
             "description": "***",

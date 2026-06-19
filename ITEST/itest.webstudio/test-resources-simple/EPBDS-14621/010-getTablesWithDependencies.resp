@@ -4,14 +4,24 @@ Content-Type: application/json
 [
   {
     "id": "688f02b40edd1784db7d348bc77ee299",
+    "tableType": "*",
     "kind": "*",
     "name": "mySPR",
+    "returnType": "*",
+    "signature": "*",
+    "file": "*",
+    "pos": "*",
     "project": "EPBDS-14621"
   },
   {
     "id": "395575d70541ba84ae2abca44050ef59",
+    "tableType": "*",
     "kind": "*",
     "name": "theCall",
+    "returnType": "*",
+    "signature": "*",
+    "file": "*",
+    "pos": "*",
     "project": "EPBDS-14621",
     "dependencies": [
       "688f02b40edd1784db7d348bc77ee299"
