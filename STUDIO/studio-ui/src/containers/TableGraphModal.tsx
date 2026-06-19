@@ -242,6 +242,13 @@ export const TableGraphModal: React.FC = () => {
         return new Set([...scope].filter(id => !hiddenKinds.has(model.byId.get(id)?.kind ?? '')))
     }, [model, hiddenKinds, explore])
 
+    // Tables removed by the kind filter — the only ones bridging may cross (an exploration boundary stays hard, so a
+    // dispatcher never inherits a phantom edge to a node that one of its explore-hidden sibling versions points at).
+    const kindHidden = useMemo(
+        () => new Set([...model.byId.keys()].filter(id => hiddenKinds.has(model.byId.get(id)?.kind ?? ''))),
+        [model, hiddenKinds]
+    )
+
     // Create the Cytoscape instance whenever the graph changes; wire selection and open-on-double-tap.
     useEffect(() => {
         if (!visible || loading || !containerRef.current || model.elements.length === 0) {
@@ -288,9 +295,9 @@ export const TableGraphModal: React.FC = () => {
             })
             // reconnect tables across the ones just hidden, so filtering a kind rebuilds links instead of cutting them
             cy.remove('edge.bridge')
-            cy.add(bridgeHiddenNodes(visibleIds, model.dependencies))
+            cy.add(bridgeHiddenNodes(visibleIds, kindHidden, model.dependencies))
         })
-    }, [visibleIds, model])
+    }, [visibleIds, kindHidden, model])
 
     // Focus the selected table or the picked cycle: highlight it, fade the rest, and bring it into view.
     useEffect(() => {
@@ -523,8 +530,8 @@ export const TableGraphModal: React.FC = () => {
             </div>
             {node.kind === DISPATCHER_KIND
                 ? renderPathSection(node.id, model.dependencies.get(node.id) ?? [])
-                : renderRelationSection(t('graph:panel.uses'), visibleNeighbours(node.id, model.dependencies, visibleIds))}
-            {renderRelationSection(t('graph:panel.dependents'), visibleNeighbours(node.id, model.dependents, visibleIds))}
+                : renderRelationSection(t('graph:panel.uses'), visibleNeighbours(node.id, model.dependencies, visibleIds, kindHidden))}
+            {renderRelationSection(t('graph:panel.dependents'), visibleNeighbours(node.id, model.dependents, visibleIds, kindHidden))}
         </>
     )
 
