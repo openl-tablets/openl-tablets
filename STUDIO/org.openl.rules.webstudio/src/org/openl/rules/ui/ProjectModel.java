@@ -1135,6 +1135,21 @@ public class ProjectModel {
         return makeMethodNodesDictionary(tableSyntaxNodes);
     }
 
+    /**
+     * Builds the overloaded-methods dictionary across every module of the project, not only the opened one. Views that
+     * span the whole project use it to disambiguate overloaded table names (the {@code [state=...]} suffix) for versions
+     * that live in non-opened modules.
+     */
+    public synchronized OverloadedMethodsDictionary getAllMethodNodesDictionary() {
+        TableSyntaxNode[] tableSyntaxNodes = xlsModuleSyntaxNodesPerProject.values().stream()
+                .flatMap(Collection::stream)
+                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .toArray(TableSyntaxNode[]::new);
+        return makeMethodNodesDictionary(tableSyntaxNodes);
+    }
+
     private ProjectTreeNode makeProjectTreeRoot() {
         return new ProjectTreeNode(new String[]{null, null, null}, "root", null);
     }
