@@ -25,11 +25,7 @@ import {
     visibleNeighbours,
 } from './tableGraph'
 
-let extensionsRegistered = false
-if (!extensionsRegistered) {
-    cytoscape.use(dagre)
-    extensionsRegistered = true
-}
+cytoscape.use(dagre)
 
 const GRAPH_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
@@ -44,9 +40,12 @@ const CYCLE_SEARCH_LIMIT = 100
 // A cycle longer than this many tables is shown truncated (…) in its chip; the full chain stays in the chip tooltip.
 const CYCLE_LABEL_HEAD = 3
 
+// The full call chain, closed back to the first table: A → B → C → A.
+const cycleTooltip = (names: string[]): string => [...names, names[0] ?? ''].join(' → ')
+
 const cycleLabel = (names: string[]): string => {
     if (names.length <= CYCLE_LABEL_HEAD) {
-        return [...names, names[0] ?? ''].join(' → ')
+        return cycleTooltip(names)
     }
     return `${names.slice(0, CYCLE_LABEL_HEAD).join(' → ')} → … (${names.length})`
 }
@@ -220,12 +219,21 @@ export const TableGraphModal: React.FC = () => {
     }, [detail])
 
     const model = useMemo(() => buildGraphModel(nodes), [nodes])
-    // Deduplicate by name; when a name maps to several tables the candidates bar lets the user pick the right one.
-    const nodeOptions = useMemo(
-        () => [...new Set(nodes.map(node => node.name))].sort().map(name => ({ label: name, value: name })),
-        [nodes]
-    )
-    const nameMatches = useMemo(() => (searchName ? nodes.filter(node => node.name === searchName) : []), [nodes, searchName])
+    // Index tables by display name once; several tables can share a name, and the candidates bar lets the user pick.
+    const byName = useMemo(() => {
+        const index = new Map<string, GraphNode[]>()
+        nodes.forEach(node => {
+            const named = index.get(node.name)
+            if (named) {
+                named.push(node)
+            } else {
+                index.set(node.name, [node])
+            }
+        })
+        return index
+    }, [nodes])
+    const nodeOptions = useMemo(() => [...byName.keys()].sort().map(name => ({ label: name, value: name })), [byName])
+    const nameMatches = useMemo(() => (searchName ? byName.get(searchName) ?? [] : []), [byName, searchName])
     const maxWeight = useMemo(() => Math.max(1, ...[...model.dependents.values()].map(list => list.length)), [model])
 
     // Nodes that are currently shown, taking the kind filter and the "show only" exploration into account.
@@ -233,8 +241,9 @@ export const TableGraphModal: React.FC = () => {
         const reachable = (start: string): Set<string> => {
             const seen = new Set([start])
             const queue = [start]
-            while (queue.length) {
-                const current = queue.shift() as string
+            // Dequeue with a moving head index; Array.shift() is O(n) and would make the traversal O(n²).
+            for (let head = 0; head < queue.length; head++) {
+                const current = queue[head] as string
                 let next: string[] = []
                 if (explore?.direction !== 'DEPENDENTS') {
                     next.push(...(model.dependencies.get(current) ?? []))
@@ -376,6 +385,17 @@ export const TableGraphModal: React.FC = () => {
     }, [])
 
     const selected = selectedId ? model.byId.get(selectedId) : undefined
+    // Resolve the panel's neighbour lists once per selection/filter change, not on every modal re-render.
+    const selectedUses = useMemo(
+        () => (selected && selected.kind !== DISPATCHER_KIND
+            ? visibleNeighbours(selected.id, model.dependencies, visibleIds, kindHidden)
+            : []),
+        [selected, model, visibleIds, kindHidden]
+    )
+    const selectedUsedBy = useMemo(
+        () => (selected ? visibleNeighbours(selected.id, model.dependents, visibleIds, kindHidden) : []),
+        [selected, model, visibleIds, kindHidden]
+    )
     const hasGraph = !loading && !error && model.elements.length > 0
     const filterableKinds = model.kinds.filter(kind => FILTERABLE_KINDS.includes(kind))
     const statsText = [
@@ -384,35 +404,16 @@ export const TableGraphModal: React.FC = () => {
         model.stats.isolated > 0 ? t('graph:stats_isolated', model.stats) : null,
     ].filter(Boolean).join(' · ')
 
-    const renderRelationSection = (label: string, ids: string[]) => (
+    // A titled list of linked table names. The pick handler decides what choosing one does — focus it (uses / used by),
+    // or, for a dispatcher, isolate that version's path.
+    const renderIdLinks = (label: string, ids: string[], onPick: (id: string) => void) => (
         ids.length === 0 ? null : (
             <>
                 <Divider style={{ margin: '8px 0' }} />
                 <Typography.Text strong>{label}</Typography.Text>
                 <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                     {ids.map(id => (
-                        <Typography.Link key={id} ellipsis onClick={() => setSelectedId(id)}>
-                            {model.byId.get(id)?.name ?? id}
-                        </Typography.Link>
-                    ))}
-                </Space>
-            </>
-        )
-    )
-
-    // For a dispatcher, list its versions as paths: picking one isolates that version and everything below it.
-    const renderPathSection = (dispatcherId: string, candidateIds: string[]) => (
-        candidateIds.length === 0 ? null : (
-            <>
-                <Divider style={{ margin: '8px 0' }} />
-                <Typography.Text strong>{t('graph:panel.highlight_path')}</Typography.Text>
-                <Space orientation="vertical" size={2} style={{ width: '100%' }}>
-                    {candidateIds.map(id => (
-                        <Typography.Link
-                            key={id}
-                            ellipsis
-                            onClick={() => setExplore({ id: dispatcherId, direction: 'DEPENDENCIES', via: id })}
-                        >
+                        <Typography.Link key={id} ellipsis onClick={() => onPick(id)}>
                             {model.byId.get(id)?.name ?? id}
                         </Typography.Link>
                     ))}
@@ -444,7 +445,7 @@ export const TableGraphModal: React.FC = () => {
                                     color={activeCycle?.id === cycle.id ? 'red' : 'default'}
                                     data-testid={`table-graph-cycle-${index}`}
                                     style={{ cursor: 'pointer', margin: 0, userSelect: 'none' }}
-                                    title={[...names, names[0] ?? ''].join(' → ')}
+                                    title={cycleTooltip(names)}
                                     onClick={() => {
                                         setActiveCycle(cycle)
                                         setSelectedId(undefined)
@@ -571,9 +572,10 @@ export const TableGraphModal: React.FC = () => {
                 </Typography.Link>
             </div>
             {node.kind === DISPATCHER_KIND
-                ? renderPathSection(node.id, model.dependencies.get(node.id) ?? [])
-                : renderRelationSection(t('graph:panel.uses'), visibleNeighbours(node.id, model.dependencies, visibleIds, kindHidden))}
-            {renderRelationSection(t('graph:panel.dependents'), visibleNeighbours(node.id, model.dependents, visibleIds, kindHidden))}
+                ? renderIdLinks(t('graph:panel.highlight_path'), model.dependencies.get(node.id) ?? [],
+                    id => setExplore({ id: node.id, direction: 'DEPENDENCIES', via: id }))
+                : renderIdLinks(t('graph:panel.uses'), selectedUses, setSelectedId)}
+            {renderIdLinks(t('graph:panel.dependents'), selectedUsedBy, setSelectedId)}
         </>
     )
 
@@ -608,7 +610,7 @@ export const TableGraphModal: React.FC = () => {
                                 onChange={name => {
                                     setSearchName(name)
                                     setActiveCycle(undefined)
-                                    const matches = nodes.filter(node => node.name === name)
+                                    const matches = name ? byName.get(name) ?? [] : []
                                     setSelectedId(matches.length === 1 ? matches[0]?.id : undefined)
                                 }}
                             />
