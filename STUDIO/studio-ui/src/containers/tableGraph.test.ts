@@ -1,4 +1,4 @@
-import { buildGraphModel, DISPATCHER_KIND } from 'containers/tableGraph'
+import { bridgeHiddenNodes, buildGraphModel, DISPATCHER_KIND, visibleNeighbours } from 'containers/tableGraph'
 
 const edge = (model: ReturnType<typeof buildGraphModel>, id: string) => model.elements.find(element => element.data.id === id)
 
@@ -48,5 +48,36 @@ describe('buildGraphModel', () => {
         expect(model.dependents.get('b')).toEqual(['a'])
         expect(edge(model, 'c')?.classes).toBe('isolated')
         expect(model.stats.isolated).toBe(1)
+    })
+})
+
+describe('bridgeHiddenNodes', () => {
+    it('reconnects visible tables across a hidden dispatcher', () => {
+        const deps = new Map<string, string[]>([['c', ['d']], ['d', ['v']], ['v', []]])
+
+        const bridges = bridgeHiddenNodes(new Set(['c', 'v']), deps)
+
+        expect(bridges.map(bridge => bridge.data.id)).toEqual(['bridge:c->v'])
+        expect(bridges[0]?.data).toMatchObject({ source: 'c', target: 'v' })
+    })
+
+    it('does not duplicate an existing direct edge', () => {
+        const deps = new Map<string, string[]>([['c', ['d', 'v']], ['d', ['v']], ['v', []]])
+
+        expect(bridgeHiddenNodes(new Set(['c', 'v']), deps)).toEqual([])
+    })
+})
+
+describe('visibleNeighbours', () => {
+    it('returns direct neighbours when nothing is hidden', () => {
+        const deps = new Map<string, string[]>([['a', ['b', 'c']]])
+
+        expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c']))).toEqual(['b', 'c'])
+    })
+
+    it('bridges across a hidden neighbour so panel links stay clickable', () => {
+        const deps = new Map<string, string[]>([['a', ['h']], ['h', ['b', 'c']]])
+
+        expect(visibleNeighbours('a', deps, new Set(['a', 'b', 'c'])).sort()).toEqual(['b', 'c'])
     })
 })

@@ -12,7 +12,7 @@ const cyMocks = vi.hoisted(() => {
     chain.removeClass.mockReturnValue(chain)
     chain.addClass.mockReturnValue(chain)
     chain.not.mockReturnValue(chain)
-    const node = { empty: () => false, addClass: nodeAddClass, closedNeighborhood: () => ({}) }
+    const node = { empty: () => false, hasClass: () => false, addClass: nodeAddClass, closedNeighborhood: () => ({}) }
     return {
         nodeAddClass,
         getElementById: vi.fn(() => node),
@@ -27,6 +27,8 @@ const cyMocks = vi.hoisted(() => {
         layout: vi.fn(() => ({ run: vi.fn() })),
         nodes: vi.fn(() => ({ forEach: vi.fn() })),
         elements: vi.fn(() => chain),
+        add: vi.fn(),
+        remove: vi.fn(),
     }
 })
 
@@ -49,6 +51,8 @@ vi.mock('cytoscape', () => {
             nodes: cyMocks.nodes,
             elements: cyMocks.elements,
             getElementById: cyMocks.getElementById,
+            add: cyMocks.add,
+            remove: cyMocks.remove,
         })),
         { use: vi.fn() }
     )
