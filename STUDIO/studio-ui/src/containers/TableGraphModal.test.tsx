@@ -6,25 +6,54 @@ import * as services from 'services'
 import cytoscape from 'cytoscape'
 import type { MockedFunction } from 'vitest'
 
-const cyMocks = vi.hoisted(() => ({
-    on: vi.fn(),
-    destroy: vi.fn(),
-    animate: vi.fn(),
-    nodes: vi.fn(() => ({ removeClass: vi.fn() })),
-    getElementById: vi.fn(() => ({ empty: () => false, addClass: vi.fn() })),
-}))
+const cyMocks = vi.hoisted(() => {
+    const nodeAddClass = vi.fn()
+    const chain = { removeClass: vi.fn(), addClass: vi.fn(), not: vi.fn() }
+    chain.removeClass.mockReturnValue(chain)
+    chain.addClass.mockReturnValue(chain)
+    chain.not.mockReturnValue(chain)
+    const node = { empty: () => false, addClass: nodeAddClass, closedNeighborhood: () => ({}) }
+    return {
+        nodeAddClass,
+        getElementById: vi.fn(() => node),
+        on: vi.fn(),
+        destroy: vi.fn(),
+        animate: vi.fn(),
+        batch: vi.fn((fn: () => void) => fn()),
+        zoom: vi.fn(() => 1),
+        width: vi.fn(() => 800),
+        height: vi.fn(() => 600),
+        fit: vi.fn(),
+        layout: vi.fn(() => ({ run: vi.fn() })),
+        nodes: vi.fn(() => ({ forEach: vi.fn() })),
+        elements: vi.fn(() => chain),
+    }
+})
 
 vi.mock('services', () => ({ apiCall: vi.fn() }))
 
-vi.mock('cytoscape', () => ({
-    default: vi.fn(() => ({
-        on: cyMocks.on,
-        destroy: cyMocks.destroy,
-        animate: cyMocks.animate,
-        nodes: cyMocks.nodes,
-        getElementById: cyMocks.getElementById,
-    })),
-}))
+vi.mock('cytoscape-dagre', () => ({ default: vi.fn() }))
+
+vi.mock('cytoscape', () => {
+    const cy = Object.assign(
+        vi.fn(() => ({
+            on: cyMocks.on,
+            destroy: cyMocks.destroy,
+            animate: cyMocks.animate,
+            batch: cyMocks.batch,
+            zoom: cyMocks.zoom,
+            width: cyMocks.width,
+            height: cyMocks.height,
+            fit: cyMocks.fit,
+            layout: cyMocks.layout,
+            nodes: cyMocks.nodes,
+            elements: cyMocks.elements,
+            getElementById: cyMocks.getElementById,
+        })),
+        { use: vi.fn() }
+    )
+    return { default: cy }
+})
 
 // AntD's Modal leave-animation never ends in jsdom; replace it with an `open`-gated wrapper. Select is replaced with
 // a native <select> so option selection is straightforward in jsdom.
@@ -102,11 +131,9 @@ describe('TableGraphModal', () => {
     })
 
     it('highlights and centers the table picked from the search box', async () => {
-        const addClass = vi.fn()
-        cyMocks.getElementById.mockReturnValue({ empty: () => false, addClass } as never)
         mockApiCall.mockResolvedValueOnce([
             { id: 'a', name: 'Alpha' },
-            { id: 'b', name: 'Beta' },
+            { id: 'b', name: 'Beta', dependencies: ['a']},
         ] as never)
 
         render(<TableGraphModal />)
@@ -116,7 +143,7 @@ describe('TableGraphModal', () => {
         await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'b')
 
         expect(cyMocks.getElementById).toHaveBeenCalledWith('b')
-        expect(addClass).toHaveBeenCalledWith('highlighted')
+        expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
         expect(cyMocks.animate).toHaveBeenCalled()
     })
 
