@@ -9163,6 +9163,119 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/tables/graph": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableNodeView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tables/{tableId}": {
       "get": {
         "operationId": "***",
@@ -9344,6 +9457,143 @@ Content-Type: application/json
             }
           },
           "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/graph": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DEPENDENCIES",
+                "DEPENDENTS",
+                "BOTH"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "depth",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableNodeView"
+                  }
+                }
+              }
+            },
             "description": "***"
           },
           "400": {
@@ -18647,6 +18897,91 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "TableNodeView": {
+        "type": "object",
+        "properties": {
+          "dependencies": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            },
+            "uniqueItems": true
+          },
+          "dependents": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            },
+            "uniqueItems": true
+          },
+          "file": {
+            "type": "string",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "Rules",
+              "Spreadsheet",
+              "Datatype",
+              "Data",
+              "Test",
+              "TBasic",
+              "Column Match",
+              "Method",
+              "Run",
+              "Constants",
+              "Conditions",
+              "Actions",
+              "Returns",
+              "Environment",
+              "Properties",
+              "Other"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "pos": {
+            "type": "string",
+            "description": "***"
+          },
+          "project": {
+            "type": "string",
+            "description": "***"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "***"
+            },
+            "description": "***"
+          },
+          "returnType": {
+            "type": "string",
+            "description": "***"
+          },
+          "signature": {
+            "type": "string",
+            "description": "***"
+          },
+          "tableType": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "TableTestsInfo": {
         "type": "object",

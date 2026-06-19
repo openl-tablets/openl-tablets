@@ -6,40 +6,28 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
-import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.types.impl.ExecutableMethod;
 
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Project Tables")
 public class RulesDependenciesController {
-
-    private final WorkspaceProjectService projectService;
-
-    public RulesDependenciesController(WorkspaceProjectService projectService) {
-        this.projectService = projectService;
-    }
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -54,14 +42,6 @@ public class RulesDependenciesController {
             return Collections.emptyList();
         }
         return getTablesWithDependencies(webStudio.getModel());
-    }
-
-    // for testing purposes only
-    @Hidden
-    @GetMapping("/projects/{projectId}/tables/graph")
-    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
-    public List<Table> getTablesWithDependencies(@PathVariable("projectId") RulesProject project) {
-        return getTablesWithDependencies(projectService.openProject(project).awaitCompiled());
     }
 
     private List<Table> getTablesWithDependencies(ProjectModel projectModel) {

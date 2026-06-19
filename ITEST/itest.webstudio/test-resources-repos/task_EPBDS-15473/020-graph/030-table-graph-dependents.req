@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_NAME}/tables/3094ab9d529e054b72d867d52e5c09ca/graph?direction=DEPENDENTS HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

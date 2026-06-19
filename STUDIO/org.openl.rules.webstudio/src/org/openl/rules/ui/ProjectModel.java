@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1069,6 +1070,22 @@ public class ProjectModel {
                     .forEach(result::addAll);
         }
         return result;
+    }
+
+    /**
+     * Returns the owning project name for each table syntax node, including tables that come from dependency projects.
+     * Lets callers attribute a table to its project even when the project graph spans several projects.
+     *
+     * @return table syntax node to owning project name
+     */
+    public synchronized Map<TableSyntaxNode, String> getTableSyntaxNodeProjects() {
+        Map<TableSyntaxNode, String> index = new IdentityHashMap<>();
+        xlsModuleSyntaxNodesPerProject.forEach((projectName, moduleNodes) -> moduleNodes.stream()
+                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .forEach(tsn -> index.put(tsn, projectName)));
+        return index;
     }
 
     private synchronized Set<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {

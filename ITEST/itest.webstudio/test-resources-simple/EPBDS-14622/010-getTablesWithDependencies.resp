@@ -1,32 +1,36 @@
-HTTP/1.1 501 Not Implemented
+HTTP/1.1 200
 Content-Type: application/json
 
 [
   {
-    "name": "doSomething",
     "id": "ff067a15cc30e1d50d7c2d18daede2d4",
-    "url": "#local/EPBDS-14622/MethodDispatcherTree/table"
+    "kind": "*",
+    "name": "doSomething",
+    "project": "EPBDS-14622"
   },
   {
-    "name": "mySPR [state=AR]",
     "id": "0022505ccf87b48c1f6d8eb0cc10c360",
-    "url": "#local/EPBDS-14622/MethodDispatcherTree/table",
+    "kind": "*",
+    "name": "mySPR [state=AR]",
+    "project": "EPBDS-14622",
     "dependencies": [
       "ff067a15cc30e1d50d7c2d18daede2d4"
     ]
   },
   {
-    "name": "mySPR [state=AZ]",
     "id": "c4bd742f16c5e9e7c01010657f15f511",
-    "url": "#local/EPBDS-14622/MethodDispatcherTree/table"
+    "kind": "*",
+    "name": "mySPR [state=AZ]",
+    "project": "EPBDS-14622"
   },
   {
-    "name": "theCall",
     "id": "5be921e8f1131e383b0f63c4da0661ef",
-    "url": "#local/EPBDS-14622/MethodDispatcherTree/table",
+    "kind": "*",
+    "name": "theCall",
+    "project": "EPBDS-14622",
     "dependencies": [
-      "c4bd742f16c5e9e7c01010657f15f511",
-      "0022505ccf87b48c1f6d8eb0cc10c360"
+      "0022505ccf87b48c1f6d8eb0cc10c360",
+      "c4bd742f16c5e9e7c01010657f15f511"
     ]
   }
 ]

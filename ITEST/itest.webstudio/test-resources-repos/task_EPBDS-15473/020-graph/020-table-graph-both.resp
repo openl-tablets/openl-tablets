@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "*",
+    "kind": "*",
+    "name": "mySPR",
+    "project": "EPBDS-15473",
+    "dependents": [
+      "*"
+    ]
+  },
+  {
+    "id": "*",
+    "kind": "*",
+    "name": "theCall",
+    "project": "EPBDS-15473",
+    "dependencies": [
+      "*"
+    ]
+  }
+]
