@@ -32,5 +32,6 @@ i18next.addResourceBundle('en', 'graph', {
         returns: 'Returns',
         file: 'File',
         pos: 'Cells',
+        business_dimension: 'Business Dimension',
     },
 })

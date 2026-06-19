@@ -78,6 +78,16 @@ class ProjectTablesGraphServiceTest {
     }
 
     @Test
+    void candidatesCarryVersioningRules() {
+        var byName = byName(service.buildProjectGraph(projectModel, false));
+        // each dispatched version exposes the dimension properties that select it (here: state = AR)
+        assertTrue(byName.get("mySPR [state=AR]").dimensionProperties.containsValue("AR"));
+        assertTrue(byName.get("mySPR [state=AZ]").dimensionProperties.containsValue("AZ"));
+        // the dispatcher is a synthetic selector — it has no versioning rules of its own
+        assertTrue(byName.get("mySPR(int param)").dimensionProperties.isEmpty());
+    }
+
+    @Test
     void dispatcherBecomesATechnicalNode() {
         var byName = byName(service.buildProjectGraph(projectModel, false));
         var dispatcher = byName.get("mySPR(int param)");

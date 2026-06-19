@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,11 +26,16 @@ public class TableNodeView extends SummaryTableView {
     @Schema(description = "Identifiers of the tables that depend on this table")
     public final Set<String> dependents;
 
+    @Schema(description = "Dimension properties this version of the table is selected by — the versioning rules the "
+            + "dispatcher uses (e.g. state, lob, dates), resolved from the module name pattern or the table itself")
+    public final Map<String, String> dimensionProperties;
+
     private TableNodeView(Builder builder) {
         super(builder.summary);
         this.project = builder.project;
         this.dependencies = builder.dependencies;
         this.dependents = builder.dependents;
+        this.dimensionProperties = builder.dimensionProperties;
     }
 
     /**
@@ -41,6 +47,7 @@ public class TableNodeView extends SummaryTableView {
         private String project;
         private Set<String> dependencies;
         private Set<String> dependents;
+        private Map<String, String> dimensionProperties;
 
         /**
          * Copies every {@link SummaryTableView} field from an already-read table view. Graph-specific fields (project,
@@ -91,6 +98,11 @@ public class TableNodeView extends SummaryTableView {
 
         public Builder dependents(Set<String> dependents) {
             this.dependents = dependents;
+            return this;
+        }
+
+        public Builder dimensionProperties(Map<String, String> dimensionProperties) {
+            this.dimensionProperties = dimensionProperties;
             return this;
         }
 

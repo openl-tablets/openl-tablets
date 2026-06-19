@@ -203,6 +203,7 @@ describe('TableGraphModal', () => {
                 file: 'rules/Main.xlsx',
                 pos: 'B2:C4',
                 properties: { state: 'AZ' },
+                dimensionProperties: { State: 'AR' },
             },
         ] as never)
 
@@ -215,6 +216,7 @@ describe('TableGraphModal', () => {
         expect(screen.getByText('foo(int n)')).toBeInTheDocument()
         expect(screen.getByText('rules/Main.xlsx')).toBeInTheDocument()
         expect(screen.getByText('state: AZ')).toBeInTheDocument()
+        expect(screen.getByText('State: AR')).toBeInTheDocument()
     })
 
     it('shows the empty state when there are no tables', async () => {

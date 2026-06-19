@@ -17,6 +17,8 @@ export interface GraphNode {
     file?: string
     pos?: string
     properties?: Record<string, unknown>
+    // dimension properties this version is selected by (the dispatching/versioning rules)
+    dimensionProperties?: Record<string, string>
 }
 
 /**

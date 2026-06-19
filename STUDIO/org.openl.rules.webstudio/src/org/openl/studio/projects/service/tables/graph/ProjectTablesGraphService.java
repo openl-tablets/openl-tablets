@@ -22,6 +22,8 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -32,6 +34,7 @@ import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Builds the dependency graph of project tables.
@@ -211,13 +214,31 @@ public class ProjectTablesGraphService {
             var displayNames = TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, 0, methodNodesDictionary, formats);
             var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
             var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
-            return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, projectByTable.get(tableSyntaxNode));
+            return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, dimensionProperties(rulesMethod),
+                    projectByTable.get(tableSyntaxNode));
         });
         var dependencies = rulesMethod.getDependencies();
         if (dependencies != null && dependencies.getRulesMethods() != null) {
             dependencies.getRulesMethods()
                     .forEach(dependency -> node.dependencies().add(TableUtils.makeTableId(dependency.getSourceUrl())));
         }
+    }
+
+    /**
+     * Reads the dimension properties this table version is selected by — the rules the dispatcher uses to pick a
+     * candidate. Values resolve from both the module name pattern and the table itself, exactly as OpenL resolves them
+     * at compile time for dispatching. Keys are the human-readable property display names.
+     */
+    private static Map<String, String> dimensionProperties(ExecutableMethod rulesMethod) {
+        var properties = PropertiesHelper.getTableProperties(rulesMethod);
+        Map<String, String> dimensions = new LinkedHashMap<>();
+        TablePropertyDefinitionUtils.getDimensionalTableProperties().forEach(definition -> {
+            var value = properties.getPropertyValueAsString(definition.getName());
+            if (StringUtils.isNotEmpty(value)) {
+                dimensions.put(definition.getDisplayName(), value);
+            }
+        });
+        return dimensions;
     }
 
     private void linkDependents(Map<String, RawNode> nodes) {
@@ -281,7 +302,8 @@ public class ProjectTablesGraphService {
         builder.id(node.id())
                 .name(node.name())
                 .kind(node.kind())
-                .project(node.project());
+                .project(node.project())
+                .dimensionProperties(node.dimensionProperties());
         if (direction.includesDependencies()) {
             builder.dependencies(retain(node.dependencies(), included));
         }
@@ -298,14 +320,16 @@ public class ProjectTablesGraphService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private record RawNode(String id, String name, String kind, @Nullable SummaryTableView summary, String project,
+    private record RawNode(String id, String name, String kind, @Nullable SummaryTableView summary,
+                           Map<String, String> dimensionProperties, String project,
                            Set<String> dependencies, Set<String> dependents) {
         private RawNode(String id, String name, String kind, String project) {
-            this(id, name, kind, null, project, new LinkedHashSet<>(), new LinkedHashSet<>());
+            this(id, name, kind, null, Map.of(), project, new LinkedHashSet<>(), new LinkedHashSet<>());
         }
 
-        private RawNode(String id, String name, String kind, SummaryTableView summary, String project) {
-            this(id, name, kind, summary, project, new LinkedHashSet<>(), new LinkedHashSet<>());
+        private RawNode(String id, String name, String kind, SummaryTableView summary,
+                        Map<String, String> dimensionProperties, String project) {
+            this(id, name, kind, summary, dimensionProperties, project, new LinkedHashSet<>(), new LinkedHashSet<>());
         }
     }
 }

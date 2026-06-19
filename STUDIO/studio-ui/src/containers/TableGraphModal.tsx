@@ -476,6 +476,25 @@ export const TableGraphModal: React.FC = () => {
                 {node.kind && <Tag color={kindColor(node.kind)}>{node.kind}</Tag>}
                 {node.project && <Tag>{node.project}</Tag>}
             </Space>
+            {node.dimensionProperties && Object.keys(node.dimensionProperties).length > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                    <Typography.Text style={{ display: 'block' }} type="secondary">
+                        {t('graph:meta.business_dimension')}
+                    </Typography.Text>
+                    <Space wrap size={[4, 4]} style={{ marginTop: 2, width: '100%' }}>
+                        {Object.entries(node.dimensionProperties).map(([key, value]) => (
+                            <Tag
+                                key={key}
+                                color="gold"
+                                style={{ margin: 0, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                title={`${key}: ${value}`}
+                            >
+                                {`${key}: ${value}`}
+                            </Tag>
+                        ))}
+                    </Space>
+                </div>
+            )}
             {renderMeta(node)}
             {node.kind === DISPATCHER_KIND ? (
                 <Typography.Paragraph style={{ marginBottom: 0 }} type="secondary">
