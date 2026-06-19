@@ -148,11 +148,35 @@ describe('TableGraphModal', () => {
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
-        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'b')
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Beta')
 
         expect(cyMocks.getElementById).toHaveBeenCalledWith('b')
         expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
         expect(cyMocks.animate).toHaveBeenCalled()
+    })
+
+    it('offers the candidates when a searched name maps to several tables and focuses the picked one', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'x1', name: 'Shared', file: 'rules/A.xlsx', pos: 'B2:C3' },
+            { id: 'x2', name: 'Shared', file: 'rules/B.xlsx', pos: 'D4:E5' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Shared')
+
+        // both tables are offered as candidates; the ambiguous name alone focuses none of them
+        const matches = await screen.findByTestId('table-graph-matches')
+        expect(matches).toHaveTextContent('rules/A.xlsx · B2:C3')
+        expect(matches).toHaveTextContent('rules/B.xlsx · D4:E5')
+        expect(cyMocks.getElementById).not.toHaveBeenCalledWith('x1')
+
+        await userEvent.click(screen.getByTestId('table-graph-match-1'))
+
+        expect(cyMocks.getElementById).toHaveBeenCalledWith('x2')
+        expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
     })
 
     it('treats a dispatcher as technical: no editor link, offers version paths instead', async () => {
@@ -166,7 +190,7 @@ describe('TableGraphModal', () => {
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
-        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'd')
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'mySPR(int)')
 
         expect(screen.queryByText('graph:panel.open')).not.toBeInTheDocument()
         expect(screen.getByText('graph:panel.dispatcher_hint')).toBeInTheDocument()
@@ -211,7 +235,7 @@ describe('TableGraphModal', () => {
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
-        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'a')
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
 
         expect(screen.getByText('foo(int n)')).toBeInTheDocument()
         expect(screen.getByText('rules/Main.xlsx')).toBeInTheDocument()

@@ -51,6 +51,14 @@ const cycleLabel = (names: string[]): string => {
     return `${names.slice(0, CYCLE_LABEL_HEAD).join(' → ')} → … (${names.length})`
 }
 
+// Distinguishes tables that share a display name in the candidates bar — their location, else signature/kind.
+const candidateLabel = (node: GraphNode): string => {
+    const location = [node.file, node.pos].filter(Boolean).join(' · ')
+    return location || node.signature || node.kind || node.id
+}
+
+const candidateTooltip = (node: GraphNode): string => [node.kind, node.project, candidateLabel(node)].filter(Boolean).join(' · ')
+
 const GRAPH_LAYOUT = {
     name: 'dagre',
     rankDir: 'LR',
@@ -164,6 +172,7 @@ export const TableGraphModal: React.FC = () => {
     const [hiddenKinds, setHiddenKinds] = useState<Set<string>>(new Set())
     const [explore, setExplore] = useState<{ id: string, direction: Direction, via?: string }>()
     const [selectedId, setSelectedId] = useState<string>()
+    const [searchName, setSearchName] = useState<string>()
     const [cycles, setCycles] = useState<GraphCycle[] | null>(null)
     const [activeCycle, setActiveCycle] = useState<GraphCycle>()
 
@@ -181,6 +190,7 @@ export const TableGraphModal: React.FC = () => {
         setError(false)
         setNodes([])
         setSelectedId(undefined)
+        setSearchName(undefined)
         setExplore(undefined)
         setHiddenKinds(new Set())
         setCycles(null)
@@ -210,7 +220,12 @@ export const TableGraphModal: React.FC = () => {
     }, [detail])
 
     const model = useMemo(() => buildGraphModel(nodes), [nodes])
-    const nodeOptions = useMemo(() => nodes.map(node => ({ label: node.name, value: node.id })), [nodes])
+    // Deduplicate by name; when a name maps to several tables the candidates bar lets the user pick the right one.
+    const nodeOptions = useMemo(
+        () => [...new Set(nodes.map(node => node.name))].sort().map(name => ({ label: name, value: name })),
+        [nodes]
+    )
+    const nameMatches = useMemo(() => (searchName ? nodes.filter(node => node.name === searchName) : []), [nodes, searchName])
     const maxWeight = useMemo(() => Math.max(1, ...[...model.dependents.values()].map(list => list.length)), [model])
 
     // Nodes that are currently shown, taking the kind filter and the "show only" exploration into account.
@@ -263,6 +278,7 @@ export const TableGraphModal: React.FC = () => {
             const id = event.target.id()
             const now = Date.now()
             setSelectedId(id)
+            setSearchName(undefined)
             setActiveCycle(undefined)
             if (id === lastTap.id && now - lastTap.time < 350) {
                 openTable(id)
@@ -274,6 +290,7 @@ export const TableGraphModal: React.FC = () => {
         cy.on('tap', event => {
             if (event.target === cy) {
                 setSelectedId(undefined)
+                setSearchName(undefined)
                 setActiveCycle(undefined)
             }
         })
@@ -330,10 +347,10 @@ export const TableGraphModal: React.FC = () => {
         cy.animate({ center: { eles: node }, zoom: Math.max(cy.zoom(), 1) }, { duration: 300 })
     }, [selectedId, activeCycle])
 
-    // The cycles bar takes vertical space from the graph; keep the canvas matched to its container.
+    // The bottom bars (cycles / name candidates) take vertical space from the graph; keep the canvas matched.
     useEffect(() => {
         cyRef.current?.resize()
-    }, [cycles])
+    }, [cycles, nameMatches])
 
     const handleClose = useCallback(() => {
         globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
@@ -440,6 +457,31 @@ export const TableGraphModal: React.FC = () => {
                     </Space>
                 </div>
             )}
+        </div>
+    )
+
+    // When a searched name maps to several tables, list them as a bar under the graph so the user can pick which one to
+    // focus. Each chip shows the table's location (or signature) and highlights that table on click.
+    const renderMatchesBar = () => (
+        <div data-testid="table-graph-matches" style={{ borderTop: '1px solid #f0f0f0', marginTop: 8, paddingTop: 8 }}>
+            <Typography.Text strong>{t('graph:search_matches', { count: nameMatches.length, name: searchName })}</Typography.Text>
+            <div style={{ height: 76, marginTop: 4, overflowY: 'auto' }}>
+                <Space wrap size={4}>
+                    {nameMatches.map((node, index) => (
+                        <Tag
+                            key={node.id}
+                            color={selectedId === node.id ? 'blue' : 'default'}
+                            data-testid={`table-graph-match-${index}`}
+                            onClick={() => setSelectedId(node.id)}
+                            style={{ cursor: 'pointer', margin: 0, maxWidth: 260, userSelect: 'none' }}
+                        >
+                            <Typography.Text ellipsis={{ tooltip: candidateTooltip(node) }} style={{ color: 'inherit', maxWidth: 240 }}>
+                                {candidateLabel(node)}
+                            </Typography.Text>
+                        </Tag>
+                    ))}
+                </Space>
+            </div>
         </div>
     )
 
@@ -562,10 +604,12 @@ export const TableGraphModal: React.FC = () => {
                                 placeholder={t('graph:search_placeholder')}
                                 showSearch={{ optionFilterProp: 'label' }}
                                 style={{ width: 260 }}
-                                value={selectedId}
-                                onChange={value => {
-                                    setSelectedId(value)
+                                value={selected?.name ?? searchName}
+                                onChange={name => {
+                                    setSearchName(name)
                                     setActiveCycle(undefined)
+                                    const matches = nodes.filter(node => node.name === name)
+                                    setSelectedId(matches.length === 1 ? matches[0]?.id : undefined)
                                 }}
                             />
                             <Tooltip title={t('graph:fit')}>
@@ -625,6 +669,7 @@ export const TableGraphModal: React.FC = () => {
                                 </div>
                             )}
                         </div>
+                        {nameMatches.length > 1 && renderMatchesBar()}
                         {cycles !== null && renderCyclesBar()}
                     </div>
                 )}
