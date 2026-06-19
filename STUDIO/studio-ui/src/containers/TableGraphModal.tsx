@@ -358,7 +358,9 @@ export const TableGraphModal: React.FC = () => {
         cy.elements().not(neighbourhood).not('.hidden').addClass('faded')
         node.addClass('highlighted')
         cy.animate({ center: { eles: node }, zoom: Math.max(cy.zoom(), 1) }, { duration: 300 })
-    }, [selectedId, activeCycle])
+        // visibleIds is a dependency because a kind filter / exploration change re-hides nodes, and the fade set must be
+        // recomputed against the new '.hidden' nodes — otherwise the previous highlight/fade is left stale.
+    }, [selectedId, activeCycle, visibleIds])
 
     // The bottom bars (cycles / name candidates) take vertical space from the graph; keep the canvas matched.
     useEffect(() => {
