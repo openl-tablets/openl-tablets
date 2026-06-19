@@ -1,6 +1,7 @@
 import './common.en'
 import './deploy.en'
 import './email.en'
+import './graph.en'
 import './groups.en'
 import './merge.en'
 import './notification.en'

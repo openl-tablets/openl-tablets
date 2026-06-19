@@ -5,6 +5,7 @@ import { DeployModal } from 'containers/DeployModal'
 import { MergeModal } from 'containers/MergeModal'
 import { DeleteBranchModal } from 'containers/DeleteBranchModal'
 import { TraceExecutionModal } from 'containers/TraceExecutionModal'
+import { TableGraphModal } from 'containers/TableGraphModal'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
 import Forbidden from 'pages/403'
@@ -53,6 +54,7 @@ export const DefaultLayout = () => {
             <MergeModal />
             <DeleteBranchModal />
             <TraceExecutionModal />
+            <TableGraphModal />
         </Layout>
     )
 }

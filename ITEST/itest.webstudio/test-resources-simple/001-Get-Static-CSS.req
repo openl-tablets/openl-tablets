@@ -1,2 +1,2 @@
-GET /css/rulesDependencies.css HTTP/1.1
+GET /css/common.css HTTP/1.1
 
