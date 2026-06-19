@@ -1,4 +1,4 @@
-import { buildGraphModel } from 'containers/tableGraph'
+import { buildGraphModel, DISPATCHER_KIND } from 'containers/tableGraph'
 
 const edge = (model: ReturnType<typeof buildGraphModel>, id: string) => model.elements.find(element => element.data.id === id)
 
@@ -25,6 +25,17 @@ describe('buildGraphModel', () => {
         expect(edge(model, 'a->b')?.classes).toBe('cycle')
         expect(edge(model, 'b->a')?.classes).toBe('cycle')
         expect(model.stats.cyclic).toBe(2)
+    })
+
+    it('tags the dispatcher node with a class so the UI can style it apart', () => {
+        const model = buildGraphModel([
+            { id: 'd', name: 'mySPR(int)', kind: DISPATCHER_KIND, dependencies: ['a', 'b']},
+            { id: 'a', name: 'AR' },
+            { id: 'b', name: 'AZ' },
+        ])
+
+        expect(edge(model, 'd')?.classes).toBe('dispatcher')
+        expect(model.kinds).toContain(DISPATCHER_KIND)
     })
 
     it('flags isolated tables and computes reverse adjacency', () => {

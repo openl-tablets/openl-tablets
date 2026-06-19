@@ -12,7 +12,14 @@ export interface GraphNode {
     dependents?: string[]
 }
 
+/**
+ * Kind of the technical node that stands for an OpenMethodDispatcher — the generated table that selects one overloaded
+ * version at runtime. Matches {@code ProjectTablesGraphService.DISPATCHER_KIND} on the backend.
+ */
+export const DISPATCHER_KIND = 'Dispatcher'
+
 const KIND_COLORS: Record<string, string> = {
+    [DISPATCHER_KIND]: '#874d00',
     'Rules': '#1677ff',
     'Smart Rules': '#2f54eb',
     'Spreadsheet': '#722ed1',
@@ -153,8 +160,15 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         const element: ElementDefinition = {
             data: { id: node.id, label: node.name, kind: node.kind ?? '', color: kindColor(node.kind), weight: used },
         }
+        const classes: string[] = []
         if (orphan) {
-            element.classes = 'isolated'
+            classes.push('isolated')
+        }
+        if (node.kind === DISPATCHER_KIND) {
+            classes.push('dispatcher')
+        }
+        if (classes.length > 0) {
+            element.classes = classes.join(' ')
         }
         elements.push(element)
     })

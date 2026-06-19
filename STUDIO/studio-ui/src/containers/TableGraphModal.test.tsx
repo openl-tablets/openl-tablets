@@ -147,6 +147,24 @@ describe('TableGraphModal', () => {
         expect(cyMocks.animate).toHaveBeenCalled()
     })
 
+    it('treats a dispatcher as technical: no editor link, offers version paths instead', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'd', name: 'mySPR(int)', kind: 'Dispatcher', dependencies: ['a', 'b']},
+            { id: 'a', name: 'AR' },
+            { id: 'b', name: 'AZ' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'd')
+
+        expect(screen.queryByText('graph:panel.open')).not.toBeInTheDocument()
+        expect(screen.getByText('graph:panel.dispatcher_hint')).toBeInTheDocument()
+        expect(screen.getByText('graph:panel.highlight_path')).toBeInTheDocument()
+    })
+
     it('shows the empty state when there are no tables', async () => {
         mockApiCall.mockResolvedValueOnce([] as never)
 
