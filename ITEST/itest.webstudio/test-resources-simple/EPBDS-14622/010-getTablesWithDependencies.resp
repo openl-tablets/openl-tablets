@@ -14,6 +14,16 @@ Content-Type: application/json
     "project": "EPBDS-14622"
   },
   {
+    "id": "dispatcher:0022505ccf87b48c1f6d8eb0cc10c360",
+    "kind": "*",
+    "name": "mySPR",
+    "project": "EPBDS-14622",
+    "dependencies": [
+      "0022505ccf87b48c1f6d8eb0cc10c360",
+      "c4bd742f16c5e9e7c01010657f15f511"
+    ]
+  },
+  {
     "id": "0022505ccf87b48c1f6d8eb0cc10c360",
     "tableType": "*",
     "kind": "*",
@@ -53,16 +63,6 @@ Content-Type: application/json
     "dimensionProperties": {
       "US States": "AZ"
     }
-  },
-  {
-    "id": "dispatcher:0022505ccf87b48c1f6d8eb0cc10c360",
-    "kind": "*",
-    "name": "mySPR(int param)",
-    "project": "EPBDS-14622",
-    "dependencies": [
-      "0022505ccf87b48c1f6d8eb0cc10c360",
-      "c4bd742f16c5e9e7c01010657f15f511"
-    ]
   },
   {
     "id": "5be921e8f1131e383b0f63c4da0661ef",

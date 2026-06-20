@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.MethodUtil;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -165,8 +164,8 @@ public class ProjectTablesGraphService {
         var id = dispatcherId(candidateIds);
         candidateIds.forEach(candidateId -> candidateToDispatcher.put(candidateId, id));
         nodes.computeIfAbsent(id, key -> {
-            var name = MethodUtil.printSignature(dispatcher.getCandidates().getFirst(), INamedThing.SHORT);
-            var node = new RawNode(key, name, DISPATCHER_KIND, dispatcherProject(dispatcher, projectByTable));
+            // the dispatcher carries the plain method name; the parameter signature is redundant beside its versions
+            var node = new RawNode(key, dispatcher.getName(), DISPATCHER_KIND, dispatcherProject(dispatcher, projectByTable));
             node.dependencies().addAll(candidateIds);
             return node;
         });
