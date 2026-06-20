@@ -35,6 +35,7 @@ i18next.addResourceBundle('en', 'graph', {
         back: 'Whole project',
         highlight_path: "Show one version's path",
         dispatcher_hint: 'Generated table that selects one version at runtime',
+        external: 'Belongs to {{project}}. Open that project to edit this table.',
     },
     meta: {
         identity: 'Identity',

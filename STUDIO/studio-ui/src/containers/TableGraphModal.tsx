@@ -57,6 +57,11 @@ const candidateLabel = (node: GraphNode): string => {
 
 const candidateTooltip = (node: GraphNode): string => [node.kind, node.project, candidateLabel(node)].filter(Boolean).join(' · ')
 
+// The editor endpoint resolves tables in the active project only, so a table from a dependency project (a different
+// project name) cannot be opened. Dispatcher nodes are synthetic and have no editor table at all.
+const canOpenTable = (node: GraphNode | undefined, projectName?: string): boolean =>
+    !!node && node.kind !== DISPATCHER_KIND && (!projectName || !node.project || node.project === projectName)
+
 const GRAPH_LAYOUT = {
     name: 'dagre',
     rankDir: 'LR',
@@ -163,18 +168,25 @@ const buildStyle = (maxWeight: number) => [
  */
 export interface TableGraphModalDetail {
     projectId: string
+    /** Name of the opened project. Tables from other (dependency) projects in the graph cannot be opened in the editor. */
+    projectName?: string
 }
 
+/** The editor keeps the open table in the URL fragment as `…table?id=<tableId>`; read it so the graph can preselect it. */
+const tableIdFromHash = (): string | undefined => globalThis.location.hash.match(/[?&]id=([^&]+)/)?.[1]
+
 /**
- * Opens the tapped table in the editor via the backend-resolved URL. The backend returns a page-relative fragment
- * (e.g. {@code #repo/project/module/table}) that the editor shell hosting this modal resolves on hash change, so it is
- * navigated as-is — prefixing the origin would leave the editor page and drop the context path.
+ * Opens the tapped table in the editor via the backend-resolved URL, then closes the graph. The backend returns a
+ * page-relative fragment (e.g. {@code #repo/project/module/table}) that the editor shell hosting this modal resolves on
+ * hash change, so it is navigated as-is — prefixing the origin would leave the editor page and drop the context path.
+ * The endpoint resolves tables in the active project only, so a foreign-project table yields no URL and is left alone.
  */
 const openTable = (id: string): void => {
     apiCall(`/compile/table/${id}/url`, { method: 'GET' }, GRAPH_API_OPTIONS)
         .then((data: { url?: string | null }) => {
             if (data?.url) {
                 globalThis.location.href = `${data.url}?id=${id}`
+                globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
             }
         })
         .catch(() => undefined)
@@ -205,6 +217,10 @@ export const TableGraphModal: React.FC = () => {
 
     const containerRef = useRef<HTMLDivElement>(null)
     const cyRef = useRef<Core | null>(null)
+    // The table open in the editor when the graph was launched, to preselect it once the graph is laid out.
+    const pendingSelectRef = useRef<string | undefined>(undefined)
+    // The opened project's name, read inside the cytoscape tap handler to skip opening foreign-project tables.
+    const projectNameRef = useRef<string | undefined>(undefined)
 
     useEffect(() => {
         const hasDetails = !!detail?.projectId
@@ -222,6 +238,9 @@ export const TableGraphModal: React.FC = () => {
         setHiddenKinds(new Set())
         setCycles(null)
         setActiveCycle(undefined)
+        // Preselect the table the user is editing, and remember which project can be opened (see the tap handler).
+        pendingSelectRef.current = tableIdFromHash()
+        projectNameRef.current = detail.projectName
         // The id may arrive in the standard Base64 alphabet; normalize to the URL-safe form (the backend decodes both).
         const projectId = detail.projectId.replaceAll('+', '-').replaceAll('/', '_')
         apiCall(`/projects/${projectId}/tables/graph`, { method: 'GET' }, GRAPH_API_OPTIONS)
@@ -316,6 +335,12 @@ export const TableGraphModal: React.FC = () => {
         cyRef.current = cy
         cy.layout(GRAPH_LAYOUT).run()
 
+        // Preselect the table that was open in the editor (focuses and centres it via the selection effect).
+        if (pendingSelectRef.current && model.byId.has(pendingSelectRef.current)) {
+            setSelectedId(pendingSelectRef.current)
+        }
+        pendingSelectRef.current = undefined
+
         let lastTap = { id: '', time: 0 }
         cy.on('tap', 'node', event => {
             const id = event.target.id()
@@ -323,8 +348,11 @@ export const TableGraphModal: React.FC = () => {
             setSelectedId(id)
             setSearchName(undefined)
             setActiveCycle(undefined)
+            // Double-tap opens the table, but only when it lives in the active project — foreign tables cannot be opened.
             if (id === lastTap.id && now - lastTap.time < 350) {
-                openTable(id)
+                if (canOpenTable(model.byId.get(id), projectNameRef.current)) {
+                    openTable(id)
+                }
                 lastTap = { id: '', time: 0 }
             } else {
                 lastTap = { id, time: now }
@@ -421,6 +449,7 @@ export const TableGraphModal: React.FC = () => {
     }, [])
 
     const selected = selectedId ? model.byId.get(selectedId) : undefined
+    const currentProjectName = detail?.projectName
     // Resolve the panel's neighbour lists once per selection/filter change, not on every modal re-render.
     const selectedUses = useMemo(
         () => (selected && selected.kind !== DISPATCHER_KIND
@@ -581,6 +610,7 @@ export const TableGraphModal: React.FC = () => {
 
     const renderNodeInfo = (node: GraphNode) => {
         const isDispatcher = node.kind === DISPATCHER_KIND
+        const foreign = !isDispatcher && !canOpenTable(node, currentProjectName)
         const dims = Object.entries(node.dimensionProperties ?? {})
         return (
             <>
@@ -609,11 +639,17 @@ export const TableGraphModal: React.FC = () => {
                 )}
                 {renderMeta(node)}
                 <div style={{ marginTop: 10 }}>
-                    {isDispatcher ? (
+                    {isDispatcher && (
                         <Typography.Paragraph style={{ marginBottom: 8 }} type="secondary">
                             {t('graph:panel.dispatcher_hint')}
                         </Typography.Paragraph>
-                    ) : (
+                    )}
+                    {foreign && (
+                        <Typography.Paragraph style={{ marginBottom: 8 }} type="secondary">
+                            {t('graph:panel.external', { project: node.project })}
+                        </Typography.Paragraph>
+                    )}
+                    {!isDispatcher && !foreign && (
                         <Button
                             icon={<ExportOutlined />}
                             onClick={() => openTable(node.id)}
