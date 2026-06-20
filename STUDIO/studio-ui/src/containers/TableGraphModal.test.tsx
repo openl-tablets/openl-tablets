@@ -104,7 +104,7 @@ vi.mock('react-i18next', () => {
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const mockCytoscape = cytoscape as unknown as MockedFunction<(options: { elements: Array<{ data: { id: string } }> }) => unknown>
 
-const dispatchOpen = async (detail: { projectId: string } | null) => {
+const dispatchOpen = async (detail: { projectId: string, projectName?: string } | null) => {
     await act(async () => {
         window.dispatchEvent(new CustomEvent('openTableGraphModal', { detail }))
     })
@@ -113,6 +113,7 @@ const dispatchOpen = async (detail: { projectId: string } | null) => {
 describe('TableGraphModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        window.location.hash = ''
     })
 
     it('does not render without an event', () => {
@@ -241,6 +242,53 @@ describe('TableGraphModal', () => {
         expect(screen.getByText('rules/Main.xlsx')).toBeInTheDocument()
         expect(screen.getByText('state: AZ')).toBeInTheDocument()
         expect(screen.getByText('State: AR')).toBeInTheDocument()
+    })
+
+    it('preselects the table open in the editor from the URL fragment', async () => {
+        window.location.hash = '#repo/proj/module/table?id=a'
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'a', name: 'Alpha' },
+            { id: 'b', name: 'Beta', dependencies: ['a']},
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        // the node named in the fragment becomes active without any user interaction
+        await waitFor(() => expect(cyMocks.getElementById).toHaveBeenCalledWith('a'))
+        expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
+    })
+
+    it('opens a table in the editor and closes the graph', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
+        mockApiCall.mockResolvedValueOnce({ url: '#repo/proj/module/table' } as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1', projectName: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
+        await userEvent.click(screen.getByText('graph:panel.open'))
+
+        expect(mockApiCall).toHaveBeenCalledWith('/compile/table/a/url', { method: 'GET' }, expect.anything())
+        // a resolved URL navigates and dismisses the modal
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    })
+
+    it('does not offer Open for a table from another project', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'a', name: 'A', project: 'OtherProject' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1', projectName: 'CurrentProject' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
+
+        expect(screen.queryByText('graph:panel.open')).not.toBeInTheDocument()
+        expect(screen.getByText('graph:panel.external')).toBeInTheDocument()
     })
 
     it('shows the empty state when there are no tables', async () => {
