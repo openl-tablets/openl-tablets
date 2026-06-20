@@ -104,7 +104,7 @@ vi.mock('react-i18next', () => {
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const mockCytoscape = cytoscape as unknown as MockedFunction<(options: { elements: Array<{ data: { id: string } }> }) => unknown>
 
-const dispatchOpen = async (detail: { projectId: string, projectName?: string } | null) => {
+const dispatchOpen = async (detail: { projectId: string, projectName?: string, module?: string } | null) => {
     await act(async () => {
         window.dispatchEvent(new CustomEvent('openTableGraphModal', { detail }))
     })
@@ -137,6 +137,32 @@ describe('TableGraphModal', () => {
         const options = mockCytoscape.mock.calls[0]?.[0]
         const ids = (options?.elements ?? []).map(element => element.data.id)
         expect(ids).toEqual(expect.arrayContaining(['a', 'b', 'b->a']))
+    })
+
+    it('scopes the graph to the opened module when one is given', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1', module: 'My Module' })
+
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+        expect(mockApiCall).toHaveBeenCalledWith('/projects/proj-1/tables/graph?module=My%20Module', { method: 'GET' }, expect.anything())
+    })
+
+    it('rebuilds the whole-project graph when the scope is switched', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] as never)
+
+        render(<TableGraphModal />)
+        // launched from a module → first request is module-scoped
+        await dispatchOpen({ projectId: 'proj-1', module: 'M1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+        expect(mockApiCall).toHaveBeenCalledWith('/projects/proj-1/tables/graph?module=M1', { method: 'GET' }, expect.anything())
+
+        await userEvent.click(screen.getByText('graph:scope_project'))
+
+        // switching scope reloads the whole project
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/projects/proj-1/tables/graph', { method: 'GET' }, expect.anything()))
     })
 
     it('highlights and centers the table picked from the search box', async () => {

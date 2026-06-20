@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Divider, Empty, Modal, Select, Space, Spin, Tag, Tooltip, Typography } from 'antd'
+import { Button, Divider, Empty, Modal, Segmented, Select, Space, Spin, Tag, Tooltip, Typography } from 'antd'
 import {
     AimOutlined,
     BgColorsOutlined,
@@ -170,6 +170,8 @@ export interface TableGraphModalDetail {
     projectId: string
     /** Name of the opened project. Tables from other (dependency) projects in the graph cannot be opened in the editor. */
     projectName?: string
+    /** Opened module name. Set from the module view to scope the graph to that module; absent at the project level. */
+    module?: string
 }
 
 /** The editor keeps the open table in the URL fragment as `…table?id=<tableId>`; read it so the graph can preselect it. */
@@ -214,6 +216,8 @@ export const TableGraphModal: React.FC = () => {
     const [cycles, setCycles] = useState<GraphCycle[] | null>(null)
     const [activeCycle, setActiveCycle] = useState<GraphCycle>()
     const [legendOpen, setLegendOpen] = useState(true)
+    // Which slice of tables the graph covers. Defaults to the opened module; the user can switch to the whole project.
+    const [scope, setScope] = useState<'module' | 'project'>('project')
 
     const containerRef = useRef<HTMLDivElement>(null)
     const cyRef = useRef<Core | null>(null)
@@ -221,14 +225,17 @@ export const TableGraphModal: React.FC = () => {
     const pendingSelectRef = useRef<string | undefined>(undefined)
     // The opened project's name, read inside the cytoscape tap handler to skip opening foreign-project tables.
     const projectNameRef = useRef<string | undefined>(undefined)
+    // Project id and module name kept for the scope-switch reload that fires after the initial load.
+    const projectIdRef = useRef<string | undefined>(undefined)
+    const moduleRef = useRef<string | undefined>(undefined)
+    // Guards against a stale response overwriting a newer one when the scope is switched mid-request.
+    const loadSeqRef = useRef(0)
 
-    useEffect(() => {
-        const hasDetails = !!detail?.projectId
-        setVisible(hasDetails)
-        if (!hasDetails || !detail) {
-            return
-        }
-        let cancelled = false
+    // Loads the graph for the given scope, fully resetting the view. The opened module is requested when scoped to it
+    // (and known); the whole project otherwise.
+    const loadGraph = useCallback((next: 'module' | 'project') => {
+        const seq = (loadSeqRef.current += 1)
+        setScope(next)
         setLoading(true)
         setError(false)
         setNodes([])
@@ -238,32 +245,40 @@ export const TableGraphModal: React.FC = () => {
         setHiddenKinds(new Set())
         setCycles(null)
         setActiveCycle(undefined)
-        // Preselect the table the user is editing, and remember which project can be opened (see the tap handler).
-        pendingSelectRef.current = tableIdFromHash()
-        projectNameRef.current = detail.projectName
-        // The id may arrive in the standard Base64 alphabet; normalize to the URL-safe form (the backend decodes both).
-        const projectId = detail.projectId.replaceAll('+', '-').replaceAll('/', '_')
-        apiCall(`/projects/${projectId}/tables/graph`, { method: 'GET' }, GRAPH_API_OPTIONS)
+        const slice = next === 'module' && moduleRef.current ? `?module=${encodeURIComponent(moduleRef.current)}` : ''
+        apiCall(`/projects/${projectIdRef.current}/tables/graph${slice}`, { method: 'GET' }, GRAPH_API_OPTIONS)
             .then((data: GraphNode[]) => {
-                if (!cancelled) {
+                if (seq === loadSeqRef.current) {
                     setNodes(Array.isArray(data) ? data : [])
                 }
             })
             .catch(() => {
-                if (!cancelled) {
+                if (seq === loadSeqRef.current) {
                     setNodes([])
                     setError(true)
                 }
             })
             .finally(() => {
-                if (!cancelled) {
+                if (seq === loadSeqRef.current) {
                     setLoading(false)
                 }
             })
-        return () => {
-            cancelled = true
+    }, [])
+
+    useEffect(() => {
+        const hasDetails = !!detail?.projectId
+        setVisible(hasDetails)
+        if (!hasDetails || !detail) {
+            return
         }
-    }, [detail])
+        // The id may arrive in the standard Base64 alphabet; normalize to the URL-safe form (the backend decodes both).
+        projectIdRef.current = detail.projectId.replaceAll('+', '-').replaceAll('/', '_')
+        moduleRef.current = detail.module
+        projectNameRef.current = detail.projectName
+        // Preselect the table the user is editing; default to the opened module's slice when one is known.
+        pendingSelectRef.current = tableIdFromHash()
+        loadGraph(detail.module ? 'module' : 'project')
+    }, [detail, loadGraph])
 
     const model = useMemo(() => buildGraphModel(nodes), [nodes])
     // Index tables by display name once; several tables can share a name, and the candidates bar lets the user pick.
@@ -786,6 +801,15 @@ export const TableGraphModal: React.FC = () => {
                                     const matches = name ? byName.get(name) ?? [] : []
                                     setSelectedId(matches.length === 1 ? matches[0]?.id : undefined)
                                 }}
+                            />
+                            <Segmented
+                                data-testid="table-graph-scope"
+                                onChange={value => loadGraph(value as 'module' | 'project')}
+                                value={scope}
+                                options={[
+                                    { label: t('graph:scope_module'), value: 'module', disabled: !detail?.module },
+                                    { label: t('graph:scope_project'), value: 'project' },
+                                ]}
                             />
                             <Space.Compact>
                                 <Tooltip title={t('graph:fit')}>

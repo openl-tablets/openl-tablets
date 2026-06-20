@@ -2,6 +2,8 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'graph', {
     title: 'Table Dependencies',
+    scope_module: 'Current module',
+    scope_project: 'Whole project',
     empty: 'No table dependencies to display.',
     load_failed: 'Failed to load the table dependency graph.',
     search_placeholder: 'Find a table by name',

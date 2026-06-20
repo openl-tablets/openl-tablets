@@ -253,7 +253,7 @@
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module and studio.model.compiledSuccessfully}">
                     <li><a tabindex="-1" href="#"
-                           onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{project.name}'}})); return false;">Table Dependencies</a></li>
+                           onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{project.name}', module: '#{module.name}'}})); return false;">Table Dependencies</a></li>
                     </h:panelGroup>
                     <li><a tabindex="-1" target="_blank"
                         onclick="topPanelCompareWindowOpen(); return false;"
