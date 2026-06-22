@@ -319,23 +319,21 @@ public class ProjectsController {
     }
 
     @GetMapping("/{projectId}/tables/graph")
-    @Operation(summary = "Get project tables dependency graph (BETA)",
-            description = "Returns all project tables and the tables each one depends on. The whole project is covered by default; pass `module` to limit the graph to a single module.")
-    @Parameter(name = "module", description = "Module name to limit the graph to a single module", in = ParameterIn.QUERY)
+    @Operation(summary = "project.tables.graph.summary", description = "project.tables.graph.desc")
     public List<TableNodeView> getTablesGraph(@ProjectId @PathVariable("projectId") RulesProject project,
-                                              @RequestParam(value = "module", required = false) String module) {
-        var model = projectService.openProject(project, module).awaitCompiled();
-        return graphService.buildProjectGraph(model, module != null);
+                                              @RequestParam(value = "module", required = false) @Parameter(description = "project.tables.graph.module.desc") String module) {
+        // a blank `?module=` means the whole project, not a module named "" (which would fail to resolve)
+        var moduleName = StringUtils.trimToNull(module);
+        var model = projectService.openProject(project, moduleName).awaitCompiled();
+        return graphService.buildProjectGraph(model, moduleName != null);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/graph")
-    @Operation(summary = "Get dependency graph for a table (BETA)",
-            description = "Returns the table together with the tables related to it, following dependencies, dependents, or both, optionally limited by depth.")
-    @Parameter(name = "direction", description = "Relations to include", in = ParameterIn.QUERY, schema = @Schema(implementation = GraphDirection.class))
+    @Operation(summary = "project.table.graph.summary", description = "project.table.graph.desc")
     public List<TableNodeView> getTableGraph(@ProjectId @PathVariable("projectId") RulesProject project,
-                                             @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                                             @RequestParam(value = "direction", defaultValue = "BOTH") GraphDirection direction,
-                                             @RequestParam(value = "depth", required = false) @Min(1) @Parameter(description = "Maximum traversal depth from the table") Integer depth) {
+                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                             @RequestParam(value = "direction", defaultValue = "BOTH") @Parameter(description = "project.table.graph.direction.desc") GraphDirection direction,
+                                             @RequestParam(value = "depth", required = false) @Min(1) @Parameter(description = "project.table.graph.depth.desc") Integer depth) {
         var model = projectService.openProject(project).awaitCompiled();
         if (model.getTableById(tableId) == null) {
             throw new NotFoundException("table.message");

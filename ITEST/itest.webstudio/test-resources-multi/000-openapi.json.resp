@@ -9257,17 +9257,17 @@ Content-Type: application/json
         "parameters": [
           {
             "description": "***",
-            "in": "query",
-            "name": "module",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
             "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
+            "in": "query",
+            "name": "module",
             "schema": {
               "type": "string"
             }
@@ -9620,19 +9620,6 @@ Content-Type: application/json
         "parameters": [
           {
             "description": "***",
-            "in": "query",
-            "name": "direction",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "DEPENDENCIES",
-                "DEPENDENTS",
-                "BOTH"
-              ]
-            }
-          },
-          {
-            "description": "***",
             "in": "path",
             "name": "projectId",
             "required": true,
@@ -9647,6 +9634,20 @@ Content-Type: application/json
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "default": "BOTH",
+              "enum": [
+                "DEPENDENCIES",
+                "DEPENDENTS",
+                "BOTH"
+              ]
             }
           },
           {
