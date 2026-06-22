@@ -14,7 +14,7 @@
     "antd": "6.4.5",
     "antd-style": "^4.1.0",
     "cytoscape": "^3.34.0",
-    "cytoscape-dagre": "^2.5.0",
+    "cytoscape-dagre": "^4.0.0",
     "dagre": "^0.8.5",
     "dompurify": "^3.4.11",
     "i18next": "^26.3.1",
