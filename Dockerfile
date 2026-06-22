@@ -5,7 +5,7 @@ ARG LOG4J_VER=2.26.0
 
 FROM alpine AS otel
 
-ENV OTEL_VER 2.28.1
+ENV OTEL_VER 2.29.0
 
 RUN <<EOT
 set -euxv
