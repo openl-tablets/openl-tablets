@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
-    <version>6.2.0</version>
+    <version>6.2.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>OpenL Tablets</name>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -72,7 +72,7 @@
     <scm>
         <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
         <developerConnection>scm:git:git@github.com:openl-tablets/openl-tablets.git</developerConnection>
-        <tag>6.2.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/openl-tablets/openl-tablets</url>
     </scm>
     <properties>
@@ -216,7 +216,7 @@
         <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx61m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
-        <surefire.argLine.opts/>
+        <surefire.argLine.opts />
         <!-- Extra settings per a maven module for the surefire plugin -->
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
@@ -1427,7 +1427,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
-                            <openl.config.location/>
+                            <openl.config.location />
                         </systemPropertyVariables>
                         <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} @{jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
                     </configuration>
@@ -1571,9 +1571,9 @@
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
-                        <removeUnusedImports/>
-                        <trimTrailingWhitespace/>
-                        <endWithNewline/>
+                        <removeUnusedImports />
+                        <trimTrailingWhitespace />
+                        <endWithNewline />
                         <indent>
                             <spaces>true</spaces>
                             <spacesPerTab>4</spacesPerTab>
@@ -1597,9 +1597,9 @@
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
-                        <removeSemicolons/>
-                        <trimTrailingWhitespace/>
-                        <endWithNewline/>
+                        <removeSemicolons />
+                        <trimTrailingWhitespace />
+                        <endWithNewline />
                         <indent>
                             <spaces>true</spaces>
                             <spacesPerTab>4</spacesPerTab>
@@ -1682,8 +1682,8 @@
                                      changes Flyway's content checksum and breaks upgrades. -->
                                 <exclude>**/db/flyway/**</exclude>
                             </excludes>
-                            <trimTrailingWhitespace/>
-                            <endWithNewline/>
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
                             <indent>
                                 <spaces>true</spaces>
                                 <spacesPerTab>4</spacesPerTab>
@@ -1805,7 +1805,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine/>
+                <jacoco.argLine />
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -1820,8 +1820,8 @@
                 <module>jacoco-report</module>
             </modules>
             <properties>
-                <sonar/>
-                <surefire.argLine/>
+                <sonar />
+                <surefire.argLine />
                 <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
                 <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
                 <sonar.test.inclusions>**/*Test.java,**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx</sonar.test.inclusions>

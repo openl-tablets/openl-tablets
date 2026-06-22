@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>6.2.0</version>
+        <version>6.2.1-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
@@ -181,7 +181,7 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <reportSets>
                     <reportSet>
-                        <reports/>
+                        <reports />
                     </reportSet>
                 </reportSets>
             </plugin>
@@ -209,7 +209,7 @@
                 </property>
             </activation>
             <properties>
-                <invoker.mavenOpts/>
+                <invoker.mavenOpts />
                 <invoker.noPerf>true</invoker.noPerf>
             </properties>
         </profile>
