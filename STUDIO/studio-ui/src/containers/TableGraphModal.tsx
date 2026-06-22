@@ -13,7 +13,7 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import cytoscape, { type Core } from 'cytoscape'
-import dagre from 'cytoscape-dagre'
+import dagre, { type DagreLayoutOptions } from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import {
@@ -62,13 +62,15 @@ const candidateTooltip = (node: GraphNode): string => [node.kind, node.project, 
 const canOpenTable = (node: GraphNode | undefined, projectName?: string): boolean =>
     !!node && node.kind !== DISPATCHER_KIND && (!projectName || !node.project || node.project === projectName)
 
-const GRAPH_LAYOUT = {
+// Dagre-specific options (rankDir, nodeSep, rankSep) live in @types/cytoscape-dagre's DagreLayoutOptions, not in the
+// base @types/cytoscape LayoutOptions union; typing the constant with it keeps these fields type-checked.
+const GRAPH_LAYOUT: DagreLayoutOptions = {
     name: 'dagre',
     rankDir: 'LR',
     nodeSep: 18,
     rankSep: 70,
     animate: false,
-} as unknown as cytoscape.LayoutOptions
+}
 
 // Schematic palette. One accent is reserved for selection and never names a table kind; red means "problem" only.
 const SELECT_ACCENT = '#fa8c16'
@@ -161,6 +163,8 @@ const buildStyle = (maxWeight: number) => [
             'width': 2,
         },
     },
+    // @types/cytoscape's StylesheetCSS types each property narrowly and omits several used here (mapData() expressions,
+    // text/loop/underlay properties, the :loop selector), so the stylesheet is cast rather than fought field by field.
 ] as unknown as cytoscape.StylesheetCSS[]
 
 /**
@@ -348,7 +352,8 @@ export const TableGraphModal: React.FC = () => {
         }
         const cy = cytoscape({ container: containerRef.current, elements: model.elements, style: buildStyle(maxWeight) })
         cyRef.current = cy
-        cy.layout(GRAPH_LAYOUT).run()
+        // cytoscape's LayoutOptions union has no "dagre" member, so the dagre options are cast in only at the call.
+        cy.layout(GRAPH_LAYOUT as unknown as cytoscape.LayoutOptions).run()
 
         // Preselect the table that was open in the editor (focuses and centres it via the selection effect).
         if (pendingSelectRef.current && model.byId.has(pendingSelectRef.current)) {
