@@ -179,7 +179,7 @@ export interface TableGraphModalDetail {
 }
 
 /** The editor keeps the open table in the URL fragment as `…table?id=<tableId>`; read it so the graph can preselect it. */
-const tableIdFromHash = (): string | undefined => globalThis.location.hash.match(/[?&]id=([^&]+)/)?.[1]
+const tableIdFromHash = (): string | undefined => /[?&]id=([^&]+)/.exec(globalThis.location.hash)?.[1]
 
 /**
  * Opens the tapped table in the editor via the backend-resolved URL, then closes the graph. The backend returns a
@@ -298,7 +298,7 @@ export const TableGraphModal: React.FC = () => {
         })
         return index
     }, [nodes])
-    const nodeOptions = useMemo(() => [...byName.keys()].sort().map(name => ({ label: name, value: name })), [byName])
+    const nodeOptions = useMemo(() => [...byName.keys()].sort((a, b) => a.localeCompare(b)).map(name => ({ label: name, value: name })), [byName])
     const nameMatches = useMemo(() => (searchName ? byName.get(searchName) ?? [] : []), [byName, searchName])
     // Tables per kind, for the legend's counts (a kind with 0 tables is simply absent).
     const kindCounts = useMemo(() => {
@@ -313,9 +313,8 @@ export const TableGraphModal: React.FC = () => {
         const reachable = (start: string): Set<string> => {
             const seen = new Set([start])
             const queue = [start]
-            // Dequeue with a moving head index; Array.shift() is O(n) and would make the traversal O(n²).
-            for (let head = 0; head < queue.length; head++) {
-                const current = queue[head] as string
+            // Iterate with for-of (it keeps yielding items pushed during the walk) instead of Array.shift() (O(n)).
+            for (const current of queue) {
                 let next: string[] = []
                 if (explore?.direction !== 'DEPENDENTS') {
                     next.push(...(model.dependencies.get(current) ?? []))
@@ -731,10 +730,14 @@ export const TableGraphModal: React.FC = () => {
                     {model.kinds.map(kind => {
                         const hidden = hiddenKinds.has(kind)
                         return (
-                            <div
+                            <button
                                 key={kind}
                                 onClick={() => toggleKind(kind)}
-                                style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', opacity: hidden ? 0.4 : 1, userSelect: 'none' }}
+                                type="button"
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', opacity: hidden ? 0.4 : 1,
+                                    userSelect: 'none', width: '100%', border: 'none', background: 'none', padding: 0, font: 'inherit', textAlign: 'left',
+                                }}
                             >
                                 <span style={{ width: 12, height: 12, borderRadius: 3, background: kindColor(kind), flex: '0 0 auto' }} />
                                 <Typography.Text ellipsis style={{ fontSize: 12, flex: 1, textDecoration: hidden ? 'line-through' : 'none' }}>
@@ -743,7 +746,7 @@ export const TableGraphModal: React.FC = () => {
                                 <Typography.Text style={{ fontSize: 11, fontFamily: MONO }} type="secondary">
                                     {kindCounts.get(kind) ?? 0}
                                 </Typography.Text>
-                            </div>
+                            </button>
                         )
                     })}
                 </Space>

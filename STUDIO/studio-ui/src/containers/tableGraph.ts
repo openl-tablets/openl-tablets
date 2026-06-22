@@ -201,7 +201,8 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
     const cyclicNodes = new Set<string>()
     cycleEdges.forEach(edge => edge.split('->').forEach(id => cyclicNodes.add(id)))
 
-    const kinds = [...new Set(nodes.map(node => node.kind).filter((kind): kind is string => Boolean(kind)))].sort()
+    const kinds = [...new Set(nodes.map(node => node.kind).filter((kind): kind is string => Boolean(kind)))]
+        .sort((a, b) => a.localeCompare(b))
 
     return {
         elements,
@@ -229,9 +230,8 @@ export const visibleNeighbours = (
     const result = new Set<string>()
     const walked = new Set<string>()
     const queue = [id]
-    // Dequeue with a moving head index; Array.shift() is O(n) and would make the traversal O(n²).
-    for (let head = 0; head < queue.length; head++) {
-        const current = queue[head] as string
+    // Iterate with for-of (it keeps yielding items pushed during the walk) instead of Array.shift(), which is O(n).
+    for (const current of queue) {
         if (!walked.has(current)) {
             walked.add(current)
             ;(relations.get(current) ?? []).forEach(next => {
@@ -310,6 +310,6 @@ export const findCycles = (dependencies: Map<string, string[]>, minNodes = 2, li
         })
     }
 
-    ;[...dependencies.keys()].sort().forEach(start => explore(start, start, [start], new Set([start])))
+    ;[...dependencies.keys()].sort((a, b) => a.localeCompare(b)).forEach(start => explore(start, start, [start], new Set([start])))
     return cycles
 }
