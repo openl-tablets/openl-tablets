@@ -16,7 +16,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "STUDIO/studio-ui/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
 
   - package-ecosystem: "github-actions"
     directory: "/"
