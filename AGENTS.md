@@ -1,17 +1,23 @@
 # OpenL Tablets — Agent Instructions
 
-OpenL Tablets is a business rules engine that compiles Excel spreadsheets into executable Java via runtime bytecode generation.
+OpenL Tablets is a business rules engine that compiles Excel spreadsheets into executable Java via runtime bytecode
+generation.
 
 ## Strict Rules (**MUST**. No exceptions.)
 
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
 - Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
-- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text blocks and etc.)
+- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text blocks and
+  etc.)
   and features (Virtual Threads, Sequenced Collections, new String, Collections & IO/NIO methods and etc.)
-- Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
-- When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter automatically
+- Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/
+  `@Setter` for accessors, `@Slf4j` for loggers, etc.
+- When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root
+  `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter
+  automatically
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
-- Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) — extract per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s
+- Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) — extract
+  per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
@@ -33,7 +39,9 @@ Multi-module Maven project. Version: inherits from root `pom.xml`.
 
 ## Dependency Versions
 
-Managed in root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend). Read those files for current versions — do not hardcode versions in documentation or AGENTS.md files.
+- Managed in root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend). Read those files for current
+  versions — do not hardcode versions in documentation or AGENTS.md files.
+- Always check the latest versions. Do not use outdated.
 
 ## Build
 
@@ -76,15 +84,17 @@ EPBDS-NNNNN <subject>
 
 - **One logical change per commit.** Amend related follow-up code into the latest commit instead of adding a new one.
 - **Prefix with the Jira ticket** (`EPBDS-NNNNN`), usually equal to the branch name.
-- **The subject explains _why_ the change is needed or _what_ it achieves** — not the mechanical move, which is already visible in the diff and history. Start it with an imperative verb.
-  - Good — `EPBDS-15494 Stream file downloads instead of buffering`
-  - Avoid — `EPBDS-15494 Move FileService into the rest package`
+- **The subject explains _why_ the change is needed or _what_ it achieves** — not the mechanical move, which is already
+  visible in the diff and history. Start it with an imperative verb.
+    - Good — `EPBDS-15494 Stream file downloads instead of buffering`
+    - Avoid — `EPBDS-15494 Move FileService into the rest package`
 - **For bug fixes, name the cause and its observable effect**, not the symptom:
-  - `EPBDS-15981 Fix NPE when ProjectDescriptor.name is null` — not `Fix 'something went wrong' message`
-  - `Fix date parsing which breaks UI rendering` — not `Fix missed input`
+    - `EPBDS-15981 Fix NPE when ProjectDescriptor.name is null` — not `Fix 'something went wrong' message`
+    - `Fix date parsing which breaks UI rendering` — not `Fix missed input`
 - **Subject line only.** Add a body only when a single line cannot explain the change.
 - **No `Co-Authored-By:` or other co-author trailers.**
-- **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a misconfiguration, or a dependency bump.
+- **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a
+  misconfiguration, or a dependency bump.
 
 ## Markdown Rules
 
@@ -101,8 +111,10 @@ EPBDS-NNNNN <subject>
 
 - Describe **what** the code does, not **how** it is implemented
 - Keep sentences short — prefer several short sentences over one long multi-clause sentence
-- Use domain language (`path`, `field`, `parent object`, `collection element`) instead of internal jargon (`chain`, `deepest-first traversal`, `segments produced by iteration`)
-- Skip implementation details (specific collections, algorithms, iteration order, internal APIs) unless they affect observable behavior
+- Use domain language (`path`, `field`, `parent object`, `collection element`) instead of internal jargon (`chain`,
+  `deepest-first traversal`, `segments produced by iteration`)
+- Skip implementation details (specific collections, algorithms, iteration order, internal APIs) unless they affect
+  observable behavior
 - Preserve behavioral details — edge cases, special behavior, invariants, constraints, assumptions
 - Structure for scanning: short intro sentence, then separate paragraphs for behavior and special cases
 - Aim for 3 short paragraphs rather than 1 dense paragraph
