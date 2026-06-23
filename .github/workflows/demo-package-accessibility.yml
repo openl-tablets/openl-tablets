@@ -8,6 +8,10 @@
 name: "DEMO package run & accessibility (Ubuntu, Windows, macOS)"
 
 on:
+  # TEMP(validation): run on branch push to validate the demo path. Remove before merge.
+  push:
+    branches:
+      - EPBDS-16159-demo-matrix-test
   schedule:
     # Every week at 03:00 UTC on Wednesday
     - cron: '0 3 * * 3'
@@ -25,6 +29,8 @@ jobs:
 
   build:
     name: Build DEMO .war files
+    # TEMP(validation): skip source build (shibboleth-dependent); validate demo path with released WARs.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -72,7 +78,6 @@ jobs:
 
   demo:
     name: DEMO on ${{ matrix.os }}
-    needs: build
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -97,11 +102,14 @@ jobs:
           distribution: 'temurin'
           java-version: 25
 
-      - name: Download built .war files into DEMO/webapps
-        uses: actions/download-artifact@v4
-        with:
-          name: demo-wars
-          path: DEMO/webapps
+      - name: TEMP(validation) download released 6.1.1 WARs into DEMO/webapps
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p DEMO/webapps
+          base="https://repo1.maven.org/maven2/org/openl/rules"
+          curl -fsSL -o DEMO/webapps/webstudio.war  "$base/org.openl.rules.webstudio/6.1.1/org.openl.rules.webstudio-6.1.1.war"
+          curl -fsSL -o DEMO/webapps/webservice.war "$base/org.openl.rules.ruleservice.ws/6.1.1/org.openl.rules.ruleservice.ws-6.1.1.war"
 
       - name: Pin OpenL version and verify the .war files are present
         shell: bash
