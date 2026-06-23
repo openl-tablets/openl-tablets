@@ -81,6 +81,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      *     </ul>
      *   <li><b>Phase 2 (Apply merges):</b>
      *     <ul>
+     *       <li>On update, first clears the table's existing merges so merges removed from the source do not linger
      *       <li>After all values are written, applies merge regions
      *       <li>This ensures columns/rows are created before merging
      *       <li>Uses MergeCellsAction for each merge region
@@ -122,6 +123,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             if (maxSourceRow < height) {
                 removeRows(tableBody, height - maxSourceRow, maxSourceRow);
             }
+            // Drop the table's existing merges so that merges removed from the source do not linger.
+            // Skipped on creation, where the table starts with no merges.
+            clearMergedRegions(tableBody);
         }
 
         // Phase 2: Apply merge regions after all cells are written

@@ -1,48 +1,33 @@
 package org.openl.rules.table.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 
 /**
+ * Merges a region of cells into a single merged region.
+ * <p>
+ * Existing merges whose origin falls inside the new region are dropped first (inherited from
+ * {@link RemoveMergedRegionsAction}); then the region is added as a merge. Undo reverses both steps.
+ *
  * @author PUdalau
  */
-public class MergeCellsAction implements IUndoableGridTableAction {
-
-    private final IGridRegion region;
-    private List<IGridRegion> removedRegions;
+public class MergeCellsAction extends RemoveMergedRegionsAction {
 
     public MergeCellsAction(IGridRegion region) {
-        this.region = region;
+        super(region);
     }
 
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
-        removedRegions = new ArrayList<>();
-        int nregions = grid.getNumberOfMergedRegions();
-        for (int i = 0; i < nregions; i++) {
-            IGridRegion reg = grid.getMergedRegion(i);
-            if (IGridRegion.Tool.contains(region, reg.getLeft(), reg.getTop())) {
-                removedRegions.add(reg);
-            }
-        }
-        for (IGridRegion regionToRemove : removedRegions) {
-            grid.removeMergedRegion(regionToRemove);
-        }
-        grid.addMergedRegion(region);
+        super.doAction(table);
+        ((IWritableGrid) table.getGrid()).addMergedRegion(region);
     }
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
-        grid.removeMergedRegion(region);
-        for (IGridRegion mergedRegion : removedRegions) {
-            grid.addMergedRegion(mergedRegion);
-        }
+        ((IWritableGrid) table.getGrid()).removeMergedRegion(region);
+        super.undoAction(table);
     }
 
 }
