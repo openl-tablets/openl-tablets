@@ -18,6 +18,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 
 @RequiredArgsConstructor
@@ -55,7 +56,7 @@ public class RunExecutionResultMapper {
             resultValue = convertedResult != null ? objectMapper.valueToTree(convertedResult) : null;
             var actualParam = firstUnit.getActualParam();
             if (actualParam != null) {
-                resultSchema = schemaGenerator.generateSchema(actualParam.getType().getInstanceClass());
+                resultSchema = SafeSchemaGenerator.generate(schemaGenerator, actualParam.getType().getInstanceClass());
             }
         }
 
@@ -67,7 +68,7 @@ public class RunExecutionResultMapper {
             return ParameterValue.builder()
                     .name(param.getName())
                     .value(objectMapper.valueToTree(param.getValue()))
-                    .schema(schemaGenerator.generateSchema(param.getType().getInstanceClass()))
+                    .schema(SafeSchemaGenerator.generate(schemaGenerator, param.getType().getInstanceClass()))
                     .description(executionParamNames[i])
                     .build();
         }).toList();

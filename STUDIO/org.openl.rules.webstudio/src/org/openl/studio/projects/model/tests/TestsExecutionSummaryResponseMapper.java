@@ -16,6 +16,7 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 
 @RequiredArgsConstructor
@@ -103,7 +104,7 @@ public class TestsExecutionSummaryResponseMapper {
             return ParameterValue.builder()
                     .name(executionParam.getName())
                     .value(objectMapper.valueToTree(executionParam.getValue()))
-                    .schema(schemaGenerator.generateSchema(executionParam.getType().getInstanceClass()))
+                    .schema(SafeSchemaGenerator.generate(schemaGenerator, executionParam.getType().getInstanceClass()))
                     .description(executionParamNames[i])
                     .build();
         }).forEach(builder::parameter);

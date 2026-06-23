@@ -26,6 +26,7 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
@@ -221,14 +222,10 @@ public class TraceNodeViewMapper {
         if (type == null || type.getInstanceClass() == null) {
             return null;
         }
-        try {
-            var clazz = type instanceof CustomSpreadsheetResultOpenClass csrOpenClass
-                    ? csrOpenClass.getBeanClass()
-                    : type.getInstanceClass();
-            return schemaGenerator.generateSchema(clazz);
-        } catch (Exception ignored) {
-            return null;
-        }
+        var clazz = type instanceof CustomSpreadsheetResultOpenClass csrOpenClass
+                ? csrOpenClass.getBeanClass()
+                : type.getInstanceClass();
+        return SafeSchemaGenerator.generate(schemaGenerator, clazz);
     }
 
     private JsonNode serializeValue(Object value, IOpenClass type) {
