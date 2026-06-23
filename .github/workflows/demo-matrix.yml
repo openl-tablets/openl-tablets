@@ -8,6 +8,11 @@
 name: DEMO matrix test
 
 on:
+  # TEMPORARY: run on pushes to the feature branch while validating the workflow.
+  # Remove this 'push' block before opening the PR / merging.
+  push:
+    branches:
+      - EPBDS-16159-demo-matrix-test
   schedule:
     # Every week at 03:00 UTC on Wednesday
     - cron: '0 3 * * 3'
