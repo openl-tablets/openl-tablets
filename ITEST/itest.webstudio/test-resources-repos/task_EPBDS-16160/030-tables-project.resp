@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "197f9ad992135f46198fd44e540f0c7f",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "MyRule",
+      "returnType": "SpreadsheetResult",
+      "signature": "MyRule ()",
+      "file": "EPBDS-16160/generalProject.xlsx",
+      "pos": "C19:D21"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

@@ -39,6 +39,11 @@ public class RunRestRulesDeploymentTest {
     }
 
     @Test
+    public void test_EPBDS_16160() {
+        client.test("test-resources/EPBDS-16160");
+    }
+
+    @Test
     public void test_EPBDS_8758_multithread() {
         client.send("admin_services_no_services.json.get");
 

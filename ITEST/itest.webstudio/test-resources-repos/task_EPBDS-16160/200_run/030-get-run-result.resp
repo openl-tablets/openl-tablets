@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Virtual test suite",
+  "tableId": "197f9ad992135f46198fd44e540f0c7f",
+  "executionTimeMs": "*",
+  "result": {
+    "Test": {}
+  },
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "columnNames": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "rowNames": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

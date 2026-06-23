@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "startedTime": "#####",
+    "name": "generalproject",
+    "servicePath": "EPBDS-16160/EPBDS-16160",
+    "urls": {
+      "RESTFUL": "generalproject"
+    },
+    "hasManifest": false,
+    "deploymentName": "EPBDS-16160",
+    "status": "DEPLOYED"
+  }
+]

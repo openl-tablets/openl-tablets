@@ -1,6 +1,8 @@
 package org.openl.studio.config;
 
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -28,8 +30,23 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Types whose definition is currently being built, used to break circular references. Each type is
+     * removed in a {@code finally} once its definition completes;
+     * {@link #resetAfterSchemaGenerationFinished()} additionally clears the set after each generation as
+     * a safeguard. Not synchronized: a fresh provider is created per request (the {@code SchemaGenerator}
+     * bean is prototype-scoped, see {@link ObjectSchemaGeneratorConfiguration}), so it is only ever used
+     * by a single thread.
+     */
+    private final Set<Class<?>> inProgress = new HashSet<>();
+
     public JacksonBeanSchemaProvider(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public void resetAfterSchemaGenerationFinished() {
+        inProgress.clear();
     }
 
     @Override
@@ -41,6 +58,21 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
             return null;
         }
 
+        // A spreadsheet result bean can reference itself (e.g. a cell that returns a generic
+        // SpreadsheetResult), so its definition may be requested again while it is still being built.
+        // Returning null on such re-entry lets the generator emit a $ref to the in-progress definition
+        // instead of recursing forever, mirroring how the Rule Services OpenAPI schema represents it.
+        if (!inProgress.add(erasedType)) {
+            return null;
+        }
+        try {
+            return buildDefinition(erasedType, context);
+        } finally {
+            inProgress.remove(erasedType);
+        }
+    }
+
+    private CustomDefinition buildDefinition(Class<?> erasedType, SchemaGenerationContext context) {
         // Use Jackson's introspection to discover properties
         JavaType jacksonType = objectMapper.constructType(erasedType);
         BeanDescription beanDescription = objectMapper.getSerializationConfig().introspect(jacksonType);

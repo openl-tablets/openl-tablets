@@ -1,0 +1,2 @@
+DELETE /admin/deploy/EPBDS-16160 HTTP/1.1
+
