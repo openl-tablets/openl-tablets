@@ -25,6 +25,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.MergeCellsAction;
+import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableActions;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
@@ -249,6 +250,20 @@ public abstract class TableWriter<T extends TableView> {
         return isUpdateMode()
                 ? OpenLTableUtils.getTableTypeItems().get(table.getType())
                 : tableView.tableType;
+    }
+
+    /**
+     * Remove the merged regions that currently belong to the table.
+     * <p>
+     * Counterpart of {@link #applyMergeRegions}, which only adds regions. Call this before re-applying merges from a
+     * fresh source so that merges dropped from the source do not linger in the grid.
+     *
+     * @param gridTable The grid table whose merged regions are cleared
+     */
+    protected void clearMergedRegions(IGridTable gridTable) {
+        var action = new RemoveMergedRegionsAction(gridTable.getRegion());
+        action.doAction(gridTable);
+        actionsQueue.addNewAction(action);
     }
 
     /**
