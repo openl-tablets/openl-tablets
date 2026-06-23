@@ -8,10 +8,6 @@
 name: "DEMO package run & accessibility (Ubuntu, Windows, macOS)"
 
 on:
-  # TEMP(validation): run on branch push to validate the demo path. Remove before merge.
-  push:
-    branches:
-      - EPBDS-16159-demo-matrix-test
   schedule:
     # Every week at 03:00 UTC on Wednesday
     - cron: '0 3 * * 3'
@@ -49,16 +45,6 @@ jobs:
           distribution: 'temurin'
           java-version: 25
           cache: 'maven'
-
-      - name: TEMP(validation) probe shibboleth reachability (fail fast if the host is down)
-        run: |
-          set -e
-          url="https://build.shibboleth.net/maven/releases/org/opensaml/opensaml-core/5.2.2/opensaml-core-5.2.2.pom"
-          for i in 1 2 3; do
-            if curl -fsS -m 20 -o /dev/null "$url"; then echo "shibboleth reachable"; exit 0; fi
-            echo "attempt $i failed"; sleep 5
-          done
-          echo "ERROR: build.shibboleth.net unreachable; opensaml 5.2.2 cannot be resolved (intermittent infra outage). Aborting."; exit 1
 
       - name: Build (skip tests)
         run: mvn -DskipTests -T1C -B "-Dstyle.color=always"
