@@ -1,18 +1,13 @@
-# Builds the OpenL Tablets DEMO package once on Ubuntu and verifies that it
-# starts and is accessible on Ubuntu, Windows and macOS (EPBDS-16159).
+# Builds the OpenL Tablets DEMO package and verifies that it starts and is
+# accessible on Ubuntu, Windows and macOS (EPBDS-16159).
 #
 # Flow:
 #   build  - mvn -DskipTests -T1C, then publish webstudio.war + webservice.war
-#   demo   - per OS: drop the .war files into DEMO/webapps, run the start script
+#   demo   - per OS: place the .war files into DEMO/webapps, run the start script
 #            and poll the demo endpoints until they answer with HTTP 200.
 name: DEMO matrix test
 
 on:
-  # TEMPORARY: run on pushes to the feature branch while validating the workflow.
-  # Remove this 'push' block before opening the PR / merging.
-  push:
-    branches:
-      - EPBDS-16159-demo-matrix-test
   schedule:
     # Every week at 03:00 UTC on Wednesday
     - cron: '0 3 * * 3'
@@ -30,10 +25,6 @@ jobs:
 
   build:
     name: Build DEMO .war files
-    # TEMP(validation): source build is blocked by the build.shibboleth.net outage
-    # (opensaml 5.2.2 is unresolvable), so skip it and validate the demo orchestration
-    # against released WARs from Maven Central. Re-enable before finalizing.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -76,7 +67,7 @@ jobs:
 
   demo:
     name: DEMO on ${{ matrix.os }}
-    # TEMP(validation): run independently of the (skipped) build job, using released WARs.
+    needs: build
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -101,12 +92,19 @@ jobs:
           distribution: 'temurin'
           java-version: 25
 
-      - name: Pin OpenL version (TEMP validation - download released WARs from Central)
+      - name: Download built .war files into DEMO/webapps
+        uses: actions/download-artifact@v4
+        with:
+          name: demo-wars
+          path: DEMO/webapps
+
+      - name: Pin OpenL version so the start script uses the copied .war files
         shell: bash
         run: |
-          # A non-"SNAPSHOT" value makes start/start.ps1 download these released
-          # WARs from Maven Central (no WARs are pre-placed in webapps here).
-          echo "6.1.1" > DEMO/openl.version
+          # A non-"SNAPSHOT" value makes the start script keep the .war files already
+          # present in webapps instead of creating local-build descriptors or
+          # downloading released artifacts from Maven Central.
+          echo "LOCAL" > DEMO/openl.version
           ls -l DEMO/webapps
 
       - name: Run DEMO and check accessibility (Linux/macOS)
