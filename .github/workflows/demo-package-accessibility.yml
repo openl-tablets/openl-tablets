@@ -5,7 +5,7 @@
 #   build  - mvn -DskipTests -T1C, then publish webstudio.war + webservice.war
 #   demo   - per OS: place the .war files into DEMO/webapps, run the start script
 #            and poll the demo endpoints until they answer with HTTP 200.
-name: DEMO matrix test
+name: "DEMO package run & accessibility (Ubuntu, Windows, macOS)"
 
 on:
   schedule:
@@ -18,7 +18,7 @@ on:
         required: false
 
 concurrency:
-  group: demo-matrix-${{ github.ref }}
+  group: demo-package-accessibility-${{ github.event.inputs.branch || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - name: Checkout ${{ github.event.inputs.branch }}
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Setup Java 25
         uses: actions/setup-java@v5
@@ -51,10 +51,15 @@ jobs:
 
       - name: Collect .war files
         run: |
-          set -eu
+          set -euo pipefail
+          shopt -s nullglob
+          ws=( STUDIO/org.openl.rules.webstudio/target/org.openl.rules.webstudio-*.war )
+          svc=( WSFrontend/org.openl.rules.ruleservice.ws/target/org.openl.rules.ruleservice.ws-*.war )
+          [ "${#ws[@]}" -eq 1 ]  || { echo "ERROR: expected exactly 1 webstudio war, found ${#ws[@]}: ${ws[*]}"; exit 1; }
+          [ "${#svc[@]}" -eq 1 ] || { echo "ERROR: expected exactly 1 webservice war, found ${#svc[@]}: ${svc[*]}"; exit 1; }
           mkdir -p demo-wars
-          cp STUDIO/org.openl.rules.webstudio/target/org.openl.rules.webstudio-*.war demo-wars/webstudio.war
-          cp WSFrontend/org.openl.rules.ruleservice.ws/target/org.openl.rules.ruleservice.ws-*.war demo-wars/webservice.war
+          cp "${ws[0]}"  demo-wars/webstudio.war
+          cp "${svc[0]}" demo-wars/webservice.war
           ls -l demo-wars
 
       - name: Upload .war files
@@ -62,13 +67,13 @@ jobs:
         with:
           name: demo-wars
           path: demo-wars/*.war
-          retention-days: 1
+          retention-days: 3
           if-no-files-found: error
 
   demo:
     name: DEMO on ${{ matrix.os }}
     needs: build
-    timeout-minutes: 30
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -84,7 +89,7 @@ jobs:
       - name: Checkout ${{ github.event.inputs.branch }}
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Setup Java 25
         uses: actions/setup-java@v5
@@ -98,12 +103,18 @@ jobs:
           name: demo-wars
           path: DEMO/webapps
 
-      - name: Pin OpenL version so the start script uses the copied .war files
+      - name: Pin OpenL version and verify the .war files are present
         shell: bash
         run: |
-          # A non-"SNAPSHOT" value makes the start script keep the .war files already
-          # present in webapps instead of creating local-build descriptors or
-          # downloading released artifacts from Maven Central.
+          set -eu
+          # Fail loudly if a war is missing: otherwise the start script would
+          # fall through to downloading version "LOCAL" from Maven Central (404).
+          for w in webstudio.war webservice.war; do
+            [ -s "DEMO/webapps/$w" ] || { echo "ERROR: DEMO/webapps/$w is missing or empty"; exit 1; }
+          done
+          # A non-"SNAPSHOT" value makes the start script keep the .war files
+          # already present in webapps instead of creating local-build descriptors
+          # or downloading released artifacts from Maven Central.
           echo "LOCAL" > DEMO/openl.version
           ls -l DEMO/webapps
 
@@ -120,7 +131,6 @@ jobs:
 
           cleanup() {
             echo "--- stopping DEMO ---"
-            pkill -P "$DEMO_PID" 2>/dev/null || true
             kill "$DEMO_PID" 2>/dev/null || true
             pkill -f 'jetty-home/start.jar' 2>/dev/null || true
           }
@@ -136,10 +146,12 @@ jobs:
             "$BASE/webstudio/faces/pages/modules/repository/index.xhtml"
           )
 
-          DEADLINE=$((SECONDS + 600))
+          # Each URL gets its own budget so a slow first-boot can't starve the
+          # later (async-deployed) endpoints like Example3.
+          PER_URL_TIMEOUT=240
           wait_for() {
-            local url="$1" code="000"
-            while [ "$SECONDS" -lt "$DEADLINE" ]; do
+            local url="$1" code="000" deadline=$((SECONDS + PER_URL_TIMEOUT))
+            while [ "$SECONDS" -lt "$deadline" ]; do
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url" || echo 000)
               [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
               kill -0 "$DEMO_PID" 2>/dev/null || { echo "  ERR  server process exited  $url"; return 1; }
@@ -179,15 +191,17 @@ jobs:
             "$base/webstudio/faces/pages/modules/repository/index.xhtml"
           )
 
-          $deadline = (Get-Date).AddSeconds(600)
+          # Each URL gets its own budget (see Linux/macOS step for rationale).
+          $perUrlTimeout = 240
           function Wait-Url($url) {
             $code = 0
+            $deadline = (Get-Date).AddSeconds($perUrlTimeout)
             while ((Get-Date) -lt $deadline) {
               try {
                 $r = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -MaximumRedirection 5
                 if ($r.StatusCode -eq 200) { Write-Host "  OK   200  $url"; return $true }
               } catch {
-                $code = $_.Exception.Response.StatusCode.value__
+                if ($_.Exception.Response) { $code = $_.Exception.Response.StatusCode.value__ } else { $code = 0 }
               }
               if ($proc.HasExited) { Write-Host "  ERR  server process exited  $url"; return $false }
               Start-Sleep -Seconds 5
