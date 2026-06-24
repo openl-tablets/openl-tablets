@@ -84,7 +84,8 @@ jobs:
           name: demo
           path: DEMO
 
-      - name: Run DEMO and check accessibility (Linux/macOS)
+      # 1. Start on Linux/macOS
+      - name: Start DEMO (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
@@ -92,18 +93,32 @@ jobs:
           cd DEMO
           chmod +x start
           nohup ./start > demo.log 2>&1 &
-          DEMO_PID=$!
-          echo "DEMO started, pid=$DEMO_PID"
+          echo "DEMO_PID=$!" >> "$GITHUB_ENV"
+          echo "DEMO started, pid=$!"
 
-          cleanup() {
-            echo "--- stopping DEMO ---"
-            kill "$DEMO_PID" 2>/dev/null || true
-            pkill -f 'jetty-home/start.jar' 2>/dev/null || true
-          }
-          trap cleanup EXIT
+      # 2. Start on Windows
+      - name: Start DEMO (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Set-Location DEMO
+
+          # Use -Command instead of -File, and add *> demo.log to combine streams
+          $proc = Start-Process -FilePath 'pwsh' `
+            -ArgumentList '-ExecutionPolicy', 'Bypass', '-Command', '.\start.ps1 *> demo.log' `
+            -PassThru -WindowStyle Hidden
+
+          Write-Host "DEMO started, pid=$($proc.Id)"
+          "DEMO_PID=$($proc.Id)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # 3. Common URL Check (Runs on all OS)
+      - name: Check URLs
+        shell: bash
+        run: |
+          set -uo pipefail
 
           BASE="http://localhost:8080"
-          # Endpoints from EPBDS-16159 (ordered light -> heavy; Example3 needs deploy)
           URLS=(
             "$BASE/"
             "$BASE/webstudio"
@@ -112,15 +127,21 @@ jobs:
             "$BASE/webstudio/faces/pages/modules/repository/index.xhtml"
           )
 
-          # Each URL gets its own budget so a slow first-boot can't starve the
-          # later (async-deployed) endpoints like Example3.
-          PER_URL_TIMEOUT=240
+          # Cross-platform process liveness check
+          check_process() {
+            if [ "$RUNNER_OS" == "Windows" ]; then
+              tasklist //FI "PID eq $DEMO_PID" 2>/dev/null | grep -q "$DEMO_PID"
+            else
+              kill -0 "$DEMO_PID" 2>/dev/null
+            fi
+          }
+
           wait_for() {
-            local url="$1" code="000" deadline=$((SECONDS + PER_URL_TIMEOUT))
+            local url="$1" code="000" deadline=$((SECONDS + 30))
             while [ "$SECONDS" -lt "$deadline" ]; do
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url" || echo 000)
               [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
-              kill -0 "$DEMO_PID" 2>/dev/null || { echo "  ERR  server process exited  $url"; return 1; }
+              check_process || { echo "  ERR  server process exited  $url"; return 1; }
               sleep 5
             done
             echo "  FAIL last=$code  $url"; return 1
@@ -129,69 +150,34 @@ jobs:
           fail=0
           for u in "${URLS[@]}"; do wait_for "$u" || fail=1; done
 
+
           if [ "$fail" -ne 0 ]; then
-            echo "::group::demo.log (tail)"; tail -n 200 demo.log || true; echo "::endgroup::"
+            echo "::group::demo logs (tail)"
+            tail -n 200 DEMO/demo.log || true
+            echo "::endgroup::"
             exit 1
           fi
-          echo "All DEMO endpoints accessible on $(uname -s)."
 
-      - name: Run DEMO and check accessibility (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+          echo "All DEMO endpoints accessible on $RUNNER_OS."
+
+      # 4. Common Cleanup (Runs on all OS)
+      - name: Stop DEMO
+        if: always()
+        shell: bash
         run: |
-          $ErrorActionPreference = 'Continue'
-          Set-Location DEMO
-          $proc = Start-Process -FilePath 'pwsh' `
-            -ArgumentList '-ExecutionPolicy','Bypass','-File','start.ps1' `
-            -RedirectStandardOutput "$PWD\demo.out.log" `
-            -RedirectStandardError  "$PWD\demo.err.log" `
-            -PassThru -WindowStyle Hidden
-          Write-Host "DEMO started, pid=$($proc.Id)"
+          echo "--- stopping DEMO ---"
+          if [ -z "${DEMO_PID:-}" ]; then
+            echo "DEMO_PID not set, nothing to stop."
+            exit 0
+          fi
 
-          $base = 'http://localhost:8080'
-          $urls = @(
-            "$base/",
-            "$base/webstudio",
-            "$base/webservice",
-            "$base/webservice/Example3-AutoPolicyCalculation/AccidentPremium",
-            "$base/webstudio/faces/pages/modules/repository/index.xhtml"
-          )
-
-          # Each URL gets its own budget (see Linux/macOS step for rationale).
-          $perUrlTimeout = 240
-          function Wait-Url($url) {
-            $code = 0
-            $deadline = (Get-Date).AddSeconds($perUrlTimeout)
-            while ((Get-Date) -lt $deadline) {
-              try {
-                $r = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -MaximumRedirection 5
-                if ($r.StatusCode -eq 200) { Write-Host "  OK   200  $url"; return $true }
-              } catch {
-                if ($_.Exception.Response) { $code = $_.Exception.Response.StatusCode.value__ } else { $code = 0 }
-              }
-              if ($proc.HasExited) { Write-Host "  ERR  server process exited  $url"; return $false }
-              Start-Sleep -Seconds 5
-            }
-            Write-Host "  FAIL last=$code  $url"; return $false
-          }
-
-          $fail = $false
-          foreach ($u in $urls) { if (-not (Wait-Url $u)) { $fail = $true } }
-
-          # Teardown: stop the launcher and the Jetty JVM it spawned
-          Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-          Get-CimInstance Win32_Process -Filter "name='java.exe'" |
-            Where-Object { $_.CommandLine -like '*jetty-home*' } |
-            ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
-
-          if ($fail) {
-            Write-Host "::group::demo log (tail)"
-            Get-Content demo.out.log -Tail 200 -ErrorAction SilentlyContinue
-            Get-Content demo.err.log -Tail 100 -ErrorAction SilentlyContinue
-            Write-Host "::endgroup::"
-            exit 1
-          }
-          Write-Host "All DEMO endpoints accessible on Windows."
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            taskkill //F //T //PID "$DEMO_PID" 2>/dev/null || true
+            taskkill //F //IM "java.exe" 2>/dev/null || true
+          else
+            kill "$DEMO_PID" 2>/dev/null || true
+            pkill -f 'jetty-home/start.jar' 2>/dev/null || true
+          fi
 
       - name: Upload DEMO log on failure
         if: failure()
