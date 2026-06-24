@@ -21,6 +21,9 @@ concurrency:
   group: demo-package-accessibility-${{ github.event.inputs.branch || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
 
   build:
