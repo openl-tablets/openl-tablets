@@ -107,7 +107,7 @@ public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
      * @param showFormulas whether to show formulas instead of values
      * @return HTML string representing the table
      */
-    private String renderTableHtml(TableModel tableModel, boolean showFormulas) {
+    String renderTableHtml(TableModel tableModel, boolean showFormulas) {
         StringBuilder html = new StringBuilder();
         html.append("<table class=\"te_table\">\n");
 
@@ -139,14 +139,12 @@ public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
                 }
 
                 html.append(">");
-                // Escape cell content to prevent XSS, then restore intentional HTML entities
-                // from CellModel.convertContent() (which converts spaces to &nbsp; and newlines to <br>)
-                // Note: escapeHtml4 returns null if input is null, so normalize to empty string first
-                String cellContent = Objects.toString(
-                        StringEscapeUtils.escapeHtml4(cell.getContent(showFormulas)), "");
-                cellContent = cellContent.replace("&amp;nbsp;", "&nbsp;");
-                cellContent = cellContent.replace("&lt;br&gt;", "<br>");
-                html.append(cellContent);
+                // Cell content is already HTML-safe: data characters are escaped in
+                // TableViewer.buildCell() and only intentional markup is added (links, meta-info
+                // spans, &nbsp; and <br> from CellModel.convertContent()). Re-escaping here would
+                // double-encode it (e.g. "&lt;" becomes "&amp;lt;"), which the React UI renders
+                // literally. Append it verbatim, exactly like the legacy HTMLRenderer.
+                html.append(Objects.toString(cell.getContent(showFormulas), ""));
                 html.append("</td>\n");
             }
             html.append("</tr>\n");
