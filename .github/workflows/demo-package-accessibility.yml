@@ -139,7 +139,8 @@ jobs:
           wait_for() {
             local url="$1" code="000" deadline=$((SECONDS + 10))
             while [ "$SECONDS" -lt "$deadline" ]; do
-              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url" || echo "000")
+              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
+              code="${code:-XXX}"
               [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
               check_process || { echo "  ERR  server process exited  $url"; return 1; }
               sleep 2
@@ -172,8 +173,8 @@ jobs:
           fi
 
           if [ "$RUNNER_OS" == "Windows" ]; then
-            taskkill //F //T //PID "$DEMO_PID" 2>/dev/null || true
-            taskkill //F //IM "java.exe" 2>/dev/null || true
+            taskkill //T //PID "$DEMO_PID" 2>/dev/null || true
+            taskkill //IM "java.exe" 2>/dev/null || true
           else
             kill "$DEMO_PID" 2>/dev/null || true
             pkill -f 'jetty-home/start.jar' 2>/dev/null || true
