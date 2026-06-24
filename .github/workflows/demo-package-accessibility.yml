@@ -56,14 +56,14 @@ jobs:
       - name: Collect .war files
         run: |
           set -euo pipefail
-          shopt -s nullglob
-          ws=( STUDIO/org.openl.rules.webstudio/target/org.openl.rules.webstudio-*.war )
-          svc=( WSFrontend/org.openl.rules.ruleservice.ws/target/org.openl.rules.ruleservice.ws-*.war )
-          [ "${#ws[@]}" -eq 1 ]  || { echo "ERROR: expected exactly 1 webstudio war, found ${#ws[@]}: ${ws[*]}"; exit 1; }
-          [ "${#svc[@]}" -eq 1 ] || { echo "ERROR: expected exactly 1 webservice war, found ${#svc[@]}: ${svc[*]}"; exit 1; }
+          # The war modules set <finalName>, so the outputs are webstudio.war / webservice.war.
+          ws="STUDIO/org.openl.rules.webstudio/target/webstudio.war"
+          svc="WSFrontend/org.openl.rules.ruleservice.ws/target/webservice.war"
+          [ -f "$ws" ]  || { echo "ERROR: $ws not found after build"; exit 1; }
+          [ -f "$svc" ] || { echo "ERROR: $svc not found after build"; exit 1; }
           mkdir -p demo-wars
-          cp "${ws[0]}"  demo-wars/webstudio.war
-          cp "${svc[0]}" demo-wars/webservice.war
+          cp "$ws"  demo-wars/webstudio.war
+          cp "$svc" demo-wars/webservice.war
           ls -l demo-wars
 
       - name: Upload .war files
