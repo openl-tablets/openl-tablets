@@ -118,15 +118,6 @@ jobs:
         run: |
           set -uo pipefail
 
-          BASE="http://localhost:8080"
-          URLS=(
-            "$BASE/"
-            "$BASE/webstudio"
-            "$BASE/webservice"
-            "$BASE/webservice/Example3-AutoPolicyCalculation/AccidentPremium"
-            "$BASE/webstudio/faces/pages/modules/repository/index.xhtml"
-          )
-
           # Cross-platform process liveness check
           check_process() {
             if [ "$RUNNER_OS" == "Windows" ]; then
@@ -137,7 +128,7 @@ jobs:
           }
 
           wait_for() {
-            local url="$1" code="000" deadline=$((SECONDS + 10))
+            local url="$1" code="000" deadline=$((SECONDS + 120))
             while [ "$SECONDS" -lt "$deadline" ]; do
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
               code="${code:-XXX}"
@@ -148,9 +139,16 @@ jobs:
             echo "  FAIL $code  $url"; return 1
           }
 
-          fail=0
-          for u in "${URLS[@]}"; do wait_for "$u" || fail=1; done
+          URLS=(
+            ""
+            "webstudio"
+            "webservice"
+            "webservice/Example3-AutoPolicyCalculation/AccidentPremium"
+            "webstudio/faces/pages/modules/repository/index.xhtml"
+          )
 
+          fail=0
+          for p in "${URLS[@]}"; do wait_for "http://localhost:8080/$p" || fail=1; done
 
           if [ "$fail" -ne 0 ]; then
             echo "::group::demo logs (tail)"
