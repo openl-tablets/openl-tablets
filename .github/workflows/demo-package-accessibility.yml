@@ -67,7 +67,6 @@ jobs:
           path: DEMO
           retention-days: 3
           if-no-files-found: error
-          compression-level: 0 # no compression for speed up
 
   demo:
     name: DEMO on ${{ matrix.os }}
@@ -93,7 +92,7 @@ jobs:
           set -uo pipefail
           cd DEMO
           chmod +x start
-          nohup ./start > demo.log 2>&1 &
+          nohup ./start > demo.log.txt 2>&1 &
           echo "DEMO_PID=$!" >> "$GITHUB_ENV"
           echo "DEMO started, pid=$!"
 
@@ -107,7 +106,7 @@ jobs:
 
           # Use -Command instead of -File, and add *> demo.log to combine streams
           $proc = Start-Process -FilePath 'pwsh' `
-            -ArgumentList '-ExecutionPolicy', 'Bypass', '-Command', '.\start.ps1 *> demo.log' `
+            -ArgumentList '-ExecutionPolicy', 'Bypass', '-Command', '.\start.ps1 *> demo.log.txt' `
             -PassThru -WindowStyle Hidden
 
           Write-Host "DEMO started, pid=$($proc.Id)"
@@ -154,7 +153,7 @@ jobs:
 
           if [ "$fail" -ne 0 ]; then
             echo "::group::demo logs (tail)"
-            tail -n 200 DEMO/demo.log || true
+            tail -n 200 DEMO/demo.log.txt || true
             echo "::endgroup::"
             exit 1
           fi
@@ -186,7 +185,7 @@ jobs:
         with:
           name: demo-log-${{ matrix.os }}
           path: |
-            DEMO/demo.log
+            DEMO/demo.log.txt
           if-no-files-found: ignore
           archive: false
           retention-days: 3
