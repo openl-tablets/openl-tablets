@@ -1,11 +1,11 @@
-# Builds the OpenL Tablets DEMO package and verifies that it starts and is
-# accessible on Ubuntu, Windows and macOS (EPBDS-16159).
+# Builds the OpenL Tablets DEMO package and verifies that it starts and working.
 #
 # Flow:
-#   build  - mvn -DskipTests -T1C, then publish webstudio.war + webservice.war
-#   demo   - per OS: place the .war files into DEMO/webapps, run the start script
-#            and poll the demo endpoints until they answer with HTTP 200.
-name: "DEMO package run & accessibility (Ubuntu, Windows, macOS)"
+#   build  - mvn -DskipTests -T1C, then publish DEMO.zip
+#   demo   - per OS: run the start script in DEMO
+#                    and poll the demo endpoints until they answer with HTTP 200.
+
+name: "DEMO package test"
 
 on:
   # TEMP(validation): run on branch push so the workflow can be triggered before merge. Remove before merge.
@@ -28,7 +28,7 @@ concurrency:
 jobs:
 
   build:
-    name: Build DEMO .war files
+    name: Build DEMO zip file
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -142,7 +142,7 @@ jobs:
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url" || echo 000)
               [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
               check_process || { echo "  ERR  server process exited  $url"; return 1; }
-              sleep 5
+              sleep 2
             done
             echo "  FAIL last=$code  $url"; return 1
           }
@@ -181,12 +181,11 @@ jobs:
 
       - name: Upload DEMO log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: demo-log-${{ matrix.os }}
           path: |
             DEMO/demo.log
-            DEMO/demo.out.log
-            DEMO/demo.err.log
           if-no-files-found: ignore
+          archive: false
           retention-days: 3
