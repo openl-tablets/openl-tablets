@@ -67,6 +67,7 @@ jobs:
           path: DEMO
           retention-days: 3
           if-no-files-found: error
+          compression-level: 0 # no compression for speed up
 
   demo:
     name: DEMO on ${{ matrix.os }}
@@ -139,12 +140,12 @@ jobs:
           wait_for() {
             local url="$1" code="000" deadline=$((SECONDS + 30))
             while [ "$SECONDS" -lt "$deadline" ]; do
-              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url" || echo 000)
+              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url" || echo "000")
               [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
               check_process || { echo "  ERR  server process exited  $url"; return 1; }
               sleep 2
             done
-            echo "  FAIL last=$code  $url"; return 1
+            echo "  FAIL $code  $url"; return 1
           }
 
           fail=0
