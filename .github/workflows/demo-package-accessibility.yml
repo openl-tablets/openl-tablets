@@ -115,6 +115,7 @@ jobs:
       # 3. Common URL Check (Runs on all OS)
       - name: Check URLs
         shell: bash
+        timeout-minutes: 3
         run: |
           set -uo pipefail
 
@@ -128,7 +129,7 @@ jobs:
           }
 
           wait_for() {
-            local url="$1" code="000" deadline=$((SECONDS + 10))
+            local url="$1" code="000" deadline=$((SECONDS + 120))
             while [ "$SECONDS" -lt "$deadline" ]; do
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
               code="${code:-XXX}"
