@@ -8,6 +8,10 @@
 name: "DEMO package run & accessibility (Ubuntu, Windows, macOS)"
 
 on:
+  # TEMP(validation): run on branch push to validate the full build+demo. Remove before merge.
+  push:
+    branches:
+      - EPBDS-16159-demo-matrix-test
   schedule:
     # Every week at 03:00 UTC on Wednesday
     - cron: '0 3 * * 3'
