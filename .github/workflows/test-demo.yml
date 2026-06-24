@@ -1,0 +1,189 @@
+# Builds the OpenL Tablets DEMO package and verifies that it starts and working.
+#
+# Flow:
+#   build  - mvn -DskipTests -T1C, then publish DEMO.zip
+#   demo   - per OS: run the start script in DEMO
+#                    and poll the demo endpoints until they answer with HTTP 200.
+
+name: "DEMO package test"
+
+on:
+  schedule:
+    # Every week at 03:00 UTC on Wednesday
+    - cron: '0 3 * * 3'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to test'
+        required: false
+
+concurrency:
+  group: demo-package-accessibility-${{ github.event.inputs.branch || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    name: Build DEMO zip file
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - name: Checkout ${{ github.event.inputs.branch }}
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          cache: 'maven'
+
+      - name: Build (skip tests)
+        run: mvn -DskipTests -T1C -B "-Dstyle.color=always"
+
+      - name: Create DEMO package
+        run: |
+          set -euo pipefail
+          cp "STUDIO/org.openl.rules.webstudio/target/webstudio.war" "DEMO/webapps/webstudio.war"
+          cp "WSFrontend/org.openl.rules.ruleservice.ws/target/webservice.war" "DEMO/webapps/webservice.war"
+          echo "LOCAL" > DEMO/openl.version
+
+      - name: Upload DEMO files
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo
+          path: DEMO
+          retention-days: 3
+          if-no-files-found: error
+
+  demo:
+    name: DEMO on ${{ matrix.os }}
+    needs: build
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download DEMO
+        uses: actions/download-artifact@v8
+        with:
+          name: demo
+          path: DEMO
+
+      # 1. Start on Linux/macOS
+      - name: Start DEMO (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -uo pipefail
+          cd DEMO
+          chmod +x start
+          nohup ./start > demo-${{ runner.os }}.log.txt 2>&1 &
+          echo "DEMO_PID=$!" >> "$GITHUB_ENV"
+          echo "DEMO started, pid=$!"
+
+      # 2. Start on Windows
+      - name: Start DEMO (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Set-Location DEMO
+
+          # Use -Command instead of -File, and add *> demo.log to combine streams
+          $proc = Start-Process -FilePath 'pwsh' `
+            -ArgumentList '-ExecutionPolicy', 'Bypass', '-Command', '.\start.ps1 *> demo-${{ runner.os }}.log.txt' `
+            -PassThru -WindowStyle Hidden
+
+          Write-Host "DEMO started, pid=$($proc.Id)"
+          "DEMO_PID=$($proc.Id)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # 3. Common URL Check (Runs on all OS)
+      - name: Check URLs
+        shell: bash
+        timeout-minutes: 3
+        run: |
+          set -uo pipefail
+
+          # Cross-platform process liveness check
+          check_process() {
+            if [ "$RUNNER_OS" == "Windows" ]; then
+              tasklist //FI "PID eq $DEMO_PID" 2>/dev/null | grep -q "$DEMO_PID"
+            else
+              kill -0 "$DEMO_PID" 2>/dev/null
+            fi
+          }
+
+          wait_for() {
+            local url="$1" code="000" deadline=$((SECONDS + 120))
+            while [ "$SECONDS" -lt "$deadline" ]; do
+              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
+              code="${code:-XXX}"
+              [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
+              check_process || { echo "  ERR  server process exited  $url"; return 1; }
+              sleep 2
+            done
+            echo "  FAIL $code  $url"; return 1
+          }
+
+          URLS=(
+            ""
+            "webstudio"
+            "webservice"
+            "webservice/Example3-AutoPolicyCalculation/AccidentPremium"
+            "webstudio/faces/pages/modules/repository/index.xhtml"
+          )
+
+          fail=0
+          for p in "${URLS[@]}"; do wait_for "http://localhost:8080/$p" || fail=1; done
+
+          if [ "$fail" -ne 0 ]; then
+            echo "::group::demo logs (tail)"
+            tail -n 200 DEMO/demo-${{ runner.os }}.log.txt || true
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          echo "All DEMO endpoints accessible on $RUNNER_OS."
+
+      # 4. Common Cleanup (Runs on all OS)
+      - name: Stop DEMO
+        if: always()
+        shell: bash
+        run: |
+          echo "--- stopping DEMO ---"
+          if [ -z "${DEMO_PID:-}" ]; then
+            echo "DEMO_PID not set, nothing to stop."
+            exit 0
+          fi
+
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            taskkill //T //PID "$DEMO_PID" 2>/dev/null || true
+            taskkill //IM "java.exe" 2>/dev/null || true
+          else
+            kill "$DEMO_PID" 2>/dev/null || true
+            pkill -f 'jetty-home/start.jar' 2>/dev/null || true
+          fi
+
+      - name: Upload DEMO log on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          path: |
+            DEMO/demo-${{ runner.os }}.log.txt
+          if-no-files-found: ignore
+          archive: false
+          retention-days: 3
