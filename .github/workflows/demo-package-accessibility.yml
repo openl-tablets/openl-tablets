@@ -128,7 +128,7 @@ jobs:
           }
 
           wait_for() {
-            local url="$1" code="000" deadline=$((SECONDS + 120))
+            local url="$1" code="000" deadline=$((SECONDS + 10))
             while [ "$SECONDS" -lt "$deadline" ]; do
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
               code="${code:-XXX}"
