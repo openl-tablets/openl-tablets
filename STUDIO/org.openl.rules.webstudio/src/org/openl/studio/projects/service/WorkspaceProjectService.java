@@ -66,6 +66,7 @@ import org.openl.studio.projects.model.project.status.DetailedMessageDescription
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
@@ -809,6 +810,50 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeAppend(writer, tableView);
+    }
+
+    /**
+     * Apply a single raw-source edit to a table.
+     * <p>
+     * The table is always handled in the raw format regardless of its type. The concrete edit (append, insert or delete
+     * a row or a column, or update a cell) is carried by the action.
+     *
+     * @param project project
+     * @param tableId table id
+     * @param action  the edit to apply
+     * @return table id after the edit; differs from {@code tableId} when the table was relocated to grow
+     * @throws ProjectException if project is locked by another user
+     */
+    public String editTableSource(RulesProject project,
+                                  String tableId,
+                                  RawTableSourceAction action) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException("default.message");
+        }
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        return tableWriterExecutor.executeSourceAction(writer, action);
+    }
+
+    /**
+     * Delete a table from the currently opened project.
+     * <p>
+     * The whole table area is cleared from the sheet regardless of the table type. The table no longer exists once the
+     * project is recompiled.
+     *
+     * @param project project
+     * @param tableId table id
+     * @throws ProjectException if project is locked by another user
+     */
+    public void deleteTable(RulesProject project, String tableId) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException("default.message");
+        }
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        writer.delete();
     }
 
     public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {

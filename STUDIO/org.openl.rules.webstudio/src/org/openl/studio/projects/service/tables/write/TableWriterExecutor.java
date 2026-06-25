@@ -11,6 +11,7 @@ import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.LookupAppend;
 import org.openl.studio.projects.model.tables.LookupView;
 import org.openl.studio.projects.model.tables.RawTableAppend;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SimpleRulesAppend;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
@@ -66,6 +67,14 @@ public class TableWriterExecutor {
             default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
         }
         return writer.getTableId();
+    }
+
+    public String executeSourceAction(TableWriter<? extends TableView> writer, RawTableSourceAction action) {
+        if (writer instanceof RawTableWriter rawTableWriter) {
+            rawTableWriter.apply(action);
+            return writer.getTableId();
+        }
+        throw new UnsupportedOperationException("Source actions are supported only for the raw table format");
     }
 
 }
