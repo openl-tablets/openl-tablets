@@ -387,6 +387,19 @@ public class ProjectsController {
         }
     }
 
+    @Operation(summary = "project.table.delete.summary", description = "project.table.delete.desc")
+    @ApiResponse(responseCode = "204", description = "project.table.delete.204.desc")
+    @DeleteMapping("/{projectId}/tables/{tableId}")
+    public ResponseEntity<Void> deleteTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @PathVariable("tableId") @Parameter(description = "Table ID") String tableId) throws ProjectException {
+        try {
+            projectService.deleteTable(project, tableId);
+            return ResponseEntity.noContent().build();
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
     /**
      * Builds the response for a table write.
      * <p>

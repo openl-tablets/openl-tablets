@@ -836,6 +836,26 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return tableWriterExecutor.executeSourceAction(writer, action);
     }
 
+    /**
+     * Delete a table from the currently opened project.
+     * <p>
+     * The whole table area is cleared from the sheet regardless of the table type. The table no longer exists once the
+     * project is recompiled.
+     *
+     * @param project project
+     * @param tableId table id
+     * @throws ProjectException if project is locked by another user
+     */
+    public void deleteTable(RulesProject project, String tableId) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException("default.message");
+        }
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        writer.delete();
+    }
+
     public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");

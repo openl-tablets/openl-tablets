@@ -320,6 +320,40 @@ class RawTableWriterTest {
                 () -> new RawTableWriter(load(single)).apply(deleteColumn(0)));
     }
 
+    @Test
+    void deletesTable() throws Exception {
+        var project = writeProject("two-tables", new String[][]{
+                {"Datatype First", null, null},
+                {"String", "a", "x"},
+                {null, null, null},
+                {"Datatype Second", null, null},
+                {"String", "b", "y"}
+        });
+        assertEquals(2, loadTables(project).size(), "project must start with two tables");
+
+        new RawTableWriter(tableByHeader(project, "Datatype First")).delete();
+
+        var headers = loadTables(project).stream()
+                .map(table -> readSource(table).getFirst().getFirst().value())
+                .toList();
+        assertEquals(List.of("Datatype Second"), headers, "only the other table must remain");
+    }
+
+    @Test
+    void deletesTableWithMergedHeader() throws Exception {
+        var project = writeProjectWithMergedHeader("merged-delete", new String[][]{
+                {"Header Spanning All", null, null},
+                {"a", "b", "c"}
+        });
+        new RawTableWriter(load(project)).delete();
+
+        try (var in = Files.newInputStream(project.resolve("merged-delete.xlsx"));
+                var workbook = new XSSFWorkbook(in)) {
+            assertEquals(0, workbook.getSheetAt(0).getNumMergedRegions(),
+                    "the header merge must be removed together with the table");
+        }
+    }
+
     private void apply(RawTableSourceAction action) {
         new RawTableWriter(load(mainProject)).apply(action);
     }
@@ -538,5 +572,14 @@ class RawTableWriterTest {
             tables.add(new TableSyntaxNodeAdapter(tsn));
         }
         return tables;
+    }
+
+    private static IOpenLTable tableByHeader(Path projectDir, String header) throws Exception {
+        for (IOpenLTable table : loadTables(projectDir)) {
+            if (header.equals(readSource(table).getFirst().getFirst().value())) {
+                return table;
+            }
+        }
+        throw new IllegalStateException("No table with header " + header);
     }
 }

@@ -81,6 +81,34 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     /**
+     * Removes the table from the sheet.
+     * <p>
+     * Clears the merged regions and the content of every cell in the table area, then saves the workbook. The table no
+     * longer exists once the project is recompiled.
+     */
+    public void delete() {
+        var gridTable = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+        try {
+            gridTable.edit();
+            clearMergedRegions(gridTable);
+            clearCells(gridTable);
+            save();
+        } finally {
+            gridTable.stopEditing();
+        }
+    }
+
+    private void clearCells(IGridTable gridTable) {
+        var grid = (XlsSheetGridModel) gridTable.getGrid();
+        var region = gridTable.getRegion();
+        for (int row = region.getTop(); row <= region.getBottom(); row++) {
+            for (int col = region.getLeft(); col <= region.getRight(); col++) {
+                grid.clearCell(col, row);
+            }
+        }
+    }
+
+    /**
      * Returns the identifier of the table reflecting its current position.
      * <p>
      * The identifier is derived from the table location, so it changes when the table is relocated during a write (for
