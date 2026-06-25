@@ -1,6 +1,9 @@
 package org.openl.studio.projects.model.tables;
 
 import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -26,7 +29,10 @@ public sealed interface InsertTarget permits InsertTarget.Row, InsertTarget.Colu
     record Row(
             @Schema(description = "0-based index the new row will occupy (1..height; height appends to the end).")
             @NotNull
+            @Min(1)
             Integer position,
+            @NotEmpty
+            @Valid
             @Parameter(description = "Row cells, left to right. A cell may set colspan/rowspan to merge. "
                     + "Must not be wider than the table.")
             List<RawCellInput> cells) implements InsertTarget {
@@ -38,7 +44,10 @@ public sealed interface InsertTarget permits InsertTarget.Row, InsertTarget.Colu
     record Column(
             @Schema(description = "0-based index the new column will occupy (1..width; width appends to the end).")
             @NotNull
+            @Min(1)
             Integer position,
+            @NotEmpty
+            @Valid
             @Parameter(description = "Column cells, top to bottom. A cell may set colspan/rowspan to merge. "
                     + "Must not be taller than the table.")
             List<RawCellInput> cells) implements InsertTarget {

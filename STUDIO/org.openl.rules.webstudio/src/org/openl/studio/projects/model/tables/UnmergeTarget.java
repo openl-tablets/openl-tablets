@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -22,9 +23,11 @@ public sealed interface UnmergeTarget permits UnmergeTarget.Cells {
     record Cells(
             @Schema(description = "0-based row index of any cell in the merged region (0..height-1).")
             @NotNull
+            @Min(0)
             Integer row,
             @Schema(description = "0-based column index of any cell in the merged region (0..width-1).")
             @NotNull
+            @Min(0)
             Integer column) implements UnmergeTarget {
     }
 

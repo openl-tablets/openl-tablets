@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -23,6 +24,7 @@ public sealed interface DeleteTarget permits DeleteTarget.Row, DeleteTarget.Colu
     record Row(
             @Schema(description = "0-based index of the body row to delete (1..height-1).")
             @NotNull
+            @Min(1)
             Integer position) implements DeleteTarget {
     }
 
@@ -31,6 +33,7 @@ public sealed interface DeleteTarget permits DeleteTarget.Row, DeleteTarget.Colu
     record Column(
             @Schema(description = "0-based index of the column to delete (1..width-1).")
             @NotNull
+            @Min(1)
             Integer position) implements DeleteTarget {
     }
 

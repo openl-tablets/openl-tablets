@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -22,15 +23,19 @@ public sealed interface MergeTarget permits MergeTarget.Cells {
     record Cells(
             @Schema(description = "0-based row index of the top-left cell (0..height-1).")
             @NotNull
+            @Min(0)
             Integer row,
             @Schema(description = "0-based column index of the top-left cell (0..width-1).")
             @NotNull
+            @Min(0)
             Integer column,
             @Schema(description = "Number of rows the merged cell spans (>= 1).")
             @NotNull
+            @Min(1)
             Integer rowspan,
             @Schema(description = "Number of columns the merged cell spans (>= 1).")
             @NotNull
+            @Min(1)
             Integer colspan) implements MergeTarget {
     }
 

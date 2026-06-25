@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.constraints.Min;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.jspecify.annotations.Nullable;
 
@@ -22,9 +24,11 @@ public record RawCellInput(
         @Nullable Object value,
 
         @Schema(description = "Number of columns this cell spans (>= 2 to merge; null or 1 for a single column).")
+        @Min(1)
         @Nullable Integer colspan,
 
         @Schema(description = "Number of rows this cell spans (>= 2 to merge; null or 1 for a single row).")
+        @Min(1)
         @Nullable Integer rowspan,
 
         @Schema(description = "Marks a cell covered by another cell's span; its value is ignored.")

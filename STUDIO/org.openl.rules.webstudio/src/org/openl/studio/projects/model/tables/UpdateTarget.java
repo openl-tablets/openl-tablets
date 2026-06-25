@@ -1,6 +1,9 @@
 package org.openl.studio.projects.model.tables;
 
 import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -26,7 +29,10 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
     record Row(
             @Schema(description = "0-based index of the row to update (0..height-1).")
             @NotNull
+            @Min(0)
             Integer position,
+            @NotEmpty
+            @Valid
             @Parameter(description = "New row cells, left to right. A cell may set colspan/rowspan to merge. "
                     + "Must not be wider than the table.")
             List<RawCellInput> cells) implements UpdateTarget {
@@ -37,7 +43,10 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
     record Column(
             @Schema(description = "0-based index of the column to update (0..width-1).")
             @NotNull
+            @Min(0)
             Integer position,
+            @NotEmpty
+            @Valid
             @Parameter(description = "New column cells, top to bottom. A cell may set colspan/rowspan to merge. "
                     + "Must not be taller than the table.")
             List<RawCellInput> cells) implements UpdateTarget {
@@ -47,9 +56,11 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
     record Cell(
             @Schema(description = "0-based row index (0..height-1).")
             @NotNull
+            @Min(0)
             Integer row,
             @Schema(description = "0-based column index (0..width-1).")
             @NotNull
+            @Min(0)
             Integer column,
             @Schema(description = "New cell value. Null clears the cell.")
             Object value) implements UpdateTarget {

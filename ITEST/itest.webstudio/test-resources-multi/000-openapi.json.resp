@@ -15834,12 +15834,16 @@ Content-Type: application/json
                 "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/RawCellInput"
-                }
+                },
+                "minItems": 1
               }
             }
           }
         ],
-        "description": "***"
+        "description": "***",
+        "required": [
+          "cells"
+        ]
       },
       "AppendRow": {
         "type": "object",
@@ -15855,12 +15859,16 @@ Content-Type: application/json
                 "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/RawCellInput"
-                }
+                },
+                "minItems": 1
               }
             }
           }
         ],
-        "description": "***"
+        "description": "***",
+        "required": [
+          "cells"
+        ]
       },
       "AppendTableView": {
         "type": "object",
@@ -16688,7 +16696,8 @@ Content-Type: application/json
               "position": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 1
               }
             }
           }
@@ -16710,7 +16719,8 @@ Content-Type: application/json
               "position": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 1
               }
             }
           }
@@ -17198,18 +17208,21 @@ Content-Type: application/json
                 "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/RawCellInput"
-                }
+                },
+                "minItems": 1
               },
               "position": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 1
               }
             }
           }
         ],
         "description": "***",
         "required": [
+          "cells",
           "position"
         ]
       },
@@ -17227,18 +17240,21 @@ Content-Type: application/json
                 "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/RawCellInput"
-                }
+                },
+                "minItems": 1
               },
               "position": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 1
               }
             }
           }
         ],
         "description": "***",
         "required": [
+          "cells",
           "position"
         ]
       },
@@ -17507,22 +17523,26 @@ Content-Type: application/json
               "colspan": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 1
               },
               "column": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               },
               "row": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               },
               "rowspan": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 1
               }
             }
           }
@@ -18435,7 +18455,8 @@ Content-Type: application/json
           "colspan": {
             "type": "integer",
             "format": "int32",
-            "description": "***"
+            "description": "***",
+            "minimum": 1
           },
           "covered": {
             "type": "boolean",
@@ -18444,7 +18465,8 @@ Content-Type: application/json
           "rowspan": {
             "type": "integer",
             "format": "int32",
-            "description": "***"
+            "description": "***",
+            "minimum": 1
           },
           "value": {
             "type": "object",
@@ -20297,12 +20319,14 @@ Content-Type: application/json
               "column": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               },
               "row": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               }
             }
           }
@@ -20367,12 +20391,14 @@ Content-Type: application/json
               "column": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               },
               "row": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               },
               "value": {
                 "type": "object",
@@ -20401,18 +20427,21 @@ Content-Type: application/json
                 "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/RawCellInput"
-                }
+                },
+                "minItems": 1
               },
               "position": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               }
             }
           }
         ],
         "description": "***",
         "required": [
+          "cells",
           "position"
         ]
       },
@@ -20430,18 +20459,21 @@ Content-Type: application/json
                 "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/RawCellInput"
-                }
+                },
+                "minItems": 1
               },
               "position": {
                 "type": "integer",
                 "format": "int32",
-                "description": "***"
+                "description": "***",
+                "minimum": 0
               }
             }
           }
         ],
         "description": "***",
         "required": [
+          "cells",
           "position"
         ]
       },
