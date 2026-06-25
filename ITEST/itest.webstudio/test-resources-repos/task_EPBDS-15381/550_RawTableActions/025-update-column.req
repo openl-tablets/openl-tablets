@@ -16,6 +16,27 @@ Content-Type: application/json
       },
       {
         "value": "updated-col-2"
+      },
+      {
+        "value": "updated-col-3"
+      },
+      {
+        "value": "updated-col-4"
+      },
+      {
+        "value": "updated-col-5"
+      },
+      {
+        "value": "updated-col-6"
+      },
+      {
+        "value": "updated-col-7"
+      },
+      {
+        "value": "updated-col-8"
+      },
+      {
+        "value": "updated-col-9"
       }
     ]
   }

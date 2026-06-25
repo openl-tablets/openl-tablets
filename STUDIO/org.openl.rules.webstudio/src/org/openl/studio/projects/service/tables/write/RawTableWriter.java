@@ -551,7 +551,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static void requireLineLength(List<RawCellInput> cells, int limit, String messageKey) {
-        if (cells.size() > limit) {
+        // A row must carry one cell per column and a column one cell per row. Too few cells would silently leave
+        // trailing cells empty, too many would grow the table, so the count must match the table dimension exactly.
+        if (cells.size() != limit) {
             throw new BadRequestException(messageKey, new Object[]{cells.size(), limit});
         }
     }

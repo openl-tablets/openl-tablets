@@ -261,6 +261,26 @@ class RawTableWriterTest {
     }
 
     @Test
+    void rejectsRowNarrowerThanTable() {
+        // fewer cells than the 3 columns must fail rather than leaving the trailing cell empty
+        assertThrows(BadRequestException.class,
+                () -> apply(appendRow(row("a", "b"))));
+    }
+
+    @Test
+    void rejectsColumnShorterThanTable() {
+        // fewer cells than the 4 rows must fail rather than leaving the trailing cell empty
+        assertThrows(BadRequestException.class,
+                () -> apply(appendColumn(row("a", "b", "c"))));
+    }
+
+    @Test
+    void rejectsInsertColumnShorterThanTable() {
+        assertThrows(BadRequestException.class,
+                () -> apply(insertColumn(1, row("a", "b", "c"))));
+    }
+
+    @Test
     void rejectsEmptyCells() {
         assertThrows(BadRequestException.class,
                 () -> apply(appendRow(List.of())));
