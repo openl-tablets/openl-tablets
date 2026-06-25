@@ -28,8 +28,9 @@ import org.openl.studio.users.service.pat.PersonalAccessTokenService;
 /**
  * Spring Security configuration for Personal Access Token (PAT) authentication.
  * <p>
- * This configuration is only active when the user mode is OAuth2 or SAML. It configures
- * all beans required for PAT authentication including services and filters.
+ * This configuration is active for every authenticated user mode (OAuth2, SAML, AD and multi),
+ * that is, any mode except {@code single}. It configures all beans required for PAT
+ * authentication including services and filters.
  * </p>
  * <p>
  * The PAT authentication flow:
@@ -44,19 +45,19 @@ import org.openl.studio.users.service.pat.PersonalAccessTokenService;
  * @since 6.0.0
  */
 @Configuration
-@ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 public class PatSecurityConfiguration {
 
     /**
      * Creates the PAT authentication service bean.
      *
      * @param validator          the token validation service
-     * @param userDetailsService the user details service (should be patUserInfoUserDetailsService)
+     * @param userDetailsService the PAT user details service loading external group privileges
      * @return configured PAT authentication service
      */
     @Bean
     public PatAuthServiceImpl patAuthService(PatValidationService validator,
-                                             UserDetailsService userDetailsService) {
+                                             @Qualifier("patUserInfoUserDetailsService") UserDetailsService userDetailsService) {
         return new PatAuthServiceImpl(validator, userDetailsService);
     }
 
@@ -94,7 +95,7 @@ public class PatSecurityConfiguration {
      * Creates the PAT-specific UserDetailsService bean.
      * <p>
      * This service loads user details with external group privileges, ensuring that
-     * PAT-authenticated users have the same authorities as OAuth2/SAML-authenticated users.
+     * PAT-authenticated users have the same authorities as interactively-authenticated users.
      * </p>
      *
      * @param userDao the user DAO

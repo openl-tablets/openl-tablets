@@ -34,7 +34,7 @@ OpenL Studio provides a navigation panel accessible from the top-right corner of
 
 -   **My Profile** — update account details, name, and password
 -   **My Settings** — configure display and testing preferences
--   **Personal Access Tokens** — manage API authentication tokens (visible only when SSO: OIDC (OAuth2) or SSO: SAML authentication mode is configured)
+-   **Personal Access Tokens** — manage API authentication tokens (visible in all multi-user authentication modes; not shown in single-user mode)
 -   **Help** — open the OpenL Studio help
 -   **Sign Out** — end the current session
 
@@ -136,7 +136,7 @@ To manage personal settings, proceed as follows:
 
 Personal access tokens allow you to authenticate with OpenL Studio APIs without using your password. They are useful for scripts, integrations, and automated tools.
 
-Personal access tokens are available only when **SSO: OIDC (OAuth2)** or **SSO: SAML** authentication mode is configured. The **Personal Access Tokens** item is not displayed in other authentication modes.
+Personal access tokens are available in all multi-user authentication modes — **Multi-user**, **Active Directory / LDAP**, **SSO: SAML**, and **SSO: OIDC (OAuth2)**. The **Personal Access Tokens** item is not displayed in single-user mode.
 
 To create a personal access token, proceed as follows:
 

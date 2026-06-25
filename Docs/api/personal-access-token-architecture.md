@@ -235,10 +235,10 @@ public class AuthorizationExpressions {
 
 **Conditional Activation**:
 ```java
-@ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 ```
 
-Only active when `user.mode` is `oauth2` or `saml`.
+Active in every authenticated user mode (`oauth2`, `saml`, `ad`, `multi`); not in `single` mode.
 
 **Endpoint Summary**:
 
@@ -956,7 +956,7 @@ DROP TABLE OpenL_PAT_Tokens;
 public class PatSecurityConfiguration {
 
     @Bean
-    @ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+    @ConditionalOnExpression("'${user.mode}' != 'single'")
     public PatAuthenticationFilter patAuthenticationFilter(PatAuthService patAuthService) {
         return new PatAuthenticationFilter(patAuthService);
     }
@@ -1002,21 +1002,21 @@ PatAuthenticationToken auth = new PatAuthenticationToken(
 
 ---
 
-### OAuth2/SAML Integration
+### Authenticated-Mode Integration
 
-**Requirement**: PAT management endpoints **require** OAuth2/SAML authentication.
+**Requirement**: PAT management endpoints **require** an authenticated user mode (any mode except `single`).
 
 **Why?**
-- PATs are an alternative to OAuth2/SAML for API access
+- PATs are an alternative to interactive authentication for API access
 - Management operations require interactive authentication
 - Prevents token proliferation (PATs can't create PATs)
 
 **Configuration Check**:
 ```java
-@ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 ```
 
-Controller and services only active in OAuth2/SAML modes.
+Controller and services are active in every authenticated mode (OAuth2, SAML, AD, multi); not in `single` mode.
 
 ---
 
@@ -1149,7 +1149,7 @@ Client Request → Full Token → Hash Full Token → Database Lookup
   - OAuth2/SAML provides user identity
   - Audit logs show who created/deleted tokens
 
-- **Usability**: Users manage tokens through web UI (requires OAuth2/SAML)
+- **Usability**: Users manage tokens through web UI (requires an authenticated user mode)
 
 **Implementation**:
 ```java

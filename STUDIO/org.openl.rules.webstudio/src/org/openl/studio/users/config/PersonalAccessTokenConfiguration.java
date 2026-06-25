@@ -8,7 +8,7 @@ import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 import org.openl.studio.users.service.pat.PersonalAccessTokenServiceImpl;
 
 @Configuration
-@ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 public class PersonalAccessTokenConfiguration {
 
     @Bean

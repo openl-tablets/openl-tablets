@@ -256,7 +256,7 @@ The Personal Access Token (PAT) API enables users to generate and manage authent
 - Cryptographically secure token generation (Base62 encoding, 285 bits entropy)
 - Optional token expiration for time-limited access
 - User isolation (users manage only their own tokens)
-- OAuth2/SAML authentication required for management operations
+- An authenticated user mode required for management operations (not available in single-user mode)
 - PAT authentication cannot be used to manage PATs
 
 **Use Cases:**

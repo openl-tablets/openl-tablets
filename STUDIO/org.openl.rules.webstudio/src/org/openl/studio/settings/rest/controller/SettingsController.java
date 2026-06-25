@@ -43,7 +43,7 @@ public class SettingsController {
                         .groupsManagement(userManagementMode == UserManagementMode.EXTERNAL)
                         .userManagement(userManagementMode != null)
                         .emailVerification(mailSenderFeature.getAsBoolean())
-                        .personalAccessToken(isPersonalAccessTokenEnabled())
+                        .personalAccessToken(userManagementMode != null)
                         .build())
                 .scripts(Stream.of(environment.getProperty("webstudio.javascript.url"))
                         .filter(StringUtils::isNotBlank)
@@ -59,12 +59,4 @@ public class SettingsController {
             default -> UserManagementMode.EXTERNAL;
         };
     }
-
-    private boolean isPersonalAccessTokenEnabled() {
-        return switch (environment.getProperty("user.mode")) {
-            case "oauth2", "saml" -> true;
-            case null, default -> false;
-        };
-    }
-
 }

@@ -33,7 +33,7 @@ The Personal Access Token (PAT) API enables users to generate and manage authent
 - **Token Management**: Full CRUD operations for personal access tokens
 - **Expiration Support**: Optional token expiration for enhanced security
 - **User Isolation**: Users can only manage their own tokens
-- **OAuth2/SAML Only**: Available only in OAuth2 and SAML authentication modes
+- **Authenticated Modes Only**: Available in every authenticated user mode (OAuth2, SAML, AD, multi); not in single-user mode
 
 ### Token Format
 
@@ -59,8 +59,8 @@ openl_pat_a1B2c3D4e5F6g7H8.i9J0k1L2m3N4o5P6q7R8s9T0u1V2w3X4y5Z6
 ### Prerequisites
 
 PAT management endpoints require:
-1. **User Mode**: `oauth2` or `saml` (configured in `application.properties`)
-2. **Authentication**: Valid OAuth2/SAML Bearer token
+1. **User Mode**: any authenticated mode — `oauth2`, `saml`, `ad` or `multi` (configured in `application.properties`); not `single`
+2. **Authentication**: valid interactive credentials for the configured mode (OAuth2/SAML Bearer token, or session / HTTP Basic in AD and multi modes)
 3. **Restriction**: PAT authentication **cannot** be used to manage PATs (enforced by `@NotPatAuth`)
 
 ### Using PATs for API Access
@@ -144,7 +144,7 @@ POST /rest/users/personal-access-tokens
 | `400 Bad Request` | - | Token name is blank or too long |
 | `400 Bad Request` | - | Expiration date is in the past |
 | `401 Unauthorized` | - | Invalid or missing Bearer token |
-| `403 Forbidden` | - | User mode is not OAuth2/SAML |
+| `403 Forbidden` | - | User mode is `single` |
 | `403 Forbidden` | - | Request authenticated with PAT (not allowed) |
 
 ---
@@ -195,7 +195,7 @@ GET /rest/users/personal-access-tokens
 | Status | Description |
 |--------|-------------|
 | `401 Unauthorized` | Invalid or missing Bearer token |
-| `403 Forbidden` | User mode is not OAuth2/SAML |
+| `403 Forbidden` | User mode is `single` |
 | `403 Forbidden` | Request authenticated with PAT (not allowed) |
 
 ---
@@ -241,7 +241,7 @@ GET /rest/users/personal-access-tokens/{publicId}
 | Status | Code | Description |
 |--------|------|-------------|
 | `401 Unauthorized` | - | Invalid or missing Bearer token |
-| `403 Forbidden` | - | User mode is not OAuth2/SAML |
+| `403 Forbidden` | - | User mode is `single` |
 | `403 Forbidden` | - | Request authenticated with PAT (not allowed) |
 | `404 Not Found` | `pat.not.found.message` | Token not found or doesn't belong to user |
 
@@ -280,7 +280,7 @@ No response body.
 | Status | Code | Description |
 |--------|------|-------------|
 | `401 Unauthorized` | - | Invalid or missing Bearer token |
-| `403 Forbidden` | - | User mode is not OAuth2/SAML |
+| `403 Forbidden` | - | User mode is `single` |
 | `403 Forbidden` | - | Request authenticated with PAT (not allowed) |
 | `404 Not Found` | `pat.not.found.message` | Token not found or doesn't belong to user |
 
@@ -635,7 +635,7 @@ The PAT validation process includes multiple security measures:
 ### Access Control
 
 1. **Endpoint Protection**:
-   - All endpoints require OAuth2/SAML authentication
+   - All endpoints require an authenticated user mode (not `single`)
    - `@NotPatAuth` prevents PATs from managing PATs
    - User isolation: users can only access their own tokens
 
@@ -704,10 +704,10 @@ CREATE INDEX ix_OpenL_PAT_Tokens_loginName
 PAT endpoints are conditionally enabled based on user mode:
 
 ```java
-@ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 ```
 
-Supported user modes: `oauth2`, `saml`
+Supported user modes: `oauth2`, `saml`, `ad`, `multi` (every mode except `single`)
 
 ---
 

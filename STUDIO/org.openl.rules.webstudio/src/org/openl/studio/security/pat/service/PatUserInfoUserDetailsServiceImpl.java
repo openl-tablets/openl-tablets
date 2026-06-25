@@ -16,7 +16,7 @@ import org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl;
  * <p>
  * Extends {@link UserInfoUserDetailsServiceImpl} to include external group privileges
  * when loading user details for PAT authentication. This ensures that users authenticated
- * via PAT have the same privileges as when authenticated via OAuth2/SAML.
+ * via PAT have the same privileges as when authenticated interactively.
  * </p>
  *
  * @since 6.0.0
@@ -46,7 +46,7 @@ public class PatUserInfoUserDetailsServiceImpl extends UserInfoUserDetailsServic
      * <p>
      * This override loads external groups for the user and passes them to the parent
      * implementation to ensure PAT-authenticated users have the same privileges as
-     * OAuth2/SAML-authenticated users.
+     * interactively-authenticated users.
      * </p>
      *
      * @param user the user entity

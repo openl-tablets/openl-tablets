@@ -7,6 +7,6 @@ Content-Type: application/json
     "groupsManagement": false,
     "userManagement": true,
     "emailVerification": true,
-    "personalAccessToken": false
+    "personalAccessToken": true
   }
 }

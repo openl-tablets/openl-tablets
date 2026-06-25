@@ -33,7 +33,7 @@ import org.openl.studio.users.service.pat.PersonalAccessTokenService;
 /**
  * REST controller for Personal Access Token management.
  */
-@ConditionalOnExpression("'${user.mode}' == 'oauth2' || '${user.mode}' == 'saml'")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 @RestController
 @RequestMapping(value = "/users/personal-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
 @NotPatAuth

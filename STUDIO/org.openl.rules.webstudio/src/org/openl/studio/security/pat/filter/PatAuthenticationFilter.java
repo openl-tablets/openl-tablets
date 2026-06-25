@@ -23,14 +23,14 @@ import org.openl.studio.security.pat.service.PatAuthService;
  * Authentication filter for Personal Access Tokens (PAT).
  * <p>
  * This filter processes requests with the "{@code HttpHeaders.AUTHORIZATION}: Token &lt;pat&gt;" header
- * for service-to-service authorization in OAuth2 environments.
+ * for service-to-service authorization in every authenticated user mode (OAuth2, SAML, AD and multi).
  * </p>
  * <p>
  * The filter extracts the PAT token, validates it using {@link PatAuthService},
  * and sets the authentication in the {@link SecurityContext} if valid.
  * </p>
  * <p>
- * This filter should be placed before the bearer token authentication filter
+ * This filter should be placed before the credential authentication filter (bearer or basic)
  * in the security filter chain.
  * </p>
  */
