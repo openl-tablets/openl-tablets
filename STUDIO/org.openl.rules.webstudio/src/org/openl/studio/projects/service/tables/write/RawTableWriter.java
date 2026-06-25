@@ -232,53 +232,54 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void dispatch(RawTableSourceAction action) {
         switch (action) {
-            case RawTableSourceAction.Append a -> append(a.target());
-            case RawTableSourceAction.Insert a -> insert(a.target());
-            case RawTableSourceAction.Delete a -> delete(a.target());
-            case RawTableSourceAction.Update a -> update(a.target());
-            case RawTableSourceAction.Merge a -> merge(a.target());
-            case RawTableSourceAction.Unmerge a -> unmerge(a.target());
+            case RawTableSourceAction.Append(var target) -> append(target);
+            case RawTableSourceAction.Insert(var target) -> insert(target);
+            case RawTableSourceAction.Delete(var target) -> delete(target);
+            case RawTableSourceAction.Update(var target) -> update(target);
+            case RawTableSourceAction.Merge(var target) -> merge(target);
+            case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
         }
     }
 
     private void append(AppendTarget target) {
         switch (target) {
-            case AppendTarget.Row r -> appendRow(requireCells(r.cells()));
-            case AppendTarget.Column c -> appendColumn(requireCells(c.cells()));
+            case AppendTarget.Row(var cells) -> appendRow(requireCells(cells));
+            case AppendTarget.Column(var cells) -> appendColumn(requireCells(cells));
         }
     }
 
     private void insert(InsertTarget target) {
         switch (target) {
-            case InsertTarget.Row r -> insertRow(r.position(), requireCells(r.cells()));
-            case InsertTarget.Column c -> insertColumn(c.position(), requireCells(c.cells()));
+            case InsertTarget.Row(var position, var cells) -> insertRow(position, requireCells(cells));
+            case InsertTarget.Column(var position, var cells) -> insertColumn(position, requireCells(cells));
         }
     }
 
     private void delete(DeleteTarget target) {
         switch (target) {
-            case DeleteTarget.Row r -> deleteRow(r.position());
-            case DeleteTarget.Column c -> deleteColumn(c.position());
+            case DeleteTarget.Row(var position) -> deleteRow(position);
+            case DeleteTarget.Column(var position) -> deleteColumn(position);
         }
     }
 
     private void update(UpdateTarget target) {
         switch (target) {
-            case UpdateTarget.Row r -> updateRow(r.position(), requireCells(r.cells()));
-            case UpdateTarget.Column c -> updateColumn(c.position(), requireCells(c.cells()));
-            case UpdateTarget.Cell c -> updateCell(c.row(), c.column(), c.value());
+            case UpdateTarget.Row(var position, var cells) -> updateRow(position, requireCells(cells));
+            case UpdateTarget.Column(var position, var cells) -> updateColumn(position, requireCells(cells));
+            case UpdateTarget.Cell(var row, var column, var value) -> updateCell(row, column, value);
         }
     }
 
     private void merge(MergeTarget target) {
         switch (target) {
-            case MergeTarget.Cells c -> mergeCells(c.row(), c.column(), c.rowspan(), c.colspan());
+            case MergeTarget.Cells(var row, var column, var rowspan, var colspan) ->
+                    mergeCells(row, column, rowspan, colspan);
         }
     }
 
     private void unmerge(UnmergeTarget target) {
         switch (target) {
-            case UnmergeTarget.Cells c -> unmergeCells(c.row(), c.column());
+            case UnmergeTarget.Cells(var row, var column) -> unmergeCells(row, column);
         }
     }
 
