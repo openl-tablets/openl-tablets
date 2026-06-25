@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A cell to write into a table's raw source: its value plus optional merge spans.
@@ -18,15 +19,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public record RawCellInput(
         @Schema(description = "Cell value. A null value is an empty cell.")
-        Object value,
+        @Nullable Object value,
 
         @Schema(description = "Number of columns this cell spans (>= 2 to merge; null or 1 for a single column).")
-        Integer colspan,
+        @Nullable Integer colspan,
 
         @Schema(description = "Number of rows this cell spans (>= 2 to merge; null or 1 for a single row).")
-        Integer rowspan,
+        @Nullable Integer rowspan,
 
         @Schema(description = "Marks a cell covered by another cell's span; its value is ignored.")
-        Boolean covered
+        @Nullable Boolean covered
 ) {
 }

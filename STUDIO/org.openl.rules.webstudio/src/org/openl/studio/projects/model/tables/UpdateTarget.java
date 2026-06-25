@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -26,7 +27,7 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @Schema(description = "0-based index of the row to update (0..height-1).")
             @NotNull
             Integer position,
-            @Schema(description = "New row cells, left to right. A cell may set colspan/rowspan to merge. "
+            @Parameter(description = "New row cells, left to right. A cell may set colspan/rowspan to merge. "
                     + "Must not be wider than the table.")
             List<RawCellInput> cells) implements UpdateTarget {
     }
@@ -37,7 +38,7 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @Schema(description = "0-based index of the column to update (0..width-1).")
             @NotNull
             Integer position,
-            @Schema(description = "New column cells, top to bottom. A cell may set colspan/rowspan to merge. "
+            @Parameter(description = "New column cells, top to bottom. A cell may set colspan/rowspan to merge. "
                     + "Must not be taller than the table.")
             List<RawCellInput> cells) implements UpdateTarget {
     }

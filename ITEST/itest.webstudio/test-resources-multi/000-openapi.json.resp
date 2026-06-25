@@ -18431,7 +18431,6 @@ Content-Type: application/json
       },
       "RawCellInput": {
         "type": "object",
-        "description": "***",
         "properties": {
           "colspan": {
             "type": "integer",

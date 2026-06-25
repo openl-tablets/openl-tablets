@@ -505,7 +505,15 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             }
             requireSpanInBounds(cell, row, col, spanWidth, spanHeight);
             createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());
-            buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col).ifPresent(mergeRegions::add);
+            var mergeRegion = buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col);
+            if (mergeRegion.isPresent()) {
+                // Validate an inline span (colspan/rowspan) against existing merges, like the explicit merge action,
+                // so an update cannot silently create a merge that straddles one already on the sheet.
+                requireNoConflictingMerge(developerView, row, col,
+                        cell.rowspan() == null ? 1 : cell.rowspan(),
+                        cell.colspan() == null ? 1 : cell.colspan());
+                mergeRegions.add(mergeRegion.get());
+            }
         }
         applyMergeRegions(developerView, mergeRegions);
     }
