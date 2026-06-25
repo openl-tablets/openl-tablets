@@ -11,9 +11,21 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.actions.RemoveMergedRegionsAction;
+import org.openl.rules.table.actions.UndoableInsertColumnsAction;
+import org.openl.rules.table.actions.UndoableInsertRowsAction;
+import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.model.tables.AppendTarget;
+import org.openl.studio.projects.model.tables.DeleteTarget;
+import org.openl.studio.projects.model.tables.InsertTarget;
+import org.openl.studio.projects.model.tables.MergeTarget;
+import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.UnmergeTarget;
+import org.openl.studio.projects.model.tables.UpdateTarget;
 
 /**
  * Writes {@link RawTableView} back to the original table preserving the exact 2D matrix structure.
@@ -112,7 +124,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 Object value = cell.value();
                 createOrUpdateCell(tableBody, buildCellKey(col, row), value);
 
-                buildMergeRegionIfNeeded(cell, row, col)
+                buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col)
                         .ifPresent(mergeRegions::add);
             }
         }
@@ -132,9 +144,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         applyMergeRegions(tableBody, mergeRegions);
     }
 
-    private Optional<GridRegion> buildMergeRegionIfNeeded(RawTableCell cell, int row, int col) {
-        int colspan = cell.colspan() != null ? cell.colspan() : 1;
-        int rowspan = cell.rowspan() != null ? cell.rowspan() : 1;
+    private static Optional<GridRegion> buildMergeRegionIfNeeded(Integer colspanValue, Integer rowspanValue,
+                                                                 int row, int col) {
+        int colspan = colspanValue != null ? colspanValue : 1;
+        int rowspan = rowspanValue != null ? rowspanValue : 1;
         if (colspan > 1 || rowspan > 1) {
             return Optional.of(new GridRegion(row, col, row + rowspan - 1, col + colspan - 1));
         }
@@ -178,7 +191,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                     createOrUpdateCell(tableBody, buildCellKey(col, currentRow), value);
 
                     // Track merge region if cell has span
-                    buildMergeRegionIfNeeded(cell, currentRow, col)
+                    buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), currentRow, col)
                             .ifPresent(mergeRegions::add);
                     col++;
                 }
@@ -190,6 +203,356 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             save();
         } finally {
             table.getGridTable().stopEditing();
+        }
+    }
+
+    /**
+     * Apply a single in-place edit to the table's raw source matrix and save the result.
+     * <p>
+     * The concrete operation is chosen by the action type: appending, inserting or deleting a row or a column, or
+     * updating one cell. All coordinates are 0-based and relative to the developer view (the full table including the
+     * header row), matching the matrix returned by the raw read.
+     *
+     * @param action the edit to apply
+     */
+    public void apply(RawTableSourceAction action) {
+        if (!isUpdateMode()) {
+            throw new IllegalStateException("Source actions are only allowed in update mode.");
+        }
+        try {
+            table.getGridTable().edit();
+            dispatch(action);
+            save();
+        } finally {
+            table.getGridTable().stopEditing();
+        }
+    }
+
+    private void dispatch(RawTableSourceAction action) {
+        switch (action) {
+            case RawTableSourceAction.Append a -> append(a.target());
+            case RawTableSourceAction.Insert a -> insert(a.target());
+            case RawTableSourceAction.Delete a -> delete(a.target());
+            case RawTableSourceAction.Update a -> update(a.target());
+            case RawTableSourceAction.Merge a -> merge(a.target());
+            case RawTableSourceAction.Unmerge a -> unmerge(a.target());
+        }
+    }
+
+    private void append(AppendTarget target) {
+        switch (target) {
+            case AppendTarget.Row r -> appendRow(requireCells(r.cells()));
+            case AppendTarget.Column c -> appendColumn(requireCells(c.cells()));
+        }
+    }
+
+    private void insert(InsertTarget target) {
+        switch (target) {
+            case InsertTarget.Row r -> insertRow(r.position(), requireCells(r.cells()));
+            case InsertTarget.Column c -> insertColumn(c.position(), requireCells(c.cells()));
+        }
+    }
+
+    private void delete(DeleteTarget target) {
+        switch (target) {
+            case DeleteTarget.Row r -> deleteRow(r.position());
+            case DeleteTarget.Column c -> deleteColumn(c.position());
+        }
+    }
+
+    private void update(UpdateTarget target) {
+        switch (target) {
+            case UpdateTarget.Row r -> updateRow(r.position(), requireCells(r.cells()));
+            case UpdateTarget.Column c -> updateColumn(c.position(), requireCells(c.cells()));
+            case UpdateTarget.Cell c -> updateCell(c.row(), c.column(), c.value());
+        }
+    }
+
+    private void merge(MergeTarget target) {
+        switch (target) {
+            case MergeTarget.Cells c -> mergeCells(c.row(), c.column(), c.rowspan(), c.colspan());
+        }
+    }
+
+    private void unmerge(UnmergeTarget target) {
+        switch (target) {
+            case UnmergeTarget.Cells c -> unmergeCells(c.row(), c.column());
+        }
+    }
+
+    private void appendRow(List<RawCellInput> cells) {
+        var developerView = developerView();
+        requireRowWidth(cells, Tool.width(developerView.getRegion()));
+        // Writing past the last row grows the table by one row.
+        writeRow(developerView, Tool.height(developerView.getRegion()), cells, false);
+    }
+
+    private void insertRow(int position, List<RawCellInput> cells) {
+        var developerView = developerView();
+        // The first row is the header; a new row goes at index 1..height (height appends to the end).
+        requirePosition(position, 1, Tool.height(developerView.getRegion()));
+        requireRowWidth(cells, Tool.width(developerView.getRegion()));
+        // Row insertion lands the blank after the given index, so insert after the preceding row.
+        insertRows(developerView, position - 1);
+        writeRow(developerView, position, cells, false);
+    }
+
+    private void deleteRow(int position) {
+        var developerView = developerView();
+        int height = Tool.height(developerView.getRegion());
+        requirePosition(position, 0, height - 1);
+        requireDeletable(height);
+        // Remove exactly the requested row; GridTool resizes any merged regions that span it.
+        removeRows(developerView, 1, position);
+    }
+
+    private void appendColumn(List<RawCellInput> cells) {
+        var developerView = developerView();
+        requireColumnHeight(cells, Tool.height(developerView.getRegion()));
+        // Writing past the last column grows the table by one column.
+        writeColumn(developerView, Tool.width(developerView.getRegion()), cells, false);
+    }
+
+    private void insertColumn(int position, List<RawCellInput> cells) {
+        var developerView = developerView();
+        // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
+        requirePosition(position, 1, Tool.width(developerView.getRegion()));
+        requireColumnHeight(cells, Tool.height(developerView.getRegion()));
+        // Column insertion lands the blank at the given index (unlike row insertion, which lands it after the index).
+        insertColumns(developerView, position);
+        writeColumn(developerView, position, cells, false);
+    }
+
+    private void deleteColumn(int position) {
+        var developerView = developerView();
+        int width = Tool.width(developerView.getRegion());
+        requirePosition(position, 0, width - 1);
+        requireDeletable(width);
+        // Remove exactly the requested column; GridTool resizes any merged regions that span it.
+        removeColumns(developerView, 1, position);
+    }
+
+    private void updateRow(int position, List<RawCellInput> cells) {
+        var developerView = developerView();
+        requirePosition(position, 0, Tool.height(developerView.getRegion()) - 1);
+        requireRowWidth(cells, Tool.width(developerView.getRegion()));
+        // Drop merges anchored in the row so a merge dropped from the new cells does not linger.
+        clearLineMerges(developerView, position, true);
+        writeRow(developerView, position, cells, true);
+    }
+
+    private void updateColumn(int position, List<RawCellInput> cells) {
+        var developerView = developerView();
+        requirePosition(position, 0, Tool.width(developerView.getRegion()) - 1);
+        requireColumnHeight(cells, Tool.height(developerView.getRegion()));
+        // Drop merges anchored in the column so a merge dropped from the new cells does not linger.
+        clearLineMerges(developerView, position, false);
+        writeColumn(developerView, position, cells, true);
+    }
+
+    private void updateCell(int row, int column, Object value) {
+        var developerView = developerView();
+        requireCellInBounds(developerView, row, column);
+        if (isCoveredByMerge(developerView, row, column)) {
+            throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, column});
+        }
+        createOrUpdateCell(developerView, buildCellKey(column, row), value);
+    }
+
+    private void mergeCells(int row, int column, int rowspan, int colspan) {
+        var developerView = developerView();
+        int height = Tool.height(developerView.getRegion());
+        int width = Tool.width(developerView.getRegion());
+        // Span subtraction (not row + rowspan) keeps the bounds check safe from int overflow on huge spans.
+        boolean withinBounds = row >= 0 && row < height && column >= 0 && column < width
+                && rowspan >= 1 && colspan >= 1 && rowspan <= height - row && colspan <= width - column;
+        if (!withinBounds || (rowspan < 2 && colspan < 2)) {
+            throw new BadRequestException("table.action.merge.range.invalid.message",
+                    new Object[]{row, column, rowspan, colspan});
+        }
+        requireNoConflictingMerge(developerView, row, column, rowspan, colspan);
+        var region = new GridRegion(row, column, row + rowspan - 1, column + colspan - 1);
+        applyMergeRegions(developerView, List.of(region));
+    }
+
+    private void unmergeCells(int row, int column) {
+        var developerView = developerView();
+        requireCellInBounds(developerView, row, column);
+        var tableRegion = developerView.getRegion();
+        var merged = developerView.getGrid()
+                .getRegionContaining(tableRegion.getLeft() + column, tableRegion.getTop() + row);
+        if (merged == null) {
+            throw new BadRequestException("table.action.unmerge.not-merged.message",
+                    new Object[]{row, column});
+        }
+        // Remove exactly the found merge through the undoable action (consistent with the rest of the writer).
+        var action = new RemoveMergedRegionsAction(merged);
+        action.doAction(developerView);
+        actionsQueue.addNewAction(action);
+    }
+
+    /**
+     * Removes the merges anchored in a single row or column. The line-sized counterpart of
+     * {@link #clearMergedRegions}: an update re-applies only the merges declared in its new cells, so this drops the
+     * ones that were there before but are absent now (they would otherwise mask the new values).
+     */
+    private void clearLineMerges(IGridTable developerView, int index, boolean horizontal) {
+        var tableRegion = developerView.getRegion();
+        GridRegion lineRegion = horizontal
+                ? new GridRegion(tableRegion.getTop() + index, tableRegion.getLeft(),
+                        tableRegion.getTop() + index, tableRegion.getRight())
+                : new GridRegion(tableRegion.getTop(), tableRegion.getLeft() + index,
+                        tableRegion.getBottom(), tableRegion.getLeft() + index);
+        var action = new RemoveMergedRegionsAction(lineRegion);
+        action.doAction(developerView);
+        actionsQueue.addNewAction(action);
+    }
+
+    private IGridTable developerView() {
+        return table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+    }
+
+    private void insertRows(IGridTable developerView, int beforeRow) {
+        var action = new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter());
+        action.doAction(developerView);
+        actionsQueue.addNewAction(action);
+    }
+
+    private void insertColumns(IGridTable developerView, int beforeColumn) {
+        var action = new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter());
+        action.doAction(developerView);
+        actionsQueue.addNewAction(action);
+    }
+
+    private void writeRow(IGridTable developerView, int row, List<RawCellInput> cells, boolean skipCovered) {
+        writeLine(developerView, cells, row, true, skipCovered);
+    }
+
+    private void writeColumn(IGridTable developerView, int column, List<RawCellInput> cells, boolean skipCovered) {
+        writeLine(developerView, cells, column, false, skipCovered);
+    }
+
+    /**
+     * Write a line of raw cells, applying merge regions for spanning cells. A horizontal line keeps {@code fixedIndex}
+     * as its row and walks the columns; a vertical line keeps it as its column and walks the rows. Covered cells are
+     * skipped because their value lives in the spanning origin cell.
+     */
+    private void writeLine(IGridTable developerView, List<RawCellInput> cells, int fixedIndex, boolean horizontal,
+                           boolean skipCovered) {
+        // Appending writes one index past the edge, so the table grows by one along the line's axis.
+        int spanWidth = horizontal ? Tool.width(developerView.getRegion())
+                : Math.max(Tool.width(developerView.getRegion()), fixedIndex + 1);
+        int spanHeight = horizontal ? Math.max(Tool.height(developerView.getRegion()), fixedIndex + 1)
+                : Tool.height(developerView.getRegion());
+        List<IGridRegion> mergeRegions = new ArrayList<>();
+        for (int i = 0; i < cells.size(); i++) {
+            RawCellInput cell = cells.get(i);
+            int row = horizontal ? fixedIndex : i;
+            int col = horizontal ? i : fixedIndex;
+            // Skip blank inputs. On an update, also skip positions masked by an existing merge: writing a value under
+            // a span produces invisible "orphan" content that later corrupts structural edits (e.g. blocks column
+            // removal). Insert/append target fresh cells, so the merge check does not apply there.
+            if (cell == null || Boolean.TRUE.equals(cell.covered())
+                    || (skipCovered && isCoveredByMerge(developerView, row, col))) {
+                continue;
+            }
+            requireSpanInBounds(cell, row, col, spanWidth, spanHeight);
+            createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());
+            buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col).ifPresent(mergeRegions::add);
+        }
+        applyMergeRegions(developerView, mergeRegions);
+    }
+
+    private static List<RawCellInput> requireCells(List<RawCellInput> cells) {
+        if (cells == null || cells.isEmpty()) {
+            throw new BadRequestException("table.action.cells.required.message");
+        }
+        return cells;
+    }
+
+    private static void requirePosition(int position, int minInclusive, int maxInclusive) {
+        if (position < minInclusive || position > maxInclusive) {
+            throw new BadRequestException("table.action.position.invalid.message",
+                    new Object[]{position, minInclusive, maxInclusive});
+        }
+    }
+
+    private static void requireDeletable(int size) {
+        if (size <= 1) {
+            throw new BadRequestException("table.action.delete.last.message");
+        }
+    }
+
+    private static void requireCellInBounds(IGridTable developerView, int row, int column) {
+        int height = Tool.height(developerView.getRegion());
+        int width = Tool.width(developerView.getRegion());
+        if (row < 0 || row >= height || column < 0 || column >= width) {
+            throw new BadRequestException("table.action.cell.out-of-bounds.message",
+                    new Object[]{row, column, height - 1, width - 1});
+        }
+    }
+
+    /**
+     * Tells whether the cell at the given table position is masked by an existing merged region — i.e. it sits inside
+     * a merge but is not its top-left origin. Such cells have no value of their own in the raw view.
+     */
+    private static boolean isCoveredByMerge(IGridTable developerView, int row, int column) {
+        var region = developerView.getRegion();
+        int absColumn = region.getLeft() + column;
+        int absRow = region.getTop() + row;
+        var merged = developerView.getGrid().getRegionContaining(absColumn, absRow);
+        return merged != null && (merged.getLeft() != absColumn || merged.getTop() != absRow);
+    }
+
+    private static void requireSpanInBounds(RawCellInput cell, int row, int col, int width, int height) {
+        int colspan = cell.colspan() != null ? cell.colspan() : 1;
+        int rowspan = cell.rowspan() != null ? cell.rowspan() : 1;
+        if (colspan > width - col || rowspan > height - row) {
+            throw new BadRequestException("table.action.span.out-of-bounds.message",
+                    new Object[]{row, col, rowspan, colspan});
+        }
+    }
+
+    /**
+     * Rejects a merge that would only straddle an existing merged region. A region whose top-left corner falls inside
+     * the new range is replaced by the merge, but one that overlaps without its corner inside would leave two
+     * overlapping merges in the sheet.
+     */
+    private static void requireNoConflictingMerge(IGridTable developerView, int row, int column,
+                                                  int rowspan, int colspan) {
+        var tableRegion = developerView.getRegion();
+        int left = tableRegion.getLeft() + column;
+        int top = tableRegion.getTop() + row;
+        int right = left + colspan - 1;
+        int bottom = top + rowspan - 1;
+        var grid = developerView.getGrid();
+        for (int i = 0, n = grid.getNumberOfMergedRegions(); i < n; i++) {
+            requireNotStraddling(grid.getMergedRegion(i), left, top, right, bottom, row, column);
+        }
+    }
+
+    private static void requireNotStraddling(IGridRegion existing, int left, int top, int right, int bottom,
+                                             int row, int column) {
+        boolean intersects = left <= existing.getRight() && existing.getLeft() <= right
+                && top <= existing.getBottom() && existing.getTop() <= bottom;
+        boolean cornerInside = existing.getLeft() >= left && existing.getLeft() <= right
+                && existing.getTop() >= top && existing.getTop() <= bottom;
+        if (intersects && !cornerInside) {
+            throw new BadRequestException("table.action.merge.overlap.message", new Object[]{row, column});
+        }
+    }
+
+    private static void requireRowWidth(List<RawCellInput> cells, int width) {
+        requireLineLength(cells, width, "table.action.row.width.message");
+    }
+
+    private static void requireColumnHeight(List<RawCellInput> cells, int height) {
+        requireLineLength(cells, height, "table.action.column.height.message");
+    }
+
+    private static void requireLineLength(List<RawCellInput> cells, int limit, String messageKey) {
+        if (cells.size() > limit) {
+            throw new BadRequestException(messageKey, new Object[]{cells.size(), limit});
         }
     }
 

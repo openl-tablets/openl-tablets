@@ -66,6 +66,7 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableNodeView;
@@ -365,6 +366,21 @@ public class ProjectsController {
                                                    @RequestBody AppendTableView editTable) throws ProjectException {
         try {
             var newTableId = projectService.appendTableLines(project, tableId, editTable);
+            return tableWriteResponse(tableId, newTableId);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @Operation(summary = "project.table.actions.summary", description = "project.table.actions.desc")
+    @ApiResponse(responseCode = "200", description = "project.table.actions.200.desc", headers = @Header(name = HttpHeaders.LOCATION, description = "header.location.desc"))
+    @ApiResponse(responseCode = "204", description = "project.table.actions.204.desc")
+    @PostMapping("/{projectId}/tables/{tableId}/actions")
+    public ResponseEntity<TableIdView> editTableSource(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                       @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                                       @Valid @RequestBody RawTableSourceAction action) throws ProjectException {
+        try {
+            var newTableId = projectService.editTableSource(project, tableId, action);
             return tableWriteResponse(tableId, newTableId);
         } finally {
             getWebStudio().reset();

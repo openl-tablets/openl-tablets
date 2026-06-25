@@ -1,0 +1,137 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D12",
+  "source": [
+    [
+      {
+        "cell": "B4",
+        "value": "Rules String Greeting1 (Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "C1"
+      },
+      {
+        "cell": "C5",
+        "value": "C2"
+      },
+      {
+        "cell": "D5",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "min <= hour"
+      },
+      {
+        "cell": "C6",
+        "value": "hour < max"
+      },
+      {
+        "cell": "D6",
+        "value": "greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Integer min"
+      },
+      {
+        "cell": "C7",
+        "value": "Integer max"
+      },
+      {
+        "cell": "D7",
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "From"
+      },
+      {
+        "cell": "C8",
+        "value": "To"
+      },
+      {
+        "cell": "D8",
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": 0
+      },
+      {
+        "cell": "C9",
+        "value": 12
+      },
+      {
+        "cell": "D9",
+        "value": "Buenos Dias"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": 12
+      },
+      {
+        "cell": "C10",
+        "value": 18
+      },
+      {
+        "cell": "D10",
+        "value": "Good Afternoon"
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": 18
+      },
+      {
+        "cell": "C11",
+        "value": 22
+      },
+      {
+        "cell": "D11",
+        "value": "Good Evening"
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": 22
+      },
+      {
+        "cell": "C12",
+        "value": 24
+      },
+      {
+        "cell": "D12",
+        "value": "Good Night"
+      }
+    ]
+  ]
+}

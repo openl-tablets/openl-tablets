@@ -222,7 +222,7 @@ public abstract class TableWriter<T extends TableView> {
         }
     }
 
-    private MetaInfoWriter getMetaInfoWriter() {
+    protected MetaInfoWriter getMetaInfoWriter() {
         if (metaInfoWriter == null && isUpdateMode()) {
             metaInfoWriter = new MetaInfoWriterImpl(table.getMetaInfoReader(), table.getGridTable());
         }

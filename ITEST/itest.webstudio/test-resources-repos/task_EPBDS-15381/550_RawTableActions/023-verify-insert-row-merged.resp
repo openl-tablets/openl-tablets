@@ -1,0 +1,166 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Invalid Decision Table header 'MIN <= HOUR  AND  HOUR < MAX'.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "5bd8922c903afffdfb749b3841eddcf1",
+        "name": "Greeting1",
+        "module": "EPBDS-15381",
+        "cell": "B5"
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "B4:D13",
+  "source": [
+    [
+      {
+        "cell": "B4",
+        "value": "Rules String Greeting1 (Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "min <= hour  and  hour < max",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "D5",
+        "value": "RET"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "C1"
+      },
+      {
+        "cell": "C6",
+        "value": "C2"
+      },
+      {
+        "cell": "D6",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "min <= hour"
+      },
+      {
+        "cell": "C7",
+        "value": "hour < max"
+      },
+      {
+        "cell": "D7",
+        "value": "greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Integer min"
+      },
+      {
+        "cell": "C8",
+        "value": "Integer max"
+      },
+      {
+        "cell": "D8",
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "From"
+      },
+      {
+        "cell": "C9",
+        "value": "To"
+      },
+      {
+        "cell": "D9",
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": 0
+      },
+      {
+        "cell": "C10",
+        "value": 12
+      },
+      {
+        "cell": "D10",
+        "value": "Buenos Dias"
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": 120
+      },
+      {
+        "cell": "C11",
+        "value": 180
+      },
+      {
+        "cell": "D11",
+        "value": "Tarde-Updated"
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": 18
+      },
+      {
+        "cell": "C12",
+        "value": 22
+      },
+      {
+        "cell": "D12",
+        "value": "Good Evening"
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": 22
+      },
+      {
+        "cell": "C13",
+        "value": 24
+      },
+      {
+        "cell": "D13",
+        "value": "Good Night"
+      }
+    ]
+  ]
+}

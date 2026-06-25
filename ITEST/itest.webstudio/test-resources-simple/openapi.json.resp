@@ -9427,6 +9427,139 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/tables/{tableId}/actions": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawTableSourceAction"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableIdView"
+                }
+              }
+            },
+            "description": "***",
+            "headers": {
+              "Location": {
+                "description": "***",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          },
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tables/{tableId}/graph": {
       "get": {
         "description": "***",
@@ -14998,7 +15131,9 @@ Content-Type: application/json
       "AWSS3Region": {
         "type": "object",
         "properties": {
-          "description": "***",
+          "description": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           }
@@ -15226,7 +15361,10 @@ Content-Type: application/json
               "VIEWER"
             ]
           },
-          "description": "***"
+          "description": {
+            "type": "string",
+            "description": "***"
+          }
         },
         "required": [
           "code",
@@ -15297,6 +15435,68 @@ Content-Type: application/json
           "timeFormat"
         ]
       },
+      "Append": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/AppendTarget"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "target"
+        ]
+      },
+      "AppendColumn": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawCellInput"
+                }
+              }
+            }
+          }
+        ],
+        "description": "***"
+      },
+      "AppendRow": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawCellInput"
+                }
+              }
+            }
+          }
+        ],
+        "description": "***"
+      },
       "AppendTableView": {
         "type": "object",
         "discriminator": {
@@ -15353,6 +15553,32 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "AppendTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "column": "#/components/schemas/AppendColumn",
+            "row": "#/components/schemas/AppendRow"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AppendRow"
+          },
+          {
+            "$ref": "#/components/schemas/AppendColumn"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
       },
       "ArgumentView": {
         "type": "object",
@@ -16048,6 +16274,96 @@ Content-Type: application/json
           }
         ]
       },
+      "Delete": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/DeleteTarget"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "target"
+        ]
+      },
+      "DeleteColumn": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DeleteTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "position"
+        ]
+      },
+      "DeleteRow": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DeleteTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "position"
+        ]
+      },
+      "DeleteTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "column": "#/components/schemas/DeleteColumn",
+            "row": "#/components/schemas/DeleteRow"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/DeleteRow"
+          },
+          {
+            "$ref": "#/components/schemas/DeleteColumn"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "DeployProjectModel": {
         "type": "object",
         "description": "***",
@@ -16120,7 +16436,9 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "summary": "***"
+          "summary": {
+            "type": "string"
+          }
         }
       },
       "EditableTableView": {
@@ -16464,6 +16782,110 @@ Content-Type: application/json
           "userMode"
         ]
       },
+      "Insert": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/InsertTarget"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "target"
+        ]
+      },
+      "InsertColumn": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/InsertTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawCellInput"
+                }
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "position"
+        ]
+      },
+      "InsertRow": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/InsertTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawCellInput"
+                }
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "position"
+        ]
+      },
+      "InsertTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "column": "#/components/schemas/InsertColumn",
+            "row": "#/components/schemas/InsertRow"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/InsertRow"
+          },
+          {
+            "$ref": "#/components/schemas/InsertColumn"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "InternalPasswordModel": {
         "type": "object",
         "properties": {
@@ -16671,6 +17093,66 @@ Content-Type: application/json
           }
         }
       },
+      "Merge": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/MergeTarget"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "target"
+        ]
+      },
+      "MergeCells": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MergeTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "colspan": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "rowspan": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "colspan",
+          "column",
+          "row",
+          "rowspan"
+        ]
+      },
       "MergeRequest": {
         "type": "object",
         "properties": {
@@ -16714,6 +17196,28 @@ Content-Type: application/json
           }
         }
       },
+      "MergeTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "cells": "#/components/schemas/MergeCells"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/MergeCells"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "MessageDescription": {
         "type": "object",
         "description": "***",
@@ -16730,7 +17234,9 @@ Content-Type: application/json
               "ERROR"
             ]
           },
-          "summary": "***"
+          "summary": {
+            "type": "string"
+          }
         }
       },
       "MessageDescription_Full": {
@@ -16749,7 +17255,9 @@ Content-Type: application/json
               "ERROR"
             ]
           },
-          "summary": "***"
+          "summary": {
+            "type": "string"
+          }
         }
       },
       "MessageSource": {
@@ -17020,7 +17528,9 @@ Content-Type: application/json
               "ERROR"
             ]
           },
-          "summary": "***",
+          "summary": {
+            "type": "string"
+          },
           "tableId": {
             "type": "string"
           }
@@ -17158,7 +17668,10 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
-          "description": "***",
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
           "lazy": {
             "type": "boolean",
             "description": "***"
@@ -17186,7 +17699,10 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
-          "description": "***",
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
           "lazy": {
             "type": "boolean",
             "description": "***"
@@ -17531,6 +18047,30 @@ Content-Type: application/json
           "revision"
         ]
       },
+      "RawCellInput": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "colspan": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "covered": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "rowspan": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          }
+        }
+      },
       "RawTableAppend": {
         "type": "object",
         "allOf": [
@@ -17583,6 +18123,49 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "RawTableSourceAction": {
+        "type": "object",
+        "description": "***",
+        "discriminator": {
+          "mapping": {
+            "append": "#/components/schemas/Append",
+            "delete": "#/components/schemas/Delete",
+            "insert": "#/components/schemas/Insert",
+            "merge": "#/components/schemas/Merge",
+            "unmerge": "#/components/schemas/Unmerge",
+            "update": "#/components/schemas/Update"
+          },
+          "propertyName": "operation"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Append"
+          },
+          {
+            "$ref": "#/components/schemas/Insert"
+          },
+          {
+            "$ref": "#/components/schemas/Delete"
+          },
+          {
+            "$ref": "#/components/schemas/Update"
+          },
+          {
+            "$ref": "#/components/schemas/Merge"
+          },
+          {
+            "$ref": "#/components/schemas/Unmerge"
+          }
+        ],
+        "properties": {
+          "operation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ]
       },
       "RawTableView": {
         "type": "object",
@@ -17878,7 +18461,9 @@ Content-Type: application/json
       "RulesProfile": {
         "type": "object",
         "properties": {
-          "description": "***",
+          "description": {
+            "type": "string"
+          },
           "displayName": {
             "type": "string"
           },
@@ -18773,14 +19358,6 @@ Content-Type: application/json
       "TableNodeView": {
         "type": "object",
         "properties": {
-          "dimensionProperties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string",
-              "description": "***"
-            },
-            "description": "***"
-          },
           "dependencies": {
             "type": "array",
             "description": "***",
@@ -18798,6 +19375,14 @@ Content-Type: application/json
               "description": "***"
             },
             "uniqueItems": true
+          },
+          "dimensionProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "***"
+            },
+            "description": "***"
           },
           "file": {
             "type": "string",
@@ -18972,7 +19557,10 @@ Content-Type: application/json
             "type": "object",
             "description": "***"
           },
-          "description": "***",
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
           "expectedValue": {
             "type": "object",
             "description": "***"
@@ -18991,7 +19579,10 @@ Content-Type: application/json
       "TestCaseExecutionResult": {
         "type": "object",
         "properties": {
-          "description": "***",
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
           "executionTimeMs": {
             "type": "number",
             "format": "double",
@@ -19034,7 +19625,10 @@ Content-Type: application/json
               "$ref": "#/components/schemas/ParameterValue"
             }
           },
-          "description": "***",
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
           "errors": {
             "type": "array",
             "description": "***",
@@ -19289,6 +19883,216 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "Unmerge": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/UnmergeTarget"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "target"
+        ]
+      },
+      "UnmergeCells": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UnmergeTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "column",
+          "row"
+        ]
+      },
+      "UnmergeTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "cells": "#/components/schemas/UnmergeCells"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/UnmergeCells"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "Update": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/UpdateTarget"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "target"
+        ]
+      },
+      "UpdateCell": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "value": {
+                "type": "object",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "column",
+          "row"
+        ]
+      },
+      "UpdateColumn": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawCellInput"
+                }
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "position"
+        ]
+      },
+      "UpdateRow": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawCellInput"
+                }
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "position"
+        ]
+      },
+      "UpdateTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "cell": "#/components/schemas/UpdateCell",
+            "column": "#/components/schemas/UpdateColumn",
+            "row": "#/components/schemas/UpdateRow"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/UpdateRow"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateColumn"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateCell"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
       },
       "UserCreateModel": {
         "type": "object",
