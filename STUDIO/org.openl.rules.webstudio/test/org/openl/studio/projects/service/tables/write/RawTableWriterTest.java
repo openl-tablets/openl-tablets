@@ -219,6 +219,17 @@ class RawTableWriterTest {
     }
 
     @Test
+    void mergeBlanksCoveredCells() {
+        // merging two equal "String" cells then unmerging must leave the covered cell empty, not a hidden orphan
+        apply(merge(1, 0, 2, 1));
+        apply(unmerge(1, 0));
+
+        var source = reload(mainProject);
+        assertEquals("String", value(source, 1, 0));
+        assertNull(source.get(2).get(0).value(), "the covered cell's orphan value must be cleared by the merge");
+    }
+
+    @Test
     void unmergesCellRange() {
         apply(merge(0, 0, 1, 2));
         // pointing at any cell of the merged region unmerges it
@@ -329,22 +340,16 @@ class RawTableWriterTest {
     }
 
     @Test
-    void deletesColumnAfterWritingItsHeaderCoveredCell() throws IOException {
-        // Reproduces the 550 ITEST sequence: a column update writes a value into the cell hidden under the spanning
-        // header (here D-col row 0), then that column is deleted. The column must still be fully removed.
+    void rejectsUpdatingACellHiddenByASpanningHeader() throws IOException {
+        // The row-0 cell of column 2 is hidden under the spanning header; writing a value there must be rejected
+        // (consistent with updateCell), not silently dropped. Such positions are marked with "covered": true instead.
         var project = writeProjectWithMergedHeader("masked", new String[][]{
                 {"Header Spanning All", null, null},
                 {"a", "b", "c"},
                 {"d", "e", "f"}
         });
-        // update column 2 (D): the first cell lands under the header merge (masked), the rest are visible
-        new RawTableWriter(load(project)).apply(updateColumn(2, row("masked-top", "C2", "F2")));
-        new RawTableWriter(load(project)).apply(deleteColumn(2));
-
-        var source = reload(project);
-        assertEquals(2, width(source), "the column must be removed even after a masked cell was written into it");
-        assertEquals("a", value(source, 1, 0));
-        assertEquals("b", value(source, 1, 1));
+        assertThrows(BadRequestException.class,
+                () -> new RawTableWriter(load(project)).apply(updateColumn(2, row("masked-top", "C2", "F2"))));
     }
 
     @Test
@@ -355,6 +360,13 @@ class RawTableWriterTest {
                 () -> new RawTableWriter(load(single)).apply(deleteRow(0)));
         assertThrows(BadRequestException.class,
                 () -> new RawTableWriter(load(single)).apply(deleteColumn(0)));
+    }
+
+    @Test
+    void rejectsDeletingHeaderLine() {
+        // the header row and the leading-label column are protected, symmetric with insert rejecting position 0
+        assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
+        assertThrows(BadRequestException.class, () -> apply(deleteColumn(0)));
     }
 
     @Test

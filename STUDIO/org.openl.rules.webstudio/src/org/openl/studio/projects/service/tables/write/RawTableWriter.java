@@ -302,7 +302,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void deleteRow(int position) {
         var developerView = developerView();
         int height = Tool.height(developerView.getRegion());
-        requirePosition(position, 0, height - 1);
+        // The first row is the header; only body rows 1..height-1 may be deleted (symmetric with insertRow).
+        requirePosition(position, 1, height - 1);
         requireDeletable(height);
         // Remove exactly the requested row; GridTool resizes any merged regions that span it.
         removeRows(developerView, 1, position);
@@ -328,7 +329,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void deleteColumn(int position) {
         var developerView = developerView();
         int width = Tool.width(developerView.getRegion());
-        requirePosition(position, 0, width - 1);
+        // The first column carries the leading labels; only columns 1..width-1 may be deleted (symmetric with insert).
+        requirePosition(position, 1, width - 1);
         requireDeletable(width);
         // Remove exactly the requested column; GridTool resizes any merged regions that span it.
         removeColumns(developerView, 1, position);
@@ -376,6 +378,19 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireNoMergeDataLoss(developerView, row, column, rowspan, colspan);
         var region = new GridRegion(row, column, row + rowspan - 1, column + colspan - 1);
         applyMergeRegions(developerView, List.of(region));
+        // Blank the now-covered cells so the merge keeps no hidden orphan value under the span, which would
+        // otherwise resurface on unmerge and block later structural edits (delete row/column).
+        clearCoveredCells(developerView, row, column, rowspan, colspan);
+    }
+
+    private void clearCoveredCells(IGridTable developerView, int row, int column, int rowspan, int colspan) {
+        for (int r = 0; r < rowspan; r++) {
+            for (int c = 0; c < colspan; c++) {
+                if (r != 0 || c != 0) {
+                    createOrUpdateCell(developerView, buildCellKey(column + c, row + r), null);
+                }
+            }
+        }
     }
 
     /**
@@ -477,12 +492,16 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             RawCellInput cell = cells.get(i);
             int row = horizontal ? fixedIndex : i;
             int col = horizontal ? i : fixedIndex;
-            // Skip blank inputs. On an update, also skip positions masked by an existing merge: writing a value under
-            // a span produces invisible "orphan" content that later corrupts structural edits (e.g. blocks column
-            // removal). Insert/append target fresh cells, so the merge check does not apply there.
-            if (cell == null || Boolean.TRUE.equals(cell.covered())
-                    || (skipCovered && isCoveredByMerge(developerView, row, col))) {
+            // Skip blank inputs and explicitly-covered placeholders.
+            if (cell == null || Boolean.TRUE.equals(cell.covered())) {
                 continue;
+            }
+            // On an update, a value aimed at a position masked by an existing merge cannot be written: it would
+            // become invisible "orphan" content that later corrupts structural edits (e.g. blocks column removal).
+            // Reject it rather than silently dropping it (consistent with updateCell); mark such positions with
+            // "covered": true to skip them. Insert/append target fresh cells, so the check does not apply there.
+            if (skipCovered && isCoveredByMerge(developerView, row, col)) {
+                throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, col});
             }
             requireSpanInBounds(cell, row, col, spanWidth, spanHeight);
             createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());

@@ -9,7 +9,7 @@ Content-Type: application/json
     "position": 2,
     "cells": [
       {
-        "value": "updated-col-0"
+        "covered": true
       },
       {
         "value": "updated-col-1"

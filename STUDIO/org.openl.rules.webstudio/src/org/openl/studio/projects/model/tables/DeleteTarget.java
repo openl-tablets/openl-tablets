@@ -18,17 +18,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 })
 public sealed interface DeleteTarget permits DeleteTarget.Row, DeleteTarget.Column {
 
-    @Schema(name = "DeleteRow", description = "Deletes the row at the given position, shifting the rows below it up.")
+    @Schema(name = "DeleteRow", description = "Deletes the row at the given position, shifting the rows below it up. "
+            + "The header row (position 0) cannot be deleted.")
     record Row(
-            @Schema(description = "0-based index of the row to delete (0..height-1).")
+            @Schema(description = "0-based index of the body row to delete (1..height-1).")
             @NotNull
             Integer position) implements DeleteTarget {
     }
 
     @Schema(name = "DeleteColumn", description = "Deletes the column at the given position, shifting the columns to "
-            + "its right left.")
+            + "its right left. The leading-label column (position 0) cannot be deleted.")
     record Column(
-            @Schema(description = "0-based index of the column to delete (0..width-1).")
+            @Schema(description = "0-based index of the column to delete (1..width-1).")
             @NotNull
             Integer position) implements DeleteTarget {
     }
