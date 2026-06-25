@@ -1,8 +1,10 @@
 package org.openl.studio.projects.service.tables.write;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -371,8 +373,34 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                     new Object[]{row, column, rowspan, colspan});
         }
         requireNoConflictingMerge(developerView, row, column, rowspan, colspan);
+        requireNoMergeDataLoss(developerView, row, column, rowspan, colspan);
         var region = new GridRegion(row, column, row + rowspan - 1, column + colspan - 1);
         applyMergeRegions(developerView, List.of(region));
+    }
+
+    /**
+     * Rejects a merge that would discard data.
+     * <p>
+     * Merging keeps only the top-left cell and hides the rest. When the range holds more than one distinct non-empty
+     * value, merging would silently drop the others, so the edit is refused. Empty cells and repeated equal values are
+     * allowed because nothing is lost.
+     */
+    private static void requireNoMergeDataLoss(IGridTable developerView, int row, int column, int rowspan, int colspan) {
+        var tableRegion = developerView.getRegion();
+        var grid = developerView.getGrid();
+        Set<String> distinctValues = new HashSet<>();
+        for (int r = 0; r < rowspan; r++) {
+            for (int c = 0; c < colspan; c++) {
+                String value = grid.getCell(tableRegion.getLeft() + column + c, tableRegion.getTop() + row + r)
+                        .getStringValue();
+                if (value != null && !value.isBlank()) {
+                    distinctValues.add(value);
+                }
+            }
+        }
+        if (distinctValues.size() > 1) {
+            throw new BadRequestException("table.action.merge.data-loss.message", new Object[]{row, column});
+        }
     }
 
     private void unmergeCells(int row, int column) {

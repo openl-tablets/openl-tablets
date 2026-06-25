@@ -183,12 +183,12 @@ class RawTableWriterTest {
 
     @Test
     void mergesCellRange() {
-        // merge the two leftmost cells of row 1 into one spanning two columns
-        apply(merge(1, 0, 1, 2));
+        // merge the two leftmost cells of the header row (header + blank) into one spanning two columns
+        apply(merge(0, 0, 1, 2));
 
         var source = reload(mainProject);
-        assertEquals(Integer.valueOf(2), source.get(1).get(0).colspan());
-        assertEquals(Boolean.TRUE, source.get(1).get(1).covered());
+        assertEquals(Integer.valueOf(2), source.get(0).get(0).colspan());
+        assertEquals(Boolean.TRUE, source.get(0).get(1).covered());
     }
 
     @Test
@@ -202,14 +202,31 @@ class RawTableWriterTest {
     }
 
     @Test
-    void unmergesCellRange() {
-        apply(merge(1, 0, 1, 2));
-        // pointing at any cell of the merged region unmerges it
-        apply(unmerge(1, 1));
+    void rejectsMergeThatWouldDiscardData() {
+        // the two leftmost cells of row 1 hold different values ("String" and "code"); merging would drop one
+        assertThrows(BadRequestException.class,
+                () -> apply(merge(1, 0, 1, 2)));
+    }
+
+    @Test
+    void mergesEqualAdjacentValues() {
+        // rows 1 and 2 of the first column both hold "String", so merging them loses nothing
+        apply(merge(1, 0, 2, 1));
 
         var source = reload(mainProject);
-        assertNull(source.get(1).get(0).colspan());
-        assertNull(source.get(1).get(1).covered());
+        assertEquals(Integer.valueOf(2), source.get(1).get(0).rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).get(0).covered());
+    }
+
+    @Test
+    void unmergesCellRange() {
+        apply(merge(0, 0, 1, 2));
+        // pointing at any cell of the merged region unmerges it
+        apply(unmerge(0, 1));
+
+        var source = reload(mainProject);
+        assertNull(source.get(0).get(0).colspan());
+        assertNull(source.get(0).get(1).covered());
     }
 
     @Test
@@ -220,17 +237,17 @@ class RawTableWriterTest {
 
     @Test
     void updateRowClearsAStaleMerge() {
-        // merge the two leftmost cells of row 1, then overwrite that row with plain (merge-free) cells
-        apply(merge(1, 0, 1, 2));
-        apply(updateRow(1, row("p", "q", "r")));
+        // merge the two leftmost cells of the header row, then overwrite that row with plain (merge-free) cells
+        apply(merge(0, 0, 1, 2));
+        apply(updateRow(0, row("p", "q", "r")));
 
         var source = reload(mainProject);
-        // the merge dropped from the new cells must not linger, and the previously-covered cell holds its value
-        assertNull(source.get(1).get(0).colspan(), "stale merge must be cleared on update");
-        assertNull(source.get(1).get(1).covered());
-        assertEquals("p", value(source, 1, 0));
-        assertEquals("q", value(source, 1, 1));
-        assertEquals("r", value(source, 1, 2));
+        // the merge dropped from the new cells must not linger, and the row holds the new values
+        assertNull(source.get(0).get(0).colspan(), "stale merge must be cleared on update");
+        assertNull(source.get(0).get(1).covered());
+        assertEquals("p", value(source, 0, 0));
+        assertEquals("q", value(source, 0, 1));
+        assertEquals("r", value(source, 0, 2));
     }
 
     @Test
