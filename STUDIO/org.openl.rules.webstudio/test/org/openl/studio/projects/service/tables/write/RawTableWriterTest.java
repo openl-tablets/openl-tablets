@@ -349,17 +349,15 @@ class RawTableWriterTest {
                 {"d", "e", "f"}
         });
         assertThrows(BadRequestException.class,
-                () -> new RawTableWriter(load(project)).apply(updateColumn(2, row("masked-top", "C2", "F2"))));
+                () -> apply(project, updateColumn(2, row("masked-top", "C2", "F2"))));
     }
 
     @Test
     void rejectsDeletingTheLastLine() throws IOException {
         var single = writeProject("single", new String[][]{{"Environment"}});
 
-        assertThrows(BadRequestException.class,
-                () -> new RawTableWriter(load(single)).apply(deleteRow(0)));
-        assertThrows(BadRequestException.class,
-                () -> new RawTableWriter(load(single)).apply(deleteColumn(0)));
+        assertThrows(BadRequestException.class, () -> apply(single, deleteRow(0)));
+        assertThrows(BadRequestException.class, () -> apply(single, deleteColumn(0)));
     }
 
     @Test
@@ -405,6 +403,10 @@ class RawTableWriterTest {
 
     private void apply(RawTableSourceAction action) {
         new RawTableWriter(load(mainProject)).apply(action);
+    }
+
+    private void apply(Path project, RawTableSourceAction action) {
+        new RawTableWriter(load(project)).apply(action);
     }
 
     private List<List<RawTableCell>> reload(Path project) {
