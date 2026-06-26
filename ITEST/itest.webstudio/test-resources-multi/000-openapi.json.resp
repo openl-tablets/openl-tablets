@@ -18941,7 +18941,18 @@ Content-Type: application/json
           },
           "value": {
             "type": "object",
-            "description": "***"
+            "description": "***",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
           }
         }
       },
@@ -18963,10 +18974,14 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawTableCell"
                   }
-                }
+                },
+                "minItems": 1
               }
             }
           }
+        ],
+        "required": [
+          "rows"
         ]
       },
       "RawTableCell": {
@@ -19102,10 +19117,14 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawTableCell"
                   }
-                }
+                },
+                "minItems": 1
               }
             }
           }
+        ],
+        "required": [
+          "source"
         ]
       },
       "RedeployProjectModel": {
@@ -20873,7 +20892,18 @@ Content-Type: application/json
               },
               "value": {
                 "type": "object",
-                "description": "***"
+                "description": "***",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
               }
             }
           }

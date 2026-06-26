@@ -1,0 +1,16 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.CellValueConstraint",
+      "message": "*",
+      "field": "source[0][0].value",
+      "rejectedValue": {
+        "foo": "bar"
+      }
+    }
+  ]
+}

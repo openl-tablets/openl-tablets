@@ -53,6 +53,7 @@ public record RawTableCell(
         String cell,
 
         @Schema(description = "Value of the cell (null if covered by another cell's span)")
+        @CellValueConstraint
         Object value,
 
         @Schema(description = "Number of columns this cell spans (>=2 means merging, null if single column or covered)")
