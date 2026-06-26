@@ -365,13 +365,21 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var developerView = developerView();
         // The first row is the header; the block (position..position+count-1) must stay within the body.
         requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
-        // Removing the block shifts the rows below it up; the grid action resizes any merge spanning the block.
+        // Drop merges anchored in the deleted rows first: removeRows only resizes a merge taller than the block, so a
+        // merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
+        var tableRegion = developerView.getRegion();
+        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop() + position, tableRegion.getLeft(),
+                tableRegion.getTop() + position + count - 1, tableRegion.getRight()));
         removeRows(developerView, count, position);
     }
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
         requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
+        // Same as deleteRows: drop merges anchored in the deleted columns so a fully-contained merge does not linger.
+        var tableRegion = developerView.getRegion();
+        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop(), tableRegion.getLeft() + position,
+                tableRegion.getBottom(), tableRegion.getLeft() + position + count - 1));
         removeColumns(developerView, count, position);
     }
 

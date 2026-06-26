@@ -196,6 +196,19 @@ class RawTableWriterTest {
     }
 
     @Test
+    void deletingABlockClearsAFullyContainedMerge() {
+        // merge two stacked body cells, then delete exactly that 2-row block; the merge must not linger as an orphan
+        apply(merge(1, 0, 2, 1));
+        apply(deleteRows(1, 2));
+
+        var source = reload(mainProject);
+        assertEquals(2, source.size());
+        assertNull(source.get(1).get(0).rowspan(), "a fully-contained merge must be removed, not left stale");
+        assertNull(source.get(1).get(0).covered());
+        assertEquals("int", value(source, 1, 0));
+    }
+
+    @Test
     void deletesColumn() {
         apply(deleteColumn(2));
 
