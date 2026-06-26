@@ -152,8 +152,7 @@ class RawTableWriterTest {
     @Test
     void rejectsRowBlockNotMatchingWidth() {
         // each row of the block must be as wide as the table
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRows(1, List.of(row("a", "b"), row("c", "d")))));
+        assertBadRequest(insertRows(1, List.of(row("a", "b"), row("c", "d"))));
     }
 
     @Test
@@ -270,22 +269,19 @@ class RawTableWriterTest {
     @Test
     void rejectsRangeOutOfBounds() {
         // a 3x3 block at (2,1) runs past the 4x3 table
-        assertThrows(BadRequestException.class,
-                () -> apply(updateRange(2, 1, List.of(row("a", "b", "c"), row("d", "e", "f"), row("g", "h", "i")))));
+        assertBadRequest(updateRange(2, 1, List.of(row("a", "b", "c"), row("d", "e", "f"), row("g", "h", "i"))));
     }
 
     @Test
     void rejectsSingleCellRange() {
         // a 1x1 range is the cell update's job
-        assertThrows(BadRequestException.class,
-                () -> apply(updateRange(1, 1, List.of(row("x")))));
+        assertBadRequest(updateRange(1, 1, List.of(row("x"))));
     }
 
     @Test
     void rejectsRaggedRange() {
         // rows of unequal length are not a rectangle
-        assertThrows(BadRequestException.class,
-                () -> apply(updateRange(1, 1, List.of(row("a", "b"), row("c")))));
+        assertBadRequest(updateRange(1, 1, List.of(row("a", "b"), row("c"))));
     }
 
     @Test
@@ -329,18 +325,15 @@ class RawTableWriterTest {
     @Test
     void rejectsInvalidMergeRange() {
         // a single cell is not a range
-        assertThrows(BadRequestException.class,
-                () -> apply(merge(1, 0, 1, 1)));
+        assertBadRequest(merge(1, 0, 1, 1));
         // a range that leaves the table bounds
-        assertThrows(BadRequestException.class,
-                () -> apply(merge(0, 0, 99, 99)));
+        assertBadRequest(merge(0, 0, 99, 99));
     }
 
     @Test
     void rejectsMergeThatWouldDiscardData() {
         // the two leftmost cells of row 1 hold different values ("String" and "code"); merging would drop one
-        assertThrows(BadRequestException.class,
-                () -> apply(merge(1, 0, 1, 2)));
+        assertBadRequest(merge(1, 0, 1, 2));
     }
 
     @Test
@@ -377,8 +370,7 @@ class RawTableWriterTest {
 
     @Test
     void rejectsUnmergeOfPlainCell() {
-        assertThrows(BadRequestException.class,
-                () -> apply(unmerge(2, 2)));
+        assertBadRequest(unmerge(2, 2));
     }
 
     @Test
@@ -399,72 +391,60 @@ class RawTableWriterTest {
 
     @Test
     void rejectsPositionOutOfRange() {
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRow(99, row("x", "y", "z"))));
+        assertBadRequest(insertRow(99, row("x", "y", "z")));
     }
 
     @Test
     void rejectsInsertingBeforeTheHeader() {
         // The header must remain the first row, so position 0 is not allowed for insertion.
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRow(0, row("x", "y", "z"))));
-        assertThrows(BadRequestException.class,
-                () -> apply(insertColumn(0, row("x", "y", "z", "w"))));
+        assertBadRequest(insertRow(0, row("x", "y", "z")));
+        assertBadRequest(insertColumn(0, row("x", "y", "z", "w")));
     }
 
     @Test
     void rejectsRowWiderThanTable() {
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRow(row("a", "b", "c", "d"))));
+        assertBadRequest(appendRow(row("a", "b", "c", "d")));
     }
 
     @Test
     void rejectsColumnTallerThanTable() {
-        assertThrows(BadRequestException.class,
-                () -> apply(appendColumn(row("a", "b", "c", "d", "e"))));
+        assertBadRequest(appendColumn(row("a", "b", "c", "d", "e")));
     }
 
     @Test
     void rejectsRowNarrowerThanTable() {
         // fewer cells than the 3 columns must fail rather than leaving the trailing cell empty
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRow(row("a", "b"))));
+        assertBadRequest(appendRow(row("a", "b")));
     }
 
     @Test
     void rejectsColumnShorterThanTable() {
         // fewer cells than the 4 rows must fail rather than leaving the trailing cell empty
-        assertThrows(BadRequestException.class,
-                () -> apply(appendColumn(row("a", "b", "c"))));
+        assertBadRequest(appendColumn(row("a", "b", "c")));
     }
 
     @Test
     void rejectsInsertColumnShorterThanTable() {
-        assertThrows(BadRequestException.class,
-                () -> apply(insertColumn(1, row("a", "b", "c"))));
+        assertBadRequest(insertColumn(1, row("a", "b", "c")));
     }
 
     @Test
     void rejectsEmptyCells() {
         // an empty block (no lines) is rejected
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRows(List.of())));
+        assertBadRequest(appendRows(List.of()));
     }
 
     @Test
     void rejectsEmptyUpdateCells() {
         // an empty cell list for a row update is rejected
-        assertThrows(BadRequestException.class,
-                () -> apply(updateRow(1, List.of())));
+        assertBadRequest(updateRow(1, List.of()));
     }
 
     @Test
     void rejectsAllEmptyWrittenLine() {
         // a fully blank inserted/appended line would become a table-splitting blank line
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRows(1, List.of(row(null, null, null)))));
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRow(row("", "", ""))));
+        assertBadRequest(insertRows(1, List.of(row(null, null, null))));
+        assertBadRequest(appendRow(row("", "", "")));
     }
 
     @Test
@@ -475,30 +455,26 @@ class RawTableWriterTest {
                 new RawCellInput(null, null, null, true),
                 new RawCellInput(null, null, null, true),
                 new RawCellInput(null, null, null, true));
-        assertThrows(BadRequestException.class, () -> apply(appendRow(allCovered)));
-        assertThrows(BadRequestException.class, () -> apply(insertRows(1, List.of(allCovered))));
+        assertBadRequest(appendRow(allCovered));
+        assertBadRequest(insertRows(1, List.of(allCovered)));
     }
 
     @Test
     void rejectsNullLineInBlock() {
         // a null row inside a block is rejected with 400, not a NullPointerException (500)
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRows(1, Arrays.asList(row("a", "b", "c"), null))));
-        assertThrows(BadRequestException.class,
-                () -> apply(updateRange(1, 1, Arrays.asList(row("a", "b"), null))));
+        assertBadRequest(insertRows(1, Arrays.asList(row("a", "b", "c"), null)));
+        assertBadRequest(updateRange(1, 1, Arrays.asList(row("a", "b"), null)));
     }
 
     @Test
     void rejectsActionThatBreaksTheHeader() {
         // an action that rewrites the header to an unrecognized keyword is rejected (mirrors create/update validation)
-        assertThrows(BadRequestException.class,
-                () -> apply(updateCell(0, 0, "NotATableType")));
+        assertBadRequest(updateCell(0, 0, "NotATableType"));
     }
 
     @Test
     void rejectsCellOutOfBounds() {
-        assertThrows(BadRequestException.class,
-                () -> apply(updateCell(99, 0, "x")));
+        assertBadRequest(updateCell(99, 0, "x"));
     }
 
     @Test
@@ -529,23 +505,22 @@ class RawTableWriterTest {
                 {"a", "b", "c"},
                 {"d", "e", "f"}
         });
-        assertThrows(BadRequestException.class,
-                () -> apply(project, updateColumn(2, row("masked-top", "C2", "F2"))));
+        assertBadRequest(project, updateColumn(2, row("masked-top", "C2", "F2")));
     }
 
     @Test
     void rejectsDeletingTheLastLine() throws IOException {
         var single = writeProject("single", new String[][]{{"Environment"}});
 
-        assertThrows(BadRequestException.class, () -> apply(single, deleteRow(0)));
-        assertThrows(BadRequestException.class, () -> apply(single, deleteColumn(0)));
+        assertBadRequest(single, deleteRow(0));
+        assertBadRequest(single, deleteColumn(0));
     }
 
     @Test
     void rejectsDeletingHeaderLine() {
         // the header row and the leading-label column are protected, symmetric with insert rejecting position 0
-        assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
-        assertThrows(BadRequestException.class, () -> apply(deleteColumn(0)));
+        assertBadRequest(deleteRow(0));
+        assertBadRequest(deleteColumn(0));
     }
 
     @Test
@@ -588,6 +563,14 @@ class RawTableWriterTest {
 
     private void apply(Path project, RawTableSourceAction action) {
         new RawTableWriter(load(project)).apply(action);
+    }
+
+    private void assertBadRequest(RawTableSourceAction action) {
+        assertThrows(BadRequestException.class, () -> apply(action));
+    }
+
+    private void assertBadRequest(Path project, RawTableSourceAction action) {
+        assertThrows(BadRequestException.class, () -> apply(project, action));
     }
 
     private List<List<RawTableCell>> reload(Path project) {
