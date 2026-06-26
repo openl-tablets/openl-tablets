@@ -62,7 +62,9 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @NotNull
             @Min(0)
             Integer column,
-            @Schema(description = "New cell value. Null clears the cell.")
+            @Schema(description = "New cell value: a string, a number or a boolean. Null clears the cell.",
+                    oneOf = {String.class, Number.class, Boolean.class})
+            @CellValueConstraint
             Object value) implements UpdateTarget {
     }
 

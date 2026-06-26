@@ -1,6 +1,8 @@
 package org.openl.studio.projects.model.tables;
 
 import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -15,7 +17,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class RawTableAppend implements AppendTableView {
 
     @Schema(description = "Rows to append as a 2D matrix of raw table cells")
-    private List<List<RawTableCell>> rows;
+    @NotEmpty
+    private List<List<@Valid RawTableCell>> rows;
 
     public List<List<RawTableCell>> getRows() {
         return rows;

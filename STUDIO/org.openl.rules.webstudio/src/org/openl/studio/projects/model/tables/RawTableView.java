@@ -2,6 +2,8 @@ package org.openl.studio.projects.model.tables;
 
 import java.util.List;
 import java.util.Map;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -47,7 +49,8 @@ public class RawTableView extends TableView implements EditableTableView {
     public final String pos;
 
     @Schema(description = "2D matrix of raw table cells with merge information")
-    public final List<List<RawTableCell>> source;   // 2D matrix of cells
+    @NotEmpty
+    public final List<List<@Valid RawTableCell>> source;   // 2D matrix of cells
 
     private RawTableView(Builder builder) {
         super(builder);
