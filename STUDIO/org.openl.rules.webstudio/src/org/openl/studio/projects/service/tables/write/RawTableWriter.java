@@ -252,6 +252,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         switch (target) {
             case InsertTarget.Row(var position, var cells) -> insertRow(position, requireCells(cells));
             case InsertTarget.Column(var position, var cells) -> insertColumn(position, requireCells(cells));
+            case InsertTarget.Rows(var position, var cells) -> insertRows(position, cells);
+            case InsertTarget.Columns(var position, var cells) -> insertColumns(position, cells);
         }
     }
 
@@ -297,7 +299,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
         requireRowWidth(cells, Tool.width(developerView.getRegion()));
         // Row insertion lands the blank after the given index, so insert after the preceding row.
-        insertRows(developerView, position - 1);
+        insertBlankRows(developerView, position - 1);
         writeRow(developerView, position, cells, false);
     }
 
@@ -324,7 +326,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requirePosition(position, 1, Tool.width(developerView.getRegion()));
         requireColumnHeight(cells, Tool.height(developerView.getRegion()));
         // Column insertion lands the blank at the given index (unlike row insertion, which lands it after the index).
-        insertColumns(developerView, position);
+        insertBlankColumns(developerView, position);
         writeColumn(developerView, position, cells, false);
     }
 
@@ -336,6 +338,36 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireDeletable(width);
         // Remove exactly the requested column; GridTool resizes any merged regions that span it.
         removeColumns(developerView, 1, position);
+    }
+
+    private void insertRows(int position, List<List<RawCellInput>> rows) {
+        var developerView = developerView();
+        requirePosition(position, 1, Tool.height(developerView.getRegion()));
+        requireMultiLine(rows);
+        int width = Tool.width(developerView.getRegion());
+        for (var row : rows) {
+            requireRowWidth(row, width);
+        }
+        // Insert one row at a time: a single multi-row grid insert at the table's top boundary corrupts the region.
+        for (int i = 0; i < rows.size(); i++) {
+            insertBlankRows(developerView, position - 1 + i);
+            writeRow(developerView, position + i, rows.get(i), false);
+        }
+    }
+
+    private void insertColumns(int position, List<List<RawCellInput>> columns) {
+        var developerView = developerView();
+        requirePosition(position, 1, Tool.width(developerView.getRegion()));
+        requireMultiLine(columns);
+        int height = Tool.height(developerView.getRegion());
+        for (var column : columns) {
+            requireColumnHeight(column, height);
+        }
+        // Insert one column at a time, mirroring the single-column path.
+        for (int i = 0; i < columns.size(); i++) {
+            insertBlankColumns(developerView, position + i);
+            writeColumn(developerView, position + i, columns.get(i), false);
+        }
     }
 
     private void updateRow(int position, List<RawCellInput> cells) {
@@ -494,13 +526,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         return table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
     }
 
-    private void insertRows(IGridTable developerView, int beforeRow) {
+    private void insertBlankRows(IGridTable developerView, int beforeRow) {
         var action = new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter());
         action.doAction(developerView);
         actionsQueue.addNewAction(action);
     }
 
-    private void insertColumns(IGridTable developerView, int beforeColumn) {
+    private void insertBlankColumns(IGridTable developerView, int beforeColumn) {
         var action = new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter());
         action.doAction(developerView);
         actionsQueue.addNewAction(action);
@@ -678,6 +710,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (row < 0 || column < 0 || rangeHeight > height - row || rangeWidth > width - column) {
             throw new BadRequestException("table.action.range.out-of-bounds.message",
                     new Object[]{row, column, rangeHeight, rangeWidth, height - 1, width - 1});
+        }
+    }
+
+    private static void requireMultiLine(List<List<RawCellInput>> lines) {
+        // A single row or column is the row/column action's job; a block must hold more than one line.
+        if (lines == null || lines.size() < 2) {
+            throw new BadRequestException("table.action.range.single-line.message");
         }
     }
 

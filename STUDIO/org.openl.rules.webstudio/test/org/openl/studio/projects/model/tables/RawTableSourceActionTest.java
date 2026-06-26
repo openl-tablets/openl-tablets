@@ -38,6 +38,17 @@ class RawTableSourceActionTest {
     }
 
     @Test
+    void deserializesInsertRowsBlock() throws Exception {
+        var action = read("{\"operation\":\"insert\",\"target\":{\"type\":\"rows\",\"position\":2,"
+                + "\"cells\":[[{\"value\":\"a\"},{\"value\":\"b\"}],[{\"value\":\"c\"},{\"value\":\"d\"}]]}}");
+        var insert = assertInstanceOf(RawTableSourceAction.Insert.class, action);
+        var rows = assertInstanceOf(InsertTarget.Rows.class, insert.target());
+        assertEquals(2, rows.position());
+        assertEquals(2, rows.cells().size());
+        assertEquals("a", rows.cells().get(0).get(0).value());
+    }
+
+    @Test
     void deserializesDeleteRow() throws Exception {
         var action = read("{\"operation\":\"delete\",\"target\":{\"type\":\"row\",\"position\":2}}");
         var delete = assertInstanceOf(RawTableSourceAction.Delete.class, action);

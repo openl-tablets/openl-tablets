@@ -124,6 +124,46 @@ class RawTableWriterTest {
     }
 
     @Test
+    void insertsRowsBlock() {
+        // insert two valid datatype rows at position 1, shifting the rest down
+        apply(insertRows(1, List.of(row("String", "f1", "d1"), row("String", "f2", "d2"))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals("f1", value(source, 1, 1));
+        assertEquals("f2", value(source, 2, 1));
+        // the row that previously sat at index 1 is shifted down by two
+        assertEquals("code", value(source, 3, 1));
+    }
+
+    @Test
+    void insertsColumnsBlock() {
+        // insert two full-height columns at position 1, shifting the rest right
+        apply(insertColumns(1, List.of(row("p", "q", "r", "s"), row("t", "u", "v", "w"))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals("p", value(source, 0, 1));
+        assertEquals("t", value(source, 0, 2));
+        // the column that previously sat at index 1 is shifted right by two
+        assertEquals("code", value(source, 1, 3));
+    }
+
+    @Test
+    void rejectsSingleRowBlock() {
+        // a one-row block is the insert-row action's job
+        assertThrows(BadRequestException.class,
+                () -> apply(insertRows(1, List.of(row("a", "b", "c")))));
+    }
+
+    @Test
+    void rejectsRowBlockNotMatchingWidth() {
+        // each row of the block must be as wide as the table
+        assertThrows(BadRequestException.class,
+                () -> apply(insertRows(1, List.of(row("a", "b"), row("c", "d")))));
+    }
+
+    @Test
     void deletesColumn() {
         apply(deleteColumn(2));
 
@@ -498,6 +538,14 @@ class RawTableWriterTest {
 
     private static RawTableSourceAction insertColumn(int position, List<RawCellInput> cells) {
         return new RawTableSourceAction.Insert(new InsertTarget.Column(position, cells));
+    }
+
+    private static RawTableSourceAction insertRows(int position, List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Insert(new InsertTarget.Rows(position, cells));
+    }
+
+    private static RawTableSourceAction insertColumns(int position, List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Insert(new InsertTarget.Columns(position, cells));
     }
 
     private static RawTableSourceAction deleteRow(int position) {
