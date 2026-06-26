@@ -267,6 +267,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case UpdateTarget.Row(var position, var cells) -> updateRow(position, requireCells(cells));
             case UpdateTarget.Column(var position, var cells) -> updateColumn(position, requireCells(cells));
             case UpdateTarget.Cell(var row, var column, var value) -> updateCell(row, column, value);
+            case UpdateTarget.Range(var row, var column, var cells) -> updateRange(row, column, cells);
         }
     }
 
@@ -362,6 +363,43 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, column});
         }
         createOrUpdateCell(developerView, buildCellKey(column, row), value);
+    }
+
+    private void updateRange(int row, int column, List<List<RawCellInput>> cells) {
+        if (cells == null || cells.isEmpty()) {
+            throw new BadRequestException("table.action.cells.required.message");
+        }
+        var developerView = developerView();
+        int height = Tool.height(developerView.getRegion());
+        int width = Tool.width(developerView.getRegion());
+        int rangeHeight = cells.size();
+        int rangeWidth = requireRectangularRange(cells);
+        requireRangeMultiCell(rangeHeight, rangeWidth);
+        requireRangeInBounds(row, column, rangeHeight, rangeWidth, height, width);
+        // Drop merges anchored in the block so a merge dropped from the new cells does not linger (as updateRow does).
+        clearBlockMerges(developerView, row, column, rangeHeight, rangeWidth);
+        writeBlock(developerView, row, column, cells, width, height);
+    }
+
+    private void writeBlock(IGridTable developerView, int top, int left, List<List<RawCellInput>> cells,
+                            int width, int height) {
+        List<IGridRegion> mergeRegions = new ArrayList<>();
+        for (int r = 0; r < cells.size(); r++) {
+            List<RawCellInput> rowCells = cells.get(r);
+            for (int c = 0; c < rowCells.size(); c++) {
+                writeCellInput(developerView, top + r, left + c, rowCells.get(c), true, width, height, mergeRegions);
+            }
+        }
+        applyMergeRegions(developerView, mergeRegions);
+    }
+
+    private void clearBlockMerges(IGridTable developerView, int top, int left, int rangeHeight, int rangeWidth) {
+        var tableRegion = developerView.getRegion();
+        var blockRegion = new GridRegion(tableRegion.getTop() + top, tableRegion.getLeft() + left,
+                tableRegion.getTop() + top + rangeHeight - 1, tableRegion.getLeft() + left + rangeWidth - 1);
+        var action = new RemoveMergedRegionsAction(blockRegion);
+        action.doAction(developerView);
+        actionsQueue.addNewAction(action);
     }
 
     private void mergeCells(int row, int column, int rowspan, int colspan) {
@@ -490,33 +528,37 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 : Tool.height(developerView.getRegion());
         List<IGridRegion> mergeRegions = new ArrayList<>();
         for (int i = 0; i < cells.size(); i++) {
-            RawCellInput cell = cells.get(i);
             int row = horizontal ? fixedIndex : i;
             int col = horizontal ? i : fixedIndex;
-            // Skip blank inputs and explicitly-covered placeholders.
-            if (cell == null || Boolean.TRUE.equals(cell.covered())) {
-                continue;
-            }
-            // On an update, a value aimed at a position masked by an existing merge cannot be written: it would
-            // become invisible "orphan" content that later corrupts structural edits (e.g. blocks column removal).
-            // Reject it rather than silently dropping it (consistent with updateCell); mark such positions with
-            // "covered": true to skip them. Insert/append target fresh cells, so the check does not apply there.
-            if (skipCovered && isCoveredByMerge(developerView, row, col)) {
-                throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, col});
-            }
-            requireSpanInBounds(cell, row, col, spanWidth, spanHeight);
-            createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());
-            var mergeRegion = buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col);
-            if (mergeRegion.isPresent()) {
-                // Validate an inline span (colspan/rowspan) against existing merges, like the explicit merge action,
-                // so an update cannot silently create a merge that straddles one already on the sheet.
-                requireNoConflictingMerge(developerView, row, col,
-                        cell.rowspan() == null ? 1 : cell.rowspan(),
-                        cell.colspan() == null ? 1 : cell.colspan());
-                mergeRegions.add(mergeRegion.get());
-            }
+            writeCellInput(developerView, row, col, cells.get(i), skipCovered, spanWidth, spanHeight, mergeRegions);
         }
         applyMergeRegions(developerView, mergeRegions);
+    }
+
+    /**
+     * Writes one input cell at an absolute table position and queues any inline merge. Blank and explicitly-covered
+     * inputs are skipped. When {@code skipCovered} is set (an update), a position masked by an existing merge is
+     * rejected: writing it would leave invisible "orphan" content that later corrupts structural edits, so callers
+     * must mark such positions {@code "covered": true}. Insert/append target fresh cells, so they pass it unset.
+     */
+    private void writeCellInput(IGridTable developerView, int row, int col, RawCellInput cell, boolean skipCovered,
+                                int width, int height, List<IGridRegion> mergeRegions) {
+        if (cell == null || Boolean.TRUE.equals(cell.covered())) {
+            return;
+        }
+        if (skipCovered && isCoveredByMerge(developerView, row, col)) {
+            throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, col});
+        }
+        requireSpanInBounds(cell, row, col, width, height);
+        createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());
+        // Validate an inline span (colspan/rowspan) against existing merges, like the explicit merge action, so an
+        // update cannot silently create a merge that straddles one already on the sheet.
+        buildMergeRegionIfNeeded(cell.colspan(), cell.rowspan(), row, col).ifPresent(region -> {
+            requireNoConflictingMerge(developerView, row, col,
+                    cell.rowspan() == null ? 1 : cell.rowspan(),
+                    cell.colspan() == null ? 1 : cell.colspan());
+            mergeRegions.add(region);
+        });
     }
 
     private static List<RawCellInput> requireCells(List<RawCellInput> cells) {
@@ -611,6 +653,31 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // trailing cells empty, too many would grow the table, so the count must match the table dimension exactly.
         if (cells.size() != limit) {
             throw new BadRequestException(messageKey, new Object[]{cells.size(), limit});
+        }
+    }
+
+    private static int requireRectangularRange(List<List<RawCellInput>> cells) {
+        int rangeWidth = cells.get(0).size();
+        boolean uneven = cells.stream().anyMatch(rowCells -> rowCells.size() != rangeWidth);
+        if (uneven || rangeWidth == 0) {
+            throw new BadRequestException("table.action.range.not-rectangular.message");
+        }
+        return rangeWidth;
+    }
+
+    private static void requireRangeMultiCell(int rangeHeight, int rangeWidth) {
+        // A single cell is the cell update's job; a range must cover more than one cell.
+        if (rangeHeight == 1 && rangeWidth == 1) {
+            throw new BadRequestException("table.action.range.single-cell.message");
+        }
+    }
+
+    private static void requireRangeInBounds(int row, int column, int rangeHeight, int rangeWidth,
+                                             int height, int width) {
+        // Span subtraction (not row + rangeHeight) keeps the bounds check safe from int overflow on huge ranges.
+        if (row < 0 || column < 0 || rangeHeight > height - row || rangeWidth > width - column) {
+            throw new BadRequestException("table.action.range.out-of-bounds.message",
+                    new Object[]{row, column, rangeHeight, rangeWidth, height - 1, width - 1});
         }
     }
 

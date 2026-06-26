@@ -20946,6 +20946,48 @@ Content-Type: application/json
           "position"
         ]
       },
+      "UpdateRange": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
+                },
+                "minItems": 1
+              },
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 0
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 0
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "cells",
+          "column",
+          "row"
+        ]
+      },
       "UpdateRow": {
         "type": "object",
         "allOf": [
@@ -20984,6 +21026,7 @@ Content-Type: application/json
           "mapping": {
             "cell": "#/components/schemas/UpdateCell",
             "column": "#/components/schemas/UpdateColumn",
+            "range": "#/components/schemas/UpdateRange",
             "row": "#/components/schemas/UpdateRow"
           },
           "propertyName": "type"
@@ -20997,6 +21040,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/UpdateCell"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateRange"
           }
         ],
         "properties": {
