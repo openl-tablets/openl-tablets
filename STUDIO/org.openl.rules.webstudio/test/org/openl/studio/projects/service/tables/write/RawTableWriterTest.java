@@ -167,6 +167,56 @@ class RawTableWriterTest {
     }
 
     @Test
+    void updatesRange() {
+        // overwrite the 2x2 block at (1,1) in place; the table keeps its size and neighbours are untouched
+        apply(updateRange(1, 1, List.of(row("X1", "X2"), row("Y1", "Y2"))));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        assertEquals(3, width(source));
+        assertEquals("X1", value(source, 1, 1));
+        assertEquals("X2", value(source, 1, 2));
+        assertEquals("Y1", value(source, 2, 1));
+        assertEquals("Y2", value(source, 2, 2));
+        assertEquals("String", value(source, 1, 0));
+        assertEquals("int", value(source, 3, 0));
+    }
+
+    @Test
+    void rejectsRangeOutOfBounds() {
+        // a 3x3 block at (2,1) runs past the 4x3 table
+        assertThrows(BadRequestException.class,
+                () -> apply(updateRange(2, 1, List.of(row("a", "b", "c"), row("d", "e", "f"), row("g", "h", "i")))));
+    }
+
+    @Test
+    void rejectsSingleCellRange() {
+        // a 1x1 range is the cell update's job
+        assertThrows(BadRequestException.class,
+                () -> apply(updateRange(1, 1, List.of(row("x")))));
+    }
+
+    @Test
+    void rejectsRaggedRange() {
+        // rows of unequal length are not a rectangle
+        assertThrows(BadRequestException.class,
+                () -> apply(updateRange(1, 1, List.of(row("a", "b"), row("c")))));
+    }
+
+    @Test
+    void updateRangeClearsAStaleMerge() {
+        // merge the two stacked "String" cells, then overwrite that 2x1 block with plain cells
+        apply(merge(1, 0, 2, 1));
+        apply(updateRange(1, 0, List.of(row("p"), row("q"))));
+
+        var source = reload(mainProject);
+        assertNull(source.get(1).get(0).rowspan(), "stale merge must be cleared on a range update");
+        assertNull(source.get(2).get(0).covered());
+        assertEquals("p", value(source, 1, 0));
+        assertEquals("q", value(source, 2, 0));
+    }
+
+    @Test
     void appendsRowWithInlineMerge() {
         apply(appendRow(List.of(
                 new RawCellInput("MERGED", 2, null, null),
@@ -468,6 +518,10 @@ class RawTableWriterTest {
 
     private static RawTableSourceAction updateCell(int row, int column, Object value) {
         return new RawTableSourceAction.Update(new UpdateTarget.Cell(row, column, value));
+    }
+
+    private static RawTableSourceAction updateRange(int row, int column, List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Update(new UpdateTarget.Range(row, column, cells));
     }
 
     private static RawTableSourceAction merge(int row, int column, int rowspan, int colspan) {

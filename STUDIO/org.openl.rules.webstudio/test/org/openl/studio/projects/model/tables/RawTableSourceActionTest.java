@@ -61,6 +61,19 @@ class RawTableSourceActionTest {
     }
 
     @Test
+    void deserializesUpdateRange() throws Exception {
+        var action = read("{\"operation\":\"update\",\"target\":{\"type\":\"range\",\"row\":1,\"column\":2,"
+                + "\"cells\":[[{\"value\":\"a\"},{\"value\":\"b\"}],[{\"value\":\"c\"},{\"value\":\"d\"}]]}}");
+        var update = assertInstanceOf(RawTableSourceAction.Update.class, action);
+        var range = assertInstanceOf(UpdateTarget.Range.class, update.target());
+        assertEquals(1, range.row());
+        assertEquals(2, range.column());
+        assertEquals(2, range.cells().size());
+        assertEquals("a", range.cells().get(0).get(0).value());
+        assertEquals("d", range.cells().get(1).get(1).value());
+    }
+
+    @Test
     void deserializesMerge() throws Exception {
         var action = read("{\"operation\":\"merge\",\"target\":"
                 + "{\"type\":\"cells\",\"row\":1,\"column\":2,\"rowspan\":2,\"colspan\":3}}");
