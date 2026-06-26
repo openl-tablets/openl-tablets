@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.write;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -736,7 +737,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static int requireRectangularRange(List<List<RawCellInput>> cells) {
-        if (cells.stream().anyMatch(rowCells -> rowCells == null)) {
+        if (cells.stream().anyMatch(Objects::isNull)) {
             throw new BadRequestException("table.action.cells.required.message");
         }
         int rangeWidth = cells.get(0).size();
