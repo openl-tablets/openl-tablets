@@ -285,6 +285,12 @@ class RawTableWriterTest {
     }
 
     @Test
+    void rejectsAllBlankRange() {
+        // a range that blanks an entire row would split the table, like an all-empty updateRow
+        assertBadRequest(updateRange(1, 0, List.of(row(null, null, null))));
+    }
+
+    @Test
     void updateRangeClearsAStaleMerge() {
         // merge the two stacked "String" cells, then overwrite that 2x1 block with plain cells
         apply(merge(1, 0, 2, 1));

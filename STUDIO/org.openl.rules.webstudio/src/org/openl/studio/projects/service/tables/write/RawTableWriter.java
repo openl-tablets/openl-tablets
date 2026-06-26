@@ -420,6 +420,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         int rangeWidth = requireRectangularRange(cells);
         requireRangeMultiCell(rangeHeight, rangeWidth);
         requireRangeInBounds(row, column, rangeHeight, rangeWidth, height, width);
+        // A written row that becomes entirely blank would split the table, exactly as updateRow guards against;
+        // enforce it per row of the block.
+        cells.forEach(RawTableWriter::requireSomeContent);
         // Drop merges anchored in the block so a merge dropped from the new cells does not linger (as updateRow does).
         clearBlockMerges(developerView, row, column, rangeHeight, rangeWidth);
         writeBlock(developerView, row, column, cells, width, height);
