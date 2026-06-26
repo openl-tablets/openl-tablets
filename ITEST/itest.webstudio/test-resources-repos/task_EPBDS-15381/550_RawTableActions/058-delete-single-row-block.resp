@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.Min",
+      "message": "*",
+      "field": "target.count",
+      "rejectedValue": 1
+    }
+  ]
+}

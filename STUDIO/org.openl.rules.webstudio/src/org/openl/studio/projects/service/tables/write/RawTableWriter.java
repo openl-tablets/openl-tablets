@@ -245,6 +245,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         switch (target) {
             case AppendTarget.Row(var cells) -> appendRow(requireCells(cells));
             case AppendTarget.Column(var cells) -> appendColumn(requireCells(cells));
+            case AppendTarget.Rows(var cells) -> appendRows(cells);
+            case AppendTarget.Columns(var cells) -> appendColumns(cells);
         }
     }
 
@@ -261,6 +263,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         switch (target) {
             case DeleteTarget.Row(var position) -> deleteRow(position);
             case DeleteTarget.Column(var position) -> deleteColumn(position);
+            case DeleteTarget.Rows(var position, var count) -> deleteRows(position, count);
+            case DeleteTarget.Columns(var position, var count) -> deleteColumns(position, count);
         }
     }
 
@@ -367,6 +371,53 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         for (int i = 0; i < columns.size(); i++) {
             insertBlankColumns(developerView, position + i);
             writeColumn(developerView, position + i, columns.get(i), false);
+        }
+    }
+
+    private void appendRows(List<List<RawCellInput>> rows) {
+        var developerView = developerView();
+        requireMultiLine(rows);
+        int width = Tool.width(developerView.getRegion());
+        for (var row : rows) {
+            requireRowWidth(row, width);
+        }
+        // Writing past the last row grows the table by one, so each row extends the table in turn.
+        int startRow = Tool.height(developerView.getRegion());
+        for (int i = 0; i < rows.size(); i++) {
+            writeRow(developerView, startRow + i, rows.get(i), false);
+        }
+    }
+
+    private void appendColumns(List<List<RawCellInput>> columns) {
+        var developerView = developerView();
+        requireMultiLine(columns);
+        int height = Tool.height(developerView.getRegion());
+        for (var column : columns) {
+            requireColumnHeight(column, height);
+        }
+        int startColumn = Tool.width(developerView.getRegion());
+        for (int i = 0; i < columns.size(); i++) {
+            writeColumn(developerView, startColumn + i, columns.get(i), false);
+        }
+    }
+
+    private void deleteRows(int position, int count) {
+        var developerView = developerView();
+        requireBlockCount(count);
+        // The first row is the header; the block (position..position+count-1) must stay within the body.
+        requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
+        // Remove one row at a time at the same index: each removal shifts the rows below up into it.
+        for (int i = 0; i < count; i++) {
+            removeRows(developerView, 1, position);
+        }
+    }
+
+    private void deleteColumns(int position, int count) {
+        var developerView = developerView();
+        requireBlockCount(count);
+        requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
+        for (int i = 0; i < count; i++) {
+            removeColumns(developerView, 1, position);
         }
     }
 
@@ -716,6 +767,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static void requireMultiLine(List<List<RawCellInput>> lines) {
         // A single row or column is the row/column action's job; a block must hold more than one line.
         if (lines == null || lines.size() < 2) {
+            throw new BadRequestException("table.action.range.single-line.message");
+        }
+    }
+
+    private static void requireBlockCount(int count) {
+        // A single row or column is the row/column action's job; a block deletes more than one line.
+        if (count < 2) {
             throw new BadRequestException("table.action.range.single-line.message");
         }
     }

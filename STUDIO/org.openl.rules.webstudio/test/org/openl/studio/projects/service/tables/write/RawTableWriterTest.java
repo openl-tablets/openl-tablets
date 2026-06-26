@@ -164,6 +164,51 @@ class RawTableWriterTest {
     }
 
     @Test
+    void appendsRowsBlock() {
+        apply(appendRows(List.of(row("String", "g1", "x1"), row("String", "g2", "x2"))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals("g1", value(source, 4, 1));
+        assertEquals("g2", value(source, 5, 1));
+    }
+
+    @Test
+    void appendsColumnsBlock() {
+        apply(appendColumns(List.of(row("a", "b", "c", "d"), row("e", "f", "g", "h"))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals("a", value(source, 0, 3));
+        assertEquals("e", value(source, 0, 4));
+    }
+
+    @Test
+    void deletesRowsBlock() {
+        apply(deleteRows(1, 2));
+
+        var source = reload(mainProject);
+        assertEquals(2, source.size());
+        // rows 1-2 removed; the row that was at index 3 shifts up to 1
+        assertEquals("int", value(source, 1, 0));
+    }
+
+    @Test
+    void deletesColumnsBlock() {
+        apply(deleteColumns(1, 2));
+
+        var source = reload(mainProject);
+        assertEquals(1, width(source));
+        assertEquals("String", value(source, 1, 0));
+    }
+
+    @Test
+    void rejectsSingleLineDeleteBlock() {
+        // a one-row block is the delete-row action's job
+        assertThrows(BadRequestException.class, () -> apply(deleteRows(1, 1)));
+    }
+
+    @Test
     void deletesColumn() {
         apply(deleteColumn(2));
 
@@ -532,6 +577,14 @@ class RawTableWriterTest {
         return new RawTableSourceAction.Append(new AppendTarget.Column(cells));
     }
 
+    private static RawTableSourceAction appendRows(List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Append(new AppendTarget.Rows(cells));
+    }
+
+    private static RawTableSourceAction appendColumns(List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Append(new AppendTarget.Columns(cells));
+    }
+
     private static RawTableSourceAction insertRow(int position, List<RawCellInput> cells) {
         return new RawTableSourceAction.Insert(new InsertTarget.Row(position, cells));
     }
@@ -554,6 +607,14 @@ class RawTableWriterTest {
 
     private static RawTableSourceAction deleteColumn(int position) {
         return new RawTableSourceAction.Delete(new DeleteTarget.Column(position));
+    }
+
+    private static RawTableSourceAction deleteRows(int position, int count) {
+        return new RawTableSourceAction.Delete(new DeleteTarget.Rows(position, count));
+    }
+
+    private static RawTableSourceAction deleteColumns(int position, int count) {
+        return new RawTableSourceAction.Delete(new DeleteTarget.Columns(position, count));
     }
 
     private static RawTableSourceAction updateRow(int position, List<RawCellInput> cells) {

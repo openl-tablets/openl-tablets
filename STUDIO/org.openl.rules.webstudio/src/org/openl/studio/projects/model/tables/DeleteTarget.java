@@ -15,9 +15,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DeleteTarget.Row.class, name = "row"),
-        @JsonSubTypes.Type(value = DeleteTarget.Column.class, name = "column")
+        @JsonSubTypes.Type(value = DeleteTarget.Column.class, name = "column"),
+        @JsonSubTypes.Type(value = DeleteTarget.Rows.class, name = "rows"),
+        @JsonSubTypes.Type(value = DeleteTarget.Columns.class, name = "columns")
 })
-public sealed interface DeleteTarget permits DeleteTarget.Row, DeleteTarget.Column {
+public sealed interface DeleteTarget permits DeleteTarget.Row, DeleteTarget.Column, DeleteTarget.Rows,
+        DeleteTarget.Columns {
 
     @Schema(name = "DeleteRow", description = "Deletes the row at the given position, shifting the rows below it up. "
             + "The header row (position 0) cannot be deleted.")
@@ -35,6 +38,33 @@ public sealed interface DeleteTarget permits DeleteTarget.Row, DeleteTarget.Colu
             @NotNull
             @Min(1)
             Integer position) implements DeleteTarget {
+    }
+
+    @Schema(name = "DeleteRows", description = "Deletes a block of rows starting at the given position, shifting the "
+            + "rows below the block up. The block must cover more than one row and stay within the body.")
+    record Rows(
+            @Schema(description = "0-based index of the first body row to delete (1..height-1).")
+            @NotNull
+            @Min(1)
+            Integer position,
+            @Schema(description = "Number of rows to delete (>= 2).")
+            @NotNull
+            @Min(2)
+            Integer count) implements DeleteTarget {
+    }
+
+    @Schema(name = "DeleteColumns", description = "Deletes a block of columns starting at the given position, shifting "
+            + "the columns to the right of the block left. The block must cover more than one column and stay within "
+            + "the body.")
+    record Columns(
+            @Schema(description = "0-based index of the first column to delete (1..width-1).")
+            @NotNull
+            @Min(1)
+            Integer position,
+            @Schema(description = "Number of columns to delete (>= 2).")
+            @NotNull
+            @Min(2)
+            Integer count) implements DeleteTarget {
     }
 
 }

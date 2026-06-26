@@ -49,6 +49,24 @@ class RawTableSourceActionTest {
     }
 
     @Test
+    void deserializesAppendRowsBlock() throws Exception {
+        var action = read("{\"operation\":\"append\",\"target\":{\"type\":\"rows\","
+                + "\"cells\":[[{\"value\":\"a\"}],[{\"value\":\"b\"}]]}}");
+        var append = assertInstanceOf(RawTableSourceAction.Append.class, action);
+        var rows = assertInstanceOf(AppendTarget.Rows.class, append.target());
+        assertEquals(2, rows.cells().size());
+    }
+
+    @Test
+    void deserializesDeleteRowsBlock() throws Exception {
+        var action = read("{\"operation\":\"delete\",\"target\":{\"type\":\"rows\",\"position\":2,\"count\":3}}");
+        var delete = assertInstanceOf(RawTableSourceAction.Delete.class, action);
+        var rows = assertInstanceOf(DeleteTarget.Rows.class, delete.target());
+        assertEquals(2, rows.position());
+        assertEquals(3, rows.count());
+    }
+
+    @Test
     void deserializesDeleteRow() throws Exception {
         var action = read("{\"operation\":\"delete\",\"target\":{\"type\":\"row\",\"position\":2}}");
         var delete = assertInstanceOf(RawTableSourceAction.Delete.class, action);
