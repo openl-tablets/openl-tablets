@@ -5,11 +5,12 @@ Content-Type: application/json
   "message": "Bad Request",
   "fields": [
     {
-      "code": "openl.error.CellValueConstraint",
+      "code": "openl.error.RawTableHeaderConstraint",
       "message": "*",
-      "field": "source[0][1].value",
+      "field": "table",
       "rejectedValue": {
-        "foo": "bar"
+        "tableType": "RawSource",
+        "source": [[{"value": "NotATableType"}]]
       }
     }
   ]

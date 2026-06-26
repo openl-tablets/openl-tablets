@@ -19,6 +19,7 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IModuleInfo;
@@ -68,6 +69,28 @@ public final class XlsHelper {
         tableHeaders.put(IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString());
 
         TABLE_HEADERS = Collections.unmodifiableMap(tableHeaders);
+    }
+
+    /**
+     * Tells whether {@code header} starts with a keyword OpenL recognizes as a table type.
+     * <p>
+     * OpenL identifies a table by the first token of its top-left cell. When that token names no known table type
+     * (for example {@code Rules}, {@code Datatype} or {@code Spreadsheet}), the table is treated as
+     * {@link XlsNodeTypes#XLS_OTHER} and is never compiled. Use this to reject such a header before the table is saved.
+     *
+     * @param header the full text of the table's first cell; may be {@code null}
+     * @return {@code true} when the first token names a known table type
+     */
+    public static boolean isKnownTableHeader(String header) {
+        if (header == null) {
+            return false;
+        }
+        try {
+            IdentifierNode token = Tokenizer.firstToken(new StringSourceCodeModule(header, null), " \n\r");
+            return TABLE_HEADERS.containsKey(token.getIdentifier());
+        } catch (OpenLCompilationException e) {
+            return false;
+        }
     }
 
     public static String getModuleName(XlsModuleSyntaxNode node) {
