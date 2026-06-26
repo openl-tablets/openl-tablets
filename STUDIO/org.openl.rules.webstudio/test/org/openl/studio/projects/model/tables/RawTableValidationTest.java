@@ -81,4 +81,14 @@ class RawTableValidationTest {
                 .build();
         assertTrue(validator.validate(view).isEmpty(), "a recognized header is accepted");
     }
+
+    @Test
+    void rejectsBlankHeaderCell() {
+        // a present top-left cell whose value is null is no recognized header, even with content next to it
+        var view = RawTableView.builder()
+                .source(List.of(List.of(RawTableCell.builder().value(null).build(),
+                        RawTableCell.builder().value("x").build())))
+                .build();
+        assertEquals(1, validator.validate(view).size(), "a blank header cell is rejected");
+    }
 }
