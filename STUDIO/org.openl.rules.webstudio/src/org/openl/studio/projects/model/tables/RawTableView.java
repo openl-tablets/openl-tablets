@@ -40,6 +40,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @JsonDeserialize(builder = RawTableView.Builder.class)
 @JsonIgnoreProperties("properties")
+@RawTableHeaderConstraint
 public class RawTableView extends TableView implements EditableTableView {
 
     public static final String TABLE_TYPE = "RawSource";

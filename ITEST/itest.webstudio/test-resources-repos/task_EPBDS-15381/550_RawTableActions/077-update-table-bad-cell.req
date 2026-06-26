@@ -2,4 +2,4 @@ PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzM
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
-{"tableType":"RawSource","source":[[{"value":{"foo":"bar"}}]]}
+{"tableType":"RawSource","source":[[{"value":"Datatype"},{"value":{"foo":"bar"}}]]}

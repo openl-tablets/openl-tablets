@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that bean validation cascades into every cell of the raw create/update ({@link RawTableView}) and
- * append ({@link RawTableAppend}) models, and that an empty matrix is rejected.
+ * append ({@link RawTableAppend}) models, that an empty matrix is rejected, and that a create/update header must
+ * name a table type OpenL recognizes.
  */
 class RawTableValidationTest {
 
@@ -34,8 +35,11 @@ class RawTableValidationTest {
     }
 
     private static RawTableView rawTable(Object cellValue) {
+        // a recognized header in the first cell keeps these cases focused on cell-value validation, not the header
         return RawTableView.builder()
-                .source(List.of(List.of(RawTableCell.builder().value(cellValue).build())))
+                .source(List.of(List.of(
+                        RawTableCell.builder().value("Datatype").build(),
+                        RawTableCell.builder().value(cellValue).build())))
                 .build();
     }
 
@@ -60,5 +64,21 @@ class RawTableValidationTest {
         var append = new RawTableAppend();
         append.setRows(List.of(List.of(RawTableCell.builder().value(List.of(1, 2)).build())));
         assertEquals(1, validator.validate(append).size(), "a JSON array cell value is rejected");
+    }
+
+    @Test
+    void rejectsUnrecognizedHeader() {
+        var view = RawTableView.builder()
+                .source(List.of(List.of(RawTableCell.builder().value("NotATableType").build())))
+                .build();
+        assertEquals(1, validator.validate(view).size(), "a header OpenL does not recognize is rejected");
+    }
+
+    @Test
+    void acceptsRecognizedHeader() {
+        var view = RawTableView.builder()
+                .source(List.of(List.of(RawTableCell.builder().value("Datatype Greeting").build())))
+                .build();
+        assertTrue(validator.validate(view).isEmpty(), "a recognized header is accepted");
     }
 }
