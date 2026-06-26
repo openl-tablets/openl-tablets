@@ -31,7 +31,7 @@ Content-Type: application/json
     ],
     [
       {
-        "value": " min <= hour  and  hour < max",
+        "value": "min <= hour  and  hour < max",
         "colspan": 2
       },
       {
