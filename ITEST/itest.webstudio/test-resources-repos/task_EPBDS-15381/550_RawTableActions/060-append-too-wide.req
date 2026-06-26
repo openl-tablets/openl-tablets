@@ -5,23 +5,25 @@ Content-Type: application/json
 {
   "operation": "append",
   "target": {
-    "type": "row",
+    "type": "rows",
     "cells": [
-      {
-        "value": "a"
-      },
-      {
-        "value": "b"
-      },
-      {
-        "value": "c"
-      },
-      {
-        "value": "d"
-      },
-      {
-        "value": "e"
-      }
+      [
+        {
+          "value": "a"
+        },
+        {
+          "value": "b"
+        },
+        {
+          "value": "c"
+        },
+        {
+          "value": "d"
+        },
+        {
+          "value": "e"
+        }
+      ]
     ]
   }
 }

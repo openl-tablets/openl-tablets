@@ -150,13 +150,6 @@ class RawTableWriterTest {
     }
 
     @Test
-    void rejectsSingleRowBlock() {
-        // a one-row block is the insert-row action's job
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRows(1, List.of(row("a", "b", "c")))));
-    }
-
-    @Test
     void rejectsRowBlockNotMatchingWidth() {
         // each row of the block must be as wide as the table
         assertThrows(BadRequestException.class,
@@ -200,12 +193,6 @@ class RawTableWriterTest {
         var source = reload(mainProject);
         assertEquals(1, width(source));
         assertEquals("String", value(source, 1, 0));
-    }
-
-    @Test
-    void rejectsSingleLineDeleteBlock() {
-        // a one-row block is the delete-row action's job
-        assertThrows(BadRequestException.class, () -> apply(deleteRows(1, 1)));
     }
 
     @Test
@@ -445,8 +432,16 @@ class RawTableWriterTest {
 
     @Test
     void rejectsEmptyCells() {
+        // an empty block (no lines) is rejected
         assertThrows(BadRequestException.class,
-                () -> apply(appendRow(List.of())));
+                () -> apply(appendRows(List.of())));
+    }
+
+    @Test
+    void rejectsEmptyUpdateCells() {
+        // an empty cell list for a row update is rejected
+        assertThrows(BadRequestException.class,
+                () -> apply(updateRow(1, List.of())));
     }
 
     @Test
@@ -567,14 +562,15 @@ class RawTableWriterTest {
                 .toList();
     }
 
-    // Thin factories so the call sites read clearly despite the operation/target split.
+    // Thin factories so the call sites read clearly. The single-line helpers wrap one line into a one-line block, so
+    // the existing single-line tests now exercise the block variants.
 
     private static RawTableSourceAction appendRow(List<RawCellInput> cells) {
-        return new RawTableSourceAction.Append(new AppendTarget.Row(cells));
+        return appendRows(List.of(cells));
     }
 
     private static RawTableSourceAction appendColumn(List<RawCellInput> cells) {
-        return new RawTableSourceAction.Append(new AppendTarget.Column(cells));
+        return appendColumns(List.of(cells));
     }
 
     private static RawTableSourceAction appendRows(List<List<RawCellInput>> cells) {
@@ -586,11 +582,11 @@ class RawTableWriterTest {
     }
 
     private static RawTableSourceAction insertRow(int position, List<RawCellInput> cells) {
-        return new RawTableSourceAction.Insert(new InsertTarget.Row(position, cells));
+        return insertRows(position, List.of(cells));
     }
 
     private static RawTableSourceAction insertColumn(int position, List<RawCellInput> cells) {
-        return new RawTableSourceAction.Insert(new InsertTarget.Column(position, cells));
+        return insertColumns(position, List.of(cells));
     }
 
     private static RawTableSourceAction insertRows(int position, List<List<RawCellInput>> cells) {
@@ -602,11 +598,11 @@ class RawTableWriterTest {
     }
 
     private static RawTableSourceAction deleteRow(int position) {
-        return new RawTableSourceAction.Delete(new DeleteTarget.Row(position));
+        return deleteRows(position, 1);
     }
 
     private static RawTableSourceAction deleteColumn(int position) {
-        return new RawTableSourceAction.Delete(new DeleteTarget.Column(position));
+        return deleteColumns(position, 1);
     }
 
     private static RawTableSourceAction deleteRows(int position, int count) {

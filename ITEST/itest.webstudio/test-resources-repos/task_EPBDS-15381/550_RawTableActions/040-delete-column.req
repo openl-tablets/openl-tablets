@@ -5,7 +5,8 @@ Content-Type: application/json
 {
   "operation": "delete",
   "target": {
-    "type": "column",
-    "position": 2
+    "type": "columns",
+    "position": 2,
+    "count": 1
   }
 }
