@@ -372,13 +372,14 @@ class RawTableWriterTest {
     void updateRowClearsAStaleMerge() {
         // merge the two leftmost cells of the header row, then overwrite that row with plain (merge-free) cells
         apply(merge(0, 0, 1, 2));
-        apply(updateRow(0, row("p", "q", "r")));
+        // keep a recognized keyword in the header cell so the action does not invalidate the table
+        apply(updateRow(0, row("Datatype", "q", "r")));
 
         var source = reload(mainProject);
         // the merge dropped from the new cells must not linger, and the row holds the new values
         assertNull(source.get(0).get(0).colspan(), "stale merge must be cleared on update");
         assertNull(source.get(0).get(1).covered());
-        assertEquals("p", value(source, 0, 0));
+        assertEquals("Datatype", value(source, 0, 0));
         assertEquals("q", value(source, 0, 1));
         assertEquals("r", value(source, 0, 2));
     }
@@ -442,6 +443,31 @@ class RawTableWriterTest {
         // an empty cell list for a row update is rejected
         assertThrows(BadRequestException.class,
                 () -> apply(updateRow(1, List.of())));
+    }
+
+    @Test
+    void rejectsAllEmptyWrittenLine() {
+        // a fully blank inserted/appended line would become a table-splitting blank line
+        assertThrows(BadRequestException.class,
+                () -> apply(insertRows(1, List.of(row(null, null, null)))));
+        assertThrows(BadRequestException.class,
+                () -> apply(appendRow(row("", "", ""))));
+    }
+
+    @Test
+    void rejectsNullLineInBlock() {
+        // a null row inside a block is rejected with 400, not a NullPointerException (500)
+        assertThrows(BadRequestException.class,
+                () -> apply(insertRows(1, Arrays.asList(row("a", "b", "c"), null))));
+        assertThrows(BadRequestException.class,
+                () -> apply(updateRange(1, 1, Arrays.asList(row("a", "b"), null))));
+    }
+
+    @Test
+    void rejectsActionThatBreaksTheHeader() {
+        // an action that rewrites the header to an unrecognized keyword is rejected (mirrors create/update validation)
+        assertThrows(BadRequestException.class,
+                () -> apply(updateCell(0, 0, "NotATableType")));
     }
 
     @Test
