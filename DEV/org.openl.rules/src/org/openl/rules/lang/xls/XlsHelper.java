@@ -30,6 +30,9 @@ public final class XlsHelper {
     private XlsHelper() {
     }
 
+    /** Delimiters that split a table header into tokens: space, newline and carriage return. */
+    private static final String TOKEN_DELIMITERS = " \n\r";
+
     private static final Map<String, String> TABLE_HEADERS;
 
     static {
@@ -86,7 +89,7 @@ public final class XlsHelper {
             return false;
         }
         try {
-            IdentifierNode token = Tokenizer.firstToken(new StringSourceCodeModule(header, null), " \n\r");
+            IdentifierNode token = Tokenizer.firstToken(new StringSourceCodeModule(header, null), TOKEN_DELIMITERS);
             return TABLE_HEADERS.containsKey(token.getIdentifier());
         } catch (OpenLCompilationException e) {
             return false;
@@ -129,9 +132,9 @@ public final class XlsHelper {
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table,
                                                         XlsSheetSourceCodeModule source) throws OpenLCompilationException {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
-        IdentifierNode[] headerTokens = Tokenizer.tokenize(src, " \n\r");
+        IdentifierNode[] headerTokens = Tokenizer.tokenize(src, TOKEN_DELIMITERS);
         if (headerTokens.length == 0) {
-            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, " \n\r")};
+            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, TOKEN_DELIMITERS)};
         }
         IdentifierNode headerToken = headerTokens[0];
         String header = headerTokens[0].getIdentifier();
