@@ -1640,6 +1640,7 @@
                         </excludes>
                         <sortPom>
                             <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
                         </sortPom>
                     </pom>
                     <formats>

@@ -11,7 +11,7 @@
     <packaging>openl</packaging>
     <name>Manifest Generation: No Manifest</name>
 
-    <organization/>
+    <organization />
 
     <build>
         <plugins>

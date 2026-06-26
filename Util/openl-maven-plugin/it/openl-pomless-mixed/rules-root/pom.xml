@@ -56,7 +56,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <target>
-                                <echo message="ANCHOR-PLUGIN ran on artifact=${project.artifactId} group=${project.groupId}"/>
+                                <echo message="ANCHOR-PLUGIN ran on artifact=${project.artifactId} group=${project.groupId}" />
                             </target>
                         </configuration>
                     </execution>
