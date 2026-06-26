@@ -468,6 +468,18 @@ class RawTableWriterTest {
     }
 
     @Test
+    void rejectsAllCoveredWrittenLine() {
+        // a line of only covered placeholders writes nothing: the writer skips covered cells, so an append is a no-op
+        // and an insert leaves a table-splitting blank line. At least one non-covered value/span cell is required.
+        var allCovered = List.of(
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true));
+        assertThrows(BadRequestException.class, () -> apply(appendRow(allCovered)));
+        assertThrows(BadRequestException.class, () -> apply(insertRows(1, List.of(allCovered))));
+    }
+
+    @Test
     void rejectsNullLineInBlock() {
         // a null row inside a block is rejected with 400, not a NullPointerException (500)
         assertThrows(BadRequestException.class,

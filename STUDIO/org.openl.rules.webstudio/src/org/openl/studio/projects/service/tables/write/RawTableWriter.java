@@ -700,8 +700,11 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static void requireSomeContent(List<RawCellInput> cells) {
-        if (cells.stream().noneMatch(cell -> cell != null
-                && hasContent(cell.value(), cell.colspan(), cell.rowspan(), cell.covered()))) {
+        // A covered cell is skipped by the writer (its value lives in a merge origin outside this line), so a line of
+        // only covered placeholders writes nothing: an append no-op, or an inserted blank line that splits the table.
+        // Require at least one cell the writer will actually fill — a non-covered cell with a value or a span.
+        if (cells.stream().noneMatch(cell -> cell != null && !Boolean.TRUE.equals(cell.covered())
+                && hasWritableValueOrSpan(cell.value(), cell.colspan(), cell.rowspan()))) {
             throw new BadRequestException("table.action.line.all-empty.message");
         }
     }
@@ -710,21 +713,24 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (row == null) {
             throw new BadRequestException("table.action.cells.required.message");
         }
-        if (row.stream().noneMatch(cell -> cell != null
-                && hasContent(cell.value(), cell.colspan(), cell.rowspan(), cell.covered()))) {
+        // A covered cell counts here: in the full matrix it sits under a real merge declared by an origin cell in
+        // another row, which keeps the grid line non-blank.
+        if (row.stream().noneMatch(cell -> cell != null && (Boolean.TRUE.equals(cell.covered())
+                || hasWritableValueOrSpan(cell.value(), cell.colspan(), cell.rowspan())))) {
             throw new BadRequestException("table.action.line.all-empty.message");
         }
     }
 
     /**
-     * Tells whether a cell holds content. A line with no content at all becomes a blank line, which OpenL reads as a
-     * table boundary — it splits the table and drops every row beyond it. A cell counts as content when it carries a
-     * value, is covered by a merge, or spans one; a single blank cell among non-blank ones is fine.
+     * Tells whether the writer will put something in a cell that keeps its line from reading as blank: a non-blank
+     * value, or a span (colspan or rowspan greater than 1). A blank, span-less cell contributes nothing.
+     * <p>
+     * A line with no such cell becomes a blank line, which OpenL reads as a table boundary — it splits the table and
+     * drops every row beyond it. A single blank cell among non-blank ones is fine.
      */
-    private static boolean hasContent(Object value, Integer colspan, Integer rowspan, Boolean covered) {
+    private static boolean hasWritableValueOrSpan(Object value, Integer colspan, Integer rowspan) {
         boolean blankValue = value == null || (value instanceof String s && s.isBlank());
         return !blankValue
-                || Boolean.TRUE.equals(covered)
                 || (colspan != null && colspan > 1)
                 || (rowspan != null && rowspan > 1);
     }
