@@ -19,10 +19,12 @@ public class RawTableHeaderConstraintValidator implements ConstraintValidator<Ra
             return true; // an empty source is already reported by @NotEmpty
         }
         List<RawTableCell> firstRow = view.source.get(0);
-        if (firstRow == null || firstRow.isEmpty() || firstRow.get(0) == null) {
-            return true; // a missing header cell is a structural issue reported elsewhere
+        if (firstRow == null || firstRow.isEmpty()) {
+            return true; // an empty first row is a structural issue reported by other constraints
         }
-        Object value = firstRow.get(0).value();
+        // A null cell or a null/blank value at the top-left is no header at all; isKnownTableHeader(null) rejects it.
+        RawTableCell headerCell = firstRow.get(0);
+        Object value = headerCell == null ? null : headerCell.value();
         return XlsHelper.isKnownTableHeader(value == null ? null : value.toString());
     }
 }
