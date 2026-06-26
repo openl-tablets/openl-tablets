@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
@@ -116,6 +117,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // Phase 1: Write all cell values and track merge regions
         for (int row = 0; row < maxSourceRow; row++) {
             List<RawTableCell> rowCells = tableView.source.get(row);
+            requireWritableRow(rowCells);
             for (int col = 0; col < rowCells.size(); col++) {
                 RawTableCell cell = rowCells.get(col);
                 if (cell == null || Boolean.TRUE.equals(cell.covered())) {
@@ -171,6 +173,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         int tableColumns = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER).getWidth();
         for (var row : tableAppend.getRows()) {
+            requireWritableRow(row);
             requireColumnsWithinTable(row.size(), tableColumns);
         }
         try {
@@ -223,11 +226,25 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         try {
             table.getGridTable().edit();
+            // An action must not turn a recognized table into one OpenL cannot parse (an unknown header) — that would
+            // bypass the create/update header check and leave an invisible table. A table whose header was already
+            // unrecognized may still be edited freely.
+            boolean headerWasKnown = XlsHelper.isKnownTableHeader(currentHeader());
             dispatch(action);
+            if (headerWasKnown && !XlsHelper.isKnownTableHeader(currentHeader())) {
+                throw new BadRequestException("table.header.unrecognized.message");
+            }
             save();
         } finally {
             table.getGridTable().stopEditing();
         }
+    }
+
+    private String currentHeader() {
+        var developerView = developerView();
+        var region = developerView.getRegion();
+        var cell = developerView.getGrid().getCell(region.getLeft(), region.getTop());
+        return cell == null ? null : cell.getStringValue();
     }
 
     private void dispatch(RawTableSourceAction action) {
@@ -264,8 +281,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void update(UpdateTarget target) {
         switch (target) {
-            case UpdateTarget.Row(var position, var cells) -> updateRow(position, requireCells(cells));
-            case UpdateTarget.Column(var position, var cells) -> updateColumn(position, requireCells(cells));
+            case UpdateTarget.Row(var position, var cells) -> updateRow(position, requireNotEmpty(cells));
+            case UpdateTarget.Column(var position, var cells) -> updateColumn(position, requireNotEmpty(cells));
             case UpdateTarget.Cell(var row, var column, var value) -> updateCell(row, column, value);
             case UpdateTarget.Range(var row, var column, var cells) -> updateRange(row, column, cells);
         }
@@ -288,7 +305,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var developerView = developerView();
         // The first row is the header; a new row goes at index 1..height (height appends to the end).
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
-        requireLines(rows);
+        requireNotEmpty(rows);
         int width = Tool.width(developerView.getRegion());
         for (var row : rows) {
             requireRowWidth(row, width);
@@ -305,7 +322,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var developerView = developerView();
         // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
         requirePosition(position, 1, Tool.width(developerView.getRegion()));
-        requireLines(columns);
+        requireNotEmpty(columns);
         int height = Tool.height(developerView.getRegion());
         for (var column : columns) {
             requireColumnHeight(column, height);
@@ -319,7 +336,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void appendRows(List<List<RawCellInput>> rows) {
         var developerView = developerView();
-        requireLines(rows);
+        requireNotEmpty(rows);
         int width = Tool.width(developerView.getRegion());
         for (var row : rows) {
             requireRowWidth(row, width);
@@ -333,7 +350,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void appendColumns(List<List<RawCellInput>> columns) {
         var developerView = developerView();
-        requireLines(columns);
+        requireNotEmpty(columns);
         int height = Tool.height(developerView.getRegion());
         for (var column : columns) {
             requireColumnHeight(column, height);
@@ -348,18 +365,14 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var developerView = developerView();
         // The first row is the header; the block (position..position+count-1) must stay within the body.
         requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
-        // Remove one row at a time at the same index: each removal shifts the rows below up into it.
-        for (int i = 0; i < count; i++) {
-            removeRows(developerView, 1, position);
-        }
+        // Removing the block shifts the rows below it up; the grid action resizes any merge spanning the block.
+        removeRows(developerView, count, position);
     }
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
         requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
-        for (int i = 0; i < count; i++) {
-            removeColumns(developerView, 1, position);
-        }
+        removeColumns(developerView, count, position);
     }
 
     private void updateRow(int position, List<RawCellInput> cells) {
@@ -390,7 +403,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void updateRange(int row, int column, List<List<RawCellInput>> cells) {
-        requireLines(cells);
+        requireNotEmpty(cells);
         var developerView = developerView();
         int height = Tool.height(developerView.getRegion());
         int width = Tool.width(developerView.getRegion());
@@ -417,11 +430,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void clearBlockMerges(IGridTable developerView, int top, int left, int rangeHeight, int rangeWidth) {
         var tableRegion = developerView.getRegion();
-        var blockRegion = new GridRegion(tableRegion.getTop() + top, tableRegion.getLeft() + left,
-                tableRegion.getTop() + top + rangeHeight - 1, tableRegion.getLeft() + left + rangeWidth - 1);
-        var action = new RemoveMergedRegionsAction(blockRegion);
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop() + top, tableRegion.getLeft() + left,
+                tableRegion.getTop() + top + rangeHeight - 1, tableRegion.getLeft() + left + rangeWidth - 1));
     }
 
     private void mergeCells(int row, int column, int rowspan, int colspan) {
@@ -490,9 +500,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                     new Object[]{row, column});
         }
         // Remove exactly the found merge through the undoable action (consistent with the rest of the writer).
-        var action = new RemoveMergedRegionsAction(merged);
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        removeMergedRegionsIn(developerView, merged);
     }
 
     /**
@@ -507,7 +515,14 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                         tableRegion.getTop() + index, tableRegion.getRight())
                 : new GridRegion(tableRegion.getTop(), tableRegion.getLeft() + index,
                         tableRegion.getBottom(), tableRegion.getLeft() + index);
-        var action = new RemoveMergedRegionsAction(lineRegion);
+        removeMergedRegionsIn(developerView, lineRegion);
+    }
+
+    /**
+     * Runs an undoable removal of the merged regions intersecting {@code region} and queues it for save.
+     */
+    private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
+        var action = new RemoveMergedRegionsAction(region);
         action.doAction(developerView);
         actionsQueue.addNewAction(action);
     }
@@ -583,11 +598,11 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         });
     }
 
-    private static List<RawCellInput> requireCells(List<RawCellInput> cells) {
-        if (cells == null || cells.isEmpty()) {
+    private static <T> List<T> requireNotEmpty(List<T> list) {
+        if (list == null || list.isEmpty()) {
             throw new BadRequestException("table.action.cells.required.message");
         }
-        return cells;
+        return list;
     }
 
     private static void requirePosition(int position, int minInclusive, int maxInclusive) {
@@ -665,14 +680,51 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static void requireLineLength(List<RawCellInput> cells, int limit, String messageKey) {
+        if (cells == null) {
+            throw new BadRequestException("table.action.cells.required.message");
+        }
         // A row must carry one cell per column and a column one cell per row. Too few cells would silently leave
         // trailing cells empty, too many would grow the table, so the count must match the table dimension exactly.
         if (cells.size() != limit) {
             throw new BadRequestException(messageKey, new Object[]{cells.size(), limit});
         }
+        requireSomeContent(cells);
+    }
+
+    private static void requireSomeContent(List<RawCellInput> cells) {
+        if (cells.stream().noneMatch(cell -> cell != null
+                && hasContent(cell.value(), cell.colspan(), cell.rowspan(), cell.covered()))) {
+            throw new BadRequestException("table.action.line.all-empty.message");
+        }
+    }
+
+    private static void requireWritableRow(List<RawTableCell> row) {
+        if (row == null) {
+            throw new BadRequestException("table.action.cells.required.message");
+        }
+        if (row.stream().noneMatch(cell -> cell != null
+                && hasContent(cell.value(), cell.colspan(), cell.rowspan(), cell.covered()))) {
+            throw new BadRequestException("table.action.line.all-empty.message");
+        }
+    }
+
+    /**
+     * Tells whether a cell holds content. A line with no content at all becomes a blank line, which OpenL reads as a
+     * table boundary — it splits the table and drops every row beyond it. A cell counts as content when it carries a
+     * value, is covered by a merge, or spans one; a single blank cell among non-blank ones is fine.
+     */
+    private static boolean hasContent(Object value, Integer colspan, Integer rowspan, Boolean covered) {
+        boolean blankValue = value == null || (value instanceof String s && s.isBlank());
+        return !blankValue
+                || Boolean.TRUE.equals(covered)
+                || (colspan != null && colspan > 1)
+                || (rowspan != null && rowspan > 1);
     }
 
     private static int requireRectangularRange(List<List<RawCellInput>> cells) {
+        if (cells.stream().anyMatch(rowCells -> rowCells == null)) {
+            throw new BadRequestException("table.action.cells.required.message");
+        }
         int rangeWidth = cells.get(0).size();
         boolean uneven = cells.stream().anyMatch(rowCells -> rowCells.size() != rangeWidth);
         if (uneven || rangeWidth == 0) {
@@ -694,12 +746,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (row < 0 || column < 0 || rangeHeight > height - row || rangeWidth > width - column) {
             throw new BadRequestException("table.action.range.out-of-bounds.message",
                     new Object[]{row, column, rangeHeight, rangeWidth, height - 1, width - 1});
-        }
-    }
-
-    private static void requireLines(List<List<RawCellInput>> lines) {
-        if (lines == null || lines.isEmpty()) {
-            throw new BadRequestException("table.action.cells.required.message");
         }
     }
 
