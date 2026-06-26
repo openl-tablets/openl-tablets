@@ -17,7 +17,7 @@
     "cytoscape-dagre": "^2.5.0",
     "dagre": "^0.8.5",
     "dompurify": "^3.4.11",
-    "i18next": "^26.3.1",
+    "i18next": "^26.3.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-i18next": "^17.0.8",
