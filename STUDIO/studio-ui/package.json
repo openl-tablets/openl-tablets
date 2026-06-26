@@ -33,7 +33,7 @@
     "@types/cytoscape": "^3.21.9",
     "@types/cytoscape-dagre": "^2.3.4",
     "@types/dagre": "^0.7.54",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.61.1",
