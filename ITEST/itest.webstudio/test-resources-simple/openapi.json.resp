@@ -15548,31 +15548,6 @@ Content-Type: application/json
           "target"
         ]
       },
-      "AppendColumn": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AppendTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "cells": {
-                "type": "array",
-                "description": "***",
-                "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
-                },
-                "minItems": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "cells"
-        ]
-      },
       "AppendColumns": {
         "type": "object",
         "allOf": [
@@ -15590,31 +15565,6 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawCellInput"
                   }
-                },
-                "minItems": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "cells"
-        ]
-      },
-      "AppendRow": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AppendTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "cells": {
-                "type": "array",
-                "description": "***",
-                "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
                 },
                 "minItems": 1
               }
@@ -15715,20 +15665,12 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "column": "#/components/schemas/AppendColumn",
             "columns": "#/components/schemas/AppendColumns",
-            "row": "#/components/schemas/AppendRow",
             "rows": "#/components/schemas/AppendRows"
           },
           "propertyName": "type"
         },
         "oneOf": [
-          {
-            "$ref": "#/components/schemas/AppendRow"
-          },
-          {
-            "$ref": "#/components/schemas/AppendColumn"
-          },
           {
             "$ref": "#/components/schemas/AppendRows"
           },
@@ -16459,29 +16401,6 @@ Content-Type: application/json
           "target"
         ]
       },
-      "DeleteColumn": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/DeleteTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "position": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "position"
-        ]
-      },
       "DeleteColumns": {
         "type": "object",
         "allOf": [
@@ -16495,7 +16414,7 @@ Content-Type: application/json
                 "type": "integer",
                 "format": "int32",
                 "description": "***",
-                "minimum": 2
+                "minimum": 1
               },
               "position": {
                 "type": "integer",
@@ -16512,29 +16431,6 @@ Content-Type: application/json
           "position"
         ]
       },
-      "DeleteRow": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/DeleteTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "position": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "position"
-        ]
-      },
       "DeleteRows": {
         "type": "object",
         "allOf": [
@@ -16548,7 +16444,7 @@ Content-Type: application/json
                 "type": "integer",
                 "format": "int32",
                 "description": "***",
-                "minimum": 2
+                "minimum": 1
               },
               "position": {
                 "type": "integer",
@@ -16569,20 +16465,12 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "column": "#/components/schemas/DeleteColumn",
             "columns": "#/components/schemas/DeleteColumns",
-            "row": "#/components/schemas/DeleteRow",
             "rows": "#/components/schemas/DeleteRows"
           },
           "propertyName": "type"
         },
         "oneOf": [
-          {
-            "$ref": "#/components/schemas/DeleteRow"
-          },
-          {
-            "$ref": "#/components/schemas/DeleteColumn"
-          },
           {
             "$ref": "#/components/schemas/DeleteRows"
           },
@@ -17037,38 +16925,6 @@ Content-Type: application/json
           "target"
         ]
       },
-      "InsertColumn": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/InsertTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "cells": {
-                "type": "array",
-                "description": "***",
-                "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
-                },
-                "minItems": 1
-              },
-              "position": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "cells",
-          "position"
-        ]
-      },
       "InsertColumns": {
         "type": "object",
         "allOf": [
@@ -17086,38 +16942,6 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawCellInput"
                   }
-                },
-                "minItems": 1
-              },
-              "position": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "cells",
-          "position"
-        ]
-      },
-      "InsertRow": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/InsertTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "cells": {
-                "type": "array",
-                "description": "***",
-                "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
                 },
                 "minItems": 1
               },
@@ -17175,20 +16999,12 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "column": "#/components/schemas/InsertColumn",
             "columns": "#/components/schemas/InsertColumns",
-            "row": "#/components/schemas/InsertRow",
             "rows": "#/components/schemas/InsertRows"
           },
           "propertyName": "type"
         },
         "oneOf": [
-          {
-            "$ref": "#/components/schemas/InsertRow"
-          },
-          {
-            "$ref": "#/components/schemas/InsertColumn"
-          },
           {
             "$ref": "#/components/schemas/InsertRows"
           },

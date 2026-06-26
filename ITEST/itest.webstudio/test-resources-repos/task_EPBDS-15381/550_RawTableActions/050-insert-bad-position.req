@@ -5,15 +5,17 @@ Content-Type: application/json
 {
   "operation": "insert",
   "target": {
-    "type": "row",
+    "type": "rows",
     "position": 9999,
     "cells": [
-      {
-        "value": "a"
-      },
-      {
-        "value": "b"
-      }
+      [
+        {
+          "value": "a"
+        },
+        {
+          "value": "b"
+        }
+      ]
     ]
   }
 }

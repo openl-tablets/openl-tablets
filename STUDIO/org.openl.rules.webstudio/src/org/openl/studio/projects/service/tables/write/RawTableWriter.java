@@ -243,8 +243,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void append(AppendTarget target) {
         switch (target) {
-            case AppendTarget.Row(var cells) -> appendRow(requireCells(cells));
-            case AppendTarget.Column(var cells) -> appendColumn(requireCells(cells));
             case AppendTarget.Rows(var cells) -> appendRows(cells);
             case AppendTarget.Columns(var cells) -> appendColumns(cells);
         }
@@ -252,8 +250,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void insert(InsertTarget target) {
         switch (target) {
-            case InsertTarget.Row(var position, var cells) -> insertRow(position, requireCells(cells));
-            case InsertTarget.Column(var position, var cells) -> insertColumn(position, requireCells(cells));
             case InsertTarget.Rows(var position, var cells) -> insertRows(position, cells);
             case InsertTarget.Columns(var position, var cells) -> insertColumns(position, cells);
         }
@@ -261,8 +257,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void delete(DeleteTarget target) {
         switch (target) {
-            case DeleteTarget.Row(var position) -> deleteRow(position);
-            case DeleteTarget.Column(var position) -> deleteColumn(position);
             case DeleteTarget.Rows(var position, var count) -> deleteRows(position, count);
             case DeleteTarget.Columns(var position, var count) -> deleteColumns(position, count);
         }
@@ -290,69 +284,17 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
     }
 
-    private void appendRow(List<RawCellInput> cells) {
-        var developerView = developerView();
-        requireRowWidth(cells, Tool.width(developerView.getRegion()));
-        // Writing past the last row grows the table by one row.
-        writeRow(developerView, Tool.height(developerView.getRegion()), cells, false);
-    }
-
-    private void insertRow(int position, List<RawCellInput> cells) {
+    private void insertRows(int position, List<List<RawCellInput>> rows) {
         var developerView = developerView();
         // The first row is the header; a new row goes at index 1..height (height appends to the end).
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
-        requireRowWidth(cells, Tool.width(developerView.getRegion()));
-        // Row insertion lands the blank after the given index, so insert after the preceding row.
-        insertBlankRows(developerView, position - 1);
-        writeRow(developerView, position, cells, false);
-    }
-
-    private void deleteRow(int position) {
-        var developerView = developerView();
-        int height = Tool.height(developerView.getRegion());
-        // The first row is the header; only body rows 1..height-1 may be deleted (symmetric with insertRow).
-        requirePosition(position, 1, height - 1);
-        requireDeletable(height);
-        // Remove exactly the requested row; GridTool resizes any merged regions that span it.
-        removeRows(developerView, 1, position);
-    }
-
-    private void appendColumn(List<RawCellInput> cells) {
-        var developerView = developerView();
-        requireColumnHeight(cells, Tool.height(developerView.getRegion()));
-        // Writing past the last column grows the table by one column.
-        writeColumn(developerView, Tool.width(developerView.getRegion()), cells, false);
-    }
-
-    private void insertColumn(int position, List<RawCellInput> cells) {
-        var developerView = developerView();
-        // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
-        requirePosition(position, 1, Tool.width(developerView.getRegion()));
-        requireColumnHeight(cells, Tool.height(developerView.getRegion()));
-        // Column insertion lands the blank at the given index (unlike row insertion, which lands it after the index).
-        insertBlankColumns(developerView, position);
-        writeColumn(developerView, position, cells, false);
-    }
-
-    private void deleteColumn(int position) {
-        var developerView = developerView();
-        int width = Tool.width(developerView.getRegion());
-        // The first column carries the leading labels; only columns 1..width-1 may be deleted (symmetric with insert).
-        requirePosition(position, 1, width - 1);
-        requireDeletable(width);
-        // Remove exactly the requested column; GridTool resizes any merged regions that span it.
-        removeColumns(developerView, 1, position);
-    }
-
-    private void insertRows(int position, List<List<RawCellInput>> rows) {
-        var developerView = developerView();
-        requirePosition(position, 1, Tool.height(developerView.getRegion()));
-        requireMultiLine(rows);
+        requireLines(rows);
         int width = Tool.width(developerView.getRegion());
         for (var row : rows) {
             requireRowWidth(row, width);
         }
         // Insert one row at a time: a single multi-row grid insert at the table's top boundary corrupts the region.
+        // Row insertion lands the blank after the given index, so insert after the preceding row.
         for (int i = 0; i < rows.size(); i++) {
             insertBlankRows(developerView, position - 1 + i);
             writeRow(developerView, position + i, rows.get(i), false);
@@ -361,13 +303,14 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void insertColumns(int position, List<List<RawCellInput>> columns) {
         var developerView = developerView();
+        // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
         requirePosition(position, 1, Tool.width(developerView.getRegion()));
-        requireMultiLine(columns);
+        requireLines(columns);
         int height = Tool.height(developerView.getRegion());
         for (var column : columns) {
             requireColumnHeight(column, height);
         }
-        // Insert one column at a time, mirroring the single-column path.
+        // Insert one column at a time. Column insertion lands the blank at the given index (unlike row insertion).
         for (int i = 0; i < columns.size(); i++) {
             insertBlankColumns(developerView, position + i);
             writeColumn(developerView, position + i, columns.get(i), false);
@@ -376,7 +319,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void appendRows(List<List<RawCellInput>> rows) {
         var developerView = developerView();
-        requireMultiLine(rows);
+        requireLines(rows);
         int width = Tool.width(developerView.getRegion());
         for (var row : rows) {
             requireRowWidth(row, width);
@@ -390,7 +333,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void appendColumns(List<List<RawCellInput>> columns) {
         var developerView = developerView();
-        requireMultiLine(columns);
+        requireLines(columns);
         int height = Tool.height(developerView.getRegion());
         for (var column : columns) {
             requireColumnHeight(column, height);
@@ -403,7 +346,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteRows(int position, int count) {
         var developerView = developerView();
-        requireBlockCount(count);
         // The first row is the header; the block (position..position+count-1) must stay within the body.
         requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
         // Remove one row at a time at the same index: each removal shifts the rows below up into it.
@@ -414,7 +356,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
-        requireBlockCount(count);
         requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
         for (int i = 0; i < count; i++) {
             removeColumns(developerView, 1, position);
@@ -449,9 +390,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void updateRange(int row, int column, List<List<RawCellInput>> cells) {
-        if (cells == null || cells.isEmpty()) {
-            throw new BadRequestException("table.action.cells.required.message");
-        }
+        requireLines(cells);
         var developerView = developerView();
         int height = Tool.height(developerView.getRegion());
         int width = Tool.width(developerView.getRegion());
@@ -658,12 +597,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
     }
 
-    private static void requireDeletable(int size) {
-        if (size <= 1) {
-            throw new BadRequestException("table.action.delete.last.message");
-        }
-    }
-
     private static void requireCellInBounds(IGridTable developerView, int row, int column) {
         int height = Tool.height(developerView.getRegion());
         int width = Tool.width(developerView.getRegion());
@@ -764,17 +697,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
     }
 
-    private static void requireMultiLine(List<List<RawCellInput>> lines) {
-        // A single row or column is the row/column action's job; a block must hold more than one line.
-        if (lines == null || lines.size() < 2) {
-            throw new BadRequestException("table.action.range.single-line.message");
-        }
-    }
-
-    private static void requireBlockCount(int count) {
-        // A single row or column is the row/column action's job; a block deletes more than one line.
-        if (count < 2) {
-            throw new BadRequestException("table.action.range.single-line.message");
+    private static void requireLines(List<List<RawCellInput>> lines) {
+        if (lines == null || lines.isEmpty()) {
+            throw new BadRequestException("table.action.cells.required.message");
         }
     }
 
