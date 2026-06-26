@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The resource an {@code update} operation overwrites: a row, a column or a single cell.
@@ -67,7 +68,7 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @Schema(description = "New cell value: a string, a number or a boolean. Null clears the cell.",
                     oneOf = {String.class, Number.class, Boolean.class})
             @CellValueConstraint
-            Object value) implements UpdateTarget {
+            @Nullable Object value) implements UpdateTarget {
     }
 
     @Schema(name = "UpdateRange", description = "Overwrites a rectangular block of cells in place, anchored at the "
