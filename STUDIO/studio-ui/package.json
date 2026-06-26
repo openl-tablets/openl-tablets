@@ -43,7 +43,7 @@
     "eslint": "^10.5.0",
     "eslint-plugin-perfectionist": "^5.9.1",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "globals": "^17.6.0",
+    "globals": "^17.7.0",
     "jsdom": "^29.1.1",
     "license-checker-rseidelsohn": "^5.0.1",
     "typescript": "^6.0.3",
