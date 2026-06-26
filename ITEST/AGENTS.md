@@ -22,6 +22,21 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.unpackClasspathJar** / **itest.unpackClasspathZip** — Classpath unpacking
 - **itest.ws-rest-rules-deploy** — REST rules deployment
 
+## Rebuilding the App Under Test
+
+ITEST serves the **exploded** webapp directory, not the `.war`: `itest.webstudio` →
+`STUDIO/org.openl.rules.webstudio/target/webapp`, `itest.WebService` →
+`WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`, both via embedded Jetty. ITEST does **not**
+rebuild STUDIO/WSFrontend — rebuild the module yourself before running a suite.
+
+- Use `mvn clean install -pl <module> -DskipTests -DnoPerf`. **`clean` is mandatory whenever you delete or
+  rename a class.** A plain `mvn install` is incremental: it overwrites changed `.class` files in
+  `target/webapp` but never deletes ones whose source is gone. A leftover non-permitted subclass of a
+  `sealed` interface (e.g. an old record variant) then breaks class loading and the app never starts.
+- Never `-Dquick` for the webapp — it omits runtime jars (e.g. `log4j-core`) and the app won't start.
+- **Symptom of a stale or broken webapp:** the run hangs far past its usual ~2 min with **zero** files
+  under `target/responses/`. The server isn't answering — kill it, rebuild with `clean`, re-run.
+
 ## Declarative HTTP Testing (*.req / *.resp)
 
 The **primary testing mechanism**. Instead of Java test code, define HTTP exchanges as file pairs.
