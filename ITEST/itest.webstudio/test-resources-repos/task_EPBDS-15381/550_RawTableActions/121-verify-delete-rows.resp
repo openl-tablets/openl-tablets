@@ -1,0 +1,109 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D10",
+  "source": [
+    [
+      {
+        "cell": "B4",
+        "value": "Rules String Greeting1 (Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "C1",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "D5",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "min <= hour  and  hour < max",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "D6",
+        "value": "greeting + \", World!\""
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Integer min"
+      },
+      {
+        "cell": "C7",
+        "value": "Integer max"
+      },
+      {
+        "cell": "D7",
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "From"
+      },
+      {
+        "cell": "C8",
+        "value": "To"
+      },
+      {
+        "cell": "D8",
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": 18
+      },
+      {
+        "cell": "C9",
+        "value": 22
+      },
+      {
+        "cell": "D9",
+        "value": "Good Evening"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": 22
+      },
+      {
+        "cell": "C10",
+        "value": 24
+      },
+      {
+        "cell": "D10",
+        "value": "Good Night"
+      }
+    ]
+  ]
+}
