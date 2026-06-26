@@ -17667,6 +17667,41 @@ Content-Type: application/json
           "position"
         ]
       },
+      "InsertColumns": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/InsertTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
+                },
+                "minItems": 1
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "cells",
+          "position"
+        ]
+      },
       "InsertRow": {
         "type": "object",
         "allOf": [
@@ -17699,12 +17734,49 @@ Content-Type: application/json
           "position"
         ]
       },
+      "InsertRows": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/InsertTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
+                },
+                "minItems": 1
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "cells",
+          "position"
+        ]
+      },
       "InsertTarget": {
         "type": "object",
         "discriminator": {
           "mapping": {
             "column": "#/components/schemas/InsertColumn",
-            "row": "#/components/schemas/InsertRow"
+            "columns": "#/components/schemas/InsertColumns",
+            "row": "#/components/schemas/InsertRow",
+            "rows": "#/components/schemas/InsertRows"
           },
           "propertyName": "type"
         },
@@ -17714,6 +17786,12 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/InsertColumn"
+          },
+          {
+            "$ref": "#/components/schemas/InsertRows"
+          },
+          {
+            "$ref": "#/components/schemas/InsertColumns"
           }
         ],
         "properties": {
