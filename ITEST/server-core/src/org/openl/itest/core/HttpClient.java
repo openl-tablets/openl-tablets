@@ -217,6 +217,18 @@ public class HttpClient implements AutoCloseable {
         }
     }
 
+    public void delete(String url, int status, String... headers) {
+        try {
+            var req = requestBuilder(url, headers)
+                    .DELETE()
+                    .build();
+            var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
+            assertEquals(status, resp.statusCode(), "URL :" + url);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * DO NOT MAKE THIS METHOD PUBLIC!!!
      * <p>
