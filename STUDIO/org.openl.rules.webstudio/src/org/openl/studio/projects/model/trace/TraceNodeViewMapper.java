@@ -28,6 +28,7 @@ import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
@@ -49,13 +50,16 @@ public class TraceNodeViewMapper {
     private final ObjectMapper objectMapper;
     private final SchemaGenerator schemaGenerator;
     private final TraceParameterRegistry parameterRegistry;
+    private final ProjectIdModel projectId;
 
     public TraceNodeViewMapper(ObjectMapper objectMapper,
                                SchemaGenerator schemaGenerator,
-                               TraceParameterRegistry parameterRegistry) {
+                               TraceParameterRegistry parameterRegistry,
+                               ProjectIdModel projectId) {
         this.objectMapper = objectMapper;
         this.schemaGenerator = schemaGenerator;
         this.parameterRegistry = parameterRegistry;
+        this.projectId = projectId;
     }
 
     public List<TraceNodeView> createSimpleNodes(Iterable<ITracerObject> children,
@@ -131,7 +135,7 @@ public class TraceNodeViewMapper {
                     .name(param.getName())
                     .description(type != null ? type.getDisplayName(INamedThing.SHORT) : null)
                     .lazy(true)
-                    .parameterId(parameterRegistry.register(param))
+                    .parameterId(parameterRegistry.register(projectId, param))
                     .schema(generateSchema(type))
                     .build();
         }

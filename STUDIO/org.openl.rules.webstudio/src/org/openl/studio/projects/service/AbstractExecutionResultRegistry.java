@@ -1,9 +1,10 @@
 package org.openl.studio.projects.service;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -16,8 +17,9 @@ import org.openl.util.RuntimeExceptionWrapper;
 /**
  * Abstract session-scoped registry for managing asynchronous execution tasks.
  * <p>
- * Holds at most one execution task at a time. When a new task is registered,
- * any previously running task is automatically cancelled to prevent resource exhaustion.
+ * Holds at most one execution task per project, so several projects opened in one session (parallel
+ * multi-project editing, multiple browser tabs) can run and keep their results independently. Registering a new
+ * task for a project cancels only that project's previous task.
  * </p>
  *
  * @param <T> the result type of the execution task
@@ -30,10 +32,10 @@ public abstract class AbstractExecutionResultRegistry<T> {
                             CompletableFuture<T> task) {
     }
 
-    private final AtomicReference<Entry<T>> ref = new AtomicReference<>();
+    private final Map<ProjectIdModel, Entry<T>> entries = new ConcurrentHashMap<>();
 
     /**
-     * Register a new task; cancels previous one if still running.
+     * Register a new task for a project; cancels that project's previous task if still running.
      *
      * @param projectId the project identifier (must not be null)
      * @param tableId   the table identifier (may be null)
@@ -45,30 +47,36 @@ public abstract class AbstractExecutionResultRegistry<T> {
         Objects.requireNonNull(projectId, "projectId");
         Objects.requireNonNull(task, "task");
 
-        Entry<T> previous = ref.getAndSet(new Entry<>(projectId, tableId, task));
-        if (previous != null && !previous.task.isDone()) {
-            previous.task.cancel(true);
-        }
+        cancel(entries.put(projectId, new Entry<>(projectId, tableId, task)));
     }
 
     /**
-     * Stop current task if running.
+     * Stop the given project's task if running, leaving other projects' tasks untouched.
      */
-    public void cancelIfAny() {
-        Entry<T> e = ref.get();
+    public void cancel(ProjectIdModel projectId) {
+        Entry<T> e = entries.get(projectId);
         if (e != null) {
             e.task().cancel(true);
         }
     }
 
     /**
-     * Clear the registry, releasing data from memory.
-     * Cancels the task if it's still running.
+     * Drop the given project's task, releasing its data from memory. Cancels it if still running.
+     */
+    public void clear(ProjectIdModel projectId) {
+        cancel(entries.remove(projectId));
+    }
+
+    /**
+     * Drop every project's task, releasing data from memory. Cancels any still running.
      */
     public void clear() {
-        Entry<T> e = ref.getAndSet(null);
-        if (e != null && !e.task().isDone()) {
-            e.task().cancel(true);
+        entries.keySet().forEach(this::clear);
+    }
+
+    private void cancel(Entry<T> entry) {
+        if (entry != null && !entry.task().isDone()) {
+            entry.task().cancel(true);
         }
     }
 
@@ -86,14 +94,13 @@ public abstract class AbstractExecutionResultRegistry<T> {
     }
 
     /**
-     * Check if the current task for the given project exists.
+     * Check if a task for the given project exists.
      *
      * @param projectId the project identifier
      * @return true if a task exists for this project
      */
     public boolean hasTask(ProjectIdModel projectId) {
-        Entry<T> e = ref.get();
-        return e != null && e.projectId().equals(projectId);
+        return entries.containsKey(projectId);
     }
 
     /**
@@ -103,8 +110,8 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * @return true if the task is completed
      */
     public boolean isDone(ProjectIdModel projectId) {
-        Entry<T> e = ref.get();
-        return e != null && e.projectId().equals(projectId) && e.task().isDone();
+        Entry<T> e = entries.get(projectId);
+        return e != null && e.task().isDone();
     }
 
     /**
@@ -115,8 +122,8 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * @return the result, or null
      */
     public T getResultIfDone(ProjectIdModel projectId) {
-        Entry<T> e = ref.get();
-        if (e == null || !e.projectId().equals(projectId)) {
+        Entry<T> e = entries.get(projectId);
+        if (e == null) {
             return null;
         }
 

@@ -117,7 +117,7 @@ public class ProjectsRunController {
 
         var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper(project, projectModel));
 
-        runResultRegistry.cancelIfAny();
+        runResultRegistry.cancel(projectId);
 
         var listener = listenerFactory.create(user, projectId, tableId);
         listener.onStatusChanged(ExecutionStatus.PENDING);
@@ -186,7 +186,7 @@ public class ProjectsRunController {
     @ApiResponse(responseCode = "204", description = "run.cancel.204.desc")
     @DeleteMapping
     public void cancelRun(@ProjectId @PathVariable("projectId") RulesProject project) {
-        runResultRegistry.clear();
+        runResultRegistry.clear(projectIdentifierMapper.map(project));
     }
 
     private SpreadsheetResultBeanPropertyNamingStrategy extractSpreadsheetNamingStrategy(RulesProject project,

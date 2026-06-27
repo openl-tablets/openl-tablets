@@ -12,6 +12,7 @@ import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.WorkspaceResetEvent;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 /**
  * Session-scoped registry for storing trace parameters for lazy loading.
@@ -22,9 +23,9 @@ import org.openl.rules.ui.WorkspaceResetEvent;
  * requests the full value.
  * </p>
  * <p>
- * The registry is session-scoped, meaning each user session has its own isolated
- * parameter storage. Parameters are cleared when a new trace execution starts or
- * when the trace is explicitly released.
+ * The registry is session-scoped but keeps parameters per project, so a trace started in one project does not
+ * drop the lazy-loadable parameters of another project traced in parallel (multiple browser tabs). IDs are
+ * unique within the session, so retrieval is by ID; cleanup is per project.
  * </p>
  */
 @Slf4j
@@ -32,18 +33,22 @@ import org.openl.rules.ui.WorkspaceResetEvent;
 @SessionScope
 public class TraceParameterRegistry {
 
+    private record Entry(ProjectIdModel projectId, ParameterWithValueDeclaration param) {
+    }
+
     private final AtomicInteger counter = new AtomicInteger(0);
-    private final Map<Integer, ParameterWithValueDeclaration> parameters = new ConcurrentHashMap<>();
+    private final Map<Integer, Entry> parameters = new ConcurrentHashMap<>();
 
     /**
-     * Registers a parameter and returns its unique ID.
+     * Registers a parameter for a project and returns its session-unique ID.
      *
-     * @param param the parameter to register
+     * @param projectId the owning project (for per-project cleanup)
+     * @param param     the parameter to register
      * @return unique ID for later retrieval
      */
-    public synchronized int register(ParameterWithValueDeclaration param) {
+    public int register(ProjectIdModel projectId, ParameterWithValueDeclaration param) {
         int id = counter.incrementAndGet();
-        parameters.put(id, param);
+        parameters.put(id, new Entry(projectId, param));
         return id;
     }
 
@@ -54,13 +59,23 @@ public class TraceParameterRegistry {
      * @return the parameter, or null if not found
      */
     public ParameterWithValueDeclaration get(int id) {
-        return parameters.get(id);
+        Entry entry = parameters.get(id);
+        return entry != null ? entry.param() : null;
+    }
+
+    /**
+     * Clears a single project's registered parameters.
+     *
+     * @param projectId the project whose parameters to drop
+     */
+    public void clear(ProjectIdModel projectId) {
+        parameters.values().removeIf(entry -> entry.projectId().equals(projectId));
     }
 
     /**
      * Clears all registered parameters.
      */
-    public synchronized void clear() {
+    public void clear() {
         parameters.clear();
         counter.set(0);
     }

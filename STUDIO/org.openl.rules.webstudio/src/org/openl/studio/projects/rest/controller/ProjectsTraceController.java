@@ -96,10 +96,10 @@ public class ProjectsTraceController {
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "trace.param.from-module.desc") String fromModule,
             @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
 
-        traceResultRegistry.cancelIfAny();
-        parameterRegistry.clear();
-
         var projectId = projectIdentifierMapper.map(project);
+        traceResultRegistry.cancel(projectId);
+        parameterRegistry.clear(projectId);
+
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
@@ -183,8 +183,9 @@ public class ProjectsTraceController {
     @ApiResponse(responseCode = "204", description = "trace.cancel.204.desc")
     @DeleteMapping
     public void cancelTrace(@ProjectId @PathVariable("projectId") RulesProject project) {
-        traceResultRegistry.clear();
-        parameterRegistry.clear();
+        var projectId = projectIdentifierMapper.map(project);
+        traceResultRegistry.clear(projectId);
+        parameterRegistry.clear(projectId);
     }
 
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")
@@ -251,8 +252,9 @@ public class ProjectsTraceController {
             }
         } finally {
             if (release) {
-                traceResultRegistry.clear();
-                parameterRegistry.clear();
+                var projectId = projectIdentifierMapper.map(project);
+                traceResultRegistry.clear(projectId);
+                parameterRegistry.clear(projectId);
             }
         }
     }
@@ -277,7 +279,8 @@ public class ProjectsTraceController {
     private TraceNodeViewMapper createMapper(RulesProject project, ProjectModel projectModel) {
         var objectMapper = configureObjectMapper(project, projectModel);
         var schemaGenerator = getSchemaGenerator(objectMapper);
-        return new TraceNodeViewMapper(objectMapper, schemaGenerator, parameterRegistry);
+        return new TraceNodeViewMapper(objectMapper, schemaGenerator, parameterRegistry,
+                projectIdentifierMapper.map(project));
     }
 
     private ObjectMapper configureObjectMapper(RulesProject project, ProjectModel projectModel) {

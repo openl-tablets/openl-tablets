@@ -13,6 +13,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -43,7 +44,9 @@ class GeneralProjectTraceReproTest {
 
         var objectMapper = new ObjectMapper();
         var schemaGenerator = new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper);
-        var mapper = new TraceNodeViewMapper(objectMapper, schemaGenerator, new TraceParameterRegistry());
+        var projectId = ProjectIdModel.builder().repository("design").projectName("Repro").build();
+        var mapper = new TraceNodeViewMapper(objectMapper, schemaGenerator, new TraceParameterRegistry(),
+                projectId);
 
         // The schema is generated from the declared type; a non-null placeholder value is enough to
         // drive buildParameterValue down the lazy, schema-generating branch.

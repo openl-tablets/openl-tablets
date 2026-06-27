@@ -78,6 +78,24 @@ class AbstractExecutionResultRegistryTest {
         assertTrue(first.isDone());
     }
 
+    @Test
+    void registerTask_differentProjectsCoexist() {
+        var taskA = new CompletableFuture<String>();
+        var taskB = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", taskA);
+        registry.setTask(otherProjectId, "t1", taskB);
+
+        // Registering B must NOT cancel A's running task; both results live side by side.
+        assertFalse(taskA.isCancelled());
+        assertTrue(registry.hasTask(projectId));
+        assertTrue(registry.hasTask(otherProjectId));
+
+        taskA.complete("A");
+        taskB.complete("B");
+        assertEquals("A", registry.getResultIfDone(projectId));
+        assertEquals("B", registry.getResultIfDone(otherProjectId));
+    }
+
     // --- hasTask ---
 
     @Test
@@ -164,20 +182,20 @@ class AbstractExecutionResultRegistryTest {
         assertThrows(RuntimeException.class, () -> registry.getResultIfDone(projectId));
     }
 
-    // --- cancelIfAny ---
+    // --- cancel(projectId) ---
 
     @Test
-    void cancelIfAny_empty() {
+    void cancel_empty() {
         // Should not throw
-        registry.cancelIfAny();
+        registry.cancel(projectId);
     }
 
     @Test
-    void cancelIfAny_runningTask() {
+    void cancel_runningTask() {
         var task = new CompletableFuture<String>();
         registry.setTask(projectId, "t1", task);
 
-        registry.cancelIfAny();
+        registry.cancel(projectId);
 
         assertTrue(task.isCancelled());
         // Task still registered (not cleared)
@@ -185,18 +203,49 @@ class AbstractExecutionResultRegistryTest {
     }
 
     @Test
-    void cancelIfAny_completedTask() {
+    void cancel_completedTask() {
         var task = CompletableFuture.completedFuture("done");
         registry.setTask(projectId, "t1", task);
 
-        registry.cancelIfAny();
+        registry.cancel(projectId);
 
         // Already completed, cancel has no effect
         assertFalse(task.isCancelled());
         assertTrue(registry.hasTask(projectId));
     }
 
-    // --- clear ---
+    @Test
+    void cancel_leavesOtherProjectUntouched() {
+        var taskA = new CompletableFuture<String>();
+        var taskB = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", taskA);
+        registry.setTask(otherProjectId, "t1", taskB);
+
+        registry.cancel(projectId);
+
+        assertTrue(taskA.isCancelled());
+        assertFalse(taskB.isCancelled());
+        assertTrue(registry.hasTask(otherProjectId));
+    }
+
+    // --- clear(projectId) ---
+
+    @Test
+    void clearProject_removesOnlyThatProject() {
+        var taskA = new CompletableFuture<String>();
+        var taskB = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", taskA);
+        registry.setTask(otherProjectId, "t1", taskB);
+
+        registry.clear(projectId);
+
+        assertTrue(taskA.isCancelled());
+        assertFalse(registry.hasTask(projectId));
+        assertFalse(taskB.isCancelled());
+        assertTrue(registry.hasTask(otherProjectId));
+    }
+
+    // --- clear() ---
 
     @Test
     void clear_empty() {
@@ -205,14 +254,18 @@ class AbstractExecutionResultRegistryTest {
     }
 
     @Test
-    void clear_runningTask() {
-        var task = new CompletableFuture<String>();
-        registry.setTask(projectId, "t1", task);
+    void clear_cancelsAndRemovesEveryProject() {
+        var taskA = new CompletableFuture<String>();
+        var taskB = new CompletableFuture<String>();
+        registry.setTask(projectId, "t1", taskA);
+        registry.setTask(otherProjectId, "t1", taskB);
 
         registry.clear();
 
-        assertTrue(task.isCancelled());
+        assertTrue(taskA.isCancelled());
+        assertTrue(taskB.isCancelled());
         assertFalse(registry.hasTask(projectId));
+        assertFalse(registry.hasTask(otherProjectId));
     }
 
     @Test

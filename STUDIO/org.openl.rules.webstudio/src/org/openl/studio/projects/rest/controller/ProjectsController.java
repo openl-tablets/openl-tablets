@@ -435,8 +435,8 @@ public class ProjectsController {
                             @RequestParam(value = "fromModule", required = false) String fromModule,
                             @RequestParam(value = "tableId", required = false) @Parameter(description = "Table ID") String tableId,
                             @RequestParam(value = "testRanges", required = false) String testRanges) {
-        executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
+        executionTestsResultRegistry.cancel(projectId);
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;

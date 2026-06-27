@@ -37,6 +37,11 @@ A session now keeps **one `ProjectModel` per opened project**, all sharing **one
   can compile and report status independently.
 - **Decoupled `ProjectModel`** — a model resolves its **own** project identity (`getProject()`, search scope,
   history path) instead of reading the session's current selection, so models never follow each other.
+- **Per-project execution results** — the session-scoped test, run and trace registries
+  (`AbstractExecutionResultRegistry` and its subclasses) and the merge-conflict holder
+  (`ProjectsMergeConflictsSessionHolder`) key their results by project instead of holding a single slot, so
+  running/tracing/merging project **B** no longer discards project **A**'s result. Trace lazy parameters
+  (`TraceParameterRegistry`) are cleared per project, and each project keeps its own `TraceHelper`.
 
 ### Editing and invalidation
 
