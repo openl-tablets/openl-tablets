@@ -41,7 +41,6 @@ import org.openl.dependency.ResolvedDependency;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -71,7 +70,6 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -90,14 +88,12 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
-import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -140,8 +136,6 @@ public class ProjectModel {
     }
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
-    private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
 
     /**
      * Delivers {@link ProjectStatusChangedEvent}s outside the compilation threads.
@@ -158,13 +152,30 @@ public class ProjectModel {
 
     @Getter
     private Module moduleInfo;
+    /**
+     * Repository id of the project this model belongs to. Captured when a module is opened so the model can
+     * resolve its OWN project identity instead of asking the session for the current selection. This lets a
+     * session hold several models (one per opened project) without them clobbering each other.
+     */
+    private volatile String ownRepositoryId;
     private long moduleLastModified;
 
-    private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    /**
+     * Cached reference to the session-shared dependency manager (owned by {@link WorkspaceCompilationContext}).
+     * Assigned when this model compiles; shared with every other opened project so compiled dependencies are
+     * reused rather than recompiled per project.
+     */
     @Getter
     private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
     private final WebStudio studio;
+
+    /**
+     * The session-shared compilation context (one dependency manager + syntax-node index across all opened
+     * projects), injected at construction. Opened projects share it so they reuse each other's compiled
+     * dependencies; unit tests get a private context via the convenience constructors.
+     */
+    private final WorkspaceCompilationContext compilationContext;
 
     private final ColorFilterHolder filterHolder = new ColorFilterHolder();
 
@@ -177,20 +188,46 @@ public class ProjectModel {
     private final TestSuiteExecutor testSuiteExecutor;
 
     /**
-     * For tests only
+     * For tests only. Uses a private compilation context (no cross-project reuse).
      */
     ProjectModel(WebStudio studio) {
         this(studio, null);
     }
 
+    /**
+     * For tests only. Uses a private compilation context (no cross-project reuse).
+     */
     public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor) {
+        this(studio, testSuiteExecutor, new WorkspaceCompilationContext(studio));
+    }
+
+    public ProjectModel(WebStudio studio,
+                        TestSuiteExecutor testSuiteExecutor,
+                        WorkspaceCompilationContext compilationContext) {
         this.studio = studio;
-        this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
+        this.compilationContext = compilationContext;
     }
 
     public synchronized RulesProject getProject() {
-        return studio.getCurrentProject();
+        if (moduleInfo == null) {
+            // No module opened in this model yet: fall back to the session's current selection. This preserves
+            // legacy behavior for the "project opened without a module" case (JSF), where the current selection
+            // is authoritative.
+            return studio.getCurrentProject();
+        }
+        String repositoryId = ownRepositoryId != null ? ownRepositoryId : studio.getCurrentRepositoryId();
+        String projectFolder = moduleInfo.getProject().getProjectFolder().getFileName().toString();
+        return studio.getProject(repositoryId, projectFolder);
+    }
+
+    /**
+     * Bind the repository id of the project this model belongs to. Lets the registry tell a model its identity
+     * up front, so {@link #getProject()} resolves the correct project even when this model is not the session's
+     * current selection (the REST path opens projects without changing the current selection).
+     */
+    void bindRepositoryId(String repositoryId) {
+        this.ownRepositoryId = repositoryId;
     }
 
     public synchronized TableSyntaxNode findNode(String url) {
@@ -552,7 +589,7 @@ public class ProjectModel {
         }
         RulesProject rulesProject = getProject();
         List<WorkbookSyntaxNode> ret = new ArrayList<>();
-        for (XlsModuleSyntaxNode xlsModuleSyntaxNode : xlsModuleSyntaxNodes) {
+        for (XlsModuleSyntaxNode xlsModuleSyntaxNode : compilationContext.syntaxNodes()) {
             String s = URLDecoder.decode(xlsModuleSyntaxNode.getModule().getUri(), StandardCharsets.UTF_8);
             s = s.substring(s.indexOf("/") + 1);
             try {
@@ -686,8 +723,8 @@ public class ProjectModel {
         if (currentProject != null) {
             AProjectArtefact currentModule = null;
             try {
-                if (studio.getCurrentModule() != null) {
-                    currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath());
+                if (moduleInfo != null) {
+                    currentModule = currentProject.getArtefact(moduleInfo.getRulesRootPath());
                 }
             } catch (ProjectException e) {
                 return false;
@@ -703,7 +740,7 @@ public class ProjectModel {
     }
 
     public boolean isEditableProjectDescriptor() {
-        RulesProject currentProject = studio.getCurrentProject();
+        RulesProject currentProject = getProject();
         if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             try {
                 AProjectArtefact rulesDescriptorArtifact = currentProject
@@ -725,7 +762,7 @@ public class ProjectModel {
 
     public boolean getCanSave() {
         if (isEditable()) {
-            if (studio.getCurrentModule() == null) {
+            if (moduleInfo == null) {
                 RulesProject currentProject = getProject();
                 var alcService = studio.getDesignRepositoryAclService();
                 return alcService.isGranted(currentProject, List.of(BasePermission.WRITE));
@@ -737,7 +774,7 @@ public class ProjectModel {
 
     public boolean getCanUpdate() {
         if (isEditable()) {
-            if (studio.getCurrentModule() == null) {
+            if (moduleInfo == null) {
                 RulesProject currentProject = getProject();
                 var alcService = studio.getDesignRepositoryAclService();
                 return alcService.isGranted(currentProject, List.of(BasePermission.WRITE))
@@ -804,7 +841,7 @@ public class ProjectModel {
     }
 
     public synchronized void buildProjectTree() {
-        if (compiledOpenClass == null || studio.getCurrentModule() == null) {
+        if (compiledOpenClass == null || moduleInfo == null) {
             return;
         }
 
@@ -1043,8 +1080,9 @@ public class ProjectModel {
     }
 
     private LocalRepository getLocalRepository() {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
+        UserWorkspace userWorkspace = studio.getUserWorkspace();
+        String repositoryId = ownRepositoryId != null ? ownRepositoryId : studio.getCurrentRepositoryId();
+        return userWorkspace.getLocalWorkspace().getRepository(repositoryId);
     }
 
     public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
@@ -1080,7 +1118,7 @@ public class ProjectModel {
      */
     public synchronized Map<TableSyntaxNode, String> getTableSyntaxNodeProjects() {
         Map<TableSyntaxNode, String> index = new IdentityHashMap<>();
-        xlsModuleSyntaxNodesPerProject.forEach((projectName, moduleNodes) -> moduleNodes.stream()
+        compilationContext.syntaxNodesPerProject().forEach((projectName, moduleNodes) -> moduleNodes.stream()
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
                 .filter(Objects::nonNull)
                 .flatMap(Arrays::stream)
@@ -1089,7 +1127,8 @@ public class ProjectModel {
     }
 
     private synchronized Set<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
-        return Optional.ofNullable(studio.getCurrentProjectDescriptor())
+        return Optional.ofNullable(moduleInfo)
+                .map(Module::getProject)
                 .map(ProjectDescriptor::getName)
                 .map(this::getModuleSyntaxNodesByProject)
                 .map(nodes -> nodes.stream()
@@ -1141,7 +1180,7 @@ public class ProjectModel {
      * that live in non-opened modules.
      */
     public synchronized OverloadedMethodsDictionary getAllMethodNodesDictionary() {
-        TableSyntaxNode[] tableSyntaxNodes = xlsModuleSyntaxNodesPerProject.values().stream()
+        TableSyntaxNode[] tableSyntaxNodes = compilationContext.syntaxNodesPerProject().values().stream()
                 .flatMap(Collection::stream)
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
                 .filter(Objects::nonNull)
@@ -1175,25 +1214,55 @@ public class ProjectModel {
     public synchronized void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
-                moduleToOpen = studio.getCurrentModule();
+                // Reopen the module this model already has. On the very first open the model has no module
+                // yet, so keep the requested module passed by the caller.
+                if (this.moduleInfo != null) {
+                    moduleToOpen = this.moduleInfo;
+                }
                 // falls through
             case RELOAD:
-                if (webStudioWorkspaceDependencyManager != null) {
-                    webStudioWorkspaceDependencyManager.shutdown();
-                    xlsModuleSyntaxNodesPerProject.clear();
-                    xlsModuleSyntaxNodes.clear();
+                // Invalidate the opened module's dependency in the shared manager. This cascades to the project
+                // loader and to any project that depends on this one, forcing a recompile from disk, while other
+                // projects keep their compiled state and shared dependencies are reused. The shared manager
+                // itself is never shut down here.
+                if (webStudioWorkspaceDependencyManager != null && moduleToOpen != null) {
+                    webStudioWorkspaceDependencyManager
+                            .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
                 }
-                webStudioWorkspaceDependencyManager = null;
                 recentlyVisitedTables.clear();
 
                 break;
             case SINGLE:
-                webStudioWorkspaceDependencyManager
-                        .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
+                if (webStudioWorkspaceDependencyManager != null) {
+                    webStudioWorkspaceDependencyManager
+                            .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
+                }
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
         projectRoot = null;
+    }
+
+    /**
+     * Reload this project's compiled state from disk in the background, without blocking the caller. Invalidates
+     * this project's compiled dependencies in the shared manager (which cascades to its dependents), then
+     * recompiles the project asynchronously. Used after an edit to this project — or to a project it depends on
+     * — so the model picks up the change while other opened projects keep their compiled state and shared
+     * dependencies are reused. No-op when no module is opened in this model.
+     */
+    public synchronized void reloadAsync() {
+        if (moduleInfo == null) {
+            return;
+        }
+        if (webStudioWorkspaceDependencyManager != null) {
+            // Reset the opened MODULE's dependency, not the project's: the module loader holds the compiled
+            // tables, and resetting it cascades to the project loader and to any project that depends on this
+            // one. Resetting only the project would leave the module's stale compiled tables in place.
+            webStudioWorkspaceDependencyManager
+                    .reset(AbstractDependencyManager.buildResolvedDependency(moduleInfo));
+        }
+        projectRoot = null;
+        compileProject(false, false);
     }
 
     public synchronized TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
@@ -1227,7 +1296,7 @@ public class ProjectModel {
             getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_PROJECT) {
-            Set<TableSyntaxNode> nodes = WebStudioUtils.getWebStudio().getCurrentModule() != null ? getSearchScopeData(
+            Set<TableSyntaxNode> nodes = moduleInfo != null ? getSearchScopeData(
                     SearchScope.CURRENT_MODULE) : new LinkedHashSet<>();
             getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
@@ -1242,6 +1311,7 @@ public class ProjectModel {
 
     public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
+        this.ownRepositoryId = null;
         historyStoragePath = null;
 
         clearModuleResources(); // prevent memory leak
@@ -1249,11 +1319,9 @@ public class ProjectModel {
         OpenClassUtil.release(compiledOpenClass);
         compiledOpenClass = null;
 
-        if (webStudioWorkspaceDependencyManager != null) {
-            webStudioWorkspaceDependencyManager.shutdown();
-            xlsModuleSyntaxNodesPerProject.clear();
-            xlsModuleSyntaxNodes.clear();
-        }
+        // The dependency manager and syntax-node index are shared with other opened projects, so they are NOT
+        // torn down here — only when the whole session is reset/destroyed (WebStudio shuts down the
+        // WorkspaceCompilationContext). Closing one project must not drop the others' compiled state.
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
         projectRoot = null;
@@ -1263,38 +1331,8 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, ReloadType.NO);
     }
 
-    private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
-            if (xlsModuleSyntaxNode != null) {
-                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(xlsModuleSyntaxNode);
-                if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    xlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-                }
-            }
-        }
-        if (!dependencyLoader.isProjectLoader()) {
-            // A single module within the current cycle just finished — re-publish status.
-            publishStatusChanged();
-        }
-    }
-
-    private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
-            if (xlsModuleSyntaxNode != null) {
-                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(xlsModuleSyntaxNode);
-                if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    xlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
-                }
-            }
-        }
-    }
-
     private Set<XlsModuleSyntaxNode> getModuleSyntaxNodesByProject(String projectName) {
-        return xlsModuleSyntaxNodesPerProject.computeIfAbsent(projectName, e -> ConcurrentHashMap.newKeySet());
+        return compilationContext.syntaxNodesByProject(projectName);
     }
 
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
@@ -1316,6 +1354,12 @@ public class ProjectModel {
             this.moduleInfo = reloadedModule;
         } else {
             this.moduleInfo = moduleInfo;
+        }
+        // Capture the project identity this model belongs to, so the model resolves its OWN project
+        // (see getProject()) rather than the session's current selection. Keep an identity already bound by the
+        // registry (REST path) — only fall back to the current selection (JSF path) when none was bound.
+        if (this.ownRepositoryId == null) {
+            this.ownRepositoryId = studio.getCurrentRepositoryId();
         }
 
         initHistoryStoragePath();
@@ -1415,10 +1459,9 @@ public class ProjectModel {
         if (publisher == null) {
             return;
         }
-        // This may run on a compilation worker while the compilation monitor is held (see
-        // addCompiledDependency). Publishing inline would acquire this model's monitor via
-        // getProject() and deadlock against a foreground setModuleInfo() that holds the model
-        // monitor and waits for the compilation monitor. Hand the update off to a dedicated
+        // This may run on a compilation worker while the compilation monitor is held. Publishing inline would
+        // acquire this model's monitor via getProject() and deadlock against a foreground setModuleInfo() that
+        // holds the model monitor and waits for the compilation monitor. Hand the update off to a dedicated
         // worker so no compilation lock is held while the model status is read and delivered.
         try {
             statusNotifier.execute(() -> doPublishStatusChanged(publisher));
@@ -1493,51 +1536,11 @@ public class ProjectModel {
     }
 
     private void prepareWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
-        if (webStudioWorkspaceDependencyManager == null) {
-            webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                    .buildDependencyManager(projectDescriptor);
-            webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
-            webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
-            projectCompilationCompleted = null;
-        } else {
-            Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
-                    .resolveWorkspace(projectDescriptor);
-            Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
-                    .map(ProjectDescriptor::getName)
-                    .collect(Collectors.toSet());
-            boolean foundOpenedProject = false;
-            boolean allProjectCanBeReused = true;
-            Collection<IDependencyLoader> projectDependencyLoaders = webStudioWorkspaceDependencyManager
-                    .getDependencyLoaders()
-                    .stream()
-                    .filter(IDependencyLoader::isProjectLoader)
-                    .toList();
-            for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
-                if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
-                    foundOpenedProject = true;
-                }
-                if (!projectNamesInWorkspace.contains(projectDependencyLoader.getProject().getName())) {
-                    allProjectCanBeReused = false;
-                }
-            }
-            if (!foundOpenedProject) {
-                if (!allProjectCanBeReused) {
-                    webStudioWorkspaceDependencyManager.shutdown();
-                    xlsModuleSyntaxNodesPerProject.clear();
-                    xlsModuleSyntaxNodes.clear();
-                    webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                            .buildDependencyManager(projectDescriptor);
-                    webStudioWorkspaceDependencyManager
-                            .registerOnCompilationCompleteListener(this::addCompiledDependency);
-                    webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
-                    projectCompilationCompleted = null;
-                } else {
-                    // If loaded projects are a part of the new opened project, then we can reuse dependency manager
-                    webStudioWorkspaceDependencyManager
-                            .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
-                }
-            }
-        }
+        // Use the session-shared dependency manager, expanding it to cover this project's dependency graph.
+        // Compiled dependencies are cached by name in the shared manager, so dependencies already compiled for
+        // another opened project (e.g. B compiled while opening A which depends on B) are reused here instead
+        // of recompiled.
+        webStudioWorkspaceDependencyManager = compilationContext.ensureCovers(projectDescriptor);
     }
 
     /**
@@ -1587,10 +1590,9 @@ public class ProjectModel {
     }
 
     private void initHistoryStoragePath() {
-        if (WebStudioUtils.getSession() != null) {
-            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                    .getLocalWorkspace()
-                    .getLocation();
+        UserWorkspace userWorkspace = studio.getUserWorkspace();
+        if (userWorkspace != null) {
+            File location = userWorkspace.getLocalWorkspace().getLocation();
             this.historyStoragePath = Path
                     .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
                     .toString();
@@ -1602,7 +1604,7 @@ public class ProjectModel {
     }
 
     public synchronized XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
-        Module currentModule = studio.getCurrentModule();
+        Module currentModule = this.moduleInfo;
         if (currentModule == null) {
             return null;
         }

@@ -126,11 +126,24 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
     public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
 
+    /**
+     * Upper bound on the number of project models kept compiled at once in a session. Bounds memory and the
+     * per-model dependency managers / worker threads. The least-recently-used idle, non-current model is
+     * evicted past this limit. Overridable via the {@value #MAX_OPENED_MODELS_PROPERTY} property.
+     */
+    private static final int DEFAULT_MAX_OPENED_MODELS = 8;
+    private static final String MAX_OPENED_MODELS_PROPERTY = "webstudio.max.opened.models";
+
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
     private String workspacePath;
     private String tableUri;
-    private final ProjectModel model;
+    /**
+     * The projects this session has open, each with its own model, all sharing one compilation manager so a
+     * session can edit several projects in parallel without one project's compilation clobbering another's. This
+     * class owns that state machine; WebStudio keeps the JSF "current selection" labels and delegates here.
+     */
+    private final OpenedProjectsSession openedProjects;
     private final ProjectResolver projectResolver;
     private Map<String, List<ProjectDescriptor>> projects = null;
 
@@ -204,7 +217,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      ProjectIdentifierMapper projectIdentifierMapper
 
     ) {
-        model = new ProjectModel(this, testSuiteExecutor);
+        Integer configuredMaxModels = Props.integer(MAX_OPENED_MODELS_PROPERTY);
+        int maxModels = configuredMaxModels != null && configuredMaxModels > 0 ? configuredMaxModels
+                : DEFAULT_MAX_OPENED_MODELS;
+        openedProjects = new OpenedProjectsSession(this, testSuiteExecutor, maxModels);
         this.userSettingsManager = userSettingManagementService;
         this.designRepositoryAclService = designRepositoryAclService;
         this.productionRepositoryAclService = productionRepositoryAclService;
@@ -369,7 +385,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             }
             userWorkspace.refresh();
-            if (model.isModified()) {
+            if (getModel().isModified()) {
                 // Project sources were modified while saving, probably conflicts resolved automatically
                 // Require modules reload and recompilation
                 resetProjects();
@@ -400,11 +416,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public RulesDeploy getCurrentProjectRulesDeploy() {
+        return getProjectRulesDeploy(getCurrentProject());
+    }
+
+    /**
+     * Read the rules-deploy configuration of a specific project (not necessarily the current selection).
+     */
+    public RulesDeploy getProjectRulesDeploy(RulesProject project) {
         try {
-            RulesProject currentProject = getCurrentProject();
-            if (currentProject.hasArtefact(RulesDeploy.FILE_NAME)) {
+            if (project != null && project.hasArtefact(RulesDeploy.FILE_NAME)) {
                 try {
-                    AProjectArtefact artefact = currentProject.getArtefact(RulesDeploy.FILE_NAME);
+                    AProjectArtefact artefact = project.getArtefact(RulesDeploy.FILE_NAME);
                     if (artefact instanceof AProjectResource resource) {
                         try (InputStream content = resource.getContent()) {
                             return RulesDeploy.read(content);
@@ -423,9 +445,19 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public ProjectJacksonObjectMapperFactoryBean getCurrentProjectJacksonObjectMapperFactoryBean() {
-        var compiledOpenClass = getModel().getCompiledOpenClass();
+        return getProjectJacksonObjectMapperFactoryBean(getCurrentProject(), getModel());
+    }
+
+    /**
+     * Build a Jackson object mapper factory bound to a specific project and its model. Used by the REST run/trace
+     * endpoints so input/output is (de)serialized against the right project's compiled classes, regardless of
+     * the session's current selection.
+     */
+    public ProjectJacksonObjectMapperFactoryBean getProjectJacksonObjectMapperFactoryBean(RulesProject project,
+                                                                                          ProjectModel projectModel) {
+        var compiledOpenClass = projectModel.getCompiledOpenClass();
         var objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
-        objectMapperFactory.setRulesDeploy(getCurrentProjectRulesDeploy());
+        objectMapperFactory.setRulesDeploy(getProjectRulesDeploy(project));
         objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) compiledOpenClass
                 .getOpenClassWithErrors());
         ClassLoader classLoader = compiledOpenClass.getClassLoader();
@@ -440,6 +472,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (ProjectException e) {
             return null;
         }
+    }
+
+    /**
+     * Returns the session user workspace. Unlike {@code WebStudioUtils.getUserWorkspace(...)} this resolution
+     * does not depend on a thread-bound request, so it is safe to call from background compilation threads.
+     */
+    public UserWorkspace getUserWorkspace() {
+        return rulesUserSession.getUserWorkspace();
     }
 
     public ProjectDescriptor getCurrentProjectDescriptor() {
@@ -480,8 +520,66 @@ public class WebStudio implements DesignTimeRepositoryListener {
         setTableView(showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
     }
 
+    /**
+     * The model of the session's current selection. Kept for the JSF UI and other legacy callers, which work
+     * against "the current project". Never returns {@code null}: with no selection it returns an empty model.
+     */
     public ProjectModel getModel() {
-        return model;
+        return openedProjects.currentModel();
+    }
+
+    /**
+     * The already-created model for a project, or {@code null} when it has not been opened. Does not create a
+     * model. Matches by project identity so it works for local-only projects too. Used for targeted
+     * invalidation (e.g. recompiling a project that a just-edited project depends on).
+     */
+    public ProjectModel getModelIfPresent(RulesProject project) {
+        return openedProjects.modelIfPresent(project);
+    }
+
+    /**
+     * Open (and compile if needed) a module in the project's OWN model, without changing the session's current
+     * selection. This is the REST entry point for parallel multi-project editing: opening one project never
+     * disturbs another project's compiled state. Not synchronized on the session, so different projects open and
+     * compile concurrently; each model serializes its own compilation.
+     *
+     * @return the project's model; compilation may still be in progress (track it via the compilation job)
+     */
+    public ProjectModel openProjectModule(RulesProject project, ProjectDescriptor descriptor, Module module) {
+        return openedProjects.openModule(project, descriptor, module);
+    }
+
+    /**
+     * Remove and destroy a project's model, releasing its dependency manager and worker threads. Clears the
+     * current selection when the evicted project was the current one. Used when a project is closed or switched
+     * to another branch/revision. Matches by project identity, so it handles local-only projects and does not
+     * require the project to still be opened.
+     */
+    public synchronized void evictProjectModel(RulesProject project) {
+        RulesProject current = getCurrentProject();
+        if (current != null && openedProjects.sameProject(current, project)) {
+            currentProject = null;
+            currentModule = null;
+            openedProjects.selectNone();
+        }
+        openedProjects.evict(project);
+    }
+
+    /**
+     * Light workspace refresh after an edit: re-reads the project list and reconciles modified state without
+     * dropping any compiled model. Used by branch operations and as part of targeted edit invalidation.
+     */
+    public synchronized void refreshAfterEdit() {
+        projects = null;
+        rulesUserSession.getUserWorkspace().refresh();
+    }
+
+    /**
+     * Eagerly recompile a project's model in the background, if it is currently open. Picks up on-disk changes
+     * from a just-applied edit (to this project or to one it depends on). Other opened projects are untouched.
+     */
+    public void recompileProject(RulesProject project) {
+        openedProjects.recompile(project);
     }
 
     public String getTableUri() {
@@ -548,13 +646,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
         projects = null;
         rulesUserSession.getUserWorkspace().syncProjects();
         rulesUserSession.getUserWorkspace().refresh();
-        model.resetSourceModified();
+        openedProjects.resetSourceModified();
     }
 
     public synchronized void reset() {
         doResetProjects();
         currentModule = null;
         currentProject = null;
+        // Whole-workspace reset: drop every opened project's model and the shared dependency manager (releases
+        // worker threads and compiled classes). Targeted edits use invalidateAfterEdit(...) instead so other
+        // projects stay compiled.
+        openedProjects.clear();
         // Signal session-scoped caches (compile status, test/run/trace results) to drop
         // stale entries derived from the now-invalidated workspace state. A subscriber
         // failure must never break reset(): several critical flows (e.g. merge-conflict
@@ -565,14 +667,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             } catch (RuntimeException e) {
                 log.warn("Failed to publish workspace reset event", e);
             }
-        }
-    }
-
-    private void reset(ReloadType reloadType) {
-        try {
-            model.reset(reloadType, currentModule);
-        } catch (Exception e) {
-            log.error("Error when trying to reset studio model", e);
         }
     }
 
@@ -629,11 +723,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 handleProjectNotFound();
                 return;
             }
-            boolean anotherModuleOpened = currentModule != module;
-            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
-                    .getProject()
-                    .getName()
-                    .equals(project.getName()));
             currentModule = module;
             currentProject = project;
             if (currentProject != null) {
@@ -641,41 +730,45 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 // the project has the read permission too.
                 RulesProject rulesProject = getProject(repositoryId,
                         currentProject.getProjectFolder().getFileName().toString());
+                String branch = rulesProject != null ? rulesProject.getBranch() : branchName;
+                // Make this the current selection and pin its model so it is never evicted while in use.
+                openedProjects.select(currentProject, currentRepositoryId, branch);
                 if (rulesProject != null && module != null) {
                     log.debug(
                             "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
                             repositoryId,
                             rulesProject.getLocalFolderName(),
                             module.getRulesRootPath());
-                } else {
-                    if (rulesProject != null) {
-                        log.debug("Check permission for repository id '{}', project path in the repository '{}'.",
-                                repositoryId,
-                                rulesProject.getLocalFolderName());
-                    }
+                } else if (rulesProject != null) {
+                    log.debug("Check permission for repository id '{}', project path in the repository '{}'.",
+                            repositoryId,
+                            rulesProject.getLocalFolderName());
                 }
+            } else {
+                openedProjects.selectNone();
             }
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || anotherModuleOpened || anotherProjectOpened)) {
-                if (forcedCompile) {
-                    reset(ReloadType.FORCED);
-                } else if (needCompile) {
-                    reset(ReloadType.SINGLE);
-                } else if (anotherProjectOpened) {
-                    model.setModuleInfo(module, ReloadType.SINGLE);
-                } else if (anotherModuleOpened) {
-                    model.setModuleInfo(module, ReloadType.NO);
-                } else {
-                    model.setModuleInfo(module);
+            if (module != null) {
+                // Compile this project's OWN model. Other opened projects keep their compiled state untouched.
+                ProjectModel targetModel = getModel();
+                boolean needsOpen = targetModel.getModuleInfo() != module;
+                if (forcedCompile || (needCompile && (isAutoCompile() || manualCompile)) || needsOpen) {
+                    if (forcedCompile) {
+                        targetModel.reset(ReloadType.FORCED, module);
+                    } else if (needCompile && targetModel.getModuleInfo() != null) {
+                        targetModel.reset(ReloadType.SINGLE, module);
+                    } else {
+                        targetModel.setModuleInfo(module, ReloadType.NO);
+                    }
+                    targetModel.buildProjectTree(); // Reason: tree should be built
+                    // before accessing the ProjectModel.
+                    // Is is related to UI: rendering of
+                    // frames is asynchronous and we
+                    // should build tree before the
+                    // 'content' frame
+                    needCompile = false;
+                    forcedCompile = false;
+                    manualCompile = false;
                 }
-                model.buildProjectTree(); // Reason: tree should be built
-                // before accessing the ProjectModel.
-                // Is is related to UI: rendering of
-                // frames is asynchronous and we
-                // should build tree before the
-                // 'content' frame
-                needCompile = false;
-                forcedCompile = false;
-                manualCompile = false;
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
@@ -722,7 +815,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             Module module = getCurrentModule();
             File sourceFile = module.getRulesPath().toFile();
 
-            ProjectHistoryService.init(model.getHistoryStoragePath(), sourceFile);
+            ProjectHistoryService.init(getModel().getHistoryStoragePath(), sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
                     .getLocalWorkspace()
                     .getRepository(currentRepositoryId);
@@ -732,7 +825,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             FileData data = new FileData();
             data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
-            ProjectHistoryService.save(model.getHistoryStoragePath(), sourceFile);
+            ProjectHistoryService.save(getModel().getHistoryStoragePath(), sourceFile);
         } catch (FileNotFoundException e) {
             log.debug("An error occurred during the module update. Close the module Excel file and try again.", e);
             throw new IllegalStateException(
@@ -745,7 +838,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             IOUtils.closeQuietly(stream);
         }
 
-        model.resetSourceModified(); // Because we rewrite a file in the
+        getModel().resetSourceModified(); // Because we rewrite a file in the
         // workspace
         compile();
         clearUploadedFiles();
@@ -896,7 +989,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
         var projectFolder = oldProjectDescriptor.getProjectFolder();
-        model.resetSourceModified(); // Because we rewrite a file in the
+        getModel().resetSourceModified(); // Because we rewrite a file in the
         // workspace
 
         ProjectDescriptor newProjectDescriptor = null;
@@ -1147,14 +1240,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private void setTreeView(RulesTreeView treeView) {
         this.treeView = treeView;
-        model.redraw();
+        getModel().redraw();
         userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW, treeView.getName());
     }
 
     private void setDefaultTreeView(RulesTreeView treeView) {
         this.defaultTreeView = treeView;
         if (this.treeView == null) {
-            model.redraw();
+            getModel().redraw();
         }
         userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW_DEFAULT, treeView.getName());
     }
@@ -1271,9 +1364,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void destroy() {
-        if (model != null) {
-            model.destroy();
-        }
+        openedProjects.clear();
 
         if (rulesUserSession != null) {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
@@ -1587,12 +1678,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public synchronized void onRepositoryModified() {
         projects = null;
         runAsSessionUser(() -> {
+            // Evict models whose project is no longer opened (e.g. closed or removed externally) so their
+            // dependency managers and jars are released. The pinned current model is handled below.
+            openedProjects.removeStaleModels();
             if (currentProject != null) {
                 RulesProject project = getCurrentProject();
                 if (project == null || !project.isOpened()) {
                     currentProject = null;
                     currentModule = null;
-                    model.clearModuleInfo();
+                    openedProjects.dropCurrentSelection();
                 }
             }
         });

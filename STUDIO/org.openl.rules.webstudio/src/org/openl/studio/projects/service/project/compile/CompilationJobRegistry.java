@@ -42,9 +42,19 @@ public interface CompilationJobRegistry {
     Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch);
 
     /**
-     * Drop the cached compilation job so that read-only callers no longer observe a stale
+     * Drop all cached compilation jobs so that read-only callers no longer observe a stale
      * compile state. Any in-flight compilation future is cancelled. Invoked when the session
      * workspace is reset.
      */
     void clear();
+
+    /**
+     * Drop the cached compilation job for a single project/branch. Any in-flight compilation future is
+     * cancelled. Used after a targeted edit so the status endpoint no longer reports a stale compile state for
+     * that project while leaving other opened projects untouched.
+     *
+     * @param projectId target project identifier
+     * @param branch    branch name; {@code null} for repositories without branch support
+     */
+    void clear(@NotNull ProjectIdModel projectId, @Nullable String branch);
 }

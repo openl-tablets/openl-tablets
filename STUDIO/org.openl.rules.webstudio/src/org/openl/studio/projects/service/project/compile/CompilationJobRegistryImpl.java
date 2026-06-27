@@ -1,8 +1,9 @@
 package org.openl.studio.projects.service.project.compile;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ConcurrentHashMap;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
@@ -24,12 +25,12 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
 /**
  * Default {@link CompilationJobRegistry} implementation.
  *
- * <p>Holds at most one active job at a time, matching the WebStudio session
- * model where only the current project/module is compiled. Each
- * {@link #acquire(ProjectIdModel, ProjectModel)} call replaces the current
- * entry with a fresh job so that the returned future always observes the model
- * state from now on; the previous job's future is cancelled if it was still
- * polling.
+ * <p>Holds one active job per opened project/branch so a session can compile
+ * several projects in parallel (multiple tabs, async REST edits to different
+ * projects). Each {@link #acquire(ProjectIdModel, ProjectModel)} call replaces
+ * that project/branch's entry with a fresh job so the returned future always
+ * observes the model state from now on; the previous job's future is cancelled
+ * if it was still polling. Other projects' entries are left untouched.
  *
  * <p>{@link #find(ProjectIdModel, String)} additionally adopts compilations initiated
  * outside of {@link #acquire(ProjectIdModel, ProjectModel)} — JSF flows
@@ -51,51 +52,60 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
     private final WebStudio webStudio;
     private final ProjectIdentifierMapper projectIdentifierMapper;
 
-    private record Entry(
-            @NotNull
-            ProjectIdModel projectId,
-            @Nullable
-            String branch,
-            @NotNull
-            CompilationJobImpl job) {
+    /**
+     * Identifies a job by the project and branch it tracks. Two branches of the same project are distinct
+     * entries, so switching a project's branch never reuses the previous branch's job.
+     */
+    private record JobKey(@NotNull ProjectIdModel projectId, @Nullable String branch) {
+    }
 
-        public boolean canReuse(ProjectIdModel projectId, ProjectModel model) {
-            return this.projectId.equals(projectId)
-                    && Objects.equals(this.branch, model.getProject().getBranch())
-                    && this.job.project() == model
-                    && this.job.tracksCurrentCompilation();
+    private record Entry(@NotNull CompilationJobImpl job) {
+
+        public boolean canReuse(ProjectModel model) {
+            // The entry was looked up by its (projectId, branch) key, so those already match; only the model
+            // instance (it may have been evicted and recreated) and its current compile cycle can differ.
+            return this.job.project() == model && this.job.tracksCurrentCompilation();
         }
     }
 
-    private final AtomicReference<Entry> ref = new AtomicReference<>();
+    private final Map<JobKey, Entry> entries = new ConcurrentHashMap<>();
 
     @Override
     @NotNull
     public synchronized CompilationJob acquire(@NotNull ProjectIdModel projectId, @NotNull ProjectModel model) {
-        var previous = ref.get();
-        if (previous != null && previous.canReuse(projectId, model)) {
+        var project = model.getProject();
+        var branch = project != null ? project.getBranch() : null;
+        var key = new JobKey(projectId, branch);
+        var previous = entries.get(key);
+        if (previous != null && previous.canReuse(model)) {
             return previous.job();
         }
-        if (previous != null && !previous.job().isFinished()) {
-            previous.job().future().cancel(false);
-        }
-        var branch = model.getProject().getBranch();
-        var entry = new Entry(projectId, branch, new CompilationJobImpl(model));
-        ref.set(entry);
+        cancelIfRunning(previous);
+        var entry = new Entry(new CompilationJobImpl(model));
+        entries.put(key, entry);
         return entry.job();
     }
 
     /**
-     * Drop the cached compilation job so the status endpoint no longer reports a stale
-     * compile state after the workspace is reset. Cancels the tracked future if it is
-     * still running. The next {@link #acquire(ProjectIdModel, ProjectModel)} registers a
-     * fresh job.
+     * Drop all cached compilation jobs so the status endpoint no longer reports a stale
+     * compile state after the workspace is reset. Cancels any tracked future still running.
+     * The next {@link #acquire(ProjectIdModel, ProjectModel)} registers a fresh job.
      */
     @Override
     public synchronized void clear() {
-        var previous = ref.getAndSet(null);
-        if (previous != null && !previous.job().isFinished()) {
-            previous.job().future().cancel(false);
+        entries.values().forEach(this::cancelIfRunning);
+        entries.clear();
+    }
+
+    @Override
+    public synchronized void clear(@NotNull ProjectIdModel projectId, @Nullable String branch) {
+        var previous = entries.remove(new JobKey(projectId, branch));
+        cancelIfRunning(previous);
+    }
+
+    private void cancelIfRunning(@Nullable Entry entry) {
+        if (entry != null && !entry.job().isFinished()) {
+            entry.job().future().cancel(false);
         }
     }
 
@@ -111,11 +121,8 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
     @Override
     @NotNull
     public synchronized Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch) {
-        var entry = ref.get();
-        if (entry != null
-                && entry.projectId().equals(projectId)
-                && Objects.equals(entry.branch(), branch)
-                && entry.job().tracksCurrentCompilation()) {
+        var entry = entries.get(new JobKey(projectId, branch));
+        if (entry != null && entry.job().tracksCurrentCompilation()) {
             return Optional.of(entry.job());
         }
         return adoptFromSession(projectId, branch);
@@ -144,8 +151,8 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
         if (model == null || model.getCurrentCompilation() == null) {
             return Optional.empty();
         }
-        var entry = new Entry(projectId, branch, new CompilationJobImpl(model));
-        ref.set(entry);
+        var entry = new Entry(new CompilationJobImpl(model));
+        entries.put(new JobKey(projectId, branch), entry);
         return Optional.of(entry.job());
     }
 }
