@@ -586,6 +586,7 @@
                 });
 
                 $.ajaxPrefilter(function(options, _, jqXHR) {
+                    appendTabIdentity(options);
                     if (options.handleLoginPage) {
                         var deferredRequest = $.Deferred();
 
@@ -605,6 +606,54 @@
                     }
                 });
 
+                // --- Per-tab project identity transport (parallel multi-project editing) ---
+                // Carry the active tab's identity on same-origin jQuery requests (sub-page loads, compile/message
+                // calls) so the server serves THIS tab its own compiled model, not the session-global selection.
+                var appendTabIdentity = function(options) {
+                    if (!current.repositoryId || !current.project) {
+                        return;
+                    }
+                    var url = options.url || "";
+                    if (/^https?:\/\//i.test(url) || url.indexOf("web/init") !== -1) {
+                        return;
+                    }
+                    var params = "tabRepositoryId=" + encodeURIComponent(current.repositoryId)
+                        + "&tabProject=" + encodeURIComponent(current.project);
+                    if (current.module) {
+                        params += "&tabModule=" + encodeURIComponent(current.module);
+                    }
+                    options.url = url + (url.indexOf("?") === -1 ? "?" : "&") + params;
+                };
+
+                // a4j postbacks submit a form (not jQuery), so the identity rides hidden fields kept in every
+                // form. Re-injected after each jQuery load and each a4j re-render so it survives DOM replacement.
+                var TAB_IDENTITY = ["tabRepositoryId", "tabProject", "tabModule"];
+                var syncHiddenField = function(form, name, value) {
+                    var field = form.children("input[name='" + name + "']");
+                    if (!value) {
+                        field.remove();
+                    } else if (field.length) {
+                        field.val(value);
+                    } else {
+                        $("<input type='hidden'/>").attr("name", name).val(value).prependTo(form);
+                    }
+                };
+                var ensureTabIdentityFields = function() {
+                    if (!current.repositoryId || !current.project) {
+                        return;
+                    }
+                    var values = [current.repositoryId, current.project, current.module];
+                    $("form").each(function() {
+                        var form = $(this);
+                        for (var i = 0; i < TAB_IDENTITY.length; i++) {
+                            syncHiddenField(form, TAB_IDENTITY[i], values[i]);
+                        }
+                    });
+                };
+                $(document).ajaxComplete(function() {
+                    ensureTabIdentityFields();
+                });
+
                 // Fix Mojarra bug. Make rerendered forms work.
                 // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
                 faces.ajax.addOnEvent(function (data) {
@@ -621,6 +670,8 @@
                                 });
                             });
                         }
+                        // Re-inject the tab identity into forms re-rendered by this a4j response.
+                        ensureTabIdentityFields();
                     }
                 });
 

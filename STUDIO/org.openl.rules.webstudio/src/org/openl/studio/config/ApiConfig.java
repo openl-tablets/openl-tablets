@@ -30,10 +30,12 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
+import org.openl.rules.webstudio.web.tab.TabContextInterceptor;
 
 /**
  * Spring OpenL Studio API Configuration
@@ -59,6 +61,19 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Autowired
     private ObjectProvider<ObjectMapper> objectMapperProvider;
+
+    @Autowired
+    private TabContextInterceptor tabContextInterceptor;
+
+    /**
+     * Bind each browser tab's project/module to the legacy per-tab endpoints (table compile status and message
+     * stacktraces) so concurrent tabs editing different projects do not read each other's compiled model. Other
+     * endpoints (project selection, the modern per-project REST API) are intentionally excluded.
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(tabContextInterceptor).addPathPatterns("/compile/**", "/message/**");
+    }
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

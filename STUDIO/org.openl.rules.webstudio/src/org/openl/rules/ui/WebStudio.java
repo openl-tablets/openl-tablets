@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import jakarta.faces.context.FacesContext;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -78,6 +79,8 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.tab.TabContext;
+import org.openl.rules.webstudio.web.tab.TabContextHolder;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
@@ -399,6 +402,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public RulesProject getCurrentProject() {
+        RulesProject tabProject = TabContextHolder.get().map(TabContext::getProject).orElse(null);
+        if (tabProject != null) {
+            return tabProject;
+        }
         if (currentProject != null) {
             String projectFolder = currentProject.getProjectFolder().getFileName().toString();
             return getProject(currentRepositoryId, projectFolder);
@@ -483,11 +490,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public ProjectDescriptor getCurrentProjectDescriptor() {
-        return currentProject;
+        return currentOrSession(TabContext::getProjectDescriptor, currentProject);
     }
 
     public Module getCurrentModule() {
-        return currentModule;
+        return currentOrSession(TabContext::getModule, currentModule);
     }
 
     /**
@@ -521,11 +528,23 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     /**
-     * The model of the session's current selection. Kept for the JSF UI and other legacy callers, which work
-     * against "the current project". Never returns {@code null}: with no selection it returns an empty model.
+     * The model the current request acts on. For a browser tab that sends its own identity (parallel
+     * multi-project editing), this is that tab's model; otherwise the session's current selection. Kept for the
+     * JSF UI and other legacy callers. Never returns {@code null}: with no selection it returns an empty model.
      */
     public ProjectModel getModel() {
-        return openedProjects.currentModel();
+        ProjectModel tabModel = TabContextHolder.get().map(TabContext::getModel).orElse(null);
+        return tabModel != null ? tabModel : openedProjects.currentModel();
+    }
+
+    /**
+     * The current request's tab value when a tab sent its own identity and that value is resolved, otherwise the
+     * session-global selection. This keeps each tab editing its own project while leaving non-tab requests
+     * (REST, background threads) on the session selection.
+     */
+    private <T> T currentOrSession(Function<TabContext, T> tabValue, T sessionValue) {
+        T value = TabContextHolder.get().map(tabValue).orElse(null);
+        return value != null ? value : sessionValue;
     }
 
     /**
@@ -818,7 +837,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             ProjectHistoryService.init(getModel().getHistoryStoragePath(), sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
                     .getLocalWorkspace()
-                    .getRepository(currentRepositoryId);
+                    .getRepository(getCurrentRepositoryId());
 
             File projectFolder = getCurrentProjectDescriptor().getProjectFolder().toFile();
             String relativePath = getRelativePath(projectFolder, sourceFile);
@@ -1233,9 +1252,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         Collection<RulesProject> projects = userWorkspace.getProjects(); // #1
         RulesProject currentProject = getCurrentProject(); // #3
 
+        String repositoryId = getCurrentRepositoryId();
         return projects.stream()
                 .anyMatch(p -> p != currentProject && p.getName()
-                        .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(currentRepositoryId)));
+                        .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(repositoryId)));
     }
 
     private void setTreeView(RulesTreeView treeView) {
@@ -1397,7 +1417,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public String url(String pageUrl, final String tableURI) {
         String projectName;
         String moduleName;
-        String repositoryId = currentRepositoryId;
+        String repositoryId = getCurrentRepositoryId();
         if (tableURI == null) {
             moduleName = getCurrentModule() == null ? null : getCurrentModule().getName();
             projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
@@ -1418,7 +1438,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                             entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
                     .findFirst()
                     .map(Map.Entry::getKey)
-                    .orElse(currentRepositoryId);
+                    .orElse(getCurrentRepositoryId());
 
             if (module != null) {
                 projectName = project.getName();
@@ -1655,7 +1675,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public String getCurrentRepositoryId() {
-        return currentRepositoryId;
+        return currentOrSession(TabContext::getRepositoryId, currentRepositoryId);
     }
 
     /**

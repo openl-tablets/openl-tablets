@@ -67,11 +67,10 @@ per-model notifier, so no compilation lock is held while a model monitor is acqu
 - **Closed-project memory** — a project's model is destroyed when the project is closed. Its compiled
   dependencies remain cached in the shared manager until the whole session is reset/destroyed; the shared
   manager grows within a session and is fully released on workspace reset.
-- **JSF concurrency** — the modern REST path is fully concurrency-safe per project. The legacy JSF UI still
-  shares a single session-global "current selection" (`currentProject/currentModule/tableUri`); the registry
-  removes the destructive compiled-state clobber (the reported bug), but truly simultaneous requests from two
-  JSF browser tabs still share those current-selection pointers. Closing this gap would require per-tab context
-  supplied by the front end.
+- **JSF per-tab selection** — the legacy JSF UI now resolves the project/module/table per request from the
+  tab's own identity (see *Legacy JSF: per-tab project selection* below), so several browser tabs edit different
+  projects concurrently in one session without clobbering each other. The session-global selection remains as
+  the fallback for requests that carry no tab identity.
 - **Same project name across repositories** — the shared dependency manager identifies projects/modules by
   name (OpenL's `ResolvedDependency` is name-based). Two opened projects with the same name in different
   repositories share one compiled entry and one syntax-node bucket. Repository-qualified dependency keys would
@@ -85,10 +84,65 @@ per-model notifier, so no compilation lock is held while a model monitor is acqu
   evict a model another in-flight request still holds. Raise the limit for sessions that work on many projects
   at once.
 
+## Legacy JSF: per-tab project selection
+
+The JSF UI historically funneled every read through one session-global selection
+(`WebStudio.getModel()/getCurrentProject()/getCurrentModule()/getCurrentRepositoryId()`), so a second browser
+tab on another project clobbered the first. Each tab now carries its own identity on every request and the
+server resolves that tab's model, leaving the session-global selection only as a fallback.
+
+- **Transport** — the tab's identity lives in the page URL hash (client-only). The module page sends it on
+  every server call: a `$.ajaxPrefilter` appends `tabRepositoryId/tabProject/tabModule` to same-origin jQuery
+  requests (sub-page loads, the `/web/compile|message` calls), and matching hidden fields are kept in every form
+  (re-injected after each load and a4j re-render) so a4j postbacks carry it too.
+- **Resolution** — a JSF `PhaseListener` (for `/faces/*`) and a Spring `HandlerInterceptor` (for the legacy
+  `/web/compile/**` and `/web/message/**` endpoints, which run on the DispatcherServlet) read those parameters
+  and build a request-scoped `TabContext` via `TabContextResolver`. Resolution reuses the opened-project
+  registry (`WebStudio.openProjectModule`/`getModelIfPresent`), never mutates the session selection, and fails
+  safe (any resolution error yields no context, so the request falls back to the session selection).
+- **Accessor flip** — the `WebStudio` selection accessors (`getModel`, `getCurrentProject`,
+  `getCurrentProjectDescriptor`, `getCurrentModule`, `getCurrentRepositoryId`) return the `TabContext` values
+  when one is bound and resolved, otherwise the session-global fields. This re-points the whole JSF read surface
+  centrally. Methods that combine these reads use the same flipped accessors throughout so a tab's project,
+  module and repository stay consistent. Requests with no tab identity (project-selection `/web/init`, the modern
+  `/rest/projects/**` API, background compile threads) have no `TabContext` and keep today's behavior.
+- **View-expiry recovery** — `AjaxViewExpiredExceptionHandler` answers an a4j postback whose view expired with a
+  partial-response error naming `ViewExpiredException` (and then defers to the default handler, so it never
+  writes twice); the page's existing handler reloads the tab from its hash. This replaces the silent hung
+  spinner and error-log storm.
+
+### Bean scope notes
+
+The accessor flip makes every bean that reads the current selection (request-, view- and session-scoped alike)
+operate on the requesting tab's model, so most `@SessionScope` beans needed no rescoping. The remaining
+session-scoped state is intentionally session-wide:
+
+- **Repository tree** (`RepositoryTreeState`, `RepositorySelectNodeStateHolder`,
+  `ProductionRepositoriesTreeState`/`Controller`) — shared workspace navigation, correctly one per session.
+- **UI preferences** (e.g. `TreeBean.hideUtilityTables`) — a persisted toggle; session scope keeps it stable
+  across navigation rather than resetting per view.
+- **`RunTestHelper`** — `@Deprecated(forRemoval = true)`; its model and table reads flip per tab. Its leftover
+  manual-run input parameters are session-wide, a narrow edge for two tabs running parameterized manual methods
+  at the same instant.
+
+### Known gaps
+
+- **Selected-table URI (`WebStudio.getTableUri()/setTableUri()`)** stays session-global. It is only a
+  "last visited table" hint used when a request omits the table id; the table itself is identified per request by
+  its id against the tab's model, so the per-tab isolation does not depend on it.
+- **Legacy cell editor** — the in-browser table editor (`org.openl.rules.tableeditor`, prototype.js
+  `Ajax.Request`) is a third client transport that the jQuery prefilter and a4j hidden fields do not cover, so
+  its requests resolve the session-global selection. The edited grid itself is keyed per editor instance, but a
+  concurrent cell save from a non-active tab can target the session selection. Use the modern React/REST editor
+  for concurrent cell editing across tabs.
+
 ## Key classes
 
 - `org.openl.rules.ui.WebStudio` — session hub; holds the current-selection labels and delegates model
   operations to `OpenedProjectsSession`.
+- `org.openl.rules.webstudio.web.tab.TabContext`, `TabContextResolver`, `TabContextHolder`,
+  `TabContextPhaseListener`, `TabContextInterceptor` — per-tab request context for the legacy JSF UI.
+- `org.openl.rules.webstudio.web.jsf.AjaxViewExpiredExceptionHandler` — AJAX view-expiry recovery.
 - `org.openl.rules.ui.OpenedProjectsSession` — opened-project state machine; owns the model store and the
   shared compilation context.
 - `org.openl.rules.ui.ProjectModelRegistry`, `org.openl.rules.ui.ProjectModelKey` — per-project model store.
