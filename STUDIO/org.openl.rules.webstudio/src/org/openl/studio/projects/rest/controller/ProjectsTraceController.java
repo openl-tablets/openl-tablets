@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.studio.common.exception.ConflictException;
@@ -130,7 +131,8 @@ public class ProjectsTraceController {
                     listener, projectModel, table, testRanges, currentOpenedModule, traceHelper);
         } else {
             // Regular method - parse JSON input using service (auto-detects format)
-            var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
+            var parseResult = inputParserService.parseInput(inputJson, method,
+                    configureObjectMapper(project, projectModel));
 
             traceTask = traceExecutorService.traceMethod(
                     listener, projectModel, table, parseResult.params(), parseResult.runtimeContext(),
@@ -154,7 +156,8 @@ public class ProjectsTraceController {
         if (element == null) {
             throw new NotFoundException("trace.node.not.found.message");
         }
-        return createMapper().createSimpleNodes(element.getChildren(), traceHelper, showRealNumbers);
+        var projectModel = projectService.resolveCompiledModel(project);
+        return createMapper(project, projectModel).createSimpleNodes(element.getChildren(), traceHelper, showRealNumbers);
     }
 
     @Operation(summary = "trace.get-node-details.summary", description = "trace.get-node-details.desc")
@@ -172,7 +175,8 @@ public class ProjectsTraceController {
             throw new NotFoundException("trace.node.not.found.message");
         }
 
-        return createMapper().createDetailedNode(element, traceHelper, showRealNumbers);
+        var projectModel = projectService.resolveCompiledModel(project);
+        return createMapper(project, projectModel).createDetailedNode(element, traceHelper, showRealNumbers);
     }
 
     @Operation(summary = "trace.cancel.summary", description = "trace.cancel.desc")
@@ -198,7 +202,8 @@ public class ProjectsTraceController {
             throw new NotFoundException("trace.parameter.not.found.message");
         }
 
-        return createMapper().buildParameterValue(param, false);
+        var projectModel = projectService.resolveCompiledModel(project);
+        return createMapper(project, projectModel).buildParameterValue(param, false);
     }
 
     @Operation(summary = "trace.get-table-html.summary", description = "trace.get-table-html.desc")
@@ -269,16 +274,16 @@ public class ProjectsTraceController {
         return traceHelper;
     }
 
-    private TraceNodeViewMapper createMapper() {
-        var objectMapper = configureObjectMapper();
+    private TraceNodeViewMapper createMapper(RulesProject project, ProjectModel projectModel) {
+        var objectMapper = configureObjectMapper(project, projectModel);
         var schemaGenerator = getSchemaGenerator(objectMapper);
         return new TraceNodeViewMapper(objectMapper, schemaGenerator, parameterRegistry);
     }
 
-    private ObjectMapper configureObjectMapper() {
+    private ObjectMapper configureObjectMapper(RulesProject project, ProjectModel projectModel) {
         try {
             var objectMapperFactory = projectService.getWebStudio()
-                    .getCurrentProjectJacksonObjectMapperFactoryBean();
+                    .getProjectJacksonObjectMapperFactoryBean(project, projectModel);
             objectMapperFactory.setEnvironment(environment);
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {

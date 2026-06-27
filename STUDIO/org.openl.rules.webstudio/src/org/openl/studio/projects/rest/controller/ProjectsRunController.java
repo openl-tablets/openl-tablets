@@ -37,6 +37,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.export.RulesResultExport;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -114,7 +115,7 @@ public class ProjectsRunController {
             throw new BadRequestException("run.test-table.not.supported.message");
         }
 
-        var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
+        var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper(project, projectModel));
 
         runResultRegistry.cancelIfAny();
 
@@ -163,9 +164,10 @@ public class ProjectsRunController {
         }
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = configureObjectMapper();
+            var projectModel = projectService.resolveCompiledModel(project);
+            var objectMapper = configureObjectMapper(project, projectModel);
             var schemaGenerator = getSchemaGenerator(objectMapper);
-            var sprNamingStrategy = extractSpreadsheetNamingStrategy();
+            var sprNamingStrategy = extractSpreadsheetNamingStrategy(project, projectModel);
             var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator, sprNamingStrategy);
             return ResponseEntity.ok(mapper.mapResult(results));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
@@ -187,19 +189,19 @@ public class ProjectsRunController {
         runResultRegistry.clear();
     }
 
-    private SpreadsheetResultBeanPropertyNamingStrategy extractSpreadsheetNamingStrategy() {
+    private SpreadsheetResultBeanPropertyNamingStrategy extractSpreadsheetNamingStrategy(RulesProject project,
+                                                                                        ProjectModel projectModel) {
         var studio = projectService.getWebStudio();
-        var model = studio.getModel();
         PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                .extractPropertyNamingStrategy(studio.getCurrentProjectRulesDeploy(),
-                        model.getCompiledOpenClass().getClassLoader());
+                .extractPropertyNamingStrategy(studio.getProjectRulesDeploy(project),
+                        projectModel.getCompiledOpenClass().getClassLoader());
         return propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy spr ? spr : null;
     }
 
-    private ObjectMapper configureObjectMapper() {
+    private ObjectMapper configureObjectMapper(RulesProject project, ProjectModel projectModel) {
         try {
             var objectMapperFactory = projectService.getWebStudio()
-                    .getCurrentProjectJacksonObjectMapperFactoryBean();
+                    .getProjectJacksonObjectMapperFactoryBean(project, projectModel);
             objectMapperFactory.setEnvironment(environment);
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {

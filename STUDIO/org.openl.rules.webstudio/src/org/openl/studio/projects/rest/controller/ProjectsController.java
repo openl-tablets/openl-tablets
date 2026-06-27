@@ -51,6 +51,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -187,7 +188,7 @@ public class ProjectsController {
                     || normalized.branch() != null
                     || normalized.comment() != null
                     || normalized.revision() != null) {
-                getWebStudio().reset();
+                projectService.invalidateAfterEdit(project);
             }
         } catch (ProjectException e) {
             throw new ConflictException("project.status.update.failed.message");
@@ -219,7 +220,9 @@ public class ProjectsController {
                              @RequestBody CreateBranchModel request) {
         try {
             projectService.createBranch(project, request);
-            getWebStudio().reset();
+            // Branch creation does not change the working copy of any opened project, so a light workspace
+            // refresh is enough — no need to drop other projects' compiled state.
+            getWebStudio().refreshAfterEdit();
         } catch (ProjectException e) {
             throw new ConflictException("project.branch.create.failed.message");
         }
@@ -241,7 +244,7 @@ public class ProjectsController {
         // segment via {*branch}, which Spring exposes with a leading slash that must be removed.
         var branchName = branch.startsWith("/") ? branch.substring(1) : branch;
         projectService.deleteBranch(project, branchName, force);
-        getWebStudio().reset();
+        getWebStudio().refreshAfterEdit();
     }
 
     @GetMapping("/{projectId}/tables")
@@ -297,7 +300,7 @@ public class ProjectsController {
         try {
             projectService.createNewTable(project, request);
         } finally {
-            getWebStudio().reset();
+            projectService.invalidateAfterEdit(project);
         }
         var table = (TableView) request.table();
         var query = ProjectTableCriteriaQuery.builder().name(table.name).build();
@@ -353,7 +356,7 @@ public class ProjectsController {
             var newTableId = projectService.updateTable(project, tableId, editTable);
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            projectService.invalidateAfterEdit(project);
         }
     }
 
@@ -368,7 +371,7 @@ public class ProjectsController {
             var newTableId = projectService.appendTableLines(project, tableId, editTable);
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            projectService.invalidateAfterEdit(project);
         }
     }
 
@@ -383,7 +386,7 @@ public class ProjectsController {
             var newTableId = projectService.editTableSource(project, tableId, action);
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            projectService.invalidateAfterEdit(project);
         }
     }
 
@@ -396,7 +399,7 @@ public class ProjectsController {
             projectService.deleteTable(project, tableId);
             return ResponseEntity.noContent().build();
         } finally {
-            getWebStudio().reset();
+            projectService.invalidateAfterEdit(project);
         }
     }
 
@@ -438,7 +441,7 @@ public class ProjectsController {
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
-        var objectMapper = configureObjectMapper();
+        var objectMapper = configureObjectMapper(project, projectModel);
         var schemaGenerator = getSchemaGenerator(objectMapper);
         var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
         if (StringUtils.isBlank(tableId)) {
@@ -508,7 +511,7 @@ public class ProjectsController {
         }
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = configureObjectMapper();
+            var objectMapper = configureObjectMapper(project, projectService.resolveCompiledModel(project));
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
             var query = new TestExecutionSummaryQuery(failuresOnly, failures);
@@ -525,9 +528,10 @@ public class ProjectsController {
         }
     }
 
-    private ObjectMapper configureObjectMapper() {
+    private ObjectMapper configureObjectMapper(RulesProject project, ProjectModel projectModel) {
         try {
-            var objectMapperFactory = projectService.getWebStudio().getCurrentProjectJacksonObjectMapperFactoryBean();
+            var objectMapperFactory = projectService.getWebStudio()
+                    .getProjectJacksonObjectMapperFactoryBean(project, projectModel);
             objectMapperFactory.setEnvironment(environment);
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {

@@ -320,12 +320,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
             throw new ProjectException("Failed to delete project history", e);
         }
-        // We must release module info because it can hold jars.
-        // We cannot rely on studio.getProject() to determine if closing project is compiled inside
-        // studio.getModel()
-        // because project could be changed or cleared before (See studio.reset() usages). Also that project can be
-        // a dependency of other. That's why we must always clear moduleInfo when closing a project.
-        webStudio.getModel().clearModuleInfo();
+        // Release this project's model: it can hold jars / a dependency manager. evictProjectModel matches by
+        // project identity, so it targets exactly the closing project's model and leaves other opened projects
+        // untouched. Projects depending on it are refreshed separately when they are next opened.
+        webStudio.evictProjectModel(project);
         project.close();
     }
 
@@ -372,7 +370,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (wasOpened && (StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision()))) {
             // We must clear module info and release project lock
             // because project was already opened and we are going to open it in another branch or revision
-            webStudio.getModel().clearModuleInfo();
+            webStudio.evictProjectModel(project);
             project.releaseMyLock();
         }
 
@@ -412,7 +410,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var webStudio = getWebStudio();
             // We must clear module info and release project lock
             // because project was already opened and we are going to open it in another branch or revision
-            webStudio.getModel().clearModuleInfo();
+            webStudio.evictProjectModel(project);
             project.releaseMyLock();
         }
 
@@ -552,7 +550,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return;
         }
         ProjectHistoryService.deleteHistory(project.getBusinessName());
-        getWebStudio().getModel().clearModuleInfo();
+        getWebStudio().evictProjectModel(project);
         if (project.isOpened()) {
             project.close();
         }
@@ -702,11 +700,56 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        var webstudio = getWebStudio();
-        webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
-        var moduleModel = webstudio.getModel();
+        // Open the module in the project's OWN model without switching the session's current selection, so
+        // concurrent opens/edits of different projects (multiple tabs, async REST) never clobber each other.
+        var moduleModel = getWebStudio().openProjectModule(project, projectDescriptor, module);
         var job = getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project), moduleModel);
         return ProjectHandle.of(moduleModel, job);
+    }
+
+    /**
+     * The project's already-open compiled model, falling back to opening the project when none is present.
+     * Used by read endpoints (run/trace results) that must serialize against the project's compiled classes
+     * without switching its opened module.
+     *
+     * @param project the project
+     * @return the compiled project model
+     */
+    public ProjectModel resolveCompiledModel(RulesProject project) {
+        var projectModel = getWebStudio().getModelIfPresent(project);
+        if (projectModel == null || projectModel.getCompiledOpenClass() == null) {
+            return openProject(project).awaitCompiled();
+        }
+        // Await any in-flight recompilation (e.g. a background reload triggered by a recent edit) so callers
+        // serialize against the latest compiled classes rather than the previous ones.
+        try {
+            projectModel.getCurrentCompilation().future().join();
+        } catch (RuntimeException ignored) {
+            // Compilation finished exceptionally; fall back to the model's current compiled state.
+        }
+        return projectModel;
+    }
+
+    /**
+     * Refresh the workspace and eagerly recompile the just-edited project together with any opened projects that
+     * depend on it. Replaces the former whole-session reset after each edit, which dropped every opened
+     * project's compiled state — so editing one project no longer disturbs the others a user (or async REST
+     * caller) is working on in parallel.
+     *
+     * @param edited the project whose tables were just changed
+     */
+    public void invalidateAfterEdit(RulesProject edited) {
+        var webStudio = getWebStudio();
+        webStudio.refreshAfterEdit();
+        webStudio.recompileProject(edited);
+        try {
+            for (RulesProject dependent : projectDependencyResolver.getDependsOnProject(edited)) {
+                webStudio.recompileProject(dependent);
+            }
+        } catch (ProjectException e) {
+            log.warn("Failed to resolve dependents of '{}' for recompilation", edited.getBusinessName(), e);
+        }
+        getCompilationJobRegistry().clear(projectIdentifierMapper.map(edited), edited.getBranch());
     }
 
     /**
@@ -787,7 +830,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var context = getOpenLTable(project, tableId);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        project.tryLockOrThrow();
         return tableWriterExecutor.executeWrite(writer, tableView);
     }
 
@@ -808,7 +851,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var context = getOpenLTable(project, tableId);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        project.tryLockOrThrow();
         return tableWriterExecutor.executeAppend(writer, tableView);
     }
 
@@ -832,7 +875,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var context = getOpenLTable(project, tableId);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        project.tryLockOrThrow();
         return tableWriterExecutor.executeSourceAction(writer, action);
     }
 
@@ -852,7 +895,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var context = getOpenLTable(project, tableId);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        project.tryLockOrThrow();
         writer.delete();
     }
 
@@ -861,7 +904,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ForbiddenException("default.message");
         }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        project.tryLockOrThrow();
         tableCreatorService.createTable(createTableRequest, projectModel);
     }
 
