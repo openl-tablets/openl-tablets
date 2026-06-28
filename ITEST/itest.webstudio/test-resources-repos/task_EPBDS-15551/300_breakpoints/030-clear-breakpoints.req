@@ -1,0 +1,5 @@
+PUT /rest/projects/{PROJECT_ID}/trace/breakpoints HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"uris":[]}
