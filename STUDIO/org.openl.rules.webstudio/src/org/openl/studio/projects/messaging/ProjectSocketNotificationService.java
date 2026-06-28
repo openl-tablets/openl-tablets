@@ -117,6 +117,23 @@ public class ProjectSocketNotificationService {
     }
 
     /**
+     * Notifies user about an interactive debug session status change for a specific table.
+     *
+     * <p>The payload is the status name (for example {@code SUSPENDED}); the client then reads the
+     * current stack from the REST API.
+     *
+     * @param user      user to notify
+     * @param projectId project id
+     * @param tableId   table id
+     * @param status    new debug session status
+     */
+    public void notifyTraceDebugStatus(CommonUser user, ProjectIdModel projectId, String tableId, String status) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                status);
+    }
+
+    /**
      * Notifies user about run execution status change for a specific table.
      *
      * @param user      user to notify

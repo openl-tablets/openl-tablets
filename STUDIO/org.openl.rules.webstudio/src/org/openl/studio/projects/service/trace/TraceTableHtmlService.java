@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.trace;
 
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
+import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 
 /**
  * Service for rendering traced tables as HTML fragments.
@@ -37,4 +38,18 @@ public interface TraceTableHtmlService {
                                 int nodeId,
                                 ProjectModel projectModel,
                                 boolean showFormulas);
+
+    /**
+     * Renders a debug stack frame's table as an HTML fragment with the current line highlighted.
+     *
+     * <p>The highlighted region is the frame's current sub-step: the active cell for a spreadsheet or
+     * the fired rule for a decision table.
+     *
+     * @param projectModel the project model providing table metadata
+     * @param frame        the stack frame to render
+     * @param showFormulas if {@code true}, displays cell formulas instead of computed values
+     * @return HTML string containing a {@code <table>} element
+     * @throws org.openl.studio.common.exception.NotFoundException if the table cannot be found
+     */
+    String renderFrameTable(ProjectModel projectModel, DebugFrame frame, boolean showFormulas);
 }

@@ -1,6 +1,27 @@
 import { createStyles } from 'antd-style'
 
 export const useStyles = createStyles(({ css }) => ({
+    debugView: css`
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    `,
+    toolbar: css`
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+        padding: 4px 8px;
+        border-bottom: 1px solid #e8e8e8;
+    `,
+    panels: css`
+        flex: 1;
+        display: flex;
+        position: relative;
+        min-height: 0;
+    `,
     view: css`
         position: absolute;
         inset: 0;

@@ -1,10 +1,12 @@
 import apiCall from './apiCall'
 import { ApiHttpError } from './apiCall'
 import type { ApiCallOptions } from './apiCall'
-import CONFIG from './config'
 import { errorHandler } from 'utils/errorHandling'
 import type {
-    TraceNodeView,
+    DebugFrameVariables,
+    DebugStackView,
+    DebugStatusView,
+    StepType,
     TraceParameterValue,
 } from 'types/trace'
 
@@ -117,99 +119,16 @@ const retryApiCall = async <T>(
 /** Standard API call options for trace endpoints */
 const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
+const base = (projectId: string): string => `/projects/${encodeURIComponent(projectId)}/trace`
+
 /**
- * API service for trace execution endpoints.
- * All endpoints require project-level READ access.
- * All methods use retry logic for transient network errors.
+ * API client for the interactive trace debugger.
+ * All endpoints require project-level READ access and retry on transient network errors.
  */
 export const traceService = {
     /**
-     * Get node children for lazy loading, or root nodes if nodeId is not provided.
-     * @param nodeId Parent node ID to get children for (omit for root nodes)
-     */
-    getNodeChildren: async (
-        projectId: string,
-        nodeId?: number,
-        showRealNumbers = false
-    ): Promise<TraceNodeView[]> => {
-        const params = new URLSearchParams()
-        if (nodeId !== undefined) {
-            params.set('id', String(nodeId))
-        }
-        params.set('showRealNumbers', String(showRealNumbers))
-
-        return await retryApiCall<TraceNodeView[]>(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes?${params.toString()}`,
-            undefined,
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Get full node details including parameters, context, result, errors.
-     * @param nodeId Node ID to get details for
-     */
-    getNodeDetails: async (
-        projectId: string,
-        nodeId: number,
-        showRealNumbers = false
-    ): Promise<TraceNodeView> => {
-        return await retryApiCall<TraceNodeView>(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}?showRealNumbers=${showRealNumbers}`,
-            undefined,
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Get lazy-loaded parameter value.
-     * @param parameterId Parameter ID from TraceParameterValue
-     */
-    getParameterValue: async (
-        projectId: string,
-        parameterId: number
-    ): Promise<TraceParameterValue> => {
-        return await retryApiCall<TraceParameterValue>(
-            `/projects/${encodeURIComponent(projectId)}/trace/parameters/${parameterId}`,
-            undefined,
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Get traced table HTML fragment with highlighted cells.
-     * @param nodeId Node ID to get table for
-     * @param showFormulas Show formulas instead of values
-     */
-    getTraceTableHtml: async (
-        projectId: string,
-        nodeId: number,
-        showFormulas = false
-    ): Promise<string> => {
-        return await retryApiCall<string>(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}/table?showFormulas=${showFormulas}`,
-            { headers: { Accept: 'text/html' } },
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Cancel ongoing trace execution.
-     * Returns 204 on success, 404 if no trace exists.
-     */
-    cancelTrace: async (projectId: string): Promise<void> => {
-        return await retryApiCall<void>(
-            `/projects/${encodeURIComponent(projectId)}/trace`,
-            { method: 'DELETE' },
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Start trace execution.
-     * @param projectId Base64 encoded "repositoryId:projectName"
-     * @param options tableId, testRanges, fromModule, inputJson
-     * @returns Promise that resolves on 202 Accepted
+     * Start a debug session. Returns the initial execution stack (suspended at entry or after
+     * running to the first breakpoint).
      */
     startTrace: async (
         projectId: string,
@@ -217,39 +136,98 @@ export const traceService = {
             tableId: string
             testRanges?: string
             fromModule?: string
+            stopAtEntry?: boolean
             inputJson?: string
         }
-    ): Promise<void> => {
+    ): Promise<DebugStackView> => {
         const params = new URLSearchParams()
         params.set('tableId', options.tableId)
         if (options.testRanges) params.set('testRanges', options.testRanges)
         if (options.fromModule) params.set('fromModule', options.fromModule)
+        params.set('stopAtEntry', String(options.stopAtEntry ?? true))
 
-        return await retryApiCall<void>(
-            `/projects/${encodeURIComponent(projectId)}/trace?${params.toString()}`,
+        return await retryApiCall<DebugStackView>(
+            `${base(projectId)}?${params.toString()}`,
             {
                 method: 'POST',
                 headers: options.inputJson ? { 'Content-Type': 'application/json' } : {},
-                ...(options.inputJson && { body: options.inputJson })
+                ...(options.inputJson && { body: options.inputJson }),
             },
             TRACE_API_OPTIONS
         )
     },
 
-    /**
-     * Export trace as text file download.
-     * @param projectId Project ID
-     * @param showRealNumbers Show real numbers instead of formatted values
-     * @param release Whether to clear trace from memory after download
-     */
-    exportTrace: (
+    /** Get the current execution stack. */
+    getStack: async (projectId: string): Promise<DebugStackView> =>
+        retryApiCall<DebugStackView>(`${base(projectId)}/stack`, undefined, TRACE_API_OPTIONS),
+
+    /** Get the current debug status. */
+    getStatus: async (projectId: string): Promise<DebugStatusView> =>
+        retryApiCall<DebugStatusView>(`${base(projectId)}/status`, undefined, TRACE_API_OPTIONS),
+
+    /** Step the suspended session and return the new stack. */
+    step: async (projectId: string, type: StepType): Promise<DebugStackView> =>
+        retryApiCall<DebugStackView>(
+            `${base(projectId)}/step?type=${type}`,
+            { method: 'POST' },
+            TRACE_API_OPTIONS
+        ),
+
+    /** Resume to the next breakpoint (asynchronous; outcome arrives via WebSocket). */
+    resume: async (projectId: string): Promise<void> =>
+        retryApiCall<void>(`${base(projectId)}/resume`, { method: 'POST' }, TRACE_API_OPTIONS),
+
+    /** Request an asynchronous suspend at the next safepoint. */
+    pause: async (projectId: string): Promise<void> =>
+        retryApiCall<void>(`${base(projectId)}/pause`, { method: 'POST' }, TRACE_API_OPTIONS),
+
+    /** Freeze and return a stack frame's variables (must be suspended). */
+    getVariables: async (projectId: string, frameIndex: number): Promise<DebugFrameVariables> =>
+        retryApiCall<DebugFrameVariables>(
+            `${base(projectId)}/frames/${frameIndex}/variables`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
+    /** Get the HTML of a stack frame's table. */
+    getFrameTableHtml: async (
         projectId: string,
-        showRealNumbers: boolean,
-        release: boolean = false
-    ): void => {
-        const url = `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/trace/export?showRealNumbers=${showRealNumbers}&release=${release}`
-        window.location.href = url
-    },
+        frameIndex: number,
+        showFormulas = false
+    ): Promise<string> =>
+        retryApiCall<string>(
+            `${base(projectId)}/frames/${frameIndex}/table?showFormulas=${showFormulas}`,
+            { headers: { Accept: 'text/html' } },
+            TRACE_API_OPTIONS
+        ),
+
+    /** Get a lazy-loaded parameter value. */
+    getParameterValue: async (projectId: string, parameterId: number): Promise<TraceParameterValue> =>
+        retryApiCall<TraceParameterValue>(
+            `${base(projectId)}/parameters/${parameterId}`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
+    /** Get the breakpoints (table URIs). */
+    getBreakpoints: async (projectId: string): Promise<string[]> =>
+        retryApiCall<string[]>(`${base(projectId)}/breakpoints`, undefined, TRACE_API_OPTIONS),
+
+    /** Replace the breakpoint set. */
+    setBreakpoints: async (projectId: string, uris: string[]): Promise<void> =>
+        retryApiCall<void>(
+            `${base(projectId)}/breakpoints`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uris }),
+            },
+            TRACE_API_OPTIONS
+        ),
+
+    /** Terminate the debug session. Returns 204 on success, 404 if none. */
+    cancelTrace: async (projectId: string): Promise<void> =>
+        retryApiCall<void>(base(projectId), { method: 'DELETE' }, TRACE_API_OPTIONS),
 }
 
 export default traceService

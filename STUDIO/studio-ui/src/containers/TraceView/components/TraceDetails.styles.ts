@@ -12,6 +12,15 @@ export const useStyles = createStyles(({ css }) => ({
         align-items: center;
         justify-content: center;
     `,
+    tableHeader: css`
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    `,
+    frameTitle: css`
+        font-weight: 600;
+    `,
     errorsCard: css`
         .ant-card-head {
             min-height: 36px;

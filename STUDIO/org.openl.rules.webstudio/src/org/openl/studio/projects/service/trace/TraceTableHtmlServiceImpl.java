@@ -5,12 +5,20 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.dt.ActionInvoker;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -24,6 +32,9 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.DecisionTableTraceFilterFactory;
 import org.openl.rules.webstudio.web.trace.RegionsExtractor;
+import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
+import org.openl.rules.webstudio.web.trace.debug.CurrentLocation;
+import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
@@ -44,6 +55,8 @@ import org.openl.util.CollectionUtils;
 @Service
 public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
 
+    private static final String NODE_NOT_FOUND = "trace.node.not.found.message";
+
     /**
      * {@inheritDoc}
      */
@@ -55,13 +68,13 @@ public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
         // 1. Get trace object
         ITracerObject tto = traceHelper.getTableTracer(nodeId);
         if (tto == null) {
-            throw new NotFoundException("trace.node.not.found.message");
+            throw new NotFoundException(NODE_NOT_FOUND);
         }
 
         // 2. Get table (replicates ShowTraceTableBean.getTraceTable())
         TableSyntaxNode tsn = getTableSyntaxNode(tto, projectModel);
         if (tsn == null) {
-            throw new NotFoundException("trace.node.not.found.message");
+            throw new NotFoundException(NODE_NOT_FOUND);
         }
         IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
 
@@ -85,11 +98,132 @@ public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
         );
 
         if (tableModel == null) {
-            throw new NotFoundException("trace.node.not.found.message");
+            throw new NotFoundException(NODE_NOT_FOUND);
         }
 
         // 5. Render HTML (standalone version without JSF dependencies)
         return renderTableHtml(tableModel, showFormulas);
+    }
+
+    @Override
+    public String renderFrameTable(ProjectModel projectModel, DebugFrame frame, boolean showFormulas) {
+        TableSyntaxNode tsn = projectModel.getTableByUri(frame.getUri());
+        if (tsn == null) {
+            throw new NotFoundException(NODE_NOT_FOUND);
+        }
+        IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
+        IGridTable gridTable = table.getGridTable(null);
+        int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
+        IGridFilter[] filters = frameFilters(frame);
+        TableModel tableModel = TableModel.initializeTableModel(
+                gridTable, filters, numRows, null, null, null, table.getMetaInfoReader(), false, null);
+        if (tableModel == null) {
+            throw new NotFoundException(NODE_NOT_FOUND);
+        }
+        return renderTableHtml(tableModel, showFormulas);
+    }
+
+    /** Clearly visible amber background for the current execution line. */
+    private static final short[] CURRENT_STEP_COLOR = {255, 224, 130};
+    /** Light green for a matched decision-table condition. */
+    private static final short[] MATCH_COLOR = {198, 239, 206};
+    /** Light red for an unmatched decision-table condition. */
+    private static final short[] NO_MATCH_COLOR = {255, 199, 206};
+    /** Light blue for the fired rule's returned result. */
+    private static final short[] RESULT_COLOR = {179, 217, 255};
+
+    private IGridFilter[] frameFilters(DebugFrame frame) {
+        // Decision tables color every checked condition green/red; other tables highlight the current line.
+        return frame.getSource() instanceof IDecisionTable ? dtConditionFilters(frame) : currentStepFilters(frame);
+    }
+
+    /**
+     * Highlight filter for the frame's current line (active spreadsheet cell). Empty when there is no
+     * current line.
+     */
+    private IGridFilter[] currentStepFilters(DebugFrame frame) {
+        List<IGridRegion> regions = currentStepRegions(frame);
+        if (regions.isEmpty()) {
+            return new IGridFilter[0];
+        }
+        return new IGridFilter[]{backgroundFilter(regions, CURRENT_STEP_COLOR)};
+    }
+
+    /** Green/red background filters for the decision table's evaluated conditions. */
+    private IGridFilter[] dtConditionFilters(DebugFrame frame) {
+        List<IGridRegion> matched = new ArrayList<>();
+        List<IGridRegion> unmatched = new ArrayList<>();
+        for (ConditionCheck check : frame.getConditionChecks()) {
+            if (!(check.condition() instanceof IBaseCondition condition)) {
+                continue;
+            }
+            List<IGridRegion> target = check.successful() ? matched : unmatched;
+            for (int rule : check.rules()) {
+                ILogicalTable valueCell = condition.getValueCell(rule);
+                if (valueCell != null) {
+                    target.addAll(GridTableUtils.getGridRegions(valueCell));
+                }
+            }
+        }
+        List<IGridFilter> filters = new ArrayList<>();
+        // Apply red first, then green, so a matched cell wins when a region appears in both.
+        if (!unmatched.isEmpty()) {
+            filters.add(backgroundFilter(unmatched, NO_MATCH_COLOR));
+        }
+        if (!matched.isEmpty()) {
+            filters.add(backgroundFilter(matched, MATCH_COLOR));
+        }
+        // The fired rule's returned result, in a distinct color.
+        List<IGridRegion> result = firedRuleResultRegions(frame);
+        if (!result.isEmpty()) {
+            filters.add(backgroundFilter(result, RESULT_COLOR));
+        }
+        return filters.toArray(new IGridFilter[0]);
+    }
+
+    private static List<IGridRegion> firedRuleResultRegions(DebugFrame frame) {
+        if (frame.getCurrentStep() instanceof ActionInvoker invoker
+                && frame.getSource() instanceof IDecisionTable decisionTable) {
+            List<IGridRegion> regions = new ArrayList<>();
+            for (int rule : invoker.getRules()) {
+                regions.addAll(GridTableUtils.getGridRegions(decisionTable.getRuleTable(rule)));
+            }
+            return regions;
+        }
+        return List.of();
+    }
+
+    private static IGridFilter backgroundFilter(List<IGridRegion> regions, short[] color) {
+        RegionGridSelector selector = new RegionGridSelector(regions.toArray(IGridRegion.EMPTY_REGION), false);
+        return new ColorGridFilter(selector, c -> color, ColorGridFilter.BACKGROUND);
+    }
+
+    private static List<IGridRegion> currentStepRegions(DebugFrame frame) {
+        if (frame.getCurrentStep() instanceof SpreadsheetCell cell) {
+            return List.of(cell.getSourceCell().getAbsoluteRegion());
+        }
+        // Robust fallback: resolve the current spreadsheet cell from the location reference, since the
+        // live cell reference can be cleared by intermediate trace events.
+        IGridRegion region = currentSpreadsheetCellRegion(frame);
+        return region == null ? List.of() : List.of(region);
+    }
+
+    private static @Nullable IGridRegion currentSpreadsheetCellRegion(DebugFrame frame) {
+        if (!(frame.getSource() instanceof Spreadsheet spreadsheet) || frame.getLocation() == null) {
+            return null;
+        }
+        String ref = frame.getLocation().ref();
+        if (ref == null) {
+            return null;
+        }
+        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
+            for (SpreadsheetCell cell : row) {
+                if (cell != null && CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex()).equals(ref)) {
+                    return cell.getSourceCell().getAbsoluteRegion();
+                }
+            }
+        }
+        return null;
     }
 
     /**

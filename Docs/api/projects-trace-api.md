@@ -3,545 +3,363 @@
 **Version**: 6.0.0-SNAPSHOT
 **Status**: BETA
 **Base Path**: `/projects/{projectId}/trace`
-**Last Updated**: 2026-01-29
+**Last Updated**: 2026-06-28
+
+> [!Note]
+> This is the **interactive debugger** API. It replaces the previous tree-based Trace (the `/trace/nodes`
+> and `/trace/export` endpoints are gone). See [Architecture Design](projects-trace-architecture.md) for
+> how suspension and the live stack work.
 
 ---
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [API Reference](#api-reference)
-3. [Data Models](#data-models)
-4. [Workflows](#workflows)
-5. [Error Handling](#error-handling)
-6. [Examples](#examples)
-7. [Best Practices](#best-practices)
+2. [Session Lifecycle](#session-lifecycle)
+3. [API Reference](#api-reference)
+4. [Data Models](#data-models)
+5. [WebSocket Notifications](#websocket-notifications)
+6. [Workflows](#workflows)
+7. [Error Handling](#error-handling)
+8. [Examples](#examples)
 
 ---
 
 ## Overview
 
-The Projects Trace API provides a comprehensive REST interface for debugging and tracing OpenL rules execution. This API enables developers to start trace execution for rules tables, retrieve hierarchical trace trees, and inspect execution details including parameters, runtime context, and results.
+The Projects Trace API drives an **interactive debugger** for OpenL rules: start a session on a table,
+then step into/over/out, set breakpoints, run to a breakpoint, inspect the live call stack, and freeze a
+frame's variables — all against a real, suspended execution rather than a pre-built tree.
 
-### Key Features
+### Key features
 
-- **Asynchronous Execution**: Non-blocking trace execution with WebSocket progress notifications
-- **Hierarchical Trace Tree**: Complete execution tree with lazy-loading support for large traces
-- **Lazy Parameter Loading**: Large parameter values loaded on-demand to optimize initial response size
-- **Test Suite Support**: Trace individual test cases or ranges from test suite methods
-- **Table HTML Rendering**: View traced tables with execution path highlighting
-- **Session Management**: One trace per session with automatic cancellation of previous traces
+- **Real suspended execution** — the rule runs on a dedicated worker thread that parks at breakpoints and
+  step points; its JVM stack holds all live state. Resuming continues forward, never re-runs.
+- **Live stack, not a full tree** — only the frames from the root call to the current point are retained,
+  so memory is bounded by stack depth.
+- **Stepping** — Step Into, Step Over, Step Out, Resume, and asynchronous Pause.
+- **Breakpoints** — on a table (suspend on entry) or on a sub-step (a spreadsheet cell).
+- **Lazy variable freezing** — a frame's parameters/context/result are deep-cloned only when inspected,
+  while suspended, and discarded when the frame returns. Large values load on demand.
+- **One session per user** — starting a new session terminates the previous one.
 
-### Use Cases
+### Use cases
 
-1. **Rule Debugging**: Trace execution to understand why a rule produced a specific result
-2. **Decision Table Analysis**: Visualize which conditions matched and which rules fired
-3. **Performance Analysis**: Identify slow execution paths in complex rule chains
-4. **Test Case Debugging**: Trace specific test cases to understand failures
-5. **Spreadsheet Cell Tracing**: Follow cell evaluation order and dependencies
+1. **Rule debugging** — walk a calculation step by step to see why it produced a result.
+2. **Decision table analysis** — see which conditions matched (green) or not (red) and which rule fired.
+3. **Spreadsheet inspection** — follow cell evaluation order and inspect already-computed cell values.
+4. **Test case debugging** — debug a specific test case from a test suite.
 
-### Architecture Overview
+### Components
 
-``` mermaid
+```mermaid
 flowchart TB
     subgraph REST["REST Controller Layer"]
-        C[ProjectsTraceController<br/>- 7 REST endpoints<br/>- Start/cancel trace<br/>- Get results/export<br/>- Lazy loading]
+        C["ProjectsTraceDebugController<br/>- start / step / resume / pause<br/>- stack / status / variables / table<br/>- breakpoints / parameters"]
     end
-
     subgraph SERVICE["Service Layer"]
-        S1[TraceExecutorService<br/>- Async execution<br/>- Test suite tracing]
-        S2[TraceTableHtmlService<br/>- HTML rendering]
-        S3[TraceExportService<br/>- Text export]
-        S4[TableInputParserService<br/>- JSON input parsing]
+        S1["TraceDebugService<br/>- capture compiled class off-lock<br/>- spawn worker"]
+        S2["TraceTableHtmlService<br/>- frame table HTML + highlight"]
+        S3["TableInputParserService<br/>- JSON input parsing"]
+        M["TraceDebugMapper<br/>- stack mapping + variable freezing"]
     end
-
-    subgraph SESSION["Session Layer"]
-        R1[ExecutionTraceResultRegistry<br/>- Task tracking<br/>- One trace per session]
-        R2[TraceParameterRegistry<br/>- Lazy parameter storage]
+    subgraph SESSION["Session Layer (@SessionScope)"]
+        R1["DebugSessionRegistry<br/>- one session + breakpoints"]
+        R2["TraceParameterRegistry<br/>- lazy parameter storage"]
     end
-
-    subgraph CORE["Core Tracing"]
-        T[TreeBuildTracer<br/>- Trace collection<br/>- Lazy nodes]
-        H[TraceHelper<br/>- Node caching]
+    subgraph ENGINE["Debug Engine"]
+        D["TraceDebugger / DebugChannel<br/>DebugHookImpl / StepController"]
     end
-
     C --> S1
     C --> S2
-    C --> S3
-    C --> S4
+    C --> M
     C --> R1
     C --> R2
-    S1 --> T
-    T --> H
+    S1 --> D
 ```
+
+---
+
+## Session Lifecycle
+
+A session moves through these statuses (also returned in every stack/status response):
+
+| Status | Meaning | Accepts commands |
+| --- | --- | --- |
+| `PENDING` | Created; worker not started yet | — |
+| `RUNNING` | Executing, not suspended | `pause` |
+| `SUSPENDED` | Paused at a breakpoint or step point; stack is inspectable | `step`, `resume`, inspect |
+| `COMPLETED` | Finished normally | terminal |
+| `ERROR` | Failed with an error | terminal |
+| `TERMINATED` | Cancelled before finishing | terminal |
+
+The normal flow is `PENDING → RUNNING ⇄ SUSPENDED → COMPLETED`; `ERROR` and `TERMINATED` are the other
+terminal states. Status transitions are pushed over WebSocket (see below).
 
 ---
 
 ## API Reference
 
-### 1. Start Trace Execution
+### 1. Start a debug session
 
 **Endpoint**: `POST /projects/{projectId}/trace`
 
-**Description**: Starts asynchronous trace execution for a table. Any previous trace for this session is automatically cancelled.
+Starts a session and runs to the first suspension. Any previous session for this user is terminated and
+the parameter registry is cleared. Active breakpoints (set earlier via `PUT /breakpoints`) apply
+immediately.
 
-**HTTP Method**: POST
+**Path parameters**:
+- `projectId` (string, required) — project identifier.
 
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
+**Query parameters**:
+- `tableId` (string, required) — table to debug.
+- `testRanges` (string, optional) — test-case selection for a test table (e.g. `1-3,5`).
+- `fromModule` (string, optional) — module name to run against the currently opened module.
+- `stopAtEntry` (boolean, default `true`) — suspend at the entry of the first frame; when `false`, run to
+  the first breakpoint.
 
-**Query Parameters**:
-- `tableId` (string, required): Table ID to trace
-- `testRanges` (string, optional): Test ranges for TestSuiteMethod (e.g., "1-3,5")
-- `fromModule` (string, optional): Module name for current opened module execution
+**Request body** (optional, `application/json`): raw input for a regular method. Supports the structured
+form (`{ "runtimeContext": {...}, "params": {...} }`), a raw named-parameter object, or a positional
+array — parsed by `TableInputParserService`.
 
-**Request Body** (optional):
-```json
-{
-  "runtimeContext": {
-    "lob": "Auto",
-    "usState": "CA",
-    "currentDate": "2026-01-28"
-  },
-  "params": {
-    "age": 25,
-    "driverRecord": {
-      "accidents": 0,
-      "violations": 1
-    }
-  }
-}
-```
+**Response**: `200 OK` — a [`DebugStackView`](#debugstackview) at the first suspension.
 
-**Response**: `202 Accepted` (no body)
+**Errors**: `404 Not Found` (`table.message`) when the table or its method is not found.
 
-**Behavior**:
-1. Cancels any previous trace execution
-2. Clears parameter registry
-3. Creates new TraceHelper for session caching
-4. Detects if table is TestSuiteMethod or regular method
-5. For TestSuiteMethod: Parses testRanges and executes traces
-6. For regular methods: Parses JSON input parameters and runtime context
-7. Submits async task via TraceExecutorService
-8. Registers WebSocket progress listener
+---
 
-**WebSocket Progress Events**:
-- `PENDING`: Trace queued
-- `STARTED`: Execution in progress
-- `COMPLETED`: Execution finished successfully
-- `INTERRUPTED`: Cancelled by user
-- `ERROR`: Failed with exception
+### 2. Get session status
+
+**Endpoint**: `GET /projects/{projectId}/trace/status`
+
+Lightweight poll. **Response**: `200 OK` — [`DebugStatusView`](#debugstatusview).
+
+**Errors**: `404 Not Found` (`trace.execution.task.message`) when there is no session.
+
+---
+
+### 3. Get the execution stack
+
+**Endpoint**: `GET /projects/{projectId}/trace/stack`
+
+**Response**: `200 OK` — [`DebugStackView`](#debugstackview), frames ordered root → current.
+
+**Errors**: `404 Not Found` when there is no session.
+
+---
+
+### 4. Step
+
+**Endpoint**: `POST /projects/{projectId}/trace/step`
+
+Steps once and returns the new stack once the worker re-suspends (bounded wait, 30 s).
+
+**Query parameters**:
+- `type` (string, required) — one of `into`, `over`, `out`.
+
+**Response**: `200 OK` — [`DebugStackView`](#debugstackview).
 
 **Errors**:
-- `404 Not Found`: Table not found
+- `400 Bad Request` (`trace.debug.invalid-step.message`) — unknown `type`.
+- `404 Not Found` — no session.
+- `409 Conflict` (`trace.execution.not.suspended.message`) — the session is not suspended.
 
 ---
 
-### 2. Get Trace Node Children
+### 5. Resume
 
-**Endpoint**: `GET /projects/{projectId}/trace/nodes`
+**Endpoint**: `POST /projects/{projectId}/trace/resume`
 
-**Description**: Retrieves child nodes for lazy loading, or root nodes if no node ID is provided. Use this to progressively load the trace tree.
+Runs to the next breakpoint or to completion. **Response**: `202 Accepted` (no body); the outcome arrives
+via WebSocket. Read `/stack` on the next `SUSPENDED`/terminal status.
 
-**HTTP Method**: GET
+**Errors**: `404 Not Found` (no session); `409 Conflict` (not suspended).
 
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
+---
 
-**Query Parameters**:
-- `id` (integer, optional): Node ID (omit for root nodes, defaults to 0)
-- `showRealNumbers` (boolean, default: false): Show exact numbers
+### 6. Pause
 
-**Response**: `200 OK`
+**Endpoint**: `POST /projects/{projectId}/trace/pause`
+
+Requests suspension at the next safepoint. **Response**: `202 Accepted` (no body).
+
+**Errors**: `404 Not Found` (no session).
+
+---
+
+### 7. Get frame variables
+
+**Endpoint**: `GET /projects/{projectId}/trace/frames/{index}/variables`
+
+Freezes (deep-clones) the frame at `index` while suspended and returns its parameters, context, result,
+executed sub-steps, and errors.
+
+**Response**: `200 OK` — [`DebugFrameVariables`](#debugframevariables).
+
+**Errors**: `404 Not Found` (no session, or `trace.frame.not.found.message`); `409 Conflict` (not
+suspended).
+
+---
+
+### 8. Get frame table HTML
+
+**Endpoint**: `GET /projects/{projectId}/trace/frames/{index}/table`
+
+Renders the frame's table as an HTML fragment with the current line highlighted: the active spreadsheet
+cell (amber), or a decision table's evaluated conditions (green matched / red unmatched) and the fired
+rule's result (blue).
+
+**Query parameters**:
+- `showFormulas` (boolean, default `false`) — show cell formulas instead of values.
+
+**Response**: `200 OK`, `Content-Type: text/html`.
+
+**Errors**: `404 Not Found` (no session, or frame not found).
+
+---
+
+### 9. List breakpoints
+
+**Endpoint**: `GET /projects/{projectId}/trace/breakpoints`
+
+Returns the active breakpoint keys. Works without a running session (breakpoints are session-scoped and
+persist across runs).
+
+**Response**: `200 OK` — array of strings. Each key is either a table `uri` or a sub-step `uri#ref`.
+
+---
+
+### 10. Replace breakpoints
+
+**Endpoint**: `PUT /projects/{projectId}/trace/breakpoints`
+
+Replaces the whole breakpoint set. Effective on the next frame enter / current-line change. Works without
+a running session, so breakpoints can be set before starting.
+
+**Request body** ([`BreakpointsRequest`](#breakpointsrequest)):
 ```json
-[
-  {
-    "key": 3,
-    "title": "DecisionTable BankRating",
-    "tooltip": "Decision table with 12 rules",
-    "type": "method",
-    "lazy": true,
-    "extraClasses": "",
-    "error": false
-  },
-  {
-    "key": 4,
-    "title": "Rule 1: rating = 'A'",
-    "tooltip": "Condition matched",
-    "type": "rule",
-    "lazy": false,
-    "extraClasses": "rule result",
-    "error": false
-  }
-]
+{ "uris": ["file:/.../Rules.xlsx?...sheet=Main&cell=B2", "file:/.../Rules.xlsx?...#R0C1"] }
 ```
 
-**Behavior**:
-1. If `id` is not provided, returns root nodes (immediate children of the trace root)
-2. If `id` is provided, retrieves node from TraceHelper cache by ID and returns its children
-3. Initializes lazy children on the node (if any)
-4. Maps children to simple TraceNodeView (no detailed fields)
-
-**Errors**:
-- `404 Not Found`: No trace task exists
-- `409 Conflict`: Trace execution not yet completed
+**Response**: `204 No Content`.
 
 ---
 
-### 3. Get Trace Node Details
-
-**Endpoint**: `GET /projects/{projectId}/trace/nodes/{nodeId}`
-
-**Description**: Retrieves detailed information for a single trace node including parameters, context, result, and errors.
-
-**HTTP Method**: GET
-
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
-- `nodeId` (integer, required): Node ID to retrieve
-
-**Query Parameters**:
-- `showRealNumbers` (boolean, default: false): Show exact numbers
-
-**Response**: `200 OK`
-```json
-{
-  "key": 4,
-  "title": "Rule 1: rating = 'A'",
-  "tooltip": "Condition matched",
-  "type": "rule",
-  "lazy": false,
-  "extraClasses": "rule result",
-  "error": false,
-  "parameters": [
-    {
-      "name": "bank",
-      "description": "Bank",
-      "lazy": false,
-      "parameterId": null,
-      "value": {
-        "bankID": "commerz",
-        "bankRatings": ["MA2", "FA+"]
-      },
-      "schema": {
-        "type": "object",
-        "properties": {
-          "bankID": {"type": "string"},
-          "bankRatings": {"type": "array", "items": {"type": "string"}}
-        }
-      }
-    },
-    {
-      "name": "userData",
-      "description": "UserData",
-      "lazy": true,
-      "parameterId": 7,
-      "value": null,
-      "schema": {
-        "type": "object",
-        "properties": {}
-      }
-    }
-  ],
-  "context": {
-    "name": "context",
-    "description": "IRulesRuntimeContext",
-    "lazy": false,
-    "parameterId": null,
-    "value": {
-      "lob": "Auto",
-      "currentDate": "2026-01-28"
-    },
-    "schema": {}
-  },
-  "result": {
-    "name": "result",
-    "description": "String",
-    "lazy": false,
-    "parameterId": null,
-    "value": "A",
-    "schema": {"type": "string"}
-  },
-  "errors": []
-}
-```
-
-**Notes**:
-- Uses `@JsonView(GenericView.Full.class)` - includes all detailed fields
-- Parameters with `lazy: true` must be fetched separately via `/parameters/{parameterId}`
-- JSON Schema provided for each parameter to aid client-side rendering
-- `errors` contains MessageDescription objects if execution failed
-
-**Errors**:
-- `404 Not Found`: No trace task exists or node not found
-- `409 Conflict`: Trace execution not yet completed
-
----
-
-### 4. Cancel Trace Execution
-
-**Endpoint**: `DELETE /projects/{projectId}/trace`
-
-**Description**: Cancels the current trace execution if running. Always succeeds (idempotent).
-
-**HTTP Method**: DELETE
-
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
-
-**Response**: `204 No Content`
-
-**Behavior**:
-1. Cancels current task if running
-2. Clears parameter registry
-
----
-
-### 5. Get Lazy Parameter Value
+### 11. Get a lazy parameter value
 
 **Endpoint**: `GET /projects/{projectId}/trace/parameters/{parameterId}`
 
-**Description**: Retrieves the full JSON value for a lazy-loaded parameter.
+Fetches the full value of a parameter that was returned lazily (`lazy: true`) in frame variables.
 
-**HTTP Method**: GET
+**Response**: `200 OK` — [`ParameterValue`](#parametervalue) with the value inlined.
 
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
-- `parameterId` (integer, required): Parameter ID from trace node details
-
-**Response**: `200 OK`
-```json
-{
-  "name": "userData",
-  "description": "UserData",
-  "lazy": false,
-  "parameterId": null,
-  "value": {
-    "userId": "12345",
-    "preferences": {
-      "theme": "dark",
-      "notifications": true
-    },
-    "history": [
-      {"date": "2026-01-01", "action": "login"},
-      {"date": "2026-01-15", "action": "purchase"}
-    ]
-  },
-  "schema": {
-    "type": "object",
-    "properties": {
-      "userId": {"type": "string"},
-      "preferences": {"type": "object"},
-      "history": {"type": "array"}
-    }
-  }
-}
-```
-
-**Notes**:
-- Returns full value (not lazy) with `lazy: false` and `parameterId: null`
-- Used for progressively loading large parameter values
-
-**Errors**:
-- `404 Not Found`: Parameter ID not found in registry
-- `409 Conflict`: Trace execution not yet completed
+**Errors**: `404 Not Found` (no session, or `trace.parameter.not.found.message`).
 
 ---
 
-### 6. Get Traced Table HTML
+### 12. Terminate the session
 
-**Endpoint**: `GET /projects/{projectId}/trace/nodes/{nodeId}/table`
+**Endpoint**: `DELETE /projects/{projectId}/trace`
 
-**Description**: Returns an HTML fragment for the traced table with execution path highlighting.
+Terminates the worker and clears the session and parameter registry. Idempotent.
 
-**HTTP Method**: GET
-
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
-- `nodeId` (integer, required): Trace node ID
-
-**Query Parameters**:
-- `showFormulas` (boolean, default: false): Show cell formulas instead of values
-
-**Response**: `200 OK`
-- Content-Type: `text/html`
-- Body: HTML table fragment with traced cells highlighted
-
-**Example Response**:
-```html
-<table class="openl-table traced">
-  <tr>
-    <td class="header">Condition</td>
-    <td class="header">Rating</td>
-  </tr>
-  <tr class="traced-row">
-    <td class="traced-cell matched">age > 25</td>
-    <td class="traced-cell result">A</td>
-  </tr>
-  <tr>
-    <td>age <= 25</td>
-    <td>B</td>
-  </tr>
-</table>
-```
-
-**Errors**:
-- `404 Not Found`: No trace task exists
-- `409 Conflict`: Trace execution not yet completed
-
----
-
-### 7. Export Trace to File
-
-**Endpoint**: `GET /projects/{projectId}/trace/export`
-
-**Description**: Exports the complete trace tree to a text file. Optionally releases trace memory after export.
-
-**HTTP Method**: GET
-
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
-
-**Query Parameters**:
-- `showRealNumbers` (boolean, default: false): Show exact numbers without formatting
-- `release` (boolean, default: false): Release trace memory after export (clears registry)
-
-**Response**: `200 OK`
-- Content-Type: `text/plain`
-- Content-Disposition: `attachment; filename="trace.txt"`
-- Body: Plain text trace tree
-
-**Example Response**:
-```text
-DT_RiskAssessment
-├── Rule 1: creditScore >= 700
-│   ├── Condition: creditScore = 720 >= 700 → true
-│   └── Result: LOW_RISK
-├── Rule 2: income >= 50000
-│   ├── Condition: income = 75000 >= 50000 → true
-│   └── Result: (combined)
-└── Final Result: LOW_RISK
-```
-
-**Behavior**:
-1. Streams trace directly to response (no RAM buffering for large traces)
-2. If timeout occurs during export, appends `!!!TRACE WAS LIMITED BY TIMEOUT!!!` message
-3. If `release=true`, clears both trace result registry and parameter registry after export
-4. UTF-8 encoding
-
-**Use Cases**:
-- Save trace for offline analysis
-- Share trace with team members
-- Archive trace for debugging sessions
-- Memory cleanup after debugging (with `release=true`)
-
-**Errors**:
-- `404 Not Found`: No trace task exists
-- `409 Conflict`: Trace execution not yet completed
+**Response**: `204 No Content`.
 
 ---
 
 ## Data Models
 
-### TraceInputRequest
+### DebugStackView
 
 ```typescript
-interface TraceInputRequest {
-  runtimeContext?: Record<string, any>;  // IRulesRuntimeContext properties
-  params?: Record<string, any>;          // Method parameters by name
+interface DebugStackView {
+  status: DebugStatus;          // PENDING | RUNNING | SUSPENDED | COMPLETED | ERROR | TERMINATED
+  frames: DebugFrameView[];     // root (index 0) → current
+  errorMessage?: string;        // present only when status = ERROR
 }
 ```
 
-**Example**:
-```json
-{
-  "runtimeContext": {
-    "lob": "Auto",
-    "usState": "CA"
-  },
-  "params": {
-    "age": 30,
-    "coverage": "Full"
-  }
-}
-```
-
----
-
-### TraceNodeView
+### DebugFrameView
 
 ```typescript
-interface TraceNodeView {
-  // Short fields (always included)
-  key: number;               // Unique node identifier
-  title: string;             // Display name
-  tooltip: string;           // Hover text
-  type: string;              // Node type
-  lazy: boolean;             // Whether children can be loaded
-  extraClasses: string;      // CSS styling classes
-  error: boolean;            // Whether this node has an error
-
-  // Full fields (only in detailed view)
-  parameters?: TraceParameterValue[];  // Input parameters
-  context?: TraceParameterValue;       // Runtime context
-  result?: TraceParameterValue;        // Method result
-  errors?: MessageDescription[];       // Execution errors
+interface DebugFrameView {
+  index: number;                // position in the stack, 0 = root
+  depth: number;                // frame depth, 1 = root
+  uri: string;                  // table source URI (breakpoint + table-render key)
+  name: string;                 // table display name
+  kind: FrameKind;              // decisionTable | spreadsheet | method | cmatch | tbasic | tbasicMethod
+  location?: DebugLocationView; // current line, or absent at frame entry
+  active: boolean;              // true for the top (current) frame
+  completed: boolean;           // frame has returned
+  error: boolean;               // frame failed
 }
 ```
 
-**Node Types**:
-- `"method"` - Method/function execution
-- `"test"` - Test suite execution
-- `"rule"` - Decision table rule
-- `"condition"` - Condition evaluation
-- `"result"` - Result value
-- `"spreadsheet"` - Spreadsheet cell
-- `"match"` - Pattern match operation
-
-**Extra Classes** (for styling):
-- `"rule fail"` - Failed rule condition
-- `"rule result"` - Rule that produced result
-- `"rule no_result"` - Rule without result
-- `"condition result"` - Successful condition
-- `"value"` - Value/result node
-
----
-
-### TraceParameterValue
+### DebugLocationView
 
 ```typescript
-interface TraceParameterValue {
-  name: string;              // Parameter name
-  description: string;       // Type description
-  lazy: boolean;             // Whether value is lazy-loaded
-  parameterId?: number;      // ID for lazy loading (null if value included)
-  value?: any;               // Full JSON value (null if lazy=true)
-  schema: object;            // JSON Schema for type validation
+interface DebugLocationView {
+  kind: string;     // cell | condition | dtrule | operation
+  row?: number;     // cell row index
+  column?: number;  // cell column index
+  ref?: string;     // short cell reference, e.g. "R2C3" (breakpoint sub-step key)
+  label?: string;   // human-readable, e.g. "$Formula$HouseTotal" or a fired rule name
 }
 ```
 
-**Lazy Loading**:
-- If `lazy: true`, `value` is null and `parameterId` is set
-- Use `GET /trace/parameters/{parameterId}` to fetch full value
-- Large objects/arrays are marked as lazy to optimize initial response
-
----
-
-### TraceExecutionStatus (WebSocket)
+### DebugFrameVariables
 
 ```typescript
-enum TraceExecutionStatus {
-  PENDING = "PENDING",           // Awaiting execution start
-  STARTED = "STARTED",           // Execution in progress
-  COMPLETED = "COMPLETED",       // Successfully finished
-  INTERRUPTED = "INTERRUPTED",   // Cancelled by user
-  ERROR = "ERROR"                // Failed with exception
+interface DebugFrameVariables {
+  parameters: ParameterValue[];   // input parameters
+  context?: ParameterValue;       // runtime context, if any
+  result?: ParameterValue;        // return value, if the frame has completed
+  steps: StepValueView[];         // sub-steps with computed values (spreadsheets)
+  errors: MessageDescription[];   // errors, if the frame failed
 }
 ```
 
----
+### StepValueView
 
-### MessageDescription (Errors)
+```typescript
+interface StepValueView {
+  ref: string;                 // sub-step reference, e.g. "R2C3" (breakpoint key suffix uri#ref)
+  label?: string;              // human-readable step name, e.g. "$Formula$HouseTotal"
+  status: string;              // executed | current | pending
+  value?: ParameterValue;      // frozen computed value for an executed step
+}
+```
+
+### DebugStatusView
+
+```typescript
+interface DebugStatusView {
+  status: DebugStatus;
+}
+```
+
+### BreakpointsRequest
+
+```typescript
+interface BreakpointsRequest {
+  uris?: string[];   // table uri, or sub-step uri#ref; null/omitted clears all
+}
+```
+
+### ParameterValue
+
+```typescript
+interface ParameterValue {
+  name: string;
+  description: string;     // type description
+  lazy?: boolean;          // true → value omitted, fetch via /parameters/{parameterId}
+  parameterId?: number;    // id for lazy fetch
+  value?: any;             // JSON value (absent when lazy)
+  schema?: object;         // JSON Schema for the type
+}
+```
+
+### MessageDescription
 
 ```typescript
 interface MessageDescription {
@@ -554,652 +372,163 @@ interface MessageDescription {
 
 ---
 
+## WebSocket Notifications
+
+Status transitions are pushed to the per-user destination:
+
+```
+/user/topic/projects/{projectId}/tables/{tableId}/trace/status
+```
+
+The payload is the **status name** as a plain string (for example `SUSPENDED`). On `SUSPENDED` the client
+reads the new stack from `GET /stack`; on `COMPLETED`/`ERROR`/`TERMINATED` it shows the terminal state.
+Synchronous endpoints (`POST /` and `POST /step`) also return the stack directly, so the WebSocket is
+mainly needed for the asynchronous `resume`/`pause` outcomes.
+
+```mermaid
+sequenceDiagram
+    participant UI as React UI
+    participant API as REST API
+    participant WS as WebSocket
+
+    UI->>API: POST /trace?tableId=... (stopAtEntry=true)
+    API-->>UI: 200 DebugStackView (SUSPENDED at entry)
+    UI->>API: POST /trace/step?type=into
+    API-->>UI: 200 DebugStackView (next line)
+    UI->>API: GET /trace/frames/0/variables
+    API-->>UI: 200 DebugFrameVariables
+    UI->>API: POST /trace/resume
+    API-->>UI: 202 Accepted
+    WS-->>UI: "COMPLETED"
+    UI->>API: GET /trace/stack
+    API-->>UI: 200 DebugStackView (COMPLETED)
+```
+
+---
+
 ## Workflows
 
-### Workflow 1: Trace a Regular Method
+### Workflow 1: Step through a rule
 
 ```
-1. Start trace execution
-   POST /projects/MyProject/trace?tableId=TABLE_BankRating
-   {
-     "params": {"bankId": "commerz"},
-     "runtimeContext": {"lob": "Commercial"}
-   }
+1. (optional) Set breakpoints up front
+   PUT /projects/MyProject/trace/breakpoints   { "uris": ["<tableUri>#R0C1"] }
 
-   Response: 202 Accepted
+2. Start, suspended at entry
+   POST /projects/MyProject/trace?tableId=DT_RiskAssessment
+   → 200 DebugStackView { status: SUSPENDED, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
 
-2. Wait for completion (via WebSocket or polling)
-   WebSocket: PENDING -> STARTED -> COMPLETED
+3. Step into the calculation
+   POST /projects/MyProject/trace/step?type=into
+   → 200 DebugStackView (current line advanced)
 
-3. Get root nodes
-   GET /projects/MyProject/trace/nodes
+4. Inspect the current frame
+   GET /projects/MyProject/trace/frames/0/variables
+   GET /projects/MyProject/trace/frames/0/table        (HTML with the current line highlighted)
 
-   Response: [
-     {"key": 1, "title": "BankRating", "lazy": true, ...}
-   ]
+5. Run to the next breakpoint / completion
+   POST /projects/MyProject/trace/resume   → 202
+   (WebSocket: SUSPENDED or COMPLETED) → GET /stack
 
-4. Expand node to get children
-   GET /projects/MyProject/trace/nodes?id=1
-
-   Response: [
-     {"key": 2, "title": "Rule 1", "lazy": false, ...},
-     {"key": 3, "title": "Rule 2", "lazy": false, ...}
-   ]
-
-5. Get node details
-   GET /projects/MyProject/trace/nodes/2
-
-   Response: {
-     "key": 2,
-     "title": "Rule 1: matched",
-     "parameters": [...],
-     "result": {...}
-   }
-
-6. Load lazy parameter if needed
-   GET /projects/MyProject/trace/parameters/7
-
-   Response: {
-     "name": "complexData",
-     "value": {...full value...}
-   }
+6. Finish
+   DELETE /projects/MyProject/trace   → 204
 ```
 
----
-
-### Workflow 2: Trace Test Cases
+### Workflow 2: Debug a single test case
 
 ```
-1. Start trace for specific test cases
-   POST /projects/MyProject/trace?tableId=TEST_BankRating&testRanges=1-3,5
-
-   Response: 202 Accepted
-
-2. Wait for completion
-
-3. Get root nodes (test cases)
-   GET /projects/MyProject/trace/nodes
-
-   Response: [
-     {"key": 1, "title": "Test Case 1", "type": "test", ...},
-     {"key": 2, "title": "Test Case 2", "type": "test", ...},
-     {"key": 3, "title": "Test Case 3", "type": "test", ...},
-     {"key": 4, "title": "Test Case 5", "type": "test", ...}
-   ]
-
-4. Expand specific test case
-   GET /projects/MyProject/trace/nodes?id=1
-
-   Response: [
-     {"key": 5, "title": "BankRating", "type": "method", ...},
-     {"key": 6, "title": "Rule 1", "type": "rule", ...}
-   ]
+1. POST /projects/MyProject/trace?tableId=TEST_RiskAssessment&testRanges=2
+   → 200 DebugStackView (suspended at the entry of test case 2)
+2. Step / inspect as above. Cases run sequentially; the worker stops at each case entry.
 ```
 
----
-
-### Workflow 3: View Traced Table
+### Workflow 3: Inspect an already-executed spreadsheet step
 
 ```
-1. Start and complete trace
-   POST /projects/MyProject/trace?tableId=DT_PricingRules
-   ...wait for completion...
-
-2. Get root nodes and find table node
-   GET /projects/MyProject/trace/nodes
-   GET /projects/MyProject/trace/nodes?id=1
-
-3. Get HTML table with highlighting
-   GET /projects/MyProject/trace/nodes/3/table
-
-   Response: <table class="traced">...highlighted cells...</table>
-
-4. Optionally show formulas
-   GET /projects/MyProject/trace/nodes/3/table?showFormulas=true
-
-   Response: <table>...formulas instead of values...</table>
-```
-
----
-
-### Workflow 4: Cancel and Restart
-
-```
-1. Start trace
-   POST /projects/MyProject/trace?tableId=TABLE_A
-   Response: 202 Accepted
-
-2. Cancel before completion
-   DELETE /projects/MyProject/trace
-   Response: 204 No Content
-
-3. Start new trace (previous cancelled automatically)
-   POST /projects/MyProject/trace?tableId=TABLE_B
-   Response: 202 Accepted
-```
-
----
-
-### Workflow 5: Export and Release Trace
-
-```
-1. Start and complete trace
-   POST /projects/MyProject/trace?tableId=DT_PricingRules
-   ...wait for completion...
-
-2. Explore trace interactively
-   GET /projects/MyProject/trace/nodes
-   GET /projects/MyProject/trace/nodes?id=1
-   GET /projects/MyProject/trace/nodes/5
-
-3. Export trace to file for archiving
-   GET /projects/MyProject/trace/export?showRealNumbers=true
-
-   Response: (text file download)
-   Content-Disposition: attachment; filename="trace.txt"
-
-4. When done, export and release memory
-   GET /projects/MyProject/trace/export?release=true
-
-   Response: (text file download)
-   Note: Trace memory is released after this call
+1. Suspend inside a Spreadsheet frame (step until status=SUSPENDED on a cell).
+2. GET /projects/MyProject/trace/frames/{i}/variables
+   → steps: [ { ref:"R0C1", label:"$Value$Base", status:"executed", value:{...} },
+              { ref:"R1C1", label:"$Formula$Total", status:"current" }, ... ]
+   Inspect the computed value of an executed cell while a later cell is current.
 ```
 
 ---
 
 ## Error Handling
 
-### Error Response Format
+Errors use the standard problem body:
 
 ```json
-{
-  "status": 404,
-  "error": "Not Found",
-  "message": "table.message",
-  "path": "/projects/MyProject/trace"
-}
+{ "status": 404, "message": "trace.execution.task.message", "path": "/projects/MyProject/trace/stack" }
 ```
 
----
-
-### Common Error Scenarios
-
-#### 1. Table Not Found
-
-**Scenario**: The specified tableId does not exist
-
-**Request**:
-```bash
-POST /projects/MyProject/trace?tableId=INVALID_TABLE
-```
-
-**Response**: `404 Not Found`
-```json
-{
-  "message": "table.message"
-}
-```
-
-**Resolution**: Verify the tableId is correct
-
----
-
-#### 2. No Trace Task Exists
-
-**Scenario**: Attempting to get results without starting a trace
-
-**Request**:
-```bash
-GET /projects/MyProject/trace/nodes
-```
-
-**Response**: `404 Not Found`
-```json
-{
-  "message": "trace.execution.task.message"
-}
-```
-
-**Resolution**: Start a trace first with POST
-
----
-
-#### 3. Trace Not Yet Completed
-
-**Scenario**: Attempting to get results while trace is still running
-
-**Request**:
-```bash
-GET /projects/MyProject/trace/nodes
-```
-
-**Response**: `409 Conflict`
-```json
-{
-  "message": "trace.execution.not.completed.message"
-}
-```
-
-**Resolution**: Wait for WebSocket COMPLETED event or poll until ready
-
----
-
-#### 4. Node Not Found
-
-**Scenario**: Requesting details for an invalid node ID
-
-**Request**:
-```bash
-GET /projects/MyProject/trace/nodes/999
-```
-
-**Response**: `404 Not Found`
-```json
-{
-  "message": "trace.node.not.found.message"
-}
-```
-
-**Resolution**: Use valid node ID from trace nodes list
-
----
-
-#### 5. Parameter Not Found
-
-**Scenario**: Requesting a lazy parameter with invalid ID
-
-**Request**:
-```bash
-GET /projects/MyProject/trace/parameters/999
-```
-
-**Response**: `404 Not Found`
-```json
-{
-  "message": "trace.parameter.not.found.message"
-}
-```
-
-**Resolution**: Use parameterId from node details
+| Scenario | Status | Message code |
+| --- | --- | --- |
+| Table or method not found (start) | `404` | `table.message` |
+| No active session | `404` | `trace.execution.task.message` |
+| Frame index out of range | `404` | `trace.frame.not.found.message` |
+| Lazy parameter id not found | `404` | `trace.parameter.not.found.message` |
+| Command requires a suspended session | `409` | `trace.execution.not.suspended.message` |
+| Unknown step `type` | `400` | `trace.debug.invalid-step.message` |
 
 ---
 
 ## Examples
 
-### Example 1: Trace a Decision Table
+### Start, step, inspect, resume
 
 ```bash
-# Step 1: Start trace
+# Start (suspended at entry), capture the stack
 curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=DT_RiskAssessment" \
   -H "Content-Type: application/json" \
-  -d '{
-    "params": {
-      "age": 35,
-      "income": 75000,
-      "creditScore": 720
-    },
-    "runtimeContext": {
-      "lob": "Personal",
-      "usState": "NY"
-    }
-  }'
+  -d '{ "params": { "age": 35, "income": 75000, "creditScore": 720 },
+        "runtimeContext": { "lob": "Personal", "usState": "NY" } }'
 
-# Response: 202 Accepted (no body)
+# Step into
+curl -X POST "http://localhost:8080/projects/MyProject/trace/step?type=into"
 
-# Step 2: Wait and get root nodes
-curl "http://localhost:8080/projects/MyProject/trace/nodes"
+# Inspect the top frame's variables
+curl "http://localhost:8080/projects/MyProject/trace/frames/0/variables"
 
-# Response
-[
-  {
-    "key": 1,
-    "title": "DT_RiskAssessment",
-    "type": "method",
-    "lazy": true
-  }
-]
+# Frame table HTML with the current line highlighted
+curl "http://localhost:8080/projects/MyProject/trace/frames/0/table"
 
-# Step 3: Get children
-curl "http://localhost:8080/projects/MyProject/trace/nodes?id=1"
+# Run to completion
+curl -X POST "http://localhost:8080/projects/MyProject/trace/resume"   # 202
 
-# Response
-[
-  {"key": 2, "title": "Rule 1: creditScore >= 700", "type": "rule", "extraClasses": "rule result"},
-  {"key": 3, "title": "Rule 2: income >= 50000", "type": "rule", "extraClasses": "rule result"},
-  {"key": 4, "title": "Result: LOW_RISK", "type": "result"}
-]
-
-# Step 4: Get rule details
-curl "http://localhost:8080/projects/MyProject/trace/nodes/2"
-
-# Response
-{
-  "key": 2,
-  "title": "Rule 1: creditScore >= 700",
-  "type": "rule",
-  "parameters": [
-    {"name": "creditScore", "value": 720, "description": "int"}
-  ],
-  "result": {"name": "result", "value": true, "description": "boolean"}
-}
+# Terminate
+curl -X DELETE "http://localhost:8080/projects/MyProject/trace"        # 204
 ```
 
----
-
-### Example 2: Trace Test Cases
+### Set a breakpoint before running
 
 ```bash
-# Trace test cases 1, 2, 3, and 5
-curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=TEST_RiskAssessment&testRanges=1-3,5"
+curl -X PUT "http://localhost:8080/projects/MyProject/trace/breakpoints" \
+  -H "Content-Type: application/json" \
+  -d '{ "uris": ["file:/.../DT_RiskAssessment.xlsx?sheet=Rules#R0C1"] }'
 
-# Response: 202 Accepted
-
-# Get root nodes (test cases)
-curl "http://localhost:8080/projects/MyProject/trace/nodes"
-
-# Response
-[
-  {"key": 1, "title": "Test Case 1: age=25, income=50000", "type": "test"},
-  {"key": 2, "title": "Test Case 2: age=45, income=100000", "type": "test"},
-  {"key": 3, "title": "Test Case 3: age=30, income=75000", "type": "test"},
-  {"key": 4, "title": "Test Case 5: age=60, income=25000", "type": "test"}
-]
+curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=DT_RiskAssessment&stopAtEntry=false"
+# Runs to the breakpoint and returns the stack suspended there.
 ```
-
----
-
-### Example 3: Get Table HTML with Highlighting
-
-```bash
-curl "http://localhost:8080/projects/MyProject/trace/nodes/3/table" \
-  -H "Accept: text/html"
-
-# Response (HTML)
-<table class="openl-table traced">
-  <tr class="header-row">
-    <td>C1</td><td>C2</td><td>RET1</td>
-  </tr>
-  <tr class="traced-row matched">
-    <td class="condition traced">creditScore >= 700</td>
-    <td class="condition traced">income >= 50000</td>
-    <td class="return traced">LOW_RISK</td>
-  </tr>
-  <tr>
-    <td>creditScore >= 600</td>
-    <td>income >= 30000</td>
-    <td>MEDIUM_RISK</td>
-  </tr>
-</table>
-```
-
----
-
-### Example 4: Cancel Trace
-
-```bash
-# Cancel current trace
-curl -X DELETE "http://localhost:8080/projects/MyProject/trace"
-
-# Response: 204 No Content
-```
-
----
-
-### Example 5: Export Trace to File
-
-```bash
-# Export trace to file
-curl "http://localhost:8080/projects/MyProject/trace/export" \
-  -o trace.txt
-
-# Export with exact numbers
-curl "http://localhost:8080/projects/MyProject/trace/export?showRealNumbers=true" \
-  -o trace_detailed.txt
-
-# Export and release memory (cleanup)
-curl "http://localhost:8080/projects/MyProject/trace/export?release=true" \
-  -o trace_final.txt
-
-# Response: Plain text trace tree
-DT_RiskAssessment
-├── Rule 1: creditScore >= 700
-│   ├── Condition: creditScore = 720 >= 700 → true
-│   └── Result: LOW_RISK
-└── Final Result: LOW_RISK
-```
-
----
-
-## Best Practices
-
-### 1. Use WebSocket for Progress
-
-Instead of polling, subscribe to WebSocket for real-time status:
-
-```javascript
-const ws = new WebSocket("ws://localhost:8080/ws/trace-progress");
-ws.onmessage = (event) => {
-  const status = JSON.parse(event.data);
-  if (status.status === "COMPLETED") {
-    fetchRootNodes();
-  }
-};
-```
-
-### 2. Implement Lazy Loading for Large Traces
-
-```javascript
-// Initial load - get root nodes
-const rootNodes = await fetch("/projects/MyProject/trace/nodes");
-const nodes = await rootNodes.json();
-
-// On user expand - load children
-async function expandNode(nodeId) {
-  const children = await fetch(`/projects/MyProject/trace/nodes?id=${nodeId}`);
-  return children.json();
-}
-
-// On user click - load details
-async function getDetails(nodeId) {
-  const details = await fetch(`/projects/MyProject/trace/nodes/${nodeId}`);
-  return details.json();
-}
-```
-
-### 3. Handle Lazy Parameters
-
-```javascript
-async function getFullParameterValue(param) {
-  if (param.lazy && param.parameterId) {
-    const response = await fetch(
-      `/projects/MyProject/trace/parameters/${param.parameterId}`
-    );
-    return response.json();
-  }
-  return param;
-}
-```
-
-### 4. Use Test Ranges Efficiently
-
-```bash
-# Single test case
-?testRanges=5
-
-# Range of test cases
-?testRanges=1-10
-
-# Multiple ranges
-?testRanges=1-3,5,8-10
-
-# All test cases (omit parameter)
-# Just use tableId without testRanges
-```
-
-### 5. Poll with Backoff if Not Using WebSocket
-
-```javascript
-async function waitForCompletion(projectId, maxAttempts = 30) {
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      const result = await fetch(`/projects/${projectId}/trace/nodes`);
-      if (result.status === 200) {
-        return result.json();
-      }
-    } catch (e) {
-      if (e.status !== 409) throw e;  // 409 = not completed yet
-    }
-    await sleep(1000 * Math.min(i + 1, 5));  // Exponential backoff, max 5s
-  }
-  throw new Error("Trace execution timeout");
-}
-```
-
-### 6. Clean Up on User Navigation
-
-```javascript
-// Cancel trace when user leaves the page
-window.addEventListener("beforeunload", () => {
-  navigator.sendBeacon(`/projects/${projectId}/trace`, "");
-  // Or use DELETE if supported
-});
-```
-
-### 7. Handle Real Numbers Option
-
-```javascript
-// For debugging, show exact values
-const detailedResult = await fetch(
-  `/projects/MyProject/trace/nodes/${nodeId}?showRealNumbers=true`
-);
-
-// For display, use formatted values (default)
-const displayResult = await fetch(
-  `/projects/MyProject/trace/nodes/${nodeId}`
-);
-```
-
-### 8. Use Export for Memory Management
-
-```javascript
-// After debugging session, export and release memory
-async function finishDebugging(projectId) {
-  // Download trace file for records
-  const response = await fetch(
-    `/projects/${projectId}/trace/export?release=true`
-  );
-
-  // Save to file
-  const blob = await response.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'trace.txt';
-  a.click();
-
-  // Memory is now released server-side
-}
-```
-
-### 9. Handle Large Trace Exports
-
-```javascript
-// For very large traces, stream the response
-async function exportLargeTrace(projectId) {
-  const response = await fetch(
-    `/projects/${projectId}/trace/export?showRealNumbers=true`
-  );
-
-  // Stream to file (for large traces)
-  const reader = response.body.getReader();
-  const chunks = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-  }
-
-  // Handle timeout message at end
-  const text = new TextDecoder().decode(
-    new Uint8Array(chunks.flatMap(c => [...c]))
-  );
-
-  if (text.includes('!!!TRACE WAS LIMITED BY TIMEOUT!!!')) {
-    console.warn('Trace was truncated due to timeout');
-  }
-
-  return text;
-}
-```
-
----
-
-## Technical Implementation Notes
-
-### Session Management
-
-**Storage**: One trace task per HTTP session per project
-
-**Lifecycle**:
-1. Start trace: Previous task cancelled, new task registered
-2. Get results: Task must be completed
-3. Cancel: Task cancelled, registry cleared
-4. Session timeout: Task automatically cleaned up
-
-### Async Execution
-
-**Executor**: Uses Spring `@Async` with `testSuiteExecutor` thread pool
-
-**CompletableFuture**: Non-blocking execution with callback on completion
-
-### Trace Tree Caching
-
-**TraceHelper**: Uses BidiMap for O(1) lookup by node ID
-
-**Lazy Nodes**: ITracerObject children materialized on first access
-
-### Parameter Registry
-
-**Session-scoped**: Each user session has independent parameter storage
-
-**On-demand**: Large values not serialized until requested
 
 ---
 
 ## Related APIs
 
-- **Projects API**: Project management operations
-- **Tables API**: Table read/write operations
-- **Test API**: Test execution and results
+- **[Architecture Design](projects-trace-architecture.md)** — how suspension, the live stack, and freezing work.
+- **Tables API** — table read/write operations.
+- **Test API** — test execution and results.
 
 ---
 
 ## Changelog
 
 ### Version 6.0.0-SNAPSHOT (BETA)
-- Initial implementation of Projects Trace API
-- Asynchronous trace execution with CompletableFuture
-- Lazy loading for trace nodes and parameters
-- WebSocket progress notifications
-- Test suite support with range selection
-- Table HTML rendering with trace highlighting
-- Session-based task management
-- **Added**: Export trace to file endpoint (`GET /trace/export`)
-- **Added**: `error` field in TraceNodeView for error indication
-- **Added**: `release` parameter for memory cleanup after export
-- **Added**: TableInputParserService for flexible JSON input parsing
-- **Added**: TraceExportService for text export with timeout handling
 
----
-
-## Support
-
-For issues or questions:
-- **GitHub Issues**: [openl-tablets/openl-tablets](https://github.com/openl-tablets/openl-tablets/issues)
-- **Documentation**: [openl-tablets.org](https://openl-tablets.org)
-- **API Status**: BETA - Subject to changes in future releases
-
----
-
-**Note**: This API is currently in BETA status. The interface may change in future releases. Feedback and bug reports are welcome.
+- Reworked Trace into an **interactive debugger**: suspended execution on a worker thread, live call
+  stack, step into/over/out, resume, pause.
+- Breakpoints on tables (`uri`) and spreadsheet sub-steps (`uri#ref`), persisted per session.
+- Lazy per-frame variable freezing; executed-step values for spreadsheets.
+- Frame table HTML with current-line highlighting (spreadsheet cell; decision-table condition/result).
+- **Removed** the tree-based endpoints (`/trace/nodes`, `/trace/nodes/{id}`, `/trace/nodes/{id}/table`,
+  `/trace/export`) and lazy-tree retention.

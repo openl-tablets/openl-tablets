@@ -8,32 +8,34 @@ import { NotFoundError, isApiHttpError } from 'services'
 import { useStyles } from './TraceTableView.styles'
 
 interface TraceTableViewProps {
-    nodeId: number
+    frameIndex: number
 }
 
 /**
- * Component for displaying traced table HTML with highlighted cells.
- * Fetches HTML fragment from backend and renders it.
+ * Displays a stack frame's table HTML.
+ * Fetches the HTML fragment from the backend and renders it.
  */
-const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
+const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
     const { t } = useTranslation('trace')
     const { styles } = useStyles()
-    const { projectId } = useTraceStore()
+    const projectId = useTraceStore(s => s.projectId)
+    // Refetch when execution advances (the highlighted current line changes within the same frame).
+    const stackVersion = useTraceStore(s => s.stackVersion)
     const [html, setHtml] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        // Use explicit null check - 0 is a valid node ID
-        if (projectId == null || nodeId == null) return
+        // Use explicit null check - 0 is a valid frame index
+        if (projectId == null || frameIndex == null) return
 
         const fetchTable = async () => {
             setLoading(true)
             setError(null)
             try {
-                const tableHtml = await traceService.getTraceTableHtml(
+                const tableHtml = await traceService.getFrameTableHtml(
                     projectId,
-                    nodeId
+                    frameIndex
                 )
                 setHtml(tableHtml)
             } catch (err: unknown) {
@@ -50,7 +52,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
         }
 
         fetchTable()
-    }, [projectId, nodeId, t])
+    }, [projectId, frameIndex, stackVersion, t])
 
     const sanitizedHtml = useMemo(
         () => (html ? DOMPurify.sanitize(html, { USE_PROFILES: { html: true } }) : ''),

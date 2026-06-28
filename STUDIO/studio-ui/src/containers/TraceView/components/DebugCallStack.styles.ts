@@ -1,0 +1,49 @@
+import { createStyles } from 'antd-style'
+
+export const useStyles = createStyles(({ css, token }) => ({
+    panel: css`
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+    `,
+    header: css`
+        font-weight: 600;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+    `,
+    frame: css`
+        cursor: pointer;
+        gap: ${token.marginXS}px;
+        &:hover {
+            background: ${token.colorFillTertiary};
+        }
+    `,
+    frameSelected: css`
+        background: ${token.colorPrimaryBg};
+    `,
+    breakpoint: css`
+        gap: ${token.marginXS}px;
+    `,
+    breakpointDot: css`
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: ${token.colorError};
+        flex: 0 0 auto;
+    `,
+    hint: css`
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        color: ${token.colorTextTertiary};
+        font-size: ${token.fontSizeSM}px;
+    `,
+    name: css`
+        font-weight: 500;
+    `,
+    location: css`
+        color: ${token.colorTextSecondary};
+        font-family: ${token.fontFamilyCode};
+        font-size: ${token.fontSizeSM}px;
+    `,
+}))

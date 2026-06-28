@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
+import DebugSteps from './DebugSteps'
 import CopyJsonButton from './CopyJsonButton'
 import type { MessageDescription } from 'types/trace'
 import { useStyles } from './TraceDetails.styles'
@@ -51,20 +52,17 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ 
 }
 
 /**
- * Right panel component displaying selected node details.
- * Shows parameters, context, result, errors, and table view.
+ * Right panel: the selected stack frame's table and frozen variables.
  */
 const TraceDetails: React.FC = () => {
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
-    const {
-        selectedNodeId,
-        selectedNodeDetails,
-        detailsLoading,
-    } = useTraceStore()
+    const frames = useTraceStore(s => s.frames)
+    const selectedFrameIndex = useTraceStore(s => s.selectedFrameIndex)
+    const variables = useTraceStore(s => s.variables)
+    const variablesLoading = useTraceStore(s => s.variablesLoading)
 
-    // Use explicit null check - 0 is a valid node ID
-    if (selectedNodeId === null) {
+    if (selectedFrameIndex === null) {
         return (
             <div className={cx(styles.details, styles.detailsCentered)}>
                 <Empty
@@ -75,52 +73,45 @@ const TraceDetails: React.FC = () => {
         )
     }
 
-    if (detailsLoading) {
-        return (
-            <div className={cx(styles.details, styles.detailsCentered)}>
-                <Spin description={t('loadingDetails')} />
-            </div>
-        )
-    }
+    const frame = frames[selectedFrameIndex]
+    const parameters = variables?.parameters
+    const context = variables?.context ?? undefined
+    const result = variables?.result ?? undefined
+    const errors = variables?.errors
 
-    if (!selectedNodeDetails) {
-        return (
-            <div className={cx(styles.details, styles.detailsCentered)}>
-                <Empty
-                    description={t('errors.detailsFailed')}
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
-            </div>
-        )
-    }
-
-    const { parameters, context, result, errors } = selectedNodeDetails
-
-    // Combine parameters with context (context becomes part of parameters)
-    const allParameters = context
-        ? [...(parameters || []), context]
-        : parameters
+    // Context is shown alongside the input parameters.
+    const allParameters = context ? [...(parameters || []), context] : parameters
 
     return (
-        <div className={styles.details}>
-            {/* Parameters (including context) */}
-            <TraceParameters
-                copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
-                emptyText={t('details.noParameters')}
-                parameters={allParameters}
-                title={t('details.parameters')}
-            />
-            {/* Returned Result */}
-            <SingleParameter
-                copyButton={<CopyJsonButton data={result} tooltipKey="copy.result" />}
-                emptyText={t('details.noResult')}
-                parameter={result}
-                title={t('details.result')}
-            />
-            {/* Errors */}
-            <TraceErrors errors={errors} />
-            {/* Traced Table */}
-            <TraceTableView nodeId={selectedNodeId} />
+        <div className={styles.details} data-testid="debug-details">
+            {frame && <span className={styles.frameTitle}>{frame.name}</span>}
+            {/* Traced table of the current frame, with the current line highlighted */}
+            <TraceTableView frameIndex={selectedFrameIndex} />
+            {variablesLoading ? (
+                <div className={styles.detailsCentered}>
+                    <Spin description={t('loadingDetails')} />
+                </div>
+            ) : (
+                <>
+                    {/* Steps with per-step breakpoint gutters — only spreadsheets have addressable steps. */}
+                    {frame?.kind === 'spreadsheet' && (
+                        <DebugSteps frameUri={frame.uri} steps={variables?.steps} />
+                    )}
+                    <TraceParameters
+                        copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
+                        emptyText={t('details.noParameters')}
+                        parameters={allParameters}
+                        title={t('details.parameters')}
+                    />
+                    <SingleParameter
+                        copyButton={<CopyJsonButton data={result} tooltipKey="copy.result" />}
+                        emptyText={t('details.noResult')}
+                        parameter={result}
+                        title={t('details.result')}
+                    />
+                    <TraceErrors errors={errors} />
+                </>
+            )}
         </div>
     )
 }

@@ -3,6 +3,33 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'trace', {
     title: 'Execution Trace',
 
+    debug: {
+        resume: 'Resume (run to next breakpoint)',
+        pause: 'Pause',
+        stepInto: 'Step into',
+        stepOver: 'Step over',
+        stepOut: 'Step out',
+        stop: 'Stop',
+        callStack: 'Call stack',
+        notSuspended: 'Execution is not suspended',
+        breakpoints: 'Breakpoints',
+        noBreakpoints: 'No breakpoints. Add one from a table below.',
+        addBreakpoint: 'Add breakpoint',
+        removeBreakpoint: 'Remove breakpoint',
+        steps: 'Steps',
+        noSteps: 'No steps',
+        executing: 'executing…',
+        pending: 'pending',
+        status: {
+            PENDING: 'Starting…',
+            RUNNING: 'Running',
+            SUSPENDED: 'Suspended',
+            COMPLETED: 'Completed',
+            ERROR: 'Error',
+            TERMINATED: 'Terminated',
+        },
+    },
+
     actions: {
         download: 'Download',
         downloadTooltip: 'Download trace as text file',
@@ -29,7 +56,7 @@ i18next.addResourceBundle('en', 'trace', {
         result: 'Returned Result',
         errors: 'Errors',
         table: 'Traced Table',
-        noSelection: 'Select a node to view details',
+        noSelection: 'Select a stack frame to view its variables',
         noParameters: 'No parameters',
         noResult: 'No result',
         noErrors: 'No errors',

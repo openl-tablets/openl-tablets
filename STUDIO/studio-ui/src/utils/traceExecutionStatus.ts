@@ -1,31 +1,33 @@
-import type { TraceExecutionStatus } from 'types/trace'
+import type { DebugStatus } from 'types/trace'
 
-export const TRACE_EXECUTION_STATUS: Readonly<Record<TraceExecutionStatus, TraceExecutionStatus>> = {
+export const DEBUG_STATUS: Readonly<Record<DebugStatus, DebugStatus>> = {
     PENDING: 'PENDING',
-    STARTED: 'STARTED',
+    RUNNING: 'RUNNING',
+    SUSPENDED: 'SUSPENDED',
     COMPLETED: 'COMPLETED',
-    INTERRUPTED: 'INTERRUPTED',
     ERROR: 'ERROR',
+    TERMINATED: 'TERMINATED',
 }
 
-export const IN_PROGRESS_TRACE_EXECUTION_STATUSES: readonly TraceExecutionStatus[] = [
-    TRACE_EXECUTION_STATUS.PENDING,
-    TRACE_EXECUTION_STATUS.STARTED,
+export const IN_PROGRESS_TRACE_EXECUTION_STATUSES: readonly DebugStatus[] = [
+    DEBUG_STATUS.PENDING,
+    DEBUG_STATUS.RUNNING,
 ]
 
-export const TERMINAL_TRACE_EXECUTION_STATUSES: readonly TraceExecutionStatus[] = [
-    TRACE_EXECUTION_STATUS.ERROR,
-    TRACE_EXECUTION_STATUS.INTERRUPTED,
+export const TERMINAL_TRACE_EXECUTION_STATUSES: readonly DebugStatus[] = [
+    DEBUG_STATUS.COMPLETED,
+    DEBUG_STATUS.ERROR,
+    DEBUG_STATUS.TERMINATED,
 ]
 
 export const isTraceExecutionInProgress = (
-    status: TraceExecutionStatus | null | undefined
-): boolean => status ? IN_PROGRESS_TRACE_EXECUTION_STATUSES.includes(status) : false
+    status: DebugStatus | null | undefined
+): boolean => (status ? IN_PROGRESS_TRACE_EXECUTION_STATUSES.includes(status) : false)
 
 export const isTraceExecutionTerminal = (
-    status: TraceExecutionStatus | null | undefined
-): boolean => status ? TERMINAL_TRACE_EXECUTION_STATUSES.includes(status) : false
+    status: DebugStatus | null | undefined
+): boolean => (status ? TERMINAL_TRACE_EXECUTION_STATUSES.includes(status) : false)
 
 export const isTraceExecutionError = (
-    status: TraceExecutionStatus | null | undefined
-): boolean => status === TRACE_EXECUTION_STATUS.ERROR
+    status: DebugStatus | null | undefined
+): boolean => status === DEBUG_STATUS.ERROR

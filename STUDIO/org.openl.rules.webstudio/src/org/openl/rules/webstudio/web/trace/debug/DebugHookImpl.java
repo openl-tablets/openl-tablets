@@ -1,0 +1,143 @@
+package org.openl.rules.webstudio.web.trace.debug;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
+import org.openl.types.Invokable;
+import org.openl.vm.IRuntimeEnv;
+
+/**
+ * Maintains the live execution stack on the worker thread and suspends at step and breakpoint points.
+ *
+ * <p>The stack and all callbacks run on the single worker thread, so the deque needs no
+ * synchronization. When execution suspends, an immutable snapshot of the stack is published for the
+ * controller thread to read; while suspended the worker mutates nothing, so the snapshot's frames and
+ * their live arguments stay stable.
+ */
+final class DebugHookImpl implements DebugHook {
+
+    private final SourceClassifier classifier;
+    private final StepController stepController;
+    private final DebugChannel channel;
+    private final DebugListener listener;
+
+    private final Deque<DebugFrame> stack = new ArrayDeque<>();
+    private volatile List<DebugFrame> published = List.of();
+
+    DebugHookImpl(SourceClassifier classifier, StepController stepController, DebugChannel channel,
+                  DebugListener listener) {
+        this.classifier = classifier;
+        this.stepController = stepController;
+        this.channel = channel;
+        this.listener = listener;
+    }
+
+    @Override
+    public <T, E extends IRuntimeEnv, R> R bracketInvoke(Invokable<? super T, E> executor,
+                                                         T target,
+                                                         Object[] params,
+                                                         E env,
+                                                         Object source) {
+        SourceClassifier.FrameDescriptor descriptor = classifier.describeFrame(source);
+        if (descriptor != null) {
+            return invokeFrame(descriptor, executor, target, params, env, source);
+        }
+        DebugFrame top = stack.peek();
+        CurrentLocation location = classifier.describeSubStep(executor, env, top == null ? null : top.getSource());
+        if (location == null || top == null) {
+            return executor.invoke(target, params, env);
+        }
+        // Mark the current line, suspend if requested, then run the step and record its value so a later
+        // suspension can show the results of already-executed steps.
+        top.setCurrentStep(executor);
+        top.setLocation(location);
+        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location.ref());
+        R result = executor.invoke(target, params, env);
+        top.recordExecutedStep(stepRef(location), location.label(), result);
+        return result;
+    }
+
+    private static String stepRef(CurrentLocation location) {
+        if (location.ref() != null) {
+            return location.ref();
+        }
+        return location.label() != null ? location.label() : location.kind();
+    }
+
+    private <T, E extends IRuntimeEnv, R> R invokeFrame(SourceClassifier.FrameDescriptor descriptor,
+                                                        Invokable<? super T, E> executor,
+                                                        T target,
+                                                        Object[] params,
+                                                        E env,
+                                                        Object source) {
+        int depth = stack.size() + 1;
+        DebugFrame frame = new DebugFrame(descriptor, source, target, params,
+                env == null ? null : env.getContext(), depth);
+        stack.push(frame);
+        try {
+            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null);
+            R result = executor.invoke(target, params, env);
+            frame.completeWith(result);
+            return result;
+        } catch (DebugTerminationError e) {
+            throw e;
+        } catch (Throwable ex) {
+            frame.failWith(ex);
+            throw ex;
+        } finally {
+            stack.pop();
+        }
+    }
+
+    @Override
+    public void onPut(Object source, String id, Object[] args) {
+        DebugFrame top = stack.peek();
+        if (top == null) {
+            return;
+        }
+        // Record decision-table condition results for the table view's green/red highlight. Condition
+        // puts do not create step stops; the decision table's step stop is its fired rule.
+        ConditionCheck check = classifier.describeCondition(id, args);
+        if (check != null) {
+            top.recordConditionCheck(check);
+        }
+    }
+
+    private void handleEvent(DebugEvent event, int depth, String uri, @Nullable String ref) {
+        if (channel.isTerminateRequested()) {
+            throw new DebugTerminationError();
+        }
+        if (stepController.shouldSuspend(event, depth, uri, ref)) {
+            publishSnapshot();
+            listener.onStatusChanged(DebugStatus.SUSPENDED);
+            DebugCommand command = channel.awaitCommand();
+            stepController.arm(command, depth);
+        }
+    }
+
+    private void publishSnapshot() {
+        List<DebugFrame> rootToTop = new ArrayList<>(stack.size());
+        Iterator<DebugFrame> it = stack.descendingIterator();
+        while (it.hasNext()) {
+            rootToTop.add(it.next());
+        }
+        published = List.copyOf(rootToTop);
+    }
+
+    /** The most recently published stack, ordered from the root call to the current frame. */
+    List<DebugFrame> snapshot() {
+        return published;
+    }
+
+    /** The frame at the given stack index in the published snapshot, or {@code null} if out of range. */
+    @Nullable
+    DebugFrame frameAt(int index) {
+        List<DebugFrame> current = published;
+        return index >= 0 && index < current.size() ? current.get(index) : null;
+    }
+}
