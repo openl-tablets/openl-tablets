@@ -102,6 +102,10 @@ export interface DebugFrameVariables {
     context?: TraceParameterValue | null
     result?: TraceParameterValue | null
     steps: StepValueView[]
+    /** Spreadsheet column names, so steps can be laid out as a grid (only for spreadsheet frames). */
+    gridColumns?: string[] | null
+    /** Spreadsheet row names (only for spreadsheet frames). */
+    gridRows?: string[] | null
     errors: MessageDescription[]
 }
 

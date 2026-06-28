@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
-import DebugSteps from './DebugSteps'
+import SpreadsheetGrid from './SpreadsheetGrid'
 import CopyJsonButton from './CopyJsonButton'
 import type { MessageDescription } from 'types/trace'
 import { useStyles } from './TraceDetails.styles'
@@ -85,17 +85,22 @@ const TraceDetails: React.FC = () => {
     return (
         <div className={styles.details} data-testid="debug-details">
             {frame && <span className={styles.frameTitle}>{frame.name}</span>}
-            {/* Traced table of the current frame, with the current line highlighted */}
-            <TraceTableView frameIndex={selectedFrameIndex} />
+            {/* Decision tables and other frames render the source table HTML; spreadsheets use the grid below. */}
+            {frame?.kind !== 'spreadsheet' && <TraceTableView frameIndex={selectedFrameIndex} />}
             {variablesLoading ? (
                 <div className={styles.detailsCentered}>
                     <Spin description={t('loadingDetails')} />
                 </div>
             ) : (
                 <>
-                    {/* Steps with per-step breakpoint gutters — only spreadsheets have addressable steps. */}
+                    {/* Spreadsheet steps laid out as a grid like the source table, with per-cell breakpoints. */}
                     {frame?.kind === 'spreadsheet' && (
-                        <DebugSteps frameUri={frame.uri} steps={variables?.steps} />
+                        <SpreadsheetGrid
+                            columns={variables?.gridColumns}
+                            frameUri={frame.uri}
+                            rows={variables?.gridRows}
+                            steps={variables?.steps}
+                        />
                     )}
                     <TraceParameters
                         copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}

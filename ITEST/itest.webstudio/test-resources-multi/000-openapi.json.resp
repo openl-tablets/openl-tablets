@@ -17703,6 +17703,22 @@ Content-Type: application/json
               "$ref": "#/components/schemas/MessageDescription"
             }
           },
+          "gridColumns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "gridRows": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
           "parameters": {
             "type": "array",
             "description": "***",

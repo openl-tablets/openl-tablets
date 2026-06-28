@@ -9,20 +9,50 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-weight: 600;
         margin-bottom: ${token.marginXS}px;
     `,
-    step: css`
+    scroll: css`
+        overflow: auto;
+        max-width: 100%;
+    `,
+    grid: css`
+        border-collapse: collapse;
+        font-size: ${token.fontSizeSM}px;
+        th,
+        td {
+            border: 1px solid ${token.colorBorderSecondary};
+            padding: 2px 6px;
+            vertical-align: top;
+        }
+    `,
+    corner: css`
+        background: ${token.colorFillQuaternary};
+    `,
+    colHeader: css`
+        background: ${token.colorFillQuaternary};
+        font-weight: 600;
+        text-align: center;
+        white-space: nowrap;
+    `,
+    rowHeader: css`
+        background: ${token.colorFillQuaternary};
+        font-weight: 600;
+        text-align: left;
+        white-space: nowrap;
+    `,
+    cell: css`
+        min-width: 90px;
+    `,
+    cellInner: css`
         display: flex;
         align-items: flex-start;
-        gap: ${token.marginXS}px;
-        padding: 2px 4px;
-        border-radius: ${token.borderRadiusSM}px;
+        gap: ${token.marginXXS}px;
     `,
     current: css`
         background: ${token.colorWarningBg};
     `,
     gutter: css`
         margin-top: 4px;
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         border: 1px solid ${token.colorBorder};
         flex: 0 0 auto;
@@ -34,23 +64,6 @@ export const useStyles = createStyles(({ css, token }) => ({
     gutterActive: css`
         background: ${token.colorError};
         border-color: ${token.colorError};
-    `,
-    gutterPlaceholder: css`
-        margin-top: 4px;
-        width: 12px;
-        height: 12px;
-        flex: 0 0 auto;
-    `,
-    body: css`
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        gap: ${token.marginXS}px;
-        flex-wrap: wrap;
-    `,
-    name: css`
-        font-weight: 500;
     `,
     pending: css`
         color: ${token.colorTextTertiary};

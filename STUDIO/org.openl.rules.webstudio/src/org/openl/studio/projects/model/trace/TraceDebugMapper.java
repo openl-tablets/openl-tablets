@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.trace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -102,6 +103,8 @@ public class TraceDebugMapper {
                     .context(freezeContext(frame, clones))
                     .result(freezeResult(frame, clones))
                     .steps(freezeSteps(frame, clones))
+                    .gridColumns(gridNames(frame, true))
+                    .gridRows(gridNames(frame, false))
                     .errors(buildErrors(frame))
                     .build();
         } finally {
@@ -182,6 +185,15 @@ public class TraceDebugMapper {
             }
         }
         return steps;
+    }
+
+    /** Spreadsheet column or row names, so the UI can lay the steps out as a grid like the source table. */
+    private static @Nullable List<String> gridNames(DebugFrame frame, boolean columns) {
+        if (!(frame.getSource() instanceof Spreadsheet spreadsheet)) {
+            return null;
+        }
+        String[] names = columns ? spreadsheet.getColumnNames() : spreadsheet.getRowNames();
+        return Arrays.stream(names).map(name -> name == null ? "" : name).toList();
     }
 
     private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones) {

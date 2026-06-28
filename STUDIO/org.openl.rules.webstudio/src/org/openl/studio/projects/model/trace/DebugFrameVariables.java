@@ -16,8 +16,10 @@ import org.openl.studio.projects.model.ParameterValue;
  * @param parameters input parameters of the frame
  * @param context    runtime context, or {@code null}
  * @param result     return value when the frame has completed, otherwise {@code null}
- * @param steps      already-executed sub-steps with their computed values
- * @param errors     errors when the frame failed
+ * @param steps       already-executed sub-steps with their computed values
+ * @param gridColumns spreadsheet column names, so the UI can lay the steps out as a grid (else null)
+ * @param gridRows    spreadsheet row names (else null)
+ * @param errors      errors when the frame failed
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -34,6 +36,12 @@ public record DebugFrameVariables(
 
         @Schema(description = "trace.field.variables.steps.desc")
         List<StepValueView> steps,
+
+        @Schema(description = "trace.field.variables.grid-columns.desc")
+        @Nullable List<String> gridColumns,
+
+        @Schema(description = "trace.field.variables.grid-rows.desc")
+        @Nullable List<String> gridRows,
 
         @Schema(description = "trace.field.variables.errors.desc")
         List<MessageDescription> errors
