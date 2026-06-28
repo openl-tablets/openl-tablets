@@ -5,6 +5,7 @@ import { useTraceStore } from 'store'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
 import SpreadsheetGrid from './SpreadsheetGrid'
+import DecisionPanel from './DecisionPanel'
 import CopyJsonButton from './CopyJsonButton'
 import type { MessageDescription } from 'types/trace'
 import { useStyles } from './TraceDetails.styles'
@@ -101,6 +102,10 @@ const TraceDetails: React.FC = () => {
                             rows={variables?.gridRows}
                             steps={variables?.steps}
                         />
+                    )}
+                    {/* For decision tables, explain in plain language which rule fired and why. */}
+                    {frame?.kind === 'decisionTable' && variables?.decision && (
+                        <DecisionPanel decision={variables.decision} />
                     )}
                     <TraceParameters
                         copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}

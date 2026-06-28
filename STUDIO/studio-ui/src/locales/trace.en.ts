@@ -37,6 +37,11 @@ i18next.addResourceBundle('en', 'trace', {
         technicalDetails: 'Show technical details',
     },
 
+    decision: {
+        fired: 'Fired: {{rules}}',
+        noneFired: 'No rule fired',
+    },
+
     actions: {
         download: 'Download',
         downloadTooltip: 'Download trace as text file',
@@ -63,6 +68,7 @@ i18next.addResourceBundle('en', 'trace', {
         result: 'Returned Result',
         errors: 'Errors',
         table: 'Traced Table',
+        decision: 'Decision',
         noSelection: 'Select a stack frame to view its variables',
         noParameters: 'No parameters',
         noResult: 'No result',

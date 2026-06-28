@@ -19,6 +19,7 @@ import org.openl.studio.projects.model.ParameterValue;
  * @param steps       already-executed sub-steps with their computed values
  * @param gridColumns spreadsheet column names, so the UI can lay the steps out as a grid (else null)
  * @param gridRows    spreadsheet row names (else null)
+ * @param decision    decision-table outcome explanation (only for decision-table frames, else null)
  * @param errors      errors when the frame failed
  */
 @Builder
@@ -42,6 +43,9 @@ public record DebugFrameVariables(
 
         @Schema(description = "trace.field.variables.grid-rows.desc")
         @Nullable List<String> gridRows,
+
+        @Schema(description = "trace.field.variables.decision.desc")
+        @Nullable DecisionView decision,
 
         @Schema(description = "trace.field.variables.errors.desc")
         List<MessageDescription> errors

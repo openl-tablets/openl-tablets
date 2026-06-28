@@ -108,6 +108,19 @@ export interface StepValueView {
     value?: TraceParameterValue | null
 }
 
+/** One evaluated decision-table condition, for one rule. */
+export interface DecisionConditionView {
+    condition: string
+    rule: string
+    matched: boolean
+}
+
+/** Plain-language explanation of a decision table's outcome: which rule fired and how each condition turned out. */
+export interface DecisionView {
+    firedRules: string[]
+    conditions: DecisionConditionView[]
+}
+
 /**
  * Frozen variables of a stack frame, captured while execution is suspended.
  */
@@ -120,6 +133,8 @@ export interface DebugFrameVariables {
     gridColumns?: string[] | null
     /** Spreadsheet row names (only for spreadsheet frames). */
     gridRows?: string[] | null
+    /** Decision-table outcome explanation (only for decision-table frames). */
+    decision?: DecisionView | null
     errors: MessageDescription[]
 }
 

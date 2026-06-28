@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -12,8 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import org.openl.CompiledOpenClass;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
+import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
@@ -114,5 +119,34 @@ class TraceDebugMapperTest {
         } finally {
             debugger.terminate(10_000);
         }
+    }
+
+    @Test
+    void buildsADecisionExplanationFromConditionChecks() {
+        IDecisionTable dt = mock(IDecisionTable.class);
+        when(dt.getRuleName(0)).thenReturn("Standard");
+        when(dt.getRuleName(1)).thenReturn("Senior");
+        IBaseCondition age = mock(IBaseCondition.class);
+        when(age.getName()).thenReturn("Age");
+        IBaseCondition state = mock(IBaseCondition.class);
+        when(state.getName()).thenReturn("State");
+
+        var checks = List.of(
+                new ConditionCheck(age, new int[]{0, 1}, true),   // Age matched for both rules
+                new ConditionCheck(state, new int[]{0}, true),     // State matched for Standard
+                new ConditionCheck(state, new int[]{1}, false));   // State failed for Senior
+
+        var decision = TraceDebugMapper.buildDecision(dt, checks, new int[]{0});  // rule 0 fired
+        assertNotNull(decision);
+        assertEquals(List.of("Standard"), decision.firedRules());
+        // One row per checked condition cell, mirroring the green/red highlight: 2 + 1 + 1.
+        assertEquals(4, decision.conditions().size());
+        assertTrue(decision.conditions().stream().anyMatch(
+                c -> c.condition().equals("State") && c.rule().equals("Senior") && !c.matched()));
+        assertTrue(decision.conditions().stream().anyMatch(
+                c -> c.condition().equals("Age") && c.rule().equals("Standard") && c.matched()));
+
+        // Suspended at entry: nothing evaluated and no rule fired → no explanation.
+        assertNull(TraceDebugMapper.buildDecision(dt, List.of(), new int[0]));
     }
 }

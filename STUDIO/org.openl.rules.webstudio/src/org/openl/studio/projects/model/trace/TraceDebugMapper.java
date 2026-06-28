@@ -27,9 +27,13 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.cloner.Cloner;
+import org.openl.rules.dt.ActionInvoker;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.CurrentLocation;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
@@ -173,6 +177,7 @@ public class TraceDebugMapper {
                     .steps(freezeSteps(frame, clones))
                     .gridColumns(gridNames(frame, true))
                     .gridRows(gridNames(frame, false))
+                    .decision(decisionFor(frame))
                     .errors(buildErrors(frame))
                     .build();
         } finally {
@@ -296,6 +301,42 @@ public class TraceDebugMapper {
             result.add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
         }
         return result;
+    }
+
+    /** Decision-table outcome explanation, or {@code null} for non-decision-table frames. */
+    private static @Nullable DecisionView decisionFor(DebugFrame frame) {
+        if (!(frame.getSource() instanceof IDecisionTable decisionTable)) {
+            return null;
+        }
+        return buildDecision(decisionTable, frame.getConditionChecks(), firedRuleIndices(frame));
+    }
+
+    private static int[] firedRuleIndices(DebugFrame frame) {
+        return frame.getCurrentStep() instanceof ActionInvoker invoker ? invoker.getRules() : new int[0];
+    }
+
+    /**
+     * Build the plain-language decision outcome from the rules that fired and the conditions evaluated.
+     * Mirrors the green/red table highlight: one entry per condition cell that was checked, so the
+     * explanation never claims more than the engine actually evaluated.
+     */
+    static @Nullable DecisionView buildDecision(IDecisionTable decisionTable, List<ConditionCheck> checks,
+                                                int[] firedRules) {
+        if (checks.isEmpty() && firedRules.length == 0) {
+            return null;
+        }
+        List<String> fired = Arrays.stream(firedRules).mapToObj(decisionTable::getRuleName).toList();
+        List<DecisionConditionView> conditions = new ArrayList<>();
+        for (ConditionCheck check : checks) {
+            if (!(check.condition() instanceof IBaseCondition condition)) {
+                continue;
+            }
+            String name = condition.getName();
+            for (int rule : check.rules()) {
+                conditions.add(new DecisionConditionView(name, decisionTable.getRuleName(rule), check.successful()));
+            }
+        }
+        return new DecisionView(fired, conditions);
     }
 
     /** Build a parameter value, registering large values for lazy retrieval. */

@@ -16992,6 +16992,9 @@ Content-Type: application/json
           "context": {
             "$ref": "#/components/schemas/ParameterValue"
           },
+          "decision": {
+            "$ref": "#/components/schemas/DecisionView"
+          },
           "errors": {
             "type": "array",
             "description": "***",
@@ -17132,6 +17135,45 @@ Content-Type: application/json
           "status": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "DecisionConditionView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "***"
+          },
+          "matched": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "rule": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "DecisionView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "conditions": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/DecisionConditionView"
+            }
+          },
+          "firedRules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
           }
         }
       },
