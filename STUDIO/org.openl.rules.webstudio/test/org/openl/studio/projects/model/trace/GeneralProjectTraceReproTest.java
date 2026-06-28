@@ -22,8 +22,8 @@ import org.openl.types.IOpenMethod;
  * <p>
  * A spreadsheet whose cell returns a generic {@code SpreadsheetResult} (here {@code = new
  * SpreadsheetResult()}) produces a self-referential generated bean class. The victools JSON schema
- * generator used to recurse on such a class and throw {@link StackOverflowError}, which crashed the
- * Trace API node-details request. The schema must now be generated with a {@code $ref} for the
+ * generator used to recurse on such a class and throw {@link StackOverflowError}, which crashed
+ * Trace schema generation. The schema must now be generated with a {@code $ref} for the
  * circular type instead of failing.
  */
 class GeneralProjectTraceReproTest {
@@ -43,7 +43,7 @@ class GeneralProjectTraceReproTest {
 
         var objectMapper = new ObjectMapper();
         var schemaGenerator = new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper);
-        var mapper = new TraceNodeViewMapper(objectMapper, schemaGenerator, new TraceParameterRegistry());
+        var mapper = new TraceDebugMapper(objectMapper, schemaGenerator, new TraceParameterRegistry());
 
         // The schema is generated from the declared type; a non-null placeholder value is enough to
         // drive buildParameterValue down the lazy, schema-generating branch.

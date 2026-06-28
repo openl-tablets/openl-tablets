@@ -114,36 +114,6 @@ class ProjectSocketNotificationServiceTest {
     }
 
     @Test
-    void notifyTraceExecutionStatus() {
-        service.notifyTraceExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.STARTED);
-
-        verify(messagingTemplate).convertAndSendToUser(
-                USER_NAME,
-                "/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId()),
-                "STARTED");
-    }
-
-    @Test
-    void notifyTraceExecutionStatus_completed() {
-        service.notifyTraceExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.COMPLETED);
-
-        verify(messagingTemplate).convertAndSendToUser(
-                USER_NAME,
-                "/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId()),
-                "COMPLETED");
-    }
-
-    @Test
-    void notifyTraceExecutionError() {
-        service.notifyTraceExecutionError(user, projectId, TABLE_ID, "Something went wrong");
-
-        verify(messagingTemplate).convertAndSendToUser(
-                USER_NAME,
-                "/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId()),
-                Map.of("status", "ERROR", "message", "Something went wrong"));
-    }
-
-    @Test
     void notifyRunExecutionStatus() {
         service.notifyRunExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.PENDING);
 
