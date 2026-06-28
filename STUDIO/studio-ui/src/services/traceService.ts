@@ -3,6 +3,7 @@ import { ApiHttpError } from './apiCall'
 import type { ApiCallOptions } from './apiCall'
 import { errorHandler } from 'utils/errorHandling'
 import type {
+    BreakpointTableView,
     DebugFrameVariables,
     DebugStackView,
     DebugStatusView,
@@ -212,6 +213,14 @@ export const traceService = {
     /** Get the breakpoints (table URIs). */
     getBreakpoints: async (projectId: string): Promise<string[]> =>
         retryApiCall<string[]>(`${base(projectId)}/breakpoints`, undefined, TRACE_API_OPTIONS),
+
+    /** List rule tables that can be a breakpoint target, to set a breakpoint by name before it runs. */
+    getBreakpointTables: async (projectId: string): Promise<BreakpointTableView[]> =>
+        retryApiCall<BreakpointTableView[]>(
+            `${base(projectId)}/breakpoint-tables`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
 
     /** Replace the breakpoint set. */
     setBreakpoints: async (projectId: string, uris: string[]): Promise<void> =>

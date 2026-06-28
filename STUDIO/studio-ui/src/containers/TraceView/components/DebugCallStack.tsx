@@ -1,8 +1,10 @@
-import React from 'react'
-import { List, Tag, Empty, Button, Tooltip } from 'antd'
+import React, { useCallback, useState } from 'react'
+import { List, Tag, Empty, Button, Tooltip, Select } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
+import traceService from 'services/traceService'
+import type { BreakpointTableView } from 'types/trace'
 import { useStyles } from './DebugCallStack.styles'
 
 /**
@@ -20,6 +22,30 @@ const DebugCallStack: React.FC = () => {
     const breakpoints = useTraceStore(s => s.breakpoints)
     const breakpointLabels = useTraceStore(s => s.breakpointLabels)
     const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
+    const projectId = useTraceStore(s => s.projectId)
+
+    // Candidate tables for "set a breakpoint by name", loaded lazily when the search opens.
+    const [tables, setTables] = useState<BreakpointTableView[]>([])
+    const [tablesLoaded, setTablesLoaded] = useState(false)
+    const [selectKey, setSelectKey] = useState(0)
+
+    const loadTables = useCallback(async (open: boolean): Promise<void> => {
+        if (!open || tablesLoaded || !projectId) return
+        setTablesLoaded(true)
+        try {
+            setTables(await traceService.getBreakpointTables(projectId))
+        } catch {
+            // best-effort: leave the candidate list empty
+        }
+    }, [projectId, tablesLoaded])
+
+    const addTableBreakpoint = (uri: string): void => {
+        const table = tables.find(t => t.uri === uri)
+        if (table && !breakpoints.includes(uri)) {
+            void toggleBreakpoint(uri, table.name)
+        }
+        setSelectKey(k => k + 1) // reset the search back to its placeholder
+    }
 
     // Current frame first.
     const ordered = [...frames].reverse()
@@ -50,6 +76,19 @@ const DebugCallStack: React.FC = () => {
                 />
             )}
             <div className={styles.header}>{t('debug.breakpoints')}</div>
+            <Select
+                key={selectKey}
+                showSearch
+                className={styles.addBreakpoint}
+                data-testid="debug-add-breakpoint"
+                onChange={addTableBreakpoint}
+                onDropdownVisibleChange={loadTables}
+                options={tables.map(table => ({ label: table.name, value: table.uri }))}
+                placeholder={t('debug.addBreakpointPlaceholder')}
+                size="small"
+                filterOption={(input, option) =>
+                    String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+            />
             {breakpoints.length === 0 ? (
                 <div className={styles.hint}>{t('debug.noBreakpoints')}</div>
             ) : (

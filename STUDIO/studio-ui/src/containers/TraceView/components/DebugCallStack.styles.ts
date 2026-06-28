@@ -22,6 +22,10 @@ export const useStyles = createStyles(({ css, token }) => ({
     frameSelected: css`
         background: ${token.colorPrimaryBg};
     `,
+    addBreakpoint: css`
+        width: calc(100% - ${token.paddingSM * 2}px);
+        margin: ${token.marginXS}px ${token.paddingSM}px;
+    `,
     breakpoint: css`
         gap: ${token.marginXS}px;
     `,

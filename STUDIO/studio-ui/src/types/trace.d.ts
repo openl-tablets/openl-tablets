@@ -19,6 +19,16 @@ export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 
 /** Location type of the current line inside a frame. */
 export type LocationKind = 'cell' | 'dtrule' | 'operation'
 
+/** A rule table that can be a breakpoint target (set a breakpoint by name before it runs). */
+export interface BreakpointTableView {
+    /** Table source URI — the breakpoint key. */
+    uri: string
+    /** Table display name, used to search. */
+    name: string
+    /** Frame kind code. */
+    kind: FrameKind
+}
+
 /**
  * The current line being evaluated inside a stack frame.
  */

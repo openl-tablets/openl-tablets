@@ -1,6 +1,8 @@
 package org.openl.studio.projects.rest.controller;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -25,17 +27,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
+import org.openl.rules.webstudio.web.trace.debug.DefaultSourceClassifier;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.model.trace.BreakpointTableView;
 import org.openl.studio.projects.model.trace.BreakpointsRequest;
 import org.openl.studio.projects.model.trace.DebugFrameVariables;
 import org.openl.studio.projects.model.trace.DebugStackView;
@@ -222,6 +228,23 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestBody BreakpointsRequest request) {
         sessionRegistry.setBreakpoints(request.safeUris());
+    }
+
+    @Operation(summary = "trace.breakpoint-tables.summary", description = "trace.breakpoint-tables.desc")
+    @ApiResponse(responseCode = "200", description = "trace.breakpoint-tables.200.desc")
+    @GetMapping("/breakpoint-tables")
+    public List<BreakpointTableView> breakpointTables(@ProjectId @PathVariable("projectId") RulesProject project) {
+        ProjectModel projectModel = projectService.openProject(project, null).awaitCompiled();
+        var classifier = new DefaultSourceClassifier();
+        // List every rule table that becomes a frame, so a breakpoint can be set on it before it runs.
+        return projectModel.getAllTableSyntaxNodes().stream()
+                .map(TableSyntaxNode::getMember)
+                .filter(ExecutableRulesMethod.class::isInstance)
+                .map(classifier::describeFrame)
+                .filter(Objects::nonNull)
+                .map(d -> new BreakpointTableView(d.uri(), d.name(), d.kind().getCode()))
+                .sorted(Comparator.comparing(BreakpointTableView::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     @Operation(summary = "trace.cancel.summary", description = "trace.cancel.desc")

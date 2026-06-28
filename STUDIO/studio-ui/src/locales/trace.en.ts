@@ -15,6 +15,7 @@ i18next.addResourceBundle('en', 'trace', {
         breakpoints: 'Breakpoints',
         noBreakpoints: 'No breakpoints. Add one from a table below.',
         addBreakpoint: 'Add breakpoint',
+        addBreakpointPlaceholder: 'Find a table by name…',
         removeBreakpoint: 'Remove breakpoint',
         steps: 'Steps',
         noSteps: 'No steps',
