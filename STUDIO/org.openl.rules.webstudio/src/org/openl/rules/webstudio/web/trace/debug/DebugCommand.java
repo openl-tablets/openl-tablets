@@ -14,15 +14,8 @@ public enum DebugCommand {
     /** Run callees to completion; suspend at the next step in the current frame or its caller. */
     STEP_OVER,
 
-    /** Run the current frame to completion; suspend at its own return point so its result is visible. */
+    /** Run until the current frame returns; suspend in the caller. */
     STEP_OUT,
-
-    /**
-     * Run the current frame to completion and ascend straight to the caller, suspending at the caller's
-     * next step. Unlike {@link #STEP_OUT} it does not stop at this frame's own exit, so a deep frame with
-     * many sub-steps (for example a large non-indexed decision table) can be left in one action.
-     */
-    STEP_TO_CALLER,
 
     /** Run until the next breakpoint or until execution finishes. */
     RESUME

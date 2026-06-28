@@ -7,7 +7,6 @@ import {
     VerticalAlignBottomOutlined,
     VerticalAlignTopOutlined,
     EnterOutlined,
-    RollbackOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
@@ -24,7 +23,6 @@ const DebugToolbar: React.FC = () => {
     const stepInto = useTraceStore(s => s.stepInto)
     const stepOver = useTraceStore(s => s.stepOver)
     const stepOut = useTraceStore(s => s.stepOut)
-    const stepToCaller = useTraceStore(s => s.stepToCaller)
     const resume = useTraceStore(s => s.resume)
     const pause = useTraceStore(s => s.pause)
     const terminate = useTraceStore(s => s.terminate)
@@ -77,15 +75,6 @@ const DebugToolbar: React.FC = () => {
                     disabled={!suspended || loading}
                     icon={<VerticalAlignTopOutlined />}
                     onClick={stepOut}
-                    type="text"
-                />
-            </Tooltip>
-            <Tooltip title={t('debug.stepToCaller')}>
-                <Button
-                    data-testid="debug-step-to-caller"
-                    disabled={!suspended || loading}
-                    icon={<RollbackOutlined />}
-                    onClick={stepToCaller}
                     type="text"
                 />
             </Tooltip>

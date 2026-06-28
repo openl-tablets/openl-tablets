@@ -11,7 +11,7 @@
 export type DebugStatus = 'PENDING' | 'RUNNING' | 'SUSPENDED' | 'COMPLETED' | 'ERROR' | 'TERMINATED'
 
 /** Step command issued to a suspended session. */
-export type StepType = 'into' | 'over' | 'out' | 'caller'
+export type StepType = 'into' | 'over' | 'out'
 
 /** Kind of rule table a stack frame represents (mirrors the backend FrameKind codes). */
 export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 'tbasic' | 'tbasicMethod'

@@ -285,7 +285,6 @@ public class ProjectsTraceDebugController {
             case "into" -> DebugCommand.STEP_INTO;
             case "over" -> DebugCommand.STEP_OVER;
             case "out" -> DebugCommand.STEP_OUT;
-            case "caller" -> DebugCommand.STEP_TO_CALLER;
             default -> throw new BadRequestException("trace.debug.invalid-step.message");
         };
     }
