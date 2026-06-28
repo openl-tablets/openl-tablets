@@ -22,6 +22,14 @@ public final class DebugSession {
     private final TraceDebugger debugger;
     private final @Nullable ClassLoader classLoader;
 
+    /** Wall-clock of the last controller access; drives idle reaping. */
+    private volatile long lastAccessMillis = System.currentTimeMillis();
+
+    /** Record a controller access so the idle reaper does not reclaim an active session. */
+    public void touch() {
+        lastAccessMillis = System.currentTimeMillis();
+    }
+
     /** Cancel the session, releasing the worker thread. */
     public void terminate() {
         debugger.terminate(TERMINATE_JOIN_MILLIS);

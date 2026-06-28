@@ -24,9 +24,13 @@ class DebugSessionRegistryTest {
         return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null);
     }
 
+    private static DebugSessionRegistry registry() {
+        return new DebugSessionRegistry(new DebugSessionReaper());
+    }
+
     @Test
     void startReplacesCurrentSession() {
-        var registry = new DebugSessionRegistry();
+        var registry = registry();
         var first = session(projectId("A"));
         registry.start(first);
         assertSame(first, registry.current());
@@ -38,7 +42,7 @@ class DebugSessionRegistryTest {
 
     @Test
     void findMatchesOnlyTheOwningProject() {
-        var registry = new DebugSessionRegistry();
+        var registry = registry();
         registry.start(session(projectId("A")));
         assertNotNull(registry.find(projectId("A")));
         assertNull(registry.find(projectId("B")));
@@ -46,7 +50,7 @@ class DebugSessionRegistryTest {
 
     @Test
     void clearDropsTheSession() {
-        var registry = new DebugSessionRegistry();
+        var registry = registry();
         registry.start(session(projectId("A")));
         registry.clear();
         assertNull(registry.current());
@@ -54,7 +58,7 @@ class DebugSessionRegistryTest {
 
     @Test
     void breakpointsPersistAndApplyToTheRunningSession() {
-        var registry = new DebugSessionRegistry();
+        var registry = registry();
         var session = session(projectId("A"));
         registry.start(session);
 
@@ -65,7 +69,7 @@ class DebugSessionRegistryTest {
 
     @Test
     void workspaceResetClearsTheSession() {
-        var registry = new DebugSessionRegistry();
+        var registry = registry();
         registry.start(session(projectId("A")));
         registry.onWorkspaceReset(new WorkspaceResetEvent(this));
         assertNull(registry.current());

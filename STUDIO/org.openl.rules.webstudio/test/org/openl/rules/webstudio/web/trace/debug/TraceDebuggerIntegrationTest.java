@@ -8,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
@@ -208,5 +211,34 @@ class TraceDebuggerIntegrationTest {
         debugger.terminate(TIMEOUT);
         assertTrue(debugger.status().isTerminal());
         assertEquals(DebugStatus.TERMINATED, debugger.status());
+    }
+
+    @Test
+    void terminateDoesNotBlockOnAnUninterruptibleWorker() throws InterruptedException {
+        var inLoop = new CountDownLatch(1);
+        var release = new AtomicBoolean(false);
+        // A rule that never reaches a safepoint and ignores interruption (a tight loop).
+        DebugBody spinning = () -> {
+            inLoop.countDown();
+            while (!release.get()) {
+                Thread.onSpinWait();
+            }
+        };
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        try {
+            debugger.start("stuck-worker", null, false, spinning);
+            assertTrue(inLoop.await(TIMEOUT, TimeUnit.MILLISECONDS), "the worker should reach its loop");
+
+            long startNanos = System.nanoTime();
+            debugger.terminate(100);
+            long elapsedMillis = (System.nanoTime() - startNanos) / 1_000_000;
+
+            // Terminate joins briefly then returns; it must not block on the runaway worker.
+            assertTrue(elapsedMillis < TIMEOUT, "terminate must return promptly, not block on the worker");
+            assertFalse(debugger.status().isTerminal(), "the abandoned worker is still running");
+        } finally {
+            release.set(true);
+        }
     }
 }

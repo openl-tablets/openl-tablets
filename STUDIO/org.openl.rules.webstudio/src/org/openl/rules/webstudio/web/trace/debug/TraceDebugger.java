@@ -135,13 +135,20 @@ public final class TraceDebugger {
     public void terminate(long joinMillis) {
         channel.requestTerminate();
         Thread thread = worker;
-        if (thread != null) {
-            thread.interrupt();
-            try {
-                thread.join(joinMillis);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        if (thread == null) {
+            return;
+        }
+        thread.interrupt();
+        try {
+            thread.join(joinMillis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        if (thread.isAlive()) {
+            // A parked worker unwinds on the terminate request; reaching here means the worker is in
+            // uninterruptible rule code (e.g. a tight loop) and cannot be stopped. Surface the leak.
+            log.warn("Debug worker '{}' still alive {} ms after terminate; abandoned while running rule code",
+                    thread.getName(), joinMillis);
         }
     }
 }

@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import jakarta.annotation.PreDestroy;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.event.EventListener;
@@ -26,15 +27,19 @@ import org.openl.studio.projects.model.ProjectIdModel;
 @Slf4j
 @Component
 @SessionScope
+@RequiredArgsConstructor
 public class DebugSessionRegistry {
 
     private final AtomicReference<DebugSession> ref = new AtomicReference<>();
     private final Set<String> breakpoints = ConcurrentHashMap.newKeySet();
+    private final DebugSessionReaper reaper;
 
     /** Register a new session, terminating any previous one. */
     public DebugSession start(DebugSession session) {
+        reaper.register(session);
         DebugSession previous = ref.getAndSet(session);
         if (previous != null) {
+            reaper.unregister(previous);
             previous.terminate();
         }
         return session;
@@ -47,13 +52,18 @@ public class DebugSessionRegistry {
     /** The active session if it belongs to the given project, otherwise {@code null}. */
     public @Nullable DebugSession find(ProjectIdModel projectId) {
         DebugSession session = ref.get();
-        return session != null && session.getProjectId().equals(projectId) ? session : null;
+        if (session == null || !session.getProjectId().equals(projectId)) {
+            return null;
+        }
+        session.touch();
+        return session;
     }
 
     /** Terminate and drop the active session. */
     public void clear() {
         DebugSession session = ref.getAndSet(null);
         if (session != null) {
+            reaper.unregister(session);
             session.terminate();
         }
     }

@@ -158,18 +158,23 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         selectFrame: async (index) => {
-            const { projectId, status } = get()
+            const { projectId, status, stackVersion } = get()
             if (!projectId) return
             set({ selectedFrameIndex: index })
             if (!isSuspended(status)) {
                 set({ variables: null })
                 return
             }
-            set({ variablesLoading: true })
+            set({ variablesLoading: true, variables: null })
+            // A slow variables response is stale if the user picked another frame or execution advanced
+            // to a new suspension in the meantime; dropping it avoids showing one frame's data under another.
+            const isStale = () => get().selectedFrameIndex !== index || get().stackVersion !== stackVersion
             try {
                 const variables = await traceService.getVariables(projectId, index)
+                if (isStale()) return
                 set({ variables, variablesLoading: false })
             } catch (error: any) {
+                if (isStale()) return
                 notification.error({ title: error?.message || 'Failed to load variables' })
                 set({ variables: null, variablesLoading: false })
             }
@@ -248,6 +253,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
 
         onSocketStatus: (status, message) => {
             if (status === 'SUSPENDED') {
+                // A synchronous step applies the authoritative stack from its own response; the WS
+                // notification for that same suspension would only trigger a duplicate stack+variables fetch.
+                if (get().loading) return
                 void get().refreshStack()
             } else if (status === 'RUNNING') {
                 set({ status: 'RUNNING' })
