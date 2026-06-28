@@ -70,12 +70,26 @@ export interface DebugFrameView {
 }
 
 /**
+ * A debug session failure, shaped for non-technical users.
+ *
+ * `summary` is the cleaned message; `table`/`location` say where it failed; `type`/`detail` carry the
+ * technical exception type and stack trace for an optional drill-down.
+ */
+export interface DebugError {
+    summary: string
+    table?: string | null
+    location?: string | null
+    type?: string | null
+    detail?: string | null
+}
+
+/**
  * The live execution stack at the current suspension.
  */
 export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
-    errorMessage?: string | null
+    error?: DebugError | null
 }
 
 /** Lightweight debug session status, used for polling. */

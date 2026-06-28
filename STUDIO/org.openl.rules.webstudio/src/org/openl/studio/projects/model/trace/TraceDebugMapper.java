@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.trace;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,8 +55,11 @@ public class TraceDebugMapper {
     private final SchemaGenerator schemaGenerator;
     private final TraceParameterRegistry parameterRegistry;
 
+    /** Upper bound on the technical stack-trace detail, so a deep failure cannot bloat the response. */
+    private static final int MAX_DETAIL = 8_000;
+
     /** Map the live stack (root to current frame) to a stack view. */
-    public DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable String errorMessage) {
+    public DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -73,8 +78,71 @@ public class TraceDebugMapper {
         return DebugStackView.builder()
                 .status(status.name())
                 .frames(views)
-                .errorMessage(errorMessage)
+                .error(buildStackError(frames, error))
                 .build();
+    }
+
+    /** Build a non-technical error view: cleaned message, the table that failed, and a technical drill-down. */
+    private static @Nullable DebugError buildStackError(List<DebugFrame> frames, @Nullable Throwable error) {
+        if (error == null) {
+            return null;
+        }
+        DebugFrame failing = failingFrame(frames);
+        return DebugError.builder()
+                .summary(cleanSummary(error))
+                .table(failing == null ? null : failing.getName())
+                .location(failing == null ? null : locationLabel(failing.getLocation()))
+                .type(rootCause(error).getClass().getSimpleName())
+                .detail(stackTrace(error))
+                .build();
+    }
+
+    /** The frame that failed: the deepest one marked with an error, otherwise the current (deepest) frame. */
+    private static @Nullable DebugFrame failingFrame(List<DebugFrame> frames) {
+        DebugFrame failing = null;
+        for (DebugFrame frame : frames) {
+            if (frame.getError() != null) {
+                failing = frame;
+            }
+        }
+        if (failing == null && !frames.isEmpty()) {
+            failing = frames.get(frames.size() - 1);
+        }
+        return failing;
+    }
+
+    private static @Nullable String locationLabel(@Nullable CurrentLocation location) {
+        if (location == null) {
+            return null;
+        }
+        return location.label() != null ? location.label() : location.ref();
+    }
+
+    /** Prefer the engine's cleaned OpenL message over the raw Java exception text. */
+    private static String cleanSummary(Throwable error) {
+        Throwable cause = Objects.requireNonNullElse(error.getCause(), error);
+        for (OpenLMessage message : OpenLMessagesUtils.newErrorMessages(cause)) {
+            if (message.getSummary() != null && !message.getSummary().isBlank()) {
+                return message.getSummary();
+            }
+        }
+        Throwable root = rootCause(error);
+        return Objects.requireNonNullElse(root.getMessage(), root.getClass().getSimpleName());
+    }
+
+    private static Throwable rootCause(Throwable error) {
+        Throwable cause = error;
+        while (cause.getCause() != null && cause.getCause() != cause) {
+            cause = cause.getCause();
+        }
+        return cause;
+    }
+
+    private static String stackTrace(Throwable error) {
+        var writer = new StringWriter();
+        error.printStackTrace(new PrintWriter(writer));
+        String trace = writer.toString();
+        return trace.length() > MAX_DETAIL ? trace.substring(0, MAX_DETAIL) + "…" : trace;
     }
 
     private static @Nullable DebugLocationView toLocationView(@Nullable CurrentLocation location) {

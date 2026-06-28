@@ -274,10 +274,7 @@ public class ProjectsTraceDebugController {
 
     private DebugStackView stackView(DebugSession session) {
         var debugger = session.getDebugger();
-        DebugStatus status = debugger.status();
-        Throwable error = debugger.error();
-        String message = error == null ? null : error.getMessage();
-        return createMapper().toStackView(status, debugger.stack(), message);
+        return createMapper().toStackView(debugger.status(), debugger.stack(), debugger.error());
     }
 
     private static DebugCommand toCommand(String type) {

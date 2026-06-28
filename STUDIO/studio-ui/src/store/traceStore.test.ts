@@ -81,4 +81,24 @@ describe('traceStore race hardening', () => {
         store.onSocketStatus('SUSPENDED')
         expect(getStack).toHaveBeenCalledTimes(1)
     })
+
+    it('surfaces an immediate error summary from the socket message', () => {
+        getStack.mockResolvedValue({ status: 'ERROR', frames: []} as any)
+
+        useTraceStore.getState().onSocketStatus('ERROR', 'Something failed')
+
+        const state = useTraceStore.getState()
+        expect(state.status).toBe('ERROR')
+        expect(state.debugError).toEqual({ summary: 'Something failed' })
+        expect(state.frames).toEqual([])
+    })
+
+    it('loads the cleaned, located error from the stack after a failure', async () => {
+        const debugError = { summary: 'Division by zero', table: 'CalcRate', type: 'ArithmeticException' }
+        getStack.mockResolvedValue({ status: 'ERROR', frames: [], error: debugError } as any)
+
+        await useTraceStore.getState().fetchTerminalError()
+
+        expect(useTraceStore.getState().debugError).toEqual(debugError)
+    })
 })

@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
+import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
@@ -73,6 +75,42 @@ class TraceDebugMapperTest {
             assertFalse(variables.steps().isEmpty(), "spreadsheet steps are enumerated");
             assertTrue(variables.steps().stream().allMatch(s -> s.label() != null && s.label().startsWith("$")),
                     "steps use the OpenL cell name, not the R0C0 reference");
+        } finally {
+            debugger.terminate(10_000);
+        }
+    }
+
+    @Test
+    void buildsAFriendlyErrorWithTableAndTechnicalDetail() {
+        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        IOpenClass module = compiled.getOpenClass();
+        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        assertNotNull(myRule, "MyRule must compile");
+
+        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        debugger.start("error-mapper-test", compiled.getClassLoader(), true, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            myRule.invoke(module.newInstance(env), new Object[0], env);
+        });
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
+
+        try {
+            TraceDebugMapper mapper = mapper();
+            // Advance one step so the current frame carries a location to report.
+            assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, 10_000));
+            List<DebugFrame> stack = debugger.stack();
+
+            var errorView = mapper.toStackView(DebugStatus.ERROR, stack, new IllegalStateException("kaboom"));
+            DebugError error = errorView.error();
+            assertNotNull(error, "an errored session carries a structured error");
+            assertEquals("MyRule", error.table(), "the failing table is named");
+            assertEquals("IllegalStateException", error.type(), "the technical type is exposed for drill-down");
+            assertNotNull(error.summary(), "a human-readable summary is always present");
+            assertNotNull(error.detail(), "the stack trace is available as technical detail");
+            assertTrue(error.detail().contains("IllegalStateException"), "the detail carries the stack trace");
+
+            // A healthy stack carries no error.
+            assertNull(mapper.toStackView(DebugStatus.SUSPENDED, stack, null).error());
         } finally {
             debugger.terminate(10_000);
         }

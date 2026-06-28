@@ -16959,6 +16959,32 @@ Content-Type: application/json
           }
         ]
       },
+      "DebugError": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "***"
+          },
+          "location": {
+            "type": "string",
+            "description": "***"
+          },
+          "summary": {
+            "type": "string",
+            "description": "***"
+          },
+          "table": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
       "DebugFrameVariables": {
         "type": "object",
         "description": "***",
@@ -17083,9 +17109,8 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
-          "errorMessage": {
-            "type": "string",
-            "description": "***"
+          "error": {
+            "$ref": "#/components/schemas/DebugError"
           },
           "frames": {
             "type": "array",

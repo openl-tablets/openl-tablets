@@ -75,4 +75,22 @@ export const useStyles = createStyles(({ css }) => ({
         z-index: 100;
         max-width: 80%;
     `,
+    errorWhere: css`
+        margin-bottom: 4px;
+    `,
+    errorType: css`
+        font-family: monospace;
+        font-weight: 600;
+        margin-bottom: 4px;
+    `,
+    errorStack: css`
+        margin: 0;
+        max-height: 220px;
+        overflow: auto;
+        font-size: 12px;
+        white-space: pre;
+        background: rgba(0, 0, 0, 0.03);
+        padding: 8px;
+        border-radius: 4px;
+    `,
 }))

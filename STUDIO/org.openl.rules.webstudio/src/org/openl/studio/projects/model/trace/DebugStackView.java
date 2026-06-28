@@ -10,9 +10,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * The live execution stack at the current suspension.
  *
- * @param status       debug session status
- * @param frames       stack frames ordered from the root call to the current frame
- * @param errorMessage failure message when the session ended in error, otherwise {@code null}
+ * @param status debug session status
+ * @param frames stack frames ordered from the root call to the current frame
+ * @param error  failure detail when the session ended in error, otherwise {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -24,7 +24,7 @@ public record DebugStackView(
         @Schema(description = "trace.field.stack.frames.desc")
         List<DebugFrameView> frames,
 
-        @Schema(description = "trace.field.stack.error-message.desc")
-        @Nullable String errorMessage
+        @Schema(description = "trace.field.stack.error.desc")
+        @Nullable DebugError error
 ) {
 }

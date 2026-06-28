@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Tag } from 'antd'
+import { Alert, Collapse, Tag } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
+import type { DebugError } from 'types/trace'
 import DebugToolbar from './components/DebugToolbar'
 import DebugCallStack from './components/DebugCallStack'
 import TraceDetails from './components/TraceDetails'
@@ -24,6 +25,41 @@ const STATUS_COLOR: Record<string, string> = {
 }
 
 /**
+ * Failure description for the terminal banner: where it failed, plus a collapsible technical drill-down
+ * so the everyday view stays free of stack traces and Java type names.
+ */
+const TerminalErrorDescription: React.FC<{ error: DebugError }> = ({ error }) => {
+    const { t } = useTranslation('trace')
+    const { styles } = useStyles()
+    const where = [
+        error.table ? t('error.inTable', { table: error.table }) : null,
+        error.location ? t('error.atLocation', { location: error.location }) : null,
+    ].filter(Boolean).join(' ')
+    const technical = error.type || error.detail
+    return (
+        <>
+            {where && <div className={styles.errorWhere}>{where}</div>}
+            {technical && (
+                <Collapse
+                    ghost
+                    size="small"
+                    items={[{
+                        key: 'tech',
+                        label: t('error.technicalDetails'),
+                        children: (
+                            <>
+                                {error.type && <div className={styles.errorType}>{error.type}</div>}
+                                {error.detail && <pre className={styles.errorStack}>{error.detail}</pre>}
+                            </>
+                        ),
+                    }]}
+                />
+            )}
+        </>
+    )
+}
+
+/**
  * Interactive trace debugger page.
  *
  * URL: /trace/{projectId}?tableId={tableId}&fromModule=&testRanges=
@@ -42,7 +78,7 @@ const TraceView: React.FC = () => {
     const loadBreakpoints = useTraceStore(s => s.loadBreakpoints)
     const reset = useTraceStore(s => s.reset)
     const status = useTraceStore(s => s.status)
-    const errorMessage = useTraceStore(s => s.errorMessage)
+    const debugError = useTraceStore(s => s.debugError)
     const error = useTraceStore(s => s.error)
 
     const [leftPanelWidth, setLeftPanelWidth] = useState(35)
@@ -122,10 +158,14 @@ const TraceView: React.FC = () => {
                 <Alert
                     closable
                     className={styles.errorBanner}
-                    description={errorMessage || undefined}
-                    message={t(`debug.status.${status}`)}
+                    message={(isTraceExecutionError(status) && debugError?.summary) || t(`debug.status.${status}`)}
                     onClose={() => setBannerDismissed(true)}
                     type={isTraceExecutionError(status) ? 'error' : status === 'COMPLETED' ? 'success' : 'warning'}
+                    description={
+                        isTraceExecutionError(status) && debugError
+                            ? <TerminalErrorDescription error={debugError} />
+                            : undefined
+                    }
                 />
             )}
             {error && (

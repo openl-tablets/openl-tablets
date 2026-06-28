@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { notification } from 'antd'
 import type {
+    DebugError,
     DebugFrameVariables,
     DebugFrameView,
     DebugStackView,
@@ -20,7 +21,7 @@ interface DebugState {
     // Session state
     status: DebugStatus | null
     frames: DebugFrameView[]
-    errorMessage: string | null
+    debugError: DebugError | null
     selectedFrameIndex: number | null
     variables: DebugFrameVariables | null
     variablesLoading: boolean
@@ -53,6 +54,7 @@ interface DebugState {
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
     onSocketStatus: (status: DebugStatus, message?: string) => void
+    fetchTerminalError: () => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     reset: () => void
 }
@@ -65,7 +67,7 @@ const initialState = {
     inputJson: null,
     status: null,
     frames: [],
-    errorMessage: null,
+    debugError: null,
     selectedFrameIndex: null,
     variables: null,
     variablesLoading: false,
@@ -85,7 +87,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         set({
             status: stack.status,
             frames: stack.frames,
-            errorMessage: stack.errorMessage ?? null,
+            debugError: stack.error ?? null,
             selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
             variables: null,
             stackVersion: get().stackVersion + 1,
@@ -260,7 +262,31 @@ export const useTraceStore = create<DebugState>((set, get) => {
             } else if (status === 'RUNNING') {
                 set({ status: 'RUNNING' })
             } else if (status === 'COMPLETED' || status === 'ERROR' || status === 'TERMINATED') {
-                set({ status, errorMessage: message ?? get().errorMessage, frames: [], selectedFrameIndex: null, variables: null })
+                // Show an immediate summary from the socket (if any); the full error is fetched below.
+                set({
+                    status,
+                    frames: [],
+                    selectedFrameIndex: null,
+                    variables: null,
+                    debugError: status === 'ERROR' && message ? { summary: message } : null,
+                })
+                if (status === 'ERROR') {
+                    void get().fetchTerminalError()
+                }
+            }
+        },
+
+        fetchTerminalError: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                // The session is still readable after it errors; the stack carries the cleaned, located error.
+                const stack = await traceService.getStack(projectId)
+                if (stack.error) {
+                    set({ debugError: stack.error })
+                }
+            } catch {
+                // Best effort: keep the socket summary if the fetch fails.
             }
         },
 

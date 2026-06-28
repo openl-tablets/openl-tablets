@@ -4,12 +4,12 @@ i18next.addResourceBundle('en', 'trace', {
     title: 'Execution Trace',
 
     debug: {
-        resume: 'Resume (run to next breakpoint)',
-        pause: 'Pause',
-        stepInto: 'Step into',
-        stepOver: 'Step over',
-        stepOut: 'Step out',
-        stop: 'Stop',
+        resume: 'Resume — run to the next breakpoint or the end',
+        pause: 'Pause — stop at the next step',
+        stepInto: 'Step into — go inside the next called rule',
+        stepOver: 'Step over — run the next line without going inside',
+        stepOut: 'Step out — finish this rule and return to its caller',
+        stop: 'Stop debugging',
         callStack: 'Call stack',
         notSuspended: 'Execution is not suspended',
         breakpoints: 'Breakpoints',
@@ -29,6 +29,12 @@ i18next.addResourceBundle('en', 'trace', {
             ERROR: 'Error',
             TERMINATED: 'Terminated',
         },
+    },
+
+    error: {
+        inTable: 'in {{table}}',
+        atLocation: 'at {{location}}',
+        technicalDetails: 'Show technical details',
     },
 
     actions: {
