@@ -80,6 +80,17 @@ class StepControllerTest {
     }
 
     @Test
+    void stepToCallerAscendsWithoutStoppingAtFrameExit() {
+        StepController controller = new StepController();
+        controller.arm(DebugCommand.STEP_TO_CALLER, 3);
+        // The current frame runs to completion: neither its own lines nor its own exit stop.
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 3, "uri", "R0C0"));
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 3, "uri", null));
+        // It lands in the caller, on the caller's next line.
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 2, "uri", "R0C0"));
+    }
+
+    @Test
     void resumeClearsStepping() {
         StepController controller = new StepController();
         controller.arm(DebugCommand.STEP_INTO, 2);

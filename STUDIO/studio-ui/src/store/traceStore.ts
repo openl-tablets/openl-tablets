@@ -47,6 +47,7 @@ interface DebugState {
     stepInto: () => Promise<void>
     stepOver: () => Promise<void>
     stepOut: () => Promise<void>
+    stepToCaller: () => Promise<void>
     resume: () => Promise<void>
     pause: () => Promise<void>
     terminate: () => Promise<void>
@@ -178,6 +179,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         stepInto: () => runStep(() => traceService.step(get().projectId!, 'into')),
         stepOver: () => runStep(() => traceService.step(get().projectId!, 'over')),
         stepOut: () => runStep(() => traceService.step(get().projectId!, 'out')),
+        stepToCaller: () => runStep(() => traceService.step(get().projectId!, 'caller')),
 
         resume: async () => {
             const { projectId } = get()

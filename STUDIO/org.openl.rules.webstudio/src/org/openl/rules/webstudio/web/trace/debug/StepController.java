@@ -47,6 +47,9 @@ final class StepController {
                 exitDepth = currentDepth;
                 yield currentDepth - 1;
             }
+            // Like Step Out but ascend straight to the caller without stopping at this frame's own exit,
+            // so a deep frame with many sub-steps can be left in one action.
+            case STEP_TO_CALLER -> currentDepth - 1;
             case RESUME -> NEVER;
         };
         pauseRequested = false;

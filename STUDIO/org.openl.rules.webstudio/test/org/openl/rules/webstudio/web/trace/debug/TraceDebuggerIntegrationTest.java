@@ -144,6 +144,25 @@ class TraceDebuggerIntegrationTest {
     }
 
     @Test
+    void stepToCallerLeavesTheFrameAndLandsInTheCaller() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("test-worker", null, true, program());
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+
+        // Step into the first cell, then into the nested T1 frame.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertEquals(List.of("T0", "T1"), uris(debugger));
+
+        // Step to caller: leave T1 and land directly in T0 — unlike Step Out, it does not stop at T1's exit.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_TO_CALLER, TIMEOUT));
+        assertEquals(List.of("T0"), uris(debugger));
+        assertEquals("R0C1", topRef(debugger));
+
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
     void stepOverRunsThroughCalleeTables() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program());

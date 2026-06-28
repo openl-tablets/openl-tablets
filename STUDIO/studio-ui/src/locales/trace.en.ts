@@ -9,6 +9,7 @@ i18next.addResourceBundle('en', 'trace', {
         stepInto: 'Step into',
         stepOver: 'Step over',
         stepOut: 'Step out',
+        stepToCaller: 'Step to caller (finish this frame, go up to the caller)',
         stop: 'Stop',
         callStack: 'Call stack',
         notSuspended: 'Execution is not suspended',
