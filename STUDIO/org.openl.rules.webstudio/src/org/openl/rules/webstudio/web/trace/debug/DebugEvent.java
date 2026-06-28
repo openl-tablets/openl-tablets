@@ -2,9 +2,6 @@ package org.openl.rules.webstudio.web.trace.debug;
 
 /**
  * A point during execution at which the engine may suspend.
- *
- * <p>Frame exits are not suspend points by themselves: when a frame returns, the caller's next
- * {@link #ENTER} or {@link #LOCATION} is the point a step lands on.
  */
 public enum DebugEvent {
 
@@ -12,5 +9,11 @@ public enum DebugEvent {
     ENTER,
 
     /** The current line inside the active frame changed (a cell, condition, rule, or operation). */
-    LOCATION
+    LOCATION,
+
+    /**
+     * A table frame has finished and is about to return. A Step Out lands here so the user can inspect
+     * the returning frame's result before it leaves the stack.
+     */
+    EXIT
 }

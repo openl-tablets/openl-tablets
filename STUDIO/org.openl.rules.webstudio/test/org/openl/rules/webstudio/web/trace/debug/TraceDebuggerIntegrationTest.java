@@ -46,6 +46,13 @@ class TraceDebuggerIntegrationTest {
             return this;
         }
 
+        FakeTable boom() {
+            body.add(env -> {
+                throw new IllegalStateException("boom");
+            });
+            return this;
+        }
+
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             body.forEach(step -> step.accept(env));
@@ -105,12 +112,35 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
         assertEquals(List.of("T0", "T1"), uris(debugger));
 
-        // Step out of T1: run it to completion and stop back on the next line of T0.
+        // Step out of T1: run it to completion and stop at T1's own exit, where its result is on the stack.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));
+        assertEquals(List.of("T0", "T1"), uris(debugger));
+        assertTrue(debugger.stack().get(1).isCompleted(), "the returning frame is on the stack with its result");
+
+        // A further step continues in the caller, on T0's next line.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
         assertEquals(List.of("T0"), uris(debugger));
         assertEquals("R0C1", topRef(debugger));
 
         assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void breakOnExceptionSuspendsAtThrowingFrame() {
+        FakeTable t1 = new FakeTable("T1").boom();
+        FakeTable t0 = new FakeTable("T0").call(t1);
+        DebugBody program = () -> Tracer.invoke(t0, null, NO_PARAMS, new SimpleRuntimeEnv(), t0);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        // Run with no breakpoints: without break-on-exception this would just fail; instead it suspends.
+        debugger.start("test-worker", null, false, program);
+
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(List.of("T0", "T1"), uris(debugger));
+        assertNotNull(debugger.stack().get(1).getError(), "the throwing frame carries its error");
+
+        // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
+        assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
     }
 
     @Test

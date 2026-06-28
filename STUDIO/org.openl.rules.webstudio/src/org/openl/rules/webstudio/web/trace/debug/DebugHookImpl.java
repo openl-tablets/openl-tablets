@@ -28,6 +28,7 @@ final class DebugHookImpl implements DebugHook {
 
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private volatile List<DebugFrame> published = List.of();
+    private @Nullable Throwable brokenException;
 
     DebugHookImpl(SourceClassifier classifier, StepController stepController, DebugChannel channel,
                   DebugListener listener) {
@@ -83,11 +84,14 @@ final class DebugHookImpl implements DebugHook {
             handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null);
             R result = executor.invoke(target, params, env);
             frame.completeWith(result);
+            // Step Out lands here so the returning frame's result is on the stack before it is popped.
+            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null);
             return result;
         } catch (DebugTerminationError e) {
             throw e;
         } catch (Throwable ex) {
             frame.failWith(ex);
+            breakOnException(depth, ex);
             throw ex;
         } finally {
             stack.pop();
@@ -118,6 +122,22 @@ final class DebugHookImpl implements DebugHook {
             DebugCommand command = channel.awaitCommand();
             stepController.arm(command, depth);
         }
+    }
+
+    /**
+     * Suspend at the frame where an exception surfaced so its state can be inspected before it
+     * propagates. Each exception breaks once: as it unwinds through the outer frames, the same instance
+     * is recognised and not re-broken.
+     */
+    private void breakOnException(int depth, Throwable ex) {
+        if (ex == brokenException || channel.isTerminateRequested()) {
+            return;
+        }
+        brokenException = ex;
+        publishSnapshot();
+        listener.onStatusChanged(DebugStatus.SUSPENDED);
+        DebugCommand command = channel.awaitCommand();
+        stepController.arm(command, depth);
     }
 
     private void publishSnapshot() {

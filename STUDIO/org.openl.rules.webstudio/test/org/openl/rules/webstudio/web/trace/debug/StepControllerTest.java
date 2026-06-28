@@ -51,6 +51,8 @@ class StepControllerTest {
         controller.arm(DebugCommand.STEP_INTO, 2);
         assertTrue(controller.shouldSuspend(DebugEvent.ENTER, 3, "uri", null));
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 9, "uri", "R0C0"));
+        // Step Into lands on the next enter/line, not on a frame exit.
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 3, "uri", null));
     }
 
     @Test
@@ -61,13 +63,19 @@ class StepControllerTest {
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 2, "uri", "R0C0"));
         assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 4, "uri", "R0C0"));
         assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 4, "uri", null));
+        // Step Over lands in the caller via its next line, not at this frame's own exit.
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 3, "uri", null));
     }
 
     @Test
-    void stepOutStopsOnlyAboveCurrentFrame() {
+    void stepOutStopsAtFrameExitThenAboveCurrentFrame() {
         StepController controller = new StepController();
         controller.arm(DebugCommand.STEP_OUT, 3);
+        // The current frame runs to completion: its own lines do not stop, but its exit does.
         assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 3, "uri", "R0C0"));
+        assertTrue(controller.shouldSuspend(DebugEvent.EXIT, 3, "uri", null));
+        // A deeper callee's exit is skipped; the caller's next line stops.
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 4, "uri", null));
         assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 2, "uri", "R0C0"));
     }
 

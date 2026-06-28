@@ -7,11 +7,13 @@ import org.jspecify.annotations.Nullable;
 /**
  * Decides whether execution should suspend at a given point.
  *
- * <p>Stepping is expressed as a single depth threshold: execution suspends on a frame enter or a
- * current-line change whose depth is at or above the threshold (that is, {@code depth <= threshold}).
- * Step Into uses an unbounded threshold, Step Over uses the current depth, and Step Out uses one less.
- * Resume disables stepping and waits for a breakpoint. Breakpoints (matched by table URI on frame
- * entry) and an asynchronous pause request always suspend, regardless of the threshold.
+ * <p>Stepping is expressed as a depth threshold: execution suspends on a frame enter or a current-line
+ * change whose depth is at or above the threshold (that is, {@code depth <= threshold}). Step Into uses
+ * an unbounded threshold and Step Over uses the current depth. Step Out runs the current frame to
+ * completion and suspends at its own {@link DebugEvent#EXIT} (so its result is on the stack), then
+ * continues in the caller on the next step. Resume disables stepping and waits for a breakpoint.
+ * Breakpoints (matched by table URI on frame entry) and an asynchronous pause request always suspend,
+ * regardless of the threshold.
  *
  * <p>All mutators are synchronized so the controller thread can change breakpoints or request a pause
  * while the worker thread evaluates suspend points.
@@ -23,20 +25,28 @@ final class StepController {
 
     private volatile Set<String> breakpoints = Set.of();
     private int threshold = NEVER;
+    private int exitDepth = NEVER;
     private volatile boolean pauseRequested;
 
     /** Arm the initial step before execution starts. */
     synchronized void armInitial(boolean stopAtEntry) {
         threshold = stopAtEntry ? Integer.MAX_VALUE : NEVER;
+        exitDepth = NEVER;
         pauseRequested = false;
     }
 
     /** Arm the next step from a command issued at the given current depth. */
     synchronized void arm(DebugCommand command, int currentDepth) {
+        exitDepth = NEVER;
         threshold = switch (command) {
             case STEP_INTO -> Integer.MAX_VALUE;
             case STEP_OVER -> currentDepth;
-            case STEP_OUT -> currentDepth - 1;
+            // Run the current frame to completion and stop at its own exit, so its result is on the
+            // stack to inspect; a further step then continues in the caller.
+            case STEP_OUT -> {
+                exitDepth = currentDepth;
+                yield currentDepth - 1;
+            }
             case RESUME -> NEVER;
         };
         pauseRequested = false;
@@ -75,6 +85,9 @@ final class StepController {
         }
         if (event == DebugEvent.LOCATION && ref != null && breakpoints.contains(uri + "#" + ref)) {
             return true;
+        }
+        if (event == DebugEvent.EXIT) {
+            return depth <= exitDepth;
         }
         return depth <= threshold;
     }
