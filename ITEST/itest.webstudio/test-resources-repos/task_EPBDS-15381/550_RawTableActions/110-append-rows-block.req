@@ -2,11 +2,4 @@ POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUz
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
-{
-  "operation": "delete",
-  "target": {
-    "type": "columns",
-    "position": 2,
-    "count": 1
-  }
-}
+{"operation":"append","target":{"type":"rows","cells":[[{"value":24},{"value":30},{"value":"Late"}],[{"value":30},{"value":36},{"value":"VeryLate"}]]}}

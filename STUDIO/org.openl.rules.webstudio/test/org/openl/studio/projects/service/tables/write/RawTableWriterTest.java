@@ -124,6 +124,90 @@ class RawTableWriterTest {
     }
 
     @Test
+    void insertsRowsBlock() {
+        // insert two valid datatype rows at position 1, shifting the rest down
+        apply(insertRows(1, List.of(row("String", "f1", "d1"), row("String", "f2", "d2"))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals("f1", value(source, 1, 1));
+        assertEquals("f2", value(source, 2, 1));
+        // the row that previously sat at index 1 is shifted down by two
+        assertEquals("code", value(source, 3, 1));
+    }
+
+    @Test
+    void insertsColumnsBlock() {
+        // insert two full-height columns at position 1, shifting the rest right
+        apply(insertColumns(1, List.of(row("p", "q", "r", "s"), row("t", "u", "v", "w"))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals("p", value(source, 0, 1));
+        assertEquals("t", value(source, 0, 2));
+        // the column that previously sat at index 1 is shifted right by two
+        assertEquals("code", value(source, 1, 3));
+    }
+
+    @Test
+    void rejectsRowBlockNotMatchingWidth() {
+        // each row of the block must be as wide as the table
+        assertBadRequest(insertRows(1, List.of(row("a", "b"), row("c", "d"))));
+    }
+
+    @Test
+    void appendsRowsBlock() {
+        apply(appendRows(List.of(row("String", "g1", "x1"), row("String", "g2", "x2"))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals("g1", value(source, 4, 1));
+        assertEquals("g2", value(source, 5, 1));
+    }
+
+    @Test
+    void appendsColumnsBlock() {
+        apply(appendColumns(List.of(row("a", "b", "c", "d"), row("e", "f", "g", "h"))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals("a", value(source, 0, 3));
+        assertEquals("e", value(source, 0, 4));
+    }
+
+    @Test
+    void deletesRowsBlock() {
+        apply(deleteRows(1, 2));
+
+        var source = reload(mainProject);
+        assertEquals(2, source.size());
+        // rows 1-2 removed; the row that was at index 3 shifts up to 1
+        assertEquals("int", value(source, 1, 0));
+    }
+
+    @Test
+    void deletesColumnsBlock() {
+        apply(deleteColumns(1, 2));
+
+        var source = reload(mainProject);
+        assertEquals(1, width(source));
+        assertEquals("String", value(source, 1, 0));
+    }
+
+    @Test
+    void deletingABlockClearsAFullyContainedMerge() {
+        // merge two stacked body cells, then delete exactly that 2-row block; the merge must not linger as an orphan
+        apply(merge(1, 0, 2, 1));
+        apply(deleteRows(1, 2));
+
+        var source = reload(mainProject);
+        assertEquals(2, source.size());
+        assertNull(source.get(1).get(0).rowspan(), "a fully-contained merge must be removed, not left stale");
+        assertNull(source.get(1).get(0).covered());
+        assertEquals("int", value(source, 1, 0));
+    }
+
+    @Test
     void deletesColumn() {
         apply(deleteColumn(2));
 
@@ -167,6 +251,59 @@ class RawTableWriterTest {
     }
 
     @Test
+    void updatesRange() {
+        // overwrite the 2x2 block at (1,1) in place; the table keeps its size and neighbours are untouched
+        apply(updateRange(1, 1, List.of(row("X1", "X2"), row("Y1", "Y2"))));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        assertEquals(3, width(source));
+        assertEquals("X1", value(source, 1, 1));
+        assertEquals("X2", value(source, 1, 2));
+        assertEquals("Y1", value(source, 2, 1));
+        assertEquals("Y2", value(source, 2, 2));
+        assertEquals("String", value(source, 1, 0));
+        assertEquals("int", value(source, 3, 0));
+    }
+
+    @Test
+    void rejectsRangeOutOfBounds() {
+        // a 3x3 block at (2,1) runs past the 4x3 table
+        assertBadRequest(updateRange(2, 1, List.of(row("a", "b", "c"), row("d", "e", "f"), row("g", "h", "i"))));
+    }
+
+    @Test
+    void rejectsSingleCellRange() {
+        // a 1x1 range is the cell update's job
+        assertBadRequest(updateRange(1, 1, List.of(row("x"))));
+    }
+
+    @Test
+    void rejectsRaggedRange() {
+        // rows of unequal length are not a rectangle
+        assertBadRequest(updateRange(1, 1, List.of(row("a", "b"), row("c"))));
+    }
+
+    @Test
+    void rejectsAllBlankRange() {
+        // a range that blanks an entire row would split the table, like an all-empty updateRow
+        assertBadRequest(updateRange(1, 0, List.of(row(null, null, null))));
+    }
+
+    @Test
+    void updateRangeClearsAStaleMerge() {
+        // merge the two stacked "String" cells, then overwrite that 2x1 block with plain cells
+        apply(merge(1, 0, 2, 1));
+        apply(updateRange(1, 0, List.of(row("p"), row("q"))));
+
+        var source = reload(mainProject);
+        assertNull(source.get(1).get(0).rowspan(), "stale merge must be cleared on a range update");
+        assertNull(source.get(2).get(0).covered());
+        assertEquals("p", value(source, 1, 0));
+        assertEquals("q", value(source, 2, 0));
+    }
+
+    @Test
     void appendsRowWithInlineMerge() {
         apply(appendRow(List.of(
                 new RawCellInput("MERGED", 2, null, null),
@@ -194,18 +331,15 @@ class RawTableWriterTest {
     @Test
     void rejectsInvalidMergeRange() {
         // a single cell is not a range
-        assertThrows(BadRequestException.class,
-                () -> apply(merge(1, 0, 1, 1)));
+        assertBadRequest(merge(1, 0, 1, 1));
         // a range that leaves the table bounds
-        assertThrows(BadRequestException.class,
-                () -> apply(merge(0, 0, 99, 99)));
+        assertBadRequest(merge(0, 0, 99, 99));
     }
 
     @Test
     void rejectsMergeThatWouldDiscardData() {
         // the two leftmost cells of row 1 hold different values ("String" and "code"); merging would drop one
-        assertThrows(BadRequestException.class,
-                () -> apply(merge(1, 0, 1, 2)));
+        assertBadRequest(merge(1, 0, 1, 2));
     }
 
     @Test
@@ -242,82 +376,111 @@ class RawTableWriterTest {
 
     @Test
     void rejectsUnmergeOfPlainCell() {
-        assertThrows(BadRequestException.class,
-                () -> apply(unmerge(2, 2)));
+        assertBadRequest(unmerge(2, 2));
     }
 
     @Test
     void updateRowClearsAStaleMerge() {
         // merge the two leftmost cells of the header row, then overwrite that row with plain (merge-free) cells
         apply(merge(0, 0, 1, 2));
-        apply(updateRow(0, row("p", "q", "r")));
+        // keep a recognized keyword in the header cell so the action does not invalidate the table
+        apply(updateRow(0, row("Datatype", "q", "r")));
 
         var source = reload(mainProject);
         // the merge dropped from the new cells must not linger, and the row holds the new values
         assertNull(source.get(0).get(0).colspan(), "stale merge must be cleared on update");
         assertNull(source.get(0).get(1).covered());
-        assertEquals("p", value(source, 0, 0));
+        assertEquals("Datatype", value(source, 0, 0));
         assertEquals("q", value(source, 0, 1));
         assertEquals("r", value(source, 0, 2));
     }
 
     @Test
     void rejectsPositionOutOfRange() {
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRow(99, row("x", "y", "z"))));
+        assertBadRequest(insertRow(99, row("x", "y", "z")));
     }
 
     @Test
     void rejectsInsertingBeforeTheHeader() {
         // The header must remain the first row, so position 0 is not allowed for insertion.
-        assertThrows(BadRequestException.class,
-                () -> apply(insertRow(0, row("x", "y", "z"))));
-        assertThrows(BadRequestException.class,
-                () -> apply(insertColumn(0, row("x", "y", "z", "w"))));
+        assertBadRequest(insertRow(0, row("x", "y", "z")));
+        assertBadRequest(insertColumn(0, row("x", "y", "z", "w")));
     }
 
     @Test
     void rejectsRowWiderThanTable() {
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRow(row("a", "b", "c", "d"))));
+        assertBadRequest(appendRow(row("a", "b", "c", "d")));
     }
 
     @Test
     void rejectsColumnTallerThanTable() {
-        assertThrows(BadRequestException.class,
-                () -> apply(appendColumn(row("a", "b", "c", "d", "e"))));
+        assertBadRequest(appendColumn(row("a", "b", "c", "d", "e")));
     }
 
     @Test
     void rejectsRowNarrowerThanTable() {
         // fewer cells than the 3 columns must fail rather than leaving the trailing cell empty
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRow(row("a", "b"))));
+        assertBadRequest(appendRow(row("a", "b")));
     }
 
     @Test
     void rejectsColumnShorterThanTable() {
         // fewer cells than the 4 rows must fail rather than leaving the trailing cell empty
-        assertThrows(BadRequestException.class,
-                () -> apply(appendColumn(row("a", "b", "c"))));
+        assertBadRequest(appendColumn(row("a", "b", "c")));
     }
 
     @Test
     void rejectsInsertColumnShorterThanTable() {
-        assertThrows(BadRequestException.class,
-                () -> apply(insertColumn(1, row("a", "b", "c"))));
+        assertBadRequest(insertColumn(1, row("a", "b", "c")));
     }
 
     @Test
     void rejectsEmptyCells() {
-        assertThrows(BadRequestException.class,
-                () -> apply(appendRow(List.of())));
+        // an empty block (no lines) is rejected
+        assertBadRequest(appendRows(List.of()));
+    }
+
+    @Test
+    void rejectsEmptyUpdateCells() {
+        // an empty cell list for a row update is rejected
+        assertBadRequest(updateRow(1, List.of()));
+    }
+
+    @Test
+    void rejectsAllEmptyWrittenLine() {
+        // a fully blank inserted/appended line would become a table-splitting blank line
+        assertBadRequest(insertRows(1, List.of(row(null, null, null))));
+        assertBadRequest(appendRow(row("", "", "")));
+    }
+
+    @Test
+    void rejectsAllCoveredWrittenLine() {
+        // a line of only covered placeholders writes nothing: the writer skips covered cells, so an append is a no-op
+        // and an insert leaves a table-splitting blank line. At least one non-covered value/span cell is required.
+        var allCovered = List.of(
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true));
+        assertBadRequest(appendRow(allCovered));
+        assertBadRequest(insertRows(1, List.of(allCovered)));
+    }
+
+    @Test
+    void rejectsNullLineInBlock() {
+        // a null row inside a block is rejected with 400, not a NullPointerException (500)
+        assertBadRequest(insertRows(1, Arrays.asList(row("a", "b", "c"), null)));
+        assertBadRequest(updateRange(1, 1, Arrays.asList(row("a", "b"), null)));
+    }
+
+    @Test
+    void rejectsActionThatBreaksTheHeader() {
+        // an action that rewrites the header to an unrecognized keyword is rejected (mirrors create/update validation)
+        assertBadRequest(updateCell(0, 0, "NotATableType"));
     }
 
     @Test
     void rejectsCellOutOfBounds() {
-        assertThrows(BadRequestException.class,
-                () -> apply(updateCell(99, 0, "x")));
+        assertBadRequest(updateCell(99, 0, "x"));
     }
 
     @Test
@@ -348,23 +511,22 @@ class RawTableWriterTest {
                 {"a", "b", "c"},
                 {"d", "e", "f"}
         });
-        assertThrows(BadRequestException.class,
-                () -> apply(project, updateColumn(2, row("masked-top", "C2", "F2"))));
+        assertBadRequest(project, updateColumn(2, row("masked-top", "C2", "F2")));
     }
 
     @Test
     void rejectsDeletingTheLastLine() throws IOException {
         var single = writeProject("single", new String[][]{{"Environment"}});
 
-        assertThrows(BadRequestException.class, () -> apply(single, deleteRow(0)));
-        assertThrows(BadRequestException.class, () -> apply(single, deleteColumn(0)));
+        assertBadRequest(single, deleteRow(0));
+        assertBadRequest(single, deleteColumn(0));
     }
 
     @Test
     void rejectsDeletingHeaderLine() {
         // the header row and the leading-label column are protected, symmetric with insert rejecting position 0
-        assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
-        assertThrows(BadRequestException.class, () -> apply(deleteColumn(0)));
+        assertBadRequest(deleteRow(0));
+        assertBadRequest(deleteColumn(0));
     }
 
     @Test
@@ -409,6 +571,14 @@ class RawTableWriterTest {
         new RawTableWriter(load(project)).apply(action);
     }
 
+    private void assertBadRequest(RawTableSourceAction action) {
+        assertThrows(BadRequestException.class, () -> apply(action));
+    }
+
+    private void assertBadRequest(Path project, RawTableSourceAction action) {
+        assertThrows(BadRequestException.class, () -> apply(project, action));
+    }
+
     private List<List<RawTableCell>> reload(Path project) {
         return readSource(load(project));
     }
@@ -432,30 +602,55 @@ class RawTableWriterTest {
                 .toList();
     }
 
-    // Thin factories so the call sites read clearly despite the operation/target split.
+    // Thin factories so the call sites read clearly. The single-line helpers wrap one line into a one-line block, so
+    // the existing single-line tests now exercise the block variants.
 
     private static RawTableSourceAction appendRow(List<RawCellInput> cells) {
-        return new RawTableSourceAction.Append(new AppendTarget.Row(cells));
+        return appendRows(List.of(cells));
     }
 
     private static RawTableSourceAction appendColumn(List<RawCellInput> cells) {
-        return new RawTableSourceAction.Append(new AppendTarget.Column(cells));
+        return appendColumns(List.of(cells));
+    }
+
+    private static RawTableSourceAction appendRows(List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Append(new AppendTarget.Rows(cells));
+    }
+
+    private static RawTableSourceAction appendColumns(List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Append(new AppendTarget.Columns(cells));
     }
 
     private static RawTableSourceAction insertRow(int position, List<RawCellInput> cells) {
-        return new RawTableSourceAction.Insert(new InsertTarget.Row(position, cells));
+        return insertRows(position, List.of(cells));
     }
 
     private static RawTableSourceAction insertColumn(int position, List<RawCellInput> cells) {
-        return new RawTableSourceAction.Insert(new InsertTarget.Column(position, cells));
+        return insertColumns(position, List.of(cells));
+    }
+
+    private static RawTableSourceAction insertRows(int position, List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Insert(new InsertTarget.Rows(position, cells));
+    }
+
+    private static RawTableSourceAction insertColumns(int position, List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Insert(new InsertTarget.Columns(position, cells));
     }
 
     private static RawTableSourceAction deleteRow(int position) {
-        return new RawTableSourceAction.Delete(new DeleteTarget.Row(position));
+        return deleteRows(position, 1);
     }
 
     private static RawTableSourceAction deleteColumn(int position) {
-        return new RawTableSourceAction.Delete(new DeleteTarget.Column(position));
+        return deleteColumns(position, 1);
+    }
+
+    private static RawTableSourceAction deleteRows(int position, int count) {
+        return new RawTableSourceAction.Delete(new DeleteTarget.Rows(position, count));
+    }
+
+    private static RawTableSourceAction deleteColumns(int position, int count) {
+        return new RawTableSourceAction.Delete(new DeleteTarget.Columns(position, count));
     }
 
     private static RawTableSourceAction updateRow(int position, List<RawCellInput> cells) {
@@ -468,6 +663,10 @@ class RawTableWriterTest {
 
     private static RawTableSourceAction updateCell(int row, int column, Object value) {
         return new RawTableSourceAction.Update(new UpdateTarget.Cell(row, column, value));
+    }
+
+    private static RawTableSourceAction updateRange(int row, int column, List<List<RawCellInput>> cells) {
+        return new RawTableSourceAction.Update(new UpdateTarget.Range(row, column, cells));
     }
 
     private static RawTableSourceAction merge(int row, int column, int rowspan, int colspan) {

@@ -1,0 +1,17 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.RawTableHeaderConstraint",
+      "message": "*",
+      "field": "table",
+      "rejectedValue": {
+        "tableType": "RawSource",
+        "source": [[{"value": "NotATableType"}]]
+      }
+    }
+  ]
+}

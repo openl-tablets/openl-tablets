@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The resource an {@code update} operation overwrites: a row, a column or a single cell.
@@ -20,9 +21,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = UpdateTarget.Row.class, name = "row"),
         @JsonSubTypes.Type(value = UpdateTarget.Column.class, name = "column"),
-        @JsonSubTypes.Type(value = UpdateTarget.Cell.class, name = "cell")
+        @JsonSubTypes.Type(value = UpdateTarget.Cell.class, name = "cell"),
+        @JsonSubTypes.Type(value = UpdateTarget.Range.class, name = "range")
 })
-public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Column, UpdateTarget.Cell {
+public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Column, UpdateTarget.Cell,
+        UpdateTarget.Range {
 
     @Schema(name = "UpdateRow", description = "Overwrites the cells of an existing row, left to right. "
             + "The table is not resized.")
@@ -62,8 +65,28 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @NotNull
             @Min(0)
             Integer column,
-            @Schema(description = "New cell value. Null clears the cell.")
-            Object value) implements UpdateTarget {
+            @Schema(description = "New cell value: a string, a number or a boolean. Null clears the cell.",
+                    oneOf = {String.class, Number.class, Boolean.class})
+            @CellValueConstraint
+            @Nullable Object value) implements UpdateTarget {
+    }
+
+    @Schema(name = "UpdateRange", description = "Overwrites a rectangular block of cells in place, anchored at the "
+            + "top-left corner. The block must cover more than one cell and fit within the table; the table is not "
+            + "resized.")
+    record Range(
+            @Schema(description = "0-based row index of the top-left cell (0..height-1).")
+            @NotNull
+            @Min(0)
+            Integer row,
+            @Schema(description = "0-based column index of the top-left cell (0..width-1).")
+            @NotNull
+            @Min(0)
+            Integer column,
+            @NotEmpty
+            @Parameter(description = "Block rows top to bottom, each a list of cells left to right. A cell may set "
+                    + "colspan/rowspan to merge. Must be rectangular, cover more than one cell, and fit the table.")
+            List<List<@Valid RawCellInput>> cells) implements UpdateTarget {
     }
 
 }

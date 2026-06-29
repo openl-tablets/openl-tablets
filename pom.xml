@@ -87,12 +87,19 @@
         <!-- Managing dependencies versions -->
         <!-- Spring -->
         <spring.framework.version>6.2.19</spring.framework.version>
-        <spring.boot.version>3.5.15</spring.boot.version>
+        <spring.boot.version>3.5.16</spring.boot.version>
         <spring.integration.version>6.5.10</spring.integration.version>
 
         <!-- Security -->
         <spring.security.version>6.5.11</spring.security.version>
+        <!-- Newer spring-ldap-core than spring-security-ldap pulls in by default.
+             Stays on the Spring Framework 6 line; 4.x requires Spring 7. -->
+        <spring.ldap.version>3.3.8</spring.ldap.version>
         <opensaml.version>5.2.2</opensaml.version>
+        <!-- Apache HttpComponents 5.x come transitively through OpenSAML. Pinned to a consistent
+             up-to-date set and to realign the drifted core5 / core5-h2 versions. -->
+        <httpcomponents.client5.version>5.6.1</httpcomponents.client5.version>
+        <httpcomponents.core5.version>5.4.3</httpcomponents.core5.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
@@ -141,11 +148,11 @@
         <!-- DB -->
         <h2.version>2.4.240</h2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
-        <hibernate.orm.version>6.6.53.Final</hibernate.orm.version>
+        <hibernate.orm.version>6.6.54.Final</hibernate.orm.version>
         <hibernate.validator.version>8.0.4.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>6.1.0</junit.version>
+        <junit.version>6.1.1</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.3.0</awaitility.version>
         <mockito.version>5.23.0</mockito.version>
@@ -474,6 +481,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Override the spring-ldap-core that spring-security-ldap drags in with a newer release.
+                 Remove once Spring Security ships this version by default. -->
+            <dependency>
+                <groupId>org.springframework.ldap</groupId>
+                <artifactId>spring-ldap-core</artifactId>
+                <version>${spring.ldap.version}</version>
+            </dependency>
             <!-- Spring Integration -->
             <dependency>
                 <groupId>org.springframework.integration</groupId>
@@ -508,6 +522,29 @@
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-saml-impl</artifactId>
                 <version>${opensaml.version}</version>
+            </dependency>
+            <!-- Apache HttpComponents 5.x reach the classpath only through OpenSAML's metadata fetcher.
+                 Pin the whole stack to a consistent up-to-date set.
+                 Keep core5 and core5-h2 on the SAME version - mixing them is unsupported. -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpcomponents.client5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5-cache</artifactId>
+                <version>${httpcomponents.client5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcomponents.core5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcomponents.core5.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bitbucket.b_c</groupId>

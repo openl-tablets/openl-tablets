@@ -17,32 +17,54 @@ class RawTableSourceActionTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void deserializesAppendRowWithInlineMerge() throws Exception {
-        var action = read("{\"operation\":\"append\",\"target\":{\"type\":\"row\","
-                + "\"cells\":[{\"value\":\"x\"},{\"value\":2,\"colspan\":2}]}}");
+    void deserializesAppendRowsWithInlineMerge() throws Exception {
+        var action = read("{\"operation\":\"append\",\"target\":{\"type\":\"rows\","
+                + "\"cells\":[[{\"value\":\"x\"},{\"value\":2,\"colspan\":2}]]}}");
         var append = assertInstanceOf(RawTableSourceAction.Append.class, action);
-        var row = assertInstanceOf(AppendTarget.Row.class, append.target());
-        assertEquals(2, row.cells().size());
-        assertEquals("x", row.cells().get(0).value());
-        assertEquals(2, row.cells().get(1).colspan());
+        var rows = assertInstanceOf(AppendTarget.Rows.class, append.target());
+        assertEquals(1, rows.cells().size());
+        assertEquals(2, rows.cells().get(0).size());
+        assertEquals("x", rows.cells().get(0).get(0).value());
+        assertEquals(2, rows.cells().get(0).get(1).colspan());
     }
 
     @Test
-    void deserializesInsertColumn() throws Exception {
+    void deserializesInsertColumns() throws Exception {
         var action = read("{\"operation\":\"insert\",\"target\":"
-                + "{\"type\":\"column\",\"position\":3,\"cells\":[{\"value\":\"a\"}]}}");
+                + "{\"type\":\"columns\",\"position\":3,\"cells\":[[{\"value\":\"a\"}]]}}");
         var insert = assertInstanceOf(RawTableSourceAction.Insert.class, action);
-        var column = assertInstanceOf(InsertTarget.Column.class, insert.target());
-        assertEquals(3, column.position());
-        assertEquals(1, column.cells().size());
+        var columns = assertInstanceOf(InsertTarget.Columns.class, insert.target());
+        assertEquals(3, columns.position());
+        assertEquals(1, columns.cells().size());
     }
 
     @Test
-    void deserializesDeleteRow() throws Exception {
-        var action = read("{\"operation\":\"delete\",\"target\":{\"type\":\"row\",\"position\":2}}");
+    void deserializesInsertRowsBlock() throws Exception {
+        var action = read("{\"operation\":\"insert\",\"target\":{\"type\":\"rows\",\"position\":2,"
+                + "\"cells\":[[{\"value\":\"a\"},{\"value\":\"b\"}],[{\"value\":\"c\"},{\"value\":\"d\"}]]}}");
+        var insert = assertInstanceOf(RawTableSourceAction.Insert.class, action);
+        var rows = assertInstanceOf(InsertTarget.Rows.class, insert.target());
+        assertEquals(2, rows.position());
+        assertEquals(2, rows.cells().size());
+        assertEquals("a", rows.cells().get(0).get(0).value());
+    }
+
+    @Test
+    void deserializesAppendRowsBlock() throws Exception {
+        var action = read("{\"operation\":\"append\",\"target\":{\"type\":\"rows\","
+                + "\"cells\":[[{\"value\":\"a\"}],[{\"value\":\"b\"}]]}}");
+        var append = assertInstanceOf(RawTableSourceAction.Append.class, action);
+        var rows = assertInstanceOf(AppendTarget.Rows.class, append.target());
+        assertEquals(2, rows.cells().size());
+    }
+
+    @Test
+    void deserializesDeleteRowsBlock() throws Exception {
+        var action = read("{\"operation\":\"delete\",\"target\":{\"type\":\"rows\",\"position\":2,\"count\":3}}");
         var delete = assertInstanceOf(RawTableSourceAction.Delete.class, action);
-        var row = assertInstanceOf(DeleteTarget.Row.class, delete.target());
-        assertEquals(2, row.position());
+        var rows = assertInstanceOf(DeleteTarget.Rows.class, delete.target());
+        assertEquals(2, rows.position());
+        assertEquals(3, rows.count());
     }
 
     @Test
@@ -58,6 +80,19 @@ class RawTableSourceActionTest {
         var cleared = (RawTableSourceAction.Update) read(
                 "{\"operation\":\"update\",\"target\":{\"type\":\"cell\",\"row\":0,\"column\":0,\"value\":null}}");
         assertEquals(null, ((UpdateTarget.Cell) cleared.target()).value());
+    }
+
+    @Test
+    void deserializesUpdateRange() throws Exception {
+        var action = read("{\"operation\":\"update\",\"target\":{\"type\":\"range\",\"row\":1,\"column\":2,"
+                + "\"cells\":[[{\"value\":\"a\"},{\"value\":\"b\"}],[{\"value\":\"c\"},{\"value\":\"d\"}]]}}");
+        var update = assertInstanceOf(RawTableSourceAction.Update.class, action);
+        var range = assertInstanceOf(UpdateTarget.Range.class, update.target());
+        assertEquals(1, range.row());
+        assertEquals(2, range.column());
+        assertEquals(2, range.cells().size());
+        assertEquals("a", range.cells().get(0).get(0).value());
+        assertEquals("d", range.cells().get(1).get(1).value());
     }
 
     @Test
@@ -83,7 +118,7 @@ class RawTableSourceActionTest {
 
     @Test
     void rejectsUnknownOperation() {
-        assertThrows(JsonMappingException.class, () -> read("{\"operation\":\"flip\",\"target\":{\"type\":\"row\"}}"));
+        assertThrows(JsonMappingException.class, () -> read("{\"operation\":\"flip\",\"target\":{\"type\":\"rows\"}}"));
     }
 
     @Test

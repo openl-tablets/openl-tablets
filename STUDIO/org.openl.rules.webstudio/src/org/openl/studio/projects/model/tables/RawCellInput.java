@@ -20,7 +20,9 @@ import org.jspecify.annotations.Nullable;
  * @author Vladyslav Pikus
  */
 public record RawCellInput(
-        @Schema(description = "Cell value. A null value is an empty cell.")
+        @Schema(description = "Cell value: a string, a number or a boolean. A null value is an empty cell.",
+                oneOf = {String.class, Number.class, Boolean.class})
+        @CellValueConstraint
         @Nullable Object value,
 
         @Schema(description = "Number of columns this cell spans (>= 2 to merge; null or 1 for a single column).")

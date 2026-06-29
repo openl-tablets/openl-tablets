@@ -19,6 +19,7 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IModuleInfo;
@@ -28,6 +29,9 @@ import org.openl.util.text.TextInterval;
 public final class XlsHelper {
     private XlsHelper() {
     }
+
+    /** Delimiters that split a table header into tokens: space, newline and carriage return. */
+    private static final String TOKEN_DELIMITERS = " \n\r";
 
     private static final Map<String, String> TABLE_HEADERS;
 
@@ -70,6 +74,28 @@ public final class XlsHelper {
         TABLE_HEADERS = Collections.unmodifiableMap(tableHeaders);
     }
 
+    /**
+     * Tells whether {@code header} starts with a keyword OpenL recognizes as a table type.
+     * <p>
+     * OpenL identifies a table by the first token of its top-left cell. When that token names no known table type
+     * (for example {@code Rules}, {@code Datatype} or {@code Spreadsheet}), the table is treated as
+     * {@link XlsNodeTypes#XLS_OTHER} and is never compiled. Use this to reject such a header before the table is saved.
+     *
+     * @param header the full text of the table's first cell; may be {@code null}
+     * @return {@code true} when the first token names a known table type
+     */
+    public static boolean isKnownTableHeader(String header) {
+        if (header == null) {
+            return false;
+        }
+        try {
+            IdentifierNode token = Tokenizer.firstToken(new StringSourceCodeModule(header, null), TOKEN_DELIMITERS);
+            return TABLE_HEADERS.containsKey(token.getIdentifier());
+        } catch (OpenLCompilationException e) {
+            return false;
+        }
+    }
+
     public static String getModuleName(XlsModuleSyntaxNode node) {
         if (node.getModule() instanceof IModuleInfo) {
             return ((IModuleInfo) node.getModule()).getModuleName();
@@ -106,9 +132,9 @@ public final class XlsHelper {
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table,
                                                         XlsSheetSourceCodeModule source) throws OpenLCompilationException {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
-        IdentifierNode[] headerTokens = Tokenizer.tokenize(src, " \n\r");
+        IdentifierNode[] headerTokens = Tokenizer.tokenize(src, TOKEN_DELIMITERS);
         if (headerTokens.length == 0) {
-            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, " \n\r")};
+            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, TOKEN_DELIMITERS)};
         }
         IdentifierNode headerToken = headerTokens[0];
         String header = headerTokens[0].getIdentifier();

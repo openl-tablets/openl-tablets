@@ -3,10 +3,13 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-  "operation": "delete",
+  "operation": "update",
   "target": {
-    "type": "columns",
-    "position": 2,
-    "count": 1
+    "type": "cell",
+    "row": 1,
+    "column": 0,
+    "value": {
+      "foo": "bar"
+    }
   }
 }

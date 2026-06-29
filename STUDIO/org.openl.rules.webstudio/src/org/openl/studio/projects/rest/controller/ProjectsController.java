@@ -352,7 +352,7 @@ public class ProjectsController {
     @PutMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<TableIdView> updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                                                   @RequestBody EditableTableView editTable) throws ProjectException {
+                                                   @Valid @RequestBody EditableTableView editTable) throws ProjectException {
         try {
             var newTableId = projectService.updateTable(project, tableId, editTable);
             return tableWriteResponse(tableId, newTableId);
@@ -367,7 +367,7 @@ public class ProjectsController {
     @PostMapping("/{projectId}/tables/{tableId}/lines")
     public ResponseEntity<TableIdView> appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                                                   @RequestBody AppendTableView editTable) throws ProjectException {
+                                                   @Valid @RequestBody AppendTableView editTable) throws ProjectException {
         try {
             var newTableId = projectService.appendTableLines(project, tableId, editTable);
             return tableWriteResponse(tableId, newTableId);
