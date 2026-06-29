@@ -1,4 +1,19 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{"status":"SUSPENDED","frames":[{"index":0,"depth":1,"uri":"EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D9:G22","name":"BankRatingCalculation","kind":"spreadsheet","active":true,"completed":false,"error":false,"tableId":"***"}]}
+{
+  "status": "SUSPENDED",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D9:G22",
+      "name": "BankRatingCalculation",
+      "kind": "spreadsheet",
+      "active": true,
+      "completed": false,
+      "error": false,
+      "tableId": "***"
+    }
+  ]
+}
