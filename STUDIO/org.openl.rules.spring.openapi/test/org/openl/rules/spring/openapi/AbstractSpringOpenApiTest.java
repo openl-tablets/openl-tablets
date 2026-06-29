@@ -22,6 +22,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+// Stays public with protected @Test methods: subclasses live in appNNN sub-packages and inherit these tests.
+// Package-private members would not be inherited across packages, so the inherited tests would stop running.
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 public abstract class AbstractSpringOpenApiTest {

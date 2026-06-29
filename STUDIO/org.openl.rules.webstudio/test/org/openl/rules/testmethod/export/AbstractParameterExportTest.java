@@ -32,7 +32,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
-public class AbstractParameterExportTest {
+class AbstractParameterExportTest {
 
     protected SXSSFWorkbook workbook;
     protected SXSSFSheet sheet;

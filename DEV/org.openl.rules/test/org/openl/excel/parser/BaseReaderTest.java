@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellComment;
 
+// Stays public with protected @Test/lifecycle methods: subclasses live in sub-packages and inherit these tests.
+// Package-private members would not be inherited across packages, so the inherited tests would stop running.
 public abstract class BaseReaderTest {
     protected ExcelReader reader;
 

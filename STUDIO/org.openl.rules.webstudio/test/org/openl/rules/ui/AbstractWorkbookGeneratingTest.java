@@ -18,9 +18,9 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
-public abstract class AbstractWorkbookGeneratingTest {
+abstract class AbstractWorkbookGeneratingTest {
     @TempDir
-    public Path tempFolder;
+    Path tempFolder;
 
     protected List<Module> getModules() throws ProjectResolvingException {
         var rulesFolder = tempFolder;
