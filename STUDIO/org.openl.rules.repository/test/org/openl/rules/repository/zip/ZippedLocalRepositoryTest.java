@@ -276,7 +276,7 @@ class ZippedLocalRepositoryTest {
         assertArrayEquals(multiDeployment.get(name), read(actualFileItem.getStream()));
     }
 
-    public byte[] read(InputStream is) throws IOException {
+    private byte[] read(InputStream is) throws IOException {
         try {
             byte[] array = new byte[is.available()];
             is.read(array);
@@ -299,7 +299,7 @@ class ZippedLocalRepositoryTest {
         assertNotEquals(0L, actual.getSize());
     }
 
-    public static <T, K> Map<K, T> flatMap(List<T> list, Function<T, K> key) {
+    private static <T, K> Map<K, T> flatMap(List<T> list, Function<T, K> key) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyMap();
         }

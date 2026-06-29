@@ -190,14 +190,14 @@ class OpenLJUnitTest {
 
     }
 
-    public static void assertComparedResult(ComparedResult expected, ComparedResult actural) {
+    private static void assertComparedResult(ComparedResult expected, ComparedResult actural) {
         assertEquals(expected.getFieldName(), actural.getFieldName());
         assertEquals(expected.getExpectedValue(), actural.getExpectedValue());
         assertEquals(expected.getStatus(), actural.getStatus());
         assertEquals(expected.getActualValue(), actural.getActualValue());
     }
 
-    public static TestUnitsResults getRestUnitResult(Object target, TestSuiteMethod[] tests, String testTableName) {
+    private static TestUnitsResults getRestUnitResult(Object target, TestSuiteMethod[] tests, String testTableName) {
         for (TestSuiteMethod testSuiteMethod : tests) {
             if (Objects.equals(testTableName, testSuiteMethod.getName())) {
                 return (TestUnitsResults) testSuiteMethod

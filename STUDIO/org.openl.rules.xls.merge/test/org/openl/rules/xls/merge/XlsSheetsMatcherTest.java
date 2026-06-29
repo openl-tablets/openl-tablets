@@ -32,7 +32,7 @@ class XlsSheetsMatcherTest {
         assertTrue(matchWorkbooksTest(TEST_RES.resolve("BaseWorkbook.xlsx"), TEST_CL.resolve("BaseWorkbook.xlsx")));
     }
 
-    public static boolean matchWorkbooksTest(Path pathToWorkbook1, Path pathToWorkbook2) throws IOException {
+    static boolean matchWorkbooksTest(Path pathToWorkbook1, Path pathToWorkbook2) throws IOException {
         boolean failed = false;
         try (Workbook workbook1 = WorkbookFactory.create(pathToWorkbook1.toFile(), null, true);
              Workbook workbook2 = WorkbookFactory.create(pathToWorkbook2.toFile(), null, true)) {

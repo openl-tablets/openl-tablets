@@ -52,7 +52,7 @@ import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
 class RunStoreLogDataITest {
     private static final Logger LOG = LoggerFactory.getLogger(RunStoreLogDataITest.class);
 
-    public static final int POLL_INTERVAL_IN_MILLISECONDS = 500;
+    private static final int POLL_INTERVAL_IN_MILLISECONDS = 500;
     private static final int AWAIT_TIMEOUT = 60;
 
     private static final String DEFAULT_H2_TABLE_NAME = DefaultEntity.class.getAnnotation(Entity.class).name();

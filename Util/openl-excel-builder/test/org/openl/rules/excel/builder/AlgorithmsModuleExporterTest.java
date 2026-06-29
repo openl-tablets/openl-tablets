@@ -35,9 +35,9 @@ import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 
 class AlgorithmsModuleExporterTest {
 
-    public static final String ALGORITHMS = "Algorithms.xlsx";
-    public static final int DEFAULT_MARGIN = 2;
-    public static final int DEFAULT_CELL = 1;
+    private static final String ALGORITHMS = "Algorithms.xlsx";
+    private static final int DEFAULT_MARGIN = 2;
+    private static final int DEFAULT_CELL = 1;
 
     @Test
     void testAlgorithmsModuleGeneration() throws IOException {

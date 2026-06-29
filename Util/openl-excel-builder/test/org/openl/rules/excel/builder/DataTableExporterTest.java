@@ -34,9 +34,9 @@ import org.openl.util.StringUtils;
 
 class DataTableExporterTest {
 
-    public static final String STRING_TYPE = "String";
-    public static final String DATA_TEST_PROJECT_NAME = "data_test_project.xlsx";
-    public static final int TOP_MARGIN = 2;
+    private static final String STRING_TYPE = "String";
+    private static final String DATA_TEST_PROJECT_NAME = "data_test_project.xlsx";
+    private static final int TOP_MARGIN = 2;
 
     @Test
     void writeDataTables() throws IOException {

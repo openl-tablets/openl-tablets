@@ -25,11 +25,11 @@ class LastVersionProjectsServiceConfigurerTest {
     @Autowired
     private RuleServiceLoader rulesLoader;
 
-    public RuleServiceLoader getRulesLoader() {
+    RuleServiceLoader getRulesLoader() {
         return rulesLoader;
     }
 
-    public void setRulesLoader(RuleServiceLoader rulesLoader) {
+    void setRulesLoader(RuleServiceLoader rulesLoader) {
         this.rulesLoader = rulesLoader;
     }
 

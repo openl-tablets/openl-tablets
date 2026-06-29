@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class CommentsTest {
 
-    public static final String TEMPLATE = "FOO";
+    private static final String TEMPLATE = "FOO";
 
     private Comments comments;
     private Comments comments2;

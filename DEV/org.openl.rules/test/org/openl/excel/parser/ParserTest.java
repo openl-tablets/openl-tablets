@@ -70,7 +70,7 @@ class ParserTest {
         assertEquals(1, result.getErrors().length);
     }
 
-    public void _testLiteral(String src, String res, final String type) throws OpenLConfigurationException {
+    private void _testLiteral(String src, String res, final String type) throws OpenLConfigurationException {
 
         IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
@@ -80,7 +80,7 @@ class ParserTest {
         assertEquals(type, ln.getType());
     }
 
-    public void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
+    private void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
 
         IParsedCode pc = getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
@@ -98,7 +98,7 @@ class ParserTest {
         return (T) search(pc.getTopNode(), type);
     }
 
-    public void _testErrorMsg(String src, String messageStart) {
+    private void _testErrorMsg(String src, String messageStart) {
         IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         SyntaxNodeException[] errors = pc.getErrors();
@@ -115,7 +115,7 @@ class ParserTest {
 
     }
 
-    public void _testType(String src, final String type) throws OpenLConfigurationException {
+    private void _testType(String src, final String type) throws OpenLConfigurationException {
 
         IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
@@ -151,7 +151,7 @@ class ParserTest {
 
     }
 
-    public void _testLiteralParseAndBind(INodeBinder binder,
+    private void _testLiteralParseAndBind(INodeBinder binder,
                                          String src,
                                          Object res,
                                          Class<?> clazz,

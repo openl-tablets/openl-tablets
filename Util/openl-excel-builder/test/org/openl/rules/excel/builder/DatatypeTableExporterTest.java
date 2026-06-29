@@ -34,13 +34,13 @@ import org.openl.rules.model.scaffolding.ProjectModel;
 
 class DatatypeTableExporterTest {
 
-    public static final String TEST_PROJECT = "datatype_test_project";
-    public static final int TOP_MARGIN = 2;
-    public static final int DT_TYPE_CELL = 1;
-    public static final int DT_NAME_CELL = 2;
-    public static final int DT_DEFAULT_VALUE_CELL = 3;
-    public static final String STRING_TYPE = "String";
-    public static final String DATATYPE_TEST_PROJECT_NAME = "datatype_test_project.xlsx";
+    private static final String TEST_PROJECT = "datatype_test_project";
+    private static final int TOP_MARGIN = 2;
+    private static final int DT_TYPE_CELL = 1;
+    private static final int DT_NAME_CELL = 2;
+    private static final int DT_DEFAULT_VALUE_CELL = 3;
+    private static final String STRING_TYPE = "String";
+    private static final String DATATYPE_TEST_PROJECT_NAME = "datatype_test_project.xlsx";
 
     @Test
     void testDatatypeExport() throws IOException {

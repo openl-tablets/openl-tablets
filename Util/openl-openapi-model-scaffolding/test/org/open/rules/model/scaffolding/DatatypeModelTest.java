@@ -14,8 +14,8 @@ import org.openl.rules.model.scaffolding.FieldModel;
 
 class DatatypeModelTest {
 
-    public static final String DRIVER = "Driver";
-    public static final String HUMAN = "Human";
+    private static final String DRIVER = "Driver";
+    private static final String HUMAN = "Human";
 
     @Test
     void testSimpleCreationOfDataTypeModel() {

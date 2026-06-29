@@ -134,27 +134,27 @@ class ModuleTest {
     /**
      * Sample assert expressions in OGNL and OpenL. Note the syntax difference, and "context." prefix within OpenL
      */
-    public final static String OGNL_EXPR = "address.zip == 10001";
+    final static String OGNL_EXPR = "address.zip == 10001";
 
-    public final static String OPENL_EXPR = "context.address.zip.equals(\"10001\")";
+    private static final String OPENL_EXPR = "context.address.zip.equals(\"10001\")";
 
-    public final static String NEG_OGNL_EXPR = "address.zip != 90210";
+    final static String NEG_OGNL_EXPR = "address.zip != 90210";
 
-    public final static String NEG_OPENL_EXPR = "!context.address.zip.equals(\"90210\")";
+    private static final String NEG_OPENL_EXPR = "!context.address.zip.equals(\"90210\")";
 
     /**
      * Sample get expression in OGNL and OpenL. Note "context." prefix within OpenL
      */
-    public final static String OGNL_GET_ADDRESS = "address";
+    final static String OGNL_GET_ADDRESS = "address";
 
-    public final static String OPENL_GET_ADDRESS = "context.address";
+    private static final String OPENL_GET_ADDRESS = "context.address";
 
     /**
      * Sample arithmetic expressions
      */
-    public final static String MATH_OGNL = "10 + price * quantity / 1.05";
+    private static final String MATH_OGNL = "10 + price * quantity / 1.05";
 
-    public final static String MATH_OPENL = "10 + context.price * context.quantity / 1.05";
+    private static final String MATH_OPENL = "10 + context.price * context.quantity / 1.05";
 
     /**
      * Data context for expressions

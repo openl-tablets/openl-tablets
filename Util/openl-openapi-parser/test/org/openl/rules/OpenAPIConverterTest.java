@@ -29,7 +29,7 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 @Disabled
 class OpenAPIConverterTest {
 
-    public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
+    private static final String SPREADSHEET_RESULT = "SpreadsheetResult";
 
     private OpenAPIModelConverter converter;
 

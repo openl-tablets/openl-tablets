@@ -45,7 +45,7 @@ class JacksonObjectMapperISO8601DateFormatTest {
         mapper = new JacksonObjectMapperFactoryBean().createJacksonObjectMapper();
     }
 
-    public static Object[] data() {
+    private static Object[] data() {
         return new Object[][]{{"2016-12-31T22:00:00", createDate(2016, 12, 31, 22)},
                 {"2016-12-31T22:00:00Z", createDate(2017, 1, 1, 0)},
                 {"2016-12-31T22:00:00+0200", createDate(2016, 12, 31, 22)},
@@ -61,7 +61,7 @@ class JacksonObjectMapperISO8601DateFormatTest {
         assertEquals(target, mapper.readValue("\"" + source + "\"", Date.class));
     }
 
-    public static String[] zdt() {
+    private static String[] zdt() {
         return new String[] {
                 "2016-12-31T22:00:00Z",
                 "2016-12-31T22:00:00+03:00",

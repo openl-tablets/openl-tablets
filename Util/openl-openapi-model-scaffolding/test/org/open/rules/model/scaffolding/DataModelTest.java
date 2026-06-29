@@ -12,7 +12,7 @@ import org.openl.rules.model.scaffolding.data.DataModel;
 
 class DataModelTest {
 
-    public static final String APPLICATION_JSON = "application/json";
+    private static final String APPLICATION_JSON = "application/json";
 
     @Test
     void testDataModelCreation() {

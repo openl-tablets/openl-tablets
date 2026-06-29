@@ -10,9 +10,9 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 
 class PathInfoTest {
 
-    public static final String APPLICATION_JSON = "application/json";
-    public static final String TEXT_PLAIN = "text/plain";
-    public static final String TEXT_JAVASCRIPT = "text/javascript";
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String TEXT_PLAIN = "text/plain";
+    private static final String TEXT_JAVASCRIPT = "text/javascript";
 
     @Test
     void testPathInfoCreation() {

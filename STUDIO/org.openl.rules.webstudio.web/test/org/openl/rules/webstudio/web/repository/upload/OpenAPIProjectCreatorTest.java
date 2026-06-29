@@ -63,8 +63,8 @@ class OpenAPIProjectCreatorTest {
     private static final String MOCK_MODEL_PATH = "rules/%s.xlsx".formatted(MOCK_MODEL_NAME);
     private static final String MOCK_ALGORITHM_NAME = "Algorithms";
     private static final String MOCK_ALGORITHM_PATH = "rules/%s.xlsx".formatted(MOCK_ALGORITHM_NAME);
-    public static final String DIR = "test-resources/openapi/functionality";
-    public static final String OPENAPI_OUT = System.getProperty("openapi.output.dir");
+    private static final String DIR = "test-resources/openapi/functionality";
+    private static final String OPENAPI_OUT = System.getProperty("openapi.output.dir");
 
     private UserWorkspace userWorkspaceMock;
     private FileSystemRepository tempRepo;
@@ -123,7 +123,7 @@ class OpenAPIProjectCreatorTest {
         }
     }
 
-    public boolean run(String path) {
+    private boolean run(String path) {
         log.info(">>> Compiling rules and running tests from the directory '{}'...", path);
 
         boolean testsFailed = false;

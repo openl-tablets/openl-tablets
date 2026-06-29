@@ -11,7 +11,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 class PropertiesDefinedInTableTest extends BaseOpenlBuilderHelper {
 
-    public static final String SRC = "test/rules/properties/PropertiesDefinedInTable.xls";
+    private static final String SRC = "test/rules/properties/PropertiesDefinedInTable.xls";
 
     public PropertiesDefinedInTableTest() {
         super(SRC);

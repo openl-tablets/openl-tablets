@@ -18,8 +18,8 @@ import org.openl.rules.model.scaffolding.SpreadsheetModel;
 
 class ProjectModelTest {
 
-    public static final String BANK_RATING = "BankRating";
-    public static final String INSURANCE_POLICY = "InsurancePolicy";
+    private static final String BANK_RATING = "BankRating";
+    private static final String INSURANCE_POLICY = "InsurancePolicy";
 
     @Test
     void testProjectModelCreation() {

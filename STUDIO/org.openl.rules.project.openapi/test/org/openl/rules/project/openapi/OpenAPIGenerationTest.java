@@ -39,7 +39,7 @@ class OpenAPIGenerationTest {
 
     private final Logger log = LoggerFactory.getLogger("OpenAPI Project Generation Test");
 
-    public static final String DIR = "test-resources/functionality/";
+    private static final String DIR = "test-resources/functionality/";
 
     @SuppressWarnings("unchecked")
     private static final Pair<ObjectMapper, String>[] MAPPER_TO_FILE = new Pair[]{
@@ -68,7 +68,7 @@ class OpenAPIGenerationTest {
         assertFalse(run(DIR), "Test is failed.");
     }
 
-    public boolean run(String path) {
+    private boolean run(String path) {
         log.info(">>> Compiling rules from the directory '{}' in execution mode...", path);
         boolean testsFailed = false;
         final File testsDir = new File(path);

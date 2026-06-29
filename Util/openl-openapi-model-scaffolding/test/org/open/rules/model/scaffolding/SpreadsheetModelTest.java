@@ -19,8 +19,8 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 
 class SpreadsheetModelTest {
 
-    public static final String SPR_NAME = "getBankAccountNumber";
-    public static final String STRING = "String";
+    private static final String SPR_NAME = "getBankAccountNumber";
+    private static final String STRING = "String";
 
     @Test
     void testSpreadsheetModelCreation() {

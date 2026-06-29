@@ -23,7 +23,7 @@ class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     private ProjectModel pm;
     public boolean singleModuleMode;
 
-    public static Iterable<Object[]> data() {
+    private static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][]{{true}, {false}});
     }
 
@@ -77,7 +77,7 @@ class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         writeBook(book, MAIN_MODULE_FILE_NAME);
     }
 
-    public void initProjectWithErrorsTest(boolean singleModuleMode) {
+    private void initProjectWithErrorsTest(boolean singleModuleMode) {
         this.singleModuleMode = singleModuleMode;
     }
 }

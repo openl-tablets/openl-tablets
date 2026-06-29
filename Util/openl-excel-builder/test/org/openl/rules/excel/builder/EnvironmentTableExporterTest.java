@@ -24,10 +24,10 @@ import org.openl.util.CollectionUtils;
 
 class EnvironmentTableExporterTest {
 
-    public static final String TEST_PROJECT = "env_test_project";
-    public static final int TOP_MARGIN = 2;
-    public static final String MODEL = "Model";
-    public static final String IMPORTED_VALUE = "org.openl.import.test.Test";
+    private static final String TEST_PROJECT = "env_test_project";
+    private static final int TOP_MARGIN = 2;
+    private static final String MODEL = "Model";
+    private static final String IMPORTED_VALUE = "org.openl.import.test.Test";
 
     @Test
     void testSpreadsheetExport() throws IOException {

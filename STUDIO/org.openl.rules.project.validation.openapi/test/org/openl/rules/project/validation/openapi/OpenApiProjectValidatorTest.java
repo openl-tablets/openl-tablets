@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 final class OpenApiProjectValidatorTest {
 
-    public static final String DIR = "test-resources/functionality/";
+    private static final String DIR = "test-resources/functionality/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 

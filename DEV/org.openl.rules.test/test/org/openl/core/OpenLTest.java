@@ -23,8 +23,8 @@ import org.openl.types.IOpenMethod;
 
 final class OpenLTest {
 
-    public static final String DIR = "test-resources/functionality/";
-    public static final String FAILURES_DIR = "test-resources/expected-test-failures/";
+    private static final String DIR = "test-resources/functionality/";
+    private static final String FAILURES_DIR = "test-resources/expected-test-failures/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 

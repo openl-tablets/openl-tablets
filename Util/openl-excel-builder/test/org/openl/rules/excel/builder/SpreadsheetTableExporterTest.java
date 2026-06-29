@@ -28,8 +28,8 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 
 class SpreadsheetTableExporterTest {
 
-    public static final String TEST_PROJECT = "spr_test_project";
-    public static final int TOP_MARGIN = 2;
+    private static final String TEST_PROJECT = "spr_test_project";
+    private static final int TOP_MARGIN = 2;
 
     @Test
     void testSpreadsheetExport() throws IOException {

@@ -16,9 +16,9 @@ import org.openl.types.impl.DynamicArrayAggregateInfo;
  */
 class FieldDescriptionTest {
 
-    public static final String DEFAULT_STRING_VALUE = "Default value";
-    public static final String DEFAULT_BOOLEAN_VALUE = "true";
-    public static final String DEFAULT_INTEGER_VALUE = "25";
+    private static final String DEFAULT_STRING_VALUE = "Default value";
+    private static final String DEFAULT_BOOLEAN_VALUE = "true";
+    private static final String DEFAULT_INTEGER_VALUE = "25";
 
     @Test
     void testDefaultValue_String() {

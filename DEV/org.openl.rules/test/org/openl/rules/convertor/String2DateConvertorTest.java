@@ -170,12 +170,12 @@ class String2DateConvertorTest {
         }
     }
 
-    public static void setUpTimeZone(TimeZone defaultTimeZone) {
+    private static void setUpTimeZone(TimeZone defaultTimeZone) {
         Locale.setDefault(Locale.US);
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    public static void tearDownTimeZone() {
+    private static void tearDownTimeZone() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }

@@ -29,7 +29,7 @@ class AzureYamlMapperFactoryTest {
         assertTheSame(mapper.readValue(mapper.writeValueAsBytes(commit), AzureCommit.class));
     }
 
-    public void assertTheSame(AzureCommit commit) {
+    private void assertTheSame(AzureCommit commit) {
         assertNull(commit.getVersion());
         assertNull(commit.getModifiedAt());
         assertNull(commit.getPath());
