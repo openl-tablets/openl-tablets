@@ -65,7 +65,8 @@ describe('TraceTableView', () => {
         expect(screen.getByText('= x')).toBeInTheDocument()
 
         // The covered cell is skipped, so the merged first row renders a single <td> spanning two columns.
-        expect(table.querySelectorAll('tbody tr')[0].querySelectorAll('td')).toHaveLength(1)
+        const firstRow = table.querySelectorAll('tbody tr')[0] as HTMLElement
+        expect(firstRow.querySelectorAll('td')).toHaveLength(1)
         const header = table.querySelector('[data-cell="A1"]') as HTMLElement
         expect(header.getAttribute('colspan')).toBe('2')
         expect(header.style.fontWeight).toBe('bold')
