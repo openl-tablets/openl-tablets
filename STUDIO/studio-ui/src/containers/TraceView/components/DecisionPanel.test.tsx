@@ -60,4 +60,13 @@ describe('DecisionPanel', () => {
         await userEvent.click(toggle)
         expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#rule')
     })
+
+    it('offers the rule-fired breakpoint before any rule has fired', async () => {
+        render(<DecisionPanel decision={null} frameName="DT" frameUri="dt/uri" />)
+
+        // At decision-table entry there is no firing yet, but the breakpoint must already be settable.
+        expect(screen.getByText('decision.notYetFired')).toBeInTheDocument()
+        await userEvent.click(screen.getByRole('checkbox'))
+        expect(useTraceStore.getState().breakpoints).toContain('dt/uri#rule')
+    })
 })

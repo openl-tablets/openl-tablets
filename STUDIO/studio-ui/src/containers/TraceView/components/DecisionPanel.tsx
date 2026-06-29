@@ -31,25 +31,26 @@ const groupByRule = (decision: DecisionView): RuleGroup[] => {
 }
 
 interface DecisionPanelProps {
-    decision: DecisionView
+    decision: DecisionView | null
     frameUri: string
     frameName: string
 }
 
 /**
- * Plain-language "why this fired" panel for a decision-table frame: which rule fired and how each
- * evaluated condition turned out, mirroring the green/red table highlight as a scannable list. A toggle
- * sets a breakpoint that suspends whenever this table fires a rule.
+ * Plain-language "why this fired" panel for a decision-table frame. The "Break when a rule fires"
+ * toggle is always available so a breakpoint can be set before any rule fires; once a rule fires the
+ * panel also shows which rule it was and how each evaluated condition turned out, mirroring the
+ * green/red table highlight as a scannable list.
  */
 const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, frameUri, frameName }) => {
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
     const breakpoints = useTraceStore(s => s.breakpoints)
     const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
-    const fired = new Set(decision.firedRules)
 
     const breakpointKey = `${frameUri}#${RULE_FIRED_REF}`
     const breakOnFire = breakpoints.includes(breakpointKey)
+    const fired = new Set(decision?.firedRules)
 
     const ruleFireToggle = (
         <Tooltip title={t('decision.breakOnFireHint')}>
@@ -71,27 +72,33 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, frameUri, frame
             size="small"
             title={t('details.decision')}
         >
-            <div className={styles.summary}>
-                {decision.firedRules.length > 0
-                    ? t('decision.fired', { rules: decision.firedRules.join(', ') })
-                    : t('decision.noneFired')}
-            </div>
-            {groupByRule(decision).map(({ rule, conditions }) => (
-                <div key={rule} className={cx(styles.rule, fired.has(rule) && styles.firedRule)}>
-                    <span className={styles.ruleName}>{rule}</span>
-                    <span className={styles.conditions}>
-                        {conditions.map((c, i) => (
-                            <Tag
-                                key={i}
-                                color={c.matched ? 'success' : 'error'}
-                                icon={c.matched ? <CheckOutlined /> : <CloseOutlined />}
-                            >
-                                {c.condition}
-                            </Tag>
-                        ))}
-                    </span>
-                </div>
-            ))}
+            {decision ? (
+                <>
+                    <div className={styles.summary}>
+                        {decision.firedRules.length > 0
+                            ? t('decision.fired', { rules: decision.firedRules.join(', ') })
+                            : t('decision.noneFired')}
+                    </div>
+                    {groupByRule(decision).map(({ rule, conditions }) => (
+                        <div key={rule} className={cx(styles.rule, fired.has(rule) && styles.firedRule)}>
+                            <span className={styles.ruleName}>{rule}</span>
+                            <span className={styles.conditions}>
+                                {conditions.map((c, i) => (
+                                    <Tag
+                                        key={i}
+                                        color={c.matched ? 'success' : 'error'}
+                                        icon={c.matched ? <CheckOutlined /> : <CloseOutlined />}
+                                    >
+                                        {c.condition}
+                                    </Tag>
+                                ))}
+                            </span>
+                        </div>
+                    ))}
+                </>
+            ) : (
+                <div className={styles.summary}>{t('decision.notYetFired')}</div>
+            )}
         </Card>
     )
 }
