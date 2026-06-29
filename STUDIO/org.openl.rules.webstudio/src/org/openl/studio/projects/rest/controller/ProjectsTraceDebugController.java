@@ -155,9 +155,12 @@ public class ProjectsTraceDebugController {
     public DebugStackView step(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam("type") @Parameter(description = "trace.param.step-type.desc") StepType type) {
-        DebugSession session = requireSuspended(project);
-        session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
-        return stackView(session);
+        DebugSession session = requireSession(project);
+        return session.inLock(() -> {
+            requireSuspendedState(session);
+            session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
+            return stackView(session);
+        });
     }
 
     @Operation(summary = "trace.resume.summary", description = "trace.resume.desc")
@@ -165,7 +168,11 @@ public class ProjectsTraceDebugController {
     @PostMapping("/resume")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void resume(@ProjectId @PathVariable("projectId") RulesProject project) {
-        requireSuspended(project).getDebugger().resume();
+        DebugSession session = requireSession(project);
+        session.inLock(() -> {
+            requireSuspendedState(session);
+            session.getDebugger().resume();
+        });
     }
 
     @Operation(summary = "trace.pause.summary", description = "trace.pause.desc")
@@ -182,12 +189,16 @@ public class ProjectsTraceDebugController {
     public DebugFrameVariables variables(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
-        DebugSession session = requireSuspended(project);
-        DebugFrame frame = session.getDebugger().frameAt(index);
-        if (frame == null) {
-            throw new NotFoundException("trace.frame.not.found.message");
-        }
-        return createMapper().freezeVariables(frame, session.getClassLoader());
+        DebugSession session = requireSession(project);
+        TraceDebugMapper mapper = createMapper(session);
+        return session.inLock(() -> {
+            requireSuspendedState(session);
+            DebugFrame frame = session.getDebugger().frameAt(index);
+            if (frame == null) {
+                throw new NotFoundException("trace.frame.not.found.message");
+            }
+            return mapper.freezeVariables(frame, session.getClassLoader());
+        });
     }
 
     @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
@@ -196,12 +207,15 @@ public class ProjectsTraceDebugController {
     public List<CellHighlight> highlights(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
-        DebugSession session = requireSuspended(project);
-        DebugFrame frame = session.getDebugger().frameAt(index);
-        if (frame == null) {
-            throw new NotFoundException("trace.frame.not.found.message");
-        }
-        return traceHighlightService.computeHighlights(frame);
+        DebugSession session = requireSession(project);
+        return session.inLock(() -> {
+            requireSuspendedState(session);
+            DebugFrame frame = session.getDebugger().frameAt(index);
+            if (frame == null) {
+                throw new NotFoundException("trace.frame.not.found.message");
+            }
+            return traceHighlightService.computeHighlights(frame);
+        });
     }
 
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")
@@ -210,12 +224,12 @@ public class ProjectsTraceDebugController {
     public ParameterValue parameterValue(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId) {
-        requireSession(project);
+        DebugSession session = requireSession(project);
         var param = parameterRegistry.get(parameterId);
         if (param == null) {
             throw new NotFoundException("trace.parameter.not.found.message");
         }
-        return createMapper().buildParameterValue(param, false);
+        return createMapper(session).buildParameterValue(param, false);
     }
 
     @Operation(summary = "trace.get-breakpoints.summary", description = "trace.get-breakpoints.desc")
@@ -283,12 +297,10 @@ public class ProjectsTraceDebugController {
         return session;
     }
 
-    private DebugSession requireSuspended(RulesProject project) {
-        DebugSession session = requireSession(project);
+    private void requireSuspendedState(DebugSession session) {
         if (session.getDebugger().status() != DebugStatus.SUSPENDED) {
             throw new ConflictException("trace.execution.not.suspended.message");
         }
-        return session;
     }
 
     private DebugStackView stackView(DebugSession session) {
@@ -296,7 +308,11 @@ public class ProjectsTraceDebugController {
         return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error());
     }
 
-    private TraceDebugMapper createMapper() {
+    private TraceDebugMapper createMapper(DebugSession session) {
+        return session.mapper(this::buildMapper);
+    }
+
+    private TraceDebugMapper buildMapper() {
         var objectMapper = configureObjectMapper();
         return new TraceDebugMapper(objectMapper, getSchemaGenerator(objectMapper), parameterRegistry);
     }
