@@ -8,19 +8,29 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
     `,
     header: css`
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: ${token.fontSizeSM}px;
         font-weight: 600;
+        color: ${token.colorTextTertiary};
         padding: ${token.paddingXS}px ${token.paddingSM}px;
+        background: ${token.colorFillQuaternary};
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     frame: css`
         cursor: pointer;
         gap: ${token.marginXS}px;
+        border-left: 2px solid transparent;
+        transition: background ${token.motionDurationMid};
         &:hover {
             background: ${token.colorFillTertiary};
         }
     `,
     frameSelected: css`
         background: ${token.colorPrimaryBg};
+    `,
+    frameCurrent: css`
+        border-left-color: ${token.colorPrimary};
     `,
     addBreakpoint: css`
         width: calc(100% - ${token.paddingSM * 2}px);

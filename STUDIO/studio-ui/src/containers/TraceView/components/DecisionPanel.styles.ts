@@ -2,18 +2,36 @@ import { createStyles } from 'antd-style'
 
 export const useStyles = createStyles(({ css, token }) => ({
     card: css`
-        margin-top: 12px;
+        margin-top: ${token.marginSM}px;
+
+        .ant-card-head {
+            min-height: 36px;
+            padding: 0 ${token.paddingSM}px;
+        }
+
+        .ant-card-head .ant-card-head-title {
+            padding: ${token.paddingXS}px 0;
+            font-size: ${token.fontSizeSM}px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: ${token.colorTextTertiary};
+        }
+
+        .ant-card-body {
+            padding: ${token.paddingSM}px;
+        }
     `,
     summary: css`
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: ${token.marginXS}px;
     `,
     rule: css`
         display: flex;
         align-items: baseline;
-        gap: 8px;
-        padding: 4px 6px;
-        border-radius: 4px;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
+        border-radius: ${token.borderRadiusSM}px;
     `,
     firedRule: css`
         background: ${token.colorSuccessBg};
@@ -25,6 +43,6 @@ export const useStyles = createStyles(({ css, token }) => ({
     conditions: css`
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
     `,
 }))

@@ -1,20 +1,36 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     debugView: css`
         position: absolute;
         inset: 0;
         display: flex;
         flex-direction: column;
-        background: #fff;
+        background: ${token.colorBgContainer};
     `,
     toolbar: css`
         display: flex;
         align-items: center;
-        gap: 8px;
+        justify-content: space-between;
+        gap: ${token.marginSM}px;
         flex: 0 0 auto;
-        padding: 4px 8px;
-        border-bottom: 1px solid #e8e8e8;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+    `,
+    statusPill: css`
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 auto;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px;
+        border-radius: ${token.borderRadius}px;
+        background: ${token.colorFillQuaternary};
+        white-space: nowrap;
+
+        .ant-badge-status-text {
+            font-size: ${token.fontSizeSM}px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
     `,
     panels: css`
         flex: 1;
@@ -26,7 +42,7 @@ export const useStyles = createStyles(({ css }) => ({
         position: absolute;
         inset: 0;
         display: flex;
-        background: #fff;
+        background: ${token.colorBgContainer};
     `,
     resizing: css`
         cursor: ew-resize;
@@ -43,17 +59,17 @@ export const useStyles = createStyles(({ css }) => ({
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        border-right: 1px solid #e8e8e8;
+        border-right: 1px solid ${token.colorBorderSecondary};
     `,
     resizer: css`
         width: 5px;
         cursor: ew-resize;
-        background: #f0f0f0;
+        background: ${token.colorFillTertiary};
         flex-shrink: 0;
-        transition: background 0.2s;
+        transition: background ${token.motionDurationMid};
 
         &:hover {
-            background: #d9d9d9;
+            background: ${token.colorPrimaryBorder};
         }
     `,
     rightPanel: css`
@@ -62,35 +78,32 @@ export const useStyles = createStyles(({ css }) => ({
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        padding: 16px;
+        padding: ${token.padding}px;
     `,
     panelDisabled: css`
         pointer-events: none;
     `,
     errorBanner: css`
-        position: absolute;
-        top: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 100;
-        max-width: 80%;
+        flex: 0 0 auto;
+        margin: ${token.marginXS}px ${token.marginSM}px 0;
     `,
     errorWhere: css`
-        margin-bottom: 4px;
+        margin-bottom: ${token.marginXXS}px;
     `,
     errorType: css`
-        font-family: monospace;
+        font-family: ${token.fontFamilyCode};
         font-weight: 600;
-        margin-bottom: 4px;
+        margin-bottom: ${token.marginXXS}px;
     `,
     errorStack: css`
         margin: 0;
         max-height: 220px;
         overflow: auto;
-        font-size: 12px;
+        font-family: ${token.fontFamilyCode};
+        font-size: ${token.fontSizeSM}px;
         white-space: pre;
-        background: rgba(0, 0, 0, 0.03);
-        padding: 8px;
-        border-radius: 4px;
+        background: ${token.colorFillQuaternary};
+        padding: ${token.paddingXS}px;
+        border-radius: ${token.borderRadiusSM}px;
     `,
 }))

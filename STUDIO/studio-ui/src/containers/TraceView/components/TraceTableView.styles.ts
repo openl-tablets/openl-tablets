@@ -1,19 +1,23 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     card: css`
         .ant-card-head {
             min-height: 36px;
-            padding: 0 12px;
+            padding: 0 ${token.paddingSM}px;
         }
 
         .ant-card-head .ant-card-head-title {
-            padding: 8px 0;
-            font-size: 13px;
+            padding: ${token.paddingXS}px 0;
+            font-size: ${token.fontSizeSM}px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: ${token.colorTextTertiary};
         }
 
         .ant-card-body {
-            padding: 12px;
+            padding: ${token.paddingSM}px;
         }
     `,
     loading: css`
@@ -32,31 +36,33 @@ export const useStyles = createStyles(({ css }) => ({
 
         td,
         th {
-            border: 1px solid #d9d9d9;
-            padding: 4px 8px;
-            font-size: 12px;
+            border: 1px solid ${token.colorBorderSecondary};
+            padding: ${token.paddingXXS}px ${token.paddingXS}px;
+            font-size: ${token.fontSizeSM}px;
         }
 
         th {
-            background: #fafafa;
+            background: ${token.colorFillQuaternary};
             font-weight: 500;
         }
 
+        /* One execution-state colour language, shared with the spreadsheet grid and decision panel:
+           amber = the current line, green = a result, blue = a passed condition, red = a failed one. */
         .trace-highlighted {
-            background: #fffbe6;
+            background: ${token.colorWarningBg};
         }
 
         .trace-result {
-            background: #f6ffed;
+            background: ${token.colorSuccessBg};
             font-weight: 600;
         }
 
         .trace-condition-true {
-            background: #e6f7ff;
+            background: ${token.colorInfoBg};
         }
 
         .trace-condition-false {
-            background: #fff1f0;
+            background: ${token.colorErrorBg};
         }
     `,
 }))

@@ -1,10 +1,10 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     details: css`
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: ${token.marginSM}px;
         height: 100%;
         overflow: auto;
     `,
@@ -16,30 +16,36 @@ export const useStyles = createStyles(({ css }) => ({
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: ${token.marginXS}px;
     `,
     frameTitle: css`
         font-weight: 600;
+        font-size: ${token.fontSizeLG}px;
+        color: ${token.colorText};
     `,
     errorsCard: css`
         .ant-card-head {
             min-height: 36px;
-            padding: 0 12px;
+            padding: 0 ${token.paddingSM}px;
         }
 
         .ant-card-head .ant-card-head-title {
-            padding: 8px 0;
-            font-size: 13px;
+            padding: ${token.paddingXS}px 0;
+            font-size: ${token.fontSizeSM}px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: ${token.colorTextTertiary};
         }
 
         .ant-card-body {
-            padding: 12px;
+            padding: ${token.paddingSM}px;
         }
     `,
     errorLocation: css`
-        margin-top: 4px;
-        font-size: 12px;
-        color: #8c8c8c;
-        font-family: monospace;
+        margin-top: ${token.marginXXS}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
+        font-family: ${token.fontFamilyCode};
     `,
 }))

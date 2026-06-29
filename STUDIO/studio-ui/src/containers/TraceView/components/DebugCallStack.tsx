@@ -61,9 +61,14 @@ const DebugCallStack: React.FC = () => {
                     size="small"
                     renderItem={(frame) => (
                         <List.Item
-                            className={cx(styles.frame, frame.index === selectedFrameIndex && styles.frameSelected)}
+                            aria-current={frame.active ? 'true' : undefined}
                             data-testid={`debug-frame-${frame.index}`}
                             onClick={() => selectFrame(frame.index)}
+                            className={cx(
+                                styles.frame,
+                                frame.active && styles.frameCurrent,
+                                frame.index === selectedFrameIndex && styles.frameSelected
+                            )}
                         >
                             <span className={styles.name}>{frame.name}</span>
                             <Tag color="default">{frame.kind}</Tag>

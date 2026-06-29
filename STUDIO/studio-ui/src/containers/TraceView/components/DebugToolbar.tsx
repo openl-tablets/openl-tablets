@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Space, Tooltip } from 'antd'
+import { Button, Divider, Space, Tooltip } from 'antd'
 import {
     CaretRightOutlined,
     PauseOutlined,
@@ -51,6 +51,7 @@ const DebugToolbar: React.FC = () => {
                     type="text"
                 />
             </Tooltip>
+            <Divider style={{ height: '1.2em', margin: 0 }} type="vertical" />
             <Tooltip title={t('debug.stepInto')}>
                 <Button
                     data-testid="debug-step-into"
@@ -78,6 +79,7 @@ const DebugToolbar: React.FC = () => {
                     type="text"
                 />
             </Tooltip>
+            <Divider style={{ height: '1.2em', margin: 0 }} type="vertical" />
             <Tooltip title={t('debug.stop')}>
                 <Button
                     danger

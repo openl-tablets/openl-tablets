@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Collapse, Tag } from 'antd'
+import { Alert, Badge, Collapse } from 'antd'
+import type { BadgeProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DebugError } from 'types/trace'
@@ -15,13 +16,15 @@ interface TraceViewParams {
     projectId: string
 }
 
-const STATUS_COLOR: Record<string, string> = {
-    SUSPENDED: 'processing',
-    RUNNING: 'blue',
+// Distinct semantics per state: SUSPENDED (paused — your turn) reads as a calm amber, while RUNNING
+// (busy — please wait) is the only animated, blue "processing" dot. No two states share a colour.
+const STATUS_BADGE: Record<string, BadgeProps['status']> = {
     PENDING: 'default',
+    RUNNING: 'processing',
+    SUSPENDED: 'warning',
     COMPLETED: 'success',
     ERROR: 'error',
-    TERMINATED: 'warning',
+    TERMINATED: 'default',
 }
 
 /**
@@ -149,9 +152,9 @@ const TraceView: React.FC = () => {
             <div className={styles.toolbar} data-testid="debug-header">
                 <DebugToolbar />
                 {status && (
-                    <Tag color={STATUS_COLOR[status] || 'default'} data-testid="debug-status">
-                        {t(`debug.status.${status}`)}
-                    </Tag>
+                    <span className={styles.statusPill} data-testid="debug-status">
+                        <Badge status={STATUS_BADGE[status] || 'default'} text={t(`debug.status.${status}`)} />
+                    </span>
                 )}
             </div>
             {showTerminalBanner && (

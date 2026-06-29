@@ -6,7 +6,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
     `,
     header: css`
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: ${token.fontSizeSM}px;
         font-weight: 600;
+        color: ${token.colorTextTertiary};
         margin-bottom: ${token.marginXS}px;
     `,
     scroll: css`
