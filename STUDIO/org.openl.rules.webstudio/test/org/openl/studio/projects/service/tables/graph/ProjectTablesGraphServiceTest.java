@@ -68,6 +68,24 @@ class ProjectTablesGraphServiceTest {
     }
 
     @Test
+    void reachableTableIdsFollowDependenciesThroughDispatchers() {
+        var fromTheCall = service.reachableTableIds(projectModel, idOf("theCall"), GraphDirection.DEPENDENCIES, null);
+        assertTrue(fromTheCall.contains(idOf("theCall")), "the root is included");
+        // theCall reaches the overloaded versions through the dispatcher.
+        assertTrue(fromTheCall.contains(idOf("mySPR [state=AR]")));
+        assertTrue(fromTheCall.contains(idOf("mySPR [state=AZ]")));
+
+        // doSomething is a leaf: it reaches only itself, never the tables that call it.
+        var fromDoSomething = service.reachableTableIds(projectModel, idOf("doSomething"),
+                GraphDirection.DEPENDENCIES, null);
+        assertEquals(Set.of(idOf("doSomething")), fromDoSomething);
+        assertFalse(fromDoSomething.contains(idOf("theCall")));
+
+        // An unknown root yields nothing.
+        assertTrue(service.reachableTableIds(projectModel, "missing", GraphDirection.DEPENDENCIES, null).isEmpty());
+    }
+
+    @Test
     void nodesCarrySummaryFields() {
         // every SummaryTableView field is mapped onto the graph node, not only id/name/kind
         var theCall = byName(service.buildProjectGraph(projectModel, false)).get("theCall");

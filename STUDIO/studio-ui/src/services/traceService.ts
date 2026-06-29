@@ -217,7 +217,8 @@ export const traceService = {
     /** List rule tables that can be a breakpoint target, to set a breakpoint by name before it runs. */
     getBreakpointTables: async (projectId: string): Promise<BreakpointTableView[]> =>
         retryApiCall<BreakpointTableView[]>(
-            `${base(projectId)}/breakpoint-tables`,
+            // Only the name is needed to set and label a breakpoint; trim the rest with field projection.
+            `${base(projectId)}/breakpoint-tables?fields=name`,
             undefined,
             TRACE_API_OPTIONS
         ),

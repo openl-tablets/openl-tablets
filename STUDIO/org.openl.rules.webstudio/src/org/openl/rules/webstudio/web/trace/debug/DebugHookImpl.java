@@ -57,7 +57,7 @@ final class DebugHookImpl implements DebugHook {
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
         top.setLocation(location);
-        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location.ref());
+        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location.ref(), top.getName());
         R result = executor.invoke(target, params, env);
         top.recordExecutedStep(stepRef(location), location.label(), result);
         return result;
@@ -81,11 +81,11 @@ final class DebugHookImpl implements DebugHook {
                 env == null ? null : env.getContext(), depth);
         stack.push(frame);
         try {
-            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null);
+            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name());
             R result = executor.invoke(target, params, env);
             frame.completeWith(result);
             // Step Out lands here so the returning frame's result is on the stack before it is popped.
-            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null);
+            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null, descriptor.name());
             return result;
         } catch (DebugTerminationError e) {
             throw e;
@@ -112,11 +112,11 @@ final class DebugHookImpl implements DebugHook {
         }
     }
 
-    private void handleEvent(DebugEvent event, int depth, String uri, @Nullable String ref) {
+    private void handleEvent(DebugEvent event, int depth, String uri, @Nullable String ref, @Nullable String name) {
         if (channel.isTerminateRequested()) {
             throw new DebugTerminationError();
         }
-        if (stepController.shouldSuspend(event, depth, uri, ref)) {
+        if (stepController.shouldSuspend(event, depth, uri, ref, name)) {
             publishSnapshot();
             listener.onStatusChanged(DebugStatus.SUSPENDED);
             DebugCommand command = channel.awaitCommand();

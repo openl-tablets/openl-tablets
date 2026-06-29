@@ -39,10 +39,10 @@ const DebugCallStack: React.FC = () => {
         }
     }, [projectId, tablesLoaded])
 
-    const addTableBreakpoint = (uri: string): void => {
-        const table = tables.find(t => t.uri === uri)
-        if (table && !breakpoints.includes(uri)) {
-            void toggleBreakpoint(uri, table.name)
+    const addTableBreakpoint = (name: string): void => {
+        // The name is the breakpoint key: execution stops on any table entered with this name.
+        if (name && !breakpoints.includes(name)) {
+            void toggleBreakpoint(name, name)
         }
         setSelectKey(k => k + 1) // reset the search back to its placeholder
     }
@@ -83,7 +83,7 @@ const DebugCallStack: React.FC = () => {
                 data-testid="debug-add-breakpoint"
                 onChange={addTableBreakpoint}
                 onDropdownVisibleChange={loadTables}
-                options={tables.map(table => ({ label: table.name, value: table.uri }))}
+                options={tables.map(table => ({ label: table.name, value: table.name }))}
                 placeholder={t('debug.addBreakpointPlaceholder')}
                 size="small"
                 filterOption={(input, option) =>

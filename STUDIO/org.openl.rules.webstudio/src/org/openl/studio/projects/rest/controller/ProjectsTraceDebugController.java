@@ -1,8 +1,11 @@
 package org.openl.studio.projects.rest.controller;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -50,6 +53,8 @@ import org.openl.studio.projects.model.trace.TraceDebugMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.tables.graph.GraphDirection;
+import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.trace.DebugSession;
 import org.openl.studio.projects.service.trace.DebugSessionRegistry;
 import org.openl.studio.projects.service.trace.TraceDebugService;
@@ -81,6 +86,7 @@ public class ProjectsTraceDebugController {
     private final SocketDebugListenerFactory listenerFactory;
     private final TraceParameterRegistry parameterRegistry;
     private final TraceTableHtmlService traceTableHtmlService;
+    private final ProjectTablesGraphService tablesGraphService;
     private final Environment environment;
 
     @Lookup
@@ -236,13 +242,27 @@ public class ProjectsTraceDebugController {
     public List<BreakpointTableView> breakpointTables(@ProjectId @PathVariable("projectId") RulesProject project) {
         ProjectModel projectModel = projectService.openProject(project, null).awaitCompiled();
         var classifier = new DefaultSourceClassifier();
-        // List every rule table that becomes a frame, so a breakpoint can be set on it before it runs.
-        return projectModel.getAllTableSyntaxNodes().stream()
+
+        // Offer only the tables reachable from the table being traced, so a breakpoint is suggested only
+        // where it could fire. With no active session (or a root outside the dependency graph, e.g. a test
+        // table), fall back to every table.
+        DebugSession session = sessionRegistry.find(projectIdentifierMapper.map(project));
+        Set<String> reachable = session == null ? Set.of()
+                : tablesGraphService.reachableTableIds(projectModel, session.getTableId(),
+                        GraphDirection.DEPENDENCIES, null);
+        boolean limitToReachable = !reachable.isEmpty();
+
+        // Distinct by name: one target per name, keyed by the name so a breakpoint stops on any same-named
+        // table (every overloaded or dimensional version).
+        Map<String, BreakpointTableView> byName = new LinkedHashMap<>();
+        projectModel.getAllTableSyntaxNodes().stream()
+                .filter(tsn -> !limitToReachable || reachable.contains(tsn.getId()))
                 .map(TableSyntaxNode::getMember)
                 .filter(ExecutableRulesMethod.class::isInstance)
                 .map(classifier::describeFrame)
                 .filter(Objects::nonNull)
-                .map(d -> new BreakpointTableView(d.uri(), d.name(), d.kind().getCode()))
+                .forEach(d -> byName.putIfAbsent(d.name(), new BreakpointTableView(d.name(), d.kind().getCode())));
+        return byName.values().stream()
                 .sorted(Comparator.comparing(BreakpointTableView::name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }

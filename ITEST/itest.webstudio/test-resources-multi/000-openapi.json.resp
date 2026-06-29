@@ -17020,10 +17020,6 @@ Content-Type: application/json
           "name": {
             "type": "string",
             "description": "***"
-          },
-          "uri": {
-            "type": "string",
-            "description": "***"
           }
         }
       },
