@@ -38,16 +38,14 @@ final class StepController {
 
     /** Arm the next step from a command issued at the given current depth. */
     synchronized void arm(DebugCommand command, int currentDepth) {
-        exitDepth = NEVER;
+        // Into, Over and Out all suspend at the current frame's own exit, so a step that finishes the
+        // frame lands on its EXIT — with the returned result on the stack — before continuing in the
+        // caller. Resume runs straight to the next breakpoint.
+        exitDepth = command == DebugCommand.RESUME ? NEVER : currentDepth;
         threshold = switch (command) {
             case STEP_INTO -> Integer.MAX_VALUE;
             case STEP_OVER -> currentDepth;
-            // Run the current frame to completion and stop at its own exit, so its result is on the
-            // stack to inspect; a further step then continues in the caller.
-            case STEP_OUT -> {
-                exitDepth = currentDepth;
-                yield currentDepth - 1;
-            }
+            case STEP_OUT -> currentDepth - 1;
             case RESUME -> NEVER;
         };
         pauseRequested = false;

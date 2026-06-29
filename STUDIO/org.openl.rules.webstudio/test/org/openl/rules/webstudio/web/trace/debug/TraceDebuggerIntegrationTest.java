@@ -129,6 +129,35 @@ class TraceDebuggerIntegrationTest {
     }
 
     @Test
+    void stepOverToFrameEndSuspendsAtItsExitWithTheResult() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("test-worker", null, true, program());
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+
+        // Walk into T1's only cell.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertEquals(List.of("T0", "T1"), uris(debugger));
+        assertEquals("R1C0", topRef(debugger));
+
+        // Stepping over T1's last line finishes the frame but stops at its own exit, not in the caller,
+        // so the returned result can be rendered before the frame closes.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OVER, TIMEOUT));
+        assertEquals(List.of("T0", "T1"), uris(debugger));
+        DebugFrame returning = debugger.stack().get(1);
+        assertTrue(returning.isCompleted(), "the finished frame stays on the stack with its result");
+        assertEquals("T1:done", returning.getResult());
+
+        // A further step then continues in the caller, on T0's next line.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OVER, TIMEOUT));
+        assertEquals(List.of("T0"), uris(debugger));
+        assertEquals("R0C1", topRef(debugger));
+
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
     void breakOnExceptionSuspendsAtThrowingFrame() {
         FakeTable t1 = new FakeTable("T1").boom();
         FakeTable t0 = new FakeTable("T0").call(t1);
