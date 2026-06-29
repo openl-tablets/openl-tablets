@@ -18,9 +18,13 @@ generation.
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
 - Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) — extract
   per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s
+- Use the narrowest visibility for all code — prefer `private`, widen only when something outside genuinely needs it.
+  OpenL rule interfaces and data beans referenced by generated proxies stay `public`.
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
+- Follow JUnit 5 best practices: test classes and their `@Test`/lifecycle methods are package-private, never `public`
+  (Sonar `java:S5786`); a cross-package abstract base or fixture stays `public` with `protected` lifecycle methods.
 - No HTML in Markdown when equivalents exist (see Markdown Rules below)
 - All new file names must be only in ASCII alphanumeric without spaces and any special characters, except for `-_.`
 - Existed file names contains spaces and `,+%$#` symbols for tests purposes and must not be renamed during refactoring.
