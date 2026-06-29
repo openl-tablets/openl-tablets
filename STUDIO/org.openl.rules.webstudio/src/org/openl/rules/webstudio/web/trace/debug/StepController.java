@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.trace.debug;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
 
@@ -23,7 +24,7 @@ final class StepController {
     /** Depth that never matches a real frame (frames are numbered from 1). */
     private static final int NEVER = 0;
 
-    private volatile Set<String> breakpoints = Set.of();
+    private final AtomicReference<Set<String>> breakpoints = new AtomicReference<>(Set.of());
     private int threshold = NEVER;
     private int exitDepth = NEVER;
     private volatile boolean pauseRequested;
@@ -53,11 +54,11 @@ final class StepController {
     }
 
     void setBreakpoints(Set<String> uris) {
-        this.breakpoints = Set.copyOf(uris);
+        this.breakpoints.set(Set.copyOf(uris));
     }
 
     Set<String> getBreakpoints() {
-        return breakpoints;
+        return breakpoints.get();
     }
 
     /** Request an asynchronous suspend at the next safepoint. */
@@ -84,10 +85,11 @@ final class StepController {
         if (pauseRequested) {
             return true;
         }
-        if (event == DebugEvent.ENTER && (breakpoints.contains(uri) || (name != null && breakpoints.contains(name)))) {
+        Set<String> active = breakpoints.get();
+        if (event == DebugEvent.ENTER && (active.contains(uri) || (name != null && active.contains(name)))) {
             return true;
         }
-        if (event == DebugEvent.LOCATION && ref != null && breakpoints.contains(uri + "#" + ref)) {
+        if (event == DebugEvent.LOCATION && ref != null && active.contains(uri + "#" + ref)) {
             return true;
         }
         if (event == DebugEvent.EXIT) {

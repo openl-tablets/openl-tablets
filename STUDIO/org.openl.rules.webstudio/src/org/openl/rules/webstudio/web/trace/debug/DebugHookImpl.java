@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
 
@@ -27,7 +28,7 @@ final class DebugHookImpl implements DebugHook {
     private final DebugListener listener;
 
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
-    private volatile List<DebugFrame> published = List.of();
+    private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
 
     DebugHookImpl(SourceClassifier classifier, StepController stepController, DebugChannel channel,
@@ -117,10 +118,7 @@ final class DebugHookImpl implements DebugHook {
             throw new DebugTerminationError();
         }
         if (stepController.shouldSuspend(event, depth, uri, ref, name)) {
-            publishSnapshot();
-            listener.onStatusChanged(DebugStatus.SUSPENDED);
-            DebugCommand command = channel.awaitCommand();
-            stepController.arm(command, depth);
+            suspendAndAwait(depth);
         }
     }
 
@@ -134,6 +132,11 @@ final class DebugHookImpl implements DebugHook {
             return;
         }
         brokenException = ex;
+        suspendAndAwait(depth);
+    }
+
+    /** Publish the current stack, park the worker as suspended, then re-arm stepping from the resuming command. */
+    private void suspendAndAwait(int depth) {
         publishSnapshot();
         listener.onStatusChanged(DebugStatus.SUSPENDED);
         DebugCommand command = channel.awaitCommand();
@@ -146,18 +149,18 @@ final class DebugHookImpl implements DebugHook {
         while (it.hasNext()) {
             rootToTop.add(it.next());
         }
-        published = List.copyOf(rootToTop);
+        published.set(List.copyOf(rootToTop));
     }
 
     /** The most recently published stack, ordered from the root call to the current frame. */
     List<DebugFrame> snapshot() {
-        return published;
+        return published.get();
     }
 
     /** The frame at the given stack index in the published snapshot, or {@code null} if out of range. */
     @Nullable
     DebugFrame frameAt(int index) {
-        List<DebugFrame> current = published;
+        List<DebugFrame> current = published.get();
         return index >= 0 && index < current.size() ? current.get(index) : null;
     }
 }

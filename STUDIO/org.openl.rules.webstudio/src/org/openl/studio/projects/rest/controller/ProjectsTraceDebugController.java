@@ -124,8 +124,9 @@ public class ProjectsTraceDebugController {
         }
 
         DebugListener listener = listenerFactory.create(user, projectId, tableId);
+        var objectMapper = configureObjectMapper();
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
-                currentOpenedModule, inputJson, configureObjectMapper(), sessionRegistry.breakpoints(), stopAtEntry,
+                currentOpenedModule, inputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
                 listener);
 
         DebugSession session = sessionRegistry.start(traceDebugService.startSession(request));
@@ -293,7 +294,7 @@ public class ProjectsTraceDebugController {
 
     private DebugStackView stackView(DebugSession session) {
         var debugger = session.getDebugger();
-        return createMapper().toStackView(debugger.status(), debugger.stack(), debugger.error());
+        return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error());
     }
 
     private TraceDebugMapper createMapper() {

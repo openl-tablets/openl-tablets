@@ -1,5 +1,4 @@
 import {
-    DEBUG_STATUS,
     IN_PROGRESS_TRACE_EXECUTION_STATUSES,
     TERMINAL_TRACE_EXECUTION_STATUSES,
     isTraceExecutionInProgress,
@@ -8,15 +7,6 @@ import {
 } from 'utils/traceExecutionStatus'
 
 describe('traceExecutionStatus utils', () => {
-    it('exposes stable status constants', () => {
-        expect(DEBUG_STATUS.PENDING).toBe('PENDING')
-        expect(DEBUG_STATUS.RUNNING).toBe('RUNNING')
-        expect(DEBUG_STATUS.SUSPENDED).toBe('SUSPENDED')
-        expect(DEBUG_STATUS.COMPLETED).toBe('COMPLETED')
-        expect(DEBUG_STATUS.ERROR).toBe('ERROR')
-        expect(DEBUG_STATUS.TERMINATED).toBe('TERMINATED')
-    })
-
     it('defines in-progress and terminal groups correctly', () => {
         expect(IN_PROGRESS_TRACE_EXECUTION_STATUSES).toEqual(['PENDING', 'RUNNING'])
         expect(TERMINAL_TRACE_EXECUTION_STATUSES).toEqual(['COMPLETED', 'ERROR', 'TERMINATED'])

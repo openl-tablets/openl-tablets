@@ -88,11 +88,6 @@ export interface DebugStackView {
     error?: DebugError | null
 }
 
-/** Lightweight debug session status, used for polling. */
-export interface DebugStatusView {
-    status: DebugStatus
-}
-
 /**
  * One sub-step of a frame: a spreadsheet cell or a decision-table rule.
  * `ref` is the breakpoint key suffix (`uri#ref`).

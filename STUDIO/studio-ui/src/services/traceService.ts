@@ -6,7 +6,6 @@ import type {
     BreakpointTableView,
     DebugFrameVariables,
     DebugStackView,
-    DebugStatusView,
     StepType,
     TraceParameterValue,
 } from 'types/trace'
@@ -44,19 +43,6 @@ const isTransientError = (error: unknown): boolean => {
     if (error instanceof TypeError) {
         // Network errors like "Failed to fetch"
         return true
-    }
-
-    if (error instanceof Error) {
-        const message = error.message.toLowerCase()
-        // Check for transient HTTP status codes in error messages
-        // 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout
-        if (message.includes('502') || message.includes('503') || message.includes('504')) {
-            return true
-        }
-        // Network-related error messages
-        if (message.includes('network') || message.includes('timeout') || message.includes('econnreset')) {
-            return true
-        }
     }
 
     return false
@@ -161,10 +147,6 @@ export const traceService = {
     /** Get the current execution stack. */
     getStack: async (projectId: string): Promise<DebugStackView> =>
         retryApiCall<DebugStackView>(`${base(projectId)}/stack`, undefined, TRACE_API_OPTIONS),
-
-    /** Get the current debug status. */
-    getStatus: async (projectId: string): Promise<DebugStatusView> =>
-        retryApiCall<DebugStatusView>(`${base(projectId)}/status`, undefined, TRACE_API_OPTIONS),
 
     /** Step the suspended session and return the new stack. */
     step: async (projectId: string, type: StepType): Promise<DebugStackView> =>

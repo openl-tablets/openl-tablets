@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.trace.debug;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -23,8 +24,8 @@ public final class TraceDebugger {
     private final DebugHookImpl hook;
     private final DebugListener listener;
 
-    private volatile @Nullable Thread worker;
-    private volatile @Nullable Throwable error;
+    private final AtomicReference<@Nullable Thread> worker = new AtomicReference<>();
+    private final AtomicReference<@Nullable Throwable> error = new AtomicReference<>();
     private long startHaltCount;
 
     public TraceDebugger(DebugListener listener) {
@@ -61,7 +62,7 @@ public final class TraceDebugger {
         startHaltCount = channel.haltCount();
         channel.markRunning();
         Thread thread = Thread.ofVirtual().name(threadName).unstarted(() -> run(classLoader, body));
-        this.worker = thread;
+        this.worker.set(thread);
         thread.start();
     }
 
@@ -81,7 +82,7 @@ public final class TraceDebugger {
             channel.markTerminated();
             terminal = DebugStatus.TERMINATED;
         } catch (Throwable t) {
-            error = t;
+            error.set(t);
             log.debug("Debug session failed", t);
             channel.markError();
             terminal = DebugStatus.ERROR;
@@ -97,7 +98,7 @@ public final class TraceDebugger {
     }
 
     public @Nullable Throwable error() {
-        return error;
+        return error.get();
     }
 
     /** Live execution stack from the most recent suspension, ordered root to current frame. */
@@ -134,7 +135,7 @@ public final class TraceDebugger {
     /** Cancel the session, interrupting and briefly joining the worker. */
     public void terminate(long joinMillis) {
         channel.requestTerminate();
-        Thread thread = worker;
+        Thread thread = worker.get();
         if (thread == null) {
             return;
         }

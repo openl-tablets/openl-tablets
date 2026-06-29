@@ -9,6 +9,7 @@ import type {
     TraceParameterValue,
 } from 'types/trace'
 import traceService from 'services/traceService'
+import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
 
 interface DebugState {
     // Route params
@@ -90,6 +91,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             debugError: stack.error ?? null,
             selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
             variables: null,
+            variablesLoading: false,
             stackVersion: get().stackVersion + 1,
         })
         if (isSuspended(stack.status) && topIndex !== null) {
@@ -164,7 +166,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             if (!projectId) return
             set({ selectedFrameIndex: index })
             if (!isSuspended(status)) {
-                set({ variables: null })
+                set({ variables: null, variablesLoading: false })
                 return
             }
             set({ variablesLoading: true, variables: null })
@@ -189,7 +191,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         resume: async () => {
             const { projectId } = get()
             if (!projectId) return
-            set({ status: 'RUNNING', variables: null })
+            set({ status: 'RUNNING', variables: null, variablesLoading: false })
             try {
                 await traceService.resume(projectId)
             } catch (error: any) {
@@ -212,7 +214,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             if (!projectId) return
             try {
                 await traceService.cancelTrace(projectId)
-                set({ status: 'TERMINATED', frames: [], selectedFrameIndex: null, variables: null })
+                set({ status: 'TERMINATED', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
             } catch (error: any) {
                 notification.error({ title: error?.message || 'Failed to terminate' })
             }
@@ -261,13 +263,14 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 void get().refreshStack()
             } else if (status === 'RUNNING') {
                 set({ status: 'RUNNING' })
-            } else if (status === 'COMPLETED' || status === 'ERROR' || status === 'TERMINATED') {
+            } else if (isTraceExecutionTerminal(status)) {
                 // Show an immediate summary from the socket (if any); the full error is fetched below.
                 set({
                     status,
                     frames: [],
                     selectedFrameIndex: null,
                     variables: null,
+                    variablesLoading: false,
                     debugError: status === 'ERROR' && message ? { summary: message } : null,
                 })
                 if (status === 'ERROR') {

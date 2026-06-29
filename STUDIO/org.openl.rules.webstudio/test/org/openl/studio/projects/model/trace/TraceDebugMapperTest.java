@@ -62,7 +62,7 @@ class TraceDebugMapperTest {
             TraceDebugMapper mapper = mapper();
             List<DebugFrame> stack = debugger.stack();
 
-            var stackView = mapper.toStackView(DebugStatus.SUSPENDED, stack, null);
+            var stackView = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null);
             assertEquals("SUSPENDED", stackView.status());
             assertFalse(stackView.frames().isEmpty(), "a suspended session has a stack");
             var top = stackView.frames().get(stackView.frames().size() - 1);
@@ -101,12 +101,11 @@ class TraceDebugMapperTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
 
         try {
-            TraceDebugMapper mapper = mapper();
             // Advance one step so the current frame carries a location to report.
             assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, 10_000));
             List<DebugFrame> stack = debugger.stack();
 
-            var errorView = mapper.toStackView(DebugStatus.ERROR, stack, new IllegalStateException("kaboom"));
+            var errorView = TraceDebugMapper.toStackView(DebugStatus.ERROR, stack, new IllegalStateException("kaboom"));
             DebugError error = errorView.error();
             assertNotNull(error, "an errored session carries a structured error");
             assertEquals("MyRule", error.table(), "the failing table is named");
@@ -116,7 +115,7 @@ class TraceDebugMapperTest {
             assertTrue(error.detail().contains("IllegalStateException"), "the detail carries the stack trace");
 
             // A healthy stack carries no error.
-            assertNull(mapper.toStackView(DebugStatus.SUSPENDED, stack, null).error());
+            assertNull(TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null).error());
         } finally {
             debugger.terminate(10_000);
         }

@@ -1,7 +1,5 @@
 package org.openl.studio.projects.model.trace;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
@@ -63,7 +62,7 @@ public class TraceDebugMapper {
     private static final int MAX_DETAIL = 8_000;
 
     /** Map the live stack (root to current frame) to a stack view. */
-    public DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
+    public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -135,17 +134,11 @@ public class TraceDebugMapper {
     }
 
     private static Throwable rootCause(Throwable error) {
-        Throwable cause = error;
-        while (cause.getCause() != null && cause.getCause() != cause) {
-            cause = cause.getCause();
-        }
-        return cause;
+        return Objects.requireNonNullElse(ExceptionUtils.getRootCause(error), error);
     }
 
     private static String stackTrace(Throwable error) {
-        var writer = new StringWriter();
-        error.printStackTrace(new PrintWriter(writer));
-        String trace = writer.toString();
+        String trace = ExceptionUtils.getStackTrace(error);
         return trace.length() > MAX_DETAIL ? trace.substring(0, MAX_DETAIL) + "…" : trace;
     }
 
@@ -345,21 +338,19 @@ public class TraceDebugMapper {
         var rawValue = param.getValue();
         var description = type != null ? type.getDisplayName(INamedThing.SHORT) : null;
         var isSimple = type != null && type.isSimple();
-        if (preferLazy && rawValue != null && !isSimple) {
-            return ParameterValue.builder()
-                    .name(param.getName())
-                    .description(description)
-                    .lazy(true)
-                    .parameterId(parameterRegistry.register(param))
-                    .schema(generateSchema(type))
-                    .build();
-        }
-        return ParameterValue.builder()
+        var builder = ParameterValue.builder()
                 .name(param.getName())
                 .description(description)
+                .schema(generateSchema(type));
+        if (preferLazy && rawValue != null && !isSimple) {
+            return builder
+                    .lazy(true)
+                    .parameterId(parameterRegistry.register(param))
+                    .build();
+        }
+        return builder
                 .lazy(false)
                 .value(serializeValue(rawValue, type))
-                .schema(generateSchema(type))
                 .build();
     }
 

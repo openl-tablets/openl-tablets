@@ -33,8 +33,8 @@ public final class DebugFrame {
     public record ExecutedStep(String ref, @Nullable String label, @Nullable Object value) {
     }
 
-    /** Upper bound on recorded sub-steps, so a long loop or huge spreadsheet cannot grow unbounded. */
-    private static final int MAX_EXECUTED_STEPS = 5000;
+    /** Upper bound on recorded sub-steps and condition checks, so a long loop or huge table cannot grow unbounded. */
+    private static final int MAX_RECORDED_PER_FRAME = 5000;
 
     private final FrameKind kind;
     private final Object source;
@@ -78,13 +78,15 @@ public final class DebugFrame {
     }
 
     void recordExecutedStep(String ref, @Nullable String label, @Nullable Object value) {
-        if (executedSteps.size() < MAX_EXECUTED_STEPS) {
+        if (executedSteps.size() < MAX_RECORDED_PER_FRAME) {
             executedSteps.add(new ExecutedStep(ref, label, value));
         }
     }
 
     void recordConditionCheck(ConditionCheck check) {
-        conditionChecks.add(check);
+        if (conditionChecks.size() < MAX_RECORDED_PER_FRAME) {
+            conditionChecks.add(check);
+        }
     }
 
     void completeWith(@Nullable Object result) {

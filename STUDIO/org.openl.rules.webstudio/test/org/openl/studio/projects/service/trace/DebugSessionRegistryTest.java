@@ -33,11 +33,11 @@ class DebugSessionRegistryTest {
         var registry = registry();
         var first = session(projectId("A"));
         registry.start(first);
-        assertSame(first, registry.current());
+        assertSame(first, registry.find(projectId("A")));
 
         var second = session(projectId("A"));
         registry.start(second);
-        assertSame(second, registry.current());
+        assertSame(second, registry.find(projectId("A")));
     }
 
     @Test
@@ -53,7 +53,7 @@ class DebugSessionRegistryTest {
         var registry = registry();
         registry.start(session(projectId("A")));
         registry.clear();
-        assertNull(registry.current());
+        assertNull(registry.find(projectId("A")));
     }
 
     @Test
@@ -72,6 +72,6 @@ class DebugSessionRegistryTest {
         var registry = registry();
         registry.start(session(projectId("A")));
         registry.onWorkspaceReset(new WorkspaceResetEvent(this));
-        assertNull(registry.current());
+        assertNull(registry.find(projectId("A")));
     }
 }

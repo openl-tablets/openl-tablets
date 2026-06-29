@@ -45,10 +45,6 @@ public class DebugSessionRegistry {
         return session;
     }
 
-    public @Nullable DebugSession current() {
-        return ref.get();
-    }
-
     /** The active session if it belongs to the given project, otherwise {@code null}. */
     public @Nullable DebugSession find(ProjectIdModel projectId) {
         DebugSession session = ref.get();

@@ -51,6 +51,24 @@ describe('traceStore race hardening', () => {
 
         expect(useTraceStore.getState().selectedFrameIndex).toBe(1)
         expect(useTraceStore.getState().variables).toBe(vars1)
+        expect(useTraceStore.getState().variablesLoading).toBe(false)
+    })
+
+    it('clears the variables spinner when the session terminates mid-fetch', async () => {
+        const slowFrame = deferred<any>()
+        getVariables.mockReturnValue(slowFrame.promise)
+
+        useTraceStore.setState({ status: 'SUSPENDED', stackVersion: 1, selectedFrameIndex: 0 })
+        const pending = useTraceStore.getState().selectFrame(0) // parks with variablesLoading=true
+
+        // The worker finishes (or errors/terminates) while the variables fetch is still in flight.
+        useTraceStore.getState().onSocketStatus('COMPLETED')
+        slowFrame.resolve({ parameters: [], steps: [], errors: [] } as any)
+        await pending
+
+        const state = useTraceStore.getState()
+        expect(state.variablesLoading).toBe(false) // no spinner stuck on a finished session
+        expect(state.variables).toBeNull() // the stale frame's variables are dropped
     })
 
     it('drops variables fetched against a superseded suspension', async () => {
