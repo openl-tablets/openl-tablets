@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
-public class TablePartsTest {
+class TablePartsTest {
 
     public interface ITestI {
         String bigLookup(String code, int amt);
@@ -16,7 +16,7 @@ public class TablePartsTest {
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         SimpleProjectEngineFactoryBuilder<ITestI> factoryBuilder = new SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<ITestI> factory = factoryBuilder.setProject("src/main/openl")
                 .setInterfaceClass(ITestI.class)

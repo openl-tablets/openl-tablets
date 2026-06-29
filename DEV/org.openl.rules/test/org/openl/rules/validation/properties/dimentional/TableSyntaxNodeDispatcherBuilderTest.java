@@ -11,10 +11,10 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 
-public class TableSyntaxNodeDispatcherBuilderTest {
+class TableSyntaxNodeDispatcherBuilderTest {
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         MatchingOpenMethodDispatcher dispatcher = mock(MatchingOpenMethodDispatcher.class);
         RulesModuleBindingContext context = mock(RulesModuleBindingContext.class);
         XlsModuleOpenClass moduleOpenClass = mock(XlsModuleOpenClass.class);
@@ -25,7 +25,7 @@ public class TableSyntaxNodeDispatcherBuilderTest {
     }
 
     @Test
-    public void testNull() {
+    void testNull() {
         try {
             new TableSyntaxNodeDispatcherBuilder(null, null, null);
             fail("Exception should be thrown");

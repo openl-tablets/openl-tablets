@@ -12,23 +12,23 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class String2CalendarConvertorTest {
+class String2CalendarConvertorTest {
 
     private Locale defaultLocale;
 
     @BeforeEach
-    public void setupLocale() {
+    void setupLocale() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
     }
 
     @AfterEach
-    public void restoreLocale() {
+    void restoreLocale() {
         Locale.setDefault(defaultLocale);
     }
 
     @Test
-    public void testParse() {
+    void testParse() {
         Calendar time = Calendar.getInstance();
         time.setTime(new Date(114, 5, 17));
         String2CalendarConvertor converter = new String2CalendarConvertor();
@@ -37,7 +37,7 @@ public class String2CalendarConvertorTest {
     }
 
     @Test
-    public void testParseByPattern() {
+    void testParseByPattern() {
         Calendar time = Calendar.getInstance();
         time.setTime(new Date(114, 5, 17));
         String2CalendarConvertor converter = new String2CalendarConvertor();
@@ -46,7 +46,7 @@ public class String2CalendarConvertorTest {
     }
 
     @Test
-    public void testParseEmpty() {
+    void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2CalendarConvertor converter = new String2CalendarConvertor();
             converter.parse("", null);
@@ -54,7 +54,7 @@ public class String2CalendarConvertorTest {
     }
 
     @Test
-    public void testParseWrongValue() {
+    void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2CalendarConvertor converter = new String2CalendarConvertor();
             converter.parse("Kin-Dza-Dza", null);
@@ -62,7 +62,7 @@ public class String2CalendarConvertorTest {
     }
 
     @Test
-    public void testParseNull() {
+    void testParseNull() {
         String2CalendarConvertor converter = new String2CalendarConvertor();
         assertNull(converter.parse(null, null));
     }

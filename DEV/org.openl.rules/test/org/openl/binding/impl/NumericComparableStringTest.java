@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class NumericComparableStringTest {
+class NumericComparableStringTest {
 
     @Test
-    public void testIncrementAndGet() {
+    void testIncrementAndGet() {
         NumericComparableString actual = increment("06400");
         assertEquals(0, actual.compareTo(NumericComparableString.valueOf("06401")));
         assertEquals("06401", actual.toString());
@@ -87,7 +87,7 @@ public class NumericComparableStringTest {
     }
 
     @Test
-    public void testCompare() {
+    void testCompare() {
 
         assertTrue(compare("A07B", "A7A") > 0);
         assertTrue(compare("A07B", "A07A") > 0);

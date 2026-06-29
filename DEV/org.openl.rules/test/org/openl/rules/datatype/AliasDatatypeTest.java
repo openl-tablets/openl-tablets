@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.TestUtils;
 import org.openl.rules.helpers.IntRange;
 
-public class AliasDatatypeTest {
+class AliasDatatypeTest {
 
     private static final String SRC = "test/rules/datatype/AliasDatatypeTest.xlsx";
 
@@ -41,7 +41,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test1() {
+    void test1() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.test1("CA");
@@ -49,7 +49,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test11() {
+    void test11() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.testStringAliasType("CA");
@@ -57,7 +57,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         assertThrows(RuntimeException.class, () -> {
 
             ITest instance = TestUtils.create(SRC, ITest.class);
@@ -66,7 +66,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test3() {
+    void test3() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.test2(1);
@@ -74,7 +74,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test31() {
+    void test31() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.testIntAliasType(1);
@@ -82,7 +82,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test4() {
+    void test4() {
         assertThrows(Exception.class, () -> {
 
             ITest instance = TestUtils.create(SRC, ITest.class);
@@ -91,7 +91,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test41() {
+    void test41() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.testIntRangeAliasType2(15);
@@ -102,7 +102,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test5() {
+    void test5() {
         assertThrows(RuntimeException.class, () -> {
 
             ITest instance = TestUtils.create(SRC, ITest.class);
@@ -111,7 +111,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test6() {
+    void test6() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.method2();
@@ -119,7 +119,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test7() {
+    void test7() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         boolean res = instance.method3(5);
@@ -130,7 +130,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void test8() {
+    void test8() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         String res = instance.method4("New York");
@@ -141,7 +141,7 @@ public class AliasDatatypeTest {
     }
 
     @Test
-    public void testArrays() {
+    void testArrays() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
         int res = instance.testAliasTypeAsArrays("AR");

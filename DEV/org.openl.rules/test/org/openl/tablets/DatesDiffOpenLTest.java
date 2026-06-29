@@ -12,13 +12,13 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.util.Dates;
 import org.openl.util.DateTool;
 
-public class DatesDiffOpenLTest {
+class DatesDiffOpenLTest {
 
     private static final String SRC = "test/rules/DateDifference.xls";
     private IDateDifferenceTest instance;
 
     @BeforeEach
-    public void initEngine() {
+    void initEngine() {
         RulesEngineFactory<IDateDifferenceTest> engineFactory = new RulesEngineFactory<>(SRC,
                 IDateDifferenceTest.class);
 
@@ -27,7 +27,7 @@ public class DatesDiffOpenLTest {
 
     // ------------Testing via Openl-------------------
     @Test
-    public void testViaRule1() throws Exception {
+    void testViaRule1() throws Exception {
         Date startDate = getDate("01/01/1969");
 
         Date endDate = getDate("02/08/2010");
@@ -37,7 +37,7 @@ public class DatesDiffOpenLTest {
     }
 
     @Test
-    public void testViaRule2() throws Exception {
+    void testViaRule2() throws Exception {
         Date startDate = getDate("01/01/1960");
 
         Date endDate = getDate("02/08/2010");
@@ -47,7 +47,7 @@ public class DatesDiffOpenLTest {
     }
 
     @Test
-    public void testViaRule3() throws Exception {
+    void testViaRule3() throws Exception {
         Date startDate = getDate("01/01/1970");
 
         Date endDate = getDate("02/08/2010");
@@ -57,7 +57,7 @@ public class DatesDiffOpenLTest {
     }
 
     @Test
-    public void testMonthDiff() throws Exception {
+    void testMonthDiff() throws Exception {
         Date startDate = getDate("01/01/1970");
 
         Date endDate = getDate("02/08/2010");

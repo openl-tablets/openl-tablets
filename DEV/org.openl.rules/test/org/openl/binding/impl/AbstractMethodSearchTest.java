@@ -19,13 +19,13 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 
-public abstract class AbstractMethodSearchTest {
+abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
     static ICastFactory castFactory;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         castFactory = CastFactory.create();
     }
 

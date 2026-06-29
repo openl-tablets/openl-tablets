@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 
-public class MethodSearchTest extends AbstractMethodSearchTest {
+class MethodSearchTest extends AbstractMethodSearchTest {
 
     @Test
-    public void testMethodChoosing() throws AmbiguousMethodException {
+    void testMethodChoosing() throws AmbiguousMethodException {
         assertInvoke("M1", ClassWithMethods.class, "method1", int.class, double.class);
         assertInvoke("M1", ClassWithMethods.class, "method1", int.class, int.class);
         assertInvoke("M2", ClassWithMethods.class, "method1", byte.class, byte.class);
@@ -34,7 +34,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testMethodChoosingWithGenerics() throws AmbiguousMethodException {
+    void testMethodChoosingWithGenerics() throws AmbiguousMethodException {
         assertInvoke("M6", ClassWithGenerics.class, "method1", String.class, String.class);
         assertInvoke("M6", ClassWithGenerics.class, "method1", int.class, short.class);
         assertInvoke("M6", ClassWithGenerics.class, "method1", Byte.class, Long.class);
@@ -72,7 +72,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testMethodChoosingWithNulls() throws AmbiguousMethodException {
+    void testMethodChoosingWithNulls() throws AmbiguousMethodException {
         assertInvoke("M9", ForthClassWithMethods.class, "method1", new Class[]{null, null});
         assertInvoke("M8", ForthClassWithMethods.class, "method1", int.class, null);
         assertInvoke("M9", ForthClassWithMethods.class, "method1", String.class, null);
@@ -81,7 +81,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testMethodChoosingWithNullsVarArgs() throws AmbiguousMethodException {
+    void testMethodChoosingWithNullsVarArgs() throws AmbiguousMethodException {
         assertInvoke("M12", ForthClassWithMethods.class, "method3");
         assertInvoke("M13", ForthClassWithMethods.class, "method4", Integer.class);
         assertNotFound(ForthClassWithMethods.class, "method5");

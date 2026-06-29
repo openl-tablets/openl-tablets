@@ -21,10 +21,10 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author snshor
  */
-public class OpenlToolTest {
+class OpenlToolTest {
 
     @Test
-    public void testMakeMethod() {
+    void testMakeMethod() {
         OpenL openl = OpenL.getInstance();
         String name = "abc";
         IMethodSignature signature = IMethodSignature.VOID;

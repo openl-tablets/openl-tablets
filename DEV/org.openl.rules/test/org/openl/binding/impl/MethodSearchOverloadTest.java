@@ -33,7 +33,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
  * <li>boxed -> primitives</li>
  * </ul>
  */
-public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
+class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     private static final Class<?> target = OverloadedMethods.class;
     private static final Class<?>[] primitives = new Class[]{byte.class,
             short.class,
@@ -73,7 +73,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             Character[].class};
 
     @Test
-    public void testSearch() throws AmbiguousMethodException {
+    void testSearch() throws AmbiguousMethodException {
         assertMethod(target, "m0_prim", primitives, "int", "int", "int", "float", "float", NF);
         assertMethod(target, "m0_prim", boxed, "int", "int", "int", "float", "float", NF, NF, NF);
         assertMethod(target, "m0_prim", nonNumbers, NF, "int", NF, "int");
@@ -112,7 +112,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testExpandPrimitives() throws AmbiguousMethodException {
+    void testExpandPrimitives() throws AmbiguousMethodException {
         assertMethod(target, "_byte", primitives, "byte", NF, NF, NF, NF, NF);
         assertMethod(target, "_byte", boxed, "byte", NF, NF, NF, NF, NF, NF, NF);
         assertMethod(target, "_byte", nonNumbers, NF, NF, NF, NF);
@@ -147,7 +147,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testExpandBoxed() throws AmbiguousMethodException {
+    void testExpandBoxed() throws AmbiguousMethodException {
         assertMethod(target, "_Byte", primitives, "Byte", NF, NF, NF, NF, NF);
         assertMethod(target, "_Byte", boxed, "Byte", NF, NF, NF, NF, NF, NF, NF);
         assertMethod(target, "_Byte", nonNumbers, NF, NF, NF, NF);
@@ -218,7 +218,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testOneArgument() throws AmbiguousMethodException {
+    void testOneArgument() throws AmbiguousMethodException {
         assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
         assertMethod(target,
                 "m1",
@@ -235,7 +235,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testOneArgument2() throws AmbiguousMethodException {
+    void testOneArgument2() throws AmbiguousMethodException {
         assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
         assertMethod(target,
                 "m1",
@@ -252,7 +252,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testTwoArguments() throws AmbiguousMethodException {
+    void testTwoArguments() throws AmbiguousMethodException {
         assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,
                 "m2",
@@ -354,7 +354,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testVarArguments() throws AmbiguousMethodException {
+    void testVarArguments() throws AmbiguousMethodException {
         assertMethod("Integer", target, "vararg", Integer.class);
         assertMethod("Integer", target, "vararg", int.class);
         assertMethod("Integer", target, "vararg", Short.class);
@@ -418,7 +418,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testGenerics() throws AmbiguousMethodException {
+    void testGenerics() throws AmbiguousMethodException {
         assertMethod("Collection", target, "gen", Set.class);
         assertMethod("GenericInteger", target, "gen", int.class);
         assertMethod("Collection", target, "gen", Collection.class);
@@ -431,7 +431,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testGenericsVararg() throws AmbiguousMethodException {
+    void testGenericsVararg() throws AmbiguousMethodException {
         assertMethod(target,
                 "singleGenVararg",
                 primitives,

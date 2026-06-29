@@ -14,7 +14,7 @@ import org.openl.types.impl.ComponentTypeArrayOpenClass;
 /**
  * @author DLiauchuk
  */
-public class DatatypeOpenClassTest {
+class DatatypeOpenClassTest {
 
     private final static String DEFAULT_PACKAGE = "default.test";
     private final static String DEFAULT_NAME = "DatatypeTest";
@@ -33,12 +33,12 @@ public class DatatypeOpenClassTest {
     }
 
     @BeforeEach
-    public void setUp() throws ClassNotFoundException {
+    void setUp() throws ClassNotFoundException {
         from = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.X"));
     }
 
     @Test
-    public void testEquals() throws ClassNotFoundException {
+    void testEquals() throws ClassNotFoundException {
         DatatypeOpenClass doc1 = buildDatatypeOpenClass(DEFAULT_NAME, DEFAULT_PACKAGE);
         doc1.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
 
@@ -83,13 +83,13 @@ public class DatatypeOpenClassTest {
     }
 
     @Test
-    public void testEquals_ComponentTypeArrayOpenClass_componentClassWithDiffPackages() throws ClassNotFoundException {
+    void testEquals_ComponentTypeArrayOpenClass_componentClassWithDiffPackages() throws ClassNotFoundException {
         IOpenClass to = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.Y"));
         assertNotEquals(from, to);
     }
 
     @Test
-    public void testEquals_ComponentTypeArrayOpenClass_componentClassWithSamePackages() throws ClassNotFoundException {
+    void testEquals_ComponentTypeArrayOpenClass_componentClassWithSamePackages() throws ClassNotFoundException {
         DatatypeOpenClass datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.X");
         IOpenClass to = new ComponentTypeArrayOpenClass(datatypeOpenClass);
         assertNotEquals(from, to);
@@ -100,7 +100,7 @@ public class DatatypeOpenClassTest {
     }
 
     @Test
-    public void test_toString() {
+    void test_toString() {
         assertEquals("[Lorg.openl.generated.X.MyType;", from.toString());
     }
 }

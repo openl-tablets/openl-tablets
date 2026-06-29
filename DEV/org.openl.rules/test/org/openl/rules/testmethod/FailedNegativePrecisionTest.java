@@ -7,19 +7,19 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class FailedNegativePrecisionTest {
+class FailedNegativePrecisionTest {
 
     private static final String FILE_NAME = "test/rules/testmethod/NegativePrecitionInTests_mustBeFailed.xlsx";
 
     private INegativePrecision instance;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         instance = TestUtils.create(FILE_NAME, INegativePrecision.class);
     }
 
     @Test
-    public void testFloatNumbersNegativePrecision1_mustBeFailed() {
+    void testFloatNumbersNegativePrecision1_mustBeFailed() {
         TestUnitsResults result = instance.testFloatNumbersNegativePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
         assertAllFailed(result.getTestUnits().getFirst());
@@ -29,7 +29,7 @@ public class FailedNegativePrecisionTest {
     }
 
     @Test
-    public void testPositivePrecision1_mustBeFailed() {
+    void testPositivePrecision1_mustBeFailed() {
         TestUnitsResults result = instance.testPositivePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
         assertAllFailed(result.getTestUnits().getFirst());
@@ -39,7 +39,7 @@ public class FailedNegativePrecisionTest {
     }
 
     @Test
-    public void testNegativePrecision1_mustBeFailed() {
+    void testNegativePrecision1_mustBeFailed() {
         TestUnitsResults result = instance.testNegativePrecision1_mustBeFailed();
         assertEquals(1, result.getNumberOfFailures());
         ITestUnit testUnit = result.getTestUnits().getFirst();

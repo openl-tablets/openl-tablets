@@ -14,10 +14,10 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class TestTBasicVM {
+class TestTBasicVM {
 
     @Test
-    public void test1() {
+    void test1() {
         List<RuntimeOperation> operations = new ArrayList<>();
         Map<String, RuntimeOperation> labels = new HashMap<>();
 

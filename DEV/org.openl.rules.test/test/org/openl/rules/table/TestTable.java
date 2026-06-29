@@ -12,9 +12,9 @@ import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 
-public class TestTable {
+class TestTable {
     @Test
-    public void canRetrieveTestSuiteForIncorrectFieldArrayAccess() throws Exception {
+    void canRetrieveTestSuiteForIncorrectFieldArrayAccess() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
                 .setExecutionMode(false)

@@ -17,7 +17,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 
-public class AbstractS3Test {
+class AbstractS3Test {
 
     private static final S3MockContainer S3_CONTAINER = new S3MockContainer("latest");
 
@@ -27,7 +27,7 @@ public class AbstractS3Test {
     protected String bucketName;
 
     @BeforeAll
-    public static void initialize() {
+    static void initialize() {
         S3_CONTAINER.start();
 
         s3Client = S3Client.builder()
@@ -42,12 +42,12 @@ public class AbstractS3Test {
     }
 
     @AfterAll
-    public static void destroy() {
+    static void destroy() {
         S3_CONTAINER.stop();
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         bucketName = "openl-test-" + System.currentTimeMillis();
         config = new HashMap<>();
         config.put("production-repository.factory", "repo-aws-s3");

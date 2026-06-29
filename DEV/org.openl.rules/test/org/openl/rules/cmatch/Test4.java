@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class Test4 {
+class Test4 {
     @Test
-    public void test1() {
+    void test1() {
 
         ITest4 test = TestUtils.create("test/rules/cmatch1/match4-1.xls", ITest4.class);
 
@@ -21,17 +21,17 @@ public class Test4 {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         TestUtils.assertEx("test/rules/cmatch1/match4-2.xls", "Sub node are prohibited here.", "cell=B8");
     }
 
     @Test
-    public void test3() {
+    void test3() {
         TestUtils.assertEx("test/rules/cmatch1/match4-3.xls", "Cannot convert an empty string to a number.", "cell=F6");
     }
 
     @Test
-    public void test4() {
+    void test4() {
         TestUtils.assertEx("test/rules/cmatch1/match4-4.xls",
                 "Score algorithm supports int or Integer return type only.",
                 "range=B3:M10");

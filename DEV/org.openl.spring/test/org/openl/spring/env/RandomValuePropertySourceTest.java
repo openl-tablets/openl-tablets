@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class RandomValuePropertySourceTest {
 
     @Test
-    public void test() {
+    void test() {
         var source = new RandomValuePropertySource();
         assertNotNull(source.getProperty("random.uuid"));
         assertNotNull(source.getProperty("random.int"));

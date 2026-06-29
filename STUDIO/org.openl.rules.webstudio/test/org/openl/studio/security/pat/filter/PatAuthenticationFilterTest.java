@@ -47,7 +47,7 @@ import org.openl.studio.security.pat.service.PatAuthService;
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class PatAuthenticationFilterTest {
+class PatAuthenticationFilterTest {
 
     // Valid test tokens matching PatToken format requirements (16 char publicId, 32 char secret)
     private static final String TEST_PUBLIC_ID = "abc123DEF4567890"; // 16 Base62 chars
@@ -71,7 +71,7 @@ public class PatAuthenticationFilterTest {
     private MockHttpServletResponse response;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         filter = new PatAuthenticationFilter(patAuthService, securityContextHolderStrategy);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -83,7 +83,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_ValidToken() throws ServletException, IOException {
+    void testDoFilter_ValidToken() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -112,7 +112,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_NoAuthorizationHeader() throws ServletException, IOException {
+    void testDoFilter_NoAuthorizationHeader() throws ServletException, IOException {
         // Arrange - no Authorization header
 
         // Act
@@ -127,7 +127,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_AuthorizationHeaderWithoutTokenPrefix() throws ServletException, IOException {
+    void testDoFilter_AuthorizationHeaderWithoutTokenPrefix() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer some-bearer-token");
 
@@ -143,7 +143,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_InvalidTokenFormat() throws ServletException, IOException {
+    void testDoFilter_InvalidTokenFormat() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token invalid-token-format");
 
@@ -160,7 +160,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_ValidFormatButInvalidToken() throws ServletException, IOException {
+    void testDoFilter_ValidFormatButInvalidToken() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -181,7 +181,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_ExpiredToken() throws ServletException, IOException {
+    void testDoFilter_ExpiredToken() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -202,7 +202,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_RevokedToken() throws ServletException, IOException {
+    void testDoFilter_RevokedToken() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -222,7 +222,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_TokenWithWhitespace() throws ServletException, IOException {
+    void testDoFilter_TokenWithWhitespace() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token   " + TEST_TOKEN_VALUE + "   ");
 
@@ -247,7 +247,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_ExistingAuthenticationSameUser() throws ServletException, IOException {
+    void testDoFilter_ExistingAuthenticationSameUser() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -285,7 +285,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_ExistingAuthenticationDifferentUser() throws ServletException, IOException {
+    void testDoFilter_ExistingAuthenticationDifferentUser() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -324,7 +324,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_AnonymousAuthentication() throws ServletException, IOException {
+    void testDoFilter_AnonymousAuthentication() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -362,7 +362,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_UnauthenticatedExistingAuth() throws ServletException, IOException {
+    void testDoFilter_UnauthenticatedExistingAuth() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
@@ -398,7 +398,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testAuthenticationIsRequired_NoExistingAuth() {
+    void testAuthenticationIsRequired_NoExistingAuth() {
         // Arrange
         when(securityContext.getAuthentication()).thenReturn(null);
 
@@ -410,7 +410,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testAuthenticationIsRequired_UnauthenticatedExistingAuth() {
+    void testAuthenticationIsRequired_UnauthenticatedExistingAuth() {
         // Arrange
         Authentication existingAuth = mock(Authentication.class);
         when(existingAuth.isAuthenticated()).thenReturn(false);
@@ -424,7 +424,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testAuthenticationIsRequired_AnonymousAuth() {
+    void testAuthenticationIsRequired_AnonymousAuth() {
         // Arrange
         AnonymousAuthenticationToken anonymousAuth = new AnonymousAuthenticationToken(
                 "key",
@@ -441,7 +441,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testAuthenticationIsRequired_SameUser() {
+    void testAuthenticationIsRequired_SameUser() {
         // Arrange
         UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
         Authentication existingAuth = new PatAuthenticationToken(
@@ -459,7 +459,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testAuthenticationIsRequired_DifferentUser() {
+    void testAuthenticationIsRequired_DifferentUser() {
         // Arrange
         UserDetails userDetails = createUserDetails("jdoe", "ROLE_USER");
         Authentication existingAuth = new PatAuthenticationToken(
@@ -477,7 +477,7 @@ public class PatAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilter_ParsedTokenPassedCorrectly() throws ServletException, IOException {
+    void testDoFilter_ParsedTokenPassedCorrectly() throws ServletException, IOException {
         // Arrange - Test that token is parsed correctly and passed to service
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 

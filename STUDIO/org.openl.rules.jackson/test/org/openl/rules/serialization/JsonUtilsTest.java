@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
 
-public class JsonUtilsTest {
+class JsonUtilsTest {
 
     @Test
-    public void defaultJacksonObjectMapperTest(){
+    void defaultJacksonObjectMapperTest(){
         assertNotEquals(
                 JsonUtils.getDefaultJacksonObjectMapper(),
                 JsonUtils.getDefaultJacksonObjectMapper(),
@@ -26,7 +26,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void spreadsheetResultTest() throws Exception {
+    void spreadsheetResultTest() throws Exception {
 
         String[] columnNames = new String[]{"Column1", "Column2"};
         String[] rowNames = new String[]{"Row1", "Row2"};
@@ -60,7 +60,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void toJSONTest() throws JsonProcessingException {
+    void toJSONTest() throws JsonProcessingException {
         assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null)));
         assertEquals("{\"model\":\"BMW\",\"year\":null}",
                 JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class}));
@@ -69,7 +69,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void fromJSONTest() throws IOException {
+    void fromJSONTest() throws IOException {
         final Car expected = new Car("BMW", null);
         assertEquals(expected, JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class));
         assertEquals(expected,
@@ -82,7 +82,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void splitJSONTest() throws IOException {
+    void splitJSONTest() throws IOException {
         Map<String, String> actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}");
         assertNotNull(actual);
         assertEquals(2, actual.size());
@@ -153,14 +153,14 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void getObjectMapperTest_notNull() {
+    void getObjectMapperTest_notNull() {
         KeyClass key = new KeyClass("Project1");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         assertNotNull(objectMapper1);
     }
 
     @Test
-    public void getObjectMapperTest_Cached() {
+    void getObjectMapperTest_Cached() {
         KeyClass key = new KeyClass("Project2");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         assertNotNull(objectMapper1);
@@ -170,7 +170,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void getObjectMapperTest_GC_keep() {
+    void getObjectMapperTest_GC_keep() {
         KeyClass key = new KeyClass("Project3");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         Runtime rt = Runtime.getRuntime();
@@ -185,7 +185,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void getObjectMapperTest_GC_no_longer() {
+    void getObjectMapperTest_GC_no_longer() {
         KeyClass key = new KeyClass("Project4");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         Runtime rt = Runtime.getRuntime();
@@ -202,7 +202,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void splitJSONTest_CachedObjectMapper() throws IOException {
+    void splitJSONTest_CachedObjectMapper() throws IOException {
         KeyClass key = new KeyClass("Project4");
         ObjectMapper objectMapper = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
         Map<String, String> actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}", objectMapper);

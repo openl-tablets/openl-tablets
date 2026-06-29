@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class DimensionalPropValidTest extends BaseOpenlBuilderHelper {
+class DimensionalPropValidTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/validation/Dimensional_Prop_Valid.xls";
 
@@ -15,7 +15,7 @@ public class DimensionalPropValidTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void checkTsnNumber() {
+    void checkTsnNumber() {
         // number of tsns consider to be 6 tables defined in rule source file.
         // and 2 extra tables generated for dimensional properties for overriden
         // tables.

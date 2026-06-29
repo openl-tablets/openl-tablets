@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class ArrayLoadTest {
+class ArrayLoadTest {
 
     @Test
-    public void testMultiRowArrayLoad() {
+    void testMultiRowArrayLoad() {
         ITestI instance = TestUtils.create("test/rules/dt/MultiRowArrayLoadTest.xls", ITestI.class);
 
         String s = instance.hello1(0);

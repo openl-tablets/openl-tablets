@@ -19,7 +19,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
-public class TablePropertiesTest extends BaseOpenlBuilderHelper {
+class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     private static final String PROPERTY_ACTIVE = "active";
 
@@ -102,7 +102,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testPropertyDef() {
+    void testPropertyDef() {
         TableSyntaxNode[] tsns = getTableSyntaxNodes();
         assertEquals(61, tsns.length);
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
@@ -112,7 +112,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testGetValueAsString() {
+    void testGetValueAsString() {
         String result;
         String propertyNameValue = "MyName";
         result = getPropertyValueAsString(PROPERTY_NAME, propertyNameValue);
@@ -129,7 +129,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testInheritanceProperties() {
+    void testInheritanceProperties() {
         TableProperties tableProperties = initProperties();
 
         Map<String, Object> allProperties = tableProperties.getAllProperties();
@@ -154,7 +154,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testPropertiesLevelDefinedOn() {
+    void testPropertiesLevelDefinedOn() {
         TableProperties tableProperties = initProperties();
 
         // checks that property PROPERTY_NAME is defined on TABLE level.

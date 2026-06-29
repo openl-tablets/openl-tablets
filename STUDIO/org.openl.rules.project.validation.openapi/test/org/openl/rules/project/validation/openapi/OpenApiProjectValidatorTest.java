@@ -9,14 +9,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public final class OpenApiProjectValidatorTest {
+final class OpenApiProjectValidatorTest {
 
     public static final String DIR = "test-resources/functionality/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
     @BeforeEach
-    public void setupLocale() {
+    void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
         Locale.setDefault(Locale.US);
@@ -24,13 +24,13 @@ public final class OpenApiProjectValidatorTest {
     }
 
     @AfterEach
-    public void restoreLocale() {
+    void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 
     @Test
-    public void testOpenApiValidator() {
+    void testOpenApiValidator() {
         final RulesInFolderTestRunnerWithOpenApiValidator rulesInFolderTestRunnerWithOpenApiValidator = new RulesInFolderTestRunnerWithOpenApiValidator(
                 false,
                 false);

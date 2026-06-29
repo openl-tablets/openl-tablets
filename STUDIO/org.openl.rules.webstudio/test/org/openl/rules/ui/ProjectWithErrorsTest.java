@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.rules.project.resolving.ProjectResolver;
 
-public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
+class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     private static final String SHEET_NAME = "Test";
     private static final String MAIN_MODULE_FILE_NAME = "MainModule.xls";
     private ProjectModel pm;
@@ -28,7 +28,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     }
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         createMainModule();
 
         WebStudio ws = mock(WebStudio.class);
@@ -40,7 +40,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
     @MethodSource("data")
     @ParameterizedTest(name = "singleModuleMode: {0}")
-    public void testTypesAndTestMethodsCount(boolean singleModuleMode) {
+    void testTypesAndTestMethodsCount(boolean singleModuleMode) {
         initProjectWithErrorsTest(singleModuleMode);
         assertTrue(pm.getCompiledOpenClass().hasErrors());
 

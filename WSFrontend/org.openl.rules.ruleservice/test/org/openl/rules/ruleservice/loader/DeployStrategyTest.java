@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class DeployStrategyTest {
+class DeployStrategyTest {
 
     @Test
-    public void testFromString() {
+    void testFromString() {
         assertEquals(DeployStrategy.IF_ABSENT, DeployStrategy.fromString("IF_ABSENT"));
         assertEquals(DeployStrategy.IF_ABSENT, DeployStrategy.fromString("true"));
         assertEquals(DeployStrategy.NEVER, DeployStrategy.fromString(null));

@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.exception.OpenLRuntimeException;
 
-public class MatchExpressionTest {
+class MatchExpressionTest {
 
     @Test
-    public void testMatchExpressionLE() {
+    void testMatchExpressionLE() {
         String operationTest = "<=";
 
         String operationNameTest = LEMatchingExpression.OPERATION_NAME;
@@ -19,7 +19,7 @@ public class MatchExpressionTest {
     }
 
     @Test
-    public void testMatchExpressionGT() {
+    void testMatchExpressionGT() {
         String operationTest = ">=";
 
         String operationNameTest = GTMatchingExpression.OPERATION_NAME;
@@ -28,7 +28,7 @@ public class MatchExpressionTest {
     }
 
     @Test
-    public void testMatchExpressionEQ() {
+    void testMatchExpressionEQ() {
         String operationTest = "==";
 
         String operationNameTest = EQMatchingExpression.OPERATION_NAME;
@@ -37,7 +37,7 @@ public class MatchExpressionTest {
     }
 
     @Test
-    public void testMatchExpressionContains() {
+    void testMatchExpressionContains() {
         String operationTest = "==";
 
         String operationNameTest = ContainsMatchingExpression.OPERATION_NAME;
@@ -46,7 +46,7 @@ public class MatchExpressionTest {
     }
 
     @Test
-    public void testUnknownMatchExpression() {
+    void testUnknownMatchExpression() {
         String operationTest = "unknown";
 
         String operationNameTest = "unknownOperation";

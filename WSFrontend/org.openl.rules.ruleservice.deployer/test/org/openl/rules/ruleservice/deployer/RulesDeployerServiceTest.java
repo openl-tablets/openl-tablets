@@ -45,7 +45,7 @@ import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 
 @Disabled
-public class RulesDeployerServiceTest {
+class RulesDeployerServiceTest {
 
     private static final String MULTIPLE_DEPLOYMENT = "multiple-deployment.zip";
     private static final String SINGLE_DEPLOYMENT = "single-deployment.zip";
@@ -59,7 +59,7 @@ public class RulesDeployerServiceTest {
     private ArgumentCaptor<FileChangesFromZip> fileChangesFromZipCaptor;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         fileDataCaptor = forClass(FileData.class);
         streamCaptor = forClass(InputStream.class);
         fileChangesFromZipCaptor = forClass(FileChangesFromZip.class);
@@ -73,7 +73,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_singleDeployment() throws Exception {
+    void test_deploy_singleDeployment() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
@@ -82,7 +82,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_singleDeployment_whenFoldersSupports() throws Exception {
+    void test_deploy_singleDeployment_whenFoldersSupports() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
@@ -95,7 +95,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_singleDeployment_with_custom_name() throws Exception {
+    void test_deploy_singleDeployment_with_custom_name() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy("customName", is, true);
@@ -104,7 +104,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_without_description() throws Exception {
+    void test_deploy_without_description() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(NO_NAME_DEPLOYMENT)) {
             deployer.deploy("customName", is, true);
@@ -115,7 +115,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_multideploy_without_name() throws Exception {
+    void test_multideploy_without_name() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
@@ -127,7 +127,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_singleDeployment_whenNotOverridable() throws Exception {
+    void test_deploy_singleDeployment_whenNotOverridable() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
@@ -136,7 +136,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_singleDeployment_whenNotOverridableAndDeployedAlready() throws Exception {
+    void test_deploy_singleDeployment_whenNotOverridableAndDeployedAlready() throws Exception {
         init(Repository.class, false);
         when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
@@ -146,7 +146,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_singleDeployment_whenOverridableAndDeployedAlready() throws Exception {
+    void test_deploy_singleDeployment_whenOverridableAndDeployedAlready() throws Exception {
         init(Repository.class, false);
         when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
@@ -165,7 +165,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_deploy_multipleDeployment() throws Exception {
+    void test_deploy_multipleDeployment() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(MULTIPLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
@@ -177,7 +177,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testRead() throws IOException {
+    void testRead() throws IOException {
         init(Repository.class, false);
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         when(mockedDeployRepo.read(baseDeploymentPath + "project1"))
@@ -195,7 +195,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testRead2() throws IOException {
+    void testRead2() throws IOException {
         init(Repository.class, false);
         when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2"))
                 .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
@@ -216,7 +216,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_EPBDS_10894() throws Exception {
+    void test_EPBDS_10894() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy(is, true);
@@ -225,7 +225,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void test_EPBDS_10894_CustomName_mustNotApplied() throws Exception {
+    void test_EPBDS_10894_CustomName_mustNotApplied() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
@@ -234,7 +234,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws Exception {
+    void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws Exception {
         init(Repository.class, true);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
@@ -245,7 +245,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testMultiDeploymentFolderSupport_NoDeploymentName() throws Exception {
+    void testMultiDeploymentFolderSupport_NoDeploymentName() throws Exception {
         init(Repository.class, true);
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
@@ -256,7 +256,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testWrongFile() throws Exception {
+    void testWrongFile() throws Exception {
         init(Repository.class, true);
         try {
             deployer.deploy("customName-deployment", new ByteArrayInputStream("foo".getBytes()), true);

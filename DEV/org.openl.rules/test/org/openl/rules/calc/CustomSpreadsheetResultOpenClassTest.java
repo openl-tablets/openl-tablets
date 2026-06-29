@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class CustomSpreadsheetResultOpenClassTest {
+class CustomSpreadsheetResultOpenClassTest {
     @Test
-    public void test() {
+    void test() {
         CustomSpreadsheetResultOpenClass openClass = new CustomSpreadsheetResultOpenClass("CSR1",
                 null,
                 null,
@@ -20,7 +20,7 @@ public class CustomSpreadsheetResultOpenClassTest {
     }
 
     @Test
-    public void testIsAssignableFromNullOpenClass() {
+    void testIsAssignableFromNullOpenClass() {
         CustomSpreadsheetResultOpenClass openClass = new CustomSpreadsheetResultOpenClass("CSR1",
                 null,
                 null,

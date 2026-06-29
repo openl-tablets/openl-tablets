@@ -11,23 +11,23 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class NumbersTest {
+class NumbersTest {
     private static Locale defaultLocale;
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.GERMANY);
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         Locale.setDefault(defaultLocale);
     }
 
 
     @Test
-    public void toStringCheckNull() {
+    void toStringCheckNull() {
         assertNull(Numbers.toString(null));
         assertNull(Numbers.toString(null, ""));
         assertNull(Numbers.toString(1, null));
@@ -35,7 +35,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringForInteger() {
+    void toStringForInteger() {
         int number100 = 100;
         assertEquals("100", Numbers.toString(number100));
         assertEquals("0", Numbers.toString(0));
@@ -58,12 +58,12 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringCheckException() {
+    void toStringCheckException() {
         assertNull(Numbers.toString(10, "0.0.0"));
     }
 
     @Test
-    public void toStringDouble() {
+    void toStringDouble() {
         double number100dot5 = 100.5;
         assertEquals("100.5", Numbers.toString(number100dot5));
         assertEquals("NaN", Numbers.toString(Double.NaN));
@@ -102,7 +102,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringBigInteger() {
+    void toStringBigInteger() {
         BigInteger reallyBigValue = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(Long.MAX_VALUE));
         assertEquals("0", Numbers.toString(BigInteger.ZERO));
         assertEquals("1", Numbers.toString(BigInteger.ONE));
@@ -119,7 +119,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringBigDecimal() {
+    void toStringBigDecimal() {
         BigDecimal reallyBigValue = BigDecimal.valueOf(Long.MAX_VALUE).multiply(BigDecimal.valueOf(Long.MAX_VALUE));
         assertEquals("85070591730234615847396907784232501249", Numbers.toString(reallyBigValue));
         BigDecimal reallyBigValueWithPoint = reallyBigValue.divide(BigDecimal.valueOf(1000));
@@ -151,7 +151,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringByte() {
+    void toStringByte() {
         byte number = 124;
         byte negativeNumber = -124;
         assertEquals("124", Numbers.toString(number));
@@ -159,7 +159,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringShort() {
+    void toStringShort() {
         short number = 1025;
         short negativeNumber = -1240;
 
@@ -168,7 +168,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void testLong() {
+    void testLong() {
         long number = 1234567890123L;
         long negativeNumber = -1234567890123L;
 
@@ -178,7 +178,7 @@ public class NumbersTest {
     }
 
     @Test
-    public void toStringFloat() {
+    void toStringFloat() {
         float number100dot5 = 100.5f;
         assertEquals("100.5", Numbers.toString(number100dot5));
         assertEquals("NaN", Numbers.toString(Float.NaN));

@@ -20,13 +20,13 @@ import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
  * @author Vladyslav Pikus
  */
 @SpringJUnitConfig(classes = MockConfiguration.class)
-public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
+class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
 
     private NewBranchValidator validator;
     private BranchRepository branchRepository;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         branchRepository = mock(BranchRepository.class);
         when(branchRepository.isValidBranchName(any())).thenReturn(true);
         when(branchRepository.getBranches(null)).thenReturn(List.of());
@@ -34,7 +34,7 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void test_validate_basic() {
+    void test_validate_basic() {
         var result = validateAndGetResult(" ", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
@@ -72,7 +72,7 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void test_validate_repository() {
+    void test_validate_repository() {
         var branchName = "invalid_branch_name";
         when(branchRepository.isValidBranchName(branchName)).thenReturn(false);
 
@@ -83,7 +83,7 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void test_validate_repository_1() throws IOException {
+    void test_validate_repository_1() throws IOException {
         when(branchRepository.getBranches(null)).thenReturn(List.of("FoO"));
 
         var result = validateAndGetResult("foo", validator);
@@ -93,7 +93,7 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void test_validate_repository_2() throws IOException {
+    void test_validate_repository_2() throws IOException {
         when(branchRepository.getBranches(null)).thenReturn(List.of("foo"));
 
         var result = validateAndGetResult("foo/bar", validator);
@@ -106,13 +106,13 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void test_validate() {
+    void test_validate() {
         assertNull(validateAndGetResult("foo", validator));
         assertNull(validateAndGetResult("foo/bar", validator));
     }
 
     @Test
-    public void test_validate_customRegex() {
+    void test_validate_customRegex() {
         validator = new NewBranchValidator(branchRepository,
                 "^[a-z0-9_\\-]+$",
                 "Only lowercase letters, numbers, underscores and dashes are allowed.");
@@ -126,7 +126,7 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void test_validate_customRegex_noCustomMessage() {
+    void test_validate_customRegex_noCustomMessage() {
         validator = new NewBranchValidator(branchRepository, "^[a-z0-9_\\-]+$", null);
 
         var result = validateAndGetResult("FOOOO", validator);

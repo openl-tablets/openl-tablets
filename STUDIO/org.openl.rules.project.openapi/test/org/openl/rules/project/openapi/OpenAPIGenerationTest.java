@@ -35,7 +35,7 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
-public class OpenAPIGenerationTest {
+class OpenAPIGenerationTest {
 
     private final Logger log = LoggerFactory.getLogger("OpenAPI Project Generation Test");
 
@@ -50,7 +50,7 @@ public class OpenAPIGenerationTest {
     private TimeZone defaultTimeZone;
 
     @BeforeEach
-    public void setupLocale() {
+    void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
         Locale.setDefault(Locale.US);
@@ -58,13 +58,13 @@ public class OpenAPIGenerationTest {
     }
 
     @AfterEach
-    public void restoreLocale() {
+    void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 
     @Test
-    public void testAll() {
+    void testAll() {
         assertFalse(run(DIR), "Test is failed.");
     }
 

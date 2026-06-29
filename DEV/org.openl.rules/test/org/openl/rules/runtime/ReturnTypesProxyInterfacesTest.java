@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class ReturnTypesProxyInterfacesTest {
+class ReturnTypesProxyInterfacesTest {
 
     private static final String EXP_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
 
@@ -17,22 +17,22 @@ public class ReturnTypesProxyInterfacesTest {
     }
 
     @Test
-    public void testSameReturnType() {
+    void testSameReturnType() {
         assertEquals((Long) 1L, initInstance(SameReturnType.class).doSomething("1"));
     }
 
     @Test
-    public void testUpCastReturnType() {
+    void testUpCastReturnType() {
         assertEquals(1L, initInstance(UpCastReturnType.class).doSomething("1"));
     }
 
     @Test
-    public void testObjectReturnType() {
+    void testObjectReturnType() {
         assertEquals(1L, initInstance(ObjectReturnType.class).doSomething("1"));
     }
 
     @Test
-    public void testVoidReturnType() {
+    void testVoidReturnType() {
         try {
             initInstance(VoidReturnType.class);
         } catch (RuntimeException e) {
@@ -43,7 +43,7 @@ public class ReturnTypesProxyInterfacesTest {
     }
 
     @Test
-    public void testArrayReturnType() {
+    void testArrayReturnType() {
         try {
             initInstance(ArrayReturnType.class);
         } catch (RuntimeException e) {
@@ -54,7 +54,7 @@ public class ReturnTypesProxyInterfacesTest {
     }
 
     @Test
-    public void testCannotCastReturnType() {
+    void testCannotCastReturnType() {
         try {
             initInstance(CannotCastReturnType.class);
         } catch (RuntimeException e) {
@@ -65,7 +65,7 @@ public class ReturnTypesProxyInterfacesTest {
     }
 
     @Test
-    public void testLongArrayReturnType() {
+    void testLongArrayReturnType() {
         try {
             initInstance(LongArrayReturnType.class);
         } catch (RuntimeException e) {
@@ -76,19 +76,19 @@ public class ReturnTypesProxyInterfacesTest {
     }
 
     @Test
-    public void testPrimitiveLongArrayReturnType() {
+    void testPrimitiveLongArrayReturnType() {
         final long[] expected = new long[]{1, 2, 3};
         final long[] actual = initInstance(PrimitiveLongArrayReturnType.class).doArray();
         assertArraysEquals(expected, actual);
     }
 
     @Test
-    public void testVoidReturnTypeToVoid() {
+    void testVoidReturnTypeToVoid() {
         initInstance(VoidReturnTypeToVoid.class).voidMethod();
     }
 
     @Test
-    public void testVoidReturnTypeToInt() {
+    void testVoidReturnTypeToInt() {
         VoidReturnTypeToInt voidReturnTypeToInt = initInstance(VoidReturnTypeToInt.class);
         assertEquals(0, voidReturnTypeToInt.voidMethod());
     }

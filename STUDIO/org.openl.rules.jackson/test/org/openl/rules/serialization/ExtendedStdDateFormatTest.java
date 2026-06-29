@@ -18,17 +18,17 @@ import java.util.TimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ExtendedStdDateFormatTest {
+class ExtendedStdDateFormatTest {
 
     private ExtendedStdDateFormat df;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         df = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     }
 
     @Test
-    public void testFormat() {
+    void testFormat() {
         testFormat(df);
         testFormat(df.clone());
     }
@@ -41,7 +41,7 @@ public class ExtendedStdDateFormatTest {
     }
 
     @Test
-    public void testParse_defaultImplementation() throws ParseException {
+    void testParse_defaultImplementation() throws ParseException {
         testParse_defaultImplementation(df);
         testParse_defaultImplementation(df.clone());
     }
@@ -53,7 +53,7 @@ public class ExtendedStdDateFormatTest {
     }
 
     @Test
-    public void testParse_customDateFormat() throws ParseException {
+    void testParse_customDateFormat() throws ParseException {
         testParse_customDateFormat(df);
         testParse_customDateFormat(df.clone());
     }
@@ -71,7 +71,7 @@ public class ExtendedStdDateFormatTest {
      * {@code Z} yields different instants.
      */
     @Test
-    public void testParse_zuluHonoredWhenMillisPresent() throws ParseException {
+    void testParse_zuluHonoredWhenMillisPresent() throws ParseException {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
@@ -93,7 +93,7 @@ public class ExtendedStdDateFormatTest {
      * {@code +09:00} after the milliseconds is honored.
      */
     @Test
-    public void testParse_offsetHonoredWhenMillisPresent() throws ParseException {
+    void testParse_offsetHonoredWhenMillisPresent() throws ParseException {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
@@ -114,7 +114,7 @@ public class ExtendedStdDateFormatTest {
      * shape sent by real clients (see the {@code EPBDS-7947} integration test).
      */
     @Test
-    public void testParse_offsetWithoutColonHonoredWhenMillisPresent() throws ParseException {
+    void testParse_offsetWithoutColonHonoredWhenMillisPresent() throws ParseException {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
@@ -134,7 +134,7 @@ public class ExtendedStdDateFormatTest {
      * {@code StdDateFormat}, and the {@code Z} is honored.
      */
     @Test
-    public void testParse_zuluHonoredWhenNoMillis() throws ParseException {
+    void testParse_zuluHonoredWhenNoMillis() throws ParseException {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
@@ -154,7 +154,7 @@ public class ExtendedStdDateFormatTest {
      * change the no-zone behavior.
      */
     @Test
-    public void testParse_noZoneStillLocal() throws ParseException {
+    void testParse_noZoneStillLocal() throws ParseException {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
@@ -172,7 +172,7 @@ public class ExtendedStdDateFormatTest {
      * fields, so the overrides must keep the {@link ExtendedStdDateFormat} type and the configured pattern.
      */
     @Test
-    public void testWithMethodsKeepExtendedTypeAndPattern() throws ParseException {
+    void testWithMethodsKeepExtendedTypeAndPattern() throws ParseException {
         ExtendedStdDateFormat base = new ExtendedStdDateFormat("dd/MM/yyyy HH:mm:ss");
 
         ExtendedStdDateFormat tz = base.withTimeZone(TimeZone.getTimeZone("GMT+05:00"));
@@ -198,7 +198,7 @@ public class ExtendedStdDateFormatTest {
      * still shifted to the bound time zone after the copy.
      */
     @Test
-    public void testWithTimeZoneKeepsZoneHandling() throws ParseException {
+    void testWithTimeZoneKeepsZoneHandling() throws ParseException {
         TimeZone original = TimeZone.getDefault();
         try {
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+05:00"));
@@ -217,7 +217,7 @@ public class ExtendedStdDateFormatTest {
      * do not allocate a redundant instance — mirroring {@code StdDateFormat}.
      */
     @Test
-    public void testWithMethodsReturnSameInstanceWhenUnchanged() {
+    void testWithMethodsReturnSameInstanceWhenUnchanged() {
         ExtendedStdDateFormat tz =
                 new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").withTimeZone(TimeZone.getTimeZone("GMT+05:00"));
         assertSame(tz, tz.withTimeZone(TimeZone.getTimeZone("GMT+05:00")));
@@ -233,7 +233,7 @@ public class ExtendedStdDateFormatTest {
     }
 
     @Test
-    public void testParseException() throws ParseException {
+    void testParseException() throws ParseException {
         assertThrows(ParseException.class, () -> {
             df.parse("asasas");
             fail("Oooops...");

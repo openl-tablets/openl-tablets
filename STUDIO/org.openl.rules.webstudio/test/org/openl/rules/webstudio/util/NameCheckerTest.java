@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-public class NameCheckerTest {
+class NameCheckerTest {
 
     @Test
-    public void testCheckNameBad() {
+    void testCheckNameBad() {
         final String[] badNames = {"\\f",
                 "f/g",
                 "f*",
@@ -38,7 +38,7 @@ public class NameCheckerTest {
     }
 
     @Test
-    public void testCheckNameOk() {
+    void testCheckNameOk() {
         final String[] okNames = {"a-b", "1,2,3", "hello world", "PublicClass$InnerClass"};
 
         for (String s : okNames) {

@@ -16,7 +16,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author PTarasevich
  */
 
-public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
+class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 
     public DataTableArrayInitTest() {
@@ -24,7 +24,7 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testTypeWithArrayColumns() {
+    void testTypeWithArrayColumns() {
         String tableName = "Data TestHelperDataBean_v10 testArray";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
@@ -50,7 +50,7 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testTypeWithArray2Columns() {
+    void testTypeWithArray2Columns() {
         String tableName = "Data TestHelperDataBean_v10 testArray2";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {

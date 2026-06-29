@@ -13,10 +13,10 @@ import org.openl.types.IOpenField;
 /**
  * Created by dl on 12/1/14.
  */
-public class BeanOpenFieldTest {
+class BeanOpenFieldTest {
 
     @Test
-    public void testBeanJavaSpecification() {
+    void testBeanJavaSpecification() {
         Map<String, IOpenField> fieldsMap = new HashMap<>();
         BeanOpenField.collectFields(fieldsMap, BeanJavaSpecification.class);
 
@@ -26,7 +26,7 @@ public class BeanOpenFieldTest {
     }
 
     @Test
-    public void testBeanNONJavaSpecification() {
+    void testBeanNONJavaSpecification() {
         Map<String, IOpenField> fieldsMap = new HashMap<>();
         BeanOpenField.collectFields(fieldsMap, BeanNONJavaSpecification.class);
 

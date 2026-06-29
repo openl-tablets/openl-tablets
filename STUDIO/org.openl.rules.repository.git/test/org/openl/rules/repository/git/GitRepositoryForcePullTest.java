@@ -35,7 +35,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 
-public class GitRepositoryForcePullTest {
+class GitRepositoryForcePullTest {
 
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
     private static final String REPO_ID = "design";

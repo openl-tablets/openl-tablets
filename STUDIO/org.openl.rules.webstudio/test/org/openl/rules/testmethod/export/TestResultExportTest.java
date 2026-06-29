@@ -40,7 +40,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.util.NumberUtils;
 
-public class TestResultExportTest {
+class TestResultExportTest {
     /**
      * Date format used to convert Date to String in this test
      */
@@ -52,14 +52,14 @@ public class TestResultExportTest {
     private static TestUnitsResults[] resultsWithPK;
 
     @BeforeAll
-    public static void runTests() throws Exception {
+    static void runTests() throws Exception {
         testResults = runTests("test-resources/test/export/example3");
         trivialResults = runTests(TRIVIAL_PROJECT);
         resultsWithPK = runTests("test-resources/test/export/example3-pk");
     }
 
     @AfterAll
-    public static void cleanUp() {
+    static void cleanUp() {
         testResults = null;
         trivialResults = null;
     }
@@ -104,7 +104,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void allResultsInFirstPage() throws Exception {
+    void allResultsInFirstPage() throws Exception {
         File xlsx;
         try (TempFileExporter export = new TempFileExporter()) {
             xlsx = export.createExcelFile(testResults, -1);
@@ -131,7 +131,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void oneResultPerPage() throws Exception {
+    void oneResultPerPage() throws Exception {
         File xlsx;
         try (TempFileExporter export = new TempFileExporter()) {
             xlsx = export.createExcelFile(testResults, 1);
@@ -164,7 +164,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void testTrivialParameters() throws Exception {
+    void testTrivialParameters() throws Exception {
         File xlsx;
         try (TempFileExporter export = new TempFileExporter()) {
             xlsx = export.createExcelFile(trivialResults, -1);
@@ -206,7 +206,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void testOneTestCase() throws Exception {
+    void testOneTestCase() throws Exception {
         File xlsx;
         TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
 
@@ -250,7 +250,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void testParametersWithPrimaryKey() throws Exception {
+    void testParametersWithPrimaryKey() throws Exception {
         File xlsx;
         try (TempFileExporter export = new TempFileExporter()) {
             xlsx = export.createExcelFile(resultsWithPK, -1);
@@ -347,7 +347,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void twoResultsPerPage() throws Exception {
+    void twoResultsPerPage() throws Exception {
         File xlsx;
         try (TempFileExporter export = new TempFileExporter()) {
             xlsx = export.createExcelFile(testResults, 2);
@@ -377,7 +377,7 @@ public class TestResultExportTest {
     }
 
     @Test
-    public void partialObjectInitializationUsedInPrimaryKey() throws Exception {
+    void partialObjectInitializationUsedInPrimaryKey() throws Exception {
         File xlsx;
         TestUnitsResults[] results = runTests("test-resources/test/export/EPBDS-7147-partial-object-initialization");
 

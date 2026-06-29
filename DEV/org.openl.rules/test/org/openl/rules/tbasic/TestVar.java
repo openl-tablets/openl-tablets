@@ -4,19 +4,19 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class TestVar {
+class TestVar {
     @Test
-    public void test1() {
+    void test1() {
         TestUtils.assertEx("test/rules/tbasic1/VAR_F1.xls", "Operation must have value in Condition.");
     }
 
     @Test
-    public void test2() {
+    void test2() {
         TestUtils.assertEx("test/rules/tbasic1/VAR_F2.xls", "Operation VAR cannot be multiline.");
     }
 
     @Test
-    public void test3() {
+    void test3() {
         TestUtils.create("test/rules/tbasic1/VAR_P1.xls", ITestAlgorithm1.class).modification();
     }
 }

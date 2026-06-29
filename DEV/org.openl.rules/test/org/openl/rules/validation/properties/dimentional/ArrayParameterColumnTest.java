@@ -18,10 +18,10 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.java.JavaOpenClass;
 
-public class ArrayParameterColumnTest {
+class ArrayParameterColumnTest {
 
     @Test
-    public void testGetCodeExpression() {
+    void testGetCodeExpression() {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals("country == null || contains(countryLocal,country)", arrayColumn.getCodeExpression());
@@ -39,28 +39,28 @@ public class ArrayParameterColumnTest {
     }
 
     @Test
-    public void testGetTitle() {
+    void testGetTitle() {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals("Countries", arrayColumn.getTitle());
     }
 
     @Test
-    public void testParameterDeclaration() {
+    void testParameterDeclaration() {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals("CountriesEnum[] countryLocal", arrayColumn.getParameterDeclaration());
     }
 
     @Test
-    public void testGetMaxNumberOfValuesForRules() {
+    void testGetMaxNumberOfValuesForRules() {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals(1, arrayColumn.getNumberOfLocalParameters());
     }
 
     @Test
-    public void testGetRuleValue() {
+    void testGetRuleValue() {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), getRules());
 
         assertEquals(2, arrayColumn.getRulesNumber());
@@ -70,7 +70,7 @@ public class ArrayParameterColumnTest {
     }
 
     @Test
-    public void testNotArrayProperty() {
+    void testNotArrayProperty() {
         // create not array property
         //
         TablePropertyDefinition property = new TablePropertyDefinition();

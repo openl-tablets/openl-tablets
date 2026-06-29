@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class EntityManagerOperationsTest {
+class EntityManagerOperationsTest {
 
     @InjectMocks
     private EntityManagerOperations entityManagerOperations;
@@ -38,14 +38,14 @@ public class EntityManagerOperationsTest {
     private Transaction transaction;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(hibernateSessionFactoryBuilder.buildSessionFactory(any())).thenReturn(sessionFactory);
         when(sessionFactory.openSession()).thenReturn(session);
         when(session.beginTransaction()).thenReturn(transaction);
     }
 
     @Test
-    public void testCheckClosedConnectionWhenExceptionAndNotActiveTx() {
+    void testCheckClosedConnectionWhenExceptionAndNotActiveTx() {
         var entity = new Object();
         when(session.merge(any())).thenThrow(new PersistenceException());
 
@@ -61,7 +61,7 @@ public class EntityManagerOperationsTest {
     }
 
     @Test
-    public void testCheckClosedConnectionWhenExceptionAndActiveTx() {
+    void testCheckClosedConnectionWhenExceptionAndActiveTx() {
         var entity = new Object();
         when(session.merge(any())).thenThrow(new PersistenceException());
         when(transaction.isActive()).thenReturn(Boolean.TRUE);
@@ -81,7 +81,7 @@ public class EntityManagerOperationsTest {
     }
 
     @Test
-    public void testSuccessSave() {
+    void testSuccessSave() {
         var entity = new Object();
         entityManagerOperations.save(new Class<?>[]{Object.class}, entity);
 

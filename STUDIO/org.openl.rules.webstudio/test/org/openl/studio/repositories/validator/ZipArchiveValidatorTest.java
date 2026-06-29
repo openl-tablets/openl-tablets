@@ -13,13 +13,13 @@ import org.springframework.validation.BindingResult;
 import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
-public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
+class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Autowired
     private ZipArchiveValidator validator;
 
     @Test
-    public void testArchives_NotOpenLProject() {
+    void testArchives_NotOpenLProject() {
         BindingResult bindingResult = validateAndGetResult(Path.of("test-resources/upload/zip/test-rules-xml.zip"),
                 validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
@@ -33,7 +33,7 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testArchives_NotArchive() {
+    void testArchives_NotArchive() {
         BindingResult bindingResult = validateAndGetResult(Path.of("test-resources/test/export/trivial"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
@@ -46,7 +46,7 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testArchives() {
+    void testArchives() {
         assertNull(validateAndGetResult(Path.of("test-resources/upload/zip/test-workspace.zip"), validator));
         assertNull(validateAndGetResult(Path.of("test-resources/upload/zip/project.zip"), validator));
     }

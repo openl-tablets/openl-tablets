@@ -24,7 +24,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.impl.IdentifierNode;
 
-public class WebStudioWorkspaceRelatedDependencyManagerTest {
+class WebStudioWorkspaceRelatedDependencyManagerTest {
 
     public static class WebStudioWorkspaceRelatedSimpleProjectEngineFactoryBuilder<T> extends SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<T> {
         @Override
@@ -70,7 +70,7 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
     }
 
     @Test
-    public void test() throws ProjectResolvingException, InterruptedException {
+    void test() throws ProjectResolvingException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
 
         final WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?> factory = (WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?>) (new WebStudioWorkspaceRelatedSimpleProjectEngineFactoryBuilder<>()

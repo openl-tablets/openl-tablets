@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class IntArrayIteratorTest {
+class IntArrayIteratorTest {
 
     @Test
-    public void testIterator() {
+    void testIterator() {
         int[] arr = {1, 2, 3, 5, 8, 13, 21, 34};
         IntArrayIterator it = new IntArrayIterator(arr);
         assertTrue(it.isResetable());

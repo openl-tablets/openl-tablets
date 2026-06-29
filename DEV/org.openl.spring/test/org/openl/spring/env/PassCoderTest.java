@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * @author Pavel Tarasevich
  */
 
-public class PassCoderTest {
+class PassCoderTest {
 
     private static final String CIPHER = "AES/CBC/PKCS5Padding";
 
@@ -20,7 +20,7 @@ public class PassCoderTest {
     private static final String wrongKey = "fngnsgdlkjfngsdlk lsfng ljsdfk jndfgsljn gs";
 
     @Test
-    public void testPassCodingEncoding() {
+    void testPassCodingEncoding() {
         String codedPass = null;
 
         try {
@@ -51,7 +51,7 @@ public class PassCoderTest {
     }
 
     @Test
-    public void testEmpty() throws Exception {
+    void testEmpty() throws Exception {
         assertEquals("password", PassCoder.encode("password", "", CIPHER));
         assertEquals("password", PassCoder.encode("password", " ", CIPHER));
         assertEquals("password", PassCoder.encode("password", null, CIPHER));

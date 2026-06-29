@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 
-public class EmptyArrayDataTest {
+class EmptyArrayDataTest {
 
     private static final String SRC = "test/rules/data/EmptyArrayTest.xls";
 
     @Test
-    public void testMultiRowArrayLoad() throws Exception {
+    void testMultiRowArrayLoad() throws Exception {
         RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
 

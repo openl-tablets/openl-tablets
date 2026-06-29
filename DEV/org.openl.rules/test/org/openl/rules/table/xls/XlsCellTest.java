@@ -19,12 +19,12 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.source.impl.URLSourceCodeModule;
 
-public class XlsCellTest {
+class XlsCellTest {
 
     private static XlsSheetGridModel xsGrid;
 
     @BeforeEach
-    public void before() {
+    void before() {
         URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsCellTest.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
@@ -34,7 +34,7 @@ public class XlsCellTest {
     }
 
     @Test
-    public void testStringDateMergedCell() {
+    void testStringDateMergedCell() {
         ICell cell = xsGrid.getCell(2, 15);
         Date nativeDate = cell.getNativeDate();
         Calendar instance = Calendar.getInstance();
@@ -49,7 +49,7 @@ public class XlsCellTest {
     }
 
     @Test
-    public void testStringMergedCell() {
+    void testStringMergedCell() {
         ICell cell = xsGrid.getCell(1, 3);
         assertEquals(1, cell.getAbsoluteColumn());
         assertEquals(1, cell.getColumn());
@@ -109,7 +109,7 @@ public class XlsCellTest {
     }
 
     @Test
-    public void testDoubleMergedCell() {
+    void testDoubleMergedCell() {
         ICell cell = xsGrid.getCell(5, 8);
         assertEquals(5, cell.getAbsoluteColumn());
         assertEquals(5, cell.getColumn());

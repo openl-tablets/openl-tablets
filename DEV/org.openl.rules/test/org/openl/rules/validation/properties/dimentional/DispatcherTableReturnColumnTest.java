@@ -11,10 +11,10 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
-public class DispatcherTableReturnColumnTest {
+class DispatcherTableReturnColumnTest {
 
     @Test
-    public void testGetparameterDeclaration() {
+    void testGetparameterDeclaration() {
         DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("float result", retColumn.getParameterDeclaration());
 
@@ -23,19 +23,19 @@ public class DispatcherTableReturnColumnTest {
     }
 
     @Test
-    public void testGetCodeExpression() {
+    void testGetCodeExpression() {
         DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("result", retColumn.getCodeExpression());
     }
 
     @Test
-    public void testGetTitle() {
+    void testGetTitle() {
         DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("RESULT", retColumn.getTitle());
     }
 
     @Test
-    public void testGetRuleValue() {
+    void testGetRuleValue() {
         IMethodSignature signature = new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "key"),
                 new ParameterDeclaration(JavaOpenClass.FLOAT, "value"));
         DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);

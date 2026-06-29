@@ -17,13 +17,13 @@ import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 
-public class SpreadsheetModelTest {
+class SpreadsheetModelTest {
 
     public static final String SPR_NAME = "getBankAccountNumber";
     public static final String STRING = "String";
 
     @Test
-    public void testSpreadsheetModelCreation() {
+    void testSpreadsheetModelCreation() {
         SpreadsheetModel first = new SpreadsheetModel();
         first.setName(SPR_NAME);
         assertEquals(SPR_NAME, first.getName());
@@ -56,7 +56,7 @@ public class SpreadsheetModelTest {
     }
 
     @Test
-    public void testSprWithParameters() {
+    void testSprWithParameters() {
         InputParameter firstName = new ParameterModel(new TypeInfo(String.class), "firstName");
         InputParameter secondName = new ParameterModel(new TypeInfo(String.class), "secondName");
         InputParameter city = new ParameterModel(new TypeInfo(String.class), "city");
@@ -88,7 +88,7 @@ public class SpreadsheetModelTest {
     }
 
     @Test
-    public void testSprWithStepsAndParams() {
+    void testSprWithStepsAndParams() {
         StepModel firstName = new StepModel("String", "firstName", "First name of person.", "John");
         StepModel secondName = new StepModel("secondName", "String", "Second name of person.", "Doe");
         StepModel city = new StepModel("city", "String", "The place of birth.", "Kazan");
@@ -137,7 +137,7 @@ public class SpreadsheetModelTest {
     }
 
     @Test
-    public void testSprWithPathInfo() {
+    void testSprWithPathInfo() {
         PathInfo xyzInfo = new PathInfo("/xyz",
                 "xyz",
                 PathInfo.Operation.GET,

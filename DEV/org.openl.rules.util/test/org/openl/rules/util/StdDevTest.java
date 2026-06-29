@@ -38,7 +38,7 @@ class StdDevTest {
     }
 
     @Test
-    public void testSampleStandardDeviation() {
+    void testSampleStandardDeviation() {
         assertNull(stdevS((Number) null));
         assertNull(stdevS(new Double[2]));
 

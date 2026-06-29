@@ -12,10 +12,10 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.URLSourceCodeModule;
 
-public class LookupTest {
+class LookupTest {
 
     @Test
-    public void testMergeBounds() throws Exception {
+    void testMergeBounds() throws Exception {
 
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
 

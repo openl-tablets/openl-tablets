@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class CommonVersionImplTest {
+class CommonVersionImplTest {
 
     @Test
-    public void testCompareToTheSameRevision() throws Exception {
+    void testCompareToTheSameRevision() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.3.17");
         CommonVersionImpl version2 = new CommonVersionImpl("7.5.17");
         assertEquals(0, version1.compareTo(version2));
@@ -18,7 +18,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToZeroRevision() throws Exception {
+    void testCompareToZeroRevision() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.3.0");
         CommonVersionImpl version2 = new CommonVersionImpl("7.5.0");
         assertEquals(0, version1.compareTo(version2));
@@ -28,7 +28,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToRevision() throws Exception {
+    void testCompareToRevision() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.3.0");
         CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
         assertEquals(-1, version1.compareTo(version2));
@@ -38,7 +38,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToRevision2() throws Exception {
+    void testCompareToRevision2() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.4.0");
         CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
         assertEquals(-1, version1.compareTo(version2));
@@ -48,7 +48,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToRevision3() throws Exception {
+    void testCompareToRevision3() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.3.0");
         CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
@@ -58,7 +58,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToMinor() throws Exception {
+    void testCompareToMinor() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.3.2");
         CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
@@ -68,7 +68,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToMinor2() throws Exception {
+    void testCompareToMinor2() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("2.4.2");
         CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
         assertEquals(1, version1.compareTo(version2));
@@ -78,7 +78,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testCompareToMajor() throws Exception {
+    void testCompareToMajor() throws Exception {
         CommonVersionImpl version1 = new CommonVersionImpl("1.3.2");
         CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
@@ -88,7 +88,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testRevision() throws Exception {
+    void testRevision() throws Exception {
         CommonVersionImpl version = new CommonVersionImpl("17");
         assertEquals(32767, version.getMajor());
         assertEquals(32767, version.getMinor());
@@ -97,7 +97,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testVersion() throws Exception {
+    void testVersion() throws Exception {
         CommonVersionImpl version = new CommonVersionImpl("34.6");
         assertEquals(34, version.getMajor());
         assertEquals(6, version.getMinor());
@@ -106,7 +106,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testVersionAndRevision() throws Exception {
+    void testVersionAndRevision() throws Exception {
         CommonVersionImpl version = new CommonVersionImpl("2.7.4");
         assertEquals(2, version.getMajor());
         assertEquals(7, version.getMinor());
@@ -115,7 +115,7 @@ public class CommonVersionImplTest {
     }
 
     @Test
-    public void testExtraVersion() throws Exception {
+    void testExtraVersion() throws Exception {
         CommonVersionImpl version = new CommonVersionImpl("3.5.7.a11");
         assertEquals(3, version.getMajor());
         assertEquals(5, version.getMinor());

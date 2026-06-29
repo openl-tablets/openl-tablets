@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class CastFactoryTest {
+class CastFactoryTest {
 
     private final CastFactory factory;
 
@@ -25,7 +25,7 @@ public class CastFactoryTest {
     }
 
     @Test
-    public void testPrimitives() {
+    void testPrimitives() {
         javaCastTest(Integer.class, int.class);
         javaCastTest(int.class, Integer.class);
         javaCastTest(Boolean.class, boolean.class);
@@ -35,7 +35,7 @@ public class CastFactoryTest {
     }
 
     @Test
-    public void typeToOneElementArrayCastTest() {
+    void typeToOneElementArrayCastTest() {
         javaCastTest(Integer.class, Integer[].class);
         javaCastTest(int.class, int[].class);
         javaCastTest(int.class, Integer[].class);
@@ -48,7 +48,7 @@ public class CastFactoryTest {
     }
 
     @Test
-    public void arrayTest() {
+    void arrayTest() {
         javaArrayCastTest(Integer[][].class, int[][].class);
         javaArrayCastTest(int[].class, Integer[].class);
         javaArrayCastTest(Boolean[][][].class, boolean[][][].class);
@@ -136,7 +136,7 @@ public class CastFactoryTest {
     }
 
     @Test
-    public void interfacesDownCastTest() {
+    void interfacesDownCastTest() {
         // should allow downcast from Object -> List
         IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(Object.class),
                 JavaOpenClass.getOpenClass(List.class));
@@ -174,7 +174,7 @@ public class CastFactoryTest {
     }
 
     @Test
-    public void interfacesUpCastTest() {
+    void interfacesUpCastTest() {
         // should allow upcast from List -> Object
         IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(List.class),
                 JavaOpenClass.getOpenClass(Object.class));
@@ -197,7 +197,7 @@ public class CastFactoryTest {
     }
 
     @Test
-    public void shouldNotAllowCast() {
+    void shouldNotAllowCast() {
         // should not allow downcast from Integer -> Apple when source class is final
         IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(Integer.class),
                 JavaOpenClass.getOpenClass(Apple.class));

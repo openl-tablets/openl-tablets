@@ -27,7 +27,7 @@ import org.openl.rules.repository.api.Repository;
  *
  * @author Yury Molchan
  */
-public class JarLocalRepositoryTest {
+class JarLocalRepositoryTest {
 
     @TempDir
     private File openlHome;
@@ -35,7 +35,7 @@ public class JarLocalRepositoryTest {
     private Repository repository;
 
     @Test
-    public void customLocationDiscoversArchivesOutsideClasspath() throws IOException {
+    void customLocationDiscoversArchivesOutsideClasspath() throws IOException {
         generateDeployment("singleDeployment.zip",
                 Map.of("rules.xml", "foo".getBytes(), "rules/Algorithm.xlsx", "bar".getBytes()));
 
@@ -49,7 +49,7 @@ public class JarLocalRepositoryTest {
     }
 
     @Test
-    public void defaultLocationDoesNotReachExternalArchives() throws IOException {
+    void defaultLocationDoesNotReachExternalArchives() throws IOException {
         generateDeployment("singleDeployment.zip", Map.of("rules.xml", "foo".getBytes()));
 
         JarLocalRepository repo = new JarLocalRepository();
@@ -62,7 +62,7 @@ public class JarLocalRepositoryTest {
     }
 
     @Test
-    public void factoryWiresLocationSetting() throws IOException {
+    void factoryWiresLocationSetting() throws IOException {
         generateDeployment("project.zip", Map.of("rules.xml", "baz".getBytes()));
 
         var settings = Map.of("location", fileGlob());

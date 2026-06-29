@@ -35,7 +35,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
         "db.password =",
         "db.maximumPoolSize = 3"})
 @WithMockUser(value = "admin", authorities = "ADMIN")
-public class RepositoryAclServiceTest {
+class RepositoryAclServiceTest {
 
     private static final String DEVELOPERS_JUNIT = "DEVELOPERS_JUNIT";
 
@@ -47,12 +47,12 @@ public class RepositoryAclServiceTest {
     SpringCacheBasedAclCache springCacheBasedAclCache;
 
     @BeforeEach
-    public void before() {
+    void before() {
         springCacheBasedAclCache.clearCache();
     }
 
     @Test
-    public void exists() {
+    void exists() {
         assertNotNull(designRepositoryAclService);
     }
 
@@ -60,7 +60,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    public void permissionChecking() {
+    void permissionChecking() {
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
@@ -76,7 +76,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    public void permissionMaskChecking() {
+    void permissionMaskChecking() {
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
@@ -92,7 +92,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    public void permissionInheritanceChecking() {
+    void permissionInheritanceChecking() {
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
@@ -108,7 +108,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "admin", authorities = "ADMIN")
     @Transactional
     @Rollback
-    public void permissionDuplicateChecking() {
+    void permissionDuplicateChecking() {
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
                 List.of(BasePermission.WRITE),
@@ -131,7 +131,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    public void permissionRemovingByPermission() {
+    void permissionRemovingByPermission() {
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertFalse(
@@ -178,7 +178,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    public void permissionRemovingBySids() {
+    void permissionRemovingBySids() {
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         Authentication mockUser = setAndreyAuthenticationToContext();
@@ -231,7 +231,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Rollback
     @Transactional
-    public void delete() {
+    void delete() {
         assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
@@ -262,7 +262,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Rollback
     @Transactional
-    public void move() {
+    void move() {
         assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertFalse(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
@@ -299,7 +299,7 @@ public class RepositoryAclServiceTest {
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    public void nullPathSupport() {
+    void nullPathSupport() {
         assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
         assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
         assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));

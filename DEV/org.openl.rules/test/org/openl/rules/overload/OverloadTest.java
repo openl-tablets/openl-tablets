@@ -10,10 +10,11 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 
+// Keep public: the nested ITestI fixture interface is referenced cross-package by ExecutionModeTest.
 public class OverloadTest {
 
     @Test
-    public void testMethodOverload() {
+    void testMethodOverload() {
         ITestI instance = TestUtils.create("test/rules/overload/Overload.xls", ITestI.class);
         var context = new DefaultRulesRuntimeContext();
 

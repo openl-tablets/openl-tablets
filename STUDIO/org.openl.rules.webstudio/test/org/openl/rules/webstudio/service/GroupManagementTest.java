@@ -45,7 +45,7 @@ import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
-public class GroupManagementTest {
+class GroupManagementTest {
 
     private static final String RND_GROUP = "GROUP_%s";
 
@@ -65,7 +65,7 @@ public class GroupManagementTest {
     private UserManagementService userManagementService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         // Reset all changes where done while testing
         flywayDBReset.clean();
         flywayDBReset.migrate();
@@ -73,7 +73,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testInitialization() {
+    void testInitialization() {
         initOneUser();
         Set<GrantedAuthority> privileges = generatePrivilege(51, "Analysts", "Deployers");
         externalGroupService.mergeAllForUser("jdoe", privileges);
@@ -147,7 +147,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testDeleteAll() {
+    void testDeleteAll() {
         initOneUser();
 
         Set<GrantedAuthority> privileges = generatePrivilege(10, "Analysts", "Deployers");
@@ -179,7 +179,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testDoubleMerge() {
+    void testDoubleMerge() {
         initOneUser();
 
         Set<GrantedAuthority> privileges = generatePrivilege(10, "Analysts", "Deployers");
@@ -222,7 +222,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testMerge_async() throws InterruptedException {
+    void testMerge_async() throws InterruptedException {
         initOneUser();
         Set<GrantedAuthority> privileges = generatePrivilege(10);
         AtomicInteger successCnt = new AtomicInteger(0);
@@ -252,7 +252,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testDefaultGroups() {
+    void testDefaultGroups() {
         List<Group> groups = groupService.getGroups();
         assertEquals(6, groups.size());
         assertCollectionEquals(Stream.of("Administrators", "Analysts", "Deployers", "Developers", "Testers", "Viewers")
@@ -291,7 +291,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         assertFalse(userService.existsByName("Foo"));
 
         assertTrue(externalGroupService.findAllForUser("Foo").isEmpty());
@@ -308,7 +308,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testSearch() {
+    void testSearch() {
         initOneUser();
         initSecondUser();
 
@@ -340,7 +340,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testSaveLongGroupName() {
+    void testSaveLongGroupName() {
         initOneUser();
         externalGroupService.mergeAllForUser("jdoe", Collections.singleton(new SimpleGrantedAuthority("foo-bar".repeat(9))));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
@@ -356,7 +356,7 @@ public class GroupManagementTest {
     }
 
     @Test
-    public void testExists() {
+    void testExists() {
         groupService.addGroup("foo", "Foo");
         assertTrue(groupService.existsByName("foo"));
         assertFalse(groupService.existsByName("bar"));

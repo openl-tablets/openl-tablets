@@ -15,22 +15,22 @@ import org.openl.rules.TestUtils;
  *
  * @author DLiauchuk
  */
-public class NumbersEQTest {
+class NumbersEQTest {
     private static final String SRC = "test/rules/binding/NumbersEQTest.xls";
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create(SRC);
     }
 
     @Test
-    public void testDoubleValueEQ() {
+    void testDoubleValueEQ() {
         assertTrue(TestUtils.<Boolean>invoke(instance, "testDVEquals"));
     }
 
     @Test
-    public void testDoubleEQ() {
+    void testDoubleEQ() {
         assertTrue(TestUtils.<Boolean>invoke(instance, "testDDEquals"));
     }
 }

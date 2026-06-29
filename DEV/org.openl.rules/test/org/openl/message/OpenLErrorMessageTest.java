@@ -11,10 +11,10 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.text.LocationUtils;
 
-public class OpenLErrorMessageTest {
+class OpenLErrorMessageTest {
 
     @Test
-    public void differentErrorTypesEquality() {
+    void differentErrorTypesEquality() {
         IOpenSourceCodeModule module1 = new StringSourceCodeModule("Module1", "uri1");
         IOpenSourceCodeModule module2 = new StringSourceCodeModule("Module2", "uri2");
 

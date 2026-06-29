@@ -22,7 +22,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
+class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/validation/DimensionalPropertyValidator.xls";
 
@@ -59,7 +59,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello() {
+    void testHello() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello");
@@ -75,7 +75,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello2() {
+    void testHello2() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello2");
@@ -91,7 +91,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello3() {
+    void testHello3() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello3");

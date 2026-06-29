@@ -10,7 +10,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.URLSourceCodeModule;
 
-public class SimpleLogicalTableTest {
+class SimpleLogicalTableTest {
 
     private XlsSheetSourceCodeModule getXlsGrid() {
         URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/SimpleLogicalTableTest.xls");
@@ -20,7 +20,7 @@ public class SimpleLogicalTableTest {
     }
 
     @Test
-    public void testSimpleLogicalTable() throws Exception {
+    void testSimpleLogicalTable() throws Exception {
 
         XlsSheetSourceCodeModule sheetSrc = getXlsGrid();
 

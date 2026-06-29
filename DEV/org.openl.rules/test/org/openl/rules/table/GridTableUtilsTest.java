@@ -14,10 +14,10 @@ import org.openl.rules.datatype.binding.MockGridTable;
 /**
  * Created by ymolchan on 14.07.2014.
  */
-public class GridTableUtilsTest {
+class GridTableUtilsTest {
 
     @Test
-    public void getGridRegionsSimple() {
+    void getGridRegionsSimple() {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
         arr[0][1] = "cell_0_1";
@@ -32,7 +32,7 @@ public class GridTableUtilsTest {
     }
 
     @Test
-    public void getGridRegionsFullMeged() {
+    void getGridRegionsFullMeged() {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
         IGridTable grid = new MockGridTable(arr);
@@ -44,7 +44,7 @@ public class GridTableUtilsTest {
     }
 
     @Test
-    public void getGridRegionsHorizontalMerged() {
+    void getGridRegionsHorizontalMerged() {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
         arr[1][0] = "cell_1_0";
@@ -57,7 +57,7 @@ public class GridTableUtilsTest {
     }
 
     @Test
-    public void getGridRegionsVerticalMerged() {
+    void getGridRegionsVerticalMerged() {
         String[][] arr = new String[2][2];
         arr[0][0] = "cell_0_0";
         arr[0][1] = "cell_0_1";
@@ -71,7 +71,7 @@ public class GridTableUtilsTest {
 
     @Test
     @Disabled("ILogicalTable do not work with mixed merging of the cells")
-    public void getGridRegionsMixedMerged() {
+    void getGridRegionsMixedMerged() {
         String[][] arr = new String[2][3];
         arr[0][0] = "cell_0_0";
         arr[0][1] = "cell_0_1";

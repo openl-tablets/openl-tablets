@@ -7,10 +7,10 @@ import static org.openl.util.StringUtils.matches;
 
 import org.junit.jupiter.api.Test;
 
-public class DataTableBindHelperTest {
+class DataTableBindHelperTest {
 
     @Test
-    public void collectionAccessByIndexPatternTest() {
+    void collectionAccessByIndexPatternTest() {
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:b"));
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "  a[0]:b"));
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:b  "));
@@ -49,7 +49,7 @@ public class DataTableBindHelperTest {
     }
 
     @Test
-    public void thisArrayAccessByIndexPatternTest() {
+    void thisArrayAccessByIndexPatternTest() {
         assertTrue(matches(DataTableBindHelper.THIS_ARRAY_ACCESS_PATTERN, "[0]"));
         assertTrue(matches(DataTableBindHelper.THIS_ARRAY_ACCESS_PATTERN, "  [0]"));
         assertTrue(matches(DataTableBindHelper.THIS_ARRAY_ACCESS_PATTERN, "[  0]"));
@@ -64,7 +64,7 @@ public class DataTableBindHelperTest {
     }
 
     @Test
-    public void thisListAccessByIndexPatternTest() {
+    void thisListAccessByIndexPatternTest() {
         assertTrue(matches(DataTableBindHelper.THIS_LIST_ACCESS_PATTERN, "[0]"));
         assertTrue(matches(DataTableBindHelper.THIS_LIST_ACCESS_PATTERN, "  [0]"));
         assertTrue(matches(DataTableBindHelper.THIS_LIST_ACCESS_PATTERN, "[  0]"));
@@ -87,7 +87,7 @@ public class DataTableBindHelperTest {
     }
 
     @Test
-    public void thisMapAccessByIndexPatternTest() {
+    void thisMapAccessByIndexPatternTest() {
         assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:b"));
         assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "  [\"k\"]:b"));
         assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:b  "));
@@ -141,7 +141,7 @@ public class DataTableBindHelperTest {
     }
 
     @Test
-    public void collectionAccessByKeyPatternTest() {
+    void collectionAccessByKeyPatternTest() {
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:b"));
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "  a[\"k\"]:b"));
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:b  "));

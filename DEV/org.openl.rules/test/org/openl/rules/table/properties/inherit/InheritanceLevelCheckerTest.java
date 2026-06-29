@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class InheritanceLevelCheckerTest {
+class InheritanceLevelCheckerTest {
 
     @Test
-    public void testExistingName() {
+    void testExistingName() {
         String propertyName = "name";
 
         boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName);

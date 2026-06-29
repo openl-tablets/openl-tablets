@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.rules.TestUtils;
 
-public class AliasInSpreadsheetTest {
+class AliasInSpreadsheetTest {
 
     @Test
-    public void test() {
+    void test() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
             TestUtils.invoke("test/rules/calc1/AliasInSpreadsheet.xlsx", "test");
         });

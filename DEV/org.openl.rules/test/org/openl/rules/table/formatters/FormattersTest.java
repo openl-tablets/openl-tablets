@@ -9,24 +9,24 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.util.formatters.IFormatter;
 
-public class FormattersTest {
+class FormattersTest {
 
     @Test
-    public void testPrimitiveArray() {
+    void testPrimitiveArray() {
         int[] intMas = new int[]{1, 2};
         IFormatter formatter = FormattersManager.getFormatter(intMas.getClass());
         assertEquals("1,2", formatter.format(intMas));
     }
 
     @Test
-    public void testMultiDimPrimitiveArray() {
+    void testMultiDimPrimitiveArray() {
         double[][] doubleMas = new double[][]{new double[]{1.27, 5.8987}, new double[]{45.345, 123.4578}};
         IFormatter formatter = FormattersManager.getFormatter(doubleMas.getClass());
         assertEquals("1.27,5.8987,45.345,123.4578", formatter.format(doubleMas));
     }
 
     @Test
-    public void testBooleanParse() {
+    void testBooleanParse() {
         String boolValue = "yes";
         IFormatter formatter = FormattersManager.getFormatter(Boolean.class);
         customAssertTrue(formatter.parse(boolValue));
@@ -64,7 +64,7 @@ public class FormattersTest {
     }
 
     @Test
-    public void testBooleanFormat() {
+    void testBooleanFormat() {
         Boolean boolValue = Boolean.TRUE;
         IFormatter formatter = FormattersManager.getFormatter(Boolean.class);
         assertEquals("true", formatter.format(boolValue));

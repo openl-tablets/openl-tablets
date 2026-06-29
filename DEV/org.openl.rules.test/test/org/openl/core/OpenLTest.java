@@ -21,7 +21,7 @@ import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-public final class OpenLTest {
+final class OpenLTest {
 
     public static final String DIR = "test-resources/functionality/";
     public static final String FAILURES_DIR = "test-resources/expected-test-failures/";
@@ -29,7 +29,7 @@ public final class OpenLTest {
     private TimeZone defaultTimeZone;
 
     @BeforeEach
-    public void setupLocale() {
+    void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
         Locale.setDefault(Locale.US);
@@ -37,13 +37,13 @@ public final class OpenLTest {
     }
 
     @AfterEach
-    public void restoreLocale() {
+    void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 
     @Test
-    public void checkTestBehavior() throws Exception {
+    void checkTestBehavior() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
                 .setExecutionMode(false)
@@ -94,19 +94,19 @@ public final class OpenLTest {
     }
 
     @Test
-    public void testAllFailures() {
+    void testAllFailures() {
         final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(true, false);
         assertFalse(rulesInFolderTestRunner.run(FAILURES_DIR), "Test is failed.");
     }
 
     @Test
-    public void testAll() {
+    void testAll() {
         final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, false);
         assertFalse(rulesInFolderTestRunner.run(DIR), "Test is failed.");
     }
 
     @Test
-    public void testAllInExecutionMode() {
+    void testAllInExecutionMode() {
         final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, true);
         assertFalse(rulesInFolderTestRunner.run(DIR), "Test is failed.");
     }

@@ -17,13 +17,13 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
-public class DomainSharingTest {
+class DomainSharingTest {
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Test
-    public void testInstantiation() throws Exception {
+    void testInstantiation() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

@@ -8,10 +8,10 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
-public class ComparisonTest {
+class ComparisonTest {
 
     @Test
-    public void testFloatEq() {
+    void testFloatEq() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
         final Float inf_neg = Float.NEGATIVE_INFINITY;
@@ -44,7 +44,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testDoubleEq() {
+    void testDoubleEq() {
         final Double nan = Double.NaN;
         final Double inf_pos = Double.POSITIVE_INFINITY;
         final Double inf_neg = Double.NEGATIVE_INFINITY;
@@ -77,7 +77,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testIntegerEq() {
+    void testIntegerEq() {
         final Integer inf_pos = Integer.MAX_VALUE;
         final Integer inf_neg = Integer.MIN_VALUE;
         final Integer nil = null;
@@ -102,7 +102,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testFloatNe() {
+    void testFloatNe() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
         final Float inf_neg = Float.NEGATIVE_INFINITY;
@@ -135,7 +135,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testDoubleNe() {
+    void testDoubleNe() {
         final Double nan = Double.NaN;
         final Double inf_pos = Double.POSITIVE_INFINITY;
         final Double inf_neg = Double.NEGATIVE_INFINITY;
@@ -168,7 +168,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testIntegerNe() {
+    void testIntegerNe() {
         final Integer inf_pos = Integer.MAX_VALUE;
         final Integer inf_neg = Integer.MIN_VALUE;
         final Integer nil = null;
@@ -193,7 +193,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testFloatGt() {
+    void testFloatGt() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
         final Float inf_neg = Float.NEGATIVE_INFINITY;
@@ -226,7 +226,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testDoubleGt() {
+    void testDoubleGt() {
         final Double nan = Double.NaN;
         final Double inf_pos = Double.POSITIVE_INFINITY;
         final Double inf_neg = Double.NEGATIVE_INFINITY;
@@ -259,7 +259,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testIntegerGt() {
+    void testIntegerGt() {
         final Integer inf_pos = Integer.MAX_VALUE;
         final Integer inf_neg = Integer.MIN_VALUE;
         final Integer nil = null;
@@ -284,7 +284,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testFloatLt() {
+    void testFloatLt() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
         final Float inf_neg = Float.NEGATIVE_INFINITY;
@@ -317,7 +317,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testDoubleLt() {
+    void testDoubleLt() {
         final Double nan = Double.NaN;
         final Double inf_pos = Double.POSITIVE_INFINITY;
         final Double inf_neg = Double.NEGATIVE_INFINITY;
@@ -350,7 +350,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testIntegerLt() {
+    void testIntegerLt() {
         final Integer inf_pos = Integer.MAX_VALUE;
         final Integer inf_neg = Integer.MIN_VALUE;
         final Integer nil = null;
@@ -375,7 +375,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testFloatGe() {
+    void testFloatGe() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
         final Float inf_neg = Float.NEGATIVE_INFINITY;
@@ -408,7 +408,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testDoubleGe() {
+    void testDoubleGe() {
         final Double nan = Double.NaN;
         final Double inf_pos = Double.POSITIVE_INFINITY;
         final Double inf_neg = Double.NEGATIVE_INFINITY;
@@ -441,7 +441,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testIntegerGe() {
+    void testIntegerGe() {
         final Integer inf_pos = Integer.MAX_VALUE;
         final Integer inf_neg = Integer.MIN_VALUE;
         final Integer nil = null;
@@ -466,7 +466,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testFloatLe() {
+    void testFloatLe() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
         final Float inf_neg = Float.NEGATIVE_INFINITY;
@@ -499,7 +499,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testDoubleLe() {
+    void testDoubleLe() {
         final Double nan = Double.NaN;
         final Double inf_pos = Double.POSITIVE_INFINITY;
         final Double inf_neg = Double.NEGATIVE_INFINITY;
@@ -532,7 +532,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testIntegerLe() {
+    void testIntegerLe() {
         final Integer inf_pos = Integer.MAX_VALUE;
         final Integer inf_neg = Integer.MIN_VALUE;
         final Integer nil = null;
@@ -557,7 +557,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testBigDecimalEq() {
+    void testBigDecimalEq() {
         final BigDecimal inf_pos = BigDecimal.valueOf(Long.MAX_VALUE);
         final BigDecimal inf_neg = BigDecimal.valueOf(Long.MIN_VALUE);
         final BigDecimal nil = null;
@@ -582,7 +582,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testBigDecimalEqUlp() {
+    void testBigDecimalEqUlp() {
         final BigDecimal zero = BigDecimal.ZERO;
         final BigDecimal a = new BigDecimal("0.00000050");
         final BigDecimal b = new BigDecimal("0.0000005");
@@ -634,7 +634,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testStringEq() {
+    void testStringEq() {
         assertTrue(Comparison.string_eq("aaa111aaa", "aaa111aaa"));
         assertTrue(Comparison.string_eq("11", "11"));
         assertTrue(Comparison.string_eq(null, null));
@@ -644,7 +644,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testStringNe() {
+    void testStringNe() {
         assertFalse(Comparison.string_ne("aaa111aaa", "aaa111aaa"));
         assertFalse(Comparison.string_ne("11", "11"));
         assertFalse(Comparison.string_ne(null, null));
@@ -654,7 +654,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testStringLt() {
+    void testStringLt() {
         assertFalse(Comparison.string_lt("aaa111aaa", "aaa111aaa"));
         assertFalse(Comparison.string_lt("11", "11"));
         assertFalse(Comparison.string_lt(null, null));
@@ -666,7 +666,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testStringLe() {
+    void testStringLe() {
         assertTrue(Comparison.string_le("aaa111aaa", "aaa111aaa"));
         assertTrue(Comparison.string_le("11", "11"));
         assertTrue(Comparison.string_le(null, null));
@@ -678,7 +678,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testStringGt() {
+    void testStringGt() {
         assertFalse(Comparison.string_gt("aaa111aaa", "aaa111aaa"));
         assertFalse(Comparison.string_gt("11", "11"));
         assertFalse(Comparison.string_gt(null, null));
@@ -689,7 +689,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testStringGe() {
+    void testStringGe() {
         assertTrue(Comparison.string_ge("aaa111aaa", "aaa111aaa"));
         assertTrue(Comparison.string_ge("11", "11"));
         assertTrue(Comparison.string_ge(null, null));
@@ -701,7 +701,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testCharSequenceEq() {
+    void testCharSequenceEq() {
         assertTrue(Comparison.string_eq((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
         assertTrue(Comparison.string_eq((CharSequence) "11", (CharSequence) "11"));
         assertTrue(Comparison.string_eq((CharSequence) null, (CharSequence) null));
@@ -711,7 +711,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testCharSequenceNe() {
+    void testCharSequenceNe() {
         assertFalse(Comparison.string_ne((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
         assertFalse(Comparison.string_ne((CharSequence) "11", (CharSequence) "11"));
         assertFalse(Comparison.string_ne((CharSequence) null, (CharSequence) null));
@@ -721,7 +721,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testCharSequenceLt() {
+    void testCharSequenceLt() {
         assertFalse(Comparison.string_lt((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
         assertFalse(Comparison.string_lt((CharSequence) "11", (CharSequence) "11"));
         assertFalse(Comparison.string_lt((CharSequence) null, (CharSequence) null));
@@ -733,7 +733,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testCharSequenceLe() {
+    void testCharSequenceLe() {
         assertTrue(Comparison.string_le((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
         assertTrue(Comparison.string_le((CharSequence) "11", (CharSequence) "11"));
         assertTrue(Comparison.string_le((CharSequence) null, (CharSequence) null));
@@ -745,7 +745,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testCharSequenceGt() {
+    void testCharSequenceGt() {
         assertFalse(Comparison.string_gt("aaa111aaa", "aaa111aaa"));
         assertFalse(Comparison.string_gt("11", "11"));
         assertFalse(Comparison.string_gt(null, null));
@@ -756,7 +756,7 @@ public class ComparisonTest {
     }
 
     @Test
-    public void testCharSequenceGe() {
+    void testCharSequenceGe() {
         assertTrue(Comparison.string_ge("aaa111aaa", "aaa111aaa"));
         assertTrue(Comparison.string_ge("11", "11"));
         assertTrue(Comparison.string_ge(null, null));

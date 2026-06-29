@@ -16,24 +16,24 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.testmethod.TestUnitsResults;
 
-public class FlattenParameterExportTest extends AbstractParameterExportTest {
+class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     private FlattenParameterExport export;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         workbook = new SXSSFWorkbook();
         sheet = workbook.createSheet("Type 1");
         export = new FlattenParameterExport(new Styles(workbook));
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         workbook.dispose();
     }
 
     @Test
-    public void simpleType() throws IOException {
+    void simpleType() throws IOException {
         export.write(sheet, mockResults(params(0.5)), true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
@@ -53,14 +53,14 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void emptyParameters() throws IOException {
+    void emptyParameters() throws IOException {
         export.write(sheet, mockResults(), true);
 
         assertEquals(-1, saveAndReadSheet().getLastRowNum());
     }
 
     @Test
-    public void halfFilled() throws IOException {
+    void halfFilled() throws IOException {
         export.write(sheet, mockResults(params(new A("name1")), params(new A("name2"))), true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
@@ -82,7 +82,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void arrayOfObjects() throws IOException {
+    void arrayOfObjects() throws IOException {
         List<TestUnitsResults> result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
                 params((Object) null),
                 params((Object) new A[]{new A("name3")}),
@@ -105,7 +105,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void complexObjects() throws IOException {
+    void complexObjects() throws IOException {
         A A1 = new A("name1", 1);
         A A2 = new A("name2", 2);
 
@@ -185,7 +185,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void nestedComplexFieldsWithTheSameDataAndType() throws IOException {
+    void nestedComplexFieldsWithTheSameDataAndType() throws IOException {
         B B1 = new B(null, new A("name1", 1),  new A(null, 2),  new A("name3", 3));
 
         export.write(sheet, mockResults(params(B1)), true);
@@ -216,7 +216,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void nestedArrayWithComplex_Case1() throws IOException {
+    void nestedArrayWithComplex_Case1() throws IOException {
         C C1 = new C(new A("name1"), new A("name1"));
 
         export.write(sheet, mockResults(params(C1)), true);
@@ -238,7 +238,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void twoParameters() throws IOException {
+    void twoParameters() throws IOException {
         export.write(sheet,
                 mockResults(params(new Class[]{A.class, String.class}, null, "str1"),
                         params(new A("name2", 5, 6), "str2")),
@@ -266,7 +266,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void twoParametersWithArray() throws IOException {
+    void twoParametersWithArray() throws IOException {
         export.write(sheet,
                 mockResults(params(new Class[]{A[].class, String.class}, null, "str1"),
                         params(new A[]{}, "str2"),
@@ -302,7 +302,7 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
-    public void twoTestsInSheet() throws IOException {
+    void twoTestsInSheet() throws IOException {
         export.write(sheet,
                 Arrays.asList(mockResult("FirstTest", params(new A("name1"), "str1"), params(new A("name2"), "str2")),
                         mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))),

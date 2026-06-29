@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 import org.openl.gen.groovy.GroovyInterfaceScriptGenerator;
 
-public class GroovyInterfaceScriptGeneratorTest {
+class GroovyInterfaceScriptGeneratorTest {
 
     private static final Class<?>[] NO_ARGS = new Class<?>[0];
 
     @Test
-    public void testGenerateEmpty() {
+    void testGenerateEmpty() {
         final String expectedName = "org.openl.generated.test.ServiceEmpty";
         GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
                 Collections.emptyList());
@@ -36,7 +36,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethods() throws NoSuchMethodException {
+    void testGenerateWithMethods() throws NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
@@ -56,7 +56,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotations() throws NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotations() throws NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
@@ -99,7 +99,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder2() throws NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotationsBuilder2() throws NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
@@ -133,7 +133,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder3() throws NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotationsBuilder3() throws NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
@@ -167,7 +167,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder() throws NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotationsBuilder() throws NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder

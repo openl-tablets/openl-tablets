@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 
-public class ProjectIndexSerializerTest {
+class ProjectIndexSerializerTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
         TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
@@ -34,7 +34,7 @@ public class ProjectIndexSerializerTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
@@ -42,7 +42,7 @@ public class ProjectIndexSerializerTest {
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         ProjectIndex projectIndex = null;
         try (var stream = getClass().getResourceAsStream("/openl-projects.yaml")) {
             projectIndex = mapper.readValue(stream, ProjectIndex.class);

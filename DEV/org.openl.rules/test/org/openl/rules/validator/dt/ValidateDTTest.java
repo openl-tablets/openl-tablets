@@ -10,7 +10,7 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class ValidateDTTest extends BaseOpenlBuilderHelper {
+class ValidateDTTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/validation/TestValidateDT.xls";
 
@@ -19,7 +19,7 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello1() {
+    void testHello1() {
         String tableName = "Rules int tableAScore(String maritalStatus, String gender, int tyde, int dsr)";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -34,7 +34,7 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello2() {
+    void testHello2() {
         String tableName = "SimpleRules String check2(String dd1, String dd2)";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -48,7 +48,7 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello3() {
+    void testHello3() {
         String tableName = "Rules String check3(int dd1, String dd2)";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -61,7 +61,7 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testHello4() {
+    void testHello4() {
         String tableName = "Rules String check4(int dd1, String dd2)";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);

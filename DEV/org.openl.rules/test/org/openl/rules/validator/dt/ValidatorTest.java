@@ -31,7 +31,7 @@ import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 
-public class ValidatorTest extends BaseOpenlBuilderHelper {
+class ValidatorTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/Test_Validator_DT.xls";
 
@@ -40,7 +40,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         String tableName = "Rules String validationOK(TestValidationEnum1 value1, TestValidationEnum2 value2)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();
 
@@ -65,21 +65,21 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testGap() {
+    void testGap() {
         String tableName = "Rules String validationGap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getUncovered().length);
     }
 
     @Test
-    public void testOverlap() {
+    void testOverlap() {
         String tableName = "Rules String validationOverlap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getOverlappings().length);
     }
 
     @Test
-    public void testIntRule() {
+    void testIntRule() {
         String tableName = "Rules void hello1(int hour)";
         IntRangeDomain intRangeDomain = new IntRangeDomain(0, 24);
         Map<String, IDomainAdaptor> domains = new HashMap<>();
@@ -121,7 +121,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testOk2() {
+    void testOk2() {
         String tableName = "Rules void hello2(int currentValue)";
         IntRangeDomain intRangeDomain = new IntRangeDomain(0, 50);
         Map<String, IDomainAdaptor> domains = new HashMap<>();
@@ -133,7 +133,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testString() {
+    void testString() {
         String tableName = "Rules void helloString(String stringValue)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();
         EnumDomain<String> stringDomain = new EnumDomain<>(new String[]{"value1", "value2", "value3"});
@@ -147,7 +147,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testDate() {
+    void testDate() {
         String tableName = "Rules void testDate(Date currentDate)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -183,7 +183,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testArrayContains() {
+    void testArrayContains() {
         String tableName = "Rules void testArrayContains(TestValidationEnum3 value)";
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
@@ -191,7 +191,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testArrayContainsOverlap() {
+    void testArrayContainsOverlap() {
         String tableName = "Rules void testArrayContainsOverlap(TestValidationEnum3 value)";
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
@@ -202,7 +202,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testArrayContainsGap() {
+    void testArrayContainsGap() {
         String tableName = "Rules void testArrayContainsGap(TestValidationEnum3 value)";
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
@@ -213,7 +213,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testCountries() {
+    void testCountries() {
         // test narrowed domain for enum values.
         String tableName = "Rules void testCountries(CountriesEnum country)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();

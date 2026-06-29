@@ -32,7 +32,7 @@ import org.openl.ie.constrainer.IntVar;
  * @version 1.0
  */
 
-public class TestDomainBits2 {
+class TestDomainBits2 {
     private final Constrainer C = new Constrainer("TestDomainBits2");
     private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
     private final DomainBits2 _probeDomainBits2 = new DomainBits2(_var, _var.min(), _var.max());
@@ -56,14 +56,14 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void forceSize() {
+    void forceSize() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         db.forceSize(125);
         assertEquals(db.size(), 125);
     }
 
     @Test
-    public void setValue() {
+    void setValue() {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         boolean[] mask = new boolean[db.size()];
         Arrays.fill(mask, true);
@@ -88,7 +88,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testBits() {
+    void testBits() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         boolean[] bits = {false, false, true, false, true, true};
         db.forceBits(bitsToBits2(bits));
@@ -98,7 +98,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testContains() {
+    void testContains() {
         int[] goodArray = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] badArray = {-1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11};
         for (int i = 0; i < goodArray.length; i++) {
@@ -121,7 +121,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testForceBits() {
+    void testForceBits() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         boolean[] bits = new boolean[]{false, true, false, true, false, true};
         db.forceBits(bitsToBits2(bits));
@@ -131,7 +131,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testForceInsert() {
+    void testForceInsert() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         boolean[] bits = new boolean[]{false, false, false, false, false, false};
         db.forceBits(bitsToBits2(bits));
@@ -145,7 +145,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testIterateDomain() {
+    void testIterateDomain() {
         IntVar intvar = C.addIntVar(0, 10);
         DomainBits2 db = new DomainBits2(intvar, intvar.min(), intvar.max());
         final int[] values = new int[db.size()];
@@ -168,7 +168,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testRemoveRange() {
+    void testRemoveRange() {
         IntVar var = C.addIntVar(-10, 10, IntVar.DOMAIN_PLAIN);
         DomainBits di = new DomainBits(var, var.min(), var.max());
         int start_size = di.size();
@@ -248,7 +248,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testRemoveValue() {
+    void testRemoveValue() {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         int start_size = db.size();
         int start_min = db.min();
@@ -267,7 +267,7 @@ public class TestDomainBits2 {
     }
 
     @Test
-    public void testSetMax() {
+    void testSetMax() {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         try {
             assertFalse(db.setMax(_var.max() + 1));

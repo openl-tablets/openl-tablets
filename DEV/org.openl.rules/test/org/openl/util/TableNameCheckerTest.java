@@ -5,42 +5,42 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class TableNameCheckerTest {
+class TableNameCheckerTest {
 
     @Test
-    public void testWithLegalSign() {
+    void testWithLegalSign() {
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("a$c"));
     }
 
     @Test
-    public void testNameWithUnderscore() {
+    void testNameWithUnderscore() {
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("_ac"));
     }
 
     @Test
-    public void testWithBrackets() {
+    void testWithBrackets() {
         assertTrue(TableNameChecker.isInvalidJavaIdentifier("ac()"));
 
         assertTrue(TableNameChecker.isInvalidJavaIdentifier("ac([}{])ac"));
     }
 
     @Test
-    public void testStartsWithNumber() {
+    void testStartsWithNumber() {
         assertTrue(TableNameChecker.isInvalidJavaIdentifier("2ac134"));
     }
 
     @Test
-    public void testContainsNumber() {
+    void testContainsNumber() {
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("a2c"));
     }
 
     @Test
-    public void testIllegalSign() {
+    void testIllegalSign() {
         assertTrue(TableNameChecker.isInvalidJavaIdentifier("tes/?s"));
     }
 
     @Test
-    public void testNonLatinSymbols() {
+    void testNonLatinSymbols() {
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("мояПеременная"));
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("мойМетод"));
 
@@ -49,13 +49,13 @@ public class TableNameCheckerTest {
     }
 
     @Test
-    public void testNullAndEmptyString() {
+    void testNullAndEmptyString() {
         assertTrue(TableNameChecker.isInvalidJavaIdentifier(null));
         assertTrue(TableNameChecker.isInvalidJavaIdentifier(""));
     }
 
     @Test
-    public void emptyCharacters() {
+    void emptyCharacters() {
         TableNameChecker.isValidJavaIdentifier("       af");
     }
 

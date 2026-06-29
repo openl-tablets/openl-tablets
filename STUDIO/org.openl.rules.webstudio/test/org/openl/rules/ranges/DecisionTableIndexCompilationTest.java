@@ -23,7 +23,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-public class DecisionTableIndexCompilationTest {
+class DecisionTableIndexCompilationTest {
 
     @Test
     void testDecisionTableCompilation_and_ConditionEvaluators() throws RulesInstantiationException,

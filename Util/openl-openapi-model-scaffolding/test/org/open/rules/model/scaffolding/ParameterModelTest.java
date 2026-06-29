@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 
-public class ParameterModelTest {
+class ParameterModelTest {
 
     @Test
-    public void testParameterModelCreation() {
+    void testParameterModelCreation() {
         ParameterModel nameParam = new ParameterModel(new TypeInfo(String.class), "name");
         ParameterModel oneMoreNameParam = new ParameterModel(new TypeInfo(String.class), "name");
         ParameterModel surnameParam = new ParameterModel(new TypeInfo(String.class), "surname");

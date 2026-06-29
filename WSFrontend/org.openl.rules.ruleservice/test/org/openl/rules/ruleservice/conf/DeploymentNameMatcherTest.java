@@ -5,24 +5,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class DeploymentNameMatcherTest {
+class DeploymentNameMatcherTest {
 
     @Test
-    public void shouldMatch_whenSourcePatternIsNull() {
+    void shouldMatch_whenSourcePatternIsNull() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher(null);
         assertTrue(matcher.hasMatches("foo"));
         assertTrue(matcher.hasMatches("bar"));
     }
 
     @Test
-    public void shouldMatch_whenSourcePatternIsBlank() {
+    void shouldMatch_whenSourcePatternIsBlank() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher(" ");
         assertTrue(matcher.hasMatches("foo"));
         assertTrue(matcher.hasMatches("bar"));
     }
 
     @Test
-    public void shouldMatchByFullName() {
+    void shouldMatchByFullName() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher("foo");
         assertTrue(matcher.hasMatches("foo"));
         assertFalse(matcher.hasMatches("foo-bar"));
@@ -30,7 +30,7 @@ public class DeploymentNameMatcherTest {
     }
 
     @Test
-    public void shouldMatchByPrefixPattern() {
+    void shouldMatchByPrefixPattern() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher("foo*");
         assertTrue(matcher.hasMatches("foo"));
         assertTrue(matcher.hasMatches("foo-bar"));
@@ -38,7 +38,7 @@ public class DeploymentNameMatcherTest {
     }
 
     @Test
-    public void shouldMatchByPostfixPattern() {
+    void shouldMatchByPostfixPattern() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher("*foo");
         assertTrue(matcher.hasMatches("foo"));
         assertTrue(matcher.hasMatches("bar-foo"));
@@ -47,7 +47,7 @@ public class DeploymentNameMatcherTest {
     }
 
     @Test
-    public void shouldMatchByPostfixOrPrefixPattern() {
+    void shouldMatchByPostfixOrPrefixPattern() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher("*foo, bar*");
         assertTrue(matcher.hasMatches("foo"));
         assertTrue(matcher.hasMatches("buz-foo"));
@@ -56,7 +56,7 @@ public class DeploymentNameMatcherTest {
     }
 
     @Test
-    public void shouldMatchByPrefixPattern_NotMatchByPostfixPattern_whenPostfixPatternNotCorrect() {
+    void shouldMatchByPrefixPattern_NotMatchByPostfixPattern_whenPostfixPatternNotCorrect() {
         DeploymentNameMatcher matcher = new DeploymentNameMatcher("**foo, bar*");
         assertFalse(matcher.hasMatches("foo"));
         assertFalse(matcher.hasMatches("buz-foo"));

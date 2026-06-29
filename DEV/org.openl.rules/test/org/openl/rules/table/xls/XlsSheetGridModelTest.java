@@ -13,12 +13,12 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.source.impl.URLSourceCodeModule;
 
-public class XlsSheetGridModelTest {
+class XlsSheetGridModelTest {
 
     private static XlsSheetGridModel xsGrid;
 
     @BeforeEach
-    public void before() {
+    void before() {
         URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
@@ -28,7 +28,7 @@ public class XlsSheetGridModelTest {
     }
 
     @Test
-    public void testConversions() {
+    void testConversions() {
         _testCell("A1", 0, 0);
         _testCell("AA1", 26, 0);
         _testCell("AB1", 27, 0);
@@ -42,7 +42,7 @@ public class XlsSheetGridModelTest {
     }
 
     @Test
-    public void testCellsFromMergedRegions() {
+    void testCellsFromMergedRegions() {
         ICell cell = xsGrid.getCell(2, 2);
         assertEquals("Rules void hello1(int hour)", cell.getStringValue());
 
@@ -57,13 +57,13 @@ public class XlsSheetGridModelTest {
     }
 
     @Test
-    public void testMergedRegionsNumber() {
+    void testMergedRegionsNumber() {
         int mergedRegions = xsGrid.getNumberOfMergedRegions();
         assertEquals(13, mergedRegions);
     }
 
     @Test
-    public void testColumnIndexes() {
+    void testColumnIndexes() {
         int maxColumnIndex = xsGrid.getMaxColumnIndex(2);
         assertEquals(8, maxColumnIndex);
 
@@ -72,7 +72,7 @@ public class XlsSheetGridModelTest {
     }
 
     @Test
-    public void testGetRegion() {
+    void testGetRegion() {
         assertTrue(xsGrid.isPartOfTheMergedRegion(3, 2));
         IGridRegion gridRegion = xsGrid.getRegionContaining(3, 2);
 
@@ -84,7 +84,7 @@ public class XlsSheetGridModelTest {
     }
 
     @Test
-    public void testIsEmpty() {
+    void testIsEmpty() {
         assertTrue(xsGrid.isEmpty(4, 12)); // trully empty cell
 
         assertTrue(xsGrid.isEmpty(4, 11)); // second cell from the merged region.

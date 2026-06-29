@@ -50,7 +50,7 @@ import org.openl.types.IOpenMember;
 
 @TestPropertySource(properties = {"some.prop = @Value"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
-public class ServiceInterfaceMethodInterceptingTest {
+class ServiceInterfaceMethodInterceptingTest {
 
     private static final String ELUSIVE_CLASS_NAME = "org.openl.test.MustNotBeFoundInClassloader";
 
@@ -303,7 +303,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @BeforeEach
-    public void before() throws Exception {
+    void before() throws Exception {
         CommonVersion version = new CommonVersionImpl(0, 0, 1);
         deploymentDescription = new DeploymentDescription("someDeploymentName", version);
 
@@ -342,7 +342,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testResultConverterInterceptor() throws Exception {
+    void testResultConverterInterceptor() throws Exception {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
@@ -354,7 +354,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testInterceptors() throws Exception {
+    void testInterceptors() throws Exception {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
@@ -363,7 +363,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testSpringAnnotations() throws Exception {
+    void testSpringAnnotations() throws Exception {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
@@ -371,7 +371,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testResultConverterInterceptor2() throws Exception {
+    void testResultConverterInterceptor2() throws Exception {
         OpenLService service = instantiationFactory
                 .createService(serviceDescriptionBuilder().setAnnotationTemplateClassName(AOverload.class.getName())
                         .setServiceClassName(null)
@@ -383,7 +383,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testNonExistedInRulesMethod() throws Exception {
+    void testNonExistedInRulesMethod() throws Exception {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
@@ -395,7 +395,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testInterceptorClassloader() throws Exception {
+    void testInterceptorClassloader() throws Exception {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
@@ -408,7 +408,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testGroupAndAroundInterceptor2() throws Exception {
+    void testGroupAndAroundInterceptor2() throws Exception {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
@@ -421,7 +421,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testServiceClassUndecorating() throws Exception {
+    void testServiceClassUndecorating() throws Exception {
         ServiceDescription serviceDescription = serviceDescriptionBuilder().build();
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
                 .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
@@ -435,7 +435,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
-    public void testMissingInterfaceClasses() {
+    void testMissingInterfaceClasses() {
         try {
             OpenLService service = instantiationFactory
                     .createService(serviceDescriptionBuilder().setServiceClassName(ELUSIVE_CLASS_NAME).build());

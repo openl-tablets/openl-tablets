@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-public class DateToolTest {
+class DateToolTest {
 
     private static Locale locale;
 
@@ -38,7 +38,7 @@ public class DateToolTest {
     }
 
     @Test
-    public void testYearDiff() {
+    void testYearDiff() {
         assertNull(DateTool.yearDiff(null, null));
         assertNull(DateTool.yearDiff(new Date(), null));
         assertNull(DateTool.yearDiff(null, new Date()));
@@ -50,122 +50,122 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_absMonth_shouldReturnNull() {
+    void test_absMonth_shouldReturnNull() {
         Integer actual = DateTool.absMonth(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_absMonth() {
+    void test_absMonth() {
         Date date = createCalendar(24, 9, 2015).getTime();
         int actual = DateTool.absMonth(date);
         assertEquals(24188, actual);
     }
 
     @Test
-    public void test_absQuarter_shouldReturnNull() {
+    void test_absQuarter_shouldReturnNull() {
         Integer actual = DateTool.absQuarter(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_dayDiff_shouldReturnNull_whenFirstParameterIsNull() {
+    void test_dayDiff_shouldReturnNull_whenFirstParameterIsNull() {
         Integer actual = DateTool.dayDiff(null, new Date());
         assertNull(actual);
     }
 
     @Test
-    public void test_dayDiff_shouldReturnNull_whenSecondParameterIsNull() {
+    void test_dayDiff_shouldReturnNull_whenSecondParameterIsNull() {
         Integer actual = DateTool.dayDiff(new Date(), null);
         assertNull(actual);
     }
 
     @Test
-    public void test_dayOfWeek_shouldReturnNull() {
+    void test_dayOfWeek_shouldReturnNull() {
         Integer actual = DateTool.dayOfWeek(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_dayOfMonth_shouldReturnNull() {
+    void test_dayOfMonth_shouldReturnNull() {
         Integer actual = DateTool.dayOfMonth(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_dayOfYear_shouldReturnNull() {
+    void test_dayOfYear_shouldReturnNull() {
         Integer actual = DateTool.dayOfYear(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_weekOfMonth_shouldReturnNull() {
+    void test_weekOfMonth_shouldReturnNull() {
         Integer actual = DateTool.weekOfMonth(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_weekOfYear_shouldReturnNull() {
+    void test_weekOfYear_shouldReturnNull() {
         Integer actual = DateTool.weekOfYear(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_lastDayOfMonth_shouldReturnNull() {
+    void test_lastDayOfMonth_shouldReturnNull() {
         Integer actual = DateTool.lastDayOfMonth(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_monthDiff_shouldReturnNull_whenFirstParameterIsNull() {
+    void test_monthDiff_shouldReturnNull_whenFirstParameterIsNull() {
         Integer actual = DateTool.monthDiff(null, new Date());
         assertNull(actual);
     }
 
     @Test
-    public void test_monthDiff_shouldReturnNull_whenSecondParameterIsNull() {
+    void test_monthDiff_shouldReturnNull_whenSecondParameterIsNull() {
         Integer actual = DateTool.monthDiff(new Date(), null);
         assertNull(actual);
     }
 
     @Test
-    public void test_yearDiff_shouldReturnNull_whenFirstParameterIsNull() {
+    void test_yearDiff_shouldReturnNull_whenFirstParameterIsNull() {
         Integer actual = DateTool.yearDiff(null, new Date());
         assertNull(actual);
     }
 
     @Test
-    public void test_yearDiff_shouldReturnNull_whenSecondParameterIsNull() {
+    void test_yearDiff_shouldReturnNull_whenSecondParameterIsNull() {
         Integer actual = DateTool.yearDiff(new Date(), null);
         assertNull(actual);
     }
 
     @Test
-    public void test_weekDiff_shouldReturnNull_whenFirstParameterIsNull() {
+    void test_weekDiff_shouldReturnNull_whenFirstParameterIsNull() {
         Integer actual = DateTool.weekDiff(null, new Date());
         assertNull(actual);
     }
 
     @Test
-    public void test_weekDiff_shouldReturnNull_whenSecondParameterIsNull() {
+    void test_weekDiff_shouldReturnNull_whenSecondParameterIsNull() {
         Integer actual = DateTool.weekDiff(new Date(), null);
         assertNull(actual);
     }
 
     @Test
-    public void test_quarter_shouldReturnNull() {
+    void test_quarter_shouldReturnNull() {
         Integer actual = DateTool.quarter(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_second_shouldReturnNull() {
+    void test_second_shouldReturnNull() {
         Integer actual = DateTool.second(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_second_shouldReturnSeconds() {
+    void test_second_shouldReturnSeconds() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int seconds = 0; seconds < 60; seconds++) {
             calendar.set(Calendar.SECOND, seconds);
@@ -175,13 +175,13 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_minute_shouldReturnNull() {
+    void test_minute_shouldReturnNull() {
         Integer actual = DateTool.minute(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_minute_shouldReturnMinutes() {
+    void test_minute_shouldReturnMinutes() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int minutes = 0; minutes < 60; minutes++) {
             calendar.set(Calendar.MINUTE, minutes);
@@ -191,13 +191,13 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_hour_shouldReturnNull() {
+    void test_hour_shouldReturnNull() {
         Integer actual = DateTool.hour(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_hour_shouldReturnHourBetween0and11_whenTimeBetween0and11() {
+    void test_hour_shouldReturnHourBetween0and11_whenTimeBetween0and11() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int hour = 0; hour < 12; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -207,7 +207,7 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_hour_shouldReturnHourBetween0and11_whenTimeBetween12and23() {
+    void test_hour_shouldReturnHourBetween0and11_whenTimeBetween12and23() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int hour = 12; hour < 23; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -218,13 +218,13 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_hourOfDay_shouldReturnNull() {
+    void test_hourOfDay_shouldReturnNull() {
         Integer actual = DateTool.hourOfDay(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_hourOfDay_shouldReturnHourBetween0and11_whenTimeBetween0and11() {
+    void test_hourOfDay_shouldReturnHourBetween0and11_whenTimeBetween0and11() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int hour = 0; hour < 12; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -234,7 +234,7 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_hourOfDay_shouldReturnHourBetween0and11_whenTimeBetween12and23() {
+    void test_hourOfDay_shouldReturnHourBetween0and11_whenTimeBetween12and23() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int hour = 12; hour < 23; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -244,25 +244,25 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_month_shouldReturnNull() {
+    void test_month_shouldReturnNull() {
         Integer actual = DateTool.month(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_year_shouldReturnNull() {
+    void test_year_shouldReturnNull() {
         Integer actual = DateTool.year(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_amPm_shouldReturnNull() {
+    void test_amPm_shouldReturnNull() {
         String actual = DateTool.amPm(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_amPm_shouldReturnAM_whenTimeBetween0and11() {
+    void test_amPm_shouldReturnAM_whenTimeBetween0and11() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int hour = 0; hour < 12; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -272,7 +272,7 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_amPm_shouldReturnPM_whenTimeBetween12and23() {
+    void test_amPm_shouldReturnPM_whenTimeBetween12and23() {
         Calendar calendar = createCalendar(15, 6, 2018);
         for (int hour = 12; hour < 24; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -282,26 +282,26 @@ public class DateToolTest {
     }
 
     @Test
-    public void test_dateToString_shouldReturnNull_whenDateIsNull() {
+    void test_dateToString_shouldReturnNull_whenDateIsNull() {
         String actual = DateTool.dateToString(null, "dd/MM/yyyy");
         assertNull(actual);
     }
 
     @Test
-    public void test_dateToString_shouldFormatUsingCustomDatePattern() {
+    void test_dateToString_shouldFormatUsingCustomDatePattern() {
         Date date = createCalendar(11, 12, 2013).getTime();
         String actual = DateTool.dateToString(date, "dd MMM yyyy");
         assertEquals("11 Dec 2013", actual);
     }
 
     @Test
-    public void dateToString_shouldReturnNull_whenDateIsNull() {
+    void dateToString_shouldReturnNull_whenDateIsNull() {
         String actual = DateTool.dateToString(null);
         assertNull(actual);
     }
 
     @Test
-    public void test_dateToString_shouldFormatUsingShortDatePattern() {
+    void test_dateToString_shouldFormatUsingShortDatePattern() {
         Date date = createCalendar(11, 12, 2013).getTime();
         String actual = DateTool.dateToString(date);
         assertEquals("12/11/13", actual);
@@ -315,7 +315,7 @@ public class DateToolTest {
             "1899-02-28,1899",
             "3892-05-14,3892"})
     @ParameterizedTest(name = "{index}: DateTool.year({0})={1}")
-    public void test_year(String input, int expected) throws ParseException {
+    void test_year(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.year(inputDate);
         assertEquals(expected, actual);
@@ -329,7 +329,7 @@ public class DateToolTest {
             "1899-02-28,2",
             "3892-07-14,7"})
     @ParameterizedTest(name = "{index}: DateTool.month({0})={1}")
-    public void test_month(String input, int expected) throws ParseException {
+    void test_month(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.month(inputDate);
         assertEquals(expected, actual);
@@ -337,7 +337,7 @@ public class DateToolTest {
 
     @CsvSource({"2015-05-14,14", "2015-12-31,31", "1788-02-29,29", "0001-01-01,1", "1900-04-30,30"})
     @ParameterizedTest(name = "{index}: DateTool.dayOfMonth({0})={1}")
-    public void test_dayOfMonth(String input, int expected) throws ParseException {
+    void test_dayOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.dayOfMonth(inputDate);
         assertEquals(expected, actual);
@@ -354,7 +354,7 @@ public class DateToolTest {
             "2000-02-29,60",
             "2000-03-01,61"})
     @ParameterizedTest(name = "{index}: DateTool.dayOfYear({0})={1}")
-    public void test_dayOfYear(String input, int expected) throws ParseException {
+    void test_dayOfYear(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.dayOfYear(inputDate);
         assertEquals(expected, actual);
@@ -369,7 +369,7 @@ public class DateToolTest {
             "2018-10-01,3",
             "2018-12-31,3"})
     @ParameterizedTest(name = "{index}: DateTool.quarter({0})={1}")
-    public void test_quarter(String input, int expected) throws ParseException {
+    void test_quarter(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.quarter(inputDate);
         assertEquals(expected, actual);
@@ -384,7 +384,7 @@ public class DateToolTest {
             "2000-02-29,3",
             "2000-03-01,4"})
     @ParameterizedTest(name = "{index}: DateTool.dayOfWeek({0})={1}")
-    public void test_dayOfWeek2(String input, int expected) throws ParseException {
+    void test_dayOfWeek2(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.dayOfWeek(inputDate);
         assertEquals(expected, actual);
@@ -398,7 +398,7 @@ public class DateToolTest {
             "3892-05-14,20",
             "2013-12-28,52"})
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
-    public void test_weekOfYear(String input, int expected) throws ParseException {
+    void test_weekOfYear(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.weekOfYear(inputDate);
         assertEquals(expected, actual);
@@ -406,7 +406,7 @@ public class DateToolTest {
 
     @CsvSource({"2015-05-14, 3", "2015-12-31, 5", "1789-05-14, 3", "0001-01-01, 1", "1899-02-28, 5", "3892-05-14, 2"})
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
-    public void test_weekOfMonth(String input, int expected) throws ParseException {
+    void test_weekOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.weekOfMonth(inputDate);
         assertEquals(expected, actual);
@@ -417,7 +417,7 @@ public class DateToolTest {
             "8074,2018-07-01,2018-09-30",
             "8075,2018-10-01,2018-12-31"})
     @ParameterizedTest(name = "{index}: When Quarter={0} between [{1}, {2}]")
-    public void test_absQuarter_whenLastDateOfQuarter(Integer quarter, String d1, String d2) throws ParseException {
+    void test_absQuarter_whenLastDateOfQuarter(Integer quarter, String d1, String d2) throws ParseException {
         var firstDate = new SimpleDateFormat("yyyy-MM-dd").parse(d1);
         var lastDate = new SimpleDateFormat("yyyy-MM-dd").parse(d2);
         assertEquals(firstDate, DateTool.firstDateOfQuarter(quarter));
@@ -428,7 +428,7 @@ public class DateToolTest {
 
     @ParameterizedTest(name = "{index}: DateTool.lastDayOfMonth({0})={1}")
     @CsvSource({"1900-01-02,31", "2015-05-14,31", "2015-12-30,31", "2015-02-28,28", "2000-12-4,31", "2015-04-30,30"})
-    public void test_dayOfWeek(String input, int expected) throws ParseException {
+    void test_dayOfWeek(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.lastDayOfMonth(inputDate);
         assertEquals(expected, actual);

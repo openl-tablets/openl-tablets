@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class SequentialXlsLoaderTest {
+class SequentialXlsLoaderTest {
     @Test
-    public void getParentAndMergePaths() {
+    void getParentAndMergePaths() {
         assertEquals("/f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("/f1/f2/m1", "m2"));
         assertEquals("/f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("/f1/f2/", "m2"));
         assertEquals("C:/f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("C:\\f1\\f2\\", "m2"));

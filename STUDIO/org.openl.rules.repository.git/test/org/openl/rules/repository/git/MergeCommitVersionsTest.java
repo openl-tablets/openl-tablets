@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.repository.api.FileData;
 
-public class MergeCommitVersionsTest {
+class MergeCommitVersionsTest {
 
     private static final String REPO_URI = "target/test-classes/repositories/MergeCommitVersionsTest";
 
     private GitRepository repo;
 
     @BeforeEach
-    public void setUp() throws GitAPIException, IOException {
+    void setUp() throws GitAPIException, IOException {
         File gitRepo = new File(REPO_URI, ".git");
         if (!gitRepo.exists()) {
             File designGit = new File(REPO_URI, "design-git");
@@ -31,14 +31,14 @@ public class MergeCommitVersionsTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         if (repo != null) {
             repo.close();
         }
     }
 
     @Test
-    public void testMergeCommitVersions() throws IOException {
+    void testMergeCommitVersions() throws IOException {
         List<FileData> sampleProjectHistory = repo.listHistory("DESIGN/rules/Sample Project");
         List<FileData> example3History = repo.listHistory("DESIGN/rules/Example 3 - Auto Policy Calculation");
         assertEquals(4, sampleProjectHistory.size());

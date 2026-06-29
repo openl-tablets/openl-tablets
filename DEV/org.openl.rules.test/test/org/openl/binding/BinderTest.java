@@ -25,7 +25,7 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author snshor
  */
-public class BinderTest {
+class BinderTest {
 
     private void _testMethodHeader(String code, IOpenClass type, int numPar) {
         OpenL openl = OpenL.getInstance();
@@ -67,7 +67,7 @@ public class BinderTest {
     }
 
     @Test
-    public void testBind() throws OpenLConfigurationException {
+    void testBind() throws OpenLConfigurationException {
         _testNoError("String[] name;", void.class);
         _testNoError("int x = 5, z, y= 20;", void.class);
         _testNoError("5.5", double.class);
@@ -83,12 +83,12 @@ public class BinderTest {
     }
 
     @Test
-    public void testMeta() {
+    void testMeta() {
         _testNoError("DoubleValue d1, d2; d1 + d2", Double.class);
     }
 
     @Test
-    public void testMethodHeader() throws OpenLCompilationException {
+    void testMethodHeader() throws OpenLCompilationException {
         _testMethodHeader("int x()", JavaOpenClass.INT, 0);
         _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, 2);
     }

@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
 
-public class CommitMessageParserTest {
+class CommitMessageParserTest {
 
     @Test
-    public void testMessageParser() {
+    void testMessageParser() {
         CommitMessageParser decompiler = new CommitMessageParser(
                 "{user-message} Author: {username}. Commit type: {commit-type}.");
         CommitMessage commitMessage = decompiler

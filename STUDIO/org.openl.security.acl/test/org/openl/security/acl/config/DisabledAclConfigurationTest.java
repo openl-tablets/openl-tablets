@@ -14,24 +14,24 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
-public class DisabledAclConfigurationTest {
+class DisabledAclConfigurationTest {
 
     private DisabledAclConfiguration disabledAclConfiguration;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         disabledAclConfiguration = new DisabledAclConfiguration();
     }
 
     @Test
-    public void test_disabled_designRepositoryAclService() {
+    void test_disabled_designRepositoryAclService() {
         var aclService = disabledAclConfiguration.designRepositoryAclService();
         test_DisabledSimpleRepositoryAclService_stubs(aclService);
         test_DisabledRepositoryAclService_stubs(aclService);
     }
 
     @Test
-    public void test_disabled_productionRepositoryAclService() {
+    void test_disabled_productionRepositoryAclService() {
         var aclService = disabledAclConfiguration.productionRepositoryAclService();
         test_DisabledSimpleRepositoryAclService_stubs(aclService);
     }

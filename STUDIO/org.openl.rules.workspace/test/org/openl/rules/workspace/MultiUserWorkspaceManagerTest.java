@@ -14,13 +14,13 @@ import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
-public class MultiUserWorkspaceManagerTest {
+class MultiUserWorkspaceManagerTest {
     @TempDir
     public File tempFolder;
     private MultiUserWorkspaceManager manager;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         LocalWorkspaceManagerImpl localWorkspaceManager = new LocalWorkspaceManagerImpl();
         localWorkspaceManager.setWorkspaceHome(tempFolder.getAbsolutePath());
         localWorkspaceManager.init();
@@ -31,7 +31,7 @@ public class MultiUserWorkspaceManagerTest {
     }
 
     @Test
-    public void removeWorkspaceOnSessionTimeout() {
+    void removeWorkspaceOnSessionTimeout() {
         WorkspaceUserImpl user = new WorkspaceUserImpl("user1",
                 (username) -> new UserInfo("user1", "user1@email", "User1"));
         UserWorkspace workspace1 = manager.getUserWorkspace(user);

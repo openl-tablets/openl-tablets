@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class PointTest {
+class PointTest {
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Point point1 = Point.get(1, 2);
         Point point2 = Point.get(3, 4);
         Point point3 = Point.get(1, 2);
@@ -18,7 +18,7 @@ public class PointTest {
     }
 
     @Test
-    public void testHahCode() {
+    void testHahCode() {
         Point point1 = Point.get(1, 2);
         Point point2 = Point.get(3, 4);
         Point point3 = Point.get(1, 2);

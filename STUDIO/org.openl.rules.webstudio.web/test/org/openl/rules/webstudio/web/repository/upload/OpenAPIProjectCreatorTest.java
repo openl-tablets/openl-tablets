@@ -52,7 +52,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 
-public class OpenAPIProjectCreatorTest {
+class OpenAPIProjectCreatorTest {
 
     private final Logger log = LoggerFactory.getLogger("OpenAPI Project Creator Test");
 
@@ -72,7 +72,7 @@ public class OpenAPIProjectCreatorTest {
     private TimeZone defaultTimeZone;
 
     @BeforeEach
-    public void setupLocale() {
+    void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
         Locale.setDefault(Locale.US);
@@ -80,13 +80,13 @@ public class OpenAPIProjectCreatorTest {
     }
 
     @AfterEach
-    public void restoreLocale() {
+    void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tempRepo = new FileSystemRepository();
         tempRepo.setUri(OPENAPI_OUT);
         tempRepo.initialize();
@@ -108,7 +108,7 @@ public class OpenAPIProjectCreatorTest {
     }
 
     @Test
-    public void testAll() {
+    void testAll() {
         assertFalse(run(DIR), "Test is failed.");
     }
 

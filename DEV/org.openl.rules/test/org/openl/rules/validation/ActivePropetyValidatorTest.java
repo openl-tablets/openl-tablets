@@ -10,7 +10,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
+class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/validation/TestData.xls";
 
@@ -19,14 +19,14 @@ public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testOddActiveTable() {
+    void testOddActiveTable() {
         assertTrue(isMessageOccured(getCompiledOpenClass().getAllMessages(),
                 ActivePropertyValidator.ODD_ACTIVE_TABLE_MESSAGE,
                 Severity.ERROR));
     }
 
     @Test
-    public void testNoActiveTable() {
+    void testNoActiveTable() {
         assertTrue(isMessageOccured(getCompiledOpenClass().getAllMessages(),
                 ActivePropertyValidator.NO_ACTIVE_TABLE_MESSAGE,
                 Severity.WARN));

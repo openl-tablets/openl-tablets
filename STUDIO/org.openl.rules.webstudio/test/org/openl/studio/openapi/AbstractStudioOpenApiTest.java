@@ -41,7 +41,7 @@ public abstract class AbstractStudioOpenApiTest {
     private MockMvc mockMvc;
 
     @Test
-    public void generatesOpenApiDocument() throws Exception {
+    protected void generatesOpenApiDocument() throws Exception {
         var actual = mockMvc.perform(get("/openapi.json")).andReturn().getResponse().getContentAsString();
         var expected = loadFixture(FIXTURE.formatted(appName()));
         compareJsonObjects(OBJECT_MAPPER.readTree(expected), OBJECT_MAPPER.readTree(actual), "");

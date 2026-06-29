@@ -7,35 +7,35 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class MultiCallMethodTest {
+class MultiCallMethodTest {
 
     private static final String SRC = "test/rules/binding/ArrayMethodsTest.xlsx";
 
     private static ArrayMethodsInterf instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create(SRC, ArrayMethodsInterf.class);
     }
 
     @Test
-    public void testSingleCall() {
+    void testSingleCall() {
         assertEquals(25, instance.start());
     }
 
     @Test
-    public void testArrayCall() {
+    void testArrayCall() {
         assertEquals(45, instance.start1()[1]);
     }
 
     @Test
-    public void testInt() {
+    void testInt() {
         assertEquals(5, instance.intTest(4));
         assertEquals(7, instance.intArrayTest(new int[]{4, 5, 6})[2]);
     }
 
     @Test
-    public void testAccessFieldsMethodsForDataTable() {
+    void testAccessFieldsMethodsForDataTable() {
         String[] names = instance.personsNames();
         assertEquals(2, names.length);
         assertEquals("Vasia", names[0]);
@@ -43,7 +43,7 @@ public class MultiCallMethodTest {
     }
 
     @Test
-    public void testAccessFieldsMethodsForArrays() {
+    void testAccessFieldsMethodsForArrays() {
         String[] names = instance.personNamesFromArray();
         assertEquals(2, names.length);
         assertEquals("Vasia", names[0]);
@@ -51,7 +51,7 @@ public class MultiCallMethodTest {
     }
 
     @Test
-    public void test2MethodsCall() {
+    void test2MethodsCall() {
         int[] a = instance.test2MethodCalls();
         assertEquals(2, a.length);
         assertEquals(7, a[0]);
@@ -59,7 +59,7 @@ public class MultiCallMethodTest {
     }
 
     @Test
-    public void testVoidCallFromTBasic() {
+    void testVoidCallFromTBasic() {
         instance.TBasicCall();
     }
 

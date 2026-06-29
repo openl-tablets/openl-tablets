@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class BooleanUtilsTest {
+class BooleanUtilsTest {
 
     @Test
-    public void testObjectToTrue() {
+    void testObjectToTrue() {
         assertTrue(BooleanUtils.toBooleanObject("y"));
         assertTrue(BooleanUtils.toBooleanObject("Y"));
         assertTrue(BooleanUtils.toBooleanObject("t"));
@@ -27,7 +27,7 @@ public class BooleanUtilsTest {
     }
 
     @Test
-    public void testObjectToFalse() {
+    void testObjectToFalse() {
         assertFalse(BooleanUtils.toBooleanObject("n"));
         assertFalse(BooleanUtils.toBooleanObject("N"));
         assertFalse(BooleanUtils.toBooleanObject("f"));
@@ -43,7 +43,7 @@ public class BooleanUtilsTest {
     }
 
     @Test
-    public void testObjectToNull() {
+    void testObjectToNull() {
         assertNull(BooleanUtils.toBooleanObject(null));
         assertNull(BooleanUtils.toBooleanObject(""));
         assertNull(BooleanUtils.toBooleanObject("Not"));
@@ -54,7 +54,7 @@ public class BooleanUtilsTest {
     }
 
     @Test
-    public void testNullToFalse() {
+    void testNullToFalse() {
         assertFalse(BooleanUtils.toBoolean(null));
         assertFalse(BooleanUtils.toBoolean(""));
         assertFalse(BooleanUtils.toBoolean("Not"));

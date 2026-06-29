@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class ArrayLoadTest {
+class ArrayLoadTest {
 
     private static final String SRC = "test/rules/data/MultiRowArrayLoadTest.xls";
 
     @Test
-    public void testMultiRowArrayLoad() {
+    void testMultiRowArrayLoad() {
         ITestI instance = TestUtils.create(SRC, ITestI.class);
 
         Customer[] customers = instance.getCustomers();

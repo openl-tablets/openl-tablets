@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class NumericStringComparatorTest {
+class NumericStringComparatorTest {
 
     @Test
-    public void testCompare() {
+    void testCompare() {
 
         assertTrue(compare("A07B", "A7A") > 0);
         assertTrue(compare("A07B", "A07A") > 0);

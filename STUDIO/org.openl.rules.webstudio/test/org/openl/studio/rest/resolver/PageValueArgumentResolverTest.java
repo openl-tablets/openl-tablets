@@ -33,7 +33,7 @@ import org.openl.studio.rest.resolver.test.PaginationTestController;
 
 @SpringJUnitConfig(classes = {MockConfiguration.class, PageValueArgumentResolverTest.TestConfig.class})
 @WebAppConfiguration
-public class PageValueArgumentResolverTest {
+class PageValueArgumentResolverTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,17 +44,17 @@ public class PageValueArgumentResolverTest {
     private ArgumentCaptor<Pageable> pageableCaptor;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         pageableCaptor = forClass(Pageable.class);
     }
 
     @AfterEach
-    public void restore() {
+    void restore() {
         reset(pageableConsumer);
     }
 
     @Test
-    public void testPageQuery() throws Exception {
+    void testPageQuery() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
         Pageable pageable = pageableCaptor.getValue();
@@ -62,7 +62,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testBadRequest() throws Exception {
+    void testBadRequest() throws Exception {
         var mockMvcResult = mockMvc
                 .perform(get("/pagination-test/pageOrOffset").queryParam("page", "100").queryParam("offset", "11"))
                 .andReturn();
@@ -72,7 +72,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQuery1() throws Exception {
+    void testPageQuery1() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("size", "100"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -82,7 +82,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQuery2() throws Exception {
+    void testPageQuery2() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("page", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -92,7 +92,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQuery3() throws Exception {
+    void testPageQuery3() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("size", "100").queryParam("page", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -102,7 +102,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQueryWithDefault() throws Exception {
+    void testPageQueryWithDefault() throws Exception {
         performRequest(get("/pagination-test/pageWithDefault"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
         Pageable pageable = pageableCaptor.getValue();
@@ -112,7 +112,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQuery1WithDefault() throws Exception {
+    void testPageQuery1WithDefault() throws Exception {
         performRequest(get("/pagination-test/pageWithDefault").queryParam("size", "100"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -122,7 +122,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQuery2WithDefault() throws Exception {
+    void testPageQuery2WithDefault() throws Exception {
         performRequest(get("/pagination-test/pageWithDefault").queryParam("page", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -132,7 +132,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageQuery3WithDefault() throws Exception {
+    void testPageQuery3WithDefault() throws Exception {
         performRequest(get("/pagination-test/pageWithDefault").queryParam("size", "100").queryParam("page", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -144,7 +144,7 @@ public class PageValueArgumentResolverTest {
     // ------
 
     @Test
-    public void testOffsetQuery() throws Exception {
+    void testOffsetQuery() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
         Pageable pageable = pageableCaptor.getValue();
@@ -152,7 +152,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQuery1() throws Exception {
+    void testOffsetQuery1() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("size", "100"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = pageableCaptor.getValue();
@@ -162,7 +162,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQuery2() throws Exception {
+    void testOffsetQuery2() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("offset", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = (Offset) pageableCaptor.getValue();
@@ -172,7 +172,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQuery3() throws Exception {
+    void testOffsetQuery3() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("size", "100").queryParam("offset", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = (Offset) pageableCaptor.getValue();
@@ -182,7 +182,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQueryWithDefault() throws Exception {
+    void testOffsetQueryWithDefault() throws Exception {
         performRequest(get("/pagination-test/offsetWithDefault"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
         var pageable = (Offset) pageableCaptor.getValue();
@@ -192,7 +192,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQuery1WithDefault() throws Exception {
+    void testOffsetQuery1WithDefault() throws Exception {
         performRequest(get("/pagination-test/offsetWithDefault").queryParam("size", "100"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = (Offset) pageableCaptor.getValue();
@@ -202,7 +202,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQuery2WithDefault() throws Exception {
+    void testOffsetQuery2WithDefault() throws Exception {
         performRequest(get("/pagination-test/offsetWithDefault").queryParam("offset", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = (Offset) pageableCaptor.getValue();
@@ -212,7 +212,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testOffsetQuery3WithDefault() throws Exception {
+    void testOffsetQuery3WithDefault() throws Exception {
         performRequest(get("/pagination-test/offsetWithDefault").queryParam("size", "100").queryParam("offset", "5"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());
         var pageable = (Offset) pageableCaptor.getValue();
@@ -224,7 +224,7 @@ public class PageValueArgumentResolverTest {
     // ------ unpaged tests ------
 
     @Test
-    public void testUnpagedQuery() throws Exception {
+    void testUnpagedQuery() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
         Pageable pageable = pageableCaptor.getValue();
@@ -232,7 +232,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testUnpagedQueryWithDefault() throws Exception {
+    void testUnpagedQueryWithDefault() throws Exception {
         // unpaged=true should override @PaginationDefault
         performRequest(get("/pagination-test/pageableWithDefault").queryParam("unpaged", "true"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
@@ -241,7 +241,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testPageableWithDefaultWithoutUnpaged() throws Exception {
+    void testPageableWithDefaultWithoutUnpaged() throws Exception {
         // verify the new endpoint's defaults are applied when unpaged is not set
         performRequest(get("/pagination-test/pageableWithDefault"));
         verify(pageableConsumer).accept(pageableCaptor.capture());
@@ -252,7 +252,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testUnpagedCombinedWithPage() throws Exception {
+    void testUnpagedCombinedWithPage() throws Exception {
         var mockMvcResult = mockMvc
                 .perform(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true").queryParam("page", "1"))
                 .andReturn();
@@ -262,7 +262,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testUnpagedCombinedWithOffset() throws Exception {
+    void testUnpagedCombinedWithOffset() throws Exception {
         var mockMvcResult = mockMvc
                 .perform(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true").queryParam("offset", "10"))
                 .andReturn();
@@ -272,7 +272,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testUnpagedCombinedWithSize() throws Exception {
+    void testUnpagedCombinedWithSize() throws Exception {
         var mockMvcResult = mockMvc
                 .perform(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true").queryParam("size", "50"))
                 .andReturn();
@@ -282,7 +282,7 @@ public class PageValueArgumentResolverTest {
     }
 
     @Test
-    public void testUnpagedFalse() throws Exception {
+    void testUnpagedFalse() throws Exception {
         // unpaged=false should behave as if not present
         performRequest(get("/pagination-test/pageWithDefault").queryParam("unpaged", "false"));
         verify(pageableConsumer).accept(pageableCaptor.capture());

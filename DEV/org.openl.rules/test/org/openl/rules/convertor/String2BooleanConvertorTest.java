@@ -6,24 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class String2BooleanConvertorTest {
+class String2BooleanConvertorTest {
 
     @Test
-    public void testParseTrue() {
+    void testParseTrue() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
         Boolean result = converter.parse("True", null);
         assertEquals(Boolean.TRUE, result);
     }
 
     @Test
-    public void testParseFalse() {
+    void testParseFalse() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
         Boolean result = converter.parse("false", null);
         assertEquals(Boolean.FALSE, result);
     }
 
     @Test
-    public void testParseEmpty() {
+    void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2BooleanConvertor converter = new String2BooleanConvertor();
             converter.parse("", null);
@@ -31,7 +31,7 @@ public class String2BooleanConvertorTest {
     }
 
     @Test
-    public void testParseWrongValue() {
+    void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2BooleanConvertor converter = new String2BooleanConvertor();
             converter.parse("1", null);
@@ -39,7 +39,7 @@ public class String2BooleanConvertorTest {
     }
 
     @Test
-    public void testParseNull() {
+    void testParseNull() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
         assertNull(converter.parse(null, null));
     }

@@ -18,7 +18,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeOpenlException;
 
-public class RunTest {
+class RunTest {
     private static Object runExpression(String expression) {
         OpenL openl = OpenL.getInstance();
         return OpenLManager.run(openl, new StringSourceCodeModule(expression, null));
@@ -52,7 +52,7 @@ public class RunTest {
     }
 
     @Test
-    public void testBig() {
+    void testBig() {
         assertToExpected("Vector x = new Vector(); x.size()", 0);
 
         assertToExpected("BigDecimal x = 10, y = 20; x > y", false);
@@ -79,7 +79,7 @@ public class RunTest {
     }
 
     @Test
-    public void testComparable() {
+    void testComparable() {
         assertToExpected("String x = \"abc\";String y = \"abc\"; x < y", false);
         assertToExpected("String x = \"abc\";String y = \"abc\"; x <= y", true);
 
@@ -88,7 +88,7 @@ public class RunTest {
     }
 
     @Test
-    public void testLong() {
+    void testLong() {
         assertToExpected("long x = 4; x + 5.0", 9.0);
         assertToExpected("long x = 4; x - 5.0", -1.0);
         assertToExpected("long x = 4; x - 5", -1L);
@@ -97,7 +97,7 @@ public class RunTest {
     }
 
     @Test
-    public void testRun() {
+    void testRun() {
 
         assertToExpected("String $x$y=null; $x$y == null || $x$y.length() < 10", true);
 
@@ -200,7 +200,7 @@ public class RunTest {
     }
 
     @Test
-    public void testBusinessLiteral() {
+    void testBusinessLiteral() {
         assertToExpected(" 10M is more or equal 1K", true);
         assertToExpected(" 10K is more or equal 1L", true);
         assertToExpected(" 1K is more or equal 100", true);
@@ -208,7 +208,7 @@ public class RunTest {
     }
 
     @Test
-    public void testAggregate() {
+    void testAggregate() {
 
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[2]", "aaa");
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[!@ startsWith(\"b\")]", "bb");
@@ -310,7 +310,7 @@ public class RunTest {
     }
 
     @Test
-    public void testSelectAllForList() {
+    void testSelectAllForList() {
         // Select all should return array
         assertToExpected(
                 "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all having length() == 3]",
@@ -329,7 +329,7 @@ public class RunTest {
     }
 
     @Test
-    public void testOrderByForList() {
+    void testOrderByForList() {
         // Order by should return array
         assertToExpected(
                 "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order by s]",
@@ -348,7 +348,7 @@ public class RunTest {
     }
 
     @Test
-    public void testTransformForList() {
+    void testTransformForList() {
         // Transform to should return array
         assertToExpected(
                 "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to s + s.length()]",
@@ -373,7 +373,7 @@ public class RunTest {
     }
 
     @Test
-    public void testSplitByForList() {
+    void testSplitByForList() {
         // Split By should return array of arrays
         assertToExpected(
                 "List list = new ArrayList(); list.add(\"5000\");list.add( \"2002\");list.add(\"3300\");list.add(\"2113\"); list[(String s) split by substring(0,1)]",
@@ -390,7 +390,7 @@ public class RunTest {
     }
 
     @Test
-    public void testArrayOfList() {
+    void testArrayOfList() {
         // When array has the type List[] then inside of aggregate function array element type must be List, not Object.
         assertToExpected("List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split by size()]",
                 new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
@@ -400,7 +400,7 @@ public class RunTest {
     }
 
     @Test
-    public void testStatic() {
+    void testStatic() {
         assertToExpected("int.class", int.class);
         assertToExpected("Double.class", Double.class);
         assertToExpected("String.valueOf(5)", String.valueOf(5));
@@ -420,13 +420,13 @@ public class RunTest {
     }
 
     @Test
-    public void testLongName() {
+    void testLongName() {
         assertToExpected("new java.math.BigDecimal(10)", new BigDecimal(10));
         assertToExpected("java.io.File f = new java.io.File(\"./temp\"); f.getName()", "temp");
     }
 
     @Test
-    public void testArrayInitializationObject() {
+    void testArrayInitializationObject() {
         assertToExpected("new Byte[0]", new Byte[0]);
         assertToExpected("new Byte[5]", new Byte[5]);
         assertToExpected("new Byte[]{1,2,3}", new Byte[]{1, 2, 3});
@@ -441,7 +441,7 @@ public class RunTest {
     }
 
     @Test
-    public void testArrayInitializationPrimitives() {
+    void testArrayInitializationPrimitives() {
         assertToExpected("new int[0]", new int[0]);
         assertToExpected("new int[5]", new int[5]);
         assertToExpected("new int[]{1,2,3}", new int[]{1, 2, 3});

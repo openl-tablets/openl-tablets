@@ -12,12 +12,12 @@ import org.openl.rules.dt.type.IntRangeAdaptor;
 /**
  * @author DLiauchuk
  */
-public class IntRangeRulesParsingTest {
+class IntRangeRulesParsingTest {
 
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/helpers/IntRangeTest.xlsx");
     }
 
@@ -25,7 +25,7 @@ public class IntRangeRulesParsingTest {
      * Test to check EPBDS-2128 issue.
      */
     @Test
-    public void test() {
+    void test() {
         assertEquals("rule2", invoke("getLossAssessment", true, 9999));
     }
 
@@ -33,7 +33,7 @@ public class IntRangeRulesParsingTest {
      * Test that negative int ranges are supported.
      */
     @Test
-    public void testNegativeRange() {
+    void testNegativeRange() {
         assertEquals("rule1", invoke("testNegativeRange", true, -205));
 
         assertEquals("rule2", invoke("testNegativeRange", true, -103));
@@ -51,7 +51,7 @@ public class IntRangeRulesParsingTest {
      * Test that byte value can be processed through IntRange
      */
     @Test
-    public void testByteRange() {
+    void testByteRange() {
         assertEquals("rule2", invoke("testByteRange", true, 110));
     }
 
@@ -59,7 +59,7 @@ public class IntRangeRulesParsingTest {
      * Test that short value can be processed through IntRange
      */
     @Test
-    public void testShortRange() {
+    void testShortRange() {
         assertEquals("rule1", invoke("testShortRange", true, 202));
     }
 
@@ -68,17 +68,17 @@ public class IntRangeRulesParsingTest {
      * {@link IntRangeAdaptor#getMax(org.openl.rules.helpers.IntRange)}
      */
     @Test
-    public void testMaxInt() {
+    void testMaxInt() {
         assertNull(invoke("testMaxInt", true, Long.MAX_VALUE - 1));
     }
 
     @Test
-    public void testMaxInt1() {
+    void testMaxInt1() {
         assertEquals("rule1", invoke("testMaxInt1", true, 9223372036854775701L));
     }
 
     @Test
-    public void testtestRange() {
+    void testtestRange() {
         assertEquals("rule1",
                 TestUtils.invoke(instance,
                         "ClassifyIncome",
@@ -87,7 +87,7 @@ public class IntRangeRulesParsingTest {
     }
 
     @Test
-    public void testtestRange0() {
+    void testtestRange0() {
         assertEquals("rule3",
                 TestUtils.invoke(instance,
                         "ClassifyIncome",

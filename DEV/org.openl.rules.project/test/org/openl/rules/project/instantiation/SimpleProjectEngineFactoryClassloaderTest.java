@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
-public class SimpleProjectEngineFactoryClassloaderTest {
+class SimpleProjectEngineFactoryClassloaderTest {
 
     @Test
-    public void singleModuleTest() throws Exception {
+    void singleModuleTest() throws Exception {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/classpath/project1")
                 .build();
@@ -23,7 +23,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
     }
 
     @Test
-    public void singleModuleWithoutDepTest() throws Exception {
+    void singleModuleWithoutDepTest() throws Exception {
         assertThrows(OpenlNotCheckedException.class, () -> {
             SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/classpath/project2")
@@ -33,7 +33,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
     }
 
     @Test
-    public void classloader_Test() throws Exception {
+    void classloader_Test() throws Exception {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
                 .setWorkspace("test-resources/classpath")
                 .setProject("test-resources/classpath/project2")
@@ -51,7 +51,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
      * bleeding across factories (e.g. via a global, name-keyed cache).
      */
     @Test
-    public void proxyClassIsReusedWithinFactoryButDistinctAcrossFactories() throws Exception {
+    void proxyClassIsReusedWithinFactoryButDistinctAcrossFactories() throws Exception {
         var firstFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/classpath/project1")
                 .build();

@@ -11,10 +11,10 @@ import org.richfaces.model.TreeNode;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.SimpleLogicalTable;
 
-public class HelperTest {
+class HelperTest {
 
     @Test
-    public void testGetRoot() {
+    void testGetRoot() {
         Helper helper = new Helper();
         SimpleParameterTreeNode parameter = new SimpleParameterTreeNode("FN", 123, null, null);
         TreeNode root = helper.getRoot(parameter);
@@ -23,7 +23,7 @@ public class HelperTest {
     }
 
     @Test
-    public void testFormat() {
+    void testFormat() {
         Helper helper = new Helper();
         assertEquals("null", helper.format(null));
         assertEquals("Str", helper.format("Str"));
@@ -34,7 +34,7 @@ public class HelperTest {
     }
 
     @Test
-    public void testFormatText() {
+    void testFormatText() {
         Helper helper = new Helper();
         assertEquals("1.759999999999998", helper.formatText(1.759999999999998, true));
         assertEquals("null", helper.format(null));
@@ -44,7 +44,7 @@ public class HelperTest {
     }
 
     @Test
-    public void testIsSpreadsheetResult() {
+    void testIsSpreadsheetResult() {
         SpreadsheetResult sr = new SpreadsheetResult();
         sr.setLogicalTable(new SimpleLogicalTable(null)); // Real spreadsheet always contains a logical table from which it was created
         Helper helper = new Helper();

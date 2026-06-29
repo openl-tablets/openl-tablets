@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.types.java.JavaOpenClass;
 
-public class ParametersDeclarationTest {
+class ParametersDeclarationTest {
 
     ParameterDeclaration paramDecl1;
     ParameterDeclaration paramDecl2;
     ParameterDeclaration paramDecl3;
 
     @BeforeEach
-    public void init() {
+    void init() {
         String name1 = "paramDeclaration1";
         String name2 = "paramDeclaration3";
         paramDecl1 = new ParameterDeclaration(JavaOpenClass.BOOLEAN, name1);
@@ -24,13 +24,13 @@ public class ParametersDeclarationTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         assertEquals(paramDecl1, paramDecl2);
         assertNotEquals(paramDecl1, paramDecl3);
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         // same hash codes for equal objects
         assertEquals(paramDecl1.hashCode(), paramDecl2.hashCode());
         // not the same hash codes for unequal objects

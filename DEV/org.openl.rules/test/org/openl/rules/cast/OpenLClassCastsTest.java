@@ -12,16 +12,16 @@ import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.java.JavaOpenClass;
 
-public class OpenLClassCastsTest {
+class OpenLClassCastsTest {
     private static ICastFactory castFactory;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         castFactory = CastFactory.create();
     }
 
     @Test
-    public void testCastDistances() {
+    void testCastDistances() {
         JavaOpenClass integerClass = JavaOpenClass.getOpenClass(Integer.class);
 
         IOpenCast autoboxing = castFactory.getCast(integerClass, JavaOpenClass.INT);
@@ -32,7 +32,7 @@ public class OpenLClassCastsTest {
     }
 
     @Test
-    public void testBoxingUpCast() {
+    void testBoxingUpCast() {
         JavaOpenClass comparableClass = JavaOpenClass.getOpenClass(Comparable.class);
         IOpenCast cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
         assertNotNull(cast);
@@ -44,7 +44,7 @@ public class OpenLClassCastsTest {
     }
 
     @Test
-    public void testCastFromPrimitiveToOtherPrimitiveWrapper() throws Exception {
+    void testCastFromPrimitiveToOtherPrimitiveWrapper() throws Exception {
         JavaOpenClass doubleWrapperClass = JavaOpenClass.getOpenClass(Double.class);
 
         IOpenCast autocast = castFactory.getCast(JavaOpenClass.INT, doubleWrapperClass);

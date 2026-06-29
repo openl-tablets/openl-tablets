@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class DTReturnMultiVariablesTest {
+class DTReturnMultiVariablesTest {
 
     private static final String SRC = "test/rules/dt/DTReturnMultiVariablesTest.xls";
 
     @Test
-    public void testRightNumberOfParameters() {
+    void testRightNumberOfParameters() {
         assertEquals("15secondDomainsecondText", TestUtils.invoke(SRC, "validateAttribute", "Driver", "denis"));
     }
 }

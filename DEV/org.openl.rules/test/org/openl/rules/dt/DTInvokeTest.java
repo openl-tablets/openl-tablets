@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class DTInvokeTest {
+class DTInvokeTest {
 
     @Test
-    public void testInvoking() {
+    void testInvoking() {
         Object instance = TestUtils.create("test/rules/dt/DTInvokeTest.xls");
         assertEquals(Double.valueOf(1), TestUtils.invoke(instance, "getILFactor", "Comp", "PA"));
 

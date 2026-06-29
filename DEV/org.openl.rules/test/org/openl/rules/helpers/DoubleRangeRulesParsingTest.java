@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class DoubleRangeRulesParsingTest {
+class DoubleRangeRulesParsingTest {
 
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/helpers/DoubleRangeRulesParsingTest.xlsx");
     }
 
@@ -20,7 +20,7 @@ public class DoubleRangeRulesParsingTest {
      * checks that negative double ranges are being parsed from excel rule.
      */
     @Test
-    public void testDoubleNegativeRange() {
+    void testDoubleNegativeRange() {
         assertEquals("rule1", invoke("testDoubleNegativeRange", "Hello1", -200.5));
         assertEquals("rule2", invoke("testDoubleNegativeRange", "Hello2", -60.5));
         assertEquals("rule3", invoke("testDoubleNegativeRange", "Hello3", -40.67));
@@ -30,7 +30,7 @@ public class DoubleRangeRulesParsingTest {
      * Test that long can be processed through DoubleRange
      */
     @Test
-    public void testLongRange() {
+    void testLongRange() {
         Object result = invoke("testLongRange", true, 210);
         assertEquals("rule1", result);
     }
@@ -39,7 +39,7 @@ public class DoubleRangeRulesParsingTest {
      * Test that int can be processed through DoubleRange
      */
     @Test
-    public void testIntRange() {
+    void testIntRange() {
         Object result = invoke("testIntegerRange", true, 105);
         assertEquals("rule2", result);
     }
@@ -48,7 +48,7 @@ public class DoubleRangeRulesParsingTest {
      * Test that int can be processed through DoubleRange via DecisionTable with one condition(special case)
      */
     @Test
-    public void testIntRange1() {
+    void testIntRange1() {
         Object result = invoke("testIntegerRange1", true, 105);
         assertEquals("rule2", result);
     }
@@ -57,7 +57,7 @@ public class DoubleRangeRulesParsingTest {
      * Test that byte can be processed through DoubleRange
      */
     @Test
-    public void testByteRange() {
+    void testByteRange() {
         Object result = invoke("testByteRange", true, 99);
         assertEquals("rule2", result);
     }
@@ -66,7 +66,7 @@ public class DoubleRangeRulesParsingTest {
      * Test that short can be processed through DoubleRange
      */
     @Test
-    public void testShortRange() {
+    void testShortRange() {
         Object result = invoke("testShortRange", false, -50);
         assertEquals("rule3", result);
     }
@@ -75,7 +75,7 @@ public class DoubleRangeRulesParsingTest {
      * Test that float can be processed through DoubleRange
      */
     @Test
-    public void testFloatRange() {
+    void testFloatRange() {
         Object result = invoke("testFloatRange", true, 20.56);
         assertEquals("rule1", result);
     }

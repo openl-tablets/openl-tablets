@@ -10,10 +10,10 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
-public class DefaultRulesRuntimeContextTest {
+class DefaultRulesRuntimeContextTest {
 
     @Test
-    public void testClone() throws CloneNotSupportedException {
+    void testClone() throws CloneNotSupportedException {
         final Date requestDate = new Date();
         final Date currentDate = new Date();
         final String lob = "UL";

@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class ADynamicTest {
+class ADynamicTest {
 
     @Test
-    public void testIsAssignableFromNullOpenClass() {
+    void testIsAssignableFromNullOpenClass() {
         DummyDynamicClass d = new DummyDynamicClass("test");
         assertFalse(d.isAssignableFrom(NullOpenClass.the));
     }

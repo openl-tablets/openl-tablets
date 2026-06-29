@@ -16,10 +16,10 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
-public class SimpleProjectEngineFactoryTest {
+class SimpleProjectEngineFactoryTest {
 
     @Test
-    public void failureWorkspaceTest() throws Exception {
+    void failureWorkspaceTest() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
             new SimpleProjectEngineFactoryBuilder<>().setProject("test-resources/test1/third")
                     .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls")
@@ -28,14 +28,14 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void failureProjectArgumentTest() throws Exception {
+    void failureProjectArgumentTest() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
             new SimpleProjectEngineFactoryBuilder<>().setProject(null).setWorkspace("test-resources/test1").build();
         });
     }
 
     @Test
-    public void failureProjectTest() throws Exception {
+    void failureProjectTest() throws Exception {
         assertThrows(ProjectResolvingException.class, () -> {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/project-engine")
@@ -46,7 +46,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void dynamicInterfaceTest() throws Exception {
+    void dynamicInterfaceTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/test1/third")
                 .setWorkspace("test-resources/test1")
@@ -63,7 +63,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void staticInterfaceTest() throws Exception {
+    void staticInterfaceTest() throws Exception {
         SimpleProjectEngineFactory<SayHello> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHello>()
                 .setProject("test-resources/test1/third")
                 .setWorkspace("test-resources/test1")
@@ -77,7 +77,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void dynamicInterfaceTest2() throws Exception {
+    void dynamicInterfaceTest2() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/test1/third")
                 .setProjectDependencies("test-resources/test1/first", "test-resources/test1/second")
@@ -90,7 +90,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void wrongProjectDependency() throws Exception {
+    void wrongProjectDependency() throws Exception {
         assertThrows(OpenlNotCheckedException.class, () -> {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/test1/third")
@@ -101,7 +101,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void wrongProjectDependency2() {
+    void wrongProjectDependency2() {
         assertThrows(IllegalArgumentException.class, () -> {
             new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/test1/third")
@@ -111,7 +111,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void invokeSimpleTest() throws Exception {
+    void invokeSimpleTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/multi-module-support/test2/project2")
                 .setWorkspace("test-resources/multi-module-support/test2")
@@ -126,7 +126,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void invokeEmptyContextTest() throws Exception {
+    void invokeEmptyContextTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/multi-module-support/test2/project3")
                 .setWorkspace("test-resources/multi-module-support/test2")
@@ -141,7 +141,7 @@ public class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    public void invokeContextTest() throws Exception {
+    void invokeContextTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/multi-module-support/test3/project2")
                 .setWorkspace("test-resources/multi-module-support/test3")

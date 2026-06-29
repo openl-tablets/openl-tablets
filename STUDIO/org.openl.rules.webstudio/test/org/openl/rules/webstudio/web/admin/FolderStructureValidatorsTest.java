@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.webstudio.util.NameChecker;
 
-public class FolderStructureValidatorsTest {
+class FolderStructureValidatorsTest {
     private final FolderStructureValidators validators = new FolderStructureValidators();
 
     @Test
-    public void pathInRepository() {
+    void pathInRepository() {
         validators.pathInRepository(null, null, null);
         validators.pathInRepository(null, null, "");
         validators.pathInRepository(null, null, "DESIGN/rules");

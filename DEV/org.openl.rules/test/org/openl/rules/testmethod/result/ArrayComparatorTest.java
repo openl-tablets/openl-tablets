@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class ArrayComparatorTest {
+class ArrayComparatorTest {
     @Test
-    public void test() {
+    void test() {
         ArrayComparator comparator = new ArrayComparator(Integer.class, null);
 
         assertTrue(comparator.isEqual(null, null));

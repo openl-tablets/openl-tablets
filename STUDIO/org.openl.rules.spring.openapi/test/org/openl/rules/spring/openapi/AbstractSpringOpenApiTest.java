@@ -33,7 +33,7 @@ public abstract class AbstractSpringOpenApiTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testApp() throws Exception {
+    protected void testApp() throws Exception {
         var mockMvcResult = mockMvc.perform(get("/openapi.json")).andExpect(status().isOk()).andReturn();
         var result = mockMvcResult.getResponse().getContentAsString();
         var expected = getResource(TEST_RESOURCE.formatted(getTestNumber()));
@@ -41,7 +41,7 @@ public abstract class AbstractSpringOpenApiTest {
     }
 
     @Test
-    public void testGeneratedSchemaHasSortedMaps() throws Exception {
+    protected void testGeneratedSchemaHasSortedMaps() throws Exception {
         var mockMvcResult = mockMvc.perform(get("/openapi.json")).andExpect(status().isOk()).andReturn();
         var schema = OBJECT_MAPPER.readTree(mockMvcResult.getResponse().getContentAsString());
         assertKeysSorted(schema.path("paths"), "paths");

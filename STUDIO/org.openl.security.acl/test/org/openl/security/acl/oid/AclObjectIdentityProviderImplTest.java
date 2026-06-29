@@ -12,19 +12,19 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.openl.security.acl.repository.ProjectArtifact;
 import org.openl.security.acl.repository.Root;
 
-public class AclObjectIdentityProviderImplTest {
+class AclObjectIdentityProviderImplTest {
 
     private static final String ROOT_ID = "1";
 
     private AclObjectIdentityProvider oidProvider;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         oidProvider = new AclObjectIdentityProviderImpl(ProjectArtifact.class, ROOT_ID);
     }
 
     @Test
-    public void getRootOidTest() {
+    void getRootOidTest() {
         ObjectIdentity oid = oidProvider.getRootOid();
         assertNotNull(oid);
         assertEquals(ROOT_ID, oid.getIdentifier());
@@ -32,7 +32,7 @@ public class AclObjectIdentityProviderImplTest {
     }
 
     @Test
-    public void getRepositoryOidTest() {
+    void getRepositoryOidTest() {
         ObjectIdentity oid = oidProvider.getRepositoryOid("repoId", "/path1/path2/file.xlsx");
         assertNotNull(oid);
         assertEquals("repoId:/path1/path2/file.xlsx", oid.getIdentifier());
@@ -40,7 +40,7 @@ public class AclObjectIdentityProviderImplTest {
     }
 
     @Test
-    public void getParentOidTest() {
+    void getParentOidTest() {
         ObjectIdentity oi = new ObjectIdentityImpl(ProjectArtifact.class, "repoId:/path1/path2/file.xlsx");
         ObjectIdentity poi = oidProvider.getParentOid(oi);
         assertNotNull(poi);
@@ -71,7 +71,7 @@ public class AclObjectIdentityProviderImplTest {
     }
 
     @Test
-    public void moveToNewParentTest() {
+    void moveToNewParentTest() {
         ObjectIdentity childOid = new ObjectIdentityImpl(ProjectArtifact.class, "repoId:/path1/path2/file.xlsx");
         ObjectIdentity oldParentOid = new ObjectIdentityImpl(ProjectArtifact.class, "repoId:/path1");
         ObjectIdentity newParentOid = new ObjectIdentityImpl(ProjectArtifact.class, "repoId:/newPath");

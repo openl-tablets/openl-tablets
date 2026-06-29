@@ -33,7 +33,7 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
-public class ProtectedBranchTest {
+class ProtectedBranchTest {
     private static final String BRANCH1 = "branch1";
     private static final String REPO_ID = "design";
     @TempDir
@@ -44,7 +44,7 @@ public class ProtectedBranchTest {
     private GitRepository repo;
 
     @BeforeAll
-    public static void initTest() throws GitAPIException, IOException {
+    static void initTest() throws GitAPIException, IOException {
         assumeSupportedPlatform();
 
         // Initialize remote repository
@@ -65,7 +65,7 @@ public class ProtectedBranchTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         File remote = new File(root, "remote");
         File repositoriesFolder = new File(root, "repositories");
         File local = new File(repositoriesFolder, "local");
@@ -82,7 +82,7 @@ public class ProtectedBranchTest {
     }
 
     @Test
-    public void cantSaveInMaster() {
+    void cantSaveInMaster() {
         String path = "rules/project1/file1";
         String text = "File located in " + path;
         try {
@@ -94,7 +94,7 @@ public class ProtectedBranchTest {
     }
 
     @Test
-    public void rollBackMergeToMaster() throws IOException {
+    void rollBackMergeToMaster() throws IOException {
         GitRepository repoBranch1 = repo.forBranch(BRANCH1);
 
         // Make 2 commits

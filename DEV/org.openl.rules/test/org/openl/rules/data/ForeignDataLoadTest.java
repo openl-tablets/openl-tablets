@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class ForeignDataLoadTest {
+class ForeignDataLoadTest {
 
     @Test
-    public void testForeignDataLoad() {
+    void testForeignDataLoad() {
         ITestI instance = TestUtils.create("test/rules/data/ForeignDataLoadTest.xls", ITestI.class);
 
         Type2[] data = instance.getData2();

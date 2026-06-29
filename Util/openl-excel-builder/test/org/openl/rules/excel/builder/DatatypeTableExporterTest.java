@@ -32,7 +32,7 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 
-public class DatatypeTableExporterTest {
+class DatatypeTableExporterTest {
 
     public static final String TEST_PROJECT = "datatype_test_project";
     public static final int TOP_MARGIN = 2;
@@ -43,7 +43,7 @@ public class DatatypeTableExporterTest {
     public static final String DATATYPE_TEST_PROJECT_NAME = "datatype_test_project.xlsx";
 
     @Test
-    public void testDatatypeExport() throws IOException {
+    void testDatatypeExport() throws IOException {
         DatatypeModel dt = new DatatypeModel("Test");
 
         FieldModel stringField = new FieldModel("type", STRING_TYPE, "Hello, World");
@@ -253,7 +253,7 @@ public class DatatypeTableExporterTest {
     }
 
     @Test
-    public void writeDataTypes() throws IOException {
+    void writeDataTypes() throws IOException {
         DatatypeModel dt = new DatatypeModel("Test");
 
         FieldModel stringField = new FieldModel("type", STRING_TYPE, "Hello, World");
@@ -279,7 +279,7 @@ public class DatatypeTableExporterTest {
     }
 
     @AfterAll
-    public static void clean() throws IOException {
+    static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();
         assertNotNull(files);

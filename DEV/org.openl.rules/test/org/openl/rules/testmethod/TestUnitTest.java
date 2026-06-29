@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
 
-public class TestUnitTest {
+class TestUnitTest {
 
     @Test
-    public void testResultValueModification() {
+    void testResultValueModification() {
         TestDescription test = mock(TestDescription.class);
         when(test.isExpectedResultDefined()).thenReturn(true);
         when(test.getExpectedResult()).thenReturn(0.93);

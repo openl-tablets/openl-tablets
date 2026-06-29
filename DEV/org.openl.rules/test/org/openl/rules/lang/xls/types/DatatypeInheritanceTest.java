@@ -17,7 +17,7 @@ import org.openl.vm.SimpleVM;
 /**
  * @author PUdalau
  */
-public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
+class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/DatatypeInheritanceTest.xls";
 
     public DatatypeInheritanceTest() {
@@ -25,7 +25,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testFieldsAccess() {
+    void testFieldsAccess() {
         XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
         IOpenClass parentType = moduleOpenClass.findType("ParentType");
         IOpenClass childType = moduleOpenClass.findType("ChildType");
@@ -43,7 +43,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testWarning() {
+    void testWarning() {
         boolean wasFound = false;
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message.getSeverity() == Severity.WARN) {
@@ -56,7 +56,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testError() {
+    void testError() {
         boolean wasFound = false;
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message.getSeverity() == Severity.ERROR) {
@@ -70,7 +70,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testToStringMethod() {
+    void testToStringMethod() {
         XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
         IOpenClass childType = moduleOpenClass.findType("ChildType");
         IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");

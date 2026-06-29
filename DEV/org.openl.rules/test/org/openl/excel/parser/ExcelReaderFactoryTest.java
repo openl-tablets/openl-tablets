@@ -7,16 +7,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class ExcelReaderFactoryTest {
+class ExcelReaderFactoryTest {
     private static final String FOLDER = FolderUtils.getResourcesFolder();
 
     @Test
-    public void compareSmallXlsx() {
+    void compareSmallXlsx() {
         compareDifferentImplementations(FOLDER + "small.xlsx");
     }
 
     @Test
-    public void compareSmallXls() {
+    void compareSmallXls() {
         compareDifferentImplementations(FOLDER + "small.xls");
     }
 

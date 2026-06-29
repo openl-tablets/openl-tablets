@@ -16,18 +16,18 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class ValidateInputParametersTest {
+class ValidateInputParametersTest {
     private static final String SRC = "test/rules/ValidateInputParameters.xls";
 
     private RulesEngineFactory<Object> engineFactory;
 
     @BeforeEach
-    public void init() throws IOException {
+    void init() throws IOException {
         engineFactory = new RulesEngineFactory<>(SRC);
     }
 
     @Test
-    public void test() {
+    void test() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
             IOpenMethod method = engineFactory.getCompiledOpenClass()
                     .getOpenClass()
@@ -44,7 +44,7 @@ public class ValidateInputParametersTest {
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
             IOpenMethod method = engineFactory.getCompiledOpenClass()
                     .getOpenClass()

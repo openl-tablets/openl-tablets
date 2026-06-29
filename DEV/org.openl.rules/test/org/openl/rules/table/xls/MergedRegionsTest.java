@@ -36,7 +36,7 @@ import org.openl.source.impl.URLSourceCodeModule;
  *
  * @author PUdalau
  */
-public class MergedRegionsTest {
+class MergedRegionsTest {
 
     /**
      * Description of test case: region to do action(insert or remove), region with expected result, first row/column to
@@ -243,7 +243,7 @@ public class MergedRegionsTest {
     }
 
     @Test
-    public void testDeleteRows() {
+    void testDeleteRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
@@ -261,7 +261,7 @@ public class MergedRegionsTest {
     }
 
     @Test
-    public void testInsertRows() {
+    void testInsertRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
@@ -279,7 +279,7 @@ public class MergedRegionsTest {
     }
 
     @Test
-    public void testDeleteColumns() {
+    void testDeleteColumns() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
@@ -297,7 +297,7 @@ public class MergedRegionsTest {
     }
 
     @Test
-    public void testInsertColumn() {
+    void testInsertColumn() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),

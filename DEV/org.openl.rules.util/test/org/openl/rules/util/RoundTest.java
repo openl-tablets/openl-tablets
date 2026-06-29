@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class RoundTest {
+class RoundTest {
 
     @Test
-    public void testRoundDouble() {
+    void testRoundDouble() {
 
         assertEquals(0, Round.round(Double.NaN));
         assertEquals(Integer.MAX_VALUE, Round.round(Double.POSITIVE_INFINITY));
@@ -36,7 +36,7 @@ public class RoundTest {
     }
 
     @Test
-    public void testRoundFloat() {
+    void testRoundFloat() {
 
         assertEquals(0, Round.round(Float.NaN));
         assertEquals(Integer.MAX_VALUE, Round.round(Float.POSITIVE_INFINITY));
@@ -64,7 +64,7 @@ public class RoundTest {
     }
 
     @Test
-    public void testRoundStrict() {
+    void testRoundStrict() {
 
         assertNull(Round.roundStrict(null));
 
@@ -98,7 +98,7 @@ public class RoundTest {
     }
 
     @Test
-    public void testRound2() {
+    void testRound2() {
         assertEquals("1.222", String.valueOf(Round.round(1.222235345345, 3)));
         assertEquals("1.6", String.valueOf(Round.round(1.56000001235345345, 1)));
         assertEquals("0.0", String.valueOf(Round.round(0, 0)));

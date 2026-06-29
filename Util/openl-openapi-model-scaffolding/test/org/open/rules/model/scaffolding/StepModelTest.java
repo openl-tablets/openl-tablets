@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.model.scaffolding.StepModel;
 
-public class StepModelTest {
+class StepModelTest {
 
     @Test
-    public void testStepModel() {
+    void testStepModel() {
         StepModel numStep = new StepModel("num", "String", "calculation.", "0");
         StepModel oneMoreNumStep = new StepModel("num", "String", "calculation.", "0");
         StepModel sumStep = new StepModel("sum", "String", "calculation.", "0");

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 
-public class MultiColumnLookupAndConditionVarAccessTest {
+class MultiColumnLookupAndConditionVarAccessTest {
 
     public interface IMultiColumnLookupTest {
 
@@ -21,7 +21,7 @@ public class MultiColumnLookupAndConditionVarAccessTest {
     private IMultiColumnLookupTest instance;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         RulesEngineFactory<IMultiColumnLookupTest> engineFactory = new RulesEngineFactory<>(SRC,
                 IMultiColumnLookupTest.class);
 
@@ -30,7 +30,7 @@ public class MultiColumnLookupAndConditionVarAccessTest {
     }
 
     @Test
-    public void testCombined() {
+    void testCombined() {
         Double res = instance.getBaseRate(10000, "$100,000 Deductible");
 
         assertEquals(15048.3021, res, 0.00005);
@@ -38,7 +38,7 @@ public class MultiColumnLookupAndConditionVarAccessTest {
     }
 
     @Test
-    public void test1() {
+    void test1() {
 
         int res = instance.multiColumnTest1(1, 10, 100);
 

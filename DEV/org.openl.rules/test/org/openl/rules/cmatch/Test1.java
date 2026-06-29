@@ -9,7 +9,7 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.cmatch.test.TestEnum;
 import org.openl.rules.cmatch.test.TestObj;
 
-public class Test1 {
+class Test1 {
     public interface ITestD {
         long runColumnMatch(double d);
     }
@@ -31,7 +31,7 @@ public class Test1 {
     }
 
     @Test
-    public void testD() {
+    void testD() {
         ITestD test = TestUtils.create("test/rules/cmatch1/match1-d.xls", ITestD.class);
 
         assertEquals(1, test.runColumnMatch(1.0));
@@ -43,7 +43,7 @@ public class Test1 {
     }
 
     @Test
-    public void testE() {
+    void testE() {
         ITestE test = TestUtils.create("test/rules/cmatch1/match1-e.xls", ITestE.class);
 
         assertEquals("8", test.runColumnMatch(TestEnum.EIGHT));
@@ -53,7 +53,7 @@ public class Test1 {
     }
 
     @Test
-    public void testI() {
+    void testI() {
         ITestI test = TestUtils.create("test/rules/cmatch1/match1-i.xls", ITestI.class);
 
         assertEquals(1, test.runColumnMatch(-10));
@@ -67,7 +67,7 @@ public class Test1 {
     }
 
     @Test
-    public void testO() {
+    void testO() {
         ITestO test = TestUtils.create("test/rules/cmatch1/match1-o.xls", ITestO.class);
 
         assertEquals("Low", test.runColumnMatch(new TestObj("High", 0)));
@@ -84,7 +84,7 @@ public class Test1 {
     }
 
     @Test
-    public void testS() {
+    void testS() {
         ITestS test = TestUtils.create("test/rules/cmatch1/match1-s.xls", ITestS.class);
 
         assertEquals(8, test.runColumnMatch("A"));

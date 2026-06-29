@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.ZipUtils;
 
-public class MergeLfsRepoTest {
+class MergeLfsRepoTest {
 
     private static final String REPO_ID = "design";
 
@@ -28,7 +28,7 @@ public class MergeLfsRepoTest {
     private GitRepository repo;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         ZipUtils.extractAll(new File("target/test-classes/repositories/MergeLfsRepoTest.zip"), gitRepo);
 
         repo = createRepository(gitRepo);
@@ -45,7 +45,7 @@ public class MergeLfsRepoTest {
     }
 
     @Test
-    public void testMergeWithoutError() throws IOException {
+    void testMergeWithoutError() throws IOException {
         UserInfo author = new UserInfo("test", "my@email", "Test User");
 
         repo.forBranch("br7").merge("main", author, null);

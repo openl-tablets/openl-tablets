@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Timeout;
 
 import org.openl.types.java.JavaOpenClass;
 
-public class ComplexParameterTreeNodeTest {
+class ComplexParameterTreeNodeTest {
     @Test
-    public void testGetChildrenMap() {
+    void testGetChildrenMap() {
         ComplexParameterTreeNode node = createNode(new My());
 
         LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
@@ -29,7 +29,7 @@ public class ComplexParameterTreeNodeTest {
     }
 
     @Test
-    public void testThrowingMethod() {
+    void testThrowingMethod() {
         ComplexParameterTreeNode node = createNode(new ThrowingField());
         LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
 
@@ -41,7 +41,7 @@ public class ComplexParameterTreeNodeTest {
 
     @Test
     @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
-    public void testCyclicReferences() {
+    void testCyclicReferences() {
         // Wee need to check a cyclic references, because JSF loads all child nodes before building a tree
 
         ComplexParameterTreeNode node = createNode(new SelfReference());

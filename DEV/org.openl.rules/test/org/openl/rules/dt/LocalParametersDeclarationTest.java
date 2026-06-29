@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 
-public class LocalParametersDeclarationTest {
+class LocalParametersDeclarationTest {
 
     public interface ILocalParametersDeclarationTest {
 
@@ -42,7 +42,7 @@ public class LocalParametersDeclarationTest {
     private ILocalParametersDeclarationTest instance;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         RulesEngineFactory<ILocalParametersDeclarationTest> engineFactory = new RulesEngineFactory<>(SRC,
                 ILocalParametersDeclarationTest.class);
 
@@ -50,7 +50,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testParamsDeclarationWithDifferentTypes() {
+    void testParamsDeclarationWithDifferentTypes() {
         String result = instance.test1(10);
         assertEquals("Not Eligible", result);
 
@@ -59,7 +59,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testAnonymousParamUsing() {
+    void testAnonymousParamUsing() {
 
         String result = instance.test2("Young Driver");
         assertEquals("Not Eligible", result);
@@ -72,7 +72,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testWithoutParamNameDeclaration() {
+    void testWithoutParamNameDeclaration() {
 
         String result = instance.test3("Young Driver");
         assertEquals("Not Eligible", result);
@@ -85,7 +85,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testWithoutParamDeclaration1() {
+    void testWithoutParamDeclaration1() {
 
         String result = instance.test4(false);
         assertEquals("Not Eligible", result);
@@ -95,7 +95,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testFullParamsDeclaration() {
+    void testFullParamsDeclaration() {
         String result = instance.test5(10);
         assertEquals("Not Eligible", result);
 
@@ -104,7 +104,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testReturnParamsDeclaration() {
+    void testReturnParamsDeclaration() {
         String result = instance.test6(10);
         assertEquals("Not Eligible", result);
 
@@ -113,19 +113,19 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testActionParamsDeclaration() {
+    void testActionParamsDeclaration() {
         instance.test7(10);
         instance.test7(40);
     }
 
     @Test
-    public void testEmptyActionParamsDeclaration() {
+    void testEmptyActionParamsDeclaration() {
         instance.test8(10);
         instance.test8(40);
     }
 
     @Test
-    public void testSimplifiedReturnParamsDeclaration1() {
+    void testSimplifiedReturnParamsDeclaration1() {
 
         String result = instance.test9(10);
         assertEquals("1", result);
@@ -135,7 +135,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testSimplifiedReturnParamsDeclaration2() {
+    void testSimplifiedReturnParamsDeclaration2() {
 
         int result = instance.test10(10);
         assertEquals(1, result);
@@ -145,7 +145,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testSimplifiedReturnParamsDeclaration3() {
+    void testSimplifiedReturnParamsDeclaration3() {
 
         Double result = instance.test11(10);
         assertEquals(1.0, result);
@@ -155,7 +155,7 @@ public class LocalParametersDeclarationTest {
     }
 
     @Test
-    public void testSimplifiedReturnParamsDeclaration4() {
+    void testSimplifiedReturnParamsDeclaration4() {
 
         instance.test12(10);
         instance.test12(40);

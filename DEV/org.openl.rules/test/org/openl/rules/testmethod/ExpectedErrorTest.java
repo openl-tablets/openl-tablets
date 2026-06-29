@@ -14,11 +14,11 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class ExpectedErrorTest {
+class ExpectedErrorTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testUserExceptionSupport1() {
+    void testUserExceptionSupport1() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("test/rules/testmethod/ExpectedErrorTest.xls");
         engineFactory.setExecutionMode(false);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();

@@ -10,7 +10,7 @@ import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 
-public class XlsArrayFormatTest {
+class XlsArrayFormatTest {
 
     public enum TestConstants {
         TEST_CONST_1("Test Constant 1"),
@@ -29,7 +29,7 @@ public class XlsArrayFormatTest {
     }
 
     @Test
-    public void testParse() {
+    void testParse() {
         ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
         String value = "tag1,tag2,tag3";
 
@@ -44,7 +44,7 @@ public class XlsArrayFormatTest {
     }
 
     @Test
-    public void testParseEmptyString() {
+    void testParseEmptyString() {
         ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
         String value = null;
 
@@ -53,7 +53,7 @@ public class XlsArrayFormatTest {
     }
 
     @Test
-    public void testFormatEnums() {
+    void testFormatEnums() {
         ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
         TestConstants[] arrayEnum = new TestConstants[2];
@@ -67,7 +67,7 @@ public class XlsArrayFormatTest {
     }
 
     @Test
-    public void testFormatNull() {
+    void testFormatNull() {
         ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
         TestConstants[] arrayEnum = new TestConstants[2];

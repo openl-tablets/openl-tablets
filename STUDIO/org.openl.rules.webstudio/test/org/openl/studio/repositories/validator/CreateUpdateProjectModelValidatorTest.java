@@ -40,7 +40,7 @@ import org.openl.studio.repositories.model.CreateUpdateProjectModel;
         "repository.design-rating2.comment-template.use-custom-comments = true",
         "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
         "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
-public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorTest {
+class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final Consumer<FeaturesBuilder> NO_EXTRA_FEATURES = builder -> {
     };
@@ -52,12 +52,12 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     private DesignTimeRepository designTimeRepository;
 
     @AfterEach
-    public void reset_mocks() {
+    void reset_mocks() {
         reset(designTimeRepository);
     }
 
     @Test
-    public void testCreateProject_Valid() throws IOException {
+    void testCreateProject_Valid() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -70,7 +70,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_Valid2() throws IOException {
+    void testCreateProject_Valid2() throws IOException {
         mockDesignRepository(Repository.class, "design-rating2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
                 "John Doe",
@@ -83,7 +83,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_Valid3() throws IOException {
+    void testCreateProject_Valid3() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating2", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
                 "John Doe",
@@ -102,7 +102,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid() throws IOException {
+    void testCreateProject_NotValid() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(null, null, null, null, null, false);
 
@@ -118,7 +118,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid2() throws IOException {
+    void testCreateProject_NotValid2() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -141,7 +141,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid3() throws IOException {
+    void testCreateProject_NotValid3() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -161,7 +161,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid4() throws IOException {
+    void testCreateProject_NotValid4() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -180,7 +180,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid5() throws IOException {
+    void testCreateProject_NotValid5() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -199,7 +199,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid6() throws IOException {
+    void testCreateProject_NotValid6() throws IOException {
         MappedRepository mockedRepo = mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -221,7 +221,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid7() throws IOException {
+    void testCreateProject_NotValid7() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -245,7 +245,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid8() throws IOException {
+    void testCreateProject_NotValid8() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -269,7 +269,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid9() throws IOException {
+    void testCreateProject_NotValid9() throws IOException {
         mockDesignRepository(Repository.class, "design-rating2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
                 "John Doe",
@@ -291,7 +291,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid10() throws IOException {
+    void testCreateProject_NotValid10() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -310,7 +310,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testCreateProject_NotValid11() throws IOException {
+    void testCreateProject_NotValid11() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
                 "John Doe",
@@ -327,7 +327,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     @Test
-    public void testUpdateProject() throws IOException, ProjectException {
+    void testUpdateProject() throws IOException, ProjectException {
         mockDesignRepository(MappedRepository.class, "design-rating2", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
                 "John Doe",

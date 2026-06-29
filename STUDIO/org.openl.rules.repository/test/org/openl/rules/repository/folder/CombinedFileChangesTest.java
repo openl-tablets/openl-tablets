@@ -22,7 +22,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
-public class CombinedFileChangesTest {
+class CombinedFileChangesTest {
 
     @TempDir
     private Path root;
@@ -30,14 +30,14 @@ public class CombinedFileChangesTest {
     private FileSystemRepository repo;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         repo = new FileSystemRepository();
         repo.setRoot(root);
         repo.initialize();
     }
 
     @Test
-    public void testSaveMultipleFolders() throws IOException {
+    void testSaveMultipleFolders() throws IOException {
         FileData folder = new FileData();
         String folderName = "deployments/my-deployment1";
         folder.setName(folderName);

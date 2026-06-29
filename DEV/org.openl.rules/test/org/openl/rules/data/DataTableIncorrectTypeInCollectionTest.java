@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.TestUtils;
 
-public class DataTableIncorrectTypeInCollectionTest {
+class DataTableIncorrectTypeInCollectionTest {
 
     @Test
-    public void testCollectionErrorMessages() {
+    void testCollectionErrorMessages() {
         OpenLMessage[] errorMessages = TestUtils.collectErrorMessagesFromFileProcessing("test/rules/data/DataWithMapWithUndefinedClass.xlsx");
         TestUtils.assertErrorMessagesArePresent(errorMessages,
                 "Cannot bind node: 'token=[\"address\"]",

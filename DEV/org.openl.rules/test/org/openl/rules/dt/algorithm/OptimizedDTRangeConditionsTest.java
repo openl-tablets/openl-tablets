@@ -8,17 +8,17 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class OptimizedDTRangeConditionsTest {
+class OptimizedDTRangeConditionsTest {
 
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/dt/algorithm/OptimizedDTRangeConditions.xls");
     }
 
     @Test
-    public void testIntRangeClosed() {
+    void testIntRangeClosed() {
         assertNull(TestUtils.invoke(instance, "intRangeClosed", 0));
         assertEquals("rule1", TestUtils.invoke(instance, "intRangeClosed", 1));
         assertEquals("rule1", TestUtils.invoke(instance, "intRangeClosed", 10));
@@ -33,7 +33,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testIntRangeLeftOpened() {
+    void testIntRangeLeftOpened() {
         assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 0));
         assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 1));
         assertEquals("rule1", TestUtils.invoke(instance, "intRangeLeftOpened", 2));
@@ -51,7 +51,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testIntRangeRightOpened() {
+    void testIntRangeRightOpened() {
         assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 0));
         assertEquals("rule1", TestUtils.invoke(instance, "intRangeRightOpened", 1));
         assertEquals("rule1", TestUtils.invoke(instance, "intRangeRightOpened", 10));
@@ -68,7 +68,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testIntRangeOpened() {
+    void testIntRangeOpened() {
         assertNull(TestUtils.invoke(instance, "intRangeOpened", 0));
         assertNull(TestUtils.invoke(instance, "intRangeOpened", 1));
         assertEquals("rule1", TestUtils.invoke(instance, "intRangeOpened", 10));
@@ -85,7 +85,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testDoubleRangeClosed() {
+    void testDoubleRangeClosed() {
         assertNull(TestUtils.invoke(instance, "doubleRangeClosed", 0.0));
         assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeClosed", 1.0));
         assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeClosed", 10.0));
@@ -101,7 +101,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testDoubleRangeLeftOpened() {
+    void testDoubleRangeLeftOpened() {
         assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 0.0));
         assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 1.0));
         assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeLeftOpened", 10.0));
@@ -117,7 +117,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testDoubleRangeRightOpened() {
+    void testDoubleRangeRightOpened() {
         assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 0.0));
         assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeRightOpened", 1.0));
         assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeRightOpened", 10.0));
@@ -133,7 +133,7 @@ public class OptimizedDTRangeConditionsTest {
     }
 
     @Test
-    public void testDoubleRangeOpened() {
+    void testDoubleRangeOpened() {
         assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 0.0));
         assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 1.0));
         assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeOpened", 10.0));

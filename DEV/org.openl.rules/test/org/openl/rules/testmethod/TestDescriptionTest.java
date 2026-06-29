@@ -18,7 +18,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 @ExtendWith(MockitoExtension.class)
-public class TestDescriptionTest {
+class TestDescriptionTest {
     @Mock
     private IRuntimeEnv env;
     @Mock
@@ -28,12 +28,12 @@ public class TestDescriptionTest {
     private final TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         arguments = new SomeArgument[]{new SomeArgument("test")};
     }
 
     @Test
-    public void testNotModifyInputParameters() {
+    void testNotModifyInputParameters() {
         TestDescription description = new TestDescription(createTestMethodMock(), null, arguments, null);
 
         testRunner.runTest(description, target, env, 1);

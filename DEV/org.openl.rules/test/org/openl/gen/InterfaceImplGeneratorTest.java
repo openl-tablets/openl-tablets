@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
 
-public class InterfaceImplGeneratorTest {
+class InterfaceImplGeneratorTest {
 
     @Test
-    public void testInterfaceImplGeneration() throws IllegalAccessException, InstantiationException {
+    void testInterfaceImplGeneration() throws IllegalAccessException, InstantiationException {
         IBean iBean = (IBean) newInstance(IBean.class);
         iBean.setField1("foo");
         iBean.setField2(1);
@@ -38,20 +38,20 @@ public class InterfaceImplGeneratorTest {
     }
 
     @Test
-    public void testNotPOJOInterfaceImplGeneration() throws InstantiationException, IllegalAccessException {
+    void testNotPOJOInterfaceImplGeneration() throws InstantiationException, IllegalAccessException {
         newInstance(IEmpty.class);
         newInstance(INotPOJO.class);
     }
 
     @Test
-    public void testNotInterfaceGeneration() {
+    void testNotInterfaceGeneration() {
         assertThrows(IllegalArgumentException.class, () -> {
             new InterfaceImplBuilder(Date.class);
         });
     }
 
     @Test
-    public void testEquals() throws IllegalAccessException, InstantiationException {
+    void testEquals() throws IllegalAccessException, InstantiationException {
         Class<?> clazz = getBeanClass(IBean.class);
         IBean beanA = (IBean) clazz.newInstance();
         IBean beanB = (IBean) clazz.newInstance();

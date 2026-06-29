@@ -26,13 +26,13 @@ import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 
-public class SpreadsheetTableExporterTest {
+class SpreadsheetTableExporterTest {
 
     public static final String TEST_PROJECT = "spr_test_project";
     public static final int TOP_MARGIN = 2;
 
     @Test
-    public void testSpreadsheetExport() throws IOException {
+    void testSpreadsheetExport() throws IOException {
         SpreadsheetModel resultModel = new SpreadsheetModel();
         resultModel.setType("Double");
         resultModel.setName("TestDoubleSpr");
@@ -138,7 +138,7 @@ public class SpreadsheetTableExporterTest {
     }
 
     @AfterAll
-    public static void clean() throws IOException {
+    static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();
         assertNotNull(files);

@@ -5,55 +5,55 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class SpreadsheetExpressionMarkerTest {
+class SpreadsheetExpressionMarkerTest {
 
     @Test
-    public void testEmptyBracket() {
+    void testEmptyBracket() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("{}"));
     }
 
     @Test
-    public void testSpaceInBracket() {
+    void testSpaceInBracket() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("{ }"));
     }
 
     @Test
-    public void testLetterInBracket() {
+    void testLetterInBracket() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("{L}"));
     }
 
     @Test
-    public void testWordInBracket() {
+    void testWordInBracket() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("{Word}"));
     }
 
     @Test
-    public void testEqualDigit() {
+    void testEqualDigit() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("=1"));
     }
 
     @Test
-    public void testEqualLetter() {
+    void testEqualLetter() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("=A"));
     }
 
     @Test
-    public void testEqualWord() {
+    void testEqualWord() {
         assertTrue(SpreadsheetExpressionMarker.isFormula("=Word"));
     }
 
     @Test
-    public void testEmptyEqual() {
+    void testEmptyEqual() {
         assertFalse(SpreadsheetExpressionMarker.isFormula("="));
     }
 
     @Test
-    public void testOpenBracket() {
+    void testOpenBracket() {
         assertFalse(SpreadsheetExpressionMarker.isFormula("{word"));
     }
 
     @Test
-    public void testCloseBracket() {
+    void testCloseBracket() {
         assertFalse(SpreadsheetExpressionMarker.isFormula("word}"));
     }
 }

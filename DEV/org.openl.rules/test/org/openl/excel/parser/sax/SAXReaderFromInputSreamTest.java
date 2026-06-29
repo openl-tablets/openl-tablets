@@ -13,14 +13,14 @@ import org.openl.excel.parser.BaseReaderTest;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.FolderUtils;
 
-public class SAXReaderFromInputSreamTest extends BaseReaderTest {
+class SAXReaderFromInputSreamTest extends BaseReaderTest {
     @Override
     protected ExcelReader createReader() throws IOException {
         return new SAXReader(new FileInputStream(FolderUtils.getResourcesFolder() + "small.xlsx"));
     }
 
     @Test
-    public void getSheetRelationIds() {
+    void getSheetRelationIds() {
         SAXReader saxReader = (SAXReader) reader;
         List<SAXSheetDescriptor> sheets = saxReader.getSheets();
 

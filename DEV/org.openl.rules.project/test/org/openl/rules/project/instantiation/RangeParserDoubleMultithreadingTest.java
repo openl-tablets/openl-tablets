@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class RangeParserDoubleMultithreadingTest {
+class RangeParserDoubleMultithreadingTest {
 
     // EPBDS-8021. Just for mvn multithreading simulation, for example 7 threads
     // TODO should consider migration to the JUnit5 or TestNG for concurrency running
@@ -13,7 +13,7 @@ public class RangeParserDoubleMultithreadingTest {
     private static final int countOfRuns = 50;
 
     @Test
-    public void doubleRangeMultithreadingRun() throws Exception {
+    void doubleRangeMultithreadingRun() throws Exception {
         Runnable t1 = () -> {
             for (int i = 0; i < countOfRuns; i++) {
                 try {

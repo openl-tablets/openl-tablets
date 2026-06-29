@@ -25,7 +25,7 @@ import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.LanguagesEnum;
 
-public class DispatchingTest {
+class DispatchingTest {
     private static final String RULES_SOURCE_FILE = "test/rules/dispatching/Dispatching.xls";
     private static final String NO_EXCEPTION = "Exception should be thrown, but was: ";
     private static final String AMBIGUOUS_METHOD_MESSAGE = "Ambiguous dispatch for method";
@@ -33,12 +33,12 @@ public class DispatchingTest {
     private Rules instance;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         instance = TestUtils.create(RULES_SOURCE_FILE, Rules.class);
     }
 
     @Test
-    public void testSimpleDispatching() {
+    void testSimpleDispatching() {
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
@@ -51,7 +51,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testDispatching() {
+    void testDispatching() {
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
@@ -89,7 +89,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testRequestDate() throws Exception {
+    void testRequestDate() throws Exception {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
         Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
@@ -107,7 +107,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testAmbiguousDispatching1() throws Exception {
+    void testAmbiguousDispatching1() throws Exception {
         Method method = Rules.class.getMethod("getAmbiguousPriority", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -117,7 +117,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testAmbiguousDispatching2() throws Exception {
+    void testAmbiguousDispatching2() throws Exception {
         Method method = Rules.class.getMethod("getAmbiguousPriority1", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -127,7 +127,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testAmbiguousDispatching3() throws Exception {
+    void testAmbiguousDispatching3() throws Exception {
         Method method = Rules.class.getMethod("getPriority", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -140,7 +140,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testDatesDispatching() {
+    void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         assertEquals(myRule.myRule(13), (Double) 7.0);

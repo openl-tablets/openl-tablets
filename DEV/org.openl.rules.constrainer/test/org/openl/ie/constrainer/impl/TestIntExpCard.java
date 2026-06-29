@@ -14,12 +14,12 @@ import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-public class TestIntExpCard {
+class TestIntExpCard {
 
     private final Constrainer C = new Constrainer("TestIntExpCard");
 
     @Test
-    public void testAttachDetachObserver() {
+    void testAttachDetachObserver() {
         try {
             IntExpCard expcard = new IntExpCard(C, new IntExpArray(C, 10, 0, 5, "array"), 4);
             class TestObserver extends Observer {
@@ -75,7 +75,7 @@ public class TestIntExpCard {
     } // end of testAttachDetachObserver
 
     @Test
-    public void testBindAll() {
+    void testBindAll() {
         final int cardValue = 5;
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
@@ -100,7 +100,7 @@ public class TestIntExpCard {
     }
 
     @Test
-    public void testIntExpCard() {
+    void testIntExpCard() {
         try {
             IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
 
@@ -154,7 +154,7 @@ public class TestIntExpCard {
     }
 
     @Test
-    public void testRemoveIndex() {
+    void testRemoveIndex() {
         final int cardValue = 5;
         final int[] indexToBeRemoved = {0, 1};
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
@@ -196,7 +196,7 @@ public class TestIntExpCard {
     }
 
     @Test
-    public void testRemoveUnbounds() {
+    void testRemoveUnbounds() {
         final int cardValue = 5;
         final int[] indexToBeRemoved = {0, 1};
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
@@ -264,7 +264,7 @@ public class TestIntExpCard {
     }
 
     @Test
-    public void testSetValue() {
+    void testSetValue() {
         final int cardValue = 5;
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
         try {

@@ -29,7 +29,7 @@ import org.objectweb.asm.ClassWriter;
 
 import org.openl.classloader.ClassLoaderUtils;
 
-public class InterfaceTransformerTest {
+class InterfaceTransformerTest {
     private Class<?> getGeneratedClass() throws Exception {
         String className = "org.openl.rules.GeneratedInterface";
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -64,7 +64,7 @@ public class InterfaceTransformerTest {
     }
 
     @Test
-    public void testMethodsReading() throws Exception {
+    void testMethodsReading() throws Exception {
         Class<?> generated = getGeneratedClass();
 
         for (Method method : TestInterface.class.getMethods()) {
@@ -76,7 +76,7 @@ public class InterfaceTransformerTest {
     }
 
     @Test
-    public void testAnnotationsReading() throws Exception {
+    void testAnnotationsReading() throws Exception {
         Class<?> generated = getGeneratedClass();
 
         checkAnnotations(TestInterface.class, generated);
@@ -94,7 +94,7 @@ public class InterfaceTransformerTest {
     }
 
     @Test
-    public void testFieldsReading() throws Exception {
+    void testFieldsReading() throws Exception {
         Class<?> generated = getGeneratedClass();
 
         for (Field field : TestInterface.class.getFields()) {

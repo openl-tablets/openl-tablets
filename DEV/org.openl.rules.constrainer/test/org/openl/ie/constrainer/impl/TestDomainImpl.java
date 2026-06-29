@@ -12,13 +12,13 @@ import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
 
-public class TestDomainImpl {
+class TestDomainImpl {
     private final Constrainer C = new Constrainer("TestDomainImpl");
     private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
     private final DomainImpl _probeDomainImpl = new DomainImpl(_var, _var.min(), _var.max());
 
     @Test
-    public void setValue() {
+    void setValue() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
             assertFalse(db.setValue(db.max() + 1));
@@ -41,7 +41,7 @@ public class TestDomainImpl {
     }
 
     @Test
-    public void testContains() {
+    void testContains() {
         int[] goodArray = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] badArray = {-1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11};
         for (int i = 0; i < goodArray.length; i++) {
@@ -51,7 +51,7 @@ public class TestDomainImpl {
     }
 
     @Test
-    public void testIterateDomain() {
+    void testIterateDomain() {
         IntVar intvar = C.addIntVar(0, 10);
         DomainImpl db = new DomainImpl(intvar, intvar.min(), intvar.max());
         final int[] values = new int[db.size()];
@@ -74,7 +74,7 @@ public class TestDomainImpl {
     }
 
     @Test
-    public void testRemoveRange() {
+    void testRemoveRange() {
         IntVar var = C.addIntVar(-10, 10, IntVar.DOMAIN_PLAIN);
         DomainImpl di = new DomainImpl(var, var.min(), var.max());
         int start_size = di.size();
@@ -146,7 +146,7 @@ public class TestDomainImpl {
     }
 
     @Test
-    public void testRemoveValue() {
+    void testRemoveValue() {
         DomainImpl db = new DomainImpl(_var, _var.min(), _var.max());
         int start_size = db.size();
         int start_min = db.min();
@@ -172,7 +172,7 @@ public class TestDomainImpl {
     }
 
     @Test
-    public void testSetMax() {
+    void testSetMax() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
             assertFalse(db.setMax(_var.max() + 1));
@@ -199,7 +199,7 @@ public class TestDomainImpl {
     }
 
     @Test
-    public void testSetMin() {
+    void testSetMin() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
             assertFalse(db.setMin(_var.min() - 1));

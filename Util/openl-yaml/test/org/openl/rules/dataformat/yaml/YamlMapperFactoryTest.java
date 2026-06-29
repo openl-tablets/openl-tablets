@@ -23,13 +23,13 @@ import org.junit.jupiter.api.Test;
  * @author Vladyslav Pikus
  * @since
  */
-public class YamlMapperFactoryTest {
+class YamlMapperFactoryTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
         TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
@@ -37,13 +37,13 @@ public class YamlMapperFactoryTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
 
     @Test
-    public void testConfiguration() throws IOException {
+    void testConfiguration() throws IOException {
         var mapper = YamlMapperFactory.getYamlMapper();
         MyBean myBean = null;
         try (var stream = getClass().getResourceAsStream("/myBean.yaml")) {

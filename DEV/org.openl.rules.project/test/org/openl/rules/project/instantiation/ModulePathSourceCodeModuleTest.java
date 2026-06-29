@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
-public class ModulePathSourceCodeModuleTest {
+class ModulePathSourceCodeModuleTest {
 
     @Test
-    public void testUri() {
+    void testUri() {
         final Path pathToProject = Path.of("test/rules/test xls").toAbsolutePath();
         final Path pathToModule = Path.of("test/rules/test xls/Test with spaces.xls").toAbsolutePath();
         Module module = new Module();

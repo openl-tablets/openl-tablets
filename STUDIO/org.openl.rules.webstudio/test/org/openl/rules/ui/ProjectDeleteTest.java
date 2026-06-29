@@ -17,7 +17,7 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.util.FileUtils;
 
-public class ProjectDeleteTest {
+class ProjectDeleteTest {
     @TempDir
     public Path tempFolder;
 
@@ -25,7 +25,7 @@ public class ProjectDeleteTest {
     private Path projectFolder;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         // Prepare the project: copy it to the working folder
         projectFolder = tempFolder;
         FileUtils.copy(new File("test/rules/locking/"), projectFolder.toFile());
@@ -35,7 +35,7 @@ public class ProjectDeleteTest {
     }
 
     @Test
-    public void testOpenThenDelete() throws Exception {
+    void testOpenThenDelete() throws Exception {
         pm.setModuleInfo(getModules().getFirst());
         pm.clearModuleInfo();
 

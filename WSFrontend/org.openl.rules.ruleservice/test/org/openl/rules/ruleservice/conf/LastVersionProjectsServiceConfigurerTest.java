@@ -19,7 +19,7 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml"})
-public class LastVersionProjectsServiceConfigurerTest {
+class LastVersionProjectsServiceConfigurerTest {
     private static final String PROJECT_NAME = "openl-project";
 
     @Autowired
@@ -34,7 +34,7 @@ public class LastVersionProjectsServiceConfigurerTest {
     }
 
     @Test
-    public void testConfigurer() {
+    void testConfigurer() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
@@ -46,7 +46,7 @@ public class LastVersionProjectsServiceConfigurerTest {
     }
 
     @Test
-    public void shouldConfigureDeployments_whenDeploymentMatcherIsSet() {
+    void shouldConfigureDeployments_whenDeploymentMatcherIsSet() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
         configurer.setDatasourceDeploymentPatterns("*Projects*");
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
@@ -59,7 +59,7 @@ public class LastVersionProjectsServiceConfigurerTest {
     }
 
     @Test
-    public void shouldNotMatchAnyDeployments_whenDeploymentMatcherIsSet() {
+    void shouldNotMatchAnyDeployments_whenDeploymentMatcherIsSet() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
         configurer.setDatasourceDeploymentPatterns("Test*");
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);

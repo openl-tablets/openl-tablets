@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 
-public class ArrayUtilsTest {
+class ArrayUtilsTest {
 
     final C[] array1D = new C[]{new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email")};
     final A[] resultArray1D = new A[]{new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email")};
@@ -55,13 +55,13 @@ public class ArrayUtilsTest {
             {{}, {}, {}, {}, {}, {}}};
 
     @Test
-    public void nonAssignableClass() {
+    void nonAssignableClass() {
         Object o = ArrayUtils.repackArray(array1D, B[].class);
         assertArrayEquals((Object[]) o, array1D);
     }
 
     @Test
-    public void testDifferentDims() {
+    void testDifferentDims() {
         Object o = ArrayUtils.repackArray(array2D, A[].class);
         assertArrayEquals((Object[]) o, array2D);
         Class<?> expectedType = o.getClass();
@@ -73,7 +73,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void testEmptyArray() {
+    void testEmptyArray() {
         Object o = ArrayUtils.repackArray(new C[0], A[].class);
         int length = Array.getLength(o);
         assertEquals(0, length);
@@ -84,7 +84,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void test1DArray() {
+    void test1DArray() {
         Object o = ArrayUtils.repackArray(array1D, A[].class);
         assertArrayEquals((Object[]) o, resultArray1D);
         Class<?> resultType = o.getClass();
@@ -95,7 +95,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void test2DArray() {
+    void test2DArray() {
         Object o = ArrayUtils.repackArray(array2D, A[][].class);
         assertArrayEquals((Object[][]) o, resultArray2D);
         Class<?> resultType = o.getClass();
@@ -106,7 +106,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void test3DArray() {
+    void test3DArray() {
         Object o = ArrayUtils.repackArray(array3DWithEmptyElements, A[][][].class);
         assertArrayEquals((Object[][][]) o, resultArray3DWithEmptyElements);
         Class<?> resultType = o.getClass();
@@ -125,7 +125,7 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void test5DArray() {
+    void test5DArray() {
         Object o = ArrayUtils.repackArray(array5D, A[][][][][].class);
         assertArrayEquals((Object[][][]) o, resultArray5D);
         Class<?> resultType = o.getClass();

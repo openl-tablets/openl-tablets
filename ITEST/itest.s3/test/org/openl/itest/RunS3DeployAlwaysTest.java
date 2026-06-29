@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
-public class RunS3DeployAlwaysTest extends AbstractS3Test {
+class RunS3DeployAlwaysTest extends AbstractS3Test {
 
     @Test
-    public void testWhenDeployJarsAlways() throws Exception {
+    void testWhenDeployJarsAlways() throws Exception {
         try (var deployer = new RulesDeployerService(config::get)) {
             deployer.deploy(Path.of("test-resources/openl/multiple-deployment-datasource.zip"), false);
         }

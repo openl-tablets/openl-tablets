@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class TableSyntaxNodeUtilsTest {
+class TableSyntaxNodeUtilsTest {
 
     @Test
-    public void testStr2Name() {
+    void testStr2Name() {
         assertEquals("dt1", TableSyntaxNodeUtils.str2name("Rules Double dt1(String param1)", XlsNodeTypes.XLS_DT));
         assertEquals("dt1", TableSyntaxNodeUtils.str2name("Rules Double \ndt1(String param1)", XlsNodeTypes.XLS_DT));
         assertEquals("dt1", TableSyntaxNodeUtils.str2name("Rules Double   dt1 (String param1)", XlsNodeTypes.XLS_DT));

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper {
+class ArrayInPropSectionTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/TestArrayInPropSection.xls";
 
@@ -17,7 +17,7 @@ public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testLoadingArrayInPropertyTableSection() {
+    void testLoadingArrayInPropertyTableSection() {
         final String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";
         TableSyntaxNode resultTsn = findTable(tableName);
 

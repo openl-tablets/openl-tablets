@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.security.UserExternalFlags.Builder;
 import org.openl.rules.security.UserExternalFlags.Feature;
 
-public class UserExternalFlagsTest {
+class UserExternalFlagsTest {
 
     @Test
-    public void testBuilderDefaults() {
+    void testBuilderDefaults() {
         UserExternalFlags flags = UserExternalFlags.builder().build();
         assertFalse(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
@@ -27,7 +27,7 @@ public class UserExternalFlagsTest {
     }
 
     @Test
-    public void testBuilder() {
+    void testBuilder() {
         UserExternalFlags flags = UserExternalFlags.builder().applyFeature(Feature.EXTERNAL_FIRST_NAME, true).build();
         assertTrue(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
@@ -65,7 +65,7 @@ public class UserExternalFlagsTest {
     }
 
     @Test
-    public void testAllTrue() {
+    void testAllTrue() {
         UserExternalFlags flags = UserExternalFlags.builder()
                 .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, true)
                 .applyFeature(Feature.EXTERNAL_LAST_NAME, true)
@@ -88,7 +88,7 @@ public class UserExternalFlagsTest {
     }
 
     @Test
-    public void testGeneric() {
+    void testGeneric() {
         for (Feature f : Feature.values()) {
             UserExternalFlags flags = UserExternalFlags.builder().withFeature(f).build();
             for (Feature f2 : Feature.values()) {

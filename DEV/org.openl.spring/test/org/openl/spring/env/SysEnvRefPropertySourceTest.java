@@ -6,10 +6,10 @@ import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 
-public class SysEnvRefPropertySourceTest {
+class SysEnvRefPropertySourceTest {
 
     @Test
-    public void test() {
+    void test() {
         HashMap<String, Object> environment = new HashMap<String, Object>() {
             {
                 put("ABC", "1");

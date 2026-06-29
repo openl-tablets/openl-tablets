@@ -15,7 +15,7 @@ import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
-public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
+class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
 
     private static final String __src = "test/rules/PropertiesForParticularTableType.xls";
 
@@ -24,7 +24,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
     }
 
     @Test
-    public void testErrorParsing() {
+    void testErrorParsing() {
         String tableName = "Rules void hello1(int hour)";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
@@ -39,7 +39,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
     }
 
     @Test
-    public void testNotProcessingInheritPropertiesForTableType() {
+    void testNotProcessingInheritPropertiesForTableType() {
         String tableName = "Rules void hello2(int hour)";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {

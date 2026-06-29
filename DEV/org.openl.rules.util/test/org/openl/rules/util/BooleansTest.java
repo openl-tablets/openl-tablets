@@ -9,10 +9,10 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-public class BooleansTest {
+class BooleansTest {
 
     @Test
-    public void testAnd() {
+    void testAnd() {
         // Empty
         assertNull(Booleans.and(new boolean[]{}));
         assertNull(Booleans.and((boolean[]) null));
@@ -39,7 +39,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testAnd2() {
+    void testAnd2() {
         // Empty
         assertNull(Booleans.and(new Boolean[]{}));
         assertNull(Booleans.and((Boolean[]) null));
@@ -96,7 +96,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testOr() {
+    void testOr() {
         // Empty
         assertNull(Booleans.or(new boolean[]{}));
         assertNull(Booleans.or((boolean[]) null));
@@ -123,7 +123,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testOr2() {
+    void testOr2() {
         // Empty
         assertNull(Booleans.or(new Boolean[]{}));
         assertNull(Booleans.or((Boolean[]) null));
@@ -180,7 +180,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testAllTrue() {
+    void testAllTrue() {
         // Empty
         assertFalse(Booleans.allTrue(new boolean[]{}));
         assertFalse(Booleans.allTrue((boolean[]) null));
@@ -213,7 +213,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testAllFalse() {
+    void testAllFalse() {
         // Empty
         assertFalse(Booleans.allFalse(new boolean[]{}));
         assertFalse(Booleans.allFalse((boolean[]) null));
@@ -246,7 +246,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testAnyTrue() {
+    void testAnyTrue() {
         // Empty
         assertFalse(Booleans.anyTrue(new boolean[]{}));
         assertFalse(Booleans.anyTrue((boolean[]) null));
@@ -279,7 +279,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void testAnyFalse() {
+    void testAnyFalse() {
         // Empty
         assertFalse(Booleans.anyFalse(new boolean[]{}));
         assertFalse(Booleans.anyFalse((boolean[]) null));
@@ -312,7 +312,7 @@ public class BooleansTest {
     }
 
     @Test
-    public void toBooleanTest() {
+    void toBooleanTest() {
         //null
         assertNull(Booleans.toBoolean((Byte) null));
         assertNull(Booleans.toBoolean((Short) null));

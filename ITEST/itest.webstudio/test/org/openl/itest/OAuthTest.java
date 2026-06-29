@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 @DisabledIfSystemProperty(named = "noDocker", matches = ".*")
-public class OAuthTest extends AbstractKeycloakTest {
+class OAuthTest extends AbstractKeycloakTest {
 
     private static final String CLIENT_ID = "openlstudio";
     private static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
@@ -39,7 +39,7 @@ public class OAuthTest extends AbstractKeycloakTest {
             .build();
 
     @Test
-    public void smoke() throws Exception {
+    void smoke() throws Exception {
         try (var keycloack = keycloak();
              var s3 = new S3MockContainer("latest")) {
             keycloack.start();
@@ -60,7 +60,7 @@ public class OAuthTest extends AbstractKeycloakTest {
     }
 
     @Test
-    public void smokePat() throws Exception {
+    void smokePat() throws Exception {
         try (var keycloack = keycloak();
              var s3 = new S3MockContainer("latest")) {
             keycloack.start();
@@ -109,7 +109,7 @@ public class OAuthTest extends AbstractKeycloakTest {
     }
 
     @Test
-    public void singleLogout() throws Exception {
+    void singleLogout() throws Exception {
         try (var keycloack = keycloak();
              var s3 = new S3MockContainer("latest")) {
             keycloack.start();

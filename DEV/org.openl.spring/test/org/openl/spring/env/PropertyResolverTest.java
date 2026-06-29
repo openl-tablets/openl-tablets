@@ -11,13 +11,13 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @TestPropertySource(properties = {"openl.config.location=classpath:firewall.properties"})
 @SpringJUnitConfig(initializers = PropertySourcesLoader.class)
-public class PropertyResolverTest {
+class PropertyResolverTest {
 
     @Autowired
     PropertyResolver propertyResolver;
 
     @Test
-    public void test() {
+    void test() {
         assertEquals("value1", propertyResolver.getProperty("key1"));
         assertEquals("value2", propertyResolver.getProperty("key2"));
         assertEquals("myValue", propertyResolver.getProperty("my.prop"));

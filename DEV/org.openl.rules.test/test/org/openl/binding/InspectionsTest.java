@@ -14,12 +14,12 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
-public class InspectionsTest {
+class InspectionsTest {
     private static final String ALWAYS_TRUE = "Condition is always true.";
     private static final String ALWAYS_FALSE = "Condition is always false.";
 
     @Test
-    public void testConditionTypes() throws OpenLCompilationException {
+    void testConditionTypes() throws OpenLCompilationException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num ==== num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num <= num ? 1 : 2", ALWAYS_TRUE);
@@ -36,7 +36,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testDifferentExpressionTypes() throws OpenLCompilationException {
+    void testDifferentExpressionTypes() throws OpenLCompilationException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         // Same field of same object
         checkWarning("String[] arr = {\"bb\"}; arr == arr ? 1 : 2", ALWAYS_TRUE);
@@ -61,7 +61,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testNoWarning() throws OpenLCompilationException {
+    void testNoWarning() throws OpenLCompilationException {
         Object result;
 
         result = checkNoMessage(

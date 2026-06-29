@@ -14,12 +14,12 @@ import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
  * @author Yury Molchan
  */
 @DisabledIfSystemProperty(named = "noDocker", matches = ".*")
-public class SamlTest extends AbstractKeycloakTest {
+class SamlTest extends AbstractKeycloakTest {
 
     private static final String ENTITY_ID = "openlstudio-saml";
 
     @Test
-    public void singleLogout() throws Exception {
+    void singleLogout() throws Exception {
         try (var keycloak = keycloak();
              var s3 = new S3MockContainer("latest")) {
             keycloak.start();

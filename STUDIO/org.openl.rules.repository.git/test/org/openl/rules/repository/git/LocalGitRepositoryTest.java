@@ -36,7 +36,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
-public class LocalGitRepositoryTest {
+class LocalGitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
     private static final String REPO_ID = "designLocal";
 
@@ -48,12 +48,12 @@ public class LocalGitRepositoryTest {
     private GitRepository repo;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         repo = createRepository(new File(root, "design-repository"));
     }
 
     @Test
-    public void testReadEmpty() throws IOException {
+    void testReadEmpty() throws IOException {
         // Last version
         assertEquals(0, repo.list("").size());
         assertNull(repo.check("project1"));
@@ -68,7 +68,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testSaveFile() throws IOException {
+    void testSaveFile() throws IOException {
         String path = "rules/project1/folder/file4";
         String text = "File located in " + path;
         FileData result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
@@ -85,7 +85,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testSaveFolder() throws IOException {
+    void testSaveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
                 new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                 new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
@@ -104,7 +104,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testCreatePackFolderAfterGC() throws IOException {
+    void testCreatePackFolderAfterGC() throws IOException {
         File packDirectory;
         try (Git git = repo.getClosableGit()) {
             packDirectory = ((ObjectDirectory) git.getRepository().getObjectDatabase()).getPackDirectory();
@@ -126,7 +126,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testBranches() throws IOException {
+    void testBranches() throws IOException {
         try {
             repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
             fail("Must fail when create a branch on empty repository");
@@ -147,7 +147,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testHistoryWhenMergeWithoutConflict() throws IOException {
+    void testHistoryWhenMergeWithoutConflict() throws IOException {
         writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
         writeSampleFile(repo, "rules/project11/file1", "Project11 was created");
         writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
@@ -173,7 +173,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testHistoryWhenMergeWithConflictAndChooseTheirs() throws IOException, GitAPIException {
+    void testHistoryWhenMergeWithConflictAndChooseTheirs() throws IOException, GitAPIException {
         final String project1 = "rules/project1";
         final String file = project1 + "/file1";
         final String textInMaster = "In master";
@@ -210,7 +210,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testDiffWhenConflictInFileWithParenthesis() throws IOException {
+    void testDiffWhenConflictInFileWithParenthesis() throws IOException {
         final String project1 = "rules/project(1)";
         final String file = project1 + "/file1";
         final String textInMaster = "In master";
@@ -234,7 +234,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testHistoryWhenMergeWithConflictAndChooseYours() throws IOException, GitAPIException {
+    void testHistoryWhenMergeWithConflictAndChooseYours() throws IOException, GitAPIException {
         final String project1 = "rules/project1";
         final String file = project1 + "/file1";
         final String textInMaster = "In master";
@@ -271,7 +271,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testHistoryWhenMergeDifferentProjectModifications() throws IOException {
+    void testHistoryWhenMergeDifferentProjectModifications() throws IOException {
         writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
         writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
         assertEquals(1, repo.listHistory("rules/project1").size());
@@ -297,7 +297,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testIsMergedWhenNoValuableCommitsInOtherBranch() throws IOException {
+    void testIsMergedWhenNoValuableCommitsInOtherBranch() throws IOException {
         final String mainBranch = repo.getBranch();
         final String branch1 = "branch1";
 
@@ -340,7 +340,7 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
-    public void testIsMergedWhenValuableCommitInOtherBranchWasDiscarded() throws IOException {
+    void testIsMergedWhenValuableCommitInOtherBranchWasDiscarded() throws IOException {
         final String mainBranch = repo.getBranch();
         final String branch1 = "branch1";
         final String branch2 = "branch2";

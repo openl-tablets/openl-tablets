@@ -32,7 +32,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.CollectionUtils;
 import org.openl.util.IOUtils;
 
-public class ZippedLocalRepositoryTest {
+class ZippedLocalRepositoryTest {
 
     @TempDir
     private File repositoryRoot;
@@ -42,7 +42,7 @@ public class ZippedLocalRepositoryTest {
     private Map<String, byte[]> multiDeployment;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         setUpZipRepository();
         configureZipRepository();
     }
@@ -96,7 +96,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void listFoldersTest() throws IOException {
+    void listFoldersTest() throws IOException {
         //test deployment folders
         List<FileData> fileDataRoot = repository.listFolders("/");
         assertEquals(2, fileDataRoot.size());
@@ -118,7 +118,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void listFilesTest() throws IOException {
+    void listFilesTest() throws IOException {
         //test folder files
         List<FileData> fileDataRoot = repository.listFiles("/singleDeployment", null);
         assertEquals(2, fileDataRoot.size());
@@ -140,7 +140,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void listTest() throws IOException {
+    void listTest() throws IOException {
         List<FileData> fileDataRoot = repository.list("/");
         assertEquals(6, fileDataRoot.size());
         Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
@@ -153,7 +153,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void readTest() throws IOException {
+    void readTest() throws IOException {
         assertSingleDeployment("/singleDeployment/rules.xml", "rules.xml");
         assertSingleDeployment("/singleDeployment/rules/Algorithm.xlsx", "rules/Algorithm.xlsx");
         assertMultiDeployment("/multiDeployment/project1/rules.xml", "project1/rules.xml");
@@ -170,7 +170,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void initializationTest() throws IOException {
+    void initializationTest() throws IOException {
         try {
             configureZipRepository("", null);
             configureZipRepository(repositoryRoot.getPath() + "\\singleDeployment", null);
@@ -209,7 +209,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void specificArchiveConfiguredTest() throws IOException {
+    void specificArchiveConfiguredTest() throws IOException {
         configureZipRepository("multiDeployment.zip");
         assertMultiDeployment("/multiDeployment/project1/rules.xml", "project1/rules.xml");
         assertMultiDeployment("/multiDeployment/project1/rules/Algorithm1.xlsx", "project1/rules/Algorithm1.xlsx");
@@ -256,7 +256,7 @@ public class ZippedLocalRepositoryTest {
     }
 
     @Test
-    public void testNoUri() throws IOException {
+    void testNoUri() throws IOException {
         ZippedLocalRepository repository = new ZippedLocalRepository();
         repository.initialize();
         assertEquals(0, repository.list("/").size());

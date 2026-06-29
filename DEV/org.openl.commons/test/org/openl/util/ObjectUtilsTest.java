@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-public class ObjectUtilsTest {
+class ObjectUtilsTest {
 
     @Test
-    public void convertTest() {
+    void convertTest() {
         assertNull(ObjectUtils.convert(null, Object.class));
         assertNull(ObjectUtils.convert(null, String.class));
         assertNull(ObjectUtils.convert(null, Double.class));

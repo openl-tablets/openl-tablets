@@ -8,17 +8,17 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class ConditionalArrayIndexTest {
+class ConditionalArrayIndexTest {
 
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/binding/ConditionalArrayIndexTest.xlsx");
     }
 
     @Test
-    public void testXPathLikeExpression() throws Exception {
+    void testXPathLikeExpression() throws Exception {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[2], TestUtils.invoke(instance, "driverSelectOne", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectMany", (Object) drivers);
@@ -26,7 +26,7 @@ public class ConditionalArrayIndexTest {
     }
 
     @Test
-    public void testLiteralExpression() {
+    void testLiteralExpression() {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[1], TestUtils.invoke(instance, "driverSelectOneLiteral", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectManyLiteral", (Object) drivers);
@@ -34,7 +34,7 @@ public class ConditionalArrayIndexTest {
     }
 
     @Test
-    public void testSpreadsheetExpression() {
+    void testSpreadsheetExpression() {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[1], TestUtils.invoke(instance, "checkSpreadsheet1", drivers, 20));
         assertEquals(drivers[0], TestUtils.invoke(instance, "checkSpreadsheet1", drivers, 40));

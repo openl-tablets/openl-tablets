@@ -10,16 +10,16 @@ import org.openl.rules.TestUtils;
 /**
  * @author PUdalau
  */
-public class SimpleDTTest {
+class SimpleDTTest {
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/dt/SimpleDTTest.xls");
     }
 
     @Test
-    public void testLookup1D() {
+    void testLookup1D() {
         assertEquals(Double.valueOf(0.02),
                 TestUtils.invoke(instance, "simple", new Class[]{int.class, String.class}, new Object[]{2, "v2"}));
         assertEquals(Double.valueOf(0.05),
@@ -27,7 +27,7 @@ public class SimpleDTTest {
     }
 
     @Test
-    public void testLookup2D2params() {
+    void testLookup2D2params() {
         assertEquals(Double.valueOf(0.01),
                 TestUtils.invoke(instance,
                         "simple2D2params",
@@ -46,7 +46,7 @@ public class SimpleDTTest {
     }
 
     @Test
-    public void testLookup2D3params() {
+    void testLookup2D3params() {
         assertEquals(Double.valueOf(0.01),
                 TestUtils.invoke(instance,
                         "simple2D3params",

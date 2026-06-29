@@ -6,10 +6,10 @@ import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 
-public class ProjectResolverTest {
+class ProjectResolverTest {
 
     @Test
-    public void testStrategySelection() {
+    void testStrategySelection() {
         ProjectResolver resolver = ProjectResolver.getInstance();
         assertInstanceOf(ProjectDescriptorBasedResolvingStrategy.class, resolver.isRulesProject(Path.of("test-resources/descriptor")));
         assertInstanceOf(SimpleXlsResolvingStrategy.class, resolver.isRulesProject(Path.of("test-resources/excel")));

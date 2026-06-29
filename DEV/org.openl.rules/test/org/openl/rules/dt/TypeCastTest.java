@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.TestUtils;
 import org.openl.rules.testmethod.TestUnitsResults;
 
-public class TypeCastTest {
+class TypeCastTest {
 
     @Test
-    public void testOptimazedAlgorithmExecution() {
+    void testOptimazedAlgorithmExecution() {
         ITest instance = TestUtils.create("test/rules/dt/TypeCastTest.xls", ITest.class);
 
         TestUnitsResults result = instance.ReplaceSumInsuredTest();

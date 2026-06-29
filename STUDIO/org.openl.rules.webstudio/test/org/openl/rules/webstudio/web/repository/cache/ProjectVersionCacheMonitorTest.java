@@ -18,7 +18,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.util.IOUtils;
 
-public class ProjectVersionCacheMonitorTest {
+class ProjectVersionCacheMonitorTest {
 
     @TempDir
     private File root;
@@ -32,7 +32,7 @@ public class ProjectVersionCacheMonitorTest {
     private ProjectVersionH2CacheDB projectVersionCacheDB;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         repo = createRepository(new File(root, "design-repository"));
         projectVersionCacheMonitor = new ProjectVersionCacheMonitor(new SimpleGrantedAuthority("Administrators"));
         projectVersionCacheManager = new ProjectVersionCacheManager();
@@ -44,7 +44,7 @@ public class ProjectVersionCacheMonitorTest {
     }
 
     @Test
-    public void testCacheProjects() throws IOException {
+    void testCacheProjects() throws IOException {
         String path = "project/test";
         FileData data = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "1"));
         FileData data2 = repo.save(createFileData(path, path), IOUtils.toInputStream(path + "2"));

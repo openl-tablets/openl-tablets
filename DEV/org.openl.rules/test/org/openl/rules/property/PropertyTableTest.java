@@ -23,7 +23,7 @@ import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class PropertyTableTest extends BaseOpenlBuilderHelper {
+class PropertyTableTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/PropertyTableTest.xls";
 
@@ -32,7 +32,7 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testPropertyTableLoading() {
+    void testPropertyTableLoading() {
         String tableName = "Rules void hello1(int hour)";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -61,7 +61,7 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testFieldsInOpenClass() {
+    void testFieldsInOpenClass() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClassWithErrors = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenField> fields = openClassWithErrors.getFields();

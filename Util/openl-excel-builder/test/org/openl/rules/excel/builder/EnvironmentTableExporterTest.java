@@ -22,7 +22,7 @@ import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.util.CollectionUtils;
 
-public class EnvironmentTableExporterTest {
+class EnvironmentTableExporterTest {
 
     public static final String TEST_PROJECT = "env_test_project";
     public static final int TOP_MARGIN = 2;
@@ -30,7 +30,7 @@ public class EnvironmentTableExporterTest {
     public static final String IMPORTED_VALUE = "org.openl.import.test.Test";
 
     @Test
-    public void testSpreadsheetExport() throws IOException {
+    void testSpreadsheetExport() throws IOException {
         EnvironmentModel environmentModel = new EnvironmentModel();
         environmentModel.setDependencies(Collections.singletonList(MODEL));
         environmentModel.setImports(Collections.singletonList(IMPORTED_VALUE));

@@ -17,13 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 
-public class RepositoryUtilsTest {
+class RepositoryUtilsTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
         TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
@@ -31,13 +31,13 @@ public class RepositoryUtilsTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
 
     @Test
-    public void buildProjectVersionTest() {
+    void buildProjectVersionTest() {
         assertNull(RepositoryUtils.buildProjectVersion(null));
         FileData fileData = mock(FileData.class);
 

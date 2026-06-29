@@ -9,15 +9,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-public class CharRangeParsingTest {
+class CharRangeParsingTest {
 
     @Test
-    public void testJustNumber() {
+    void testJustNumber() {
         assertEquals(new CharRange('a', 'a'), new CharRange("a"));
     }
 
     @Test
-    public void testBrackets() {
+    void testBrackets() {
         assertEquals("[D..X]", new CharRange("[D; X]").toString());
         assertEquals("[D..X]", new CharRange("  [  D  ;   X  ]  ").toString());
         assertEquals("(D..X)", new CharRange("(D; X)").toString());
@@ -31,7 +31,7 @@ public class CharRangeParsingTest {
     }
 
     @Test
-    public void testMinMaxFormat() {
+    void testMinMaxFormat() {
         assertEquals("[A..B]", new CharRange("A-B").toString());
         assertEquals("[A..B]", new CharRange("  A  -  B  ").toString());
         assertEquals("[a..z]", new CharRange("a-z").toString());
@@ -44,7 +44,7 @@ public class CharRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormat() {
+    void testMoreLessFormat() {
         assertEquals("< y", new CharRange("<y").toString());
         assertEquals("< y", new CharRange("  <  y  ").toString());
         assertEquals("<= y", new CharRange("<=y").toString());
@@ -56,7 +56,7 @@ public class CharRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormatBothBounds() {
+    void testMoreLessFormatBothBounds() {
         assertEquals("[0..9)", new CharRange(">=0 <9").toString());
         assertEquals("(3..7]", new CharRange("<=7 >3").toString());
         assertEquals("(2..9)", new CharRange(" > 2   < 9 ").toString());
@@ -69,7 +69,7 @@ public class CharRangeParsingTest {
     }
 
     @Test
-    public void testVerbal() {
+    void testVerbal() {
         assertEquals(">= A", new CharRange("A and more").toString());
         assertEquals("> A", new CharRange("more than A").toString());
         assertEquals("< Y", new CharRange("less than Y").toString());
@@ -79,14 +79,14 @@ public class CharRangeParsingTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("[a..z]", new CharRange("a-z").toString());
         assertEquals(">= b", new CharRange("b+").toString());
         assertEquals("[\\u0fff..\\uffff]", new CharRange("\u0fff-\uffff").toString());
     }
 
     @Test
-    public void testNegative() {
+    void testNegative() {
         try {
             new CharRange(">=A >=Z");
             fail("Must be failed.");
@@ -95,7 +95,7 @@ public class CharRangeParsingTest {
     }
 
     @Test
-    public void testParseException() {
+    void testParseException() {
         assertThrows(RuntimeException.class, () -> {
             new StringRange(null);
         });

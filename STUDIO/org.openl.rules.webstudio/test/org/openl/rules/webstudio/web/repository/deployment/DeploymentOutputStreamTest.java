@@ -16,12 +16,12 @@ import java.util.zip.ZipOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DeploymentOutputStreamTest {
+class DeploymentOutputStreamTest {
 
     private Manifest manifest;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         manifest = new DeploymentManifestBuilder()
                 .setBuildBranch("master")
                 .setBuiltBy("John Smith")
@@ -32,7 +32,7 @@ public class DeploymentOutputStreamTest {
     }
 
     @Test
-    public void testNullableManifest() throws IOException {
+    void testNullableManifest() throws IOException {
         try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(makeZip(null)))) {
             ZipEntry fileEntry = zipIn.getNextEntry();
             assertNotNull(fileEntry);
@@ -42,7 +42,7 @@ public class DeploymentOutputStreamTest {
     }
 
     @Test
-    public void testNonNullManifest() throws IOException {
+    void testNonNullManifest() throws IOException {
         try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(makeZip(manifest)))) {
             ZipEntry manifestEntry = zipIn.getNextEntry();
             assertNotNull(manifestEntry);

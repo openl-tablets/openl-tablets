@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.datatype.gen.ASMUtils;
 
-public class ASMUtilsTest {
+class ASMUtilsTest {
     @Test
-    public void getMethod() {
+    void getMethod() {
         assertNotNull(
                 ASMUtils.findMethod(ASMUtils.buildMap(Iterable.class), "iterator", "()Ljava/util/Iterator;"));
         assertNull(ASMUtils.findMethod(ASMUtils.buildMap(Iterable.class), "toString", "()Ljava/lang/String;"));

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class SpreadsheetErrorsTest extends BaseOpenlBuilderHelper {
+class SpreadsheetErrorsTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/calc1/SpreadsheetErrorsTest.xlsx";
 
@@ -18,7 +18,7 @@ public class SpreadsheetErrorsTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testProcessingSpreadsheetCellsAfterError() {
+    void testProcessingSpreadsheetCellsAfterError() {
         TableSyntaxNode table = findTable("Spreadsheet SpreadsheetResult testSPRErrors ()");
         if (table != null) {
             Spreadsheet spr = (Spreadsheet) table.getMember();

@@ -11,10 +11,10 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.junit.jupiter.api.Test;
 
-public class RepositoryValidatorsTest {
+class RepositoryValidatorsTest {
 
     @Test
-    public void testCommonExceptionMessages() {
+    void testCommonExceptionMessages() {
         assertEquals("Invalid login or password. Try again.", getMostSpecificMessage(new IllegalArgumentException("Error:", new FailedLoginException())));
         assertEquals("Connection refused. Check the repository URL and try again.", getMostSpecificMessage(new IllegalArgumentException("Error:", new ConnectException())));
 
@@ -26,7 +26,7 @@ public class RepositoryValidatorsTest {
     }
 
     @Test
-    public void testEmptyMessages() {
+    void testEmptyMessages() {
         IllegalArgumentException emptyRootCause = new IllegalArgumentException("Error:", new IllegalStateException("Incorrect URL.", new NullPointerException()));
         assertEquals("Incorrect URL.", getMostSpecificMessage(emptyRootCause));
 

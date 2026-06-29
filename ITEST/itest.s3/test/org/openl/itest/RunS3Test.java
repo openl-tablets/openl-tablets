@@ -12,10 +12,10 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
-public class RunS3Test extends AbstractS3Test {
+class RunS3Test extends AbstractS3Test {
 
     @Test
-    public void testSmoke() throws Exception {
+    void testSmoke() throws Exception {
         try (var client = JettyServer.get().withInitParam(config).start()) {
 
             verifyS3Repository();

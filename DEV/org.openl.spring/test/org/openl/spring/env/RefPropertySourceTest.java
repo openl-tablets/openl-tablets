@@ -10,9 +10,9 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 
-public class RefPropertySourceTest {
+class RefPropertySourceTest {
     @Test
-    public void noSources() {
+    void noSources() {
         RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
         assertNull(ref.getProperty(""));
         assertNull(ref.getProperty("."));
@@ -25,7 +25,7 @@ public class RefPropertySourceTest {
     }
 
     @Test
-    public void noRefs() {
+    void noRefs() {
         MutablePropertySources propertySources = new MutablePropertySources();
         propertySources.addLast(new MapPropertySource("A", new HashMap<String, Object>() {
             {
@@ -50,7 +50,7 @@ public class RefPropertySourceTest {
     }
 
     @Test
-    public void refs() {
+    void refs() {
         MutablePropertySources propertySources = new MutablePropertySources();
         propertySources.addLast(new MapPropertySource("A", new HashMap<String, Object>() {
             {
@@ -92,7 +92,7 @@ public class RefPropertySourceTest {
     }
 
     @Test
-    public void multiLevelRefs() {
+    void multiLevelRefs() {
         MutablePropertySources propertySources = new MutablePropertySources();
         propertySources.addLast(new MapPropertySource("A", new HashMap<>() {
             {

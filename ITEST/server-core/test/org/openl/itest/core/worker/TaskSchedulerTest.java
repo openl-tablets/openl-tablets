@@ -14,17 +14,17 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TaskSchedulerTest {
+class TaskSchedulerTest {
 
     private TaskScheduler scheduler;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         scheduler = new TaskScheduler();
     }
 
     @Test
-    public void testSubmit() {
+    void testSubmit() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);
 
         Runnable command1 = mock(Runnable.class);
@@ -50,7 +50,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testSubmitNegative() {
+    void testSubmitNegative() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(2, 1);
 
         Runnable command1 = mock(Runnable.class);
@@ -72,7 +72,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testCriticalError() {
+    void testCriticalError() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);
 
         Runnable command1 = mock(Runnable.class);
@@ -91,7 +91,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testTimeout() {
+    void testTimeout() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);
 
         Runnable command1 = mock(Runnable.class);

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
+class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/overload/DispatcherTest.xlsx";
 
     public DispatcherTableBuildingTest() {
@@ -15,7 +15,7 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void checkKeywordsInSignature() {
+    void checkKeywordsInSignature() {
         assertNotNull(findDispatcherForMethod("arraysTest"));
         assertNotNull(findDispatcherForMethod("keywordsTest"));
         assertEquals(0, getCompiledOpenClass().getAllMessages().size());

@@ -23,7 +23,7 @@ import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
-public class GitRepositoryLockTest {
+class GitRepositoryLockTest {
 
     private static final String REPO_ID = "design-lock";
     @TempDir
@@ -35,13 +35,13 @@ public class GitRepositoryLockTest {
     private GitRepository repo;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         repoRoot = root.resolve("design-repository");
         repo = createRepository(repoRoot);
     }
 
     @Test
-    public void testSaveFileWhenLocked() throws IOException {
+    void testSaveFileWhenLocked() throws IOException {
         Path indexLock = createIndexLock();
         String path = "rules/project1/folder/file4";
         String text = "File located in " + path;
@@ -73,7 +73,7 @@ public class GitRepositoryLockTest {
     }
 
     @Test
-    public void testLockFileRemoveOnGitInit() throws IOException {
+    void testLockFileRemoveOnGitInit() throws IOException {
         repo.close();
         Path indexLock = createIndexLock();
         repo = createRepository(repoRoot);

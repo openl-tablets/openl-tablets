@@ -7,9 +7,9 @@ import static org.openl.cache.GenericKey.getInstance;
 
 import org.junit.jupiter.api.Test;
 
-public class GenericKeyTest {
+class GenericKeyTest {
     @Test
-    public void equalsTest() {
+    void equalsTest() {
         assertEquals(getInstance(null, null), getInstance(null, null));
         assertEquals(getInstance(null, "A"), getInstance(null, "A"));
         assertEquals(getInstance("A", null), getInstance("A", null));

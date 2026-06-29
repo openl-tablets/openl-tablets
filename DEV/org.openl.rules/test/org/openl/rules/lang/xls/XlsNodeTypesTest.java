@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class XlsNodeTypesTest {
+class XlsNodeTypesTest {
     @Test
-    public void testGetConstant() {
+    void testGetConstant() {
         assertEquals(XlsNodeTypes.WORKBOOK, XlsNodeTypes.getEnumByValue("Workbook"));
         assertEquals(XlsNodeTypes.WORKSHEET, XlsNodeTypes.getEnumByValue("Worksheet"));
         assertEquals(XlsNodeTypes.TABLE, XlsNodeTypes.getEnumByValue("Table"));

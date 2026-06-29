@@ -21,10 +21,10 @@ import org.openl.rules.repository.aws.S3Repository;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.repositories.model.ProjectRevision;
 
-public class HistoryRepositoryMapperTest {
+class HistoryRepositoryMapperTest {
 
     @Test
-    public void shouldReturnHistoryWhenAuthorIsNull() throws IOException {
+    void shouldReturnHistoryWhenAuthorIsNull() throws IOException {
         FileData fileData = mock(FileData.class);
         when(fileData.getAuthor()).thenReturn(null);
 

@@ -12,10 +12,10 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
-public class ExternalDependenciesTest {
+class ExternalDependenciesTest {
 
     @Test
-    public void testDependencies1() throws Exception {
+    void testDependencies1() throws Exception {
         var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test1/module")
                 .setExecutionMode(false)
@@ -30,7 +30,7 @@ public class ExternalDependenciesTest {
     }
 
     @Test
-    public void testDependencies2() throws Exception {
+    void testDependencies2() throws Exception {
         var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test2/module")
                 .setExecutionMode(false)
@@ -60,7 +60,7 @@ public class ExternalDependenciesTest {
     }
 
     @Test
-    public void testDependencies3() throws Exception {
+    void testDependencies3() throws Exception {
         var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test3/module")
                 .setExecutionMode(false)
@@ -97,7 +97,7 @@ public class ExternalDependenciesTest {
     }
 
     @Test
-    public void testDependencies4() throws Exception {
+    void testDependencies4() throws Exception {
         var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test4/module/main")
                 .setWorkspace("test-resources/dependencies/test4/module")

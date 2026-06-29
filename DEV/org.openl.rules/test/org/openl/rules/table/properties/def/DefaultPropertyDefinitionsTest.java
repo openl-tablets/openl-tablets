@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
-public class DefaultPropertyDefinitionsTest {
+class DefaultPropertyDefinitionsTest {
 
     @Test
-    public void dimensionalPropertiesCategoryTest() {
+    void dimensionalPropertiesCategoryTest() {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (tablePropertyDefinition.isDimensional()) {
                 InheritanceLevel[] inheritanceLevels = tablePropertyDefinition.getInheritanceLevel();
@@ -33,7 +33,7 @@ public class DefaultPropertyDefinitionsTest {
     }
 
     @Test
-    public void dimensionalPropertiesNodeTypeTest() {
+    void dimensionalPropertiesNodeTypeTest() {
         Set<XlsNodeTypes> dimensionalPropertiesNodeTypes = new HashSet<>();
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_DT);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_SPREADSHEET);
@@ -54,7 +54,7 @@ public class DefaultPropertyDefinitionsTest {
     }
 
     @Test
-    public void infoPropertiesInheritanceTypeTest() {
+    void infoPropertiesInheritanceTypeTest() {
         final String failMessage = "All info properties must have TABLE inheritance level.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Info".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
@@ -77,7 +77,7 @@ public class DefaultPropertyDefinitionsTest {
     }
 
     @Test
-    public void versionPropertiesInheritanceTypeTest() {
+    void versionPropertiesInheritanceTypeTest() {
         final String failMessage = "All version properties must have TABLE inheritance level only.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Version".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
@@ -93,7 +93,7 @@ public class DefaultPropertyDefinitionsTest {
     }
 
     @Test
-    public void versionPropertiesNodeTypeTest() {
+    void versionPropertiesNodeTypeTest() {
         Set<XlsNodeTypes> dimensionalPropertiesNodeTypes = new HashSet<>();
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_DT);
         dimensionalPropertiesNodeTypes.add(XlsNodeTypes.XLS_SPREADSHEET);

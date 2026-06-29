@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class IntRangeParsingTest {
+class IntRangeParsingTest {
 
     @Test
-    public void testDollarSymbol() {
+    void testDollarSymbol() {
         assertEquals("[13..200]", new IntRange("$13 - 200").toString());
         assertEquals("[11..32)", new IntRange("[$11; $32)").toString());
         assertEquals("> 2", new IntRange(">$2").toString());
@@ -19,7 +19,7 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testBrackets() {
+    void testBrackets() {
         assertEquals("[0..6]", new IntRange("[0..6 ]").toString());
         assertEquals("[0..6]", new IntRange("[0..6 ]").toString());
         assertEquals("[13..200]", new IntRange("[13; 200]").toString());
@@ -40,7 +40,7 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testFails() {
+    void testFails() {
         checkWrong(",");
         checkWrong(",1");
         checkWrong("1,");
@@ -67,19 +67,19 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testExtraSpacesAndPluses() {
+    void testExtraSpacesAndPluses() {
         assertEquals(new IntRange(3, 5), new IntRange("3 - 5"));
         assertEquals(new IntRange(100, Long.MAX_VALUE), new IntRange(">= 100"));
         assertEquals(new IntRange(2, Long.MAX_VALUE), new IntRange("2   +"));
     }
 
     @Test
-    public void testJustNumber() {
+    void testJustNumber() {
         assertEquals(new IntRange(37, 37), new IntRange("37"));
     }
 
     @Test
-    public void testKMB() {
+    void testKMB() {
         assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("1M+"));
         assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("  1M+  "));
         assertEquals(new IntRange(2000000000, 2000000000), new IntRange("2B"));
@@ -89,7 +89,7 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testMinMaxFormat() {
+    void testMinMaxFormat() {
         assertEquals("[3..15]", new IntRange("3..15").toString());
         assertEquals("[1..2]", new IntRange("1-2").toString());
         assertEquals("[13..200]", new IntRange("13 .. 200").toString());
@@ -102,14 +102,14 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormat() {
+    void testMoreLessFormat() {
         assertEquals("< 12", new IntRange("<12").toString());
         assertEquals("<= 7", new IntRange("<=7").toString());
         assertEquals("> 2", new IntRange(">2").toString());
     }
 
     @Test
-    public void testMoreLessFormatBothBounds() {
+    void testMoreLessFormatBothBounds() {
         assertEquals("[5..12)", new IntRange(">=5 <12").toString());
         assertEquals("(3..7]", new IntRange("<=7 >3").toString());
         assertEquals("(2..9)", new IntRange(" > 2   < 9 ").toString());
@@ -117,12 +117,12 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testPlusFormat() {
+    void testPlusFormat() {
         assertEquals(new IntRange(0, Long.MAX_VALUE), new IntRange("0+"));
     }
 
     @Test
-    public void testSignedNumber() {
+    void testSignedNumber() {
         assertEquals(new IntRange(-15, -8), new IntRange("-15 - -8"));
         assertEquals(new IntRange(-15, -8), new IntRange("-15 --8"));
         assertEquals(new IntRange(-15, -8), new IntRange("-15- -8"));
@@ -136,7 +136,7 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testThousandsSeparator() {
+    void testThousandsSeparator() {
         assertEquals(new IntRange(-123456, 987654), new IntRange("-123,456 - 987,654"));
         assertEquals(new IntRange(123456, Long.MAX_VALUE), new IntRange("123,456+"));
         assertEquals("> 123456", new IntRange(">123,456").toString());
@@ -148,7 +148,7 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testVerbal() {
+    void testVerbal() {
         assertEquals(">= -100", new IntRange("-100 and more").toString());
         assertEquals(">= -100", new IntRange("  -100   and   more  ").toString());
         assertEquals("> 2", new IntRange("more than 2").toString());
@@ -158,7 +158,7 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testVerbalBothBounds() {
+    void testVerbalBothBounds() {
         assertEquals("[-100..500)", new IntRange("-100 and more less than 500").toString());
         assertEquals("[-100..500)", new IntRange("  -100   and   more   less   than   500  ").toString());
         assertEquals("(2..5]", new IntRange("more than 2 5 or less").toString());
@@ -168,14 +168,14 @@ public class IntRangeParsingTest {
     }
 
     @Test
-    public void testRangeSuffixies() {
+    void testRangeSuffixies() {
         IntRange range = new IntRange("6-8");
         assertEquals(8, range.getMax());
         assertEquals(6, range.getMin());
     }
 
     @Test
-    public void testInvalidIntRangeParsing1() {
+    void testInvalidIntRangeParsing1() {
         TestUtils.assertEx("test/rules/helpers/IntRangeParsing1.xls", "IntRangeParsing1.xls?sheet=hello2&range=C8:D8");
     }
 

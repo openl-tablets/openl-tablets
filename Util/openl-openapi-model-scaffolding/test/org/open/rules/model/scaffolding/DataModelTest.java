@@ -10,12 +10,12 @@ import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 
-public class DataModelTest {
+class DataModelTest {
 
     public static final String APPLICATION_JSON = "application/json";
 
     @Test
-    public void testDataModelCreation() {
+    void testDataModelCreation() {
         PathInfo pi = new PathInfo("a/b/c", "abc", PathInfo.Operation.GET,
                 new TypeInfo("Bank", "Bank", TypeInfo.Type.DATATYPE),
                 APPLICATION_JSON,

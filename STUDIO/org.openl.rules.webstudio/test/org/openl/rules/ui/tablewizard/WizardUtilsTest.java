@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.ui.tablewizard.test.TestBean;
 
-public class WizardUtilsTest {
+class WizardUtilsTest {
 
     @Test
-    public void testGetClasses() throws Exception {
+    void testGetClasses() throws Exception {
         URL dirUrl = getClass().getResource("./test");
         URL jarUrl = URI.create("jar:file:test/rules/classes/test.jar!/").toURL();
         var notExistJar = URI.create("jar:file:test/not_exist.jar!/").toURL();

@@ -33,14 +33,14 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 
-public class AlgorithmsModuleExporterTest {
+class AlgorithmsModuleExporterTest {
 
     public static final String ALGORITHMS = "Algorithms.xlsx";
     public static final int DEFAULT_MARGIN = 2;
     public static final int DEFAULT_CELL = 1;
 
     @Test
-    public void testAlgorithmsModuleGeneration() throws IOException {
+    void testAlgorithmsModuleGeneration() throws IOException {
         EnvironmentModel environmentModel = new EnvironmentModel(Arrays.asList("Apple", "Car"),
                 Arrays.asList("Building", "Person"));
 
@@ -200,7 +200,7 @@ public class AlgorithmsModuleExporterTest {
     }
 
     @AfterAll
-    public static void clean() throws IOException {
+    static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();
         assertNotNull(files);

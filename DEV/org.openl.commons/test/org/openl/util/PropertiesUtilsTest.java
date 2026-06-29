@@ -16,52 +16,52 @@ import java.util.LinkedHashMap;
 
 import org.junit.jupiter.api.Test;
 
-public class PropertiesUtilsTest {
+class PropertiesUtilsTest {
 
     @Test
-    public void loadEmpty() throws IOException {
+    void loadEmpty() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader(""), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList(), result);
     }
 
     @Test
-    public void loadNull() throws IOException {
+    void loadNull() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("\n   spaced key1 \n key2\r key3\r\n  #x:y\r\n\r\n key4"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("spaced key1=null", "key2=null", "key3=null", "key4=null"), result);
     }
 
     @Test
-    public void loadComments() throws IOException {
+    void loadComments() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("#com=1\\\nx = 2\\\r\n#34 "), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x=2#34"), result);
     }
 
     @Test
-    public void loadTheSame() throws IOException {
+    void loadTheSame() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("x=1\nx : 2 : 3 = 4 \r   \t\f\n\r \t\fx=3\n  \u1111:\u2222\\"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x=1", "x=2 : 3 = 4", "x=3", "\u1111=\u2222"), result);
     }
 
     @Test
-    public void loadSpecSymbols() throws IOException {
+    void loadSpecSymbols() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("\tx\t\f \\r\\n\\u0035y#$.,%^&@!+-*/w\\:t+-*/+-_)(*&^%$#@!~`<>,.{}[] = \t\fx\t\f\\t\\f\\n\\r\\u0034+-*/=+-_)(*&^%$#@!~`<>,.{}[]1"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x\t\f \r\n5y#$.,%^&@!+-*/w:t+-*/+-_)(*&^%$#@!~`<>,.{}[]=x\t\f\t\f\n\r\u0034+-*/=+-_)(*&^%$#@!~`<>,.{}[]1"), result);
     }
 
     @Test
-    public void loadSimple() throws IOException {
+    void loadSimple() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("x=1\n\ry=2\r\nz=3 \\"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("x=1", "y=2", "z=3"), result);
     }
 
     @Test
-    public void failNotFullUnicode() throws IOException {
+    void failNotFullUnicode() throws IOException {
         assertThrows(EOFException.class, () -> {
             ArrayList<String> result = new ArrayList<>();
             PropertiesUtils.load(new StringReader("x=1\n\ry=\\u123"), (k, v) -> result.add(k + "=" + v));
@@ -69,7 +69,7 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void loadStream() throws IOException {
+    void loadStream() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         try (var file = Thread.currentThread().getContextClassLoader().getResourceAsStream("test-utf8.properties")) {
             PropertiesUtils.load(file, (k, v) -> result.add(k + "=" + v));
@@ -78,21 +78,21 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void loadPath() throws IOException {
+    void loadPath() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(Path.of("test-resources/test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
     }
 
     @Test
-    public void loadURL() throws IOException {
+    void loadURL() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(Thread.currentThread().getContextClassLoader().getResource("test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
     }
 
     @Test
-    public void load() throws IOException {
+    void load() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(Path.of("test-resources/specs.properties"), (k, v) -> result.add(k + "  ->  " + v));
         assertEquals(Arrays.asList(
@@ -117,7 +117,7 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void storeEmpty() throws IOException {
+    void storeEmpty() throws IOException {
         var output = new StringWriter();
         var props = new LinkedHashMap<String, String>();
 
@@ -126,7 +126,7 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void store() throws IOException {
+    void store() throws IOException {
         var output = new StringWriter();
         var props = new LinkedHashMap<String, String>();
         props.put("x", "20 ");
@@ -144,7 +144,7 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void storeStream() throws IOException {
+    void storeStream() throws IOException {
         var output = new ByteArrayOutputStream();
         var props = new LinkedHashMap<Integer, Integer>();
         props.put(2, 20);
@@ -155,7 +155,7 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void storePath() throws IOException {
+    void storePath() throws IOException {
         Path tempFile = Files.createTempFile("test-utf8", ".properties");
         var result = new LinkedHashMap<String, String>();
         var props = new LinkedHashMap<String, String>();

@@ -10,10 +10,10 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 
-public class ActiveMethodFeatureTest {
+class ActiveMethodFeatureTest {
 
     @Test
-    public void testMethodOverload1() {
+    void testMethodOverload1() {
 
         ITestI instance = TestUtils.create("test/rules/overload/ActiveMethodFeature.xls", ITestI.class);
 
@@ -35,7 +35,7 @@ public class ActiveMethodFeatureTest {
     }
 
     @Test
-    public void testMethodOverload2() {
+    void testMethodOverload2() {
 
         ITestI instance = TestUtils.create("test/rules/overload/ActiveMethodFeature.xls", ITestI.class);
 

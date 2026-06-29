@@ -17,10 +17,10 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.ZipUtils;
 
-public class ResolvingStrategiesTest {
+class ResolvingStrategiesTest {
 
     @Test
-    public void testDescriptor() throws Exception {
+    void testDescriptor() throws Exception {
         ProjectDescriptorBasedResolvingStrategy strategy = new ProjectDescriptorBasedResolvingStrategy();
         File projectFolder = new File("test-resources/descriptor");
         assertTrue(strategy.isRulesProject(projectFolder.toPath()));
@@ -41,7 +41,7 @@ public class ResolvingStrategiesTest {
     }
 
     @Test
-    public void testSimple() throws Exception {
+    void testSimple() throws Exception {
         ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
         File projectFolder = new File("test-resources/excel/");
         assertTrue(resolvingStrategy.isRulesProject(projectFolder.toPath()));
@@ -63,7 +63,7 @@ public class ResolvingStrategiesTest {
     }
 
     @Test
-    public void testSimpleZip() throws Exception {
+    void testSimpleZip() throws Exception {
         Path projectZip = Path.of("test-resources/Tutorial 1%20+.zip");
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(projectZip), Collections.emptyMap())) {
             Path zipRoot = fs.getPath("/");

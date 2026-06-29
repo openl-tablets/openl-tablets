@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.repository.api.FileItem;
 
-public class FileChangesFromFolderTest {
+class FileChangesFromFolderTest {
 
     @Test
-    public void testIterator() throws IOException {
+    void testIterator() throws IOException {
         Map<String, byte[]> actualEntries = executeIterator("test-resources/archive.zip", FileChangesFromFolder::new);
         assertEquals(7, actualEntries.size());
         assertSizeEquals(23, actualEntries.get("/deployment.yaml"));
@@ -35,7 +35,7 @@ public class FileChangesFromFolderTest {
     }
 
     @Test
-    public void testIterator2() throws IOException {
+    void testIterator2() throws IOException {
         Map<String, byte[]> actualEntries = executeIterator("test-resources/archive.zip",
                 root -> new FileChangesFromFolder(root,
                         "/root-folder",

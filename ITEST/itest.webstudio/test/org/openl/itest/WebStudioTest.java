@@ -6,35 +6,35 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.JettyServer;
 
-public class WebStudioTest {
+class WebStudioTest {
 
     @Test
-    public void simple() throws Exception {
+    void simple() throws Exception {
         JettyServer.test("simple");
     }
 
     @Test
-    public void multi() throws Exception {
+    void multi() throws Exception {
         JettyServer.test("multi");
     }
 
     @Test
-    public void repos() throws Exception {
+    void repos() throws Exception {
         JettyServer.test("repos");
     }
 
     @Test
-    public void dtr() throws Exception {
+    void dtr() throws Exception {
         JettyServer.test("dtr");
     }
 
     @Test
-    public void acl() throws Exception {
+    void acl() throws Exception {
         JettyServer.test("acl");
     }
 
     @Test
-    public void disabled_settings() throws Exception {
+    void disabled_settings() throws Exception {
         var smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         try {

@@ -29,17 +29,17 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 /**
  * Tests which are related to data type models generation.
  */
-public class DataTypeConverterTest {
+class DataTypeConverterTest {
 
     private OpenAPIModelConverter converter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         converter = new OpenAPIScaffoldingConverter();
     }
 
     @Test
-    public void testMissedDataTypes() throws IOException {
+    void testMissedDataTypes() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/datatype/EPBDS-10229_missed_types.json");
         assertEquals(3, projectModel.getDatatypeModels().size());
@@ -63,7 +63,7 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void testNestingProblem() throws IOException {
+    void testNestingProblem() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/nesting.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertFalse(datatypeModels.isEmpty());
@@ -76,14 +76,14 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void testSimpleDatatype() throws IOException {
+    void testSimpleDatatype() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_simple.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
     }
 
     @Test
-    public void testDataTypeNesting() throws IOException {
+    void testDataTypeNesting() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_with_parent.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(2, datatypeModels.size());
@@ -97,7 +97,7 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void testMultipleDataTypeNesting() throws IOException {
+    void testMultipleDataTypeNesting() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/datatype/datatypes_multiple_nesting.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -144,7 +144,7 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void dataTypeInExpandableRequestBody() throws IOException {
+    void dataTypeInExpandableRequestBody() throws IOException {
         // project model with expandable request
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body.json");
@@ -169,7 +169,7 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void dataTypeWithMoreThanLimitFields() throws IOException {
+    void dataTypeWithMoreThanLimitFields() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel(
                 "test.converter/datatype/EPBDS-10285_datatype_with_exceeding_limit_fields_number.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -183,7 +183,7 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void dataTypeNumberValuesTest() throws IOException {
+    void dataTypeNumberValuesTest() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -240,7 +240,7 @@ public class DataTypeConverterTest {
     }
 
     @Test
-    public void testLostDatatype() throws IOException {
+    void testLostDatatype() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();

@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.types.java.JavaOpenClass;
 
-public class CollectionParameterTreeNodeTest {
+class CollectionParameterTreeNodeTest {
     @Test
-    public void nullValuesInPrimitiveArrays() {
+    void nullValuesInPrimitiveArrays() {
         JavaOpenClass type = JavaOpenClass.getOpenClass(int[].class);
         ParameterRenderConfig config = new ParameterRenderConfig.Builder(type, null).build();
         CollectionParameterTreeNode node = new CollectionParameterTreeNode(config);

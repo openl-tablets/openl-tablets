@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 
-public class FolderHelperTest {
+class FolderHelperTest {
 
     @Test
-    public void testResolveHistoryFolder() {
+    void testResolveHistoryFolder() {
         Module module = mock(Module.class);
         when(module.getRulesRootPath()).thenReturn("Bank Rating .xlsx");
 

@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
-public class SecurityAnnotationsSupportTest {
+class SecurityAnnotationsSupportTest {
     @Autowired
     MutableAclService aclService;
 
@@ -34,7 +34,7 @@ public class SecurityAnnotationsSupportTest {
 
     @Test
     @WithMockUser(value = "oleg")
-    public void hasRoleAnnotationsDenyTest() {
+    void hasRoleAnnotationsDenyTest() {
         assertThrows(AccessDeniedException.class, () -> {
             assertNotNull(securedService);
             securedService.save(new Foo(44L));
@@ -43,7 +43,7 @@ public class SecurityAnnotationsSupportTest {
 
     @Test
     @WithMockUser(value = "oleg", authorities = "Developers")
-    public void hasRoleAnnotationsAllowTest() {
+    void hasRoleAnnotationsAllowTest() {
         assertNotNull(securedService);
         securedService.save(new Foo(44L));
     }
@@ -51,7 +51,7 @@ public class SecurityAnnotationsSupportTest {
     @Test
     @WithMockUser(value = "oleg")
     @Transactional
-    public void hasPermissionAnnotationsTest() {
+    void hasPermissionAnnotationsTest() {
         assertNotNull(securedService);
         Foo foo = new Foo(45L);
         // Prepare the information we'd like in our access control entry (ACE)

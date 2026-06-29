@@ -32,13 +32,13 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 
-public class FileSystemRepositoryTest {
+class FileSystemRepositoryTest {
 
     @TempDir
     Path tmpDir;
 
     @Test
-    public void createFolderOnDemand() throws IOException {
+    void createFolderOnDemand() throws IOException {
         var root = tmpDir.resolve("parent/my-repo");
 
         FileSystemRepository repo = new FileSystemRepository();
@@ -65,7 +65,7 @@ public class FileSystemRepositoryTest {
     }
 
     @Test
-    public void testRepo() throws IOException {
+    void testRepo() throws IOException {
         FileSystemRepository repo = new FileSystemRepository();
         repo.setRoot(tmpDir);
         repo.initialize();
@@ -117,7 +117,7 @@ public class FileSystemRepositoryTest {
     }
 
     @Test
-    public void listMustStayInsideRoot() throws IOException {
+    void listMustStayInsideRoot() throws IOException {
         var root = tmpDir.resolve("repo");
         FileSystemRepository repo = new FileSystemRepository();
         repo.setRoot(root);

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class OpenLMessageTests extends BaseOpenlBuilderHelper {
+class OpenLMessageTests extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/OpenLMessagesTest.xlsx";
 
@@ -15,7 +15,7 @@ public class OpenLMessageTests extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMessages() {
+    void testMessages() {
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message instanceof OpenLErrorMessage) {
                 assertTrue(message.getSourceLocation()

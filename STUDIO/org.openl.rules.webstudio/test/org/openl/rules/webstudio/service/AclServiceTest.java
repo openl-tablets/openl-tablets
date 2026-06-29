@@ -28,20 +28,20 @@ import org.springframework.transaction.annotation.Transactional;
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
-public class AclServiceTest {
+class AclServiceTest {
 
     @Autowired
     MutableAclService aclService;
 
     @Test
-    public void exists() {
+    void exists() {
         assertNotNull(aclService);
     }
 
     @Test
     @WithMockUser(value = "admin", authorities = "Administrators")
     @Transactional
-    public void grantAndReadPermission() {
+    void grantAndReadPermission() {
         // Prepare the information we'd like in our access control entry (ACE)
         ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "44");
 

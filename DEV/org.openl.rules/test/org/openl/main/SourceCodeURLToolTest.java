@@ -14,10 +14,10 @@ import org.openl.util.text.ILocation;
 import org.openl.util.text.IPosition;
 import org.openl.util.text.TextInterval;
 
-public class SourceCodeURLToolTest {
+class SourceCodeURLToolTest {
 
     @Test
-    public void printCodeAndErrorTest() {
+    void printCodeAndErrorTest() {
         IPosition start = mock(IPosition.class);
         when(start.getColumn(any())).thenReturn(28);
         when(start.getLine(any())).thenReturn(0);

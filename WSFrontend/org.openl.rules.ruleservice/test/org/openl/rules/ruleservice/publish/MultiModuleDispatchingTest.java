@@ -15,14 +15,14 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
 @TestPropertySource(properties = {"production-repository.uri=test-resources/MultiModuleDispatchingTest",
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
-public class MultiModuleDispatchingTest {
+class MultiModuleDispatchingTest {
     private static final String SERVICE_NAME = "MultiModuleDispatchingTest_multimodule";
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Test
-    public void testMultiModuleService2() throws Exception {
+    void testMultiModuleService2() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

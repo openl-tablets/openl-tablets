@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 
-public class DatatypeModelTest {
+class DatatypeModelTest {
 
     public static final String DRIVER = "Driver";
     public static final String HUMAN = "Human";
 
     @Test
-    public void testSimpleCreationOfDataTypeModel() {
+    void testSimpleCreationOfDataTypeModel() {
         DatatypeModel driver = new DatatypeModel(DRIVER);
         driver.setParent(HUMAN);
         assertEquals(DRIVER, driver.getName());
@@ -49,7 +49,7 @@ public class DatatypeModelTest {
     }
 
     @Test
-    public void testDataTypeModelWithOneField() {
+    void testDataTypeModelWithOneField() {
         DatatypeModel dm = new DatatypeModel(DRIVER);
         DatatypeModel oneMoreDm = new DatatypeModel(DRIVER);
         assertEquals(dm, oneMoreDm);
@@ -64,7 +64,7 @@ public class DatatypeModelTest {
     }
 
     @Test
-    public void testDataTypeModelWithManySameFields() {
+    void testDataTypeModelWithManySameFields() {
         DatatypeModel driver = new DatatypeModel(DRIVER);
         DatatypeModel oneMoreDriver = new DatatypeModel(DRIVER);
         assertEquals(driver, oneMoreDriver);
@@ -86,7 +86,7 @@ public class DatatypeModelTest {
     }
 
     @Test
-    public void testDataTypeModelWithDifferentFields() {
+    void testDataTypeModelWithDifferentFields() {
         DatatypeModel driver = new DatatypeModel(DRIVER);
         DatatypeModel oneMoreDriver = new DatatypeModel(DRIVER);
 

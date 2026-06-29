@@ -14,17 +14,17 @@ import org.junit.jupiter.api.Test;
 /**
  * @author snshor
  */
-public class VersionTest {
+class VersionTest {
 
     /*
      * Test for boolean equals(Object)
      */
     @Test
-    public void testEqualsObject() {
+    void testEqualsObject() {
     }
 
     @Test
-    public void testIsVersion() {
+    void testIsVersion() {
         String t1 = "1.2.3";
 
         assertTrue(Version.isVersion(t1, 0, ".."));
@@ -47,7 +47,7 @@ public class VersionTest {
     }
 
     @Test
-    public void testParseVersion() throws Exception {
+    void testParseVersion() throws Exception {
         Version v9_1_44 = Version.parseVersion("x_9.1.44", 2, "..");
 
         assertEquals("9.1.44", v9_1_44.toString());

@@ -6,17 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class String2CharConvertorTest {
+class String2CharConvertorTest {
 
     @Test
-    public void testParse() {
+    void testParse() {
         String2CharConvertor converter = new String2CharConvertor();
         Character result = converter.parse("X", null);
         assertEquals(Character.valueOf('X'), result);
     }
 
     @Test
-    public void testParseEmpty() {
+    void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2BooleanConvertor converter = new String2BooleanConvertor();
             converter.parse("", null);
@@ -24,7 +24,7 @@ public class String2CharConvertorTest {
     }
 
     @Test
-    public void testParseWrongValue() {
+    void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2BooleanConvertor converter = new String2BooleanConvertor();
             converter.parse("12", null);
@@ -32,7 +32,7 @@ public class String2CharConvertorTest {
     }
 
     @Test
-    public void testParseNull() {
+    void testParseNull() {
         String2CharConvertor converter = new String2CharConvertor();
         assertNull(converter.parse(null, null));
     }

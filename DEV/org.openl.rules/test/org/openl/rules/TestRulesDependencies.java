@@ -19,7 +19,7 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ExecutableMethod;
 
-public class TestRulesDependencies extends BaseOpenlBuilderHelper {
+class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/TestRulesDependencies.xls";
 
@@ -28,7 +28,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testDTExistingDependency() {
+    void testDTExistingDependency() {
         String tableName = "Rules String test1(int age)";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
@@ -51,7 +51,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testDTNotExistingDependency() {
+    void testDTNotExistingDependency() {
         String tableName = "Rules int getCalcAge(int constant)";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
@@ -64,7 +64,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testSpreadsheet() {
+    void testSpreadsheet() {
         String tableName = "Spreadsheet SpreadsheetResult processDriver(Driver driver)";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
@@ -108,7 +108,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testTbasic() {
+    void testTbasic() {
         String tableName = "TBasic int factorial(int n)";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
@@ -130,7 +130,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMethod() {
+    void testMethod() {
         String tableName = "Method int start()";
         TableSyntaxNode tsn = findTable(tableName);
         if (tsn != null) {
@@ -158,7 +158,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void tesTestTable() {
+    void tesTestTable() {
         IOpenClass moduleOpenClass = getCompiledOpenClass().getOpenClass();
         TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", IOpenClass.EMPTY);
 

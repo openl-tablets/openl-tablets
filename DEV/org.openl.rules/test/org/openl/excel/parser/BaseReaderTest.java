@@ -24,7 +24,7 @@ public abstract class BaseReaderTest {
     protected abstract ExcelReader createReader() throws IOException;
 
     @BeforeEach
-    public void setUp() {
+    protected void setUp() {
         try {
             reader = createReader();
         } catch (IOException e) {
@@ -33,13 +33,13 @@ public abstract class BaseReaderTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    protected void tearDown() {
         reader.close();
         reader = null;
     }
 
     @Test
-    public void getSheets() {
+    protected void getSheets() {
         List<? extends SheetDescriptor> sheets = reader.getSheets();
 
         assertEquals(4, sheets.size());
@@ -54,7 +54,7 @@ public abstract class BaseReaderTest {
     }
 
     @Test
-    public void getMainSheet() {
+    protected void getMainSheet() {
         Object[][] cells = reader.getCells(reader.getSheets().getFirst());
         assertEquals(15, cells.length);
         assertEquals(1, cells[0].length);
@@ -124,7 +124,7 @@ public abstract class BaseReaderTest {
     }
 
     @Test
-    public void getSecondSheet() {
+    protected void getSecondSheet() {
         Object[][] cells = reader.getCells(reader.getSheets().get(1));
         assertEquals(8, cells.length);
         assertEquals(2, cells[0].length);
@@ -150,13 +150,13 @@ public abstract class BaseReaderTest {
     }
 
     @Test
-    public void getSheet3() {
+    protected void getSheet3() {
         Object[][] cells = reader.getCells(reader.getSheets().get(2));
         assertEquals(0, cells.length);
     }
 
     @Test
-    public void getComments() {
+    protected void getComments() {
         TableStyles tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(17, 1, 17, 1));
 
         ICellComment comment = tableStyles.getComment(17, 1);
@@ -165,7 +165,7 @@ public abstract class BaseReaderTest {
     }
 
     @Test
-    public void getFormulas() {
+    protected void getFormulas() {
         TableStyles tableStyles = reader.getTableStyles(reader.getSheets().getFirst(), new GridRegion(10, 1, 13, 1));
 
         assertEquals("B7/2", tableStyles.getFormula(10, 1));
@@ -175,7 +175,7 @@ public abstract class BaseReaderTest {
     }
 
     @Test
-    public void getSharedFormulas() {
+    protected void getSharedFormulas() {
         TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(3), new GridRegion(2, 2, 11, 2));
 
         // Sometimes Excel uses Shared Formulas to optimize file size.

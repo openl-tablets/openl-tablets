@@ -22,7 +22,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenMethod;
 
-public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
+class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/binding/MethodUsagesMetaInfoTest.xlsx";
 
     public MethodUsagesMetaInfoTest() {
@@ -30,7 +30,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMetaInfoInDT() {
+    void testMetaInfoInDT() {
         // method in return expression
         TableSyntaxNode firstTable = findTable("Rules String testDT(int arg)", null);
         ICell returnExpressionCell = firstTable.getGridTable().getCell(1, 2);
@@ -46,7 +46,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMetaInfoInDispatcherTable() {
+    void testMetaInfoInDispatcherTable() {
         TableSyntaxNode dispatcherTable = findDispatcherForMethod("testDT");
         MetaInfoReader metaInfoReader = dispatcherTable.getMetaInfoReader();
         IBaseAction returnColumn = ((DecisionTable) dispatcherTable.getMember()).getActionRows()[0];
@@ -63,7 +63,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMetaInfoInDecisionTableWithMergedCells() {
+    void testMetaInfoInDecisionTableWithMergedCells() {
         TableSyntaxNode testDT1Table = findTable("Rules String[] testDT1(int x)", null);
         int[][] retCells1 = {{1, 5}, {1, 6}};
         for (int[] cell : retCells1) {
@@ -94,7 +94,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMetaInfoInTBasic() {
+    void testMetaInfoInTBasic() {
         TableSyntaxNode table = findTable("TBasic String testTBasic()");
         IGridTable spreadsheetGrid = table.getGridTable();
         ICell cell = spreadsheetGrid.getCell(4, 6);
@@ -102,7 +102,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMetaInfoInSpreadsheet() {
+    void testMetaInfoInSpreadsheet() {
         TableSyntaxNode table = findTable("Spreadsheet SpreadsheetResult testSpreadsheet()");
         IGridTable spreadsheetGrid = table.getGridTable();
         ICell cell = spreadsheetGrid.getCell(1, 3);
@@ -110,7 +110,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testMetaInfoMultiSourceMethodTable() {
+    void testMetaInfoMultiSourceMethodTable() {
         TableSyntaxNode table = findTable("Method String testMethod()");
         MetaInfoReader metaInfoReader = table.getMetaInfoReader();
 

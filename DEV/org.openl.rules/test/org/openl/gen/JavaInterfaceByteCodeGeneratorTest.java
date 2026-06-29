@@ -23,12 +23,12 @@ import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 
-public class JavaInterfaceByteCodeGeneratorTest {
+class JavaInterfaceByteCodeGeneratorTest {
 
     private static final Class<?>[] NO_ARGS = new Class<?>[0];
 
     @Test
-    public void testGenerateEmpty() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    void testGenerateEmpty() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         final String expectedName = "org.openl.generated.test.ServiceEmpty";
         JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
                 Collections.emptyList());
@@ -37,7 +37,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethods() throws IllegalAccessException,
+    void testGenerateWithMethods() throws IllegalAccessException,
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
@@ -60,7 +60,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotations() throws IllegalAccessException,
+    void testGenerateWithMethodsAndAnnotations() throws IllegalAccessException,
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
@@ -106,7 +106,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder2() throws IllegalAccessException,
+    void testGenerateWithMethodsAndAnnotationsBuilder2() throws IllegalAccessException,
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
@@ -143,7 +143,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder3() throws IllegalAccessException,
+    void testGenerateWithMethodsAndAnnotationsBuilder3() throws IllegalAccessException,
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
@@ -180,7 +180,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder() throws IllegalAccessException,
+    void testGenerateWithMethodsAndAnnotationsBuilder() throws IllegalAccessException,
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {

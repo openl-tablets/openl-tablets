@@ -27,7 +27,7 @@ import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
-public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
+class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private static GreenMail smtpServer;
     private static String mailUrl;
@@ -36,12 +36,12 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
     private MailSender mailSender;
 
     @AfterEach
-    public void reset_mocks() {
+    void reset_mocks() {
         reset(mailSender);
     }
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
@@ -51,12 +51,12 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         smtpServer.stop();
     }
 
     @Test
-    public void testMailConfig_valid() throws MessagingException {
+    void testMailConfig_valid() throws MessagingException {
         Transport transport = mock(Transport.class);
         when(transport.isConnected()).thenReturn(true);
         when(mailSender.getTransport(any(), any(), any())).thenReturn(transport);
@@ -64,7 +64,7 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testMailConfig_emptyFields_notValid() {
+    void testMailConfig_emptyFields_notValid() {
         MailConfigModel mailConfigModel = getValidMailConfigModel();
         mailConfigModel.setUrl(null);
         BindingResult bindingResult = validateAndGetResult(mailConfigModel);
@@ -72,7 +72,7 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testMailConfig_wrongConfig_notValid() throws MessagingException {
+    void testMailConfig_wrongConfig_notValid() throws MessagingException {
         Transport transport = mock(Transport.class);
         when(transport.isConnected()).thenThrow(new IllegalArgumentException("Ho-ho-ho"));
         when(mailSender.getTransport(any(), any(), any())).thenReturn(transport);

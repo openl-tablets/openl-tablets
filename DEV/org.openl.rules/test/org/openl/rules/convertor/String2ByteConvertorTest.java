@@ -5,24 +5,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class String2ByteConvertorTest {
+class String2ByteConvertorTest {
 
     @Test
-    public void testConvertPositive() {
+    void testConvertPositive() {
         String2ByteConvertor converter = new String2ByteConvertor();
         Number result = converter.parse("127", null);
         assertEquals(Byte.MAX_VALUE, result);
     }
 
     @Test
-    public void testConvertNegative() {
+    void testConvertNegative() {
         String2ByteConvertor converter = new String2ByteConvertor();
         Number result = converter.parse("-128", null);
         assertEquals(Byte.MIN_VALUE, result);
     }
 
     @Test
-    public void testConvertPositiveOverflow() {
+    void testConvertPositiveOverflow() {
         assertThrows(NumberFormatException.class, () -> {
             String2ByteConvertor converter = new String2ByteConvertor();
             converter.parse("128", null);
@@ -30,7 +30,7 @@ public class String2ByteConvertorTest {
     }
 
     @Test
-    public void testConvertNegativeOverflow() {
+    void testConvertNegativeOverflow() {
         assertThrows(NumberFormatException.class, () -> {
             String2ByteConvertor converter = new String2ByteConvertor();
             converter.parse("-129", null);
@@ -38,7 +38,7 @@ public class String2ByteConvertorTest {
     }
 
     @Test
-    public void testConvertNonInteger() {
+    void testConvertNonInteger() {
         assertThrows(NumberFormatException.class, () -> {
             String2ByteConvertor converter = new String2ByteConvertor();
             converter.parse("1.3", null);

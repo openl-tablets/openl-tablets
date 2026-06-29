@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.range.Range;
 
-public class StringRangeParsingTest {
+class StringRangeParsingTest {
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("B", new StringRange("B").toString());
 
         assertEquals("[AA..ZZ]", new StringRange("AA-ZZ").toString());
@@ -58,7 +58,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testToStringWhitespaces() {
+    void testToStringWhitespaces() {
         // Part 1
         assertEquals("[A  A..Z  Z]", new StringRange("A  A-Z  Z").toString());
         assertEquals("[A  A..Z  Z]", new StringRange("A  A..Z  Z").toString());
@@ -186,7 +186,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testDoubleDash() {
+    void testDoubleDash() {
         assertEquals("[Mister-X..Ray]", new StringRange("Mister-X - Ray").toString());
         assertEquals("[Mister..X - Ray]", new StringRange("Mister - X - Ray").toString());
         assertEquals("[Mister..X-Ray]", new StringRange("Mister - X-Ray").toString());
@@ -214,7 +214,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testSpecialCases() {
+    void testSpecialCases() {
         assertEquals("[.aaa....bbb.]", new StringRange(".aaa.-.bbb.").toString());
         assertEquals("[\\aaa\\..\\bbb\\]", new StringRange("\\aaa\\-\\bbb\\").toString());
         assertEquals("[a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
@@ -225,7 +225,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testSimpleRangeFormat() {
+    void testSimpleRangeFormat() {
         StringRange range = new StringRange("B");
         assertInclude(range, "B");
         assertExclude(range, "b", "A", "C");
@@ -236,7 +236,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testMinMaxRangeFormat() {
+    void testMinMaxRangeFormat() {
         StringRange range = new StringRange("AA-ZZ");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z");
         assertExclude(range, "A", "ZZZ", "aa", "zz");
@@ -255,7 +255,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testBracketsFormat() {
+    void testBracketsFormat() {
         StringRange range = new StringRange("[AA; ZZ]");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z");
         assertExclude(range, "A", "ZZZ", "aa", "zz");
@@ -274,7 +274,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testVerbal() {
+    void testVerbal() {
         StringRange range = new StringRange("AA and more");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z", "ZZZ", "aa", "zz");
         assertExclude(range, "A");
@@ -293,7 +293,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormat() {
+    void testMoreLessFormat() {
         StringRange range = new StringRange(">= AA");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z", "ZZZ", "aa", "zz");
         assertExclude(range, "A");
@@ -316,7 +316,7 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormatBothBounds() {
+    void testMoreLessFormatBothBounds() {
         StringRange range = new StringRange(">=AA <=ZZ");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z");
         assertExclude(range, "A", "ZZZ", "aa", "zz");
@@ -351,20 +351,20 @@ public class StringRangeParsingTest {
     }
 
     @Test
-    public void testNulls() {
+    void testNulls() {
         StringRange range = new StringRange(">=AA <=ZZ");
         assertFalse(range.contains((Range<CharSequence>) null));
         assertFalse(range.contains((CharSequence) null));
     }
 
     @Test
-    public void testNegative() {
+    void testNegative() {
         StringRange range = new StringRange("00F-00Z");
         assertFalse(range.contains("Z"));
     }
 
     @Test
-    public void testParseException() {
+    void testParseException() {
         assertThrows(RuntimeException.class, () -> {
             new StringRange(null);
         });

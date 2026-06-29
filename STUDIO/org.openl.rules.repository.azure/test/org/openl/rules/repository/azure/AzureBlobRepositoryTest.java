@@ -51,13 +51,13 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.IOUtils;
 
-public class AzureBlobRepositoryTest {
+class AzureBlobRepositoryTest {
     private AzureBlobRepository repo;
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
     private final Map<String, List<BlobEmulation>> blobs = new HashMap<>();
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         BlobContainerClient client = mockContainerClient();
 
         repo = new AzureBlobRepository();
@@ -66,13 +66,13 @@ public class AzureBlobRepositoryTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         blobs.clear();
         repo.close();
     }
 
     @Test
-    public void listFolders() throws IOException {
+    void listFolders() throws IOException {
         // Find projects in the rules folder
         List<FileData> folders = repo.listFolders("rules/");
         assertNotNull(folders);
@@ -90,7 +90,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void listFiles() throws IOException {
+    void listFiles() throws IOException {
         List<FileData> files1 = repo.listFiles("rules/project1/", "version11");
         assertNotNull(files1);
         assertEquals(2, files1.size());
@@ -105,7 +105,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void saveFolder() throws IOException {
+    void saveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
                 new FileItem("rules/project1/new-path/file14", IOUtils.toInputStream("Added")),
                 new FileItem("rules/project1/file11", IOUtils.toInputStream("Modified")));
@@ -122,7 +122,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void list() throws IOException {
+    void list() throws IOException {
         assertEquals(4, repo.list("").size());
         assertEquals(2, repo.list("rules/project1/").size());
         assertEquals(0, repo.list("rules/project1/folder1").size());
@@ -131,7 +131,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void check() throws IOException {
+    void check() throws IOException {
         assertNull(repo.check("rules/project1/absent-file"));
 
         FileData file1 = repo.check("rules/project1/file11");
@@ -144,7 +144,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void read() throws IOException {
+    void read() throws IOException {
         assertNull(repo.read("rules/project1/absent-file"));
 
         var file1 = "rules/project1/file11";
@@ -160,7 +160,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void delete() throws IOException {
+    void delete() throws IOException {
         String projectPath = "rules/project1";
         // Archive the project
         FileData projectData = new FileData();
@@ -196,7 +196,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void listHistory() throws IOException {
+    void listHistory() throws IOException {
         List<FileData> project2History = repo.listHistory("rules/project2");
         assertEquals(1, project2History.size());
         assertEquals("version21", project2History.getFirst().getVersion());
@@ -210,7 +210,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void checkHistory() throws IOException {
+    void checkHistory() throws IOException {
         assertEquals("version11", repo.checkHistory("rules/project1/file11", "version11").getVersion());
         assertNull(repo.checkHistory("rules/project1/file11", "absent"));
 
@@ -224,7 +224,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void readHistory() throws IOException {
+    void readHistory() throws IOException {
         addFileToProject2AndSave();
 
         final String fileInProject2 = "rules/project2/folder1/file23";
@@ -238,7 +238,7 @@ public class AzureBlobRepositoryTest {
     }
 
     @Test
-    public void copyHistory() throws IOException {
+    void copyHistory() throws IOException {
         FileData destProject = new FileData();
         destProject.setName("rules/project-copy");
         destProject.setComment("Copy of project1");

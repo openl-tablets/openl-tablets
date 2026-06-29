@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CommentsTest {
+class CommentsTest {
 
     public static final String TEMPLATE = "FOO";
 
@@ -19,7 +19,7 @@ public class CommentsTest {
     private Comments comments2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
         String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
@@ -51,79 +51,79 @@ public class CommentsTest {
     }
 
     @Test
-    public void testSaveProject() {
+    void testSaveProject() {
         String actual = comments.saveProject("myProjectName");
         assertEquals("Project {username} {myProjectName} is saved. {foo}", actual);
     }
 
     @Test
-    public void testSaveProjectWithDollarSign() {
+    void testSaveProjectWithDollarSign() {
         String actualWithSymbol = comments.saveProject("$$$myProj$ectName$$");
         assertEquals("Project {username} {$$$myProj$ectName$$} is saved. {foo}", actualWithSymbol);
     }
 
     @Test
-    public void testCreateProject() {
+    void testCreateProject() {
         String actual = comments.createProject("myProjectName");
         assertEquals("Project {username} myProjectName is created. {foo}", actual);
     }
 
     @Test
-    public void testCreateProjectWithDollarSign() {
+    void testCreateProjectWithDollarSign() {
         String actualWithSymbol = comments.createProject("$$$myProj$ectName$$");
         assertEquals("Project {username} $$$myProj$ectName$$ is created. {foo}", actualWithSymbol);
     }
 
     @Test
-    public void testArchiveProject() {
+    void testArchiveProject() {
         String actual = comments.archiveProject("myProjectName");
         assertEquals("Project {username} {myProjectName is archived. {foo}", actual);
     }
 
     @Test
-    public void testArchiveProjectWithDollarSign() {
+    void testArchiveProjectWithDollarSign() {
         String actualWithSymbol = comments.archiveProject("$$$myProj$ectName$$");
         assertEquals("Project {username} {$$$myProj$ectName$$ is archived. {foo}", actualWithSymbol);
     }
 
     @Test
-    public void testRestoreProject() {
+    void testRestoreProject() {
         String actual = comments.restoreProject("myProjectName");
         assertEquals("Project {username} '{'myProjectName is restored. {foo}", actual);
     }
 
     @Test
-    public void testRestoreProjectWithDollarSign() {
+    void testRestoreProjectWithDollarSign() {
         String actualWithSymbol = comments.restoreProject("$$$myProj$ectName$$");
         assertEquals("Project {username} '{'$$$myProj$ectName$$ is restored. {foo}", actualWithSymbol);
     }
 
     @Test
-    public void testEraseProject() {
+    void testEraseProject() {
         String actual = comments.eraseProject("myProjectName");
         assertEquals("Project {username} myProjectName is erased. {foo}", actual);
     }
 
     @Test
-    public void testEraseProjectWithDollarSign() {
+    void testEraseProjectWithDollarSign() {
         String actualWithSymbol = comments.eraseProject("$$$myProj$ectName$$");
         assertEquals("Project {username} $$$myProj$ectName$$ is erased. {foo}", actualWithSymbol);
     }
 
     @Test
-    public void testCopiedFrom() {
+    void testCopiedFrom() {
         String actual = comments.copiedFrom("myProjectName");
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}", actual);
     }
 
     @Test
-    public void testCopiedFromProjectWithSpecialSymbols() {
+    void testCopiedFromProjectWithSpecialSymbols() {
         String actualWithSymbol = comments.copiedFrom("$$$myProj$ectName$$");
         assertEquals("Project {username} {$$$myProj$ectName$$} is copied-from. {foo}", actualWithSymbol);
     }
 
     @Test
-    public void testParseSourceOfCopy() {
+    void testParseSourceOfCopy() {
         List<String> commentParts = comments
                 .getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
         assertEquals(3, commentParts.size());
@@ -146,7 +146,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void testRestoredFrom() {
+    void testRestoredFrom() {
         Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
         String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
         assertEquals(
@@ -155,7 +155,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void testRestoredFromWithDollarSign() {
+    void testRestoredFromWithDollarSign() {
         Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
         String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
         assertEquals(
@@ -164,7 +164,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void testNewBranch() {
+    void testNewBranch() {
         assertEquals("myProjectName/myUserName/myCurrentDate {foo}",
                 comments.newBranch("myProjectName", "myUserName", "myCurrentDate"));
         assertEquals("$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
@@ -174,7 +174,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void testSimpleComments() {
+    void testSimpleComments() {
         assertEquals(TEMPLATE, comments2.saveProject("foo"));
         assertEquals(TEMPLATE, comments2.createProject("foo"));
         assertEquals(TEMPLATE, comments2.archiveProject("foo"));

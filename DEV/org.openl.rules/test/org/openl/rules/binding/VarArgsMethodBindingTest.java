@@ -8,43 +8,43 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class VarArgsMethodBindingTest {
+class VarArgsMethodBindingTest {
     private static final String SRC = "test/rules/binding/VarArgsMethodBindingTest.xlsx";
 
     private static TestInterf instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create(SRC, TestInterf.class);
     }
 
     @Test
-    public void test1Argument1() {
+    void test1Argument1() {
         assertTrue(instance.test1Argument());
     }
 
     @Test
-    public void test2Arguments() {
+    void test2Arguments() {
         assertTrue(instance.test2Arguments());
     }
 
     @Test
-    public void test3Arguments() {
+    void test3Arguments() {
         assertEquals(11, instance.test3Arguments());
     }
 
     @Test
-    public void test4Arguments() {
+    void test4Arguments() {
         assertEquals(5, instance.test4Arguments());
     }
 
     @Test
-    public void test5Arguments() {
+    void test5Arguments() {
         assertEquals(11, instance.test5Arguments());
     }
 
     @Test
-    public void testSummary() {
+    void testSummary() {
         assertEquals(10, instance.testArrayOfArrays());
     }
 

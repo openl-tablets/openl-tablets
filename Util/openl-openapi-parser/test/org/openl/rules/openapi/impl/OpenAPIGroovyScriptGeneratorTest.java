@@ -39,19 +39,19 @@ import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
-public class OpenAPIGroovyScriptGeneratorTest {
+class OpenAPIGroovyScriptGeneratorTest {
 
     private OpenAPIModelConverter converter;
     private GroovyClassLoader groovyClassLoader;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         converter = new OpenAPIScaffoldingConverter();
         groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
     }
 
     @Test
-    public void testOpenAPIEmpty() throws Exception {
+    void testOpenAPIEmpty() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiNothingToGenerate.yaml");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -60,7 +60,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void testOpenAPIPathInfo() throws Exception {
+    void testOpenAPIPathInfo() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/slashProblem.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -94,7 +94,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void testOpenAPIJavaInterfaceGenerator() throws Exception {
+    void testOpenAPIJavaInterfaceGenerator() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -156,7 +156,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void testOpenAPIJavaInterfaceGeneratorPathParam() throws Exception {
+    void testOpenAPIJavaInterfaceGeneratorPathParam() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiPathParam.yaml");
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
@@ -185,7 +185,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void testOpenAPIJavaInterfaceGeneratorExtraMeth() throws Exception {
+    void testOpenAPIJavaInterfaceGeneratorExtraMeth() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiOnlyExtraMethod.json");
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
@@ -223,7 +223,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
+    void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
 
@@ -272,7 +272,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void EPBDS_10493() throws Exception {
+    void EPBDS_10493() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi_EPBDS-10493.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -302,7 +302,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void EPBDS_10962() throws Exception {
+    void EPBDS_10962() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_generate.json");
 
@@ -331,7 +331,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void resolveTypeTest() {
+    void resolveTypeTest() {
         TypeInfo typeInfo = new TypeInfo("Policy", "Policy", TypeInfo.Type.DATATYPE);
         assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
@@ -346,7 +346,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_EPBDS_10988() throws Exception {
+    void test_EPBDS_10988() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -368,7 +368,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_mustNotGenerateInterface() throws Exception {
+    void test_mustNotGenerateInterface() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi_defaultContext.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -377,7 +377,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_DataTables() throws Exception {
+    void test_DataTables() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -386,7 +386,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_DataTables2() throws Exception {
+    void test_DataTables2() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/data_tables/openapi_dataTables.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -407,7 +407,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
+    void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
         assertSetEquals(toSet("getPolicyData"), projectModel.getIncludeMethodFilter());
@@ -451,7 +451,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_nameConflictTest() throws Exception {
+    void test_nameConflictTest() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
         assertSetEquals(toSet("MyLovelySpreadsheet", "Party"), projectModel.getIncludeMethodFilter());
@@ -495,7 +495,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     @Test
-    public void test_EPBDS_10979() throws Exception {
+    void test_EPBDS_10979() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10979_extraSpr.json");
         assertSetEquals(toSet("PlanDetails"), projectModel.getIncludeMethodFilter());
 

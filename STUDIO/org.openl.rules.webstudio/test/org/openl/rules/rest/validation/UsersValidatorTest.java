@@ -28,7 +28,7 @@ import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 import org.openl.studio.security.CurrentUserInfo;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
-public class UsersValidatorTest extends AbstractConstraintValidatorTest {
+class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
     private static final String CANNOT_BE_EMPTY = "Cannot be empty.";
@@ -44,17 +44,17 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     private PasswordEncoder passwordEncoder;
 
     @AfterEach
-    public void reset_mocks() {
+    void reset_mocks() {
         reset(userManagementService, passwordEncoder, currentUserInfo);
     }
 
     @Test
-    public void testUserInfo_valid() {
+    void testUserInfo_valid() {
         assertNull(validateAndGetResult(getValidUserInfoModel()));
     }
 
     @Test
-    public void testUserInfo_firstName_notValid() {
+    void testUserInfo_firstName_notValid() {
         UserInfoModel userInfoModel = getValidUserInfoModel();
         String wrongFirstName = RandomStringUtils.random(26, "John");
         userInfoModel.setFirstName(wrongFirstName);
@@ -63,7 +63,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testUserInfo_lastName_notValid() {
+    void testUserInfo_lastName_notValid() {
         UserInfoModel userInfoModel = getValidUserInfoModel();
         String wrongLastName = RandomStringUtils.random(26, "Smith");
         userInfoModel.setLastName(wrongLastName);
@@ -72,7 +72,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testUserInfo_displayName_notValid() {
+    void testUserInfo_displayName_notValid() {
         UserInfoModel userInfoModel = getValidUserInfoModel();
         String wrongDisplayName = RandomStringUtils.random(65, "John Smith");
         userInfoModel.setDisplayName(wrongDisplayName);
@@ -84,7 +84,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testUserInfo_email_notValid() {
+    void testUserInfo_email_notValid() {
         UserInfoModel userInfoModel = getValidUserInfoModel();
         userInfoModel.setEmail("wrongEmail");
         BindingResult bindingResult = validateAndGetResult(userInfoModel);
@@ -92,7 +92,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testEditUser_valid() {
+    void testEditUser_valid() {
         UserEditModel userEditModel = getValidUserEditModel();
 
         assertNull(validateAndGetResult(userEditModel));
@@ -102,7 +102,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testEditUser_password_notValid() {
+    void testEditUser_password_notValid() {
         UserEditModel userEditModel = getValidUserEditModel();
         String wrongPassword = RandomStringUtils.random(26, "pass");
         userEditModel.setPassword(wrongPassword);
@@ -111,7 +111,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testCreateUser_valid() {
+    void testCreateUser_valid() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
@@ -131,14 +131,14 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testCreateUser_noGroups_valid() {
+    void testCreateUser_noGroups_valid() {
         UserCreateModel userCreateModel = getValidUserCreateModel();
         userCreateModel.setGroups(null);
         assertNull(validateAndGetResult(userCreateModel));
     }
 
     @Test
-    public void testCreateUser_password_notValid() {
+    void testCreateUser_password_notValid() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
@@ -160,7 +160,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testCreateUser_username_notValid() {
+    void testCreateUser_username_notValid() {
         when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
@@ -288,7 +288,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testEditUserProfile_valid() {
+    void testEditUserProfile_valid() {
         UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel();
         when(currentUserInfo.getUserName()).thenReturn("jsmith");
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
@@ -303,7 +303,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testEditUserProfile_password_notValid() {
+    void testEditUserProfile_password_notValid() {
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         when(currentUserInfo.getUserName()).thenReturn("jsmith");
         SimpleUser existedUser = new SimpleUser();

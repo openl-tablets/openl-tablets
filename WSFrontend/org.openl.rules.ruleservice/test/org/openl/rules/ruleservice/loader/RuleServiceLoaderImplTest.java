@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class RuleServiceLoaderImplTest {
+class RuleServiceLoaderImplTest {
 
     @Test
-    public void testCleanUp() {
+    void testCleanUp() {
         assertTrue(RuleServiceLoaderImpl.cleanUp("a-B.3_").startsWith("a-B.3_"));
 
         String str1 = RuleServiceLoaderImpl.cleanUp("abc:DEF/345\\ghi?KLM");

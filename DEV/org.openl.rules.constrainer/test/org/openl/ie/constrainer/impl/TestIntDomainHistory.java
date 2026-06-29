@@ -29,11 +29,11 @@ import org.openl.ie.constrainer.IntVar;
  * @version 1.0
  */
 
-public class TestIntDomainHistory {
+class TestIntDomainHistory {
     private final Constrainer C = new Constrainer("TestIntDomainHistory");
 
     @Test
-    public void testNumberOfRemoves() {
+    void testNumberOfRemoves() {
         IntVar intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
         IntDomainHistory history = new IntDomainHistory(intvar);
         for (int i = intvar.min() + 1; i < intvar.max(); i++) {
@@ -43,7 +43,7 @@ public class TestIntDomainHistory {
     }
 
     @Test
-    public void testOldMinAndOldMax() {
+    void testOldMinAndOldMax() {
         IntVar intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
         IntDomainHistory history = new IntDomainHistory(intvar);
         int oldmin = intvar.min();
@@ -59,7 +59,7 @@ public class TestIntDomainHistory {
     }
 
     @Test
-    public void testRemoveInterval() {
+    void testRemoveInterval() {
         IntVarImpl intvar = (IntVarImpl) C.addIntVar(-10, 10, "intvar1", IntVar.DOMAIN_BIT_FAST);
         IntDomainHistory history = intvar.history();
         new IntDomainHistory(intvar);
@@ -123,7 +123,7 @@ public class TestIntDomainHistory {
     }
 
     @Test
-    public void testSaveRestore() {
+    void testSaveRestore() {
         IntVarImpl intvar = (IntVarImpl) C.addIntVar(0, 100, "IntVar1", IntVar.DOMAIN_BIT_FAST);
         IntDomainHistory history = intvar.history();
         new IntDomainHistory(intvar);

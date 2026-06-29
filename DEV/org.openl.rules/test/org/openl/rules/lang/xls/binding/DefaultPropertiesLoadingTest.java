@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
+class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/DefaultPropertiesLoadingTest.xls";
 
@@ -18,7 +18,7 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testLoadingDefaultValuesForPreviouslyEmptyProp() {
+    void testLoadingDefaultValuesForPreviouslyEmptyProp() {
         String tableName = "Rules void hello1(int hour)";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {

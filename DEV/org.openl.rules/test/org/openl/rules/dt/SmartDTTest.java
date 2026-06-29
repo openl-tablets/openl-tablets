@@ -7,16 +7,16 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class SmartDTTest {
+class SmartDTTest {
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/dt/SmartDTTest.xls");
     }
 
     @Test
-    public void test1() {
+    void test1() {
         assertEquals(Double.valueOf(0.02),
                 TestUtils.invoke(instance, "test1", new Class[]{int.class, String.class}, new Object[]{2, "v2"}));
         assertEquals(Double.valueOf(0.05),
@@ -24,7 +24,7 @@ public class SmartDTTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         assertEquals(Double.valueOf(0.02),
                 TestUtils.invoke(instance, "test2", new Class[]{String.class, int.class}, new Object[]{"v2", 2}));
         assertEquals(Double.valueOf(0.05),
@@ -32,7 +32,7 @@ public class SmartDTTest {
     }
 
     @Test
-    public void testLookup2D2params() {
+    void testLookup2D2params() {
         assertEquals(Double.valueOf(0.01),
                 TestUtils.invoke(instance,
                         "simple2D2params",
@@ -51,7 +51,7 @@ public class SmartDTTest {
     }
 
     @Test
-    public void testLookup2D3params() {
+    void testLookup2D3params() {
         assertEquals(Double.valueOf(0.01),
                 TestUtils.invoke(instance,
                         "simple2D3params",

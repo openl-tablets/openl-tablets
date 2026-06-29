@@ -43,7 +43,7 @@ import org.testcontainers.kafka.KafkaContainer;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
-public class RunTracingITest {
+class RunTracingITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
 
@@ -53,7 +53,7 @@ public class RunTracingITest {
             .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094");// See KAFKA-18281
 
     @BeforeAll
-    public static void setUp() throws Exception {
+    static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
         client = JettyServer.get()
@@ -62,7 +62,7 @@ public class RunTracingITest {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         client.close();
         try {
             KAFKA_CONTAINER.stop();
@@ -73,7 +73,7 @@ public class RunTracingITest {
 
     @Test
     @StdIo
-    public void testKafkaServiceSpan(StdErr stdOut) throws Exception {
+    void testKafkaServiceSpan(StdErr stdOut) throws Exception {
         try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
             consumer.subscribe(Collections.singletonList("hello-out-topic"));
             producer.send(new ProducerRecord<>("hello-in-topic", null, "5"));
@@ -91,7 +91,7 @@ public class RunTracingITest {
 
     @Test
     @StdIo
-    public void testRESTServiceSpans(StdErr stdOut) throws Exception {
+    void testRESTServiceSpans(StdErr stdOut) throws Exception {
         client.send("simple1.tracing.rest.post");
 
         Thread.sleep(500);

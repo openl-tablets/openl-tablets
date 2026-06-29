@@ -11,18 +11,18 @@ import org.openl.rules.testmethod.TestUnitsResults;
  * @author PTarasevich
  */
 
-public class DataTableArrayTest {
+class DataTableArrayTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 
     @Test
-    public void vehicleArryTest() {
+    void vehicleArryTest() {
         ITestDataTableArray instance = TestUtils.create(FILE_NAME, ITestDataTableArray.class);
         TestUnitsResults result = instance.returnVehicleArryTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
     @Test
-    public void addressArryTest() {
+    void addressArryTest() {
         ITestDataTableArray instance = TestUtils.create(FILE_NAME, ITestDataTableArray.class);
         TestUnitsResults result = instance.returnAddressArryTest();
         assertEquals(3, result.getNumberOfFailures());

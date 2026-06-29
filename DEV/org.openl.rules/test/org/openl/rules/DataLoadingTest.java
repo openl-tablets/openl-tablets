@@ -8,12 +8,12 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-public class DataLoadingTest {
+class DataLoadingTest {
 
     private static final String SRC = "test/rules/DataLoading.xls";
 
     @Test
-    public void testMethodOverload1() {
+    void testMethodOverload1() {
         ITestI instance = TestUtils.create(SRC, ITestI.class);
 
         Date[] res = instance.getDateSet();

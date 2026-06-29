@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 
-public class EnvironmentModelTest {
+class EnvironmentModelTest {
 
     @Test
-    public void testEnvironmentModel() {
+    void testEnvironmentModel() {
         EnvironmentModel envWithImports = new EnvironmentModel();
         List<String> imports = Arrays.asList("Model", "CarModel", "MyModel");
         envWithImports.setImports(imports);

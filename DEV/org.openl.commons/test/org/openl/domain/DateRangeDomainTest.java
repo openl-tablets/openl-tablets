@@ -18,13 +18,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class DateRangeDomainTest {
+class DateRangeDomainTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
         TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
@@ -32,13 +32,13 @@ public class DateRangeDomainTest {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
 
     @Test
-    public void test() {
+    void test() {
         final Date min = createDate(2020, 1, 1);
         final Date max = createDate(2020, 3, 31);
 

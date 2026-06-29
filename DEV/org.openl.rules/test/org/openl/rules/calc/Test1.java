@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class Test1 {
+class Test1 {
     @Test
-    public void test1() {
+    void test1() {
         ITestCalc test = TestUtils.create("test/rules/calc1/calc.xls", ITestCalc.class);
         SpreadsheetResult result = test.calc1(10, 20);
 
@@ -18,7 +18,7 @@ public class Test1 {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         ITestCalc test = TestUtils.create("test/rules/calc1/calc.xls", ITestCalc.class);
         SpreadsheetResult result = test.calc2(10, 20);
 
@@ -28,7 +28,7 @@ public class Test1 {
     }
 
     @Test
-    public void test3() {
+    void test3() {
         ITestCalc test = TestUtils.create("test/rules/calc1/calc.xls", ITestCalc.class);
         SpreadsheetResult result = test.calc3(10, 20);
 

@@ -9,13 +9,13 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class ZipUtilsTest {
+class ZipUtilsTest {
 
     @TempDir
     File tempFolder;
 
     @Test
-    public void testContainsMethodReleasesResources() throws IOException {
+    void testContainsMethodReleasesResources() throws IOException {
         final File file = new File(tempFolder, "test.txt");
         assertTrue(file.createNewFile());
 

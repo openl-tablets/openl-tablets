@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class ArraySplitterTest {
+class ArraySplitterTest {
 
     @Test
-    public void split() {
+    void split() {
         assertArrayEquals(new String[0], ArraySplitter.split(""));
         assertArrayEquals(new String[0], ArraySplitter.split("   \t\r\n  \b "));
         assertArrayEquals(new String[]{"test"}, ArraySplitter.split("test"));
@@ -29,7 +29,7 @@ public class ArraySplitterTest {
     }
 
     @Test
-    public void isArray() {
+    void isArray() {
         assertFalse(ArraySplitter.isArray(""));
         assertFalse(ArraySplitter.isArray("   \t\r\n \b "));
         assertFalse(ArraySplitter.isArray("test"));
@@ -49,7 +49,7 @@ public class ArraySplitterTest {
     }
 
     @Test
-    public void testSplitAndEscape() {
+    void testSplitAndEscape() {
         assertArrayEquals(new String[]{"Hello! I want to split it", "Right", "Lets Do it"}, ArraySplitter.split("Hello! I want to split it, Right , Lets Do it"));
         assertArrayEquals(new String[]{"Hello! I want to split it", "Right", "Lets Do it"}, ArraySplitter.split("    Hello! I want to split it, Right , Lets Do it    "));
         assertArrayEquals(new String[]{"Hello! I want to split it, Right", "Lets Do it"}, ArraySplitter.split("Hello! I want to split it\\, Right,Lets Do it"));

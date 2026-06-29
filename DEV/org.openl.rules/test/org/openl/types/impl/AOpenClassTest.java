@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
-public class AOpenClassTest {
+class AOpenClassTest {
 
     @Test
-    public void superclass_methods_mustBePresent_whenInheritorDoesNotHaveMethods() {
+    void superclass_methods_mustBePresent_whenInheritorDoesNotHaveMethods() {
         AOpenClass openClass = JavaOpenClass.getOpenClass(B.class);
         Collection<IOpenMethod> methods = openClass.getMethods();
         assertNotNull(methods);

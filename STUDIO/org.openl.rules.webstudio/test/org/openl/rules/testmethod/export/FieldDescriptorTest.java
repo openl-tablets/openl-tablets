@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.types.java.JavaOpenClass;
 
-public class FieldDescriptorTest {
+class FieldDescriptorTest {
     private static final A A1 = new A("name1");
     private static final A A2 = new A("name2", 1);
     private static final A A3 = new A("id2name1", 21, 22, 23);
@@ -31,7 +31,7 @@ public class FieldDescriptorTest {
     private final JavaOpenClass cType = JavaOpenClass.getOpenClass(C.class);
 
     @Test
-    public void commonCases() {
+    void commonCases() {
         List<FieldDescriptor> descriptors;
 
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), emptyList(), true));
@@ -90,7 +90,7 @@ public class FieldDescriptorTest {
     }
 
     @Test
-    public void arrayTypes() {
+    void arrayTypes() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
@@ -117,7 +117,7 @@ public class FieldDescriptorTest {
     }
 
     @Test
-    public void leafNodeCount() {
+    void leafNodeCount() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2), true);
         assertNotNull(descriptors);
         assertEquals(1, descriptors.getFirst().getLeafNodeCount());
@@ -130,7 +130,7 @@ public class FieldDescriptorTest {
     }
 
     @Test
-    public void maxArraySize() {
+    void maxArraySize() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, asList(B2, B1), true);
         assertNotNull(descriptors);
         FieldDescriptor id = descriptors.getFirst();

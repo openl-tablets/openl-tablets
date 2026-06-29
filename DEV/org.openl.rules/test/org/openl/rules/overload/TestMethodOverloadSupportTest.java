@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.TestUtils;
 import org.openl.rules.testmethod.TestUnitsResults;
 
-public class TestMethodOverloadSupportTest {
+class TestMethodOverloadSupportTest {
 
     @Test
-    public void testMethodOverloadSupport() {
+    void testMethodOverloadSupport() {
         ITestI instance = TestUtils.create("test/rules/overload/TestMethodOverloadSupport.xls", ITestI.class);
         instance.driverRiskTest();
     }

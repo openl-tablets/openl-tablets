@@ -31,7 +31,7 @@ import org.openl.rules.repository.api.UserInfo;
         "production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml"})
-public class RulesLoaderTest {
+class RulesLoaderTest {
 
     @Autowired
     private Repository repository;
@@ -39,7 +39,7 @@ public class RulesLoaderTest {
     private RuleServiceLoader ruleServiceLoader;
 
     @Test
-    public void testSkipDeletedProjects() throws Exception {
+    void testSkipDeletedProjects() throws Exception {
         List<String> d0 = ruleServiceLoader.getDeployments()
                 .stream()
                 .flatMap(d -> d.getProjects().stream())

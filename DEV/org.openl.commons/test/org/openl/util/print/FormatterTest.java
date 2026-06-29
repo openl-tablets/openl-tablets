@@ -13,10 +13,10 @@ import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 
-public class FormatterTest {
+class FormatterTest {
 
     @Test
-    public void testMap() {
+    void testMap() {
         Map<Integer, String> testMap = new HashMap<>();
         testMap.put(25, "yo265");
         testMap.put(1536, "abra");
@@ -48,7 +48,7 @@ public class FormatterTest {
     }
 
     @Test
-    public void testVector() {
+    void testVector() {
         Vector<String> strVector = new Vector<>();
         strVector.add("first");
         strVector.add("second");
@@ -70,7 +70,7 @@ public class FormatterTest {
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         Integer[] intMas = new Integer[3];
         intMas[0] = 345;
         intMas[1] = 4567;
@@ -84,7 +84,7 @@ public class FormatterTest {
     }
 
     @Test
-    public void testPrimritiveArray() {
+    void testPrimritiveArray() {
         int[] intMas = new int[3];
         intMas[0] = 345;
         intMas[1] = 4567;
@@ -98,7 +98,7 @@ public class FormatterTest {
     }
 
     @Test
-    public void testString() {
+    void testString() {
         String str = "text to format";
 
         String busStr = printBusView(str);
@@ -109,7 +109,7 @@ public class FormatterTest {
     }
 
     @Test
-    public void testBean() {
+    void testBean() {
         MyType myType = new MyType("foo", 0.1, Arrays.asList("foo", "bar"), Locale.US);
         String busStr = printBusView(myType);
         assertEquals("FormatterTest$MyType(id=0){\n  d=0.1\n  list={\n    [0]=foo\n    [1]=bar\n    }\n  locale=en-US\n  str=foo\n  }",

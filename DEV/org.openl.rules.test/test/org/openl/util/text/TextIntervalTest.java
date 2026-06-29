@@ -15,10 +15,10 @@ import org.openl.grammar.JavaCC30Position;
 /**
  * @author snshor
  */
-public class TextIntervalTest {
+class TextIntervalTest {
 
     @Test
-    public void testJavaCC30Position() {
+    void testJavaCC30Position() {
         String text = "abc\r\nedf\r\n";
 
         JavaCC30Position pos = new JavaCC30Position(1, 1);

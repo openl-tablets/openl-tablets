@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Created by ymolchan on 12.10.2015.
  */
-public class FileUtilsTest {
+class FileUtilsTest {
 
     @Test
-    public void testGetBaseName() throws Exception {
+    void testGetBaseName() throws Exception {
         assertNull(FileUtils.getBaseName(null));
 
         assertEquals("", FileUtils.getBaseName(""));
@@ -36,7 +36,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testGetName() throws Exception {
+    void testGetName() throws Exception {
         assertNull(FileUtils.getName(null));
 
         assertEquals("", FileUtils.getName(""));
@@ -61,7 +61,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testGetExtension() throws Exception {
+    void testGetExtension() throws Exception {
         assertNull(FileUtils.getExtension(null));
 
         assertEquals("", FileUtils.getExtension(""));
@@ -85,7 +85,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testRemoveExtension() throws Exception {
+    void testRemoveExtension() throws Exception {
         assertNull(FileUtils.removeExtension(null));
 
         assertEquals("", FileUtils.removeExtension(""));
@@ -109,7 +109,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testPathMatches() {
+    void testPathMatches() {
         // Test null parameters
         assertThrows(NullPointerException.class, () -> FileUtils.pathMatches(null, "test"));
         assertThrows(NullPointerException.class, () -> FileUtils.pathMatches("test", null));
@@ -256,14 +256,14 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testPathMatchesExactMatch() {
+    void testPathMatchesExactMatch() {
         assertTrue(FileUtils.pathMatches("calculate", "calculate"));
         assertFalse(FileUtils.pathMatches("calculate", "calculateAge"));
         assertFalse(FileUtils.pathMatches("calculateAge", "calculate"));
     }
 
     @Test
-    public void testPathMatchesStarWildcard() {
+    void testPathMatchesStarWildcard() {
         assertTrue(FileUtils.pathMatches("*", "anything"));
         assertTrue(FileUtils.pathMatches("*", ""));
         assertTrue(FileUtils.pathMatches("get*", "getName"));
@@ -278,7 +278,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testPathMatchesQuestionMarkWildcard() {
+    void testPathMatchesQuestionMarkWildcard() {
         assertTrue(FileUtils.pathMatches("?etName", "getName"));
         assertTrue(FileUtils.pathMatches("?etName", "setName"));
         assertFalse(FileUtils.pathMatches("?etName", "etName"));
@@ -288,7 +288,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testPathMatchesCombinedWildcards() {
+    void testPathMatchesCombinedWildcards() {
         assertTrue(FileUtils.pathMatches("get*?", "getName"));
         assertTrue(FileUtils.pathMatches("?et*", "getName"));
         assertTrue(FileUtils.pathMatches("?et*", "set"));
@@ -296,7 +296,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testPathMatchesRegexSpecialCharsAreEscaped() {
+    void testPathMatchesRegexSpecialCharsAreEscaped() {
         assertTrue(FileUtils.pathMatches("calc.premium", "calc.premium"));
         assertFalse(FileUtils.pathMatches("calc.premium", "calcXpremium"));
         assertTrue(FileUtils.pathMatches("method()", "method()"));

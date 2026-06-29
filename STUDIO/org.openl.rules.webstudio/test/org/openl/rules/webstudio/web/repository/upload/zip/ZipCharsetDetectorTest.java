@@ -13,13 +13,13 @@ import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
 
-public class ZipCharsetDetectorTest {
+class ZipCharsetDetectorTest {
     private static final String TEST_RULES_XML = "test-resources/upload/zip/test-rules-xml.zip";
     private static final String TEST_RULES_XML_UTF_8 = "test-resources/upload/zip/test-rules-xml-utf-8.zip";
     private static final String TEST_WORKSPACE = "test-resources/upload/zip/test-workspace.zip";
 
     @Test
-    public void detectCharsetUsingRulesXml() throws Exception {
+    void detectCharsetUsingRulesXml() throws Exception {
         assumeCharsetSupported("IBM866");
 
         String[] charsetNames = {"windows-1252", "windows-1251", "IBM866"};
@@ -30,7 +30,7 @@ public class ZipCharsetDetectorTest {
     }
 
     @Test
-    public void detectCharsetUsingWorkspace() throws Exception {
+    void detectCharsetUsingWorkspace() throws Exception {
         assumeCharsetSupported("IBM866");
 
         // Check the case when some files can be renamed/deleted/added and some can stay with same name.
@@ -46,7 +46,7 @@ public class ZipCharsetDetectorTest {
     }
 
     @Test
-    public void noNeedToDetectCharset() throws Exception {
+    void noNeedToDetectCharset() throws Exception {
         // This file can be unzipped using UTF-8
         String[] charsetNames = {"windows-1252", "IBM866"};
         ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
@@ -55,7 +55,7 @@ public class ZipCharsetDetectorTest {
     }
 
     @Test
-    public void emptyCharsetList() throws Exception {
+    void emptyCharsetList() throws Exception {
         // Forget to set charset list.
         ZipCharsetDetector detector = new ZipCharsetDetector(null, null);
 
@@ -66,7 +66,7 @@ public class ZipCharsetDetectorTest {
     }
 
     @Test
-    public void skipNotExistingCharset() throws Exception {
+    void skipNotExistingCharset() throws Exception {
         assumeCharsetSupported("IBM437");
 
         // If some charset does not exist in JVM, don't fail, just skip it.

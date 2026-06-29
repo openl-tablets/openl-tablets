@@ -16,13 +16,13 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 
-public class ProjectModelTest {
+class ProjectModelTest {
 
     public static final String BANK_RATING = "BankRating";
     public static final String INSURANCE_POLICY = "InsurancePolicy";
 
     @Test
-    public void testProjectModelCreation() {
+    void testProjectModelCreation() {
         ProjectModel bankRating = new ProjectModel();
         bankRating.setName(BANK_RATING);
         ProjectModel bankRatingCopy = new ProjectModel();
@@ -41,7 +41,7 @@ public class ProjectModelTest {
     }
 
     @Test
-    public void testProjectModelWithContext() {
+    void testProjectModelWithContext() {
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
                 true,
                 Collections.emptySet(),
@@ -69,7 +69,7 @@ public class ProjectModelTest {
     }
 
     @Test
-    public void testProjectModelWithSpreadsheets() {
+    void testProjectModelWithSpreadsheets() {
         SpreadsheetModel firstSpr = new SpreadsheetModel();
         firstSpr.setName("getBankAccountDetails");
         SpreadsheetModel secondSpr = new SpreadsheetModel();
@@ -104,7 +104,7 @@ public class ProjectModelTest {
     }
 
     @Test
-    public void testProjectModelWithDataTypes() {
+    void testProjectModelWithDataTypes() {
         DatatypeModel dm = new DatatypeModel("Apple");
         DatatypeModel oneMoreDm = new DatatypeModel("Meat");
         ProjectModel bankRating = new ProjectModel(BANK_RATING,

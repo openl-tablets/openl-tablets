@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory.MatchedConstructorConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory.StaticMethodConvertor;
 
-public class ObjectToDataConvertorFactoryTest {
+class ObjectToDataConvertorFactoryTest {
 
     @Test
-    public void testInteger2Double() {
+    void testInteger2Double() {
         IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(Double.class, Integer.class);
         assertNotNull(convertor);
         assertTrue(convertor instanceof MatchedConstructorConvertor);
@@ -24,7 +24,7 @@ public class ObjectToDataConvertorFactoryTest {
     }
 
     @Test
-    public void testDoublePrimitive2BigDecimal() {
+    void testDoublePrimitive2BigDecimal() {
         // when converting from double to BigDecimal, converter that uses BigDecimal.valueOf(double a) method will be
         // used.
         //
@@ -37,7 +37,7 @@ public class ObjectToDataConvertorFactoryTest {
     }
 
     @Test
-    public void testDouble2BigDecimal() {
+    void testDouble2BigDecimal() {
         // when converting from Double to BigDecimal, converter that uses BigDecimal(double a) constructor will be used.
         //
         IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(BigDecimal.class, Double.class);
@@ -51,7 +51,7 @@ public class ObjectToDataConvertorFactoryTest {
     }
 
     @Test
-    public void testDoublePrimitive2String() {
+    void testDoublePrimitive2String() {
         IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(String.class, double.class);
         assertNotNull(convertor);
         assertTrue(convertor instanceof StaticMethodConvertor);
@@ -60,7 +60,7 @@ public class ObjectToDataConvertorFactoryTest {
     }
 
     @Test
-    public void testDouble2String() {
+    void testDouble2String() {
         IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(String.class, Double.class);
         assertNotNull(convertor);
         assertTrue(convertor instanceof StaticMethodConvertor);

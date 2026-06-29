@@ -25,17 +25,17 @@ import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.util.CollectionUtils;
 
-public class DataTableTest {
+class DataTableTest {
 
     private OpenAPIModelConverter converter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         converter = new OpenAPIScaffoldingConverter();
     }
 
     @Test
-    public void testDataTableGenerationEmptyRequest() throws IOException {
+    void testDataTableGenerationEmptyRequest() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10250_data_tables.json");
         List<DataModel> dataModels = projectModel.getDataModels();
@@ -61,7 +61,7 @@ public class DataTableTest {
     }
 
     @Test
-    public void testSpreadsheetResultFiltering() throws IOException {
+    void testSpreadsheetResultFiltering() throws IOException {
         ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/openapi.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         List<DataModel> dataModels = pm.getDataModels();
@@ -72,21 +72,21 @@ public class DataTableTest {
     }
 
     @Test
-    public void testRuleWithRuntimeContext() throws IOException {
+    void testRuleWithRuntimeContext() throws IOException {
         ProjectModel pm = converter
                 .extractProjectModel("test.converter/data_tables/openapiRule_with_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
     @Test
-    public void testRuleWithoutRuntimeContext() throws IOException {
+    void testRuleWithoutRuntimeContext() throws IOException {
         ProjectModel pm = converter
                 .extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
     @Test
-    public void testNesting() throws IOException {
+    void testNesting() throws IOException {
         ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/nesting.json");
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(4, dataModels.size());
@@ -118,7 +118,7 @@ public class DataTableTest {
     }
 
     @Test
-    public void testMultipleNesting() throws IOException {
+    void testMultipleNesting() throws IOException {
         ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/multiple_nesting.json");
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(2, dataModels.size());
@@ -140,7 +140,7 @@ public class DataTableTest {
     }
 
     @Test
-    public void testGetPathNaming() throws IOException {
+    void testGetPathNaming() throws IOException {
         ProjectModel pm = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10839_get_capital_letter.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
@@ -164,7 +164,7 @@ public class DataTableTest {
     }
 
     @Test
-    public void test_dataTables() throws Exception {
+    void test_dataTables() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/data_tables_types.json");
         List<DataModel> dataModels = projectModel.getDataModels();
         assertEquals(4, dataModels.size());

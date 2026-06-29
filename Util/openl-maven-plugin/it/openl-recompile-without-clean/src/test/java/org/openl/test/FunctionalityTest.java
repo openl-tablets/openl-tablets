@@ -14,10 +14,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class FunctionalityTest {
+class FunctionalityTest {
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         var factory = new SimpleProjectEngineFactoryBuilder<Object>()
                 .setExecutionMode(false)
                 .setProject("src/main/openl").build();

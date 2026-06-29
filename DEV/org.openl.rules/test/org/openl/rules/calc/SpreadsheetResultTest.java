@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
 
-public class SpreadsheetResultTest {
+class SpreadsheetResultTest {
 
     @Test
-    public void toStringTest() {
+    void toStringTest() {
         SpreadsheetResult sr = new SpreadsheetResult();
         sr.setColumnNames(new String[]{"A", "B"});
         sr.setRowNames(new String[]{"C", "D"});
@@ -18,7 +18,7 @@ public class SpreadsheetResultTest {
     }
 
     @Test
-    public void testComparable() {
+    void testComparable() {
         // toPlain in SPR does not work with SortedSets
         assertFalse(Comparable.class.isAssignableFrom(SpreadsheetResult.class));
     }

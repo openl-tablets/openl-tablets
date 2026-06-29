@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class RelationExpressionTest {
+class RelationExpressionTest {
 
     private static final String SRC = "test/rules/math/RelationExpressionTest.xls";
 
     @Test
-    public void testEqualComparison() {
+    void testEqualComparison() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertTrue(instance.areEqual1());
         assertTrue(instance.areEqual2());
@@ -24,7 +24,7 @@ public class RelationExpressionTest {
     }
 
     @Test
-    public void testNotEqualComparison() {
+    void testNotEqualComparison() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertTrue(instance.areNotEqual1());
         assertTrue(instance.areNotEqual2());
@@ -35,7 +35,7 @@ public class RelationExpressionTest {
     }
 
     @Test
-    public void testLessThanComparison() {
+    void testLessThanComparison() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertTrue(instance.areLessThan1());
         assertTrue(instance.areLessThan2());
@@ -46,7 +46,7 @@ public class RelationExpressionTest {
     }
 
     @Test
-    public void testGreaterThanComparison() {
+    void testGreaterThanComparison() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertTrue(instance.areGreaterThan1());
         assertTrue(instance.areGreaterThan2());
@@ -57,7 +57,7 @@ public class RelationExpressionTest {
     }
 
     @Test
-    public void testGreaterOrEqualComparison() {
+    void testGreaterOrEqualComparison() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertTrue(instance.areGreaterOrEqual1());
         assertTrue(instance.areGreaterOrEqual2());
@@ -68,7 +68,7 @@ public class RelationExpressionTest {
     }
 
     @Test
-    public void testLessOrEqualComparison() {
+    void testLessOrEqualComparison() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertTrue(instance.areLessOrEqual1());
         assertTrue(instance.areLessOrEqual2());
@@ -79,7 +79,7 @@ public class RelationExpressionTest {
     }
 
     @Test
-    public void testIndexedEvaluator() {
+    void testIndexedEvaluator() {
         ITest instance = TestUtils.create(SRC, ITest.class);
         assertEquals(1, instance.testEqualIndexedEvaluator(1.3));
         assertEquals(2, instance.testEqualIndexedEvaluator(1.12345678901234));

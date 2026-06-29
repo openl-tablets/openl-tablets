@@ -13,10 +13,10 @@ import org.openl.source.impl.URLSourceCodeModule;
 /**
  * @author snshor
  */
-public class TablesTest {
+class TablesTest {
 
     @Test
-    public void testSplitter() throws Exception {
+    void testSplitter() throws Exception {
 
         URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/Test2.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);

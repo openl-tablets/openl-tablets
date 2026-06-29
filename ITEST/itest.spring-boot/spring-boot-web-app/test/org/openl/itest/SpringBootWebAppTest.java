@@ -10,63 +10,63 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 
 @SpringBootTest(classes = {SpringBootWebApp.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class SpringBootWebAppTest {
+class SpringBootWebAppTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
-    public void indexPage() {
+    void indexPage() {
         String response = restTemplate.getForObject("/", String.class);
         assertThat(response).contains("OpenL Tablets Rule Services");
     }
 
     @Test
-    public void favicon() {
+    void favicon() {
         byte[] response = restTemplate.getForObject("/favicon.ico", byte[].class);
         assertThat(response).hasSize(15086);
     }
 
     @Test
-    public void adminInfo() {
+    void adminInfo() {
         String response = restTemplate.getForObject("/admin/ui/info", String.class);
         assertThat(response).contains(
                 "\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"deploymentName\":\"itest.spring-boot.openl-rules");
     }
 
     @Test
-    public void openAPI() {
+    void openAPI() {
         String response = restTemplate.getForObject("/openl-rules-rs/openapi.json", String.class);
         assertThat(response).contains("SayHello");
     }
 
     @Test
-    public void postEmpty() {
+    void postEmpty() {
         String response = restTemplate.postForObject("/openl-rules-rs/SayHello", "", String.class);
         assertThat(response).contains("Hello, World!");
     }
 
     @Test
-    public void postMister() {
+    void postMister() {
         String response = restTemplate.postForObject("/openl-rules-rs/SayHello", "Mister", String.class);
         assertThat(response).contains("Hello, Mister!");
     }
 
     @Test
-    public void deployZipFromOpenLFolder() {
+    void deployZipFromOpenLFolder() {
         String response = restTemplate
                 .postForObject("/deployed-rules/hello", "John Smith", String.class);
         assertThat(response).contains("Hello, John Smith");
     }
 
     @Test
-    public void postPassVocabulary() {
+    void postPassVocabulary() {
         var response = restTemplate.postForObject("/openl-rules-rs/ValidateVocabulary", "pass", String.class);
         assertThat(response).isEqualTo("World");
     }
 
     @Test
-    public void postFailVocabulary() throws Exception {
+    void postFailVocabulary() throws Exception {
         var response = restTemplate.postForObject("/openl-rules-rs/ValidateVocabulary", "fail", String.class);
         var json = new ObjectMapper().readTree(response);
         assertThat(json.get("code").asText()).isEqualTo("USR001");
@@ -74,7 +74,7 @@ public class SpringBootWebAppTest {
     }
 
     @Test
-    public void postUnknownVocabulary() throws Exception {
+    void postUnknownVocabulary() throws Exception {
         var response = restTemplate.postForObject("/openl-rules-rs/ValidateVocabulary", "unknown", String.class);
         var json = new ObjectMapper().readTree(response);
         assertThat(json.get("code").asText()).isEqualTo("VALIDATION");

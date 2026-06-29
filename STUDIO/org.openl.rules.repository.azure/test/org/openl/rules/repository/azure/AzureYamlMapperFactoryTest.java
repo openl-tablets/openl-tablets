@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 
-public class AzureYamlMapperFactoryTest {
+class AzureYamlMapperFactoryTest {
 
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     @Test
-    public void testDeserialization() throws IOException {
+    void testDeserialization() throws IOException {
         AzureCommit commit = null;
         try (var is = AzureYamlMapperFactoryTest.class.getResourceAsStream("/azureCommitOldStyle.yaml")) {
             commit = mapper.readValue(is, AzureCommit.class);

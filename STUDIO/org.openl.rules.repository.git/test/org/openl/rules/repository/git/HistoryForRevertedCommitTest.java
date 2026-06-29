@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
 
-public class HistoryForRevertedCommitTest {
+class HistoryForRevertedCommitTest {
 
     private static final String REPO_ID = "design-history";
     private static final String REPO_URI = "target/test-classes/repositories/HistoryForRevertedCommitTest";
@@ -26,7 +26,7 @@ public class HistoryForRevertedCommitTest {
     private Path localRepositoriesFolder;
 
     @BeforeEach
-    public void setUp() throws GitAPIException, IOException {
+    void setUp() throws GitAPIException, IOException {
         File gitRepo = new File(REPO_URI, ".git");
         if (!gitRepo.exists()) {
             File designGit = new File(REPO_URI, "git");
@@ -36,14 +36,14 @@ public class HistoryForRevertedCommitTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         if (repo != null) {
             repo.close();
         }
     }
 
     @Test
-    public void testHistoryForProject1() throws IOException {
+    void testHistoryForProject1() throws IOException {
         // 1) file1 in project1 was modified in branch "project1".
         // 2) file2 in project1 was modified in branch "modify-project1".
         // 3) last commit in branch "modify-project1" was reverted.
@@ -63,7 +63,7 @@ public class HistoryForRevertedCommitTest {
     }
 
     @Test
-    public void testHistoryForProject2() throws IOException {
+    void testHistoryForProject2() throws IOException {
         // 1) project2 was modified in branch "project2".
         // 2) branch "project1" was merged into branch "project2".
         //
@@ -76,7 +76,7 @@ public class HistoryForRevertedCommitTest {
     }
 
     @Test
-    public void testHistoryForProject3() throws IOException {
+    void testHistoryForProject3() throws IOException {
         // This test is similar to testHistoryForProject1, but it tests that extra commits not related to the project
         // should not break the logic if the branch contains some commit that was reverted in the same branch.
         //

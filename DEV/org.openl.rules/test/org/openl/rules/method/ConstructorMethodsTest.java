@@ -12,19 +12,19 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 
-public class ConstructorMethodsTest {
+class ConstructorMethodsTest {
 
     private static final String SRC = "test/rules/Main.xls";
 
     private RulesEngineFactory<Object> engineFactory;
 
     @BeforeEach
-    public void init() throws IOException {
+    void init() throws IOException {
         engineFactory = new RulesEngineFactory<>(SRC);
     }
 
     @Test
-    public void test() {
+    void test() {
         Iterable<IOpenMethod> constructors = engineFactory.getCompiledOpenClass().getOpenClass().constructors();
         Iterator<IOpenMethod> itr = constructors.iterator();
         assertTrue(itr.hasNext());

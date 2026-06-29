@@ -23,7 +23,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
-public class GitMultiUserWorkTest {
+class GitMultiUserWorkTest {
 
     static final int MAX_THREADS = Math.min(6, Runtime.getRuntime().availableProcessors() * 2);
     private static final String FOLDER_IN_REPOSITORY = "rules/project";
@@ -37,12 +37,12 @@ public class GitMultiUserWorkTest {
     private GitRepository repo;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         repo = createRepository(root.resolve("design-repository"));
     }
 
     @Test
-    public void simulateMultiUserWork() throws InterruptedException, IOException {
+    void simulateMultiUserWork() throws InterruptedException, IOException {
         createCommitAndCheck(repo, "README.md", "Initialize repository");
         AtomicBoolean passedStatus = new AtomicBoolean(true);
         CountDownLatch countDown = new CountDownLatch(MAX_THREADS);

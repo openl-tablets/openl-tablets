@@ -14,14 +14,14 @@ import org.openl.types.impl.DynamicArrayAggregateInfo;
 /**
  * Created by dl on 6/18/14.
  */
-public class FieldDescriptionTest {
+class FieldDescriptionTest {
 
     public static final String DEFAULT_STRING_VALUE = "Default value";
     public static final String DEFAULT_BOOLEAN_VALUE = "true";
     public static final String DEFAULT_INTEGER_VALUE = "25";
 
     @Test
-    public void testDefaultValue_String() {
+    void testDefaultValue_String() {
         FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
                 .setDefaultValueAsString(DEFAULT_STRING_VALUE)
                 .build();
@@ -29,7 +29,7 @@ public class FieldDescriptionTest {
     }
 
     @Test
-    public void testDefaultValue_Boolean() {
+    void testDefaultValue_Boolean() {
         FieldDescription field = FieldDescriptionBuilder.create(Boolean.class.getName())
                 .setDefaultValueAsString(DEFAULT_BOOLEAN_VALUE)
                 .build();
@@ -37,7 +37,7 @@ public class FieldDescriptionTest {
     }
 
     @Test
-    public void testDefaultValue_Integer() {
+    void testDefaultValue_Integer() {
         FieldDescription field = FieldDescriptionBuilder.create(Integer.class.getName())
                 .setDefaultValueAsString(DEFAULT_INTEGER_VALUE)
                 .build();
@@ -45,7 +45,7 @@ public class FieldDescriptionTest {
     }
 
     @Test
-    public void testDefaultValue_DefaultBean() {
+    void testDefaultValue_DefaultBean() {
         FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
                 .setDefaultValueAsString(DefaultValue.DEFAULT)
                 .build();
@@ -63,7 +63,7 @@ public class FieldDescriptionTest {
     }
 
     @Test
-    public void testArrayOpenClass() {
+    void testArrayOpenClass() {
         // Create the IOpenClass for the policy
         //
         DatatypeOpenClass policyClass = new DatatypeOpenClass(Policy.class.getSimpleName(),
@@ -89,7 +89,7 @@ public class FieldDescriptionTest {
     }
 
     @Test
-    public void testGetJavaType() {
+    void testGetJavaType() {
         assertEquals("Ljava/lang/String;", new FieldDescription(String.class.getName()).getTypeDescriptor());
         assertEquals("[Ljava/lang/String;", new FieldDescription(String[].class.getName()).getTypeDescriptor());
         assertEquals("I", new FieldDescription(int.class.getName()).getTypeDescriptor());

@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class DatatypeWithIncorrectPropertyTest extends BaseOpenlBuilderHelper {
+class DatatypeWithIncorrectPropertyTest extends BaseOpenlBuilderHelper {
     public DatatypeWithIncorrectPropertyTest() {
         super("test/rules/datatype/DatatypeWithIncorrectProperty.xlsx");
     }
 
     @Test
-    public void testHaveOnlyOneError() {
+    void testHaveOnlyOneError() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
 
         assertTrue(compiledOpenClass.hasErrors(), "Expected an error in the project");

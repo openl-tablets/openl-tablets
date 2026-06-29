@@ -20,7 +20,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class RoundExpectedResultTest {
+class RoundExpectedResultTest {
 
     private static final String FILE_NAME = "test/rules/testmethod/RoundExpectedResult.xls";
 
@@ -60,7 +60,7 @@ public class RoundExpectedResultTest {
     };
 
     @Test
-    public void testUserExceptionSupport1() {
+    void testUserExceptionSupport1() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(FILE_NAME);
         engineFactory.setExecutionMode(false);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();

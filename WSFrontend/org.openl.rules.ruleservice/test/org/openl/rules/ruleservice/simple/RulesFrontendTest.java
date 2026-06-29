@@ -22,7 +22,7 @@ import org.openl.rules.ruleservice.management.ServiceManager;
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
-public class RulesFrontendTest {
+class RulesFrontendTest {
 
     @Autowired
     private RulesFrontend frontend;
@@ -31,7 +31,7 @@ public class RulesFrontendTest {
     private ServiceManager serviceManager;
 
     @Test
-    public void testGetServices() {
+    void testGetServices() {
         assertNotNull(serviceManager);
         assertNotNull(frontend);
         Collection<String> services = frontend.getServiceNames();
@@ -44,7 +44,7 @@ public class RulesFrontendTest {
     }
 
     @Test
-    public void testProxyServices() throws MethodInvocationException {
+    void testProxyServices() throws MethodInvocationException {
         assertEquals("World, Good Morning!", frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10));
         assertThrows(MethodInvocationException.class, () -> {
             frontend.execute("RulesFrontendTest_multimodule", "worldHello", (Object) null);
@@ -57,14 +57,14 @@ public class RulesFrontendTest {
     }
 
     @Test
-    public void testProxyServicesNotExistedMethod() {
+    void testProxyServicesNotExistedMethod() {
         assertThrows(MethodInvocationException.class, () -> {
             frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
         });
     }
 
     @Test
-    public void testProxyServicesNotExistedService() throws RuleServiceUndeployException, MethodInvocationException {
+    void testProxyServicesNotExistedService() throws RuleServiceUndeployException, MethodInvocationException {
         assertEquals(3, frontend.getServiceNames().size());
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);

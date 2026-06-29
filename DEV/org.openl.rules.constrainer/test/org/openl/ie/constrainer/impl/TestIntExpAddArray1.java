@@ -13,11 +13,11 @@ import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-public class TestIntExpAddArray1 {
+class TestIntExpAddArray1 {
     private final Constrainer C = new Constrainer("TestIntExpAddArray1");
 
     @Test
-    public void testAttachDetachObserver() {
+    void testAttachDetachObserver() {
         IntExpAddArray1 sum = new IntExpAddArray1(C, new IntExpArray(C, C.addIntVar(-5, 5)));
         class TestObserver extends Observer {
             private int counter = 0;
@@ -70,7 +70,7 @@ public class TestIntExpAddArray1 {
     } // end of testAttachDetachObserver()
 
     @Test
-    public void testMaxMin() {
+    void testMaxMin() {
         IntExpArray array = new IntExpArray(C, 10, -10, 10, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
         assertEquals(10 * 10, sum.max());
@@ -90,7 +90,7 @@ public class TestIntExpAddArray1 {
     }
 
     @Test
-    public void testRemoveValue() {
+    void testRemoveValue() {
         IntExpArray array = new IntExpArray(C, 10, 0, 5, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
         try {
@@ -105,7 +105,7 @@ public class TestIntExpAddArray1 {
     }
 
     @Test
-    public void testSetMax() {
+    void testSetMax() {
         IntExpArray array = new IntExpArray(C, 10, 1, 10, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
@@ -161,7 +161,7 @@ public class TestIntExpAddArray1 {
     }
 
     @Test
-    public void testSetMin() {
+    void testSetMin() {
         IntExpArray array = new IntExpArray(C, 10, -10, -1, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
         try {
@@ -212,7 +212,7 @@ public class TestIntExpAddArray1 {
     }
 
     @Test
-    public void testSetValue() {
+    void testSetValue() {
         IntExpArray array = new IntExpArray(C, 10, 0, 5, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
         try {

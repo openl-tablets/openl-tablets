@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.JettyServer;
 
-public class RunHealthchecksITest {
+class RunHealthchecksITest {
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         JettyServer.get().test();
     }
 
     @Test
-    public void incorrectConfiguration() throws Exception {
+    void incorrectConfiguration() throws Exception {
         JettyServer.test("incorrect");
     }
 }

@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class DoubleRangeContainsTest {
+class DoubleRangeContainsTest {
 
     @Test
-    public void testContains_ValueInsideRange() {
+    void testContains_ValueInsideRange() {
         DoubleRange range = new DoubleRange(15.0, 25.0); // Represents [15.0, 25.0]
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should contain a value in the middle of the range.");
         assertFalse(range.contains(-999999999.99), "Should contain a value in the middle of the range.");
@@ -26,7 +26,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_ValueInsideClosedClosedRange() {
+    void testContains_ValueInsideClosedClosedRange() {
         DoubleRange range = new DoubleRange("[15.0; 25.0]");
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should contain a value in the middle of the range.");
         assertFalse(range.contains(-999999999.99), "Should contain a value in the middle of the range.");
@@ -44,7 +44,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_ValueInsideClosedOpenedRange() {
+    void testContains_ValueInsideClosedOpenedRange() {
         DoubleRange range = new DoubleRange("[15.0; 25.0)");
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should contain a value in the middle of the range.");
         assertFalse(range.contains(-999999999.99), "Should contain a value in the middle of the range.");
@@ -62,7 +62,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_ValueInsideOpenedClosedRange() {
+    void testContains_ValueInsideOpenedClosedRange() {
         DoubleRange range = new DoubleRange("(15.0; 25.0]");
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should contain a value in the middle of the range.");
         assertFalse(range.contains(-999999999.99), "Should contain a value in the middle of the range.");
@@ -80,7 +80,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_ValueInsideOpenedOpenedRange() {
+    void testContains_ValueInsideOpenedOpenedRange() {
         DoubleRange range = new DoubleRange("(15.0; 25.0)");
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should contain a value in the middle of the range.");
         assertFalse(range.contains(-999999999.99), "Should contain a value in the middle of the range.");
@@ -98,7 +98,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_SingleValueRange() {
+    void testContains_SingleValueRange() {
         DoubleRange range = new DoubleRange(15.0); // Represents [15.0, 15.0]
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should contain a value in the middle of the range.");
         assertFalse(range.contains(-999999999.99), "Should contain a value in the middle of the range.");
@@ -112,7 +112,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_WhenRangeIsNaN() {
+    void testContains_WhenRangeIsNaN() {
         // According to DoubleRange implementation, this creates a range where min and max are NaN.
         DoubleRange range = new DoubleRange(Double.NaN, Double.NaN);
         assertFalse(range.contains(15.0), "A NaN range should not contain any valid number.");
@@ -122,7 +122,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_RangeToPositiveInfinity() {
+    void testContains_RangeToPositiveInfinity() {
         DoubleRange range = new DoubleRange(">=25"); // Represents (25.0..inf)
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should not contain negative infinity.");
         assertFalse(range.contains(-999999999.99), "Should not contain a very small number.");
@@ -135,7 +135,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_MoreThanRange() {
+    void testContains_MoreThanRange() {
         DoubleRange range = new DoubleRange("> 25.0"); // Represents (25.0..inf)
         assertFalse(range.contains(Double.NEGATIVE_INFINITY), "Should not contain negative infinity.");
         assertFalse(range.contains(-999999999.99), "Should not contain a very small number.");
@@ -148,7 +148,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_LessThanOrEqualRange() {
+    void testContains_LessThanOrEqualRange() {
         DoubleRange range = new DoubleRange("<= 25.0"); // Represents (-inf..25.0]
         assertTrue(range.contains(Double.NEGATIVE_INFINITY), "Should contain negative infinity.");
         assertTrue(range.contains(-999999999.99), "Should contain a very small (large negative) number.");
@@ -161,7 +161,7 @@ public class DoubleRangeContainsTest {
     }
 
     @Test
-    public void testContains_LessThanRange() {
+    void testContains_LessThanRange() {
         DoubleRange range = new DoubleRange("< 25.0"); // Represents (-inf..25.0)
         assertTrue(range.contains(Double.NEGATIVE_INFINITY), "Should contain negative infinity.");
         assertTrue(range.contains(-999999999.99), "Should contain a very small (large negative) number.");

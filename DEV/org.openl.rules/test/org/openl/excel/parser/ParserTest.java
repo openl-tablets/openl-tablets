@@ -36,7 +36,7 @@ import org.openl.util.text.TextInfo;
 /**
  * @author snshor
  */
-public class ParserTest {
+class ParserTest {
 
     private static ISyntaxNode search(ISyntaxNode topNode, String type) {
         if (topNode.getType().equals(type)) {
@@ -59,13 +59,13 @@ public class ParserTest {
     }
 
     @Test
-    public void type() {
+    void type() {
         IParsedCode result = getParser().parseAsType(new StringSourceCodeModule("String", ""));
         assertEquals(0, result.getErrors().length);
     }
 
     @Test
-    public void typeWithSpaces() {
+    void typeWithSpaces() {
         IParsedCode result = getParser().parseAsType(new StringSourceCodeModule("String sadfa sadf", ""));
         assertEquals(1, result.getErrors().length);
     }
@@ -127,7 +127,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testOfMethod() {
+    void testOfMethod() {
         IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
@@ -136,7 +136,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testOperatorMethods() {
+    void testOperatorMethods() {
         IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
@@ -165,61 +165,61 @@ public class ParserTest {
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         _testType("new int[10]", "op.new.array");
         _testType("new int[10][]", "op.new.array");
         _testType("new int[10][20][]", "op.new.array");
     }
 
     @Test
-    public void testAssign() {
+    void testAssign() {
         _testType("int x = y; z", "local.var.declaration");
     }
 
     @Test
-    public void testChain() {
+    void testChain() {
         _testType("x.y", "chain");
         _testType("x.y[10].foo(z)", "chain");
         _testType("x.y", "chain");
     }
 
     @Test
-    public void testFunc() throws OpenLConfigurationException {
+    void testFunc() throws OpenLConfigurationException {
         _testType("sin(5, 10)", "function");
     }
 
     @Test
-    public void testErr1() throws OpenLConfigurationException {
+    void testErr1() throws OpenLConfigurationException {
         _testErrorMsg("sin(5, 10", "Need to close '('");
     }
 
     @Test
-    public void testErr2() throws OpenLConfigurationException {
+    void testErr2() throws OpenLConfigurationException {
         _testErrorMsg("\"abc", "Lexical error at line");
     }
 
     @Test
-    public void testErr3() throws OpenLConfigurationException {
+    void testErr3() throws OpenLConfigurationException {
         _testErrorMsg("x=y{y=z}", "Encountered");
     }
 
     @Test
-    public void testErr4() throws OpenLConfigurationException {
+    void testErr4() throws OpenLConfigurationException {
         _testErrorMsg("return u", "Encountered");
     }
 
     @Test
-    public void testErr5() throws OpenLConfigurationException {
+    void testErr5() throws OpenLConfigurationException {
         _testErrorMsg("\"ab\\zc\"", "Lexical error at line");
     }
 
     @Test
-    public void testIf() {
+    void testIf() {
         _testType("if (x) a();", "control.if");
     }
 
     @Test
-    public void testLiteral() throws OpenLConfigurationException {
+    void testLiteral() throws OpenLConfigurationException {
         // we should remove suffix the next line produces NumberFormatException
         // Assert.assertEquals(new Long(5), Long.decode("5L"));
 
@@ -236,12 +236,12 @@ public class ParserTest {
     }
 
     @Test
-    public void testRange() throws OpenLConfigurationException {
+    void testRange() throws OpenLConfigurationException {
         _testType("$Step1:$Step7", "range.variable");
     }
 
     @Test
-    public void testLocation() throws OpenLConfigurationException {
+    void testLocation() throws OpenLConfigurationException {
         String test1 = "\tx";
         IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
         ILocation loc = pc.getTopNode().getSourceLocation();
@@ -250,12 +250,12 @@ public class ParserTest {
     }
 
     @Test
-    public void testMethodHeader() {
+    void testMethodHeader() {
         _testMethodHeader("int x(a a1, b b1)", null, "method.header");
     }
 
     @Test
-    public void testOperator() throws OpenLConfigurationException {
+    void testOperator() throws OpenLConfigurationException {
         BinaryNode binaryNode = _testOperator("x+y", "op.binary.add");
         assertNotNull(binaryNode);
 
@@ -285,7 +285,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testNumberParseAndBind() throws Exception {
+    void testNumberParseAndBind() throws Exception {
         _testLiteralParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class, "literal.integer");
         _testLiteralParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class, "literal.integer");
         _testLiteralParseAndBind(new IntNodeBinder(),
@@ -308,7 +308,7 @@ public class ParserTest {
 
     @Test
     @SuppressWarnings("UnnecessaryUnicodeEscape")
-    public void testStringParseAndBind() throws Exception {
+    void testStringParseAndBind() throws Exception {
         _testLiteralParseAndBind(new StringNodeBinder(),
                 wrapStrLit("\\u00A0"),
                 "\u00A0",
@@ -345,7 +345,7 @@ public class ParserTest {
 
     @Test
     @SuppressWarnings("UnnecessaryUnicodeEscape")
-    public void testCharParseAndBind() throws Exception {
+    void testCharParseAndBind() throws Exception {
         _testLiteralParseAndBind(new CharNodeBinder(), wrapChLit("\\u00A0"), '\u00A0', char.class, "literal.char");
         _testLiteralParseAndBind(new CharNodeBinder(), wrapChLit("\\uAAAA"), '\uAAAA', char.class, "literal.char");
         _testLiteralParseAndBind(new CharNodeBinder(), wrapChLit("\\u222b"), '\u222b', char.class, "literal.char");

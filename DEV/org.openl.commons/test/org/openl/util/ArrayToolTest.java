@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class ArrayToolTest {
+class ArrayToolTest {
 
     @Test
-    public void testRemoveNulls() {
+    void testRemoveNulls() {
         assertNull(ArrayTool.removeNulls(null));
         Object[] emptyArray = new Object[0];
 

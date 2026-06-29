@@ -18,10 +18,10 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
-public class XSSFOptimizerTest {
+class XSSFOptimizerTest {
 
     @Test
-    public void removeUnusedStyles() throws Exception {
+    void removeUnusedStyles() throws Exception {
         byte[] savedFile;
 
         try (FileInputStream inputStream = new FileInputStream("test-resources/XSSFOptimizerTest.xlsx")) {

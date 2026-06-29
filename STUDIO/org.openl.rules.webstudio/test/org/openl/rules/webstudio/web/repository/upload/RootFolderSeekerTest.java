@@ -8,10 +8,10 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-public class RootFolderSeekerTest {
+class RootFolderSeekerTest {
 
     @Test
-    public void test() {
+    void test() {
         Set<String> folderNames = new HashSet<>();
         folderNames.add("my/");
         folderNames.add("my/file.txt");
@@ -32,7 +32,7 @@ public class RootFolderSeekerTest {
     }
 
     @Test
-    public void testFilesInRootDirectory() {
+    void testFilesInRootDirectory() {
         Set<String> folderNames = new HashSet<>();
         folderNames.add("my/");
         folderNames.add("file.txt");

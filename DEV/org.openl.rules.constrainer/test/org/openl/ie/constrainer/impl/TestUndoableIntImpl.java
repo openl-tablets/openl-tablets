@@ -25,11 +25,11 @@ import org.openl.ie.constrainer.Undo;
  * @version 1.0
  */
 
-public class TestUndoableIntImpl {
+class TestUndoableIntImpl {
     private final Constrainer C = new Constrainer("TestUndoableIntImpl");
 
     @Test
-    public void testCreateUndo() {
+    void testCreateUndo() {
         UndoableIntImpl undoableInt = new UndoableIntImpl(C, 10);
         Undo[] stages = new Undo[100];
         for (int i = 1; i <= 100; i++) {

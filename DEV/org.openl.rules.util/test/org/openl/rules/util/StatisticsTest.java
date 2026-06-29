@@ -14,10 +14,10 @@ import java.math.MathContext;
 
 import org.junit.jupiter.api.Test;
 
-public class StatisticsTest {
+class StatisticsTest {
 
     @Test
-    public void testMax() {
+    void testMax() {
         assertNull(max());
         assertNull(max((Integer[]) null));
         assertNull(max(new Integer[0]));
@@ -30,7 +30,7 @@ public class StatisticsTest {
     }
 
     @Test
-    public void testMin() {
+    void testMin() {
         assertNull(min());
         assertNull(min((Integer[]) null));
         assertNull(min(new Integer[0]));
@@ -43,7 +43,7 @@ public class StatisticsTest {
     }
 
     @Test
-    public void testSum() {
+    void testSum() {
         assertNull(sum((Integer[]) null));
         assertNull(sum(new Integer[0]));
         assertNull(sum(new Integer[]{null}));
@@ -65,7 +65,7 @@ public class StatisticsTest {
     }
 
     @Test
-    public void testAvg() {
+    void testAvg() {
         assertNull(avg((Integer[]) null));
         assertNull(avg(new Integer[0]));
         assertNull(avg(new Integer[]{null}));

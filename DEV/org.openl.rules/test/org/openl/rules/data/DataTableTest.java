@@ -18,7 +18,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 /**
  * @author DLiauchuk
  */
-public class DataTableTest extends BaseOpenlBuilderHelper {
+class DataTableTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/Tutorial_2_Test.xls";
 
@@ -27,7 +27,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testSimpleStringArray() {
+    void testSimpleStringArray() {
         final String tableName = "Data String simpleStringArray";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -44,7 +44,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testTypeWithArrayColumns() {
+    void testTypeWithArrayColumns() {
         final String tableName = "Data TypeWithArray testTypeWithArrayColumns";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -63,7 +63,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testTypeWithArrayRows() {
+    void testTypeWithArrayRows() {
         String tableName = "Data TypeWithArray testTypeWithArrayRows";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -83,7 +83,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testTypeWithArrayRowsOneElement() {
+    void testTypeWithArrayRowsOneElement() {
         String tableName = "Data TypeWithArray testTypeWithArrayRowsOneElement";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -99,7 +99,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testCommaSeparated() {
+    void testCommaSeparated() {
         final String tableName = "Data TypeWithArray testCommaSeparated";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -119,7 +119,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testStringArray() {
+    void testStringArray() {
         String tableName = "Data TypeWithArray testStringArray";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -133,7 +133,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testStringArrayWithEscaper() {
+    void testStringArrayWithEscaper() {
         String tableName = "Data TypeWithArray testStringArrayWithEscaper";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -149,7 +149,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testClass() {
+    void testClass() {
         String tableName = "Data TypeWithArray testClassLoading";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertNotNull(resultTsn);
@@ -165,7 +165,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testDataTableWithClass() {
+    void testDataTableWithClass() {
         // TODO: Fix it. There should be no error messages
         Collection<OpenLMessage> messages = getCompiledOpenClass().getAllMessages();
         assertEquals(1, messages.size());

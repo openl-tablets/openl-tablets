@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 
-public class ProjectDependenciesImportAndClasspathTest {
+class ProjectDependenciesImportAndClasspathTest {
     private static final String SRC = "test-resources/dependencies/testImports/project2";
     private static final String SRC_WORKSPACE = "test-resources/dependencies/testImports";
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         var projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
                 .setProject(SRC)
                 .setExecutionMode(false)

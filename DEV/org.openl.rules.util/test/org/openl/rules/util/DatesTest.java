@@ -11,10 +11,10 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
-public class DatesTest {
+class DatesTest {
 
     @Test
-    public void testDate() {
+    void testDate() {
         assertNull(Dates.toString(null));
         assertEquals(new Date(-1899, 0, 1), Dates.Date(1, 1, 1));
         assertEquals(new Date(118, 6, 12), Dates.Date(2018, 7, 12));
@@ -25,37 +25,37 @@ public class DatesTest {
     }
 
     @Test
-    public void testDateWrongMonth() {
+    void testDateWrongMonth() {
         assertNull(Dates.Date(2018, 13, 1));
     }
 
     @Test
-    public void testDateWrongDay() {
+    void testDateWrongDay() {
         assertNull(Dates.Date(2018, 2, 29));
     }
 
     @Test
-    public void testDateWrongYear() {
+    void testDateWrongYear() {
         assertNull(Dates.Date(0, 1, 1));
     }
 
     @Test
-    public void testDateWrongHour() {
+    void testDateWrongHour() {
         assertNull(Dates.Date(2022, 1, 1, 24, 1, 1));
     }
 
     @Test
-    public void testDateWrongMinute() {
+    void testDateWrongMinute() {
         assertNull(Dates.Date(2022, 1, 1, 1, 60, 1));
     }
 
     @Test
-    public void testDateWrongSecond() {
+    void testDateWrongSecond() {
         assertNull(Dates.Date(2022, 1, 1, 1, 1, 60));
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertNull(Dates.toString(null));
         assertEquals("07/12/1980", Dates.toString(new Date(80, 6, 12, 23, 59)));
         assertEquals("07/12/1980", Dates.toString(new Date(80, 6, 12)));
@@ -64,7 +64,7 @@ public class DatesTest {
     }
 
     @Test
-    public void testToDate() {
+    void testToDate() {
         assertNull(Dates.toDate(null));
         assertNull(Dates.toDate(""));
         assertNull(Dates.toDate(" "));
@@ -103,14 +103,14 @@ public class DatesTest {
     private static final Double ZERO_DOUBLE = 0.0d;
 
     @Test
-    public void test_dateDif_shouldThrowIllegalArgumentException_whenUnitNameInUnknown() {
+    void test_dateDif_shouldThrowIllegalArgumentException_whenUnitNameInUnknown() {
         assertThrows(IllegalArgumentException.class, () -> {
             Dates.dateDif(null, null, "SOME_NAME");
         });
     }
 
     @Test
-    public void test_dateDif_shouldReturnNull_whenOneDateParameterIsNull() {
+    void test_dateDif_shouldReturnNull_whenOneDateParameterIsNull() {
         assertNull(Dates.dateDif(null, DEF_DATE, "D"));
         assertNull(Dates.dateDif(DEF_DATE, null, "D"));
         assertNull(Dates.dateDif(null, DEF_DATE, "W"));
@@ -136,7 +136,7 @@ public class DatesTest {
     }
 
     @Test
-    public void test_dateDif_shouldReturnZero_whenDateParametersAreNull() {
+    void test_dateDif_shouldReturnZero_whenDateParametersAreNull() {
         assertNull(Dates.dateDif(null, null, "D"));
         assertNull(Dates.dateDif(null, null, "W"));
         assertNull(Dates.dateDif(null, null, "M"));
@@ -151,7 +151,7 @@ public class DatesTest {
     }
 
     @Test
-    public void test_dateDif_shouldReturnIntResult() {
+    void test_dateDif_shouldReturnIntResult() {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
@@ -171,7 +171,7 @@ public class DatesTest {
     }
 
     @Test
-    public void test_dateDif_shouldReturnNegativeIntResult() {
+    void test_dateDif_shouldReturnNegativeIntResult() {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
@@ -185,7 +185,7 @@ public class DatesTest {
     }
 
     @Test
-    public void test_dateDif_shouldReturnFractionalResult() {
+    void test_dateDif_shouldReturnFractionalResult() {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
@@ -198,7 +198,7 @@ public class DatesTest {
     }
 
     @Test
-    public void test_dateDif_shouldReturnNegativeFractionalResult() {
+    void test_dateDif_shouldReturnNegativeFractionalResult() {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
@@ -209,7 +209,7 @@ public class DatesTest {
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         Date date = getDate(1, 1, 2022);
         assertNull(Dates.setDate(date, 2022, 22, 1));
         assertNull(Dates.setDate(date, -111, 1, 1));
@@ -227,7 +227,7 @@ public class DatesTest {
     }
 
     @Test
-    public void isLeap() {
+    void isLeap() {
         assertTrue(Dates.isLeap(Dates.Date(2016, 2, 29)));
         assertFalse(Dates.isLeap(Dates.Date(2017, 2, 28)));
         assertFalse(Dates.isLeap(Dates.Date(1900, 2, 28)));

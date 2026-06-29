@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.security.acl.utils.AclPathUtils;
 
-public class AclPathUtilsTest {
+class AclPathUtilsTest {
 
     @Test
-    public void concatTest() {
+    void concatTest() {
         assertEquals("repo1", AclPathUtils.buildRepositoryPath("repo1", null));
         assertEquals("repo1", AclPathUtils.buildRepositoryPath("repo1", ""));
         assertEquals("repo1", AclPathUtils.buildRepositoryPath("repo1", "/"));

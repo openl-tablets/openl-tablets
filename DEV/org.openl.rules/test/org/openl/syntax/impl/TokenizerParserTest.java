@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 
-public class TokenizerParserTest {
+class TokenizerParserTest {
 
     @Test
-    public void testFirstToken1() {
+    void testFirstToken1() {
         String testValue = "Rules double hello (int param1, String param2)";
         IOpenSourceCodeModule source = new StringSourceCodeModule(testValue, null);
         try {
@@ -22,7 +22,7 @@ public class TokenizerParserTest {
     }
 
     @Test
-    public void testFirstToken2() {
+    void testFirstToken2() {
         String testValue = "   Rules double hello (int param1, String param2)";
         IOpenSourceCodeModule source = new StringSourceCodeModule(testValue, null);
         try {

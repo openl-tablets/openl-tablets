@@ -19,9 +19,9 @@ import java.util.Scanner;
 
 import org.junit.jupiter.api.Test;
 
-public class MiscsTest {
+class MiscsTest {
     @Test
-    public void testIsEmpty() {
+    void testIsEmpty() {
         assertTrue(isEmpty(null));
         assertTrue(isEmpty(new Object[0]));
         assertTrue(isEmpty(""));
@@ -52,7 +52,7 @@ public class MiscsTest {
     }
 
     @Test
-    public void testIsNotEmpty() {
+    void testIsNotEmpty() {
         assertFalse(isNotEmpty(null));
         assertFalse(isNotEmpty(new Object[0]));
         assertFalse(isNotEmpty(""));
@@ -83,7 +83,7 @@ public class MiscsTest {
     }
 
     @Test
-    public void testLength() {
+    void testLength() {
         assertEquals(0, length((HashSet<?>) null));
         assertEquals(0, length(new HashSet()));
         assertEquals(1, length(new HashSet() {
@@ -102,7 +102,7 @@ public class MiscsTest {
     }
 
     @Test
-    public void testIsNaN() {
+    void testIsNaN() {
         assertFalse(isNaN((Double) null));
         assertTrue(isNaN(Double.NaN));
         assertFalse(isNaN(0.0));
@@ -113,7 +113,7 @@ public class MiscsTest {
     }
 
     @Test
-    public void testIsInfinite() {
+    void testIsInfinite() {
         assertFalse(isInfinite((Double) null));
         assertTrue(isInfinite(Double.NEGATIVE_INFINITY));
         assertTrue(isInfinite(Double.POSITIVE_INFINITY));

@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml"})
-public class OpenLServiceFactoryBeanTest {
+class OpenLServiceFactoryBeanTest {
 
     @Autowired
     private ServiceInterface simpleService;
@@ -26,7 +26,7 @@ public class OpenLServiceFactoryBeanTest {
     private ServiceInterface ruleService2;
 
     @Test
-    public void testSimpleService() {
+    void testSimpleService() {
         assertNotNull(simpleService);
         assertEquals("Good Morning", simpleService.baseHello(5));
         assertEquals("Good Morning", simpleService.baseHello(10));
@@ -35,7 +35,7 @@ public class OpenLServiceFactoryBeanTest {
     }
 
     @Test
-    public void testSimpleServiceAbsentMethods() {
+    void testSimpleServiceAbsentMethods() {
         try {
             simpleService.absent(null);
             fail();
@@ -45,7 +45,7 @@ public class OpenLServiceFactoryBeanTest {
     }
 
     @Test
-    public void testDefaultFrontend() {
+    void testDefaultFrontend() {
         assertNotNull(ruleService1);
         assertEquals("World, Good Morning!", ruleService1.worldHello(10));
         assertEquals("i: 10 s: 5", ruleService1.worldHello(10, "5"));
@@ -54,7 +54,7 @@ public class OpenLServiceFactoryBeanTest {
     }
 
     @Test
-    public void testDefaultFrontendAbsentMethods() {
+    void testDefaultFrontendAbsentMethods() {
         try {
             ruleService1.worldHello(null);
             fail();
@@ -64,7 +64,7 @@ public class OpenLServiceFactoryBeanTest {
     }
 
     @Test
-    public void testDefaultFrontendAbsentMethods2() {
+    void testDefaultFrontendAbsentMethods2() {
         try {
             ruleService1.absent(null);
             fail();
@@ -74,14 +74,14 @@ public class OpenLServiceFactoryBeanTest {
     }
 
     @Test
-    public void testAbsentMethods() {
+    void testAbsentMethods() {
         assertThrows(MethodInvocationRuntimeException.class, () -> {
             ruleService1.absent("X");
         });
     }
 
     @Test
-    public void testOverridedFrontend() {
+    void testOverridedFrontend() {
         assertEquals("Invoked: worldHello 1 int", ruleService2.worldHello(10));
         assertEquals("Invoked: worldHello 2 Integer", ruleService2.worldHello(10, "5"));
         assertEquals("Invoked: worldHello 2 Integer", ruleService2.worldHello(null, null));

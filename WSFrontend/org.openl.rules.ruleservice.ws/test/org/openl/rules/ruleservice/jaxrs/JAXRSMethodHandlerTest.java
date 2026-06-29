@@ -12,29 +12,29 @@ import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
-public class JAXRSMethodHandlerTest {
+class JAXRSMethodHandlerTest {
 
     @Test
-    public void checkNotNullConstructorArguments() {
+    void checkNotNullConstructorArguments() {
         new JAXRSMethodHandler(new Object(), new HashMap<>());
     }
 
     @Test
-    public void checkNullTargetConstructorArgument() {
+    void checkNullTargetConstructorArgument() {
         assertThrows(NullPointerException.class, () -> {
             new JAXRSMethodHandler(null, new HashMap<>());
         });
     }
 
     @Test
-    public void checkNullMethodsConstructorArgument() {
+    void checkNullMethodsConstructorArgument() {
         assertThrows(NullPointerException.class, () -> {
             new JAXRSMethodHandler(new Object(), null);
         });
     }
 
     @Test
-    public void checkInvokeOnUnknownMethod() throws Throwable {
+    void checkInvokeOnUnknownMethod() throws Throwable {
         assertThrows(IllegalStateException.class, () -> {
             Object target = new Object();
             HashMap<Method, Method> methods = new HashMap<>();
@@ -45,7 +45,7 @@ public class JAXRSMethodHandlerTest {
     }
 
     @Test
-    public void checkNullArguments() throws Throwable {
+    void checkNullArguments() throws Throwable {
         InvokedClass target = mock(InvokedClass.class);
         when(target.doWork()).thenReturn("Done");
         HashMap<Method, Method> methods = new HashMap<>();

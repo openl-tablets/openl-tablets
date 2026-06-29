@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.model.scaffolding.FieldModel;
 
-public class FieldModelTest {
+class FieldModelTest {
 
     @Test
-    public void testFieldModelCreation() {
+    void testFieldModelCreation() {
         FieldModel fm = new FieldModel("type", "String");
         assertEquals("type", fm.getName());
         assertEquals("String", fm.getType());

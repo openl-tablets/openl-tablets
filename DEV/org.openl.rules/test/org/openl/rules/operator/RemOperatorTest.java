@@ -15,98 +15,98 @@ import org.openl.rules.TestUtils;
  *
  * @author DLiauchuk
  */
-public class RemOperatorTest {
+class RemOperatorTest {
 
     private static final String SRC = "test/rules/operators/RemOperatorTest.xlsx";
 
     private static RulesInterf instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create(SRC, RulesInterf.class);
     }
 
     @Test
-    public void testByte() {
+    void testByte() {
         assertEquals("passed", instance.testRemByte((byte) 4, (byte) 2));
         assertEquals("not passed", instance.testRemByte((byte) 5, (byte) 2));
     }
 
     @Test
-    public void testShort() {
+    void testShort() {
         assertEquals("passed", instance.testRemShort((short) 100, (short) 20));
         assertEquals("not passed", instance.testRemShort((short) 103, (short) 2));
     }
 
     @Test
-    public void testInt() {
+    void testInt() {
         assertEquals("passed", instance.testRemInt(22, 11));
         assertEquals("not passed", instance.testRemInt(3, 2));
     }
 
     @Test
-    public void testLong() {
+    void testLong() {
         assertEquals("passed", instance.testRemLong(1000, 500));
         assertEquals("not passed", instance.testRemLong(5, 2));
     }
 
     @Test
-    public void testFloat() {
+    void testFloat() {
         assertEquals("passed", instance.testRemFloat((float) 4.44, (float) 2.22));
         assertEquals("not passed", instance.testRemFloat((float) 5.57, 44));
     }
 
     @Test
-    public void testDouble() {
+    void testDouble() {
         assertEquals("passed", instance.testRemDouble(4.44, 2.22));
         assertEquals("not passed", instance.testRemDouble(5.57, 44));
     }
 
     @Test
-    public void testByteValue() {
+    void testByteValue() {
         assertEquals("passed", instance.testRemByteValue((byte) 4, (byte) 2));
         assertEquals("not passed", instance.testRemByteValue((byte) 3, (byte) 5));
     }
 
     @Test
-    public void testShortValue() {
+    void testShortValue() {
         assertEquals("passed", instance.testRemShortValue((short) 100, (short) 20));
         assertEquals("not passed", instance.testRemShortValue((short) 103, (short) 2));
     }
 
     @Test
-    public void testIntValue() {
+    void testIntValue() {
         assertEquals("passed", instance.testRemIntValue(22, 11));
         assertEquals("not passed", instance.testRemIntValue(3, 2));
     }
 
     @Test
-    public void testLongValue() {
+    void testLongValue() {
         assertEquals("passed", instance.testRemLongValue(1000L, 500L));
         assertEquals("not passed", instance.testRemLongValue(5L, 2L));
     }
 
     @Test
-    public void testFloatValue() {
+    void testFloatValue() {
         assertEquals("passed", instance.testRemFloatValue(4.44F, 2.22F));
         assertEquals("not passed", instance.testRemFloatValue(5.57F, 44F));
     }
 
     @Test
-    public void testDoubleValue() {
+    void testDoubleValue() {
         assertEquals("passed", instance.testRemDoubleValue(4.44, 2.22));
         assertEquals("not passed", instance.testRemDoubleValue(5.57, 44.0));
     }
 
     @Test
-    public void testBigIntegerValue() {
+    void testBigIntegerValue() {
         assertEquals("passed", instance.testRemBigIntegerValue(new BigInteger("10"), new BigInteger("5")));
         assertEquals("not passed",
                 instance.testRemBigIntegerValue(new BigInteger("17"), new BigInteger("3")));
     }
 
     @Test
-    public void testBigDecimalValue() {
+    void testBigDecimalValue() {
         assertEquals("passed",
                 instance.testRemBigDecimalValue(new BigDecimal("4.44"), new BigDecimal("2.22")));
         assertEquals("not passed",

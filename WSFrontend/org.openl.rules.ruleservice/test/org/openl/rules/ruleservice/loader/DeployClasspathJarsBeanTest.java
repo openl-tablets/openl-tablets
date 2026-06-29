@@ -22,9 +22,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
-public class DeployClasspathJarsBeanTest {
+class DeployClasspathJarsBeanTest {
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         var unstableDeployerService = mock(RulesDeployerService.class);
         var propertyResolver = mock(PropertyResolver.class);
         when(propertyResolver.getProperty("production-repository.factory")).thenReturn("repo-jdbc");

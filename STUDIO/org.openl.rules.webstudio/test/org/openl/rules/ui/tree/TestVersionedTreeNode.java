@@ -15,11 +15,11 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 
-public class TestVersionedTreeNode {
+class TestVersionedTreeNode {
     private final Map<String, TableSyntaxNode> tables = new HashMap<>();
 
     @BeforeEach
-    public void getTables() {
+    void getTables() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/Versions_Test.xls");
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
@@ -35,7 +35,7 @@ public class TestVersionedTreeNode {
     }
 
     @Test
-    public void testVersionsComparing() {
+    void testVersionsComparing() {
         assertTrue(VersionedTreeNode.findLaterTable(tables.get("1.1.0"), tables.get("1.2.0")) < 0);
         assertTrue(VersionedTreeNode.findLaterTable(tables.get("1.1.0"), tables.get("0.1.2")) < 0);
         assertTrue(VersionedTreeNode.findLaterTable(tables.get("0.1.2"), tables.get("1.2.0")) > 0);

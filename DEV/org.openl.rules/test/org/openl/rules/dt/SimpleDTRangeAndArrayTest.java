@@ -7,30 +7,30 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class SimpleDTRangeAndArrayTest {
+class SimpleDTRangeAndArrayTest {
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/dt/SimpleDTRangeAndArray.xlsx");
     }
 
     @Test
-    public void testArray1() {
+    void testArray1() {
         assertEquals(0, (int) TestUtils.invoke(instance, "TestArray1", "1234"));
         assertEquals(5, (int) TestUtils.invoke(instance, "TestArray1", "-3"));
         assertEquals(0, (int) TestUtils.invoke(instance, "TestArray1", "erty"));
     }
 
     @Test
-    public void testArray2() {
+    void testArray2() {
         assertEquals(1, (int) TestUtils.invoke(instance, "TestArray2", "1234"));
         assertEquals(12, (int) TestUtils.invoke(instance, "TestArray2", "werwe"));
         assertEquals(5, (int) TestUtils.invoke(instance, "TestArray2", "asda"));
     }
 
     @Test
-    public void testRangeInt() {
+    void testRangeInt() {
         assertEquals(-10,
                 (int) TestUtils.invoke(instance, "TestRangeInt", new Class[]{int.class}, new Object[]{67}));
         assertEquals(89,
@@ -40,7 +40,7 @@ public class SimpleDTRangeAndArrayTest {
     }
 
     @Test
-    public void testRangeDouble1() {
+    void testRangeDouble1() {
         assertEquals(-10,
                 (int) TestUtils
                         .invoke(instance, "TestRangeDouble1", new Class[]{double.class}, new Object[]{150.005}));
@@ -52,21 +52,21 @@ public class SimpleDTRangeAndArrayTest {
     }
 
     @Test
-    public void simpleLookup2Range() {
+    void simpleLookup2Range() {
         assertEquals(Double.valueOf(0.0), TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 150.005));
         assertEquals(Double.valueOf(1.0), TestUtils.invoke(instance, "SimpleLookup2Range", "", 150.005));
         assertEquals(Double.valueOf(1.0), TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 2000.0));
     }
 
     @Test
-    public void simpleLookupRange1() {
+    void simpleLookupRange1() {
         assertEquals(Double.valueOf(0.9), TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 25.0));
         assertEquals(Double.valueOf(1.0), TestUtils.invoke(instance, "SimpleLookupRange1", "", 4.0));
         assertEquals(Double.valueOf(0.0), TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 3.0));
     }
 
     @Test
-    public void simpleLookup3paramRangeArray() {
+    void simpleLookup3paramRangeArray() {
         assertEquals(Double.valueOf(0.0),
                 TestUtils.invoke(instance,
                         "SimpleLookup3paramRangeArray",
@@ -85,7 +85,7 @@ public class SimpleDTRangeAndArrayTest {
     }
 
     @Test
-    public void simpleLookup4paramTitleRange() {
+    void simpleLookup4paramTitleRange() {
         assertEquals(Double.valueOf(0.9),
                 TestUtils.invoke(instance,
                         "SimpleLookup4paramTitleRange",
@@ -104,7 +104,7 @@ public class SimpleDTRangeAndArrayTest {
     }
 
     @Test
-    public void simpleLookup4paramNotEnoughValues() {
+    void simpleLookup4paramNotEnoughValues() {
         assertEquals(Double.valueOf(0.9),
                 TestUtils.invoke(instance,
                         "SimpleLookup4paramNotEnoughValues",

@@ -9,67 +9,67 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class ArraysInDataTableTest {
+class ArraysInDataTableTest {
     private static final String SRC = "test/rules/binding/ArraysInDataTableTest.xlsx";
 
     private static ArraysInDataTableTestInterf instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create(SRC, ArraysInDataTableTestInterf.class);
     }
 
     @Test
-    public void testIntArrays1() {
+    void testIntArrays1() {
         assertArrayEquals(new int[][]{{1, 2, 0, 3}, {2, 3, 0, 4}, {4, 5, 0, 6}}, instance.getIntArrays1());
     }
 
     @Test
-    public void testIntArrays2() {
+    void testIntArrays2() {
         assertArrayEquals(new int[][]{{1, 2, 3}, {2, 3, 4}, {4, 5, 6}}, instance.getIntArrays2());
     }
 
     @Test
-    public void testIntArrays3() {
+    void testIntArrays3() {
         assertArrayEquals(new int[][]{{1, 2, 3}, {2, 4, 5}, {3, 4, 6}}, instance.getIntArrays3());
     }
 
     @Test
-    public void testIntegerArrays1() {
+    void testIntegerArrays1() {
         assertArrayEquals(new Integer[][]{{1, 2, null, 3}, {2, 3, null, 4}, {4, 5, null, 6}},
                 instance.getIntegerArrays1());
     }
 
     @Test
-    public void testIntegerArrays2() {
+    void testIntegerArrays2() {
         assertArrayEquals(new Integer[][]{{1, 2, 3}, {2, 3, 4}, {4, 5, 6}}, instance.getIntegerArrays2());
     }
 
     @Test
-    public void testIntegerArrays3() {
+    void testIntegerArrays3() {
         assertArrayEquals(new Integer[][]{{1, 2, 3}, {2, 4, 5}, {3, 4, 6}}, instance.getIntegerArrays3());
     }
 
     @Test
-    public void testStringArrays1() {
+    void testStringArrays1() {
         assertArrayEquals(new String[][]{{"x", "y", "z"}, {"y", "z", "x"}, {"z", "x", "y"}},
                 instance.getStringArrays1());
     }
 
     @Test
-    public void testStringArrays2() {
+    void testStringArrays2() {
         assertArrayEquals(new String[][]{{"x", "y", "z"}, {"y", "z", "x"}, {"z", "x", "y"}},
                 instance.getStringArrays2());
     }
 
     @Test
-    public void testStringArrays3() {
+    void testStringArrays3() {
         assertArrayEquals(new String[][]{{"x", "y", "z"}, {"y", "z", "x"}, {"z", "x", "y"}},
                 instance.getStringArrays3());
     }
 
     @Test
-    public void testBeanAArrays1() {
+    void testBeanAArrays1() {
         BeanA x = new BeanA();
         BeanA y = new BeanA();
         BeanA z = new BeanA();
@@ -81,7 +81,7 @@ public class ArraysInDataTableTest {
     }
 
     @Test
-    public void testBeanAArrays2() {
+    void testBeanAArrays2() {
         BeanA x = new BeanA();
         BeanA y = new BeanA();
         BeanA z = new BeanA();

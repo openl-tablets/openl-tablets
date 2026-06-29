@@ -9,20 +9,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class StringPoolTest {
+class StringPoolTest {
 
     @AfterEach
-    public void cleanUp() {
+    void cleanUp() {
         StringPool.STRING_POOL.clear();
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         assertTrue(StringPool.STRING_POOL.isEmpty(), "String pool is not empty on before usage");
     }
 
     @Test
-    public void testFirstIntern() {
+    void testFirstIntern() {
         String str = "FirstIntern";
         String res = StringPool.intern(str);
 
@@ -32,7 +32,7 @@ public class StringPoolTest {
     }
 
     @Test
-    public void testSecondIntern() {
+    void testSecondIntern() {
         String str1 = new String("intern");
         String res1 = StringPool.intern(str1);
         String str2 = new String("intern");
@@ -46,7 +46,7 @@ public class StringPoolTest {
     }
 
     @Test
-    public void testPoolMemory() {
+    void testPoolMemory() {
         StringPool.intern("intern1");
         StringPool.intern("intern2");
         assertFalse(StringPool.STRING_POOL.containsKey("intern"), "String pool has wrong key");
@@ -56,7 +56,7 @@ public class StringPoolTest {
     }
 
     @Test
-    public void testGC() throws InterruptedException {
+    void testGC() throws InterruptedException {
         StringPool.intern(new String("intern1"));
         String str = new String("intern2"); // Strong Reference
         StringPool.intern(str);

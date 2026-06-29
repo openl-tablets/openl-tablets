@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.JettyServer;
 
-public class RunLocalZippedRepositoryTest {
+class RunLocalZippedRepositoryTest {
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         JettyServer.get().test();
     }
 }

@@ -39,7 +39,7 @@ import org.openl.util.ArrayTool;
  * <p/>
  *         TODO: test all methods
  */
-public class RulesUtilsTest {
+class RulesUtilsTest {
 
     private static final String SRC = "test/rules/helpers/RulesUtilsTest.xlsx";
 
@@ -690,18 +690,18 @@ public class RulesUtilsTest {
     }
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         Locale.setDefault(Locale.US);
         instance = TestUtils.create(SRC, TestInterf.class);
     }
 
     @Test
-    public void testInstanceOf() {
+    void testInstanceOf() {
         assertTrue(instance.testInstanceOf(1L));
     }
 
     @Test
-    public void testSmallByteType() {
+    void testSmallByteType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             byte[] array = {10, 32, 35, 25};
             assertEquals(10, instance.testByteTypeSmall(array, 1));
@@ -714,7 +714,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallShortType() {
+    void testSmallShortType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             short[] array = {10, 32, 35, 25};
             assertEquals(10, instance.testShortTypeSmall(array, 1));
@@ -727,7 +727,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallIntegerType() {
+    void testSmallIntegerType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             int[] array = {10, 32, 35, 25};
             assertEquals(10, instance.testIntegerTypeSmall(array, 1));
@@ -740,7 +740,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallLongType() {
+    void testSmallLongType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             long[] array = {10, 32, 35, 25};
             assertEquals(10, instance.testLongTypeSmall(array, 1));
@@ -753,7 +753,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallFloatType() {
+    void testSmallFloatType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
             assertEquals(instance.testFloatTypeSmall(array, 1), (float) 10.1, 0.0);
@@ -766,7 +766,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallDoubleType() {
+    void testSmallDoubleType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             double[] array = {10.1, 32.2, 35.3, 25.4};
             assertEquals(10.1, instance.testDoubleTypeSmall(array, 1), 0.0);
@@ -779,7 +779,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallBigDecimal() {
+    void testSmallBigDecimal() {
         assertThrows(OpenLRuntimeException.class, () -> {
             BigDecimal[] array = {BigDecimal.valueOf(10),
                     BigDecimal.valueOf(32),
@@ -795,7 +795,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallBigInteger() {
+    void testSmallBigInteger() {
         assertThrows(OpenLRuntimeException.class, () -> {
             BigInteger[] array = {BigInteger.valueOf(10),
                     BigInteger.valueOf(32),
@@ -811,7 +811,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallByte() {
+    void testSmallByte() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Byte[] array = {10, 32, 35, 25};
             assertSame(instance.testByteSmall(array, 1), (byte) 10);
@@ -824,7 +824,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallShort() {
+    void testSmallShort() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Short[] array = {10, 32, 35, 25};
             assertSame(instance.testShortSmall(array, 1), (short) 10);
@@ -837,7 +837,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallInteger() {
+    void testSmallInteger() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Integer[] array = {10, 32, 35, 25};
             assertSame(instance.testIntegerSmall(array, 1), 10);
@@ -850,7 +850,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallLong() {
+    void testSmallLong() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
             assertTrue(instance.testLongSmall(array, 1) == Long.valueOf(10));
@@ -863,7 +863,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallFloat() {
+    void testSmallFloat() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
             assertTrue(instance.testFloatSmall(array, 1).equals((float) 10.4));
@@ -876,7 +876,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSmallDouble() {
+    void testSmallDouble() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Double[] array = {10.4, 32.2, 35.6, 25.2};
             assertTrue(instance.testDoubleSmall(array, 1).equals(10.4));
@@ -889,7 +889,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigByteType() {
+    void testBigByteType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             byte[] array = {10, 32, 35, 25};
             assertTrue(instance.testByteTypeBig(array, 4) == 10);
@@ -902,7 +902,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigShortType() {
+    void testBigShortType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             short[] array = {10, 32, 35, 25};
             assertTrue(instance.testShortTypeBig(array, 4) == 10);
@@ -915,7 +915,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigIntegerType() {
+    void testBigIntegerType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             int[] array = {10, 32, 35, 25};
             assertTrue(instance.testIntegerTypeBig(array, 4) == 10);
@@ -928,7 +928,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigLongType() {
+    void testBigLongType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             long[] array = {10, 32, 35, 25};
             assertTrue(instance.testLongTypeBig(array, 4) == 10);
@@ -941,7 +941,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigFloatType() {
+    void testBigFloatType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
             assertTrue(instance.testFloatTypeBig(array, 4) == (float) 10.1);
@@ -954,7 +954,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigDoubleType() {
+    void testBigDoubleType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             double[] array = {10.1, 32.2, 35.3, 25.4};
             assertTrue(instance.testDoubleTypeBig(array, 4) == 10.1);
@@ -967,7 +967,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigBigDecimal() {
+    void testBigBigDecimal() {
         assertThrows(OpenLRuntimeException.class, () -> {
             BigDecimal[] array = {BigDecimal.valueOf(10),
                     BigDecimal.valueOf(32),
@@ -983,7 +983,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigBigInteger() {
+    void testBigBigInteger() {
         assertThrows(OpenLRuntimeException.class, () -> {
             BigInteger[] array = {BigInteger.valueOf(10),
                     BigInteger.valueOf(32),
@@ -999,7 +999,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigByte() {
+    void testBigByte() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Byte[] array = {10, 32, 35, 25};
             assertTrue(instance.testByteBig(array, 4) == Byte.valueOf((byte) 10));
@@ -1012,7 +1012,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigShort() {
+    void testBigShort() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Short[] array = {10, 32, 35, 25};
             assertTrue(instance.testShortBig(array, 4) == Short.valueOf((short) 10));
@@ -1025,7 +1025,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigInteger() {
+    void testBigInteger() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Integer[] array = {10, 32, 35, 25};
             assertTrue(instance.testIntegerBig(array, 4) == Integer.valueOf(10));
@@ -1038,7 +1038,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigLong() {
+    void testBigLong() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
             assertTrue(instance.testLongBig(array, 4) == Long.valueOf(10));
@@ -1051,7 +1051,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigFloat() {
+    void testBigFloat() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
             assertTrue(instance.testFloatBig(array, 4).equals((float) 10.4));
@@ -1064,7 +1064,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigDouble() {
+    void testBigDouble() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Double[] array = {10.4, 32.2, 35.6, 25.2};
             assertTrue(instance.testDoubleBig(array, 4).equals(10.4));
@@ -1077,14 +1077,14 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testByteSlice() {
+    void testByteSlice() {
         assertArrayEquals(new Byte[]{(byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7},
                 instance.testSliceByte(new Byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7},
                         2));
     }
 
     @Test
-    public void testByteSliceEndIndex() {
+    void testByteSliceEndIndex() {
         assertArrayEquals(new Byte[]{(byte) 3, (byte) 4, (byte) 5},
                 instance.testSliceByte(new Byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7},
                         2,
@@ -1092,7 +1092,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testShortSlice() {
+    void testShortSlice() {
         assertArrayEquals(new Short[]{(short) 3, (short) 4, (short) 5, (short) 6, (short) 7},
                 instance.testSliceShort(
                         new Short[]{(short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6, (short) 7},
@@ -1100,7 +1100,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testShortSliceEndIndex() {
+    void testShortSliceEndIndex() {
         assertArrayEquals(new Short[]{(short) 3, (short) 4, (short) 5},
                 instance.testSliceShort(
                         new Short[]{(short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6, (short) 7},
@@ -1109,37 +1109,37 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIntegerSlice() {
+    void testIntegerSlice() {
         assertArrayEquals(new Integer[]{3, 4, 5, 6, 7},
                 instance.testSliceInteger(new Integer[]{1, 2, 3, 4, 5, 6, 7}, 2));
     }
 
     @Test
-    public void testIntegerSliceEndIndex() {
+    void testIntegerSliceEndIndex() {
         assertArrayEquals(new Integer[]{3, 4, 5},
                 instance.testSliceInteger(new Integer[]{1, 2, 3, 4, 5, 6, 7}, 2, 5));
     }
 
     @Test
-    public void testLongSlice() {
+    void testLongSlice() {
         assertArrayEquals(new Long[]{3L, 4L, 5L, 6L, 7L},
                 instance.testSliceLong(new Long[]{1L, 2L, 3L, 4L, 5L, 6L, 7L}, 2));
     }
 
     @Test
-    public void testLongSliceEndIndex() {
+    void testLongSliceEndIndex() {
         assertArrayEquals(new Long[]{3L, 4L, 5L},
                 instance.testSliceLong(new Long[]{1L, 2L, 3L, 4L, 5L, 6L, 7L}, 2, 5));
     }
 
     @Test
-    public void testFloatSlice() {
+    void testFloatSlice() {
         assertArrayEquals(new Float[]{3F, 4F, 5F, 6F, 7F},
                 instance.testSliceFloat(new Float[]{1F, 2F, 3F, 4F, 5F, 6F, 7F}, 2));
     }
 
     @Test
-    public void testFloatSliceEndIndex() {
+    void testFloatSliceEndIndex() {
         assertArrayEquals(new Float[]{(float) 3.3, (float) 4.4, 5.5F},
                 instance.testSliceFloat(
                         new Float[]{(float) 1.1, (float) 2.2, (float) 3.3, (float) 4.4, 5.5F, (float) 6.6, (float) 7.7},
@@ -1148,19 +1148,19 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDoubleSlice() {
+    void testDoubleSlice() {
         assertArrayEquals(new Double[]{3.3, 4.4, 5.5, 6.6, 7.7},
                 instance.testSliceDouble(new Double[]{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7}, 2));
     }
 
     @Test
-    public void testDoubleSliceEndIndex() {
+    void testDoubleSliceEndIndex() {
         assertArrayEquals(new Double[]{3.0, 4.0, 5.0},
                 instance.testSliceDouble(new Double[]{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, 2, 5));
     }
 
     @Test
-    public void testBigIntegerSlice() {
+    void testBigIntegerSlice() {
         assertArrayEquals(
                 new BigInteger[]{BigInteger.valueOf(
                         3), BigInteger.valueOf(4), BigInteger.valueOf(5), BigInteger.valueOf(6), BigInteger.valueOf(7)},
@@ -1177,7 +1177,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigIntegerSliceEndIndex() {
+    void testBigIntegerSliceEndIndex() {
         assertArrayEquals(new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(5)},
                 instance
                         .testSliceBigInteger(
@@ -1193,7 +1193,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigDecimalSlice() {
+    void testBigDecimalSlice() {
         assertArrayEquals(
                 new BigDecimal[]{BigDecimal.valueOf(3.3),
                         BigDecimal.valueOf(4.4),
@@ -1213,7 +1213,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBigDecimalSliceEndIndex() {
+    void testBigDecimalSliceEndIndex() {
         assertArrayEquals(
                 new BigDecimal[]{BigDecimal.valueOf(3.3), BigDecimal.valueOf(4.4), BigDecimal.valueOf(5.5)},
                 instance
@@ -1230,7 +1230,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testByteTypeSlice() {
+    void testByteTypeSlice() {
         assertArrayEquals(new byte[]{(byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7},
                 instance.testSliceByteType(
                         new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7},
@@ -1238,7 +1238,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testByteTypeSliceEndIndex() {
+    void testByteTypeSliceEndIndex() {
         assertArrayEquals(new byte[]{(byte) 3, (byte) 4, (byte) 5},
                 instance.testSliceByteType(
                         new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7},
@@ -1247,7 +1247,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testShortTypeSlice() {
+    void testShortTypeSlice() {
         assertArrayEquals(new short[]{(short) 3, (short) 4, (short) 5, (short) 6, (short) 7},
                 instance.testSliceShortType(
                         new short[]{(short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6, (short) 7},
@@ -1255,7 +1255,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testShortTypeSliceEndIndex() {
+    void testShortTypeSliceEndIndex() {
         assertArrayEquals(new short[]{(short) 3, (short) 4, (short) 5},
                 instance.testSliceShortType(
                         new short[]{(short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6, (short) 7},
@@ -1264,30 +1264,30 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIntegerTypeSlice() {
+    void testIntegerTypeSlice() {
         assertArrayEquals(new int[]{3, 4, 5, 6, 7},
                 instance.testSliceIntegerType(new int[]{1, 2, 3, 4, 5, 6, 7}, 2));
     }
 
     @Test
-    public void testIntegerTypeSliceEndIndex() {
+    void testIntegerTypeSliceEndIndex() {
         assertArrayEquals(new int[]{3, 4, 5},
                 instance.testSliceIntegerType(new int[]{1, 2, 3, 4, 5, 6, 7}, 2, 5));
     }
 
     @Test
-    public void testLongTypeSlice() {
+    void testLongTypeSlice() {
         assertArrayEquals(new long[]{3, 4, 5, 6, 7},
                 instance.testSliceLongType(new long[]{1, 2, 3, 4, 5, 6, 7}, 2));
     }
 
     @Test
-    public void testLongTypeSliceEndIndex() {
+    void testLongTypeSliceEndIndex() {
         assertArrayEquals(new long[]{3, 4, 5}, instance.testSliceLongType(new long[]{1, 2, 3, 4, 5, 6, 7}, 2, 5));
     }
 
     @Test
-    public void testFloatTypeSlice() {
+    void testFloatTypeSlice() {
         assertArrayEquals(new float[]{(float) 3.3, (float) 4.4, (float) 5.5, (float) 6.6, (float) 7.7},
                 instance
                         .testSliceFloatType(
@@ -1303,7 +1303,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testFloatTypeSliceEndIndex() {
+    void testFloatTypeSliceEndIndex() {
         assertArrayEquals(new float[]{(float) 3.3, (float) 4.4, (float) 5.5},
                 instance
                         .testSliceFloatType(
@@ -1320,21 +1320,21 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDoubleTypeSlice() {
+    void testDoubleTypeSlice() {
         assertArrayEquals(new double[]{3.3, 4.4, 5.5, 6.6, 7.7},
                 instance.testSliceDoubleType(new double[]{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7}, 2),
                 0.0001f);
     }
 
     @Test
-    public void testDoubleTypeSliceEndIndex() {
+    void testDoubleTypeSliceEndIndex() {
         assertArrayEquals(new double[]{3.3, 4.4, 5.5},
                 instance.testSliceDoubleType(new double[]{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7}, 2, 5),
                 0.0001f);
     }
 
     @Test
-    public void testObjectInObjectArrContains() {
+    void testObjectInObjectArrContains() {
         Object searchFor = "5";
         Object searchForFailed = "666";
         Object[] searchIn = {"1", "4", "5", "7", "10"};
@@ -1345,7 +1345,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsIntegerTypeInIntegerArr() {
+    void testContainsIntegerTypeInIntegerArr() {
         int searchFor = 5;
         int searchForFailed = 666;
         int[] searchIn = {1, 4, 5, 7, 10};
@@ -1356,7 +1356,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIntegerInIntegerArrContains() {
+    void testIntegerInIntegerArrContains() {
         Integer searchFor = 5;
         Integer searchForFailed = 666;
         Integer[] searchIn = {1, 4, 5, null, 7, 10};
@@ -1368,7 +1368,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsLongTypeInLongArr() {
+    void testContainsLongTypeInLongArr() {
         long searchFor = 5L;
         long searchForFailed = 666L;
         long[] searchIn = {1L, 4L, 5L, 7L, 10L};
@@ -1379,7 +1379,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testLongInLongArrContains() {
+    void testLongInLongArrContains() {
         Long searchFor = 5L;
         Long searchForFailed = 666L;
         Long[] searchIn = {1L, 4L, 5L, 7L, 10L};
@@ -1390,7 +1390,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsByteTypeInByteArr() {
+    void testContainsByteTypeInByteArr() {
         byte searchFor = 5;
         byte searchForFailed = 127;
         byte[] searchIn = {1, 4, 5, -7, 10};
@@ -1401,7 +1401,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testByteInByteArrContains() {
+    void testByteInByteArrContains() {
         Byte searchFor = 5;
         Byte searchForFailed = 127;
         Byte[] searchIn = {1, 4, 5, -7, 10};
@@ -1412,7 +1412,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsShortTypeInShortArr() {
+    void testContainsShortTypeInShortArr() {
         short searchFor = 5;
         short searchForFailed = 32767;
         short[] searchIn = {1, 4, 5, -7, 10};
@@ -1423,7 +1423,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testShortInShortArrContains() {
+    void testShortInShortArrContains() {
         Short searchFor = 5;
         Short searchForFailed = 32767;
         Short[] searchIn = {1, 4, 5, -7, 10};
@@ -1434,7 +1434,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsCharTypeInCharArr() {
+    void testContainsCharTypeInCharArr() {
         char searchFor = 'Z';
         char searchForFailed = 'X';
         char[] searchIn = {'a', 'b', 'c', 'Z', 'P'};
@@ -1445,7 +1445,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsDateTypeInDateArr() {
+    void testContainsDateTypeInDateArr() {
         Date searchFor = new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime();
         Date searchForFailed = new GregorianCalendar(2014, Calendar.MARCH, 11).getTime();
         Date[] searchIn = {new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(),
@@ -1458,7 +1458,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCharInCharArrContains() {
+    void testCharInCharArrContains() {
         Character searchFor = 'Z';
         Character searchForFailed = 'X';
         Character[] searchIn = {'a', 'b', 'c', 'Z', 'P'};
@@ -1469,7 +1469,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsFloatTypeInFloatArr() {
+    void testContainsFloatTypeInFloatArr() {
         float searchFor = 5.7f;
         float searchForFailed = 32767.321f;
         float[] searchIn = {1.01f, 4.0f, 5.7f, -7.7f, 10.3f};
@@ -1480,7 +1480,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testFloatInFloatArrContains() {
+    void testFloatInFloatArrContains() {
         Float searchFor = 5.7f;
         Float searchForFailed = 32767.321f;
         Float[] searchIn = {1.01f, 4.0f, 5.7f, -7.7f, 10.3f};
@@ -1491,7 +1491,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsDoubleTypeInDoubleArr() {
+    void testContainsDoubleTypeInDoubleArr() {
         double searchFor = 5.7;
         double searchForFailed = 32767.321;
         double[] searchIn = {1.01, 4.0, 5.7, -7.7, 10.3};
@@ -1502,7 +1502,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDoubleInDoubleArrContains() {
+    void testDoubleInDoubleArrContains() {
         Double searchFor = 5.7;
         Double searchForFailed = 32767.321;
         Double[] searchIn = {1.01, 4.0, 5.7, -7.7, 10.3};
@@ -1513,7 +1513,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsBoolTypeInBoolArr() {
+    void testContainsBoolTypeInBoolArr() {
         boolean searchFor = true;
         boolean searchForFailed = false;
         boolean[] searchIn = {true, true, true, true, true};
@@ -1524,7 +1524,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBoolInBoolArrContains() {
+    void testBoolInBoolArrContains() {
         Boolean searchFor = true;
         Boolean searchForFailed = false;
         Boolean[] searchIn = {true, true, true, true, true};
@@ -1535,7 +1535,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIntegerInIntRangeArrContains() {
+    void testIntegerInIntRangeArrContains() {
         Integer searchFor = 2;
         Integer searchFor2 = 100;
         Integer searchForFailed = 5;
@@ -1548,7 +1548,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIntegerInIntRangeArrContains2() {
+    void testIntegerInIntRangeArrContains2() {
         int searchFor = 2;
         int searchFor2 = 100;
         int searchForFailed = 5;
@@ -1561,7 +1561,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDoubleInDoubleRangeArrContains() {
+    void testDoubleInDoubleRangeArrContains() {
         Double searchFor = 2d;
         Double searchFor2 = 100d;
         Double searchForFailed = 5d;
@@ -1574,7 +1574,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDateInDateRangeArrContains() {
+    void testDateInDateRangeArrContains() {
         Date searchFor = new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime();
         Date searchForFailed = new GregorianCalendar(2017, Calendar.FEBRUARY, 11).getTime();
         DateRange[] searchIn = {new DateRange("1/1/2014 - 1/1/2015"), new DateRange("1/1/2017 - 1/1/2017")};
@@ -1585,7 +1585,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDoubleInDoubleRangeArrContains2() {
+    void testDoubleInDoubleRangeArrContains2() {
         double searchFor = 2d;
         double searchFor2 = 100d;
         double searchForFailed = 5d;
@@ -1598,7 +1598,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCharacterInCharRangeArrContains() {
+    void testCharacterInCharRangeArrContains() {
         Character searchFor = 'B';
         Character searchFor2 = 'T';
         Character searchForFailed = 'D';
@@ -1611,7 +1611,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCharacterInCharRangeArrContains2() {
+    void testCharacterInCharRangeArrContains2() {
         char searchFor = 'B';
         char searchFor2 = 'T';
         char searchForFailed = 'D';
@@ -1624,7 +1624,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testStringInStringRangeArrContains() {
+    void testStringInStringRangeArrContains() {
         String searchFor = "A2";
         String searchFor2 = "T";
         String searchForFailed = "A22";
@@ -1636,7 +1636,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCharSequenceInStringRangeArrContains() {
+    void testCharSequenceInStringRangeArrContains() {
         CharSequence searchFor = "A2";
         CharSequence searchFor2 = "T";
         CharSequence searchForFailed = "A22";
@@ -1649,7 +1649,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testObjectArrInObjectArrContains() {
+    void testObjectArrInObjectArrContains() {
         Object[] searchFor = {"5", "1"};
         Object[] searchForFailed = {"666"};
         Object[] searchIn = {"1", "4", "5", "7", "10"};
@@ -1660,7 +1660,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsIntegerTypeArrInIntegerArr() {
+    void testContainsIntegerTypeArrInIntegerArr() {
         int[] searchFor = {5, 1};
         int[] searchForFailed = {666};
         int[] searchIn = {1, 4, 5, 7, 10};
@@ -1671,7 +1671,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIntegerArrInIntegerArrContains() {
+    void testIntegerArrInIntegerArrContains() {
         Integer[] searchFor = {5, 1};
         Integer[] searchForFailed = {666};
         Integer[] searchIn = {1, 4, 5, 7, 10};
@@ -1682,7 +1682,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsLongTypeArrInLongArr() {
+    void testContainsLongTypeArrInLongArr() {
         long[] searchFor = {5L, 7L};
         long[] searchForFailed = {666L};
         long[] searchIn = {1L, 4L, 5L, 7L, 10L};
@@ -1693,7 +1693,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testLongArrInLongArrContains() {
+    void testLongArrInLongArrContains() {
         Long[] searchFor = {5L, 7L};
         Long[] searchForFailed = {666L};
         Long[] searchIn = {1L, 4L, 5L, 7L, 10L};
@@ -1704,7 +1704,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsByteTypeArrInByteArr() {
+    void testContainsByteTypeArrInByteArr() {
         byte[] searchFor = {5, -7};
         byte[] searchForFailed = {127};
         byte[] searchIn = {1, 4, 5, -7, 10};
@@ -1715,7 +1715,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testByteArrInByteArrContains() {
+    void testByteArrInByteArrContains() {
         Byte[] searchFor = {5, -7};
         Byte[] searchForFailed = {127};
         Byte[] searchIn = {1, 4, 5, -7, 10};
@@ -1726,7 +1726,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsShortTypeArrInShortArr() {
+    void testContainsShortTypeArrInShortArr() {
         short[] searchFor = {5, -7};
         short[] searchForFailed = {32767};
         short[] searchIn = {1, 4, 5, -7, 10};
@@ -1737,7 +1737,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testShortArrInShortArrContains() {
+    void testShortArrInShortArrContains() {
         Short[] searchFor = {5, -7};
         Short[] searchForFailed = {32767};
         Short[] searchIn = {1, 4, 5, -7, 10};
@@ -1748,7 +1748,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsFloatTypeArrInFloatArr() {
+    void testContainsFloatTypeArrInFloatArr() {
         float[] searchFor = {5.7f, -7.7f};
         float[] searchForFailed = {32767.321f};
         float[] searchIn = {1.01f, 4.0f, 5.7f, -7.7f, 10.3f};
@@ -1759,7 +1759,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testFloatArrInFloatArrContains() {
+    void testFloatArrInFloatArrContains() {
         Float[] searchFor = {5.7f, -7.7f};
         Float[] searchForFailed = {32767.321f};
         Float[] searchIn = {1.01f, 4.0f, 5.7f, -7.7f, 10.3f};
@@ -1770,7 +1770,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsDoubleTypeArrInDoubleArr() {
+    void testContainsDoubleTypeArrInDoubleArr() {
         double[] searchFor = {5.7, -7.7};
         double[] searchForFailed = {32767.321};
         double[] searchIn = {1.01, 4.0, 5.7, -7.7, 10.3};
@@ -1781,7 +1781,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDoubleArrInDoubleArrContains() {
+    void testDoubleArrInDoubleArrContains() {
         Double[] searchFor = {5.7, -7.7};
         Double[] searchForFailed = {32767.321};
         Double[] searchIn = {1.01, 4.0, 5.7, -7.7, 10.3};
@@ -1792,7 +1792,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsBoolTypeArrInBoolArr() {
+    void testContainsBoolTypeArrInBoolArr() {
         boolean[] searchFor = {true, true};
         boolean[] searchForFailed = {false};
         boolean[] searchIn = {true, true, true, true, true};
@@ -1803,7 +1803,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testBoolArrInBoolArrContains() {
+    void testBoolArrInBoolArrContains() {
         Boolean[] searchFor = {true, true};
         Boolean[] searchForFailed = {false};
         Boolean[] searchIn = {true, true, true, true, true};
@@ -1814,7 +1814,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsCharTypeArrInCharArr() {
+    void testContainsCharTypeArrInCharArr() {
         char[] searchFor = {'Z', 'P'};
         char[] searchForFailed = {'X'};
         char[] searchIn = {'a', 'b', 'c', 'Z', 'P'};
@@ -1825,7 +1825,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCharArrInCharArrContains() {
+    void testCharArrInCharArrContains() {
         Character[] searchFor = {'Z', 'P'};
         Character[] searchForFailed = {'X'};
         Character[] searchIn = {'a', 'b', 'c', 'Z', 'P'};
@@ -1836,7 +1836,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsStringArrInStringArr() {
+    void testContainsStringArrInStringArr() {
         String[] searchFor = {"foo", "bar"};
         String[] searchForFailed = {"X"};
         String[] searchIn = {"foo", "bar", "c", "Z", "P"};
@@ -1847,7 +1847,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsIntegerArrInIntRangeArr() {
+    void testContainsIntegerArrInIntRangeArr() {
         Integer[] searchFor = {2, null, 77};
         Integer[] searchForFailed = {2, null, 5};
         IntRange[] searchIn = {new IntRange("1 - 3"), new IntRange("55 - 100")};
@@ -1861,7 +1861,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsIntegerArrInIntRangeArr2() {
+    void testContainsIntegerArrInIntRangeArr2() {
         int[] searchFor = {2, 77};
         int[] searchForFailed = {2, 5};
         IntRange[] searchIn = {new IntRange("1 - 3"), new IntRange("55 - 100")};
@@ -1874,7 +1874,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsDoubleArrInDoubleRangeArr() {
+    void testContainsDoubleArrInDoubleRangeArr() {
         Double[] searchFor = {2d, null, 77d};
         Double[] searchForFailed = {2d, null, 5d};
         DoubleRange[] searchIn = {new DoubleRange("1 - 3"), new DoubleRange("55 - 100")};
@@ -1888,7 +1888,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsDateArrInDateRangeArr() {
+    void testContainsDateArrInDateRangeArr() {
         Date[] searchFor = {new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(),
                 null,
                 new GregorianCalendar(2016, Calendar.FEBRUARY, 11).getTime()};
@@ -1906,7 +1906,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsDoubleArrInDoubleRangeArr2() {
+    void testContainsDoubleArrInDoubleRangeArr2() {
         double[] searchFor = {2d, 77d};
         double[] searchForFailed = {2d, 5d};
         DoubleRange[] searchIn = {new DoubleRange("1 - 3"), new DoubleRange("55 - 100")};
@@ -1919,7 +1919,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsCharacterArrInCharacterRangeArr() {
+    void testContainsCharacterArrInCharacterRangeArr() {
         Character[] searchFor = {'B', null, 'T'};
         Character[] searchForFailed = {'B', null, 'D'};
         CharRange[] searchIn = {new CharRange("A - C"), new CharRange("T - Z")};
@@ -1934,7 +1934,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsCharacterArrInCharacterRangeArr2() {
+    void testContainsCharacterArrInCharacterRangeArr2() {
         char[] searchFor = {'B', 'T'};
         char[] searchForFailed = {'B', 'D'};
         CharRange[] searchIn = {new CharRange("A - C"), new CharRange("T - Z")};
@@ -1947,7 +1947,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsStringArrInStringRangeArr() {
+    void testContainsStringArrInStringRangeArr() {
         String[] searchFor = {"B", null, "T"};
         String[] searchForFailed = {"B", null, "D"};
         StringRange[] searchIn = {new StringRange("A - C"), new StringRange("T - Z")};
@@ -1961,7 +1961,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsCharSequenceArrInStringRangeArr() {
+    void testContainsCharSequenceArrInStringRangeArr() {
         CharSequence[] searchFor = {"B", null, "T"};
         CharSequence[] searchForFailed = {"B", null, "D"};
         StringRange[] searchIn = {new StringRange("A - C"), new StringRange("T - Z")};
@@ -1976,7 +1976,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testObjectIndexOf() {
+    void testObjectIndexOf() {
         assertEquals(-1, instance.testIndexOfObject(null, 3));
         assertEquals(-1, instance.testIndexOfObject(new Object[]{1, 2, 3, 4, 5}, 9));
         assertEquals(-1, instance.testIndexOfObject(new Object[]{1, 2, 3, 4, 5}, null));
@@ -1984,119 +1984,119 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIndexOfIntegerType() {
+    void testIndexOfIntegerType() {
         assertEquals(-1, instance.testIndexOfIntegerType(null, 3));
         assertEquals(-1, instance.testIndexOfIntegerType(new int[]{1, 2, 3, 4, 5}, 9));
         assertEquals(2, instance.testIndexOfIntegerType(new int[]{1, 2, 3, 4, 5}, 3));
     }
 
     @Test
-    public void testIntegerIndexOf() {
+    void testIntegerIndexOf() {
         assertEquals(-1, instance.testIndexOfInteger(null, 3));
         assertEquals(-1, instance.testIndexOfInteger(new Integer[]{1, 2, 3, 4, 5}, 9));
         assertEquals(2, instance.testIndexOfInteger(new Integer[]{1, 2, 3, 4, 5}, 3));
     }
 
     @Test
-    public void testIndexOfLongType() {
+    void testIndexOfLongType() {
         assertEquals(-1, instance.testIndexOfLongType(null, 3L));
         assertEquals(-1, instance.testIndexOfLongType(new long[]{1, 2, 3, 4, 5}, 9L));
         assertEquals(2, instance.testIndexOfLongType(new long[]{1, 2, 3, 4, 5}, 3L));
     }
 
     @Test
-    public void testLongIndexOf() {
+    void testLongIndexOf() {
         assertEquals(-1, instance.testIndexOfLong(null, 3L));
         assertEquals(-1, instance.testIndexOfLong(new Long[]{1L, 2L, 3L, 4L, 5L}, 9L));
         assertEquals(2, instance.testIndexOfLong(new Long[]{1L, 2L, 3L, 4L, 5L}, 3L));
     }
 
     @Test
-    public void testIndexOfByteType() {
+    void testIndexOfByteType() {
         assertEquals(-1, instance.testIndexOfByteType(null, (byte) 3));
         assertEquals(-1, instance.testIndexOfByteType(new byte[]{1, 2, 3, 4, 5}, (byte) 9));
         assertEquals(2, instance.testIndexOfByteType(new byte[]{1, 2, 3, 4, 5}, (byte) 3));
     }
 
     @Test
-    public void testByteIndexOf() {
+    void testByteIndexOf() {
         assertEquals(-1, instance.testIndexOfByte(null, (byte) 3));
         assertEquals(-1, instance.testIndexOfByte(new Byte[]{1, 2, 3, 4, 5}, (byte) 9));
         assertEquals(2, instance.testIndexOfByte(new Byte[]{1, 2, 3, 4, 5}, (byte) 3));
     }
 
     @Test
-    public void testIndexOfShortType() {
+    void testIndexOfShortType() {
         assertEquals(-1, instance.testIndexOfShortType(null, (short) 3));
         assertEquals(-1, instance.testIndexOfShortType(new short[]{1, 2, 3, 4, 5}, (short) 9));
         assertEquals(2, instance.testIndexOfShortType(new short[]{1, 2, 3, 4, 5}, (short) 3));
     }
 
     @Test
-    public void testShortIndexOf() {
+    void testShortIndexOf() {
         assertEquals(-1, instance.testIndexOfShort(null, (short) 3));
         assertEquals(-1, instance.testIndexOfShort(new Short[]{1, 2, 3, 4, 5}, (short) 9));
         assertEquals(2, instance.testIndexOfShort(new Short[]{1, 2, 3, 4, 5}, (short) 3));
     }
 
     @Test
-    public void testIndexOfCharType() {
+    void testIndexOfCharType() {
         assertEquals(-1, instance.testIndexOfCharType(null, '3'));
         assertEquals(-1, instance.testIndexOfCharType(new char[]{'1', '2', '3', '4', '5'}, '9'));
         assertEquals(2, instance.testIndexOfCharType(new char[]{'1', '2', '3', '4', '5'}, '3'));
     }
 
     @Test
-    public void testCharIndexOf() {
+    void testCharIndexOf() {
         assertEquals(-1, instance.testIndexOfChar(null, '3'));
         assertEquals(-1, instance.testIndexOfChar(new Character[]{'1', '2', '3', '4', '5'}, '9'));
         assertEquals(2, instance.testIndexOfChar(new Character[]{'1', '2', '3', '4', '5'}, '3'));
     }
 
     @Test
-    public void testIndexOfFloatType() {
+    void testIndexOfFloatType() {
         assertEquals(-1, instance.testIndexOfFloatType(null, 3f));
         assertEquals(-1, instance.testIndexOfFloatType(new float[]{1, 2, 3, 4, 5}, 9f));
         assertEquals(2, instance.testIndexOfFloatType(new float[]{1, 2, 3, 4, 5}, 3f));
     }
 
     @Test
-    public void testFloatIndexOf() {
+    void testFloatIndexOf() {
         assertEquals(-1, instance.testIndexOfFloat(null, 3f));
         assertEquals(-1, instance.testIndexOfFloat(new Float[]{1f, 2f, 3f, 4f, 5f}, 9f));
         assertEquals(2, instance.testIndexOfFloat(new Float[]{1f, 2f, 3f, 4f, 5f}, 3f));
     }
 
     @Test
-    public void testIndexOfDoubleType() {
+    void testIndexOfDoubleType() {
         assertEquals(-1, instance.testIndexOfDoubleType(null, 3.3));
         assertEquals(-1, instance.testIndexOfDoubleType(new double[]{1.1, 2.2, 3.3, 4.4, 5.5}, 9.9));
         assertEquals(2, instance.testIndexOfDoubleType(new double[]{1.1, 2.2, 3.3, 4.4, 5.5}, 3.3));
     }
 
     @Test
-    public void testDoubleIndexOf() {
+    void testDoubleIndexOf() {
         assertEquals(-1, instance.testIndexOfDouble(null, 3.3));
         assertEquals(-1, instance.testIndexOfDouble(new Double[]{1.1, 2.2, 3.3, 4.4, 5.5}, 9.9));
         assertEquals(2, instance.testIndexOfDouble(new Double[]{1.1, 2.2, 3.3, 4.4, 5.5}, 3.3));
     }
 
     @Test
-    public void testIndexOfBoolType() {
+    void testIndexOfBoolType() {
         assertEquals(-1, instance.testIndexOfBoolType(null, false));
         assertEquals(-1, instance.testIndexOfBoolType(new boolean[]{true, true, true, true, true}, false));
         assertEquals(2, instance.testIndexOfBoolType(new boolean[]{true, true, false, true, true}, false));
     }
 
     @Test
-    public void testBoolIndexOf() {
+    void testBoolIndexOf() {
         assertEquals(-1, instance.testIndexOfBool(null, false));
         assertEquals(-1, instance.testIndexOfBool(new Boolean[]{true, true, true, true, true}, false));
         assertEquals(2, instance.testIndexOfBool(new Boolean[]{true, true, false, true, true}, false));
     }
 
     @Test
-    public void testObjectNoNulls() {
+    void testObjectNoNulls() {
         assertTrue(instance.testNoNullsObject(new Object[]{1, 2, 3, 5}));
         assertFalse(instance.testNoNullsObject(new Object[]{1, null, 3, 5}));
         assertFalse(instance.testNoNullsObject(new Object[]{1, 2, 3, null}));
@@ -2105,31 +2105,31 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testError() {
+    void testError() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testError("Ya oshibka, trololo :)");
         });
     }
 
     @Test
-    public void testDoubleFormat() {
+    void testDoubleFormat() {
         assertEquals("5.50", instance.formatDouble(5.5));
     }
 
     @Test
-    public void testDoubleFormatWithFrm() {
+    void testDoubleFormatWithFrm() {
         assertEquals("5.5000", instance.formatDoubleWithFrm(5.5, "#,####0.0000"));
     }
 
     @Test
-    public void testStringArrIntersection() {
+    void testStringArrIntersection() {
         String[] searchIn = {"abc", "def", "ghi", "jkl"};
         String[] searchFor = {"def", "jkl"};
         assertArrayEquals(searchFor, instance.testIntersectionStringArr(searchIn, searchFor));
     }
 
     @Test
-    public void testMonthAbs() {
+    void testMonthAbs() {
         int year = 2013;
         int month = 1;
         int date = 25;
@@ -2145,7 +2145,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMonthQuarter() {
+    void testMonthQuarter() {
         int year = 2013;
         int month = 1;
         int date = 25;
@@ -2161,7 +2161,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDateDiff() {
+    void testDateDiff() {
         Calendar c = Calendar.getInstance();
         Locale.setDefault(Locale.ENGLISH);
 
@@ -2174,7 +2174,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDayOfMonth() {
+    void testDayOfMonth() {
         Calendar c = Calendar.getInstance();
         Locale.setDefault(Locale.ENGLISH);
 
@@ -2184,7 +2184,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testFirstDayOfQuarter() {
+    void testFirstDayOfQuarter() {
         Calendar c = Calendar.getInstance();
         c.set(2018, 6, 1, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
@@ -2195,7 +2195,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testLastDayOfQuarter() {
+    void testLastDayOfQuarter() {
         Calendar c = Calendar.getInstance();
         c.set(2018, 5, 30, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
@@ -2206,14 +2206,14 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testLastDayOfMonth() {
+    void testLastDayOfMonth() {
         Calendar c = Calendar.getInstance();
 
         assertEquals(c.getActualMaximum(Calendar.DAY_OF_MONTH), instance.testLastDayOfMonth(c.getTime()));
     }
 
     @Test
-    public void testGetMonth() {
+    void testGetMonth() {
         Calendar c = Calendar.getInstance();
         // set Dec 1
         c.set(2010, 11, 1, 0, 0, 0);
@@ -2224,7 +2224,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMonthDiff() {
+    void testMonthDiff() {
         Calendar cal = Calendar.getInstance();
         cal.set(2010, 3, 1);
         Date startDate = cal.getTime();
@@ -2238,7 +2238,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testYearDiff() {
+    void testYearDiff() {
         Calendar cal = Calendar.getInstance();
         cal.set(2001, 10, 1);
         Date startDate = cal.getTime();
@@ -2252,7 +2252,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testWeekDiff() {
+    void testWeekDiff() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 1, 1);
         Date startDate = cal.getTime();
@@ -2266,7 +2266,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testQuarter() {
+    void testQuarter() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 11, 1);
         Date date = cal.getTime();
@@ -2277,7 +2277,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testYear() {
+    void testYear() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 11, 1);
         Date date = cal.getTime();
@@ -2285,7 +2285,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDayOfWeek() {
+    void testDayOfWeek() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 11, 9);
         Date date = cal.getTime();
@@ -2293,7 +2293,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testDayOfYear() {
+    void testDayOfYear() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 11, 1);
         cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -2302,7 +2302,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testWeekOfYear() {
+    void testWeekOfYear() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 0, 1);
         cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -2311,7 +2311,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testWeekOfMonth() {
+    void testWeekOfMonth() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 8, 1);
         cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -2324,7 +2324,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testSecond() {
+    void testSecond() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 8, 1, 10, 49, 59);
         Date date = cal.getTime();
@@ -2336,7 +2336,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMinute() {
+    void testMinute() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 8, 1, 10, 49, 59);
         Date date = cal.getTime();
@@ -2348,7 +2348,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testHour() {
+    void testHour() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 8, 1, 13, 49, 59);
         Date date = cal.getTime();
@@ -2360,7 +2360,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testHourOfDay() {
+    void testHourOfDay() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 8, 1, 13, 49, 59);
         Date date = cal.getTime();
@@ -2372,7 +2372,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAmPm() {
+    void testAmPm() {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 8, 1, 13, 49, 59);
         Date date = cal.getTime();
@@ -2384,7 +2384,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundDoubleType() {
+    void testRoundDoubleType() {
         assertEquals(6L, instance.testDoubleTypeRound(5.67));
         assertEquals(0L, instance.testDoubleTypeRound(0.01));
         assertEquals(6L, instance.testDoubleTypeRound(5.99));
@@ -2393,7 +2393,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundFloatType() {
+    void testRoundFloatType() {
         assertEquals(6, instance.testFloatTypeRound(5.67f));
         assertEquals(0, instance.testFloatTypeRound(0.01f));
         assertEquals(6, instance.testFloatTypeRound(5.99f));
@@ -2402,7 +2402,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundScaleDoubleType() {
+    void testRoundScaleDoubleType() {
         assertEquals(5.7, instance.testDoubleTypeRoundScale(5.67, 1));
         assertEquals(0.0, instance.testDoubleTypeRoundScale(0.0, 4));
         assertEquals(5.99, instance.testDoubleTypeRoundScale(5.99, 2));
@@ -2411,7 +2411,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundScaleFloatType() {
+    void testRoundScaleFloatType() {
         assertEquals(5.7f, instance.testFloatTypeRoundScale(5.67f, 1));
         assertEquals(0.0f, instance.testFloatTypeRoundScale(0.0f, 4));
         assertEquals(5.99f, instance.testFloatTypeRoundScale(5.99f, 2));
@@ -2420,7 +2420,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundScaleRoundMethodDoubleType() {
+    void testRoundScaleRoundMethodDoubleType() {
         assertEquals(5.7, instance.testDoubleTypeRoundScaleRoundMethod(5.67, 1, 0));
         assertEquals(0.0, instance.testDoubleTypeRoundScaleRoundMethod(0.0, 4, 1));
         assertEquals(5.99, instance.testDoubleTypeRoundScaleRoundMethod(5.99, 2, 2));
@@ -2432,7 +2432,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundScaleRoundMethodFloatType() {
+    void testRoundScaleRoundMethodFloatType() {
         assertEquals(5.7f, instance.testFloatTypeRoundScaleRoundMethod(5.67f, 1, 0));
         assertEquals(0.0f, instance.testFloatTypeRoundScaleRoundMethod(-0.0000999f, 4, 1));
         assertEquals(6.0f, instance.testFloatTypeRoundScaleRoundMethod(5.991f, 2, 2));
@@ -2444,7 +2444,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundBigDecimal() {
+    void testRoundBigDecimal() {
         assertEquals(BigDecimal.valueOf(6), instance.testBigDecimalRound(BigDecimal.valueOf(5.67)));
         assertEquals(BigDecimal.valueOf(0), instance.testBigDecimalRound(BigDecimal.valueOf(0.01)));
         assertEquals(BigDecimal.valueOf(6), instance.testBigDecimalRound(BigDecimal.valueOf(5.99)));
@@ -2455,7 +2455,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundScaleBigDecimal() {
+    void testRoundScaleBigDecimal() {
         assertEquals(BigDecimal.valueOf(5.7), instance.testBigDecimalScaleRound(BigDecimal.valueOf(5.67), 1));
         assertEquals(new BigDecimal("0.0100"), instance.testBigDecimalScaleRound(BigDecimal.valueOf(0.01), 4));
         assertEquals(BigDecimal.valueOf(5.99), instance.testBigDecimalScaleRound(BigDecimal.valueOf(5.99), 2));
@@ -2464,7 +2464,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRoundScaleRoundMethodBigDecimal() {
+    void testRoundScaleRoundMethodBigDecimal() {
         assertEquals(BigDecimal.valueOf(5.7),
                 instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(5.67), 1, 0));
         assertEquals(new BigDecimal("0.0100"),
@@ -2484,7 +2484,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveNulls() {
+    void testRemoveNulls() {
         Integer[] inputArray = {1, 3, 4, 5};
         assertArrayEquals(inputArray, instance.testRemoveNulls(inputArray));
         inputArray = new Integer[]{1, 3, 4, null};
@@ -2496,7 +2496,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAbsDouble() {
+    void testAbsDouble() {
         assertEquals(5.5, instance.testDoubleAbs(-5.5));
         assertEquals(0.0, instance.testDoubleAbs(-0.0));
         assertEquals(0.0, instance.testDoubleAbs(0.0));
@@ -2505,7 +2505,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAbsFloat() {
+    void testAbsFloat() {
         assertEquals(5.5f, instance.testFloatAbs(-5.5f));
         assertEquals(0.0f, instance.testFloatAbs(-0.0f));
         assertEquals(0.0f, instance.testFloatAbs(0.0f));
@@ -2514,7 +2514,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAbsLong() {
+    void testAbsLong() {
         assertEquals(5L, instance.testLongAbs(-5L));
         assertEquals(0L, instance.testLongAbs(-0L));
         assertEquals(0L, instance.testLongAbs(0L));
@@ -2523,7 +2523,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAbsInteger() {
+    void testAbsInteger() {
         assertEquals(5, instance.testIntegerAbs(-5));
         assertEquals(0, instance.testIntegerAbs(-0));
         assertEquals(0, instance.testIntegerAbs(0));
@@ -2532,7 +2532,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAcos() {
+    void testAcos() {
         assertEquals(1.5707963267948966, instance.testAcos(0.0));
         assertEquals(0.0, instance.testAcos(1.0));
         assertEquals(1.0471975511965979, instance.testAcos(0.5));
@@ -2542,7 +2542,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCos() {
+    void testCos() {
         assertEquals(Math.cos(0.0), instance.testCos(0.0));
         assertEquals(Math.cos(1.0), instance.testCos(1.0));
         assertEquals(Math.cos(0.5), instance.testCos(0.5));
@@ -2552,7 +2552,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCosh() {
+    void testCosh() {
         assertEquals(Math.cosh(0.0), instance.testCosh(0.0));
         assertEquals(Math.cosh(1.0), instance.testCosh(1.0));
         assertEquals(Math.cosh(0.5), instance.testCosh(0.5));
@@ -2562,17 +2562,17 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testExp() {
+    void testExp() {
         assertEquals(Math.exp(111), instance.testExp(111));
     }
 
     @Test
-    public void testExpm1() {
+    void testExpm1() {
         assertEquals(Math.expm1(111), instance.testExpm1(111));
     }
 
     @Test
-    public void testAsin() {
+    void testAsin() {
         assertEquals(0.0, instance.testAsin(0.0));
         assertEquals(1.5707963267948966, instance.testAsin(1.0));
         assertEquals(0.5235987755982989, instance.testAsin(0.5));
@@ -2582,7 +2582,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAtan() {
+    void testAtan() {
         assertEquals(0.0, instance.testAtan(0.0));
         assertEquals(0.7853981633974483, instance.testAtan(1.0));
         assertEquals(0.4636476090008061, instance.testAtan(0.5));
@@ -2592,7 +2592,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAtan2() {
+    void testAtan2() {
         assertEquals(0.0, instance.testAtan2(0.0, 0.0));
         assertEquals(0.0, instance.testAtan2(0.0, 1.0));
         assertEquals(1.5707963267948966, instance.testAtan2(1.0, 0.0));
@@ -2605,7 +2605,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCbrt() {
+    void testCbrt() {
         assertEquals(0.0, instance.testCbrt(0.0));
         assertEquals(1.0, instance.testCbrt(1.0));
         assertEquals(1.2599210498948732, instance.testCbrt(2.0));
@@ -2613,7 +2613,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCeil() {
+    void testCeil() {
         assertEquals(0.0, instance.testCeil(0.0));
         assertEquals(2.0, instance.testCeil(1.3));
         assertEquals(-0.0, instance.testCeil(-0.8));
@@ -2622,7 +2622,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCopySignDouble() {
+    void testCopySignDouble() {
         assertEquals(0.0, instance.testDoubleCopySign(0.0, 1.0));
         assertEquals(1.0, instance.testDoubleCopySign(1.0, 1.0));
         assertEquals(1.0, instance.testDoubleCopySign(1.0, 2.0));
@@ -2633,7 +2633,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCopySignFloat() {
+    void testCopySignFloat() {
         assertEquals(0.0f, instance.testFloatCopySign(0.0f, 1.0f));
         assertEquals(1.0f, instance.testFloatCopySign(1.0f, 1.0f));
         assertEquals(1.0f, instance.testFloatCopySign(1.0f, 2.0f));
@@ -2644,19 +2644,19 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testToDegrees() {
+    void testToDegrees() {
         assertEquals(0.0, instance.testToDegrees(0.0));
         assertEquals(572.9577951308232, instance.testToDegrees(10.0));
     }
 
     @Test
-    public void testToRadians() {
+    void testToRadians() {
         assertEquals(0.0, instance.testToRadians(0.0));
         assertEquals(0.17453292519943295, instance.testToRadians(10.0));
     }
 
     @Test
-    public void testAddBooleanType() {
+    void testAddBooleanType() {
         boolean[] inputArray = {true, true, true};
         boolean[] outputArray = instance.testBooleanTypeAdd(inputArray, false);
         assertTrue(ArrayUtils.contains(outputArray, false));
@@ -2665,7 +2665,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddBooleanTypeInPosition() {
+    void testAddBooleanTypeInPosition() {
         boolean[] inputArray = {true, true, true};
         boolean[] outputArray = instance.testBooleanTypeAdd(inputArray, 2, false);
         assertFalse(outputArray[2]);
@@ -2674,7 +2674,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddBoolean() {
+    void testAddBoolean() {
         Boolean[] inputArray = {true, true, true};
         Boolean[] outputArray = instance.testBooleanAdd(inputArray, false);
         assertTrue(ArrayUtils.contains(outputArray, false));
@@ -2683,7 +2683,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddBooleanInPosition() {
+    void testAddBooleanInPosition() {
         Boolean[] inputArray = {true, true, true};
         Boolean[] outputArray = instance.testBooleanAdd(inputArray, 2, false);
         assertFalse(outputArray[2]);
@@ -2692,7 +2692,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddByteType() {
+    void testAddByteType() {
         byte[] inputArray = {0, 1, 2};
         byte[] outputArray = instance.testByteTypeAdd(inputArray, (byte) 4);
         assertEquals(4, outputArray[3]);
@@ -2701,7 +2701,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddByteTypeInPosition() {
+    void testAddByteTypeInPosition() {
         byte[] inputArray = {0, 2, 3};
         byte[] outputArray = instance.testByteTypeAdd(inputArray, 2, (byte) 1);
         assertEquals(1, outputArray[2]);
@@ -2710,7 +2710,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddByte() {
+    void testAddByte() {
         Byte[] inputArray = {0, 1, 2};
         Byte[] outputArray = instance.testByteAdd(inputArray, (byte) 4);
         assertEquals(4, (byte) outputArray[3]);
@@ -2719,7 +2719,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddByteInPosition() {
+    void testAddByteInPosition() {
         Byte[] inputArray = {0, 2, 3};
         Byte[] outputArray = instance.testByteAdd(inputArray, 2, (byte) 1);
         assertEquals(Byte.valueOf((byte) 1), outputArray[2]);
@@ -2728,7 +2728,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddCharType() {
+    void testAddCharType() {
         char[] inputArray = {'0', '1', '2'};
         char[] outputArray = instance.testCharTypeAdd(inputArray, '4');
         assertEquals('4', outputArray[3]);
@@ -2737,7 +2737,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddCharTypeInPosition() {
+    void testAddCharTypeInPosition() {
         char[] inputArray = {'0', '2', '3'};
         char[] outputArray = instance.testCharTypeAdd(inputArray, 2, '1');
         assertEquals('1', outputArray[2]);
@@ -2746,7 +2746,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddChar() {
+    void testAddChar() {
         Character[] inputArray = {'0', '1', '2'};
         Character[] outputArray = instance.testCharAdd(inputArray, '4');
         assertEquals('4', (char) outputArray[3]);
@@ -2755,7 +2755,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddCharInPosition() {
+    void testAddCharInPosition() {
         Character[] inputArray = {'0', '2', '3'};
         Character[] outputArray = instance.testCharAdd(inputArray, 2, '1');
         assertEquals('1', (char) outputArray[2]);
@@ -2764,7 +2764,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddDoubleType() {
+    void testAddDoubleType() {
         double[] inputArray = {0.1, 1.1, 2.1};
         double[] outputArray = instance.testDoubleTypeAdd(inputArray, 4.1);
         assertEquals(4.1, outputArray[3], 0.0);
@@ -2773,7 +2773,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddDoubleTypeInPosition() {
+    void testAddDoubleTypeInPosition() {
         double[] inputArray = {0.1, 2.1, 3.1};
         double[] outputArray = instance.testDoubleTypeAdd(inputArray, 2, 1.1);
         assertEquals(1.1, outputArray[2], 0.0001);
@@ -2782,7 +2782,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddDouble() {
+    void testAddDouble() {
         Double[] inputArray = {0.1, 1.1, 2.1};
         Double[] outputArray = instance.testDoubleAdd(inputArray, 4.1);
         assertEquals(4.1, outputArray[3], 0.0);
@@ -2791,7 +2791,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddDoubleInPosition() {
+    void testAddDoubleInPosition() {
         Double[] inputArray = {0.1, 2.1, 3.1};
         Double[] outputArray = instance.testDoubleAdd(inputArray, 2, 1.1);
         assertEquals(1.1, outputArray[2], 0.0001);
@@ -2800,7 +2800,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddFloatType() {
+    void testAddFloatType() {
         float[] inputArray = {0.1f, 1.1f, 2.1f};
         float[] outputArray = instance.testFloatTypeAdd(inputArray, 4.1f);
         assertEquals(4.1f, outputArray[3], 0.0);
@@ -2809,7 +2809,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddFloatTypeInPosition() {
+    void testAddFloatTypeInPosition() {
         float[] inputArray = {0.1f, 2.1f, 3.1f};
         float[] outputArray = instance.testFloatTypeAdd(inputArray, 2, 1.1f);
         assertEquals(1.1f, outputArray[2], 0.0001);
@@ -2818,7 +2818,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddFloat() {
+    void testAddFloat() {
         Float[] inputArray = {0.1f, 1.1f, 2.1f};
         Float[] outputArray = instance.testFloatAdd(inputArray, 4.1f);
         assertEquals(4.1f, outputArray[3], 0.0);
@@ -2827,7 +2827,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddFloatInPosition() {
+    void testAddFloatInPosition() {
         Float[] inputArray = {0.1f, 2.1f, 3.1f};
         Float[] outputArray = instance.testFloatAdd(inputArray, 2, 1.1f);
         assertEquals(1.1f, outputArray[2], 0.0001);
@@ -2836,7 +2836,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddIntegerType() {
+    void testAddIntegerType() {
         int[] inputArray = {0, 1, 2};
         int[] outputArray = instance.testIntegerTypeAdd(inputArray, 4);
         assertEquals(4, outputArray[3]);
@@ -2845,7 +2845,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddIntegerTypeInPosition() {
+    void testAddIntegerTypeInPosition() {
         int[] inputArray = {0, 2, 3};
         int[] outputArray = instance.testIntegerTypeAdd(inputArray, 2, 1);
         assertEquals(1, outputArray[2]);
@@ -2854,7 +2854,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddInteger() {
+    void testAddInteger() {
         Integer[] inputArray = {0, 1, 2};
         Integer[] outputArray = instance.testIntegerAdd(inputArray, 4);
         assertEquals(Integer.valueOf(4), outputArray[3]);
@@ -2863,7 +2863,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddIntegerInPosition() {
+    void testAddIntegerInPosition() {
         Integer[] inputArray = {0, 2, 3};
         Integer[] outputArray = instance.testIntegerAdd(inputArray, 2, 1);
         assertEquals(1, (int) outputArray[2]);
@@ -2872,7 +2872,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddLongType() {
+    void testAddLongType() {
         long[] inputArray = {0, 1, 2};
         long[] outputArray = instance.testLongTypeAdd(inputArray, 4);
         assertEquals(4, outputArray[3]);
@@ -2881,7 +2881,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddLongTypeInPosition() {
+    void testAddLongTypeInPosition() {
         long[] inputArray = {0, 2, 3};
         long[] outputArray = instance.testLongTypeAdd(inputArray, 2, 1);
         assertEquals(1, outputArray[2]);
@@ -2890,7 +2890,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddLong() {
+    void testAddLong() {
         Long[] inputArray = {0L, 1L, 2L};
         Long[] outputArray = instance.testLongAdd(inputArray, 4L);
         assertEquals(Long.valueOf(4), outputArray[3]);
@@ -2899,7 +2899,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddLongInPosition() {
+    void testAddLongInPosition() {
         Long[] inputArray = {0L, 2L, 3L};
         Long[] outputArray = instance.testLongAdd(inputArray, 2, 1L);
         assertEquals(1, (long) outputArray[2]);
@@ -2908,7 +2908,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddObject() {
+    void testAddObject() {
         Object[] inputArray = {0, 1, 2};
         Object[] outputArray = instance.testObjectTypeAdd(inputArray, 4);
         assertEquals(4, outputArray[3]);
@@ -2917,7 +2917,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddObjectInPosition() {
+    void testAddObjectInPosition() {
         Object[] inputArray = {0, 2, 3};
         Object[] outputArray = instance.testObjectTypeAdd(inputArray, 2, 1);
         assertEquals(1, outputArray[2]);
@@ -2926,7 +2926,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddShortType() {
+    void testAddShortType() {
         short[] inputArray = {0, 1, 2};
         short[] outputArray = instance.testShortTypeAdd(inputArray, (short) 4);
         assertEquals(4, outputArray[3]);
@@ -2935,7 +2935,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddShortTypeInPosition() {
+    void testAddShortTypeInPosition() {
         short[] inputArray = {0, 2, 3};
         short[] outputArray = instance.testShortTypeAdd(inputArray, 2, (short) 1);
         assertEquals(1, outputArray[2]);
@@ -2944,7 +2944,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddShort() {
+    void testAddShort() {
         Short[] inputArray = {0, 1, 2};
         Short[] outputArray = instance.testShortAdd(inputArray, (short) 4);
         assertEquals(Short.valueOf((short) 4), outputArray[3]);
@@ -2953,7 +2953,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddShortInPosition() {
+    void testAddShortInPosition() {
         Short[] inputArray = {0, 2, 3};
         Short[] outputArray = instance.testShortAdd(inputArray, 2, (short) 1);
         assertEquals(1, (short) outputArray[2]);
@@ -2962,7 +2962,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddIgnoreNullsInPosition() {
+    void testAddIgnoreNullsInPosition() {
         Object[] inputArray = {0, 2, 3};
         Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 2, 1);
         assertEquals(1, outputArray[2]);
@@ -2974,7 +2974,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddIgnoreNullsObject() {
+    void testAddIgnoreNullsObject() {
         Object[] inputArray = {0, 1, 2};
         Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 4);
         assertEquals(4, outputArray[3]);
@@ -2986,7 +2986,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testObjectAddIgnoreNullsInPosition() {
+    void testObjectAddIgnoreNullsInPosition() {
         Object[] inputArray = {0, 2, 3};
         Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 2, 1);
         assertEquals(1, outputArray[2]);
@@ -2998,7 +2998,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testObjectAddIgnoreNullsObject() {
+    void testObjectAddIgnoreNullsObject() {
         Object[] inputArray = {0, 1, 2};
         Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 4);
         assertEquals(4, outputArray[3]);
@@ -3010,7 +3010,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllByteType() {
+    void testAddAllByteType() {
         byte[] inputArray1 = {0, 1, 2};
         byte[] inputArray2 = {3, 4, 5};
         byte[] outputArray = instance.testByteTypeAddAll(inputArray1, inputArray2);
@@ -3024,7 +3024,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllByte() {
+    void testAddAllByte() {
         Byte[] inputArray1 = {0, 1, 2};
         Byte[] inputArray2 = {3, 4, 5};
         Byte[] outputArray = instance.testByteAddAll(inputArray1, inputArray2);
@@ -3038,7 +3038,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllCharType() {
+    void testAddAllCharType() {
         char[] inputArray1 = {'0', '1', '2'};
         char[] inputArray2 = {'3', '4', '5'};
         char[] outputArray = instance.testCharTypeAddAll(inputArray1, inputArray2);
@@ -3052,7 +3052,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllChar() {
+    void testAddAllChar() {
         Character[] inputArray1 = {'0', '1', '2'};
         Character[] inputArray2 = {'3', '4', '5'};
         Character[] outputArray = instance.testCharAddAll(inputArray1, inputArray2);
@@ -3066,7 +3066,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllDoubleType() {
+    void testAddAllDoubleType() {
         double[] inputArray1 = {0.1, 1.1, 2.1};
         double[] inputArray2 = {3.1, 4.1, 5.1};
         double[] outputArray = instance.testDoubleTypeAddAll(inputArray1, inputArray2);
@@ -3080,7 +3080,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllDouble() {
+    void testAddAllDouble() {
         Double[] inputArray1 = {0.1, 1.1, 2.1};
         Double[] inputArray2 = {3.1, 4.1, 5.1};
         Double[] outputArray = instance.testDoubleAddAll(inputArray1, inputArray2);
@@ -3094,7 +3094,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllFloatType() {
+    void testAddAllFloatType() {
         float[] inputArray1 = {0.1f, 1.1f, 2.1f};
         float[] inputArray2 = {3.1f, 4.1f, 5.1f};
         float[] outputArray = instance.testFloatTypeAddAll(inputArray1, inputArray2);
@@ -3108,7 +3108,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllFloat() {
+    void testAddAllFloat() {
         Float[] inputArray1 = {0.1f, 1.1f, 2.1f};
         Float[] inputArray2 = {3.1f, 4.1f, 5.1f};
         Float[] outputArray = instance.testFloatAddAll(inputArray1, inputArray2);
@@ -3122,7 +3122,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllIntegerType() {
+    void testAddAllIntegerType() {
         int[] inputArray1 = {0, 1, 2};
         int[] inputArray2 = {3, 4, 5};
         int[] outputArray = instance.testIntegerTypeAddAll(inputArray1, inputArray2);
@@ -3136,7 +3136,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllInteger() {
+    void testAddAllInteger() {
         Integer[] inputArray1 = {0, 1, 2};
         Integer[] inputArray2 = {3, 4, 5};
         Integer[] outputArray = instance.testIntegerAddAll(inputArray1, inputArray2);
@@ -3150,7 +3150,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllLongType() {
+    void testAddAllLongType() {
         long[] inputArray1 = {0, 1, 2};
         long[] inputArray2 = {3, 4, 5};
         long[] outputArray = instance.testLongTypeAddAll(inputArray1, inputArray2);
@@ -3164,7 +3164,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllLong() {
+    void testAddAllLong() {
         Long[] inputArray1 = {0L, 1L, 2L};
         Long[] inputArray2 = {3L, 4L, 5L};
         Long[] outputArray = instance.testLongAddAll(inputArray1, inputArray2);
@@ -3178,7 +3178,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllObject() {
+    void testAddAllObject() {
         Object[] inputArray1 = {0, 1, 2};
         Object[] inputArray2 = {3, 4, 5};
         Object[] outputArray = instance.testObjectAddAll(inputArray1, inputArray2);
@@ -3192,7 +3192,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllShortType() {
+    void testAddAllShortType() {
         short[] inputArray1 = {0, 1, 2};
         short[] inputArray2 = {3, 4, 5};
         short[] outputArray = instance.testShortTypeAddAll(inputArray1, inputArray2);
@@ -3206,7 +3206,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllShort() {
+    void testAddAllShort() {
         Short[] inputArray1 = {0, 1, 2};
         Short[] inputArray2 = {3, 4, 5};
         Short[] outputArray = instance.testShortAddAll(inputArray1, inputArray2);
@@ -3220,7 +3220,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllBooleanType() {
+    void testAddAllBooleanType() {
         boolean[] inputArray1 = {true, false, true};
         boolean[] inputArray2 = {false, true, true};
         boolean[] outputArray = instance.testBooleanTypeAddAll(inputArray1, inputArray2);
@@ -3235,7 +3235,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testAddAllBoolean() {
+    void testAddAllBoolean() {
         Boolean[] inputArray1 = {true, false, true};
         Boolean[] inputArray2 = {false, true, true};
         Boolean[] outputArray = instance.testBooleanAddAll(inputArray1, inputArray2);
@@ -3249,364 +3249,364 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveBooleanType() {
+    void testRemoveBooleanType() {
         boolean[] inputArray1 = {true, false, true};
         boolean[] outputArray = instance.testBooleanTypeRemove(inputArray1, 1);
         assertArrayEquals(new boolean[]{true, true}, outputArray);
     }
 
     @Test
-    public void testRemoveBooleanType_whenArrayOutOfIndex() {
+    void testRemoveBooleanType_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testBooleanTypeRemove(new boolean[]{true, false, true}, 9);
         });
     }
 
     @Test
-    public void testRemoveBooleanType_whenSourceIsNull() {
+    void testRemoveBooleanType_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testBooleanTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveBoolean() {
+    void testRemoveBoolean() {
         Boolean[] inputArray1 = {true, false, true};
         Boolean[] outputArray = instance.testBooleanRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Boolean[]{true, true}, outputArray));
     }
 
     @Test
-    public void testRemoveBoolean_whenArrayOutOfIndex() {
+    void testRemoveBoolean_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testBooleanRemove(new Boolean[]{true, false, true}, 9);
         });
     }
 
     @Test
-    public void testRemoveBoolean_whenSourceIsNull() {
+    void testRemoveBoolean_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testBooleanRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveByteType() {
+    void testRemoveByteType() {
         byte[] inputArray1 = {0, 3, 5};
         byte[] outputArray = instance.testByteTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new byte[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testByteTypeRemove_whenArrayOutOfIndex() {
+    void testByteTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testByteTypeRemove(new byte[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testByteTypeRemove_whenSourceIsNull() {
+    void testByteTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testByteTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveByte() {
+    void testRemoveByte() {
         Byte[] inputArray1 = {0, 3, 5};
         Byte[] outputArray = instance.testByteRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Byte[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testByteRemove_whenArrayOutOfIndex() {
+    void testByteRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testByteRemove(new Byte[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testByteRemove_whenSourceIsNull() {
+    void testByteRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testByteRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveCharType() {
+    void testRemoveCharType() {
         char[] inputArray1 = {'0', '5', '9'};
         char[] outputArray = instance.testCharTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new char[]{'0', '9'}, outputArray));
     }
 
     @Test
-    public void testCharTypeRemove_whenArrayOutOfIndex() {
+    void testCharTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testCharTypeRemove(new char[]{'1', '2', '3'}, 9);
         });
     }
 
     @Test
-    public void testCharTypeRemove_whenSourceIsNull() {
+    void testCharTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testCharTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveChar() {
+    void testRemoveChar() {
         Character[] inputArray1 = {'0', '5', '9'};
         Character[] outputArray = instance.testCharRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Character[]{'0', '9'}, outputArray));
     }
 
     @Test
-    public void testCharRemove_whenArrayOutOfIndex() {
+    void testCharRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testCharRemove(new Character[]{'1', '2', '3'}, 9);
         });
     }
 
     @Test
-    public void testCharRemove_whenSourceIsNull() {
+    void testCharRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testCharRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveDoubleType() {
+    void testRemoveDoubleType() {
         double[] inputArray1 = {0.1, 3.1, 5.1};
         double[] outputArray = instance.testDoubleTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new double[]{0.1, 5.1}, outputArray));
     }
 
     @Test
-    public void testDoubleTypeRemove_whenArrayOutOfIndex() {
+    void testDoubleTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testDoubleTypeRemove(new double[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testDoubleTypeRemove_whenSourceIsNull() {
+    void testDoubleTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testDoubleTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveDouble() {
+    void testRemoveDouble() {
         Double[] inputArray1 = {0.1, 3.1, 5.1};
         Double[] outputArray = instance.testDoubleRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Double[]{0.1, 5.1}, outputArray));
     }
 
     @Test
-    public void testDoubleRemove_whenArrayOutOfIndex() {
+    void testDoubleRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testDoubleRemove(new Double[]{1., 2., 3.}, 9);
         });
     }
 
     @Test
-    public void testDoubleRemove_whenSourceIsNull() {
+    void testDoubleRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testDoubleRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveFloatType() {
+    void testRemoveFloatType() {
         float[] inputArray1 = {0.1f, 3.1f, 5.1f};
         float[] outputArray = instance.testFloatTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new float[]{0.1f, 5.1f}, outputArray));
     }
 
     @Test
-    public void testFloatTypeRemove_whenArrayOutOfIndex() {
+    void testFloatTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testFloatTypeRemove(new float[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testFloatTypeRemove_whenSourceIsNull() {
+    void testFloatTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testFloatTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveFloat() {
+    void testRemoveFloat() {
         Float[] inputArray1 = {0.1f, 3.1f, 5.1f};
         Float[] outputArray = instance.testFloatRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Float[]{0.1f, 5.1f}, outputArray));
     }
 
     @Test
-    public void testFloatRemove_whenArrayOutOfIndex() {
+    void testFloatRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testFloatRemove(new Float[]{1f, 2f, 3f}, 9);
         });
     }
 
     @Test
-    public void testFloatRemove_whenSourceIsNull() {
+    void testFloatRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testFloatRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveIntegerType() {
+    void testRemoveIntegerType() {
         int[] inputArray1 = {0, 3, 5};
         int[] outputArray = instance.testIntegerTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new int[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testIntegerTypeRemove_whenArrayOutOfIndex() {
+    void testIntegerTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testIntegerTypeRemove(new int[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testIntegerTypeRemove_whenSourceIsNull() {
+    void testIntegerTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testIntegerTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveInteger() {
+    void testRemoveInteger() {
         Integer[] inputArray1 = {0, 3, 5};
         Integer[] outputArray = instance.testIntegerRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Integer[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testIntegerRemove_whenArrayOutOfIndex() {
+    void testIntegerRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testIntegerRemove(new Integer[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testIntegerRemove_whenSourceIsNull() {
+    void testIntegerRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testIntegerRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveLongType() {
+    void testRemoveLongType() {
         long[] inputArray1 = {0, 3, 5};
         long[] outputArray = instance.testLongTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new long[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testLongTypeRemove_whenArrayOutOfIndex() {
+    void testLongTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testLongTypeRemove(new long[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testLongTypeRemove_whenSourceIsNull() {
+    void testLongTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testLongTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveLong() {
+    void testRemoveLong() {
         Long[] inputArray1 = {0L, 3L, 5L};
         Long[] outputArray = instance.testLongRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Long[]{0L, 5L}, outputArray));
     }
 
     @Test
-    public void testLongRemove_whenArrayOutOfIndex() {
+    void testLongRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testLongRemove(new Long[]{1L, 2L, 3L}, 9);
         });
     }
 
     @Test
-    public void testLongRemove_whenSourceIsNull() {
+    void testLongRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testLongRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveObjectType() {
+    void testRemoveObjectType() {
         Object[] inputArray1 = {0, 3, 5};
         Object[] outputArray = instance.testObjectTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Object[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testObjectTypeRemove_whenArrayOutOfIndex() {
+    void testObjectTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testObjectTypeRemove(new Object[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testObjectTypeRemove_whenSourceIsNull() {
+    void testObjectTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testObjectTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveShortType() {
+    void testRemoveShortType() {
         short[] inputArray1 = {0, 3, 5};
         short[] outputArray = instance.testShortTypeRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new short[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testShortTypeRemove_whenArrayOutOfIndex() {
+    void testShortTypeRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testShortTypeRemove(new short[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testShortTypeRemove_whenSourceIsNull() {
+    void testShortTypeRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testShortTypeRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveShort() {
+    void testRemoveShort() {
         Short[] inputArray1 = {0, 3, 5};
         Short[] outputArray = instance.testShortRemove(inputArray1, 1);
         assertTrue(Arrays.equals(new Short[]{0, 5}, outputArray));
     }
 
     @Test
-    public void testShortRemove_whenArrayOutOfIndex() {
+    void testShortRemove_whenArrayOutOfIndex() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testShortRemove(new Short[]{1, 2, 3}, 9);
         });
     }
 
     @Test
-    public void testShortRemove_whenSourceIsNull() {
+    void testShortRemove_whenSourceIsNull() {
         assertThrows(OpenLRuntimeException.class, () -> {
             instance.testShortRemove(null, 1);
         });
     }
 
     @Test
-    public void testRemoveElementBooleanType() {
+    void testRemoveElementBooleanType() {
         boolean[] inputArray1 = {true, false, true};
         boolean[] outputArray = instance.testBooleanTypeRemoveElement(inputArray1, true);
         assertTrue(Arrays.equals(new boolean[]{false, true}, outputArray));
@@ -3622,7 +3622,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementBoolean() {
+    void testRemoveElementBoolean() {
         Boolean[] inputArray1 = {true, false, true};
         Boolean[] outputArray = instance.testBooleanRemoveElement(inputArray1, true);
         assertTrue(Arrays.equals(new Boolean[]{false, true}, outputArray));
@@ -3638,7 +3638,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementByteType() {
+    void testRemoveElementByteType() {
         byte[] inputArray1 = {0, 7, 0};
         byte[] outputArray = instance.testByteTypeRemoveElement(inputArray1, (byte) 0);
         assertTrue(Arrays.equals(new byte[]{7, 0}, outputArray));
@@ -3654,7 +3654,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementByte() {
+    void testRemoveElementByte() {
         Byte[] inputArray1 = {0, 7, 0};
         Byte[] outputArray = instance.testByteRemoveElement(inputArray1, (byte) 0);
         assertTrue(Arrays.equals(new Byte[]{7, 0}, outputArray));
@@ -3670,7 +3670,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementCharType() {
+    void testRemoveElementCharType() {
         char[] inputArray1 = {'0', '7', '0'};
         char[] outputArray = instance.testCharTypeRemoveElement(inputArray1, '0');
         assertTrue(Arrays.equals(new char[]{'7', '0'}, outputArray));
@@ -3686,7 +3686,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementChar() {
+    void testRemoveElementChar() {
         Character[] inputArray1 = {'0', '7', '0'};
         Character[] outputArray = instance.testCharRemoveElement(inputArray1, '0');
         assertTrue(Arrays.equals(new Character[]{'7', '0'}, outputArray));
@@ -3702,7 +3702,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementDoubleType() {
+    void testRemoveElementDoubleType() {
         double[] inputArray1 = {0.1, 7.1, 0.1};
         double[] outputArray = instance.testDoubleTypeRemoveElement(inputArray1, 0.1);
         assertTrue(Arrays.equals(new double[]{7.1, 0.1}, outputArray));
@@ -3718,7 +3718,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementDouble() {
+    void testRemoveElementDouble() {
         Double[] inputArray1 = {0.1, 7.1, 0.1};
         Double[] outputArray = instance.testDoubleRemoveElement(inputArray1, 0.1);
         assertTrue(Arrays.equals(new Double[]{7.1, 0.1}, outputArray));
@@ -3734,7 +3734,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementFloatType() {
+    void testRemoveElementFloatType() {
         float[] inputArray1 = {0.1f, 7.1f, 0.1f};
         float[] outputArray = instance.testFloatTypeRemoveElement(inputArray1, 0.1f);
         assertTrue(Arrays.equals(new float[]{7.1f, 0.1f}, outputArray));
@@ -3750,7 +3750,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementFloat() {
+    void testRemoveElementFloat() {
         Float[] inputArray1 = {0.1f, 7.1f, 0.1f};
         Float[] outputArray = instance.testFloatRemoveElement(inputArray1, 0.1f);
         assertTrue(Arrays.equals(new Float[]{7.1f, 0.1f}, outputArray));
@@ -3766,7 +3766,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementIntegerType() {
+    void testRemoveElementIntegerType() {
         int[] inputArray1 = {0, 7, 0};
         int[] outputArray = instance.testIntegerTypeRemoveElement(inputArray1, 0);
         assertTrue(Arrays.equals(new int[]{7, 0}, outputArray));
@@ -3782,7 +3782,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementInteger() {
+    void testRemoveElementInteger() {
         Integer[] inputArray1 = {0, 7, 0};
         Integer[] outputArray = instance.testIntegerRemoveElement(inputArray1, 0);
         assertTrue(Arrays.equals(new Integer[]{7, 0}, outputArray));
@@ -3798,7 +3798,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementLongType() {
+    void testRemoveElementLongType() {
         long[] inputArray1 = {0, 7, 0};
         long[] outputArray = instance.testLongTypeRemoveElement(inputArray1, 0);
         assertTrue(Arrays.equals(new long[]{7, 0}, outputArray));
@@ -3814,7 +3814,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementLong() {
+    void testRemoveElementLong() {
         Long[] inputArray1 = {0L, 7L, 0L};
         Long[] outputArray = instance.testLongRemoveElement(inputArray1, 0L);
         assertTrue(Arrays.equals(new Long[]{7L, 0L}, outputArray));
@@ -3830,7 +3830,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementObject() {
+    void testRemoveElementObject() {
         Object[] inputArray1 = {0, 7, 0};
         Object[] outputArray = instance.testObjectTypeRemoveElement(inputArray1, 0);
         assertTrue(Arrays.equals(new Object[]{7, 0}, outputArray));
@@ -3846,7 +3846,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementShortType() {
+    void testRemoveElementShortType() {
         short[] inputArray1 = {0, 7, 0};
         short[] outputArray = instance.testShortTypeRemoveElement(inputArray1, (short) 0);
         assertTrue(Arrays.equals(new short[]{7, 0}, outputArray));
@@ -3862,7 +3862,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveElementShort() {
+    void testRemoveElementShort() {
         Short[] inputArray1 = {0, 7, 0};
         Short[] outputArray = instance.testShortRemoveElement(inputArray1, (short) 0);
         assertTrue(Arrays.equals(new Short[]{7, 0}, outputArray));
@@ -3878,7 +3878,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyObject() {
+    void testIsEmptyObject() {
         Object[] inputArray = {1, 2, 3, 4};
         assertFalse(instance.testObjectIsEmpty(inputArray));
         inputArray = new Object[]{};
@@ -3887,7 +3887,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyByteType() {
+    void testIsEmptyByteType() {
         byte[] inputArray = {1, 2, 3, 4};
         assertFalse(instance.testByteTypeIsEmpty(inputArray));
         inputArray = new byte[]{};
@@ -3896,7 +3896,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyCharType() {
+    void testIsEmptyCharType() {
         char[] inputArray = {'1', '2', '3', '4'};
         assertFalse(instance.testCharTypeIsEmpty(inputArray));
         inputArray = new char[]{};
@@ -3905,7 +3905,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyShortType() {
+    void testIsEmptyShortType() {
         short[] inputArray = {1, 2, 3, 4};
         assertFalse(instance.testShortTypeIsEmpty(inputArray));
         inputArray = new short[]{};
@@ -3914,7 +3914,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyIntegerType() {
+    void testIsEmptyIntegerType() {
         int[] inputArray = {1, 2, 3, 4};
         assertFalse(instance.testIntegerTypeIsEmpty(inputArray));
         inputArray = new int[]{};
@@ -3923,7 +3923,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyLongType() {
+    void testIsEmptyLongType() {
         long[] inputArray = {1, 2, 3, 4};
         assertFalse(instance.testLongTypeIsEmpty(inputArray));
         inputArray = new long[]{};
@@ -3932,7 +3932,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyFloatType() {
+    void testIsEmptyFloatType() {
         float[] inputArray = {1.1f, 2.1f, 3.1f, 4.1f};
         assertFalse(instance.testFloatTypeIsEmpty(inputArray));
         inputArray = new float[]{};
@@ -3941,7 +3941,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyDate() {
+    void testIsEmptyDate() {
         Calendar cal = Calendar.getInstance();
         cal.set(2009, Calendar.DECEMBER, 12);
         Date[] inputArray = {cal.getTime()};
@@ -3952,7 +3952,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyBigDecimalType() {
+    void testIsEmptyBigDecimalType() {
         BigDecimal[] inputArray = {BigDecimal.valueOf(1),
                 BigDecimal.valueOf(2),
                 BigDecimal.valueOf(3),
@@ -3964,7 +3964,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyBigIntegerType() {
+    void testIsEmptyBigIntegerType() {
         BigInteger[] inputArray = {BigInteger.valueOf(1),
                 BigInteger.valueOf(2),
                 BigInteger.valueOf(3),
@@ -3976,7 +3976,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testIsEmptyStringType() {
+    void testIsEmptyStringType() {
         String[] inputArray = {"1", "2", "3", "4"};
         assertFalse(instance.testStringIsEmpty(inputArray));
         inputArray = new String[]{};
@@ -3985,26 +3985,26 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testOrCallingFromRules() {
+    void testOrCallingFromRules() {
         assertTrue(instance.checkOr());
     }
 
     @Test
-    public void testStartsWith() {
+    void testStartsWith() {
         String prefix = "Test";
         assertTrue(instance.testStartsWith(str, prefix));
         assertFalse(instance.testStartsWith(null, prefix));
     }
 
     @Test
-    public void testEndWith() {
+    void testEndWith() {
         String prefix = "value";
         assertTrue(instance.testEndsWith(str, prefix));
         assertFalse(instance.testEndsWith(null, prefix));
     }
 
     @Test
-    public void testSubString() {
+    void testSubString() {
         int beginIndex = 3;
         int endIndex = 5;
 
@@ -4016,7 +4016,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveStart() {
+    void testRemoveStart() {
         String remove = "Testing";
 
         assertEquals(" string value", instance.testRemoveStart(str, remove));
@@ -4025,7 +4025,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testRemoveEnd() {
+    void testRemoveEnd() {
         String remove = "value";
 
         assertEquals("Testing string ", instance.testRemoveEnd(str, remove));
@@ -4034,7 +4034,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testStringCase() {
+    void testStringCase() {
         String str = "Testing";
 
         assertEquals("TESTING", instance.testUpperCase(str));
@@ -4046,7 +4046,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testReplace() {
+    void testReplace() {
         String text = "value Teting value string value";
 
         assertEquals("Testing string text", instance.testReplace(str, "value", "text"));
@@ -4057,7 +4057,7 @@ public class RulesUtilsTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDateFormat() {
+    void testDateFormat() {
         int year = 2013;
         int month = 1;
         int date = 25;
@@ -4080,7 +4080,7 @@ public class RulesUtilsTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testStringToDate_shouldThrowException() throws ParseException {
+    void testStringToDate_shouldThrowException() throws ParseException {
         Calendar c = Calendar.getInstance();
 
         c.set(2015, 1, 1, 0, 0, 0);
@@ -4089,7 +4089,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void flattenTest() {
+    void flattenTest() {
         Object[] res = instance.testFlatten1(1, 2, 3, 4);
         assertArrayEquals(new Integer[]{1, 2, 3, 4}, res);
         assertEquals(Integer.class, res.getClass().getComponentType());
@@ -4124,7 +4124,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void getValuesTest() {
+    void getValuesTest() {
         Object[] agency = instance.testGetValuesAlias();
         assertArrayEquals(new String[]{"Alias1", "Alias2", "Alias0", "Alias4"}, agency);
         assertEquals(String.class, agency.getClass().getComponentType());
@@ -4135,7 +4135,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianByte() {
+    void testMedianByte() {
         assertEquals(Double.valueOf(5), instance.testMedianByte(new Byte[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianByte(new Byte[]{2, 1, 5, 7}));
         assertNull(instance.testMedianByte(null));
@@ -4143,7 +4143,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianByteType() {
+    void testMedianByteType() {
         assertEquals(Double.valueOf(5), instance.testMedianByteType(new byte[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianByteType(new byte[]{2, 1, 5, 7}));
         assertNull(instance.testMedianByteType(null));
@@ -4152,7 +4152,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianShort() {
+    void testMedianShort() {
         assertEquals(Double.valueOf(5), instance.testMedianShort(new Short[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianShort(new Short[]{2, 1, 5, 7}));
         assertNull(instance.testMedianShort(null));
@@ -4160,7 +4160,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianShortType() {
+    void testMedianShortType() {
         assertEquals(Double.valueOf(5), instance.testMedianShortType(new short[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianShortType(new short[]{2, 1, 5, 7}));
         assertNull(instance.testMedianShortType(null));
@@ -4168,7 +4168,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianInteger() {
+    void testMedianInteger() {
         assertEquals(Double.valueOf(5), instance.testMedianInteger(new Integer[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianInteger(new Integer[]{2, 1, 5, 7}));
         assertNull(instance.testMedianInteger(null));
@@ -4176,7 +4176,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianIntegerType() {
+    void testMedianIntegerType() {
         assertEquals(Double.valueOf(5), instance.testMedianIntegerType(new int[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianIntegerType(new int[]{2, 1, 5, 7}));
         assertNull(instance.testMedianIntegerType(null));
@@ -4184,7 +4184,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianLong() {
+    void testMedianLong() {
         assertEquals(Double.valueOf(5), instance.testMedianLong(new Long[]{11L, 9L, 3L, 5L, 5L}));
         assertEquals(Double.valueOf(3.5), instance.testMedianLong(new Long[]{2L, 1L, 5L, 7L}));
         assertNull(instance.testMedianLong(null));
@@ -4192,7 +4192,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianLongType() {
+    void testMedianLongType() {
         assertEquals(Double.valueOf(5), instance.testMedianLongType(new long[]{11L, 9L, 3L, 5L, 5L}));
         assertEquals(Double.valueOf(3.5), instance.testMedianLongType(new long[]{2L, 1L, 5L, 7L}));
         assertNull(instance.testMedianLongType(null));
@@ -4200,7 +4200,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianFloat() {
+    void testMedianFloat() {
         assertEquals(Float.valueOf(5), instance.testMedianFloat(new Float[]{11.F, 9.F, 3.F, 5.F, 5.F}));
         assertEquals(Float.valueOf("3.5"), instance.testMedianFloat(new Float[]{2.F, 1.F, 5.F, 7.F}));
         assertNull(instance.testMedianFloat(null));
@@ -4208,7 +4208,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianFloatType() {
+    void testMedianFloatType() {
         assertEquals(Float.valueOf(5), instance.testMedianFloatType(new float[]{11.F, 9.F, 3.F, 5.F, 5.F}));
         assertEquals(Float.valueOf("3.5"), instance.testMedianFloatType(new float[]{2.F, 1.F, 5.F, 7.F}));
         assertNull(instance.testMedianFloatType(null));
@@ -4216,7 +4216,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianDouble() {
+    void testMedianDouble() {
         assertEquals(Double.valueOf(5), instance.testMedianDouble(new Double[]{11., 9., 3., 5., 5.}));
         assertEquals(Double.valueOf(3.5), instance.testMedianDouble(new Double[]{2., 1., 5., 7.}));
         assertNull(instance.testMedianDouble(null));
@@ -4224,7 +4224,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianDoubleType() {
+    void testMedianDoubleType() {
         assertEquals(Double.valueOf(5), instance.testMedianDoubleType(new double[]{11., 9., 3., 5., 5.}));
         assertEquals(Double.valueOf(3.5), instance.testMedianDoubleType(new double[]{2., 1., 5., 7.}));
         assertNull(instance.testMedianDoubleType(null));
@@ -4232,7 +4232,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianBigDecimal() {
+    void testMedianBigDecimal() {
         assertEquals(BigDecimal.valueOf(5),
                 instance.testMedianBigDecimal(new BigDecimal[]{BigDecimal.valueOf(
                         11), BigDecimal.valueOf(9), BigDecimal.valueOf(3), BigDecimal.valueOf(5), BigDecimal.valueOf(5)}));
@@ -4246,7 +4246,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testMedianBigInteger() {
+    void testMedianBigInteger() {
         assertEquals(BigDecimal.valueOf(5),
                 instance.testMedianBigInteger(new BigInteger[]{BigInteger.valueOf(
                         11), BigInteger.valueOf(9), BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(5)}));
@@ -4261,13 +4261,13 @@ public class RulesUtilsTest {
 
     @SuppressWarnings("deprecated")
     @Test
-    public void testParseFormattedDouble() throws ParseException {
+    void testParseFormattedDouble() throws ParseException {
         assertEquals(1.1f, RulesUtils.parseFormattedDouble("1.1"), 0.00001);
         assertEquals(1441.33f, RulesUtils.parseFormattedDouble("1,441.33", "#,##0.00"), 0.01);
     }
 
     @Test
-    public void testCopy() {
+    void testCopy() {
         assertEquals(instance.copyObject("1.1"), "1.1");
         assertEquals(instance.copyObject(1.1), Double.valueOf(1.1));
 
@@ -4293,7 +4293,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCopyObject() {
+    void testCopyObject() {
         MyClass expected = createNew();
         MyClass actual = (MyClass) instance.copyObject(expected);
 
@@ -4302,7 +4302,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCopyListObjects() {
+    void testCopyListObjects() {
         ArrayList<MyClass> expected = new ArrayList<>(Arrays.asList(createNew(), createNew()));
         List<MyClass> actual = (List<MyClass>) instance.copyObject(expected);
 
@@ -4311,7 +4311,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCopyArrayObject() {
+    void testCopyArrayObject() {
         MyClass[] expected = Arrays.asList(createNew(), createNew()).toArray(new MyClass[0]);
         MyClass[] actual = (MyClass[]) instance.copyObject(expected);
 
@@ -4320,7 +4320,7 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testCopyNotSerializedObj() {
+    void testCopyNotSerializedObj() {
         NotSerial[] expected = Arrays.asList(new NotSerial(), new NotSerial()).toArray(new NotSerial[0]);
         NotSerial[] actual = (NotSerial[]) instance.copyObject(expected);
 

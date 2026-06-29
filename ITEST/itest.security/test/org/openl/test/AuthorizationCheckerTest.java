@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.JettyServer;
 
-public class AuthorizationCheckerTest {
+class AuthorizationCheckerTest {
 
     @Test
-    public void testSecurity() throws Exception {
+    void testSecurity() throws Exception {
         JettyServer.test("custom");
     }
 }

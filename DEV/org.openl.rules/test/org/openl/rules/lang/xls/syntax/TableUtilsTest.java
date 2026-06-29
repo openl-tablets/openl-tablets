@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class TableUtilsTest {
+class TableUtilsTest {
 
     @Test
-    public void testToCellURIe() {
+    void testToCellURIe() {
         String actualUri = TableUtils.toCellURI("file:///foo.xlsx?sheet=Sheet1&range=A1:A22");
         assertEquals("file:///foo.xlsx?sheet=Sheet1&cell=A1", actualUri);
 
@@ -29,7 +29,7 @@ public class TableUtilsTest {
     }
 
     @Test
-    public void testMakeTableId() {
+    void testMakeTableId() {
         assertNull(TableUtils.makeTableId(null));
 
         String actualId = TableUtils.makeTableId("file:///foo.xlsx?sheet=%D0%9B%D0%B8%D1%81%D1%821&range=B29:B30");

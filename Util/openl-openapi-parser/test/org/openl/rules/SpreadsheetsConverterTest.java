@@ -28,17 +28,17 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 /**
  * Tests which are related to spreadsheets model generation.
  */
-public class SpreadsheetsConverterTest {
+class SpreadsheetsConverterTest {
 
     private OpenAPIModelConverter converter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         converter = new OpenAPIScaffoldingConverter();
     }
 
     @Test
-    public void testBraces() throws IOException {
+    void testBraces() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/path_with_braces/braced_with_text.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -62,7 +62,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testArrayInSpr() throws IOException {
+    void testArrayInSpr() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/spr_array_instance.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -94,7 +94,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testNamesInSpreadsheets() throws IOException {
+    void testNamesInSpreadsheets() throws IOException {
         List<String> expectedStepsForBla = Arrays.asList("NumAccidents",
                 "FIeLd",
                 "f$$ieLD",
@@ -137,7 +137,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSprDefaultDateTimeValueInSpr() throws IOException {
+    void testSprDefaultDateTimeValueInSpr() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/default_values_check.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -195,7 +195,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void inputParamsAreObjects() throws IOException {
+    void inputParamsAreObjects() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EBPDS-10283_object_datatypes_without_fields.yaml");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -252,7 +252,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testMissedSpreadsheet() throws IOException {
+    void testMissedSpreadsheet() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EBPDS-10228_spreadsheet_was_missed.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -269,7 +269,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testProvidedContext() throws IOException {
+    void testProvidedContext() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
         assertFalse(projectModel.isRuntimeContextProvided());
         List<SpreadsheetModel> sprModels = projectModel.getSpreadsheetResultModels();
@@ -305,7 +305,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testArrayBrackets() throws IOException {
+    void testArrayBrackets() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/spreadsheets/arrray_brackets.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         SpreadsheetModel spreadsheetModel = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
@@ -317,7 +317,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSprResultSignatureForArray() throws IOException {
+    void testSprResultSignatureForArray() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/spr_return_array_of_type.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -335,7 +335,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSprInputDateTimeType() throws IOException {
+    void testSprInputDateTimeType() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10392_date_time_input.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -353,7 +353,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testMissedDataType() throws IOException {
+    void testMissedDataType() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -365,7 +365,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testExtraDataType() throws IOException {
+    void testExtraDataType() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -386,7 +386,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testArraySprSteps() throws IOException {
+    void testArraySprSteps() throws IOException {
         ProjectModel oneDimArray = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_array_type_steps.json");
         Optional<DatatypeModel> pokemonOptional = oneDimArray.getDatatypeModels()
@@ -420,7 +420,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSprChild() throws IOException {
+    void testSprChild() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10432_child_spr.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -436,7 +436,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testTypeGeneration() throws IOException {
+    void testTypeGeneration() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -456,7 +456,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testOverloaded() throws IOException {
+    void testOverloaded() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10439_overloaded_spreadsheet.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -467,7 +467,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testDiscriminatorField() throws IOException {
+    void testDiscriminatorField() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10422_discriminator_field.yaml");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -484,7 +484,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testIncorrectCall() throws IOException {
+    void testIncorrectCall() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10417_table_name_equals_data_type_name.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -500,7 +500,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testIncorrectSpreadsheetArray() throws IOException {
+    void testIncorrectSpreadsheetArray() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_array.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -530,7 +530,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testIncorrectWrapperCase() throws IOException {
+    void testIncorrectWrapperCase() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10481-wrong_request_body.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -544,7 +544,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void modifiedPathTest() throws IOException {
+    void modifiedPathTest() throws IOException {
         ProjectModel pathProject = converter.extractProjectModel("test.converter/paths/slashProblem.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
@@ -583,7 +583,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSpreadsheetWithManyParamsCreation() throws IOException {
+    void testSpreadsheetWithManyParamsCreation() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -617,7 +617,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSpreadsheetCreation() throws IOException {
+    void testSpreadsheetCreation() throws IOException {
         ProjectModel pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10799_spreadsheets_creation.json");
 
@@ -643,7 +643,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testLostSpreadsheet() throws IOException {
+    void testLostSpreadsheet() throws IOException {
         ProjectModel pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/lostSpreadsheetExamples.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
@@ -687,7 +687,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testFilteringWithAnySpreadsheetResult() throws IOException {
+    void testFilteringWithAnySpreadsheetResult() throws IOException {
         ProjectModel pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/smallExampleWithAny.json");
         Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
@@ -723,7 +723,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testSpreadsheetResultInDataTypes() throws IOException {
+    void testSpreadsheetResultInDataTypes() throws IOException {
         ProjectModel pathProject = converter
                 .extractProjectModel("test.converter/datatype/spreadsheetResultDataType.json");
         Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
@@ -735,7 +735,7 @@ public class SpreadsheetsConverterTest {
      * Case when spreadsheet call another one instead of having the same steps
      */
     @Test
-    public void testWrongCall() throws IOException {
+    void testWrongCall() throws IOException {
         ProjectModel pathProject = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10848_wrong_call.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
@@ -816,7 +816,7 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
-    public void testEPBDS_10979() throws IOException {
+    void testEPBDS_10979() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10979_sprGeneration.json");
         assertEquals(3, projectModel.getDatatypeModels().size());

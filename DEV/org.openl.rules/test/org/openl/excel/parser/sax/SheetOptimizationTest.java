@@ -13,9 +13,9 @@ import org.openl.excel.parser.FolderUtils;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.SheetDescriptor;
 
-public class SheetOptimizationTest {
+class SheetOptimizationTest {
     @Test
-    public void readFileWithBigSheets() {
+    void readFileWithBigSheets() {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
                 .create(FolderUtils.getResourcesFolder() + "big-sheet.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
@@ -31,7 +31,7 @@ public class SheetOptimizationTest {
     }
 
     @Test
-    public void mergedCells() {
+    void mergedCells() {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
                 .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();

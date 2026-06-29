@@ -11,16 +11,16 @@ import org.junit.jupiter.api.Test;
 /**
  * @author nsamatov, Yury Molchan.
  */
-public class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
+class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
     @Test
-    public void testGetCategories() throws Exception {
+    void testGetCategories() throws Exception {
         Collection<String> categories = new PredefinedTemplatesResolver().getCategories();
         assertEquals(3, categories.size());
         assertTrue(categories.containsAll(Arrays.asList("templates", "examples", "tutorials")));
     }
 
     @Test
-    public void testGetTemplates() throws Exception {
+    void testGetTemplates() throws Exception {
         PredefinedTemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
         Collection<String> templates = templatesResolver.getTemplates("templates");
@@ -31,7 +31,7 @@ public class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
     }
 
     @Test
-    public void testGetProjectFiles() throws Exception {
+    void testGetProjectFiles() throws Exception {
         PredefinedTemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
         ProjectFile[] projectFiles = templatesResolver.getProjectFiles("examples",
                 "Example 3 - Auto Policy Calculation");

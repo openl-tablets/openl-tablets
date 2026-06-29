@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
-public class UsersRestTest {
+class UsersRestTest {
 
     private static final String INSERT_EXT_GROUPS_SQL = "INSERT INTO OpenL_External_Groups (loginName, groupName) VALUES ('%s', '%s');";
     private static final String TOKEN_PARAM = "token=";
@@ -46,7 +46,7 @@ public class UsersRestTest {
     private static final String DB_DUMP_FILE = "target/dump-%s.sql".formatted(System.currentTimeMillis());
 
     @BeforeAll
-    public static void setUp() throws Exception {
+    static void setUp() throws Exception {
         h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
         String dbUrl = "jdbc:h2:" + h2Server.getURL() + "/mem:mydb";
@@ -71,7 +71,7 @@ public class UsersRestTest {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         client.close();
         h2Connection.close();
         h2Server.stop();
@@ -79,7 +79,7 @@ public class UsersRestTest {
     }
 
     @AfterEach
-    public void afterEach() throws SQLException, IOException, FolderException {
+    void afterEach() throws SQLException, IOException, FolderException {
         try (Statement statement = h2Connection.createStatement()) {
             statement.execute("DROP ALL OBJECTS DELETE FILES;");
             h2Connection.commit();
@@ -92,7 +92,7 @@ public class UsersRestTest {
     }
 
     @Test
-    public void smoke() {
+    void smoke() {
         client.send("users-service/users-1.get");
         client.send("users-service/users-create.put");
         client.send("users-service/users-2.get");
@@ -116,7 +116,7 @@ public class UsersRestTest {
     }
 
     @Test
-    public void testExternalGroups() throws SQLException {
+    void testExternalGroups() throws SQLException {
         client.send("users-service/users-create-1.put");
         client.send("users-service/users-5.get");
         client.send("users-service/users/groups/external/empty.jsmith.get");
@@ -140,7 +140,7 @@ public class UsersRestTest {
     }
 
     @Test
-    public void testMail() throws IOException, MessagingException {
+    void testMail() throws IOException, MessagingException {
         client.send("users-service/mail/users-mail-config-1.get");
 
         var newMailConfig = new MailConfigRequest();

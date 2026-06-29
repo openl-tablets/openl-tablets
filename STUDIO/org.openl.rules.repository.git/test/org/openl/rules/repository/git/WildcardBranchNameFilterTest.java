@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class WildcardBranchNameFilterTest {
+class WildcardBranchNameFilterTest {
 
     @Test
-    public void testBranchMatcherNegative() {
+    void testBranchMatcherNegative() {
         Exception actualEx = assertThrows(Exception.class, () -> {
             String[] ar = null;
             new WildcardBranchNameFilterImpl(ar);
@@ -19,7 +19,7 @@ public class WildcardBranchNameFilterTest {
     }
 
     @Test
-    public void testBranchMatcher() {
+    void testBranchMatcher() {
         WildcardBranchNameFilter branchNameFilter = WildcardBranchNameFilter.create("master", null, "release-*");
         assertTrue(branchNameFilter.test("master"));
         assertTrue(branchNameFilter.test("release-21.1"));

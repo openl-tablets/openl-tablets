@@ -52,7 +52,7 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.formatters.FileNameFormatter;
 
-public class GitRepositoryMergeConflictsInExcelTest {
+class GitRepositoryMergeConflictsInExcelTest {
 
     private static final String COPY_BRANCH_PREF = "_COPY";
     private static final Path TEST_CASES_ROOT = Path.of("test-resources/EPBDS-8483");
@@ -68,7 +68,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     private GitRepository repo;
 
     @BeforeAll
-    public static void initialize() throws IOException, GitAPIException {
+    static void initialize() throws IOException, GitAPIException {
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
             Repository repository = git.getRepository();
@@ -86,7 +86,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         File remote = new File(root, "remote");
         File localRepositoriesFolder = new File(root, "repositories");
         File local = new File(localRepositoriesFolder, "local");
@@ -115,12 +115,12 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_01() throws IOException, GitAPIException {
+    void testCase_01() throws IOException, GitAPIException {
         executeTestCase("01", Set.of("01/MyBook.xlsx"), "01/MyBook.xlsx", "01/MyBook.xlsx");
     }
 
     @Test
-    public void testCase_02() throws IOException, GitAPIException {
+    void testCase_02() throws IOException, GitAPIException {
         executeTestCase("02",
                 Set.of("02/Main.xlsx"),
                 "02/Main.xlsx\n\t\tSheet1 (02)\n\t\tRules (master)",
@@ -128,7 +128,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_03() throws IOException, GitAPIException {
+    void testCase_03() throws IOException, GitAPIException {
         executeTestCase("03",
                 Set.of("03/Case1.xlsx"),
                 "03/Case1.xlsx\n\t\tA (03)\n\t\tC (03)\n\t\tB (master)\n\t\tD (master)\n\t\tF (master)\n\t\tG (master)\n\t\tH (master)",
@@ -136,7 +136,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_04() throws IOException, GitAPIException {
+    void testCase_04() throws IOException, GitAPIException {
         TestCaseData testCaseData = initializeTestCase("04");
         GitRepository branchRepo = repo.forBranch("04");
         try {
@@ -173,7 +173,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_05() throws IOException, GitAPIException {
+    void testCase_05() throws IOException, GitAPIException {
         executeTestCase("05",
                 Set.of("05/Case4.xlsx"),
                 "05/Case4.xlsx\n\t\tTargetFactor (05)\n\t\tSalaryAdjustment (master)",
@@ -181,7 +181,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_06() throws IOException, GitAPIException {
+    void testCase_06() throws IOException, GitAPIException {
         executeTestCase("06",
                 Set.of("06/BugCase3.xlsx"),
                 "06/BugCase3.xlsx\n\t\tClaim Cost Benefit (06)\n\t\tBenefit Adjust Prc (master)",
@@ -189,7 +189,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_07() throws IOException, GitAPIException {
+    void testCase_07() throws IOException, GitAPIException {
         executeTestCase("07",
                 Set.of("07/Case2.xls"),
                 """
@@ -221,7 +221,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_08() throws IOException, GitAPIException {
+    void testCase_08() throws IOException, GitAPIException {
         executeTestCase("08",
                 Set.of("08/AutoPolicyCalculation.xlsx"),
                 """
@@ -237,7 +237,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_09() throws IOException, GitAPIException {
+    void testCase_09() throws IOException, GitAPIException {
         executeTestCase("09",
                 Set.of("09/defect5.xls"),
                 """
@@ -251,7 +251,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_10() throws IOException, GitAPIException {
+    void testCase_10() throws IOException, GitAPIException {
         executeTestCase("10",
                 Set.of("10/Main.xlsx"),
                 """
@@ -265,7 +265,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_11() throws IOException, GitAPIException {
+    void testCase_11() throws IOException, GitAPIException {
         executeTestCase("11",
                 Set.of("11/bugMessageBug.xlsx"),
                 """
@@ -279,7 +279,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     }
 
     @Test
-    public void testCase_12() throws IOException, GitAPIException {
+    void testCase_12() throws IOException, GitAPIException {
         executeTestCase("12",
                 Set.of("12/Bank Rating.xlsx"),
                 """

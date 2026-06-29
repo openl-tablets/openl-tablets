@@ -19,12 +19,12 @@ import org.openl.syntax.impl.Tokenizer;
 /**
  * @author snshor
  */
-public class TokenizerParserTest {
+class TokenizerParserTest {
 
     private final Logger log = LoggerFactory.getLogger(TokenizerParserTest.class);
 
     @Test
-    public void testPerformance() throws Exception {
+    void testPerformance() throws Exception {
         long start = System.currentTimeMillis();
         String test = "a123344 b1233468474 c238746374";
         int n = 1000000;
@@ -43,7 +43,7 @@ public class TokenizerParserTest {
     }
 
     @Test
-    public void testTokenize() throws Exception {
+    void testTokenize() throws Exception {
         IdentifierNode[] idn = Tokenizer.tokenize(new StringSourceCodeModule("vehicle   ", null), ". \n\r");
 
         assertEquals("vehicle", idn[0].getIdentifier());

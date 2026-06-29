@@ -23,7 +23,7 @@ import org.openl.source.impl.URLSourceCodeModule;
  *
  * @author nsamatov.
  */
-public class CellStylesCountTest {
+class CellStylesCountTest {
     /**
      * For more information, see {@link org.apache.poi.hssf.usermodel.HSSFWorkbook#MAX_STYLES}
      */
@@ -31,12 +31,12 @@ public class CellStylesCountTest {
     private XlsWorkbookSourceCodeModule wbSrc;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         wbSrc = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule("test/rules/TooManyStyles.xls"));
     }
 
     @Test
-    public void testXlsSheetGridModel() {
+    void testXlsSheetGridModel() {
         XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         grid.setCellStyle(0, 0, grid.getCell(1, 1).getStyle());
@@ -45,7 +45,7 @@ public class CellStylesCountTest {
     }
 
     @Test
-    public void testTableBuilder() throws Exception {
+    void testTableBuilder() throws Exception {
         DatatypeAliasTableBuilder builder = new DatatypeAliasTableBuilder(
                 new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
 
@@ -59,7 +59,7 @@ public class CellStylesCountTest {
     }
 
     @Test
-    public void testPoiExcelHelper() {
+    void testPoiExcelHelper() {
         Cell cellFrom = PoiExcelHelper.getOrCreateCell(0, 0, new XlsSheetSourceCodeModule(0, wbSrc).getSheet());
 
         PoiExcelHelper.cloneStyleFrom(cellFrom);
@@ -68,7 +68,7 @@ public class CellStylesCountTest {
     }
 
     @Test
-    public void testXlsCellDateWriter() {
+    void testXlsCellDateWriter() {
         XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(0, wbSrc);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheetSource);
 
@@ -81,7 +81,7 @@ public class CellStylesCountTest {
     }
 
     @Test
-    public void testCellStyleCreator() {
+    void testCellStyleCreator() {
         XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         new CellStyleCreator(grid).getCellStyle(null);

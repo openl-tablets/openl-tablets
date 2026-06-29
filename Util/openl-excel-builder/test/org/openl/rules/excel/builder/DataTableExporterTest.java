@@ -32,14 +32,14 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.util.StringUtils;
 
-public class DataTableExporterTest {
+class DataTableExporterTest {
 
     public static final String STRING_TYPE = "String";
     public static final String DATA_TEST_PROJECT_NAME = "data_test_project.xlsx";
     public static final int TOP_MARGIN = 2;
 
     @Test
-    public void writeDataTables() throws IOException {
+    void writeDataTables() throws IOException {
         DatatypeModel noFieldsModel = new DatatypeModel("NoFieldsModel");
         noFieldsModel.setFields(Collections.singletonList(new FieldModel("this", "Double")));
         DataModel emptyModel = new DataModel("emptyDataTAble", "Object", null, noFieldsModel);
@@ -257,7 +257,7 @@ public class DataTableExporterTest {
     }
 
     @AfterAll
-    public static void clean() throws IOException {
+    static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();
         assertNotNull(files);

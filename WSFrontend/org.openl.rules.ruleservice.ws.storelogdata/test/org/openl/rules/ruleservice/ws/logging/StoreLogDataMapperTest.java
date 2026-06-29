@@ -29,12 +29,12 @@ import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 
-public class StoreLogDataMapperTest {
+class StoreLogDataMapperTest {
 
     private static final String SOME_VALUE = RandomStringUtils.random(10, true, true);
 
     @Test
-    public void testPublisherFilteringMapping() {
+    void testPublisherFilteringMapping() {
         StoreLogDataMapper mapper = new StoreLogDataMapper();
 
         StoreLogData storeLogData = new StoreLogData();
@@ -58,7 +58,7 @@ public class StoreLogDataMapperTest {
     }
 
     @Test
-    public void testPublisherConvertorMapping() {
+    void testPublisherConvertorMapping() {
         StoreLogDataMapper mapper = new StoreLogDataMapper();
 
         StoreLogData storeLogData = new StoreLogData();
@@ -78,7 +78,7 @@ public class StoreLogDataMapperTest {
     }
 
     @Test
-    public void testSimpleMapping() throws Exception {
+    void testSimpleMapping() throws Exception {
         StoreLogData storeLogData = new StoreLogData();
 
         final String customString1 = RandomStringUtils.random(10, true, true);
@@ -92,7 +92,7 @@ public class StoreLogDataMapperTest {
 
         final String request = RandomStringUtils.random(10);
         final String response = RandomStringUtils.random(10);
-        storeLogData.setServiceMethod(StoreLogDataMapperTest.class.getMethod("testSimpleMapping"));
+        storeLogData.setServiceMethod(StoreLogDataMapperTest.class.getDeclaredMethod("testSimpleMapping"));
         final String url = RandomStringUtils.random(10);
         final PublisherType publisher = PublisherType.RESTFUL;
         final String serviceName = RandomStringUtils.random(10);

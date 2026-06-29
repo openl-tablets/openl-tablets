@@ -16,7 +16,7 @@ import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.FormatterAdapter;
 import org.openl.util.formatters.IFormatter;
 
-public class FormattersManagerTest {
+class FormattersManagerTest {
 
     private enum TestValues {
         FIRST_VALUE,
@@ -24,58 +24,58 @@ public class FormattersManagerTest {
     }
 
     @Test
-    public void testDouble() {
+    void testDouble() {
         Double dd = 12.345;
         IFormatter formatter = FormattersManager.getFormatter(dd);
         assertTrue(formatter instanceof SmartNumberFormatter);
     }
 
     @Test
-    public void testNull() {
+    void testNull() {
         IFormatter formatter = FormattersManager.getFormatter((Object) null);
         assertTrue(formatter instanceof FormatterAdapter);
     }
 
     @Test
-    public void testNaN() {
+    void testNaN() {
         assertEquals("NaN", FormattersManager.getFormatter(Double.NaN).format(Double.NaN));
         assertEquals("NaN", FormattersManager.getFormatter(Float.NaN).format(Float.NaN));
     }
 
     @Test
-    public void testString() {
+    void testString() {
         IFormatter formatter = FormattersManager.getFormatter("text");
         assertTrue(formatter instanceof FormatterAdapter);
     }
 
     @Test
-    public void testDate() {
+    void testDate() {
         Calendar date = Calendar.getInstance();
         IFormatter formatter = FormattersManager.getFormatter(date.getTime());
         assertTrue(formatter instanceof DateFormatter);
     }
 
     @Test
-    public void testBoolean() {
+    void testBoolean() {
         IFormatter formatter = FormattersManager.getFormatter(Boolean.TRUE);
         assertTrue(formatter instanceof BooleanFormatter);
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         Integer[] intArray = new Integer[]{12, 34};
         IFormatter formatter = FormattersManager.getFormatter(intArray);
         assertTrue(formatter instanceof ArrayFormatter);
     }
 
     @Test
-    public void testEnums() {
+    void testEnums() {
         IFormatter formatter = FormattersManager.getFormatter(TestValues.FIRST_VALUE);
         assertTrue(formatter instanceof EnumFormatter);
     }
 
     @Test
-    public void testFormat() {
+    void testFormat() {
         assertEquals("null", FormattersManager.format(null));
         assertEquals("Str", FormattersManager.format("Str"));
         assertEquals("1", FormattersManager.format(1));

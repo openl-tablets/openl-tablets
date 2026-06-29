@@ -23,10 +23,10 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
-public class XlsWorkbookSourceCodeModuleTest {
+class XlsWorkbookSourceCodeModuleTest {
 
     @Test
-    public void testUrlWithWhiteSpaces() throws MalformedURLException {
+    void testUrlWithWhiteSpaces() throws MalformedURLException {
         File f = new File("test/rules/test xls/Test with spaces.xls");
         XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
                 new URLSourceCodeModule(f.toURI().toURL()));
@@ -34,14 +34,14 @@ public class XlsWorkbookSourceCodeModuleTest {
     }
 
     @Test
-    public void testUrlWithWhiteSpaces2() {
+    void testUrlWithWhiteSpaces2() {
         XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
                 new PathSourceCodeModule(Path.of("test/rules/test xls/Test with spaces.xls")));
         assertNotNull(module.getSourceFile());
     }
 
     @Test
-    public void testFileIsNotCorrupted() throws IOException {
+    void testFileIsNotCorrupted() throws IOException {
         File tempFile = File.createTempFile("test", ".tmp");
         tempFile.deleteOnExit();
         try (FileWriter writer = new FileWriter(tempFile)) {

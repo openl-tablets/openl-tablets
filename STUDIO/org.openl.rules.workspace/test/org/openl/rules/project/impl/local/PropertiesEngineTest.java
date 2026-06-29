@@ -12,12 +12,12 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.util.FileUtils;
 
-public class PropertiesEngineTest {
+class PropertiesEngineTest {
     @TempDir
     File root;
 
     @Test
-    public void testRelativePath() {
+    void testRelativePath() {
         final File repo = new File(root, "repo");
 
         final PropertiesEngine engine = new PropertiesEngine(repo);
@@ -37,7 +37,7 @@ public class PropertiesEngineTest {
     }
 
     @Test
-    public void dontRecreateDeletedProject() {
+    void dontRecreateDeletedProject() {
         final File repo = new File(root, "repo");
         final PropertiesEngine engine = new PropertiesEngine(repo);
 

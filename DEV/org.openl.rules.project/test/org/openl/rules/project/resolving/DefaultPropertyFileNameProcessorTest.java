@@ -17,12 +17,12 @@ import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.table.properties.ITableProperties;
 
-public class DefaultPropertyFileNameProcessorTest {
+class DefaultPropertyFileNameProcessorTest {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
 
     @Test
-    public void unknownPropertyTest() {
+    void unknownPropertyTest() {
         try {
             new DefaultPropertiesFileNameProcessor("%unknownProperty%");
         } catch (InvalidFileNamePatternException e) {
@@ -33,7 +33,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void lobTest() throws Exception {
+    void lobTest() throws Exception {
         ITableProperties props = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%nature%-%state%-%effectiveDate:yyyy-MM-dd%-%startRequestDate:yyyy-MM-dd%")
                 .process("AL-BL-CL-GL-NY-2018-07-01-2018-05-03");
@@ -63,7 +63,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPatternProperty_with_lob_array() throws NoMatchFileNameException,
+    void testPatternProperty_with_lob_array() throws NoMatchFileNameException,
             InvalidFileNamePatternException,
             ParseException {
 
@@ -78,7 +78,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPatternProperty_with_currencies_array() throws NoMatchFileNameException,
+    void testPatternProperty_with_currencies_array() throws NoMatchFileNameException,
             InvalidFileNamePatternException,
             ParseException {
 
@@ -94,7 +94,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPatternProperty_with_unknownEnumValue_array() throws NoMatchFileNameException,
+    void testPatternProperty_with_unknownEnumValue_array() throws NoMatchFileNameException,
             InvalidFileNamePatternException {
         assertThrows(NoMatchFileNameException.class, () -> {
 
@@ -105,7 +105,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPatternProperty_date_separator() throws NoMatchFileNameException,
+    void testPatternProperty_date_separator() throws NoMatchFileNameException,
             InvalidFileNamePatternException,
             ParseException {
 
@@ -119,7 +119,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testMultiPatterns0() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testMultiPatterns0() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
         ITableProperties properties = processor.process("AUTO-CW-20160101.xlsx");
@@ -131,7 +131,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testMultiPatterns() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testMultiPatterns() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
         ITableProperties properties = processor.process("AUTO-Any-20160101");
@@ -143,7 +143,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testMultiPatterns1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testMultiPatterns1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
         ITableProperties properties = processor.process("AUTO-FL,ME-20160101.xlsx");
@@ -155,7 +155,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testMultiPatterns2() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testMultiPatterns2() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
         ITableProperties properties = processor.process("path.to/rules/AUTO-PMT-20160101.xlsx");
@@ -167,7 +167,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testMultiPatterns3() throws InvalidFileNamePatternException {
+    void testMultiPatterns3() throws InvalidFileNamePatternException {
         try {
             PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                     .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
@@ -181,7 +181,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPropertyGroupsWrongDatePattern() throws InvalidFileNamePatternException {
+    void testPropertyGroupsWrongDatePattern() throws InvalidFileNamePatternException {
         try {
             new DefaultPropertiesFileNameProcessor("%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%")
                     .process("AUTO-FL,ME-20160101.ext");
@@ -194,7 +194,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPropertyGroupsNegative() {
+    void testPropertyGroupsNegative() {
         try {
             new DefaultPropertiesFileNameProcessor("%lob%-%state%-%effectiveDate,lob%");
             fail("Ooops...");
@@ -226,7 +226,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPropertyGroups() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testPropertyGroups() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%effectiveDate,startRequestDate%").process("AUTO-FL,ME-20160101.xlsx");
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
@@ -237,7 +237,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testPropertyGroups1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testPropertyGroups1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%").process("AUTO-FL,ME-01012016");
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
@@ -248,7 +248,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testFolder() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testFolder() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         DefaultPropertiesFileNameProcessor processor1 = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%startRequestDate%");
         assertMatch(processor1, "AUTO-NY-20200712");
@@ -337,7 +337,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testFolderNoMatch() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testFolderNoMatch() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         DefaultPropertiesFileNameProcessor processor1 = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%startRequestDate%");
         assertNotMatch(processor1, "AUTO--20200712");
@@ -418,7 +418,7 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    public void testRegexp() throws InvalidFileNamePatternException, NoMatchFileNameException, ParseException {
+    void testRegexp() throws InvalidFileNamePatternException, NoMatchFileNameException, ParseException {
 
         assertMatch(new DefaultPropertiesFileNameProcessor(".*-%lob%-%state%-%startRequestDate%"),
                 "D1234-AUTO-NY-20200712.xlsx");

@@ -20,10 +20,10 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 
-public class JavaOpenClassTest {
+class JavaOpenClassTest {
 
     @Test
-    public void testGetComponentType() {
+    void testGetComponentType() {
         assertEquals(JavaOpenClass.getOpenClass(String.class),
                 JavaOpenClass.getOpenClass(String[].class).getComponentClass());
 
@@ -36,13 +36,13 @@ public class JavaOpenClassTest {
     }
 
     @Test
-    public void testIsSimple() {
+    void testIsSimple() {
         IOpenClass clazz = JavaOpenClass.getOpenClass(String.class);
         assertTrue(clazz.isSimple());
     }
 
     @Test
-    public void testResetClassLoader() {
+    void testResetClassLoader() {
         IOpenClass doubleValue = JavaOpenClass.getOpenClass(Double.class);
         IOpenClass myType = JavaOpenClass.getOpenClass(MyType.class);
 
@@ -57,7 +57,7 @@ public class JavaOpenClassTest {
     }
 
     @Test
-    public void testGetMethod() {
+    void testGetMethod() {
         IOpenClass myType = JavaOpenClass.getOpenClass(MyType.class);
         assertNotNull(myType);
         IOpenMethod myTypeMethod1 = myType.getMethod("method1",
@@ -132,7 +132,7 @@ public class JavaOpenClassTest {
     }
 
     @Test
-    public void interfaceOpenClassMethodsTest() {
+    void interfaceOpenClassMethodsTest() {
         IOpenClass openClass = JavaOpenClass.getOpenClass(MyInterface.class);
         IOpenMethod method1 = openClass.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE});
@@ -148,7 +148,7 @@ public class JavaOpenClassTest {
     }
 
     @Test
-    public void superClassBeanFieldsTest() {
+    void superClassBeanFieldsTest() {
         // when
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
         IOpenField openField = beanAOpenClass.getField("B");
@@ -172,13 +172,13 @@ public class JavaOpenClassTest {
     }
 
     @Test
-    public void testIsAssignableFromNullOpenClass() {
+    void testIsAssignableFromNullOpenClass() {
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
         assertFalse(beanAOpenClass.isAssignableFrom(NullOpenClass.the));
     }
 
     @Test
-    public void interfaceBeanFieldsTest() {
+    void interfaceBeanFieldsTest() {
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanXInterface.class);
         IOpenField openField = beanAOpenClass.getField("ba");
         assertNotNull(openField);

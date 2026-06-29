@@ -13,11 +13,11 @@ import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-public class TestIntExpAddArray {
+class TestIntExpAddArray {
     private final Constrainer C = new Constrainer("TestIntExpAddArray");
 
     @Test
-    public void testAttachDetachObserver() {
+    void testAttachDetachObserver() {
         IntExpAddArray sum = new IntExpAddArray(C, new IntExpArray(C, C.addIntVar(-5, 5)));
         class TestObserver extends Observer {
             private int counter = 0;
@@ -70,7 +70,7 @@ public class TestIntExpAddArray {
     } // end of testAttachDetachObserver()
 
     @Test
-    public void testMaxMin() {
+    void testMaxMin() {
         IntExpArray array = new IntExpArray(C, 10, -10, 10, "array");
         IntExpAddArray sum = new IntExpAddArray(C, array);
         assertEquals(10 * 10, sum.max());
@@ -90,7 +90,7 @@ public class TestIntExpAddArray {
     }
 
     @Test
-    public void testRemoveValue() {
+    void testRemoveValue() {
         /*
          * IntExpArray array = new IntExpArray(C, 10, 0, 5, "array"); IntExpAddArray sum = new IntExpAddArray(C, array);
          * try{ sum.setMin(0); sum.removeValue(0); C.propagate(); assertEquals(1, sum.min()); sum.removeValue();
@@ -99,7 +99,7 @@ public class TestIntExpAddArray {
     }
 
     @Test
-    public void testSetMax() {
+    void testSetMax() {
         IntExpArray array = new IntExpArray(C, 10, 1, 10, "array");
         IntExpAddArray sum = new IntExpAddArray(C, array);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
@@ -155,7 +155,7 @@ public class TestIntExpAddArray {
     }
 
     @Test
-    public void testSetMin() {
+    void testSetMin() {
         IntExpArray array = new IntExpArray(C, 10, -10, -1, "array");
         IntExpAddArray sum = new IntExpAddArray(C, array);
         try {

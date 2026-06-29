@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class TableCopierTest {
+class TableCopierTest {
 
     @Test
-    public void testIsEmpty() {
+    void testIsEmpty() {
         assertTrue(TableCopier.isEmpty(null));
         assertTrue(TableCopier.isEmpty(""));
         assertTrue(TableCopier.isEmpty(new Object[0]));

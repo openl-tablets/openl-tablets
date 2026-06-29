@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class TestAutoType1 {
+class TestAutoType1 {
 
     @Test
-    public void test1() {
+    void test1() {
         ITestCalc test = TestUtils.create("test/rules/calc/autotype/autotype-1.xls", ITestCalc.class);
         SpreadsheetResult result = test.calc3();
 

@@ -33,7 +33,7 @@ import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
-public class UserManagementTest {
+class UserManagementTest {
 
     @Autowired
     private UserManagementService userService;
@@ -46,7 +46,7 @@ public class UserManagementTest {
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         // Reset all changes where done while testing
         flywayDBReset.clean();
         flywayDBReset.migrate();
@@ -54,7 +54,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testInitialization() {
+    void testInitialization() {
         userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
         assertTrue(userService.existsByName("jdoe"));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
@@ -64,7 +64,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testSaveUser() {
+    void testSaveUser() {
         userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
         User user = userService.getUser("jdoe");
         assertNotNull(user);
@@ -89,7 +89,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testSyncNewUser() {
+    void testSyncNewUser() {
         userService.syncUserData("jdoe", "John", "Doe", "jdoe@test", "John Doe");
         User user = userService.getUser("jdoe");
         assertNotNull(user);
@@ -120,7 +120,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testSyncUser() {
+    void testSyncUser() {
         userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
         userService.syncUserData("jdoe", "John2", "Doe3", "jdoe@test4", "John Doe5");
         User user = userService.getUser("jdoe");
@@ -153,7 +153,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testReSyncUser() {
+    void testReSyncUser() {
         userService.syncUserData("jdoe", "John", "Doe", "jdoe@test", "Doe John");
         userService.syncUserData("jdoe", "John2", "Doe3", null, null);
         User user = userService.getUser("jdoe");
@@ -186,7 +186,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testReSyncNullUser() {
+    void testReSyncNullUser() {
         userService.syncUserData("jdoe", "John", "Doe", "jdoe@test", "Jon Doe");
         userService.syncUserData("jdoe", null, null, null, null);
         User user = userService.getUser("jdoe");
@@ -218,7 +218,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         assertFalse(userService.existsByName("Foo"));
 
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
@@ -227,7 +227,7 @@ public class UserManagementTest {
     }
 
     @Test
-    public void testSave() {
+    void testSave() {
         Consumer<String> saveTask = username -> userService
                 .addUser(username, "John", "Doe", "qwerty", "jdoe@test", "John Doe");
 

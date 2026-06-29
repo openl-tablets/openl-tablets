@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
-public class AsyncExecutorTest {
+class AsyncExecutorTest {
 
     @Test
-    public void testMultithreadExecution() {
+    void testMultithreadExecution() {
         final int nThread = 3;
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(3, nThread);
 
@@ -38,7 +38,7 @@ public class AsyncExecutorTest {
     }
 
     @Test
-    public void testCriticalError() {
+    void testCriticalError() {
         final int nThread = 3;
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, nThread);
 
@@ -61,7 +61,7 @@ public class AsyncExecutorTest {
     }
 
     @Test
-    public void testTimeout() {
+    void testTimeout() {
         CountDownLatch waitToStart = new CountDownLatch(1);
         Runnable taskMock = mock(Runnable.class);
         doAnswer(args -> {

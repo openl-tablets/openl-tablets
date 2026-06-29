@@ -40,7 +40,7 @@ import org.openl.studio.users.model.pat.PersonalAccessTokenResponse;
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
-public class PersonalAccessTokenServiceImplTest {
+class PersonalAccessTokenServiceImplTest {
 
     // Valid test publicIds matching validation requirements (exactly 16 Base62 chars)
     private static final String TEST_PUBLIC_ID_1 = "publicId12345678"; // 16 chars
@@ -62,7 +62,7 @@ public class PersonalAccessTokenServiceImplTest {
     private Flyway flywayDBReset;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         // Reset all changes done while testing
         flywayDBReset.clean();
         flywayDBReset.migrate();
@@ -70,7 +70,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testSaveAndGetTokensByUser() {
+    void testSaveAndGetTokensByUser() {
         initUser("jdoe");
 
         PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
@@ -92,7 +92,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testGetTokenForUser() {
+    void testGetTokenForUser() {
         initUser("jdoe");
 
         PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
@@ -112,7 +112,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testGetTokenForUser_WrongUser() {
+    void testGetTokenForUser_WrongUser() {
         initUser("jdoe");
         initUser("jsmith");
 
@@ -130,7 +130,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testGetTokenForUser_InvalidPublicId() {
+    void testGetTokenForUser_InvalidPublicId() {
         initUser("jdoe");
 
         // Test null
@@ -146,7 +146,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testExistsByLoginNameAndName() {
+    void testExistsByLoginNameAndName() {
         initUser("jdoe");
 
         PersonalAccessToken token = createToken(TEST_PUBLIC_ID_1, "jdoe", "My Token");
@@ -163,7 +163,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testExistsByPublicId() {
+    void testExistsByPublicId() {
         initUser("jdoe");
 
         PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
@@ -179,7 +179,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testDeleteByPublicId() {
+    void testDeleteByPublicId() {
         initUser("jdoe");
 
         PersonalAccessToken token = createToken(TEST_PUBLIC_ID_4, "jdoe", "My Token");
@@ -199,7 +199,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testDeleteAllByUser() {
+    void testDeleteAllByUser() {
         initUser("jdoe");
         initUser("jsmith");
 
@@ -227,7 +227,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testCascadeDeleteOnUserDeletion() {
+    void testCascadeDeleteOnUserDeletion() {
         initUser("jdoe");
 
         PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_1, "jdoe", "Token 1");
@@ -250,7 +250,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testGetEmptyTokensList() {
+    void testGetEmptyTokensList() {
         initUser("jdoe");
 
         QueryCountHolder.clear();
@@ -264,7 +264,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testTokenResponseMapping() {
+    void testTokenResponseMapping() {
         initUser("jdoe");
 
         // Truncate to milliseconds to match database precision (H2 doesn't preserve nanoseconds)
@@ -293,7 +293,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testTokenWithoutExpiration() {
+    void testTokenWithoutExpiration() {
         initUser("jdoe");
 
         PersonalAccessToken token = new PersonalAccessToken();
@@ -314,7 +314,7 @@ public class PersonalAccessTokenServiceImplTest {
     }
 
     @Test
-    public void testMultipleUsersWithSameTokenName() {
+    void testMultipleUsersWithSameTokenName() {
         initUser("jdoe");
         initUser("jsmith");
 

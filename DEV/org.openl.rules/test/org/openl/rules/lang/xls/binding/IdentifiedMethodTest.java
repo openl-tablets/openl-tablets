@@ -19,10 +19,10 @@ import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.constraints.UniqueInModuleConstraint;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
-public class IdentifiedMethodTest {
+class IdentifiedMethodTest {
 
     @Test
-    public void testCallById() {
+    void testCallById() {
         ITestI instance = TestUtils.create("test/rules/overload/Overload.xls", ITestI.class);
         var context = new DefaultRulesRuntimeContext();
 
@@ -49,7 +49,7 @@ public class IdentifiedMethodTest {
     }
 
     @Test
-    public void testUniqueInModule() {
+    void testUniqueInModule() {
         List<Constraint> constraints = TablePropertyDefinitionUtils.getPropertyByName("id").getConstraints().getAll();
         for (Constraint constraint : constraints) {
             if (constraint instanceof UniqueInModuleConstraint) {
@@ -61,7 +61,7 @@ public class IdentifiedMethodTest {
     }
 
     @Test
-    public void testIdValuePatterns() {
+    void testIdValuePatterns() {
         List<Constraint> constraints = TablePropertyDefinitionUtils.getPropertyByName("id").getConstraints().getAll();
         Constraint regexpConstraint = null;
         for (Constraint constraint : constraints) {

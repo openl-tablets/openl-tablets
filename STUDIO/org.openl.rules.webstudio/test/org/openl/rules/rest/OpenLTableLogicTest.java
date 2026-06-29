@@ -20,10 +20,10 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 
-public class OpenLTableLogicTest {
+class OpenLTableLogicTest {
 
     @Test
-    public void getTargetTables() throws Exception {
+    void getTargetTables() throws Exception {
         WebStudio webStudio = mock(WebStudio.class);
         ProjectModel pm = new ProjectModel(webStudio, null);
         pm.setModuleInfo(getModules().getFirst());

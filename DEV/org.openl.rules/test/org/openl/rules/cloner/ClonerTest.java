@@ -286,7 +286,7 @@ class ClonerTest {
     }
 
     @Test
-    public void testCloneOfSameObject() {
+    void testCloneOfSameObject() {
         var o1 = new Object();
         var o2 = new Object();
 
@@ -313,7 +313,7 @@ class ClonerTest {
     }
 
     @Test
-    public void testCloneBean() {
+    void testCloneBean() {
 
         var cache = new HashMap<>();
         var date = new Date(1234);

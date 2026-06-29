@@ -27,7 +27,7 @@ import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.jaxrs.JAXRSOpenLServiceEnhancer;
 
-public class JAXRSOpenLServiceEnhancerTest {
+class JAXRSOpenLServiceEnhancerTest {
 
     public interface TestInterface {
         void someMethod(int arg);
@@ -62,7 +62,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testNoAnnotationMethod() throws Exception {
+    void testNoAnnotationMethod() throws Exception {
         Class<?> enhancedClass = createService(TestInterface.class);
         boolean f = false;
         boolean producesAnnotationExists = false;
@@ -138,7 +138,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testMethodWithAnnotation1() throws Exception {
+    void testMethodWithAnnotation1() throws Exception {
         Class<?> enhancedClass = createService(TestAnnotatedInterface1.class);
         Method someMethod = enhancedClass.getMethod("someMethod", String.class, String.class);
         Path path = someMethod.getAnnotation(Path.class);
@@ -162,7 +162,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testMethodWithAnnotation2() throws Exception {
+    void testMethodWithAnnotation2() throws Exception {
         Class<?> enhancedClass = createService(TestAnnotatedInterface2.class);
         Method someMethod = null;
         for (Method method : enhancedClass.getMethods()) {
@@ -187,7 +187,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testMethodWithAnnotation3() throws Exception {
+    void testMethodWithAnnotation3() throws Exception {
         Class<?> enhancedClass = createService(TestAnnotatedInterface3.class);
         Method someMethod = null;
         for (Method method : enhancedClass.getMethods()) {
@@ -206,7 +206,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testMethodWithAnnotation() throws Exception {
+    void testMethodWithAnnotation() throws Exception {
         Class<?> enhancedClass = createService(TestAnnotatedInterface.class);
         boolean f = false;
         Annotation pathAnnotation = enhancedClass.getAnnotation(Path.class);
@@ -274,7 +274,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testParametersInMethod() throws Exception {
+    void testParametersInMethod() throws Exception {
         Class<?> enhancedClass = createService(TestParameterInterface.class);
         int i = 0;
         for (Method method : enhancedClass.getMethods()) {
@@ -312,7 +312,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void testMethodNamesAndPath() throws Exception {
+    void testMethodNamesAndPath() throws Exception {
         Class<?> enhancedClass = createService(TestMethodNameAndPath.class);
         Method[] methods = enhancedClass.getMethods();
         assertEquals(3, methods.length, "Method is not found.");
@@ -348,7 +348,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void shouldAddApiResponsesIfNotAnnotatedByApiResponses() throws Exception {
+    void shouldAddApiResponsesIfNotAnnotatedByApiResponses() throws Exception {
         Class<?> enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
         Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         boolean apiResponsesAnnotationExists = false;
@@ -370,7 +370,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses() throws Exception {
+    void shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses() throws Exception {
         Class<?> enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
         Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         boolean apiResponsesAnnotationExists = false;
@@ -392,7 +392,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void shouldNotAddApiResponsesIfAnnotatedByApiResponse() throws Exception {
+    void shouldNotAddApiResponsesIfAnnotatedByApiResponse() throws Exception {
         Class<?> enhancedClass = createService(TestAnnotatedByApiResponseInterface.class);
         Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         boolean apiResponsesAnnotationExists = false;
@@ -417,7 +417,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     @Test
-    public void shouldNotAddApiResponsesIfAlreadyDefinedInOperationAnnotation() throws Exception {
+    void shouldNotAddApiResponsesIfAlreadyDefinedInOperationAnnotation() throws Exception {
         Class<?> enhancedClass = createService(TestAnnotatedByOperationWithResponsesInterface.class);
         Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         boolean apiResponsesAnnotationExists = false;

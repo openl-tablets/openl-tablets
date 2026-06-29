@@ -49,7 +49,7 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
 
-public class RunStoreLogDataITest {
+class RunStoreLogDataITest {
     private static final Logger LOG = LoggerFactory.getLogger(RunStoreLogDataITest.class);
 
     public static final int POLL_INTERVAL_IN_MILLISECONDS = 500;
@@ -69,7 +69,7 @@ public class RunStoreLogDataITest {
             .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094");// See KAFKA-18281
 
     @BeforeAll
-    public static void setUp() throws Exception {
+    static void setUp() throws Exception {
         h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
         String dbUrl = "jdbc:h2:" + h2Server.getURL() + "/mem:mydb";
@@ -85,7 +85,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaMethodServiceOk() {
+    void testKafkaMethodServiceOk() {
         final String REQUEST = "{\"hour\": 5}";
         final String RESPONSE = "Good Morning";
 
@@ -97,7 +97,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaServiceOkWithNoOutputTopic() {
+    void testKafkaServiceOkWithNoOutputTopic() {
         final String REQUEST = "{\"hour\": 5}";
 
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
@@ -112,7 +112,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaMethodServiceFail() {
+    void testKafkaMethodServiceFail() {
         final String REQUEST = "5";
 
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
@@ -123,7 +123,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaServiceOk() {
+    void testKafkaServiceOk() {
         final String REQUEST = "{\"hour\": 5}";
         final String RESPONSE = "Good Morning";
 
@@ -137,7 +137,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaServiceFail() {
+    void testKafkaServiceFail() {
         final String REQUEST = "5";
         final String RESPONSE = "5";
 
@@ -149,7 +149,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testSyncStoreFails() {
+    void testSyncStoreFails() {
         truncateH2TableIfExists(getDBTableName(HelloEntity9.class));
         client.send("simple4_Hello3.post");
         client.send("simple4_Hello3.post.gzip");
@@ -157,7 +157,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testRestServiceOk() {
+    void testRestServiceOk() {
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
         client.send("simple3_Hello");
@@ -166,7 +166,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testRestServiceFail() {
+    void testRestServiceFail() {
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
         client.send("simple3_Hello_fail");
@@ -175,7 +175,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testStoreLogDataAnnotations() throws Exception {
+    void testStoreLogDataAnnotations() throws Exception {
         final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
         final String RESPONSE = "Good Morning";
 
@@ -276,7 +276,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testStoreLogDataAnnotationsAdvanced() {
+    void testStoreLogDataAnnotationsAdvanced() {
         final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
         final String RESPONSE = "I don't know";
 
@@ -331,7 +331,7 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaHeaderAnnotations() {
+    void testKafkaHeaderAnnotations() {
         final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
         final String RESPONSE = "Good Morning";
 
@@ -433,7 +433,7 @@ public class RunStoreLogDataITest {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
 
         client.close();
 

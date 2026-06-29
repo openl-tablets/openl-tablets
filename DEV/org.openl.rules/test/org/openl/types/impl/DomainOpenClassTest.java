@@ -13,10 +13,10 @@ import org.openl.types.DomainOpenClassAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class DomainOpenClassTest {
+class DomainOpenClassTest {
 
     @Test
-    public void testNotArray() {
+    void testNotArray() {
         IOpenClass baseClass = JavaOpenClass.STRING;
         IDomain<String> domain = new EnumDomain<>(new String[]{"Value1", "Value2"});
         DomainOpenClass domainClass = new DomainOpenClass("TestClass", baseClass, domain, null, null);
@@ -36,7 +36,7 @@ public class DomainOpenClassTest {
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         IOpenClass baseClass = JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING);
         IDomain<String> domain = new EnumDomain<>(new String[]{"Value1", "Value2"});
         DomainOpenClass domainClass = new DomainOpenClass("TestClass[]", baseClass, domain, null, null);

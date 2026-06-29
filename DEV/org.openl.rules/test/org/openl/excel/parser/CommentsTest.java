@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellComment;
 
-public class CommentsTest {
+class CommentsTest {
     private static final String FOLDER = FolderUtils.getResourcesFolder();
     private static final String XLS = FOLDER + "CommentWithShapes.xls";
     private static final String XLSX = FOLDER + "CommentsWithShapes.xlsx";
 
     @Test
-    public void commentWithDomInXls() {
+    void commentWithDomInXls() {
         try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLS)) {
             ICellComment comment = readComment(reader);
 
@@ -24,7 +24,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void commentWithDomInXlsx() {
+    void commentWithDomInXlsx() {
         try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLSX)) {
             ICellComment comment = readComment(reader);
 
@@ -34,7 +34,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void commentWithSaxInXls() {
+    void commentWithSaxInXls() {
         try (ExcelReader reader = ExcelReaderFactory.sequentialFactory().create(XLS)) {
             ICellComment comment = readComment(reader);
 
@@ -44,7 +44,7 @@ public class CommentsTest {
     }
 
     @Test
-    public void commentWithSaxInXlsx() {
+    void commentWithSaxInXlsx() {
         try (ExcelReader reader = ExcelReaderFactory.sequentialFactory().create(XLSX)) {
             ICellComment comment = readComment(reader);
 

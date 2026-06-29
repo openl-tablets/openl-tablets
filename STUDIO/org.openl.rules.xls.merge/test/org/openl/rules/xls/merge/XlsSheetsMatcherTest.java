@@ -16,19 +16,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
-public class XlsSheetsMatcherTest {
+class XlsSheetsMatcherTest {
 
     private static final Path TEST_RES = Path.of("test-resources");
     private static final Path TEST_CL = Path.of("target/test-classes");
     private static final Logger LOG = LoggerFactory.getLogger("Excel Sheet Matcher Test");
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         ZipSecureFile.setMinInflateRatio(0.001);
     }
 
     @Test
-    public void testBaseWorkbook_shouldAlwaysMatchItself() throws IOException {
+    void testBaseWorkbook_shouldAlwaysMatchItself() throws IOException {
         assertTrue(matchWorkbooksTest(TEST_RES.resolve("BaseWorkbook.xlsx"), TEST_CL.resolve("BaseWorkbook.xlsx")));
     }
 
@@ -57,7 +57,7 @@ public class XlsSheetsMatcherTest {
     }
 
     @Test
-    public void testBaseWorkbookAndChanged_shouldAlwaysChanged() throws IOException {
+    void testBaseWorkbookAndChanged_shouldAlwaysChanged() throws IOException {
         assertTrue(notMatchWorkbooksTest(TEST_RES.resolve("BaseWorkbook.xlsx"), TEST_RES.resolve("Changed Workbook.xlsx")));
     }
 

@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.TypeInfo;
 
-public class PathInfoTest {
+class PathInfoTest {
 
     public static final String APPLICATION_JSON = "application/json";
     public static final String TEXT_PLAIN = "text/plain";
     public static final String TEXT_JAVASCRIPT = "text/javascript";
 
     @Test
-    public void testPathInfoCreation() {
+    void testPathInfoCreation() {
         PathInfo xyzPath = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.POST,

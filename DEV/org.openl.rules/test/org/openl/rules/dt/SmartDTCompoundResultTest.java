@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class SmartDTCompoundResultTest {
+class SmartDTCompoundResultTest {
     private static Object instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create("test/rules/dt/SmartDTCompoundResultTest.xls");
     }
 
     @Test
-    public void test1() {
+    void test1() {
         Object result = TestUtils.invoke(instance, "test1", 1, "XXX");
         String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
@@ -35,7 +35,7 @@ public class SmartDTCompoundResultTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Object result = TestUtils.invoke(instance, "test2", "XXX", 1, "");
         String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
@@ -59,7 +59,7 @@ public class SmartDTCompoundResultTest {
     }
 
     @Test
-    public void test3() {
+    void test3() {
         Object result = TestUtils.invoke(instance, "test3", 1);
         String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
@@ -83,7 +83,7 @@ public class SmartDTCompoundResultTest {
     }
 
     @Test
-    public void test4() {
+    void test4() {
         Object result = TestUtils.invoke(instance, "test4", 1);
         String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
@@ -107,7 +107,7 @@ public class SmartDTCompoundResultTest {
     }
 
     @Test
-    public void test5() {
+    void test5() {
         Object result = TestUtils.invoke(instance, "test5", 1);
         String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);

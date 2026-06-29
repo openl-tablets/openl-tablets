@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {
+class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/validation/TestPropertyValidation.xls";
 
@@ -13,7 +13,7 @@ public class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testError() {
+    void testError() {
         getCompiledOpenClass().getOpenClass();
     }
 

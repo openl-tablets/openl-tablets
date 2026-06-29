@@ -29,7 +29,7 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class RulesPublisherTest {
+class RulesPublisherTest {
     private static final String DRIVER = "org.openl.generated.beans.publisher.test.Driver";
     private static final String COVERAGE = "coverage";
     private static final String DATA2 = "data2";
@@ -44,7 +44,7 @@ public class RulesPublisherTest {
     private ApplicationContext applicationContext;
 
     @Test
-    public void testMultiModuleService() throws Exception {
+    void testMultiModuleService() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
@@ -56,7 +56,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMultipleServices() throws Exception {
+    void testMultipleServices() throws Exception {
         assertNotNull(applicationContext);
         ServiceInfoProvider serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
         assertNotNull(serviceManager);
@@ -75,7 +75,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testCompilationByRequest() {
+    void testCompilationByRequest() {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
@@ -96,7 +96,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMethodBeforeInterceptors() throws Exception {
+    void testMethodBeforeInterceptors() throws Exception {
         assertThrows(MethodInvocationException.class, () -> {
             assertNotNull(applicationContext);
             ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
@@ -119,7 +119,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMethodAfterInterceptors() throws Exception {
+    void testMethodAfterInterceptors() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
@@ -138,7 +138,7 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testServiceClassResolving() throws Exception {
+    void testServiceClassResolving() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

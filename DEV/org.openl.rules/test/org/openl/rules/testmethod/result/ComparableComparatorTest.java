@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class ComparableComparatorTest {
+class ComparableComparatorTest {
     @Test
-    public void test() {
+    void test() {
         ComparableComparator comp = (ComparableComparator) ComparableComparator.getInstance();
 
         assertTrue(comp.isEqual(null, null));

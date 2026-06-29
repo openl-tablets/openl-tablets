@@ -18,12 +18,12 @@ import org.openl.types.impl.AMethod;
 import org.openl.types.java.JavaOpenClassCache;
 import org.openl.vm.IRuntimeEnv;
 
-public class TopClassOpenMethodWrapperCacheTest {
+class TopClassOpenMethodWrapperCacheTest {
 
     private static final int AWAIT_TIMEOUT = 60;
 
     @Test
-    public void test() {
+    void test() {
         IOpenClass openClass1 = new SomeOpenClass("Class1");
         IOpenMethod m1 = new SomeOpenMethod(null);
 

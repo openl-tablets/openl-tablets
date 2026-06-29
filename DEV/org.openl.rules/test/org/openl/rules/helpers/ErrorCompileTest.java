@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class ErrorCompileTest extends BaseOpenlBuilderHelper {
+class ErrorCompileTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/ErrorCompileTest.xlsx";
 
@@ -15,7 +15,7 @@ public class ErrorCompileTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void test() {
+    void test() {
         assertFalse(getCompiledOpenClass().hasErrors());
     }
 

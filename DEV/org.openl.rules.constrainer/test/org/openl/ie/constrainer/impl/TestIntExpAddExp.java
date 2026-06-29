@@ -31,11 +31,11 @@ import org.openl.ie.constrainer.Subject;
  * @version 1.0
  */
 
-public class TestIntExpAddExp {
+class TestIntExpAddExp {
     private final Constrainer C = new Constrainer("TestIntExpAbs");
 
     @Test
-    public void testAttachDetachObserver() {
+    void testAttachDetachObserver() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExp sum = new IntExpAddExp(intvar1, intvar2);
@@ -90,7 +90,7 @@ public class TestIntExpAddExp {
     } // end of testAttachObserver()
 
     @Test
-    public void testCalc_MaxAndCalc_Min() {
+    void testCalc_MaxAndCalc_Min() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
@@ -110,7 +110,7 @@ public class TestIntExpAddExp {
     }
 
     @Test
-    public void testMaxMin() {
+    void testMaxMin() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExp sum = new IntExpAddExp(intvar1, intvar2);
@@ -130,7 +130,7 @@ public class TestIntExpAddExp {
     }
 
     @Test
-    public void testSetMax() {
+    void testSetMax() {
         IntVar intvar1 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
@@ -189,7 +189,7 @@ public class TestIntExpAddExp {
     }
 
     @Test
-    public void testSetMin() {
+    void testSetMin() {
         IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
@@ -248,7 +248,7 @@ public class TestIntExpAddExp {
     }
 
     @Test
-    public void testSetValue() {
+    void testSetValue() {
         IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class LockTest {
+class LockTest {
 
     private Lock lock;
     @TempDir
@@ -26,12 +26,12 @@ public class LockTest {
     static final int MAX_THREADS = Math.min(12, Runtime.getRuntime().availableProcessors() * 2);
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         lock = new Lock(tempDirectoryPath, "my/lock/id");
     }
 
     @Test
-    public void testSimpleLock() {
+    void testSimpleLock() {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock1 = lock.tryLock("user1");
@@ -44,7 +44,7 @@ public class LockTest {
     }
 
     @Test
-    public void testSimultaneousLocks() throws IOException {
+    void testSimultaneousLocks() throws IOException {
         Path user1PrepareLock = lock.createLockFile("user3");
         Path user2PrepareLock = lock.createLockFile("user4");
         boolean user2Lock = lock.finishLockCreating(user2PrepareLock);
@@ -59,7 +59,7 @@ public class LockTest {
     }
 
     @Test
-    public void testSimultaneousLocksWithDelay() throws IOException {
+    void testSimultaneousLocksWithDelay() throws IOException {
         Path user2PrepareLock = lock.createLockFile("user5");
         try {
             TimeUnit.MILLISECONDS.sleep(10);
@@ -80,7 +80,7 @@ public class LockTest {
 
     @Disabled("Unstable test. It proves non-working solution of the Lock system based on the file system.")
     @Test
-    public void testSimultaneousMultiThreadsForDifferentUsers() throws InterruptedException {
+    void testSimultaneousMultiThreadsForDifferentUsers() throws InterruptedException {
         testSimultaneousMultiThreads(true);
         testSimultaneousMultiThreads(false);
     }
@@ -126,7 +126,7 @@ public class LockTest {
     }
 
     @Test
-    public void testSimultaneousMultiThreadsWithWaiting() throws InterruptedException {
+    void testSimultaneousMultiThreadsWithWaiting() throws InterruptedException {
         int streaming = MAX_THREADS;
         int attempts = 100;
         AtomicBoolean passed = new AtomicBoolean(true);
@@ -170,7 +170,7 @@ public class LockTest {
     }
 
     @Test
-    public void testTryLockWithTimeout() {
+    void testTryLockWithTimeout() {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         boolean lock2 = lock.tryLock("user2", 1, TimeUnit.SECONDS);
@@ -184,7 +184,7 @@ public class LockTest {
     }
 
     @Test
-    public void testForceLock() {
+    void testForceLock() {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock.forceLock("user2", 1, TimeUnit.SECONDS);
@@ -193,7 +193,7 @@ public class LockTest {
     }
 
     @Test
-    public void testForceLockInterrupting() {
+    void testForceLockInterrupting() {
         assertTrue(lock.tryLock("user1"));
 
         AtomicBoolean interrupted = new AtomicBoolean(true);

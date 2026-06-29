@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class RuleServicesFilterTest {
+class RuleServicesFilterTest {
 
     @Test
-    public void isAllowedPath() {
+    void isAllowedPath() {
         assertFalse(RuleServicesFilter.isAllowedPath(""));
         assertFalse(RuleServicesFilter.isAllowedPath("file"));
         assertFalse(RuleServicesFilter.isAllowedPath("file.txt"));

@@ -10,18 +10,18 @@ import org.openl.rules.TestUtils;
 /**
  * Created by dl on 10/3/14.
  */
-public class OriginPropertyPriorityDispatchTest {
+class OriginPropertyPriorityDispatchTest {
     private static final String RULES_SOURCE_FILE = "test/rules/dispatching/OriginPropertyPriorityDispatch.xls";
 
     private Rules instance;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         instance = TestUtils.create(RULES_SOURCE_FILE, Rules.class);
     }
 
     @Test
-    public void testOriginProperty() {
+    void testOriginProperty() {
         assertEquals("Deviation", instance.testOriginProperty());
     }
 

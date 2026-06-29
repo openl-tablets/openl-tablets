@@ -36,10 +36,10 @@ import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
 
-public class StringsTest {
+class StringsTest {
 
     @Test
-    public void testContains() {
+    void testContains() {
         // String
         assertFalse(contains(null, null));
         assertFalse(contains(null, ""));
@@ -65,7 +65,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testContainsAny() {
+    void testContainsAny() {
         // String
         assertFalse(containsAny(null, (String) null));
         assertFalse(containsAny(null, ""));
@@ -105,7 +105,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testIsEmpty() {
+    void testIsEmpty() {
         assertTrue(isEmpty(null));
         assertTrue(isEmpty(""));
         assertTrue(isEmpty(" "));
@@ -114,7 +114,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testIsNotEmpty() {
+    void testIsNotEmpty() {
         assertFalse(isNotEmpty(null));
         assertFalse(isNotEmpty(""));
         assertFalse(isNotEmpty(" "));
@@ -123,7 +123,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testLength() {
+    void testLength() {
         assertEquals(0, length(null));
         assertEquals(0, length(""));
         assertEquals(1, length(" "));
@@ -132,7 +132,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testTrim() {
+    void testTrim() {
         assertNull(trim(null));
         assertEquals("", trim(""));
         assertEquals("", trim(" "));
@@ -141,7 +141,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testStartsWith() {
+    void testStartsWith() {
         assertTrue(startsWith(null, null));
         assertFalse(startsWith(null, ""));
         assertFalse(startsWith(null, "asd"));
@@ -160,7 +160,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testEndWith() {
+    void testEndWith() {
         assertTrue(endsWith(null, null));
         assertFalse(endsWith(null, ""));
         assertFalse(endsWith(null, "asd"));
@@ -179,7 +179,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testSubstring() {
+    void testSubstring() {
         assertNull(substring(null, -1));
         assertNull(substring(null, 0));
         assertNull(substring(null, 1));
@@ -198,7 +198,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testSubstringWithEnd() {
+    void testSubstringWithEnd() {
         assertNull(substring(null, -1, 0));
         assertNull(substring(null, 0, 1));
         assertNull(substring(null, 1, -1));
@@ -268,7 +268,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testRemoveStart() {
+    void testRemoveStart() {
         assertNull(removeStart(null, null));
         assertNull(removeStart(null, ""));
         assertNull(removeStart(null, "asd"));
@@ -287,7 +287,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testRemoveEnd() {
+    void testRemoveEnd() {
         assertNull(removeEnd(null, null));
         assertNull(removeEnd(null, ""));
         assertNull(removeEnd(null, "asd"));
@@ -306,7 +306,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testLowerCase() {
+    void testLowerCase() {
         assertNull(lowerCase(null));
         assertEquals("", lowerCase(""));
         assertEquals(" ", lowerCase(" "));
@@ -317,7 +317,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testUpperCase() {
+    void testUpperCase() {
         assertNull(upperCase(null));
         assertEquals("", upperCase(""));
         assertEquals(" ", upperCase(" "));
@@ -328,7 +328,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testReplace() {
+    void testReplace() {
         assertNull(replace(null, null, null));
         assertNull(replace(null, "", ""));
         assertNull(replace(null, "asd", "xyz"));
@@ -350,7 +350,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testReplaceMax() {
+    void testReplaceMax() {
         assertNull(replace(null, null, null, 1));
         assertNull(replace(null, "", "", 1));
         assertNull(replace(null, "asd", "xyz", 1));
@@ -373,7 +373,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertNull(Strings.toString(null));
         assertEquals("", Strings.toString(""));
         assertEquals("    ", Strings.toString("    "));
@@ -398,7 +398,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testToInteger() {
+    void testToInteger() {
         assertNull(toInteger(null));
         assertNull(toInteger(""));
         assertNull(toInteger(" "));
@@ -415,7 +415,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testToDouble() {
+    void testToDouble() {
         assertNull(toDouble(null));
         assertNull(toDouble(""));
         assertNull(toDouble(" "));
@@ -438,7 +438,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testToNumber() {
+    void testToNumber() {
         assertNull(toNumber(null));
         assertNull(toNumber(""));
         assertNull(toNumber(" "));
@@ -458,7 +458,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testIsNumeric() {
+    void testIsNumeric() {
         assertFalse(isNumeric(null));
         assertFalse(isNumeric(""));
         assertFalse(isNumeric(" "));
@@ -482,7 +482,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testConcatenate() {
+    void testConcatenate() {
         assertNull(concatenate((Object[]) null));
         assertNull(concatenate());
         assertNull(concatenate((Object) null));
@@ -499,7 +499,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testLike() {
+    void testLike() {
         assertTrue(like("#", "[#]"));
         assertTrue(like("*", "[*]"));
         assertTrue(like("?", "[?]"));
@@ -612,7 +612,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testTextJoin() {
+    void testTextJoin() {
         assertNull(Strings.textJoin(null, (Object[]) null));
         assertNull(Strings.textJoin("", (Object[]) null));
         assertEquals("", Strings.textJoin(""));
@@ -625,7 +625,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testTextSplit() {
+    void testTextSplit() {
         assertNull(Strings.textSplit(null, null));
         assertArrayEquals(new String[]{""}, Strings.textSplit(null, ""));
         assertArrayEquals(new String[]{"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
@@ -641,7 +641,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testFormat() {
+    void testFormat() {
         assertNull(format(null));
         assertEquals("", format(""));
         assertEquals("", format("", 1, 2));
@@ -663,7 +663,7 @@ public class StringsTest {
     }
 
     @Test
-    public void testToLocale() {
+    void testToLocale() {
         assertNull(toLocale(null));
         assertNull(toLocale(""));
         assertEquals(Locale.of("fr", "FR"), toLocale("fr-FR"));

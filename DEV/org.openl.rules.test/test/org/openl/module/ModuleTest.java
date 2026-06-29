@@ -33,7 +33,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
-public class ModuleTest {
+class ModuleTest {
     private final Logger log = LoggerFactory.getLogger(ModuleTest.class);
 
     /**
@@ -269,7 +269,7 @@ public class ModuleTest {
      * @see junit.framework.TestCase#setUp()
      */
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         Person person = new Person();
         person.setName("John Smith");
         person.setAge(21);
@@ -290,7 +290,7 @@ public class ModuleTest {
     }
 
     @Test
-    public void testModule() throws SyntaxNodeException {
+    void testModule() throws SyntaxNodeException {
         OpenL op = OpenL.getInstance();
 
         ModuleOpenClass module = new ModuleOpenClass("ZZZ", op);
@@ -333,7 +333,7 @@ public class ModuleTest {
      * Test sample "assert" expressions is OpenL
      */
     @Test
-    public void testOpenL() throws SyntaxNodeException {
+    void testOpenL() throws SyntaxNodeException {
         boolean b;
         long t = System.currentTimeMillis();
         b = executeBooleanOpenLExprression(data, OPENL_EXPR);
@@ -348,7 +348,7 @@ public class ModuleTest {
      * Test sample "get" expression in OpenL
      */
     @Test
-    public void testOpenLGet() throws SyntaxNodeException {
+    void testOpenLGet() throws SyntaxNodeException {
         Object obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
         assertSame(obj, data.getAddress());
     }
@@ -357,7 +357,7 @@ public class ModuleTest {
      * Test sample arithemtic expression in OpenL
      */
     @Test
-    public void testOpenLMath() throws SyntaxNodeException {
+    void testOpenLMath() throws SyntaxNodeException {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
@@ -377,7 +377,7 @@ public class ModuleTest {
     }
 
     @Test
-    public void testOpenLOGNLMath() throws SyntaxNodeException {
+    void testOpenLOGNLMath() throws SyntaxNodeException {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */

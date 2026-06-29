@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 
-public class JacksonObjectMapperISO8601DateFormatTest {
+class JacksonObjectMapperISO8601DateFormatTest {
 
     private static final Locale DEFAULT_LOCALE;
     private static final TimeZone DEFAULT_TIMEZONE;
@@ -35,13 +35,13 @@ public class JacksonObjectMapperISO8601DateFormatTest {
     }
 
     @AfterAll
-    public static void afterClass() {
+    static void afterClass() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
 
     @BeforeAll
-    public static void init() throws Exception {
+    static void init() throws Exception {
         mapper = new JacksonObjectMapperFactoryBean().createJacksonObjectMapper();
     }
 
@@ -57,7 +57,7 @@ public class JacksonObjectMapperISO8601DateFormatTest {
 
     @MethodSource("data")
     @ParameterizedTest(name = "Date deserialization to {1} in local time zone from \"{0}\"")
-    public void test(String source, Date target) throws Exception {
+    void test(String source, Date target) throws Exception {
         assertEquals(target, mapper.readValue("\"" + source + "\"", Date.class));
     }
 
@@ -71,7 +71,7 @@ public class JacksonObjectMapperISO8601DateFormatTest {
 
     @MethodSource("zdt")
     @ParameterizedTest(name = "ZonedDateTime serialization/deserialization of {0} ")
-    public void ZonedDateTimeTest(String date) throws Exception {
+    void ZonedDateTimeTest(String date) throws Exception {
         var str = "\"" + date + "\"";
         var zdt = ZonedDateTime.parse(date);
         assertEquals(zdt, mapper.readValue(str, ZonedDateTime.class));

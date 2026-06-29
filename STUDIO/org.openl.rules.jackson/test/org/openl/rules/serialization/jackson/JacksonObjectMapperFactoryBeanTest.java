@@ -23,10 +23,10 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 
-public class JacksonObjectMapperFactoryBeanTest {
+class JacksonObjectMapperFactoryBeanTest {
 
     @Test
-    public void testSpreadsheetResult() throws ClassNotFoundException, IOException {
+    void testSpreadsheetResult() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         SpreadsheetResult value = new SpreadsheetResult();
@@ -39,7 +39,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testRange() throws ClassNotFoundException, IOException {
+    void testRange() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper
@@ -55,7 +55,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testIRulesRuntimeContext() throws ClassNotFoundException, IOException {
+    void testIRulesRuntimeContext() throws ClassNotFoundException, IOException {
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         Date date = new Date();
         context.setCurrentDate(date);
@@ -91,7 +91,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOverrideTypesSmart() throws ClassNotFoundException, IOException {
+    void testOverrideTypesSmart() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setPolymorphicTypeValidation(true);
@@ -118,7 +118,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOverrideTypesEnable() throws ClassNotFoundException, IOException {
+    void testOverrideTypesEnable() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
         bean.setPolymorphicTypeValidation(true);
@@ -146,7 +146,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOverrideTypesEnableMissedClass() throws ClassNotFoundException, IOException {
+    void testOverrideTypesEnableMissedClass() throws ClassNotFoundException, IOException {
         assertThrows(InvalidTypeIdException.class, () -> {
             JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
             bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);

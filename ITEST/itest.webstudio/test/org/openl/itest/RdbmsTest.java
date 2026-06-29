@@ -34,7 +34,7 @@ import org.openl.itest.core.JettyServer;
  * checksum drift and still upgrade.
  */
 @DisabledIfSystemProperty(named = "noDocker", matches = ".*")
-public class RdbmsTest {
+class RdbmsTest {
 
     /**
      * The previous release whose database the current version must be able to upgrade. Its schema
@@ -47,7 +47,7 @@ public class RdbmsTest {
     private static final String HOST_GATEWAY = "host.docker.internal";
 
     @Test
-    public void mysql() throws Exception {
+    void mysql() throws Exception {
         testDB(() -> new MySQLContainer("mysql:lts") {
             @Override
             public String getDriverClassName() {
@@ -62,18 +62,18 @@ public class RdbmsTest {
      * 2. Azure SQL Edge no longer supports the ARM64 platform.
      */
     @Test
-    public void sqlserver() throws Exception {
+    void sqlserver() throws Exception {
         testDB(() -> new MSSQLServerContainer(DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:latest")
                 .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server")).acceptLicense());
     }
 
     @Test
-    public void oracle() throws Exception {
+    void oracle() throws Exception {
         testDB(() -> new OracleContainer("gvenzl/oracle-free:slim-faststart"));
     }
 
     @Test
-    public void postgresql() throws Exception {
+    void postgresql() throws Exception {
         testDB(() -> {
             var db = new PostgreSQLContainer("postgres:alpine");
             db.waitingFor(new HostPortWaitStrategy());

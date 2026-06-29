@@ -10,10 +10,10 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 
-public class RuntimeContextTest {
+class RuntimeContextTest {
 
     @Test
-    public void testEngineRulesContext() {
+    void testEngineRulesContext() {
         ITestI instance = TestUtils.create("test/rules/engine/RulesContextTest.xls", ITestI.class);
         var context = new DefaultRulesRuntimeContext();
 

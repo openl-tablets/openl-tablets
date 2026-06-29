@@ -7,23 +7,23 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-public class MultiArgumentArrayMethodTest {
+class MultiArgumentArrayMethodTest {
     private static final String SRC = "test/rules/binding/MultiArgumentArrayMethodTest.xls";
 
     private static MultiArgumentArrayMethodInterf instance;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         instance = TestUtils.create(SRC, MultiArgumentArrayMethodInterf.class);
     }
 
     @Test
-    public void testMultiArgumentsCall() {
+    void testMultiArgumentsCall() {
         assertEquals(16, instance.callMultiArguments());
     }
 
     @Test
-    public void testMultiArgumentsArrayCall() {
+    void testMultiArgumentsArrayCall() {
         // test calling multi arguments method with 1 array argument
         assertEquals(2, instance.callMultiArgumentsArray().length);
         assertEquals(16, instance.callMultiArgumentsArray()[0]);
@@ -31,7 +31,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testMultiArgumentsArrayCall1() {
+    void testMultiArgumentsArrayCall1() {
         // test calling multi arguments method with 2 array argument
         assertEquals(2, instance.callMultiArgumentsArray1().length);
         assertEquals(26, instance.callMultiArgumentsArray1()[0]);
@@ -39,7 +39,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testMultiArgumentsArrayCall2() {
+    void testMultiArgumentsArrayCall2() {
         // test calling multi arguments method with 3 array argument
         assertEquals(3, instance.callMultiArgumentsArray2().length);
         assertEquals(25, instance.callMultiArgumentsArray2()[0]);
@@ -48,7 +48,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testMultiArgumentsArrayCall3() {
+    void testMultiArgumentsArrayCall3() {
         assertEquals(6, instance.callMultiArgumentsArray3().length);
         assertEquals(24, instance.callMultiArgumentsArray3()[0]);
         assertEquals(25, instance.callMultiArgumentsArray3()[1]);
@@ -59,7 +59,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testMultiArgumentsArrayCall4() {
+    void testMultiArgumentsArrayCall4() {
         assertEquals(12, instance.callMultiArgumentsArray4().length);
 
         assertEquals(13, instance.callMultiArgumentsArray4()[0]);
@@ -80,7 +80,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testMultiArgumentsArrayCall5() {
+    void testMultiArgumentsArrayCall5() {
         assertEquals(6, instance.callMultiArgumentsArray5().length);
 
         assertEquals(14, instance.callMultiArgumentsArray5()[0]);
@@ -93,12 +93,12 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testMultiArgumentsArrayWithNullArgument() {
+    void testMultiArgumentsArrayWithNullArgument() {
         assertEquals(0, instance.callMultiArgumentsArrayWithNullArgument().length);
     }
 
     @Test
-    public void testArrayCall1() {
+    void testArrayCall1() {
         // check calling array of arrays
         assertEquals(2, instance.testArrayCall1().length);
         assertEquals(30, instance.testArrayCall1()[0]);
@@ -106,7 +106,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testArrayCall2() {
+    void testArrayCall2() {
         // check calling array of arrays
         assertEquals(2, instance.testArrayCall2().length);
         assertEquals(30, instance.testArrayCall1()[0]);
@@ -114,7 +114,7 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
-    public void testVoidMultiCall() {
+    void testVoidMultiCall() {
         // calling method with void return type many times
         //
         instance.callVoidMethod();

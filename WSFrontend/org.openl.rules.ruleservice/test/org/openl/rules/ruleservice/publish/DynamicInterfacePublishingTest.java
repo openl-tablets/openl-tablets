@@ -28,13 +28,13 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
 @TestPropertySource(properties = {"production-repository.uri=test-resources/DynamicInterfacePublishingTest",
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
-public class DynamicInterfacePublishingTest {
+class DynamicInterfacePublishingTest {
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Test
-    public void publishWithDynamicInterface() throws RuleServiceInstantiationException {
+    void publishWithDynamicInterface() throws RuleServiceInstantiationException {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
@@ -63,7 +63,7 @@ public class DynamicInterfacePublishingTest {
     }
 
     @Test
-    public void publishWithDynamicInterfaceMethodFilter() throws RuleServiceInstantiationException {
+    void publishWithDynamicInterfaceMethodFilter() throws RuleServiceInstantiationException {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
@@ -89,7 +89,7 @@ public class DynamicInterfacePublishingTest {
     }
 
     @Test
-    public void publishWithDynamicInterfaceMethodInterceptingTest() throws Exception {
+    void publishWithDynamicInterfaceMethodInterceptingTest() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

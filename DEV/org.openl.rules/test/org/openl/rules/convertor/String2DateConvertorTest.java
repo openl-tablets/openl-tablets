@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class String2DateConvertorTest {
+class String2DateConvertorTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
@@ -22,32 +22,32 @@ public class String2DateConvertorTest {
     private Locale defaultLocale;
 
     @BeforeEach
-    public void setupLocale() {
+    void setupLocale() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
     }
 
     @AfterEach
-    public void restoreLocale() {
+    void restoreLocale() {
         Locale.setDefault(defaultLocale);
     }
 
     @Test
-    public void testParse() {
+    void testParse() {
         String2DateConvertor converter = new String2DateConvertor();
         Date result = converter.parse("06/17/2014", null);
         assertEquals(new Date(114, 5, 17), result);
     }
 
     @Test
-    public void testParseByPattern() {
+    void testParseByPattern() {
         String2DateConvertor converter = new String2DateConvertor();
         Date result = converter.parse("17-06-2014", "dd-MM-yyyy");
         assertEquals(new Date(114, 5, 17), result);
     }
 
     @Test
-    public void testParseEmpty() {
+    void testParseEmpty() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2DateConvertor converter = new String2DateConvertor();
             converter.parse("", null);
@@ -55,7 +55,7 @@ public class String2DateConvertorTest {
     }
 
     @Test
-    public void testParseWrongValue() {
+    void testParseWrongValue() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2DateConvertor converter = new String2DateConvertor();
             converter.parse("Kin-Dza-Dza", null);
@@ -63,7 +63,7 @@ public class String2DateConvertorTest {
     }
 
     @Test
-    public void testParseExtraSymbol() {
+    void testParseExtraSymbol() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2DateConvertor converter = new String2DateConvertor();
             converter.parse("2021-01-01T", null);
@@ -71,7 +71,7 @@ public class String2DateConvertorTest {
     }
 
     @Test
-    public void testParseMissprint() {
+    void testParseMissprint() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2DateConvertor converter = new String2DateConvertor();
             converter.parse("10/13/20 17", null);
@@ -79,13 +79,13 @@ public class String2DateConvertorTest {
     }
 
     @Test
-    public void testParseNull() {
+    void testParseNull() {
         String2DateConvertor converter = new String2DateConvertor();
         assertNull(converter.parse(null, null));
     }
 
     @Test
-    public void testParseUSDateTime() {
+    void testParseUSDateTime() {
         String2DateConvertor converter = new String2DateConvertor();
         Date result = converter.parse("04/01/2021 12:00 AM", null);
         assertEquals(createDate(2021, 4, 1, 0, 0, 0, 0), result);
@@ -113,7 +113,7 @@ public class String2DateConvertorTest {
     }
 
     @Test
-    public void testParseISO8601() {
+    void testParseISO8601() {
         String2DateConvertor converter = new String2DateConvertor();
 
         Date result = converter.parse("2021-01-01T01:01", null);
@@ -124,7 +124,7 @@ public class String2DateConvertorTest {
     }
 
     @Test
-    public void testParseISO8601WithTimeZone() {
+    void testParseISO8601WithTimeZone() {
         try {
             // set +2 as default
             setUpTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));

@@ -10,25 +10,25 @@ import org.openl.rules.TestUtils;
  * @author PTarasevich
  */
 
-public class TestDoubleDelta {
+class TestDoubleDelta {
     private static final String FILE_NAME = "test/rules/testmethod/DoubleDeltaTest.xlsx";
 
     @Test
-    public void testSSTest() {
+    void testSSTest() {
         ITestDouble instance = TestUtils.create(FILE_NAME, ITestDouble.class);
         TestUnitsResults result = instance.testSSTest();
         assertEquals(0, result.getNumberOfFailures());
     }
 
     @Test
-    public void testDoubleTest() {
+    void testDoubleTest() {
         ITestDouble instance = TestUtils.create(FILE_NAME, ITestDouble.class);
         TestUnitsResults result = instance.geTestDoubleTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
     @Test
-    public void testDoubleTest2() {
+    void testDoubleTest2() {
         ITestDouble instance = TestUtils.create(FILE_NAME, ITestDouble.class);
         TestUnitsResults result = instance.geTestDoubleTest2();
         assertEquals(1, result.getNumberOfFailures());

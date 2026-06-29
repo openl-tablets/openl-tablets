@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Created by ymolchan on 12.10.2015.
  */
-public class ClassUtilsTest {
+class ClassUtilsTest {
 
     @Test
-    public void testGetPackageName() {
+    void testGetPackageName() {
         assertEquals("", ClassUtils.getPackageName(null));
         assertEquals("", ClassUtils.getPackageName(double.class));
         assertEquals("java.lang", ClassUtils.getPackageName(Double.class));
@@ -29,7 +29,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testGetShortClassName() {
+    void testGetShortClassName() {
         assertEquals("", ClassUtils.getShortClassName(null));
         assertEquals("double", ClassUtils.getShortClassName(double.class));
         assertEquals("Double", ClassUtils.getShortClassName(Double.class));
@@ -42,7 +42,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testCapitalize() {
+    void testCapitalize() {
         assertEquals("A", ClassUtils.capitalize("a"));
         assertEquals("A", ClassUtils.capitalize("A"));
 
@@ -62,7 +62,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testDecapitalize() {
+    void testDecapitalize() {
         assertEquals("a", ClassUtils.decapitalize("a"));
         assertEquals("a", ClassUtils.decapitalize("A"));
 
@@ -82,7 +82,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testGetter() {
+    void testGetter() {
         assertEquals("getA", ClassUtils.getter("a"));
         assertEquals("getA", ClassUtils.getter("A"));
 
@@ -102,7 +102,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testSetter() {
+    void testSetter() {
         assertEquals("setA", ClassUtils.setter("a"));
         assertEquals("setA", ClassUtils.setter("A"));
 
@@ -149,7 +149,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testIsAssignable() {
+    void testIsAssignable() {
         assertTrue(ClassUtils.isAssignable(null, null));
 
         assertTrue(ClassUtils.isAssignable(Integer.class, null));
@@ -174,7 +174,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testSet() throws Exception {
+    void testSet() throws Exception {
         assertEquals("value", setFieldInBean("a", "value").a);
         assertEquals("value", setFieldInBean("c", "value").c);
         assertEquals(10, setFieldInBean("x", 10).e);
@@ -223,7 +223,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testGet() throws Exception {
+    void testGet() throws Exception {
         assertEquals("getter", getFieldInBean("a"));
         assertThrows(IllegalAccessException.class, () -> {
             getFieldInBean("b");
@@ -246,7 +246,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testGetType() throws Exception {
+    void testGetType() throws Exception {
         var bean = new Bean();
         assertEquals(String.class, ClassUtils.getType(bean, "a"));
         assertEquals(String.class, ClassUtils.getType(bean, "b"));

@@ -18,13 +18,13 @@ import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml"})
-public class RuleServicePublisherListenerTest {
+class RuleServicePublisherListenerTest {
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         assertNotNull(applicationContext);
         ServiceInfoProvider serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
         assertNotNull(serviceManager);

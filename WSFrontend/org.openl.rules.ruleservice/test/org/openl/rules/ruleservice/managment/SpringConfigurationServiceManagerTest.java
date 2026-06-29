@@ -22,7 +22,7 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
         "production-repository.uri = test-resources/openl-repository/deploy"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext
-public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
+class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
@@ -32,7 +32,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
     }
 
     @Test
-    public void testServiceManager() throws MethodInvocationException {
+    void testServiceManager() throws MethodInvocationException {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
@@ -46,7 +46,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
     }
 
     @Test
-    public void testExceptionFramework() throws Exception {
+    void testExceptionFramework() throws Exception {
         assertThrows(MethodInvocationException.class, () -> {
             assertNotNull(applicationContext);
             ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);

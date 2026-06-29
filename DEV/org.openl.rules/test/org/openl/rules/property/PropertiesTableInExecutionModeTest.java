@@ -31,12 +31,12 @@ import org.openl.types.java.JavaOpenClass;
  *
  * @author PUdalau
  */
-public class PropertiesTableInExecutionModeTest {
+class PropertiesTableInExecutionModeTest {
 
     private static final String SRC = "test/rules/PropertyTableTest.xls";
 
     @Test
-    public void testPropertyTableLoading() {
+    void testPropertyTableLoading() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
@@ -77,7 +77,7 @@ public class PropertiesTableInExecutionModeTest {
     }
 
     @Test
-    public void testFieldsInOpenClass() {
+    void testFieldsInOpenClass() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();

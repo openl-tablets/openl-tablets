@@ -13,7 +13,7 @@ import org.openl.rules.table.LogicalTableHelper;
 /**
  * Created by dl on 6/16/14.
  */
-public class MockGridTableTest {
+class MockGridTableTest {
 
     private static final String CELL1 = "cell1";
     private static final String CELL2 = "cell2";
@@ -23,7 +23,7 @@ public class MockGridTableTest {
     private static final String CELL6 = "cell6";
 
     @Test
-    public void testCellMergedHorizontally() {
+    void testCellMergedHorizontally() {
         String[][] mas = new String[1][3];
         mas[0][0] = CELL1;
         mas[0][1] = null;
@@ -41,7 +41,7 @@ public class MockGridTableTest {
     }
 
     @Test
-    public void testCellMergedVertically() {
+    void testCellMergedVertically() {
         String[][] mas = new String[3][1];
         mas[0][0] = CELL1;
         mas[1][0] = null;
@@ -59,7 +59,7 @@ public class MockGridTableTest {
     }
 
     @Test
-    public void testCellMergedVertically1() {
+    void testCellMergedVertically1() {
         String[][] mas = new String[3][1];
         mas[0][0] = null;
         mas[1][0] = CELL1;
@@ -73,7 +73,7 @@ public class MockGridTableTest {
     }
 
     @Test
-    public void testGridTable() {
+    void testGridTable() {
         String[][] mas = new String[2][3];
         mas[0][0] = CELL1;
         mas[0][1] = CELL2;
@@ -103,7 +103,7 @@ public class MockGridTableTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         String[][] mas = new String[2][3];
         mas[0][0] = "Datatype Test";
         mas[0][1] = null;

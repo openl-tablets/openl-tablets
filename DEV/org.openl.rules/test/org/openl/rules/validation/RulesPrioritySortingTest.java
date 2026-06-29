@@ -12,7 +12,7 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 
-public class RulesPrioritySortingTest {
+class RulesPrioritySortingTest {
     public interface ITestI {
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext context, String driverRisk);
 
@@ -24,7 +24,7 @@ public class RulesPrioritySortingTest {
     }
 
     @Test
-    public void testStartRequestDate() throws Exception {
+    void testStartRequestDate() throws Exception {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         var context = new DefaultRulesRuntimeContext();
 
@@ -56,7 +56,7 @@ public class RulesPrioritySortingTest {
     }
 
     @Test
-    public void testEndRequestDate() throws Exception {
+    void testEndRequestDate() throws Exception {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         var context = new DefaultRulesRuntimeContext();
 
@@ -76,7 +76,7 @@ public class RulesPrioritySortingTest {
     }
 
     @Test
-    public void testFilledPropertiesSorting() throws Exception {
+    void testFilledPropertiesSorting() throws Exception {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         var context = new DefaultRulesRuntimeContext();
 

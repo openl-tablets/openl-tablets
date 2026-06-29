@@ -21,18 +21,18 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class XlsSheetCopierTest {
+class XlsSheetCopierTest {
 
     private static final Path FUNC_TEST = Path.of("test-resources/functional-copy");
     private static final Path TARGET = Path.of("target/test-merged");
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         ZipSecureFile.setMinInflateRatio(0.001);
     }
 
     @Test
-    public void testFunctional() throws IOException {
+    void testFunctional() throws IOException {
         File[] files = FUNC_TEST.toFile().listFiles();
         assertNotNull(files);
         int counter = 0;

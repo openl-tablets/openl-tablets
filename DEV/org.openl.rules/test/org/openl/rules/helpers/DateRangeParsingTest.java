@@ -14,10 +14,10 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-public class DateRangeParsingTest {
+class DateRangeParsingTest {
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("02/11/2020 01:01:01", new DateRange("2/11/2020 01:01:1").toString());
         assertEquals("12/12/2019 00:00:00", new DateRange("12/12/2019").toString());
         assertEquals("03/12/2019 00:00:00", new DateRange("03/12/2019").toString());
@@ -78,13 +78,13 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testEquals() throws ParseException {
+    void testEquals() throws ParseException {
         assertEquals(new DateRange(toDate("03/12/2019 00:00:00"), toDate("03/12/2019 00:00:00")),
                 new DateRange("03/12/2019"));
     }
 
     @Test
-    public void testSimpleRangeFormat() throws ParseException {
+    void testSimpleRangeFormat() throws ParseException {
         DateRange range = new DateRange("03/12/2019");
         assertInclude(range, "03/12/2019 00:00:00");
         assertExclude(range, "03/12/2019 00:00:01", "03/11/2019 23:59:59");
@@ -99,7 +99,7 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testMinMaxRangeFormat() throws ParseException {
+    void testMinMaxRangeFormat() throws ParseException {
         DateRange range = new DateRange("03/12/2019 - 12/01/2019");
         assertInclude(range,
                 "03/12/2019 00:00:00",
@@ -136,7 +136,7 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testVerbal() throws ParseException {
+    void testVerbal() throws ParseException {
         DateRange range = new DateRange("03/12/2019 and more");
         assertInclude(range,
                 "03/12/2019 00:00:00",
@@ -177,7 +177,7 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormat() throws ParseException {
+    void testMoreLessFormat() throws ParseException {
         DateRange range = new DateRange(">= 03/12/2019");
         assertInclude(range,
                 "03/12/2019 00:00:00",
@@ -228,7 +228,7 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testBracketsFormat() throws ParseException {
+    void testBracketsFormat() throws ParseException {
         DateRange range = new DateRange("[03/12/2019; 12/01/2019]");
         assertInclude(range,
                 "03/12/2019 00:00:00",
@@ -264,7 +264,7 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testMoreLessFormatBothBounds() throws ParseException {
+    void testMoreLessFormatBothBounds() throws ParseException {
         DateRange range = new DateRange(">=03/12/2019 <=12/01/2019");
         assertInclude(range,
                 "03/12/2019 00:00:00",
@@ -333,13 +333,13 @@ public class DateRangeParsingTest {
     }
 
     @Test
-    public void testNulls() {
+    void testNulls() {
         DateRange range = new DateRange("<12/01/2019 >03/12/2019");
         assertFalse(range.contains((Date) null));
     }
 
     @Test
-    public void testNegativeCases() {
+    void testNegativeCases() {
         assertParseException(null);
         assertParseException("foo");
         assertParseException("3/2/2019 1:1:");

@@ -6,10 +6,10 @@ import java.nio.file.InvalidPathException;
 
 import org.junit.jupiter.api.Test;
 
-public class RepositoryTest {
+class RepositoryTest {
 
     @Test
-    public void validPath() {
+    void validPath() {
         Repository.validatePath(null);
         Repository.validatePath("");
         Repository.validatePath(" ");
@@ -27,7 +27,7 @@ public class RepositoryTest {
     }
 
     @Test
-    public void invalidPath() {
+    void invalidPath() {
         assertInvalidPath("/absolute");
         assertInvalidPath("/");
         assertInvalidPath(".");

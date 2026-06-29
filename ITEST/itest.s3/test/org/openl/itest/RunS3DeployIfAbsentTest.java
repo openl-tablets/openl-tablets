@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
-public class RunS3DeployIfAbsentTest extends AbstractS3Test {
+class RunS3DeployIfAbsentTest extends AbstractS3Test {
 
     @Test
-    public void testWhenDeployJarsIfAbsent() throws Exception {
+    void testWhenDeployJarsIfAbsent() throws Exception {
         try (var deployer = new RulesDeployerService(config::get)) {
             deployer.deploy(Path.of("test-resources/openl/multiple-deployment-datasource.zip"), false);
         }

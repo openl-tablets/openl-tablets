@@ -17,7 +17,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 
-public class MappedRepositoryTest {
+class MappedRepositoryTest {
 
     @TempDir
     Path root;
@@ -30,7 +30,7 @@ public class MappedRepositoryTest {
      * so the fallback is verified at the repository level. See {@code ProjectDescriptor#fillProjectName}.
      */
     @Test
-    public void blankRulesXmlNameFallsBackToFolderName() throws IOException {
+    void blankRulesXmlNameFallsBackToFolderName() throws IOException {
         writeProject("no-name-project", "<project><name></name></project>");
         writeProject("absent-name-project", "<project></project>");
         writeProject("named-project", "<project><name>RealName</name></project>");

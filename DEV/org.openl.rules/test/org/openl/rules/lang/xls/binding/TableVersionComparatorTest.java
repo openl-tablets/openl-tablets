@@ -7,21 +7,21 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.table.properties.TableProperties;
 
-public class TableVersionComparatorTest {
+class TableVersionComparatorTest {
 
     private TableVersionComparator comparator;
     private TableProperties first;
     private TableProperties second;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         comparator = TableVersionComparator.getInstance();
         first = new TableProperties();
         second = new TableProperties();
     }
 
     @Test
-    public void testCompareEqualProperties() {
+    void testCompareEqualProperties() {
         // two different instances
         first.setActive(Boolean.TRUE);
         second.setActive(Boolean.TRUE);
@@ -37,21 +37,21 @@ public class TableVersionComparatorTest {
     }
 
     @Test
-    public void testLess() {
+    void testLess() {
         first.setActive(true);
         second.setActive(false);
         assertEquals(-1, comparator.compare(first, second));
     }
 
     @Test
-    public void testMore() {
+    void testMore() {
         first.setActive(false);
         second.setActive(true);
         assertEquals(1, comparator.compare(first, second));
     }
 
     @Test
-    public void testCompareNullProperties() {
+    void testCompareNullProperties() {
         first.setActive(null);
         second.setActive(Boolean.TRUE);
         assertEquals(0, comparator.compare(first, second));
@@ -74,14 +74,14 @@ public class TableVersionComparatorTest {
     }
 
     @Test
-    public void testLessByActive() {
+    void testLessByActive() {
         first.setActive(true);
         second.setActive(false);
         assertEquals(-1, comparator.compare(first, second));
     }
 
     @Test
-    public void testMoreByActive() {
+    void testMoreByActive() {
         first.setActive(false);
         second.setActive(true);
         assertEquals(1, comparator.compare(first, second));

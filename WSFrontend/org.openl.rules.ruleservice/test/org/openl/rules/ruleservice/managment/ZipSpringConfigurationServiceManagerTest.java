@@ -19,13 +19,13 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
         "production-repository.archives = ErrorTest/ErrorTest, org.openl.tablets.tutorial4/org.openl.tablets.tutorial4"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext
-public class ZipSpringConfigurationServiceManagerTest {
+class ZipSpringConfigurationServiceManagerTest {
 
     @Autowired
     private RulesFrontend frontend;
 
     @Test
-    public void testServiceManager() throws MethodInvocationException {
+    void testServiceManager() throws MethodInvocationException {
         Object object = frontend.execute("org.openl.tablets_org.openl.tablets",
                 "vehicleEligibilityScore",
                 "Provisional");
@@ -34,7 +34,7 @@ public class ZipSpringConfigurationServiceManagerTest {
     }
 
     @Test
-    public void testExceptionFramework() throws Exception {
+    void testExceptionFramework() throws Exception {
         assertThrows(MethodInvocationException.class, () -> {
             frontend.execute("ErrorTest_ErrorTest",
                     "vehicleEligibilityScore",

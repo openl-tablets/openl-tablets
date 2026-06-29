@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 
-public class OptimizedDTConditionBuildingTest {
+class OptimizedDTConditionBuildingTest {
     public interface DTConditionBuilding {
         String sayHello(int hour, boolean sayGood, Integer caseNumber);
     }
@@ -17,7 +17,7 @@ public class OptimizedDTConditionBuildingTest {
     private DTConditionBuilding instance;
 
     @BeforeEach
-    public void initEngine() {
+    void initEngine() {
         RulesEngineFactory<DTConditionBuilding> engineFactory = new RulesEngineFactory<>(SRC,
                 DTConditionBuilding.class);
 
@@ -25,7 +25,7 @@ public class OptimizedDTConditionBuildingTest {
     }
 
     @Test
-    public void testGoodCase() {
+    void testGoodCase() {
         String result = instance.sayHello(13, true, 2);
         assertEquals("Good Afternoon", result);
     }

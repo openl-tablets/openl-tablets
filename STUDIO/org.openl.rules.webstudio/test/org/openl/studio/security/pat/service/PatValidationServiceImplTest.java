@@ -33,7 +33,7 @@ import org.openl.studio.security.pat.model.PatValidationResult;
  * Tests token validation logic using mocked dependencies.
  */
 @ExtendWith(MockitoExtension.class)
-public class PatValidationServiceImplTest {
+class PatValidationServiceImplTest {
 
     // Valid test tokens matching PatToken format requirements (16 char publicId, 32 char secret)
     private static final String TEST_PUBLIC_ID = "abc123DEF4567890"; // 16 Base62 chars
@@ -53,7 +53,7 @@ public class PatValidationServiceImplTest {
     private PatValidationService validationService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         // Use real BCrypt encoder for realistic password hashing
         passwordEncoder = new BCryptPasswordEncoder(10);
 
@@ -65,7 +65,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_ValidToken() {
+    void testValidate_ValidToken() {
         // Arrange
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
@@ -86,7 +86,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_TokenNotFound() {
+    void testValidate_TokenNotFound() {
         // Arrange
         when(tokenDao.getByPublicId(eq(NONEXISTENT_ID))).thenReturn(null);
 
@@ -105,7 +105,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_SecretMismatch() {
+    void testValidate_SecretMismatch() {
         // Arrange
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
@@ -124,7 +124,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_ExpiredToken() {
+    void testValidate_ExpiredToken() {
         // Arrange
         Instant oneHourAgo = FIXED_TIME.minusSeconds(3600);
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
@@ -143,7 +143,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_TokenWithoutExpiration() {
+    void testValidate_TokenWithoutExpiration() {
         // Arrange
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
@@ -162,7 +162,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_TokenExpiresInFuture() {
+    void testValidate_TokenExpiresInFuture() {
         // Arrange
         Instant oneDayLater = FIXED_TIME.plusSeconds(86400);
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneDayLater);
@@ -181,7 +181,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_TokenExpiresExactlyNow() {
+    void testValidate_TokenExpiresExactlyNow() {
         // Arrange
         // Token expires at exactly the current time (boundary condition)
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, FIXED_TIME);
@@ -201,7 +201,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_TokenJustExpired() {
+    void testValidate_TokenJustExpired() {
         // Arrange
         Instant justExpired = FIXED_TIME.minusMillis(1);
         PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, justExpired);
@@ -220,7 +220,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_MultipleTokens() {
+    void testValidate_MultipleTokens() {
         // Arrange
         PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_2, "jdoe", TEST_SECRET_2, null);
         PersonalAccessToken token2 = createToken(TEST_PUBLIC_ID_3, "jsmith", TEST_SECRET_3, null);
@@ -247,7 +247,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_CaseSensitiveSecret() {
+    void testValidate_CaseSensitiveSecret() {
         // Arrange - Test that secrets are case-sensitive
         String caseSensitiveSecret = "MySecretABC123456789012345678XY"; // 32 chars
         String wrongCaseSecret = "mysecretabc123456789012345678xy"; // same but lowercase
@@ -267,7 +267,7 @@ public class PatValidationServiceImplTest {
     }
 
     @Test
-    public void testValidate_ExpiredTokenWithCorrectSecret() {
+    void testValidate_ExpiredTokenWithCorrectSecret() {
         // Arrange
         // Even though secret is correct, token should be rejected if expired
         Instant oneHourAgo = FIXED_TIME.minusSeconds(3600);

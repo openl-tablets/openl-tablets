@@ -38,7 +38,7 @@ import org.openl.studio.users.service.pat.PersonalAccessTokenService;
  * Tests token generation logic using mocked dependencies.
  */
 @ExtendWith(MockitoExtension.class)
-public class PatGeneratorServiceImplTest {
+class PatGeneratorServiceImplTest {
 
     private static final Instant FIXED_TIME = Instant.parse("2025-01-01T12:00:00Z");
 
@@ -49,7 +49,7 @@ public class PatGeneratorServiceImplTest {
     private PatGeneratorService generatorService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         // Use real BCrypt encoder for realistic password hashing
         passwordEncoder = new BCryptPasswordEncoder(10);
 
@@ -61,7 +61,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_WithoutExpiration() {
+    void testGenerateToken_WithoutExpiration() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
@@ -94,7 +94,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_WithFutureExpiration() {
+    void testGenerateToken_WithFutureExpiration() {
         // Arrange
         Instant futureExpiration = FIXED_TIME.plusSeconds(86400); // 1 day later
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
@@ -113,7 +113,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_WithPastExpiration_ThrowsException() {
+    void testGenerateToken_WithPastExpiration_ThrowsException() {
         // Arrange
         Instant pastExpiration = FIXED_TIME.minusSeconds(3600); // 1 hour ago
 
@@ -128,7 +128,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_WithExpirationAtCurrentTime_IsValid() {
+    void testGenerateToken_WithExpirationAtCurrentTime_IsValid() {
         // Arrange
         // Implementation uses isBefore(), so expiring exactly at current time is valid
         Instant currentTime = FIXED_TIME;
@@ -145,7 +145,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_HandlesPublicIdCollision() {
+    void testGenerateToken_HandlesPublicIdCollision() {
         // Arrange
         // Simulate collision on first attempt, then success
         when(crudService.existsByPublicId(anyString()))
@@ -166,7 +166,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_SavedTokenHasHashedSecret() {
+    void testGenerateToken_SavedTokenHasHashedSecret() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
         ArgumentCaptor<PersonalAccessToken> tokenCaptor = ArgumentCaptor.forClass(PersonalAccessToken.class);
@@ -193,7 +193,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_SavedTokenHasCorrectFields() {
+    void testGenerateToken_SavedTokenHasCorrectFields() {
         // Arrange
         Instant futureExpiration = FIXED_TIME.plusSeconds(86400);
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
@@ -215,7 +215,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_MultipleCalls_GenerateDifferentTokens() {
+    void testGenerateToken_MultipleCalls_GenerateDifferentTokens() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
@@ -231,7 +231,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_ResponseContainsAllFields() {
+    void testGenerateToken_ResponseContainsAllFields() {
         // Arrange
         Instant futureExpiration = FIXED_TIME.plusSeconds(86400);
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
@@ -254,7 +254,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_TokenCanBeParsed() {
+    void testGenerateToken_TokenCanBeParsed() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
@@ -269,7 +269,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_VerifyPublicIdUniqueness() {
+    void testGenerateToken_VerifyPublicIdUniqueness() {
         // Arrange
         ArgumentCaptor<String> publicIdCaptor = ArgumentCaptor.forClass(String.class);
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
@@ -288,7 +288,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_DifferentUsers() {
+    void testGenerateToken_DifferentUsers() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 
@@ -306,7 +306,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_WithLongTokenName() {
+    void testGenerateToken_WithLongTokenName() {
         // Arrange
         String longName = "A".repeat(100); // Max length per schema
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
@@ -323,7 +323,7 @@ public class PatGeneratorServiceImplTest {
     }
 
     @Test
-    public void testGenerateToken_PublicIdAndSecretAreBase62() {
+    void testGenerateToken_PublicIdAndSecretAreBase62() {
         // Arrange
         when(crudService.existsByPublicId(anyString())).thenReturn(false);
 

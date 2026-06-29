@@ -42,7 +42,7 @@ import org.openl.studio.security.pat.model.PatValidationResult;
  * Tests authentication resolution logic using mocked dependencies.
  */
 @ExtendWith(MockitoExtension.class)
-public class PatAuthServiceImplTest {
+class PatAuthServiceImplTest {
 
     // Valid test tokens matching PatToken format requirements (16 char publicId, 32 char secret)
     private static final String TEST_PUBLIC_ID = "publicId12345678"; // 16 Base62 chars
@@ -59,12 +59,12 @@ public class PatAuthServiceImplTest {
     private PatAuthService authService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         authService = new PatAuthServiceImpl(validator, userDetailsService);
     }
 
     @Test
-    public void testResolveAuthentication_ValidToken() {
+    void testResolveAuthentication_ValidToken() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
@@ -95,7 +95,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_InvalidToken() {
+    void testResolveAuthentication_InvalidToken() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PatValidationResult invalidResult = PatValidationResult.invalid();
@@ -115,7 +115,7 @@ public class PatAuthServiceImplTest {
 
 
     @Test
-    public void testResolveAuthentication_ValidToken_UserNotFound() {
+    void testResolveAuthentication_ValidToken_UserNotFound() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
@@ -134,7 +134,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_UserWithoutAuthorities() {
+    void testResolveAuthentication_UserWithoutAuthorities() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
@@ -160,7 +160,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_UserWithSingleAuthority() {
+    void testResolveAuthentication_UserWithSingleAuthority() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
@@ -188,7 +188,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_MultipleTokensDifferentUsers() {
+    void testResolveAuthentication_MultipleTokensDifferentUsers() {
         // Arrange
         // First token for jdoe
         PatToken patToken1 = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
@@ -229,7 +229,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_AuthenticationIsAuthenticated() {
+    void testResolveAuthentication_AuthenticationIsAuthenticated() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
@@ -255,7 +255,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_VerifyAuthenticationStructure() {
+    void testResolveAuthentication_VerifyAuthenticationStructure() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
@@ -287,7 +287,7 @@ public class PatAuthServiceImplTest {
     }
 
     @Test
-    public void testResolveAuthentication_SameTokenMultipleTimes() {
+    void testResolveAuthentication_SameTokenMultipleTimes() {
         // Arrange
         PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PersonalAccessToken storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");

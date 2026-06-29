@@ -7,31 +7,31 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class String2EnumConvertorTest {
+class String2EnumConvertorTest {
 
     @Test
-    public void testParse() {
+    void testParse() {
         String2EnumConvertor<EnumVal> converter = new String2EnumConvertor<>(EnumVal.class);
         Enum<?> result = converter.parse("Val3", null);
         assertEquals(EnumVal.Val3, result);
     }
 
     @Test
-    public void testParseCaseInsensetive() {
+    void testParseCaseInsensetive() {
         String2EnumConvertor<EnumVal> converter = new String2EnumConvertor<>(EnumVal.class);
         Enum<?> result = converter.parse("vAl3", null);
         assertEquals(EnumVal.Val3, result);
     }
 
     @Test
-    public void testParseOtherEnum() {
+    void testParseOtherEnum() {
         String2EnumConvertor<EnumRes> converter = new String2EnumConvertor<>(EnumRes.class);
         Enum<?> result = converter.parse("Val3", null);
         assertNotEquals(EnumVal.Val3, result);
     }
 
     @Test
-    public void testParseNotPresent() {
+    void testParseNotPresent() {
         assertThrows(IllegalArgumentException.class, () -> {
             String2EnumConvertor<EnumRes> converter = new String2EnumConvertor<>(EnumRes.class);
             converter.parse("Val4", null);
@@ -39,7 +39,7 @@ public class String2EnumConvertorTest {
     }
 
     @Test
-    public void testParseNull() {
+    void testParseNull() {
         String2EnumConvertor<EnumRes> converter = new String2EnumConvertor<>(null);
         assertNull(converter.parse(null, null));
     }

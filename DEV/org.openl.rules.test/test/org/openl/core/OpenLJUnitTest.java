@@ -19,9 +19,9 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 
-public class OpenLJUnitTest {
+class OpenLJUnitTest {
     @Test
-    public void comparisonTest() throws Exception {
+    void comparisonTest() throws Exception {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(".//test-resources//junit//Comparison.xlsx");
         engineFactory.setExecutionMode(false);
         IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
@@ -55,7 +55,7 @@ public class OpenLJUnitTest {
     }
 
     @Test
-    public void EPBDS_12729() {
+    void EPBDS_12729() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
                 "./test-resources/junit/EPBDS-12729_error_code_message.xlsx");
         engineFactory.setExecutionMode(false);

@@ -13,30 +13,30 @@ import static org.openl.rules.util.Arrays.slice;
 
 import org.junit.jupiter.api.Test;
 
-public class ArraysTest {
+class ArraysTest {
     @Test
-    public void testIsEmpty() {
+    void testIsEmpty() {
         assertTrue(isEmpty(null));
         assertTrue(isEmpty(new Object[0]));
         assertFalse(isEmpty(new Object[]{0}));
     }
 
     @Test
-    public void testIsNotEmpty() {
+    void testIsNotEmpty() {
         assertFalse(isNotEmpty(null));
         assertFalse(isNotEmpty(new Object[0]));
         assertTrue(isNotEmpty(new Object[]{0}));
     }
 
     @Test
-    public void testLength() {
+    void testLength() {
         assertEquals(0, length(null));
         assertEquals(0, length(new Object[0]));
         assertEquals(1, length(new Object[]{0}));
     }
 
     @Test
-    public void testSlice() {
+    void testSlice() {
         assertNull(slice(null, 0));
         assertArrayEquals(new Object[0], slice(new Object[0], 0));
         assertArrayEquals(new Object[]{5, 4, 3, 2, 1}, slice(new Object[]{5, 4, 3, 2, 1}, 0));
@@ -46,7 +46,7 @@ public class ArraysTest {
     }
 
     @Test
-    public void testSlice2() {
+    void testSlice2() {
         assertNull(slice(null, 0, 2));
         assertArrayEquals(new Object[0], slice(new Object[0], 0, -2));
         assertArrayEquals(new Object[]{5, 4, 3, 2}, slice(new Object[]{5, 4, 3, 2, 1}, 0, 4));

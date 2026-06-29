@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration.NameWithNumbersComparator;
 
-public class RepositoryConfigurationComparatorTest {
+class RepositoryConfigurationComparatorTest {
 
     @Test
-    public void testCompare() {
+    void testCompare() {
         NameWithNumbersComparator comparator = new NameWithNumbersComparator();
 
         assertTrue(comparator.compare(configMock("aaa"), configMock("bbb")) < 0);

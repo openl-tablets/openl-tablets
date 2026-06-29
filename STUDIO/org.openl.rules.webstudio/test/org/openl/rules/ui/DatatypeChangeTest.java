@@ -19,7 +19,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 
-public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
+class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private static final String SHEET_NAME = "Test";
     private static final String EXPENSE_MODULE_FILE_NAME = "ExpenseModule.xls";
     private static final String MAIN_MODULE_FILE_NAME = "MainModule.xls";
@@ -29,7 +29,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private Module mainModule;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         createExpenseModule();
         createMainModule(); // main module depends on expense module
 
@@ -51,7 +51,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     }
 
     @Test
-    public void testSetModule() throws Exception {
+    void testSetModule() throws Exception {
         // Initial field name
         pm.setModuleInfo(expenseModule);
 
@@ -69,7 +69,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     }
 
     @Test
-    public void testDependencyOwnerRebuild() throws Exception {
+    void testDependencyOwnerRebuild() throws Exception {
         // Initial field name
         pm.setModuleInfo(mainModule);
         assertFalse(pm.getCompiledOpenClass().hasErrors());

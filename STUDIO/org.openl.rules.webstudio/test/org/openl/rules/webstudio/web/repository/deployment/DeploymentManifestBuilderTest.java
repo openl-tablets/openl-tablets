@@ -10,10 +10,10 @@ import java.util.jar.Manifest;
 
 import org.junit.jupiter.api.Test;
 
-public class DeploymentManifestBuilderTest {
+class DeploymentManifestBuilderTest {
 
     @Test
-    public void testNullableValues() {
+    void testNullableValues() {
         Manifest manifest = new DeploymentManifestBuilder()
                 .setBuildBranch(null)
                 .setBuiltBy(null)
@@ -36,7 +36,7 @@ public class DeploymentManifestBuilderTest {
     }
 
     @Test
-    public void testNonNullValues() {
+    void testNonNullValues() {
         Manifest manifest = new DeploymentManifestBuilder()
                 .setBuildBranch("master")
                 .setBuiltBy("John Smith")
@@ -59,7 +59,7 @@ public class DeploymentManifestBuilderTest {
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         Manifest manifest = new DeploymentManifestBuilder().build();
         assertEquals(0, manifest.getEntries().size());
         Attributes mainAttributes = manifest.getMainAttributes();

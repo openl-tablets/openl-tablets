@@ -30,7 +30,7 @@ import org.openl.ie.constrainer.Undo;
  * @version 1.0
  */
 
-public class TestIntVarImpl {
+class TestIntVarImpl {
     private final Constrainer C = new Constrainer("TestIntVarImpl");
     private final int size = 21;
     private final int min = -10;
@@ -40,13 +40,13 @@ public class TestIntVarImpl {
     private final IntVar plain = new IntVarImpl(C, min, max, "intvar3", IntVar.DOMAIN_PLAIN);
 
     @Test
-    public void testA() {
+    void testA() {
         new IntVarImpl(C, 0, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
 
     }
 
     @Test
-    public void testForceMax() {
+    void testForceMax() {
         IntVar intvar = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_BIT_FAST),
                 intvar1 = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_BIT_SMALL),
                 intvar2 = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_PLAIN);
@@ -73,7 +73,7 @@ public class TestIntVarImpl {
     }
 
     @Test
-    public void testRemoveValue() {
+    void testRemoveValue() {
         Undo[] bit_fastUndo = new Undo[bit_fast.size() / 2 + 1], bit_smallUndo = new Undo[bit_fast.size() / 2 + 1],
                 plainUndo = new Undo[bit_fast.size() / 2 + 1];
         int counter = 0;
@@ -213,7 +213,7 @@ public class TestIntVarImpl {
     }
 
     @Test
-    public void testSetMaxAndCreateUndo() {
+    void testSetMaxAndCreateUndo() {
         Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()],
                 plainUndo = new Undo[bit_fast.size()];
 
@@ -307,7 +307,7 @@ public class TestIntVarImpl {
     }
 
     @Test
-    public void testSetMinAndCreateUndo() {
+    void testSetMinAndCreateUndo() {
         Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()],
                 plainUndo = new Undo[bit_fast.size()];
 

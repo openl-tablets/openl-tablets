@@ -8,17 +8,17 @@ import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
+class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
     private PathFilter instance;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         instance = new AndPathFilter(Arrays.asList(new FolderNamePathFilter(Arrays.asList(".svn", "CVS")),
                 new FileNamePathFilter(Collections.singletonList(".cvsignore"))));
     }
 
     @Test
-    public void testAccepted() {
+    void testAccepted() {
         final String[] params = {"f",
                 "f/",
                 "svn",
@@ -59,7 +59,7 @@ public class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
     }
 
     @Test
-    public void testFailed() {
+    void testFailed() {
         final String[] params = {"CVS/",
                 ".svn/",
                 "root/CVS/",

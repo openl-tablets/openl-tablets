@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author DLiauchuk
  */
-public class MathUtilsTest {
+class MathUtilsTest {
 
     @Test
-    public void testMedianByte() {
+    void testMedianByte() {
         byte[] values = new byte[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new byte[]{4, 5, 1, 7};
@@ -28,7 +28,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianShort() {
+    void testMedianShort() {
         short[] values = new short[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new short[]{4, 5, 1, 7};
@@ -39,7 +39,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianInt() {
+    void testMedianInt() {
         int[] values = new int[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new int[]{4, 5, 1, 7};
@@ -50,7 +50,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianLong() {
+    void testMedianLong() {
         long[] values = new long[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new long[]{4, 5, 1, 7};
@@ -61,7 +61,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianFloat() {
+    void testMedianFloat() {
         float[] values = new float[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new float[]{4, 5, 1, 7};
@@ -72,7 +72,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianFloatWrapper() {
+    void testMedianFloatWrapper() {
         Float[] values = new Float[]{4f, 4f, 1f, 7f, 2f};
         assertTrue(MathUtils.median(values) instanceof Float);
         assertEquals(4.0F, MathUtils.median(values), 0.1);
@@ -90,7 +90,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianDouble() {
+    void testMedianDouble() {
         double[] values = new double[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new double[]{4, 5, 1, 7};
@@ -106,7 +106,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianT() {
+    void testMedianT() {
         Integer[] values = new Integer[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new Integer[]{4, 5, 1, 7};
@@ -122,7 +122,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianBigInteger() {
+    void testMedianBigInteger() {
         BigInteger[] values = new BigInteger[]{BigInteger
                 .valueOf(4), BigInteger.valueOf(4), BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(2)};
         assertEquals(BigDecimal.valueOf(4), MathUtils.median(values));
@@ -160,7 +160,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testMedianBigDecimal() {
+    void testMedianBigDecimal() {
         BigDecimal[] values = new BigDecimal[]{BigDecimal
                 .valueOf(4), BigDecimal.valueOf(4), BigDecimal.valueOf(1), BigDecimal.valueOf(7), BigDecimal.valueOf(2)};
         assertEquals(new BigDecimal(4.0), MathUtils.median(values));
@@ -198,7 +198,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForByte() throws Throwable {
+    void testBigForByte() throws Throwable {
         byte[] values = new byte[]{10, 45, 4, 44, 22};
         assertEquals((byte)45, MathUtils.big(values, 1));
         assertEquals((byte)44, MathUtils.big(values, 2));
@@ -215,7 +215,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForShort() throws Throwable {
+    void testBigForShort() throws Throwable {
         short[] values = new short[]{10, 45, 4, 44, 22};
         assertEquals((short)45, MathUtils.big(values, 1));
         assertEquals((short)44, MathUtils.big(values, 2));
@@ -232,7 +232,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForInt() throws Throwable {
+    void testBigForInt() throws Throwable {
         int[] values = new int[]{10, 45, 4, 44, 22};
         assertEquals(45, MathUtils.big(values, 1));
         assertEquals(44, MathUtils.big(values, 2));
@@ -249,7 +249,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForLong() throws Throwable {
+    void testBigForLong() throws Throwable {
         long[] values = new long[]{10, 45, 4, 44, 22};
         assertEquals(45, MathUtils.big(values, 1));
         assertEquals(44, MathUtils.big(values, 2));
@@ -266,7 +266,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForFloat() throws Throwable {
+    void testBigForFloat() throws Throwable {
         float[] values = new float[]{10, 45, 4, 44, 22};
         assertEquals(45, MathUtils.big(values, 1));
         assertEquals(44, MathUtils.big(values, 2));
@@ -283,7 +283,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForDouble() throws Throwable {
+    void testBigForDouble() throws Throwable {
         double[] values = new double[]{10, 45, 4, 44, 22};
         assertEquals(45, MathUtils.big(values, 1));
         assertEquals(44, MathUtils.big(values, 2));
@@ -300,7 +300,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testBigForT() {
+    void testBigForT() {
         Long[] mas = new Long[]{10L, 45L, 4L, 44L, 22L};
         assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
         assertEquals(Long.valueOf(44), MathUtils.big(mas, 2));
@@ -336,7 +336,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForByte() throws Throwable {
+    void testSmallForByte() throws Throwable {
         byte[] values = new byte[]{10, 45, 4, 44, 22};
         assertEquals((byte)4, MathUtils.small(values, 1));
         assertEquals((byte)10, MathUtils.small(values, 2));
@@ -353,7 +353,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForShort() throws Throwable {
+    void testSmallForShort() throws Throwable {
         short[] values = new short[]{10, 45, 4, 44, 22};
         assertEquals((short)4, MathUtils.small(values, 1));
         assertEquals((short)10, MathUtils.small(values, 2));
@@ -370,7 +370,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForInt() throws Throwable {
+    void testSmallForInt() throws Throwable {
         int[] values = new int[]{10, 45, 4, 44, 22};
         assertEquals(4, MathUtils.small(values, 1));
         assertEquals(10, MathUtils.small(values, 2));
@@ -387,7 +387,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForLong() throws Throwable {
+    void testSmallForLong() throws Throwable {
         long[] values = new long[]{10, 45, 4, 44, 22};
         assertEquals(4,  MathUtils.small(values, 1));
         assertEquals(10, MathUtils.small(values, 2));
@@ -404,7 +404,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForFloat() throws Throwable {
+    void testSmallForFloat() throws Throwable {
         float[] values = new float[]{10, 45, 4, 44, 22};
         assertEquals(4,  MathUtils.small(values, 1));
         assertEquals(10, MathUtils.small(values, 2));
@@ -421,7 +421,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForDouble() throws Throwable {
+    void testSmallForDouble() throws Throwable {
         double[] values = new double[]{10, 45, 4, 44, 22};
         assertEquals(4,  MathUtils.small(values, 1));
         assertEquals(10, MathUtils.small(values, 2));
@@ -438,13 +438,13 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSmallForTWhenFirstArgIsNull() {
+    void testSmallForTWhenFirstArgIsNull() {
         Long[] mas = null;
         assertNull(MathUtils.small(mas, 1));
     }
 
     @Test
-    public void testSmallForT() {
+    void testSmallForT() {
         Long[] mas = new Long[]{10L, 45L, 4L, 44L, 22L};
         assertEquals(Long.valueOf(4), MathUtils.small(mas, 1));
         assertEquals(Long.valueOf(10), MathUtils.small(mas, 2));
@@ -479,7 +479,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSumForByte() {
+    void testSumForByte() {
         byte[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new byte[]{1, 2, 3};
@@ -487,7 +487,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSumForShort() {
+    void testSumForShort() {
         short[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new short[]{1, 2, 3};
@@ -495,7 +495,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSumForInt() {
+    void testSumForInt() {
         int[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new int[]{1, 2, 3};
@@ -503,7 +503,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSumForLong() {
+    void testSumForLong() {
         long[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new long[]{1, 2, 3};
@@ -511,7 +511,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSumForFloat() {
+    void testSumForFloat() {
         float[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new float[]{1.1f, 2.2f, 3.3f};
@@ -519,7 +519,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testSumForDouble() {
+    void testSumForDouble() {
         double[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new double[]{1.1d, 2.2d, 3.3d};

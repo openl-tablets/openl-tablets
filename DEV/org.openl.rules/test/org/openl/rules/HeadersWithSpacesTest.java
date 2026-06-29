@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
+class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/test xls/Test_Headers_With_Spaces.xls";
 
     public HeadersWithSpacesTest() {
@@ -16,7 +16,7 @@ public class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testDT() {
+    void testDT() {
         // find the table by the header with first 3 spaces
         //
         TableSyntaxNode tsn = findTable("Rules DoubleValue getILFactor(String coverageCD, String vehicleGroup)");

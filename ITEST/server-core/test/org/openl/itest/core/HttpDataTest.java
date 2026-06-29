@@ -8,10 +8,10 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-public class HttpDataTest {
+class HttpDataTest {
 
     @Test
-    public void testReadFile() throws Exception {
+    void testReadFile() throws Exception {
         HttpData chuncked = HttpData.readFile("/chuncked.resp");
         HttpData clHeader = HttpData.readFile("/content-length.resp");
         HttpData undefined = HttpData.readFile("/undefined-length.resp");
@@ -36,13 +36,13 @@ public class HttpDataTest {
     }
 
     @Test
-    public void testReadAbsentFile() throws IOException {
+    void testReadAbsentFile() throws IOException {
         HttpData absent = HttpData.readFile("/absent");
         assertNull(absent);
     }
 
     @Test
-    public void testWrongLength() {
+    void testWrongLength() {
         try {
             HttpData.readFile("/wrong-length.resp");
             fail("Non reachable");
@@ -52,7 +52,7 @@ public class HttpDataTest {
     }
 
     @Test
-    public void testWrongHeader() {
+    void testWrongHeader() {
         try {
             HttpData.readFile("/wrong-header.resp");
             fail("Non reachable");
@@ -62,7 +62,7 @@ public class HttpDataTest {
     }
 
     @Test
-    public void testWrongChuncked() {
+    void testWrongChuncked() {
         try {
             HttpData.readFile("/wrong-chuncked.resp");
             fail("Non reachable");
@@ -79,7 +79,7 @@ public class HttpDataTest {
     }
 
     @Test
-    public void testResponse204() throws Exception {
+    void testResponse204() throws Exception {
         final HttpData fullNoContent = HttpData.readFile("/no-content-full.resp");
         final HttpData shortNoContent = HttpData.readFile("/no-content-short.resp");
         final HttpData noContentWithBody = HttpData.readFile("/no-content-non-standard.resp");

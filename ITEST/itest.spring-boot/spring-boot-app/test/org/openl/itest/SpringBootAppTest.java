@@ -10,13 +10,13 @@ import org.springframework.util.Assert;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @SpringBootTest(classes = {SpringBootApp.class})
-public class SpringBootAppTest {
+class SpringBootAppTest {
 
     @Autowired
     private RulesFrontend frontend;
 
     @Test
-    public void test() {
+    void test() {
         assertDoesNotThrow(() -> {
             Assert.notNull(frontend, "frontend cannot be null");
             Assert.notNull(frontend.findServiceByName("deployed-rules"), "Service is not found");

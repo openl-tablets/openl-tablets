@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.helpers.DoubleRange;
 
-public class DoubleRangeAdaptorTest {
+class DoubleRangeAdaptorTest {
 
     @Test
-    public void testMax() {
+    void testMax() {
         IRangeAdaptor<DoubleRange, Double> adaptor = DoubleRangeAdaptor.getInstance();
 
         DoubleRange range = new DoubleRange("[1;15]");

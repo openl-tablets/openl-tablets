@@ -7,43 +7,43 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 
-public class CommaSeparatedParamsDTTest {
+class CommaSeparatedParamsDTTest {
 
     private static final String SRC = "test/rules/Comma_Separated_Params_DT_Test.xls";
 
     private CommaSeparatedTest instance;
 
     @BeforeEach
-    public void initEngine() {
+    void initEngine() {
         RulesEngineFactory<CommaSeparatedTest> engineFactory = new RulesEngineFactory<>(SRC, CommaSeparatedTest.class);
 
         instance = engineFactory.newEngineInstance();
     }
 
     @Test
-    public void testcommaSeparatedString() {
+    void testcommaSeparatedString() {
         testString("firstValue", "comma2", "Good Morning");
 
         testString("value1", "singleValue", "Good Afternoon");
     }
 
     @Test
-    public void testCommaSeparatedInt() {
+    void testCommaSeparatedInt() {
         testInt(12, 17, "Rule 10 Fire");
     }
 
     @Test
-    public void testArrayParameterBexCodeSnippetsContains() {
+    void testArrayParameterBexCodeSnippetsContains() {
         testBexSnippetContains(27, 29, "Rule 20 Fire");
     }
 
     @Test
-    public void testArrayParametersContainsAll() {
+    void testArrayParametersContainsAll() {
         testArrayParametersContainsAll(new int[]{12, 14}, new int[]{13, 17}, "Rule 10 Fire");
     }
 
     @Test
-    public void testArrayParametersContainsAllString() {
+    void testArrayParametersContainsAllString() {
         testArrayParametersContainsAllString(new String[]{"12", "14"}, new String[]{"13", "17"}, "Rule 10 Fire");
     }
 

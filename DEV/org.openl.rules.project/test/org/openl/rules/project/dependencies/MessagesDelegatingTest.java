@@ -20,13 +20,13 @@ import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 
-public class MessagesDelegatingTest {
+class MessagesDelegatingTest {
     private CompiledOpenClass compiledOpenClass;
     private IDependencyManager dependencyManager;
     private List<Module> modules;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         var engine = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/modules_with_errors")
                 .build();
@@ -36,7 +36,7 @@ public class MessagesDelegatingTest {
     }
 
     @Test
-    public void testMessagesDelegatingFromDependencies() throws Exception {
+    void testMessagesDelegatingFromDependencies() throws Exception {
 
         var allMessages = getAllMessageForModule("Rules");
         var allMessages2 = getAllMessageForModule("Rules2");
@@ -48,7 +48,7 @@ public class MessagesDelegatingTest {
     }
 
     @Test
-    public void testMessagesGatheringInMultiModule() throws Exception {
+    void testMessagesGatheringInMultiModule() throws Exception {
         var allMessages = compiledOpenClass.getAllMessages();
         for (Module module : modules) {
             assertMessages(allMessages, getAllMessageForModule(module.getName()));
