@@ -53,6 +53,35 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] | undefined }> = ({ 
 }
 
 /**
+ * Compact key to the execution-state colours shared by the traced table, the spreadsheet grid and the
+ * decision panel, so a reader can tell at a glance what each highlight means.
+ */
+const TraceLegend: React.FC = () => {
+    const { t } = useTranslation('trace')
+    const { styles, cx } = useStyles()
+    return (
+        <div className={styles.legend} data-testid="trace-legend">
+            <span className={styles.legendItem}>
+                <span className={cx(styles.swatch, styles.swatchCurrent)} />
+                {t('legend.current')}
+            </span>
+            <span className={styles.legendItem}>
+                <span className={cx(styles.swatch, styles.swatchResult)} />
+                {t('legend.result')}
+            </span>
+            <span className={styles.legendItem}>
+                <span className={cx(styles.swatch, styles.swatchMet)} />
+                {t('legend.conditionMet')}
+            </span>
+            <span className={styles.legendItem}>
+                <span className={cx(styles.swatch, styles.swatchNotMet)} />
+                {t('legend.conditionNotMet')}
+            </span>
+        </div>
+    )
+}
+
+/**
  * Right panel: the selected stack frame's table and frozen variables.
  */
 const TraceDetails: React.FC = () => {
@@ -88,6 +117,7 @@ const TraceDetails: React.FC = () => {
             {frame && <span className={styles.frameTitle}>{frame.name}</span>}
             {/* Source table of the current frame, with the current line highlighted. */}
             <TraceTableView frameIndex={selectedFrameIndex} />
+            <TraceLegend />
             {variablesLoading ? (
                 <div className={styles.detailsCentered}>
                     <Spin description={t('loadingDetails')} />

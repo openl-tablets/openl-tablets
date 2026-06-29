@@ -42,6 +42,14 @@ i18next.addResourceBundle('en', 'trace', {
         noneFired: 'No rule fired',
     },
 
+    // Explains the cell/row colours shared by the traced table, the spreadsheet grid and the decision panel.
+    legend: {
+        current: 'Current step',
+        result: 'Result',
+        conditionMet: 'Condition met',
+        conditionNotMet: 'Condition not met',
+    },
+
     copy: {
         parameters: 'Copy parameters as JSON',
         result: 'Copy result as JSON',
