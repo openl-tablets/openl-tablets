@@ -3,8 +3,6 @@ package org.openl.runtime;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassWriter;
@@ -18,7 +16,9 @@ import org.openl.exception.OpenlNotCheckedException;
 
 public final class ASMProxyFactory {
 
-    private static final AtomicInteger nameCounter = new AtomicInteger(0);
+    private static final String PROXY_SUFFIX = "$$Proxy";
+    // Guards the rare first-time generation of a proxy class so two threads never define the same one twice.
+    private static final Object PROXY_GENERATION_LOCK = new Object();
     private static final String HANDLER = "_handler";
     private static final Type HANDLER_TYPE = Type.getType(ASMProxyHandler.class);
     private static final Method INVOKE_HANDLER = Method.getMethod(ASMProxyHandler.class.getDeclaredMethods()[0]);
@@ -37,10 +37,74 @@ public final class ASMProxyFactory {
     }
 
     public static Object newProxyInstance(ClassLoader classLoader, ASMProxyHandler handler, Class<?>... interfaces) {
-        String proxyClassName = Type.getInternalName(interfaces[0]) + "$proxy" + nameCounter.incrementAndGet();
-        Type proxyType = Type.getObjectType(proxyClassName);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        List<Class<?>> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
+        try {
+            var proxyClass = getProxyClass(classLoader, interfaces);
+            return proxyClass.getDeclaredConstructor(ASMProxyHandler.class).newInstance(handler);
+        } catch (Exception e) {
+            throw new OpenlNotCheckedException("Failed to instantiate a new proxy.", e);
+        }
+    }
+
+    /**
+     * Returns the proxy class for the given interfaces, generating it on the first request and reusing it afterwards.
+     * The proxy class is fully defined by the proxied interfaces, so generating a uniquely named class on every call
+     * would pollute the (long-lived) classloader's Metaspace with identical classes (see issue #1230).
+     */
+    private static Class<?> getProxyClass(ClassLoader classLoader, Class<?>[] interfaces) throws ClassNotFoundException {
+        var proxyClassName = proxyClassName(interfaces);
+        try {
+            return classLoader.loadClass(proxyClassName);
+        } catch (ClassNotFoundException e) {
+            // Serialize the one-time generation so concurrent first calls do not define the same class twice.
+            synchronized (PROXY_GENERATION_LOCK) {
+                try {
+                    return classLoader.loadClass(proxyClassName);
+                } catch (ClassNotFoundException notDefinedYet) {
+                    var bytes = generateProxyByteCode(proxyClassName, interfaces);
+                    return ClassLoaderUtils.defineClass(proxyClassName, bytes, classLoader);
+                }
+            }
+        }
+    }
+
+    /**
+     * Builds a deterministic proxy class name from the proxied interfaces so that repeated requests resolve to the
+     * same generated class. The name stays in the package of the first interface. The {@code $$Proxy} marker keeps it
+     * from clashing with a real (possibly nested) class. Each additional interface is appended through a reversible
+     * escape so that distinct interface sets can never map to the same name.
+     */
+    static String proxyClassName(Class<?>[] interfaces) {
+        var sb = new StringBuilder(interfaces[0].getName()).append(PROXY_SUFFIX);
+        for (int i = 1; i < interfaces.length; i++) {
+            sb.append('$').append(escape(interfaces[i].getName()));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Reversibly encodes a binary class name into a single class-name segment. The dot, dollar and underscore
+     * characters - which all legitimately appear in binary names - are escaped to distinct two-character sequences, so
+     * the result is collision-free, contains neither {@code '.'} nor {@code '$'}, and can be safely embedded in a
+     * proxy class name and delimited with {@code '$'}.
+     */
+    static String escape(String binaryName) {
+        var sb = new StringBuilder(binaryName.length() + 4);
+        for (int i = 0; i < binaryName.length(); i++) {
+            var c = binaryName.charAt(i);
+            switch (c) {
+                case '_' -> sb.append("_u");
+                case '.' -> sb.append("_d");
+                case '$' -> sb.append("_s");
+                default -> sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private static byte[] generateProxyByteCode(String proxyClassName, Class<?>[] interfaces) {
+        var proxyType = Type.getObjectType(proxyClassName.replace('.', '/'));
+        var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        var listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
         cw.visit(Opcodes.V1_8,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL,
                 proxyType.getInternalName(),
@@ -48,24 +112,18 @@ public final class ASMProxyFactory {
                 Type.getInternalName(ASMProxy.class),
                 listInterfaces.stream().map(Type::getInternalName).toArray(String[]::new));
         writeConstructor(cw, proxyType);
-        HashSet<Method> methods = new HashSet<>();
-        for (Class<?> proxyInterface : interfaces) {
-            Type interfaceType = Type.getType(proxyInterface);
-            for (java.lang.reflect.Method method : proxyInterface.getMethods()) {
-                Method m = Method.getMethod(method);
+        var methods = new HashSet<Method>();
+        for (var proxyInterface : interfaces) {
+            var interfaceType = Type.getType(proxyInterface);
+            for (var method : proxyInterface.getMethods()) {
+                var m = Method.getMethod(method);
                 if (methods.add(m)) {
                     writeMethods(cw, m, method, proxyType, interfaceType);
                 }
             }
         }
         cw.visitEnd();
-        byte[] bytes = cw.toByteArray();
-        try {
-            Class<?> aClass = ClassLoaderUtils.defineClass(proxyType.getClassName(), bytes, classLoader);
-            return aClass.getDeclaredConstructor(ASMProxyHandler.class).newInstance(handler);
-        } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to instantiate a new proxy.", e);
-        }
+        return cw.toByteArray();
     }
 
     private static void writeConstructor(ClassWriter cw, Type name) {

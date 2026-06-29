@@ -134,22 +134,42 @@ public class OpenLClassLoader extends GroovyClassLoader {
         } catch (ClassNotFoundException e) {
             byte[] byteCode = generatedClasses.get(name);
             if (byteCode != null) {
-                try {
-                    var clazz = defineClass(name, byteCode, 0, byteCode.length);
-                    var packageName = clazz.getPackageName();
-                    if (getDefinedPackage(packageName) == null) {
-                        definePackage(packageName, null, null, null, null, null, null, null);
-                    }
-                    return clazz;
-                } catch (Exception e1) {
-                    throw e;
-                }
+                return defineGeneratedClass(name, byteCode, e);
             }
             Class<?> clazz = findClassInBundles(name, c);
             if (clazz != null) {
                 return clazz;
             }
             throw e;
+        }
+    }
+
+    /**
+     * Defines a previously generated class from its byte code. Reuses the class a concurrent call defined first
+     * instead of defining it again.
+     *
+     * <p>A class loader may define a given name only once, so a second definition fails. The lookup and the definition
+     * therefore run together under the class loading lock for the name.
+     *
+     * <p>When the byte code cannot be defined, the original {@code notFound} failure is reported.
+     */
+    private Class<?> defineGeneratedClass(String name, byte[] byteCode, ClassNotFoundException notFound)
+            throws ClassNotFoundException {
+        synchronized (getClassLoadingLock(name)) {
+            var alreadyDefined = findLoadedClass(name);
+            if (alreadyDefined != null) {
+                return alreadyDefined;
+            }
+            try {
+                var clazz = defineClass(name, byteCode, 0, byteCode.length);
+                var packageName = clazz.getPackageName();
+                if (getDefinedPackage(packageName) == null) {
+                    definePackage(packageName, null, null, null, null, null, null, null);
+                }
+                return clazz;
+            } catch (Exception e1) {
+                throw notFound;
+            }
         }
     }
 
