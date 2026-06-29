@@ -955,6 +955,44 @@
   },
   "clients": [
     {
+      "clientId": "openlstudio-saml",
+      "name": "OpenL Studio SAML",
+      "enabled": true,
+      "protocol": "saml",
+      "fullScopeAllowed": true,
+      "standardFlowEnabled": true,
+      "frontchannelLogout": true,
+      "consentRequired": false,
+      "redirectUris": [
+        "*"
+      ],
+      "attributes": {
+        "saml.assertion.signature": "true",
+        "saml.server.signature": "true",
+        "saml.client.signature": "false",
+        "saml.encrypt": "false",
+        "saml.authnstatement": "true",
+        "saml.force.post.binding": "true",
+        "saml.signature.algorithm": "RSA_SHA256",
+        "saml_name_id_format": "username",
+        "saml_force_name_id_format": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "saml",
+          "protocolMapper": "saml-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "single": "true",
+            "full.path": "false",
+            "attribute.name": "groups"
+          }
+        }
+      ]
+    },
+    {
       "id": "81dc05a7-016e-4607-8495-8c0c820de067",
       "clientId": "account",
       "name": "${client_account}",

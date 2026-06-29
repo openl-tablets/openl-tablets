@@ -301,6 +301,13 @@ public class HttpClient implements AutoCloseable {
     }
 
     /**
+     * @return the {@code http://...} base URL the server is bound to.
+     */
+    public URI getBaseURL() {
+        return baseURL;
+    }
+
+    /**
      * @return the {@code ws://...} URL that the server's STOMP endpoint is served from.
      */
     public URI getWebSocketBaseURL() {

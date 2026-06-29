@@ -54,12 +54,15 @@ public class SamlSecurityConfig {
     @Order(1)
     public SecurityFilterChain logoutFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
-            Saml2LogoutRequestFilter logoutFilter) {
+            Saml2LogoutRequestFilter logoutFilter,
+            SamlLogoutSuccessHandler samlLogoutHandler) {
 
+        // samlLogoutHandler clears the local session and sends a SAML LogoutRequest to the IdP Single
+        // Logout Service, ending the IdP session. A no-op handler here would log out locally only.
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/logout"),
                 securityContextPersistenceFilter,
                 logoutFilter,
-                new LogoutFilter("/", (x,c,v) -> {} )
+                new LogoutFilter("/", samlLogoutHandler)
         );
     }
 
