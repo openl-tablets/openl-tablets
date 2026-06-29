@@ -1476,7 +1476,7 @@ Content-Type: application/json
 **Test Execution**:
 ```bash
 cd ITEST/itest.webstudio
-mvn clean verify -Dtest=KeycloakTest
+mvn clean verify -Dtest=OAuthTest
 ```
 
 ---

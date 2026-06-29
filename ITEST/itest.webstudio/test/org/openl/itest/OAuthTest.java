@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,45 +22,31 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
-import org.openl.itest.core.JettyServer;
-
 @DisabledIfSystemProperty(named = "noDocker", matches = ".*")
-public class KeycloakTest {
+public class OAuthTest extends AbstractKeycloakTest {
 
     private static final String CLIENT_ID = "openlstudio";
     private static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
 
-    private final HttpClient client = HttpClient.newHttpClient();
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    @SuppressWarnings("resource")
-    private static KeycloakContainer createKeycloakContainer() {
-        return new KeycloakContainer("quay.io/keycloak/keycloak:latest")
-                .withRealmImportFile("/openlstudio-realm.json");
-    }
+    private final HttpClient client = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
+            .build();
 
     @Test
     public void smoke() throws Exception {
-        try (var keycloack = createKeycloakContainer();
+        try (var keycloack = keycloak();
              var s3 = new S3MockContainer("latest")) {
             keycloack.start();
             s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
-            try (var httpClient = JettyServer.get()
-                        .withProfile("oauth2")
-                        .withInitParam("repository.production-s3.service-endpoint", s3.getHttpEndpoint())
-                        .withInitParam("repository.production-s3.access-key", "access key")
-                        .withInitParam("repository.production-s3.secret-key", "secret key")
-                        .start()) {
+            try (var httpClient = studio("oauth2", s3).start()) {
                 initStudio(httpClient, authServerUrl);
 
                 httpClient.localEnv.putAll(bearerTokens);
@@ -74,18 +61,13 @@ public class KeycloakTest {
 
     @Test
     public void smokePat() throws Exception {
-        try (var keycloack = createKeycloakContainer();
+        try (var keycloack = keycloak();
              var s3 = new S3MockContainer("latest")) {
             keycloack.start();
             s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
-            try (var httpClient = JettyServer.get()
-                    .withProfile("oauth2")
-                    .withInitParam("repository.production-s3.service-endpoint", s3.getHttpEndpoint())
-                    .withInitParam("repository.production-s3.access-key", "access key")
-                    .withInitParam("repository.production-s3.secret-key", "secret key")
-                    .start()) {
+            try (var httpClient = studio("oauth2", s3).start()) {
                 initStudio(httpClient, authServerUrl);
 
                 httpClient.localEnv.putAll(bearerTokens);
@@ -126,6 +108,40 @@ public class KeycloakTest {
         }
     }
 
+    @Test
+    public void singleLogout() throws Exception {
+        try (var keycloack = keycloak();
+             var s3 = new S3MockContainer("latest")) {
+            keycloack.start();
+            s3.start();
+            var authServerUrl = keycloack.getAuthServerUrl();
+            try (var httpClient = studio("oauth2", s3).start()) {
+                initStudio(httpClient, authServerUrl);
+
+                var browser = new SsoBrowser(httpClient.getBaseURL());
+
+                // Unauthenticated access is challenged.
+                assertProtected(browser, "/oauth2/authorization/webstudio");
+
+                // Log in; the session resolves to admin.
+                browser.loginViaOAuth2("admin", "admin");
+                assertAdminSession(browser);
+
+                // SP-initiated logout redirects to the OIDC end-session endpoint with the id_token_hint.
+                var logoutRedirect = browser.logoutViaOAuth2();
+                assertTrue("Unexpected logout redirect: " + logoutRedirect,
+                        logoutRedirect.startsWith(authServerUrl + "/realms/openlstudio/protocol/openid-connect/logout"));
+                assertTrue("Logout must pass the id_token_hint: " + logoutRedirect,
+                        logoutRedirect.contains("id_token_hint="));
+
+                // Local session cleared; the IdP requires re-authentication.
+                assertRestUnauthorized(browser);
+                assertTrue("Keycloak must require re-authentication after logout",
+                        browser.oauth2ChallengesForLogin());
+            }
+        }
+    }
+
     private Map<String, String> retrieveBearerAccessTokens(String authServerUrl) throws URISyntaxException, IOException, InterruptedException {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "admin", "admin"));
@@ -162,6 +178,7 @@ public class KeycloakTest {
         var request = HttpRequest.newBuilder()
                 .uri(new URI(authServerUrl + "/realms/openlstudio/protocol/openid-connect/token"))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
+                .timeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.read"))))
                 .POST(HttpRequest.BodyPublishers.ofString("grant_type=password&scope=openid profile email" +
                         "&client_id=" + CLIENT_ID +
                         "&client_secret=" + CLIENT_SECRET +
