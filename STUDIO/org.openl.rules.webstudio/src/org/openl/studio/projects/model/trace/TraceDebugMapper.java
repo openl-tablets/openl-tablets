@@ -29,6 +29,7 @@ import org.openl.rules.cloner.Cloner;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -70,6 +71,7 @@ public class TraceDebugMapper {
                     .index(i)
                     .depth(frame.getDepth())
                     .uri(frame.getUri())
+                    .tableId(TableUtils.makeTableId(frame.getUri()))
                     .name(frame.getName())
                     .kind(frame.getKind())
                     .location(toLocationView(frame.getLocation()))

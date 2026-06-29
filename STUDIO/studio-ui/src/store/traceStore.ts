@@ -6,10 +6,14 @@ import type {
     DebugFrameView,
     DebugStackView,
     DebugStatus,
+    RawTableView,
     TraceParameterValue,
 } from 'types/trace'
 import traceService from 'services/traceService'
 import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
+
+/** Cap on rows fetched per table; the backend slices and reports totalRows when more rows exist. */
+const MAX_TABLE_ROWS = 500
 
 interface DebugState {
     // Route params
@@ -30,6 +34,8 @@ interface DebugState {
     stackVersion: number
     breakpoints: string[]
     breakpointLabels: Record<string, string>
+    /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
+    rawTableCache: Record<string, RawTableView>
 
     // UI
     loading: boolean
@@ -46,6 +52,8 @@ interface DebugState {
     start: () => Promise<void>
     refreshStack: () => Promise<void>
     selectFrame: (index: number) => Promise<void>
+    /** Load a table's raw grid, returning the cached copy when already fetched this session. */
+    loadRawTable: (tableId: string) => Promise<RawTableView>
     stepInto: () => Promise<void>
     stepOver: () => Promise<void>
     stepOut: () => Promise<void>
@@ -75,6 +83,7 @@ const initialState = {
     stackVersion: 0,
     breakpoints: [],
     breakpointLabels: {},
+    rawTableCache: {},
     loading: false,
     error: null,
 }
@@ -159,6 +168,16 @@ export const useTraceStore = create<DebugState>((set, get) => {
             } catch (error: any) {
                 set({ error: error?.message || 'Failed to load stack' })
             }
+        },
+
+        loadRawTable: async (tableId) => {
+            const { projectId, rawTableCache } = get()
+            if (!projectId) throw new Error('No project ID')
+            const cached = rawTableCache[tableId]
+            if (cached) return cached
+            const raw = await traceService.getRawTable(projectId, tableId, MAX_TABLE_ROWS, true)
+            set(s => ({ rawTableCache: { ...s.rawTableCache, [tableId]: raw } }))
+            return raw
         },
 
         selectFrame: async (index) => {

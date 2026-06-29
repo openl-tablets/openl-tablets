@@ -4,8 +4,10 @@ import type { ApiCallOptions } from './apiCall'
 import { errorHandler } from 'utils/errorHandling'
 import type {
     BreakpointTableView,
+    CellHighlight,
     DebugFrameVariables,
     DebugStackView,
+    RawTableView,
     StepType,
     TraceParameterValue,
 } from 'types/trace'
@@ -172,15 +174,30 @@ export const traceService = {
             TRACE_API_OPTIONS
         ),
 
-    /** Get the HTML of a stack frame's table. */
-    getFrameTableHtml: async (
+    /**
+     * Get the raw grid of a table (Tables API). The structure is immutable during a session, so the
+     * client fetches it once per table and overlays per-step highlights on top.
+     */
+    getRawTable: async (
         projectId: string,
-        frameIndex: number,
-        showFormulas = false
-    ): Promise<string> =>
-        retryApiCall<string>(
-            `${base(projectId)}/frames/${frameIndex}/table?showFormulas=${showFormulas}`,
-            { headers: { Accept: 'text/html' } },
+        tableId: string,
+        maxRows?: number,
+        styles?: boolean
+    ): Promise<RawTableView> => {
+        const cap = maxRows != null ? `&maxRows=${maxRows}` : ''
+        const withStyles = styles ? '&styles=true' : ''
+        return retryApiCall<RawTableView>(
+            `/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true${cap}${withStyles}`,
+            undefined,
+            TRACE_API_OPTIONS
+        )
+    },
+
+    /** Get the cells to highlight on a stack frame's table, keyed by A1 address. */
+    getFrameHighlights: async (projectId: string, frameIndex: number): Promise<CellHighlight[]> =>
+        retryApiCall<CellHighlight[]>(
+            `${base(projectId)}/frames/${frameIndex}/highlights`,
+            undefined,
             TRACE_API_OPTIONS
         ),
 

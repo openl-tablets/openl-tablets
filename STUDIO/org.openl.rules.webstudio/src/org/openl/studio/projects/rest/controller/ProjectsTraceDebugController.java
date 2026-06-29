@@ -44,6 +44,7 @@ import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.model.trace.BreakpointTableView;
 import org.openl.studio.projects.model.trace.BreakpointsRequest;
+import org.openl.studio.projects.model.trace.CellHighlight;
 import org.openl.studio.projects.model.trace.DebugFrameVariables;
 import org.openl.studio.projects.model.trace.DebugStackView;
 import org.openl.studio.projects.model.trace.DebugStatusView;
@@ -58,8 +59,8 @@ import org.openl.studio.projects.service.trace.DebugSession;
 import org.openl.studio.projects.service.trace.DebugSessionRegistry;
 import org.openl.studio.projects.service.trace.TraceDebugService;
 import org.openl.studio.projects.service.trace.TraceDebugStartRequest;
+import org.openl.studio.projects.service.trace.TraceHighlightService;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
-import org.openl.studio.projects.service.trace.TraceTableHtmlService;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -84,7 +85,7 @@ public class ProjectsTraceDebugController {
     private final DebugSessionRegistry sessionRegistry;
     private final SocketDebugListenerFactory listenerFactory;
     private final TraceParameterRegistry parameterRegistry;
-    private final TraceTableHtmlService traceTableHtmlService;
+    private final TraceHighlightService traceHighlightService;
     private final ProjectTablesGraphService tablesGraphService;
     private final Environment environment;
 
@@ -189,20 +190,18 @@ public class ProjectsTraceDebugController {
         return createMapper().freezeVariables(frame, session.getClassLoader());
     }
 
-    @Operation(summary = "trace.get-frame-table.summary", description = "trace.get-frame-table.desc")
-    @ApiResponse(responseCode = "200", description = "trace.get-frame-table.200.desc")
-    @GetMapping(value = "/frames/{index}/table", produces = MediaType.TEXT_HTML_VALUE)
-    public String frameTable(
+    @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
+    @ApiResponse(responseCode = "200", description = "trace.get-highlights.200.desc")
+    @GetMapping("/frames/{index}/highlights")
+    public List<CellHighlight> highlights(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
-            @RequestParam(value = "showFormulas", defaultValue = "false") @Parameter(description = "trace.param.show-formulas.desc") boolean showFormulas) {
+            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
         DebugSession session = requireSuspended(project);
         DebugFrame frame = session.getDebugger().frameAt(index);
         if (frame == null) {
             throw new NotFoundException("trace.frame.not.found.message");
         }
-        ProjectModel projectModel = projectService.openProject(project, null).awaitCompiled();
-        return traceTableHtmlService.renderFrameTable(projectModel, frame, showFormulas);
+        return traceHighlightService.computeHighlights(frame);
     }
 
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")

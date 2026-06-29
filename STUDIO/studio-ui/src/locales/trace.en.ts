@@ -68,6 +68,10 @@ i18next.addResourceBundle('en', 'trace', {
         noResult: 'No result',
     },
 
+    table: {
+        truncated: 'Showing the first {{count}} of {{total}} rows. Open in Excel to see the full table.',
+    },
+
     param: {
         loadValue: 'Load value',
     },

@@ -1,11 +1,13 @@
 package org.openl.studio.projects.service.trace;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,19 +21,21 @@ import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
 import org.openl.rules.webstudio.web.trace.debug.TraceDebugger;
+import org.openl.studio.projects.model.trace.CellHighlight;
+import org.openl.studio.projects.model.trace.HighlightState;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Confirms the traced table highlights the current spreadsheet cell while suspended.
+ * Confirms the trace exposes the current spreadsheet cell as an A1-keyed highlight overlay while suspended.
  */
 class TraceFrameHighlightTest {
 
     private static final String PROJECT = "test/rules/EPBDS-16160";
 
     @Test
-    void currentCellIsHighlightedInTheRenderedTable() throws Exception {
+    void currentCellIsExposedAsAnA1KeyedOverlay() throws Exception {
         ProjectModel projectModel = new ProjectModel(mock(WebStudio.class), null);
         projectModel.setModuleInfo(ProjectResolver.getInstance().resolve(Path.of(PROJECT)).getModules().getFirst());
         CompiledOpenClass compiled = projectModel.getCompiledOpenClass();
@@ -40,26 +44,24 @@ class TraceFrameHighlightTest {
         assertNotNull(myRule, "MyRule must compile");
 
         TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
-        debugger.start("highlight-test", compiled.getClassLoader(), true, () -> {
+        debugger.start("highlight-overlay-test", compiled.getClassLoader(), true, () -> {
             IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
             myRule.invoke(module.newInstance(env), new Object[0], env);
         });
         try {
             assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
-            var service = new TraceTableHtmlServiceImpl();
+            var service = new TraceHighlightServiceImpl();
 
-            // At the spreadsheet entry there is no current cell, so no highlight is applied.
-            DebugFrame frame = debugger.stack().get(debugger.stack().size() - 1);
-            String atEntry = service.renderFrameTable(projectModel, frame, false);
-
-            // After stepping onto the first cell, that cell must be highlighted (render differs).
+            // Step onto the first cell so there is a current line to overlay.
             assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, 10_000));
-            frame = debugger.stack().get(debugger.stack().size() - 1);
-            assertNotNull(frame.getLocation());
-            assertEquals("cell", frame.getLocation().kind());
-            String atCell = service.renderFrameTable(projectModel, frame, false);
+            DebugFrame frame = debugger.stack().get(debugger.stack().size() - 1);
 
-            assertNotEquals(atEntry, atCell, "the current cell must be highlighted in the table");
+            List<CellHighlight> highlights = service.computeHighlights(frame);
+            assertFalse(highlights.isEmpty(), "the current cell must be exposed as a highlight");
+            CellHighlight current = highlights.getFirst();
+            assertEquals(HighlightState.CURRENT, current.state());
+            assertTrue(current.cell().matches("[A-Z]+\\d+"),
+                    "the highlight must be keyed by an A1 cell address, was: " + current.cell());
         } finally {
             debugger.terminate(10_000);
         }
