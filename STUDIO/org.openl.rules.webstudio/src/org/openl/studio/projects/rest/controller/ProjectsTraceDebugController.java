@@ -34,12 +34,10 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
 import org.openl.rules.webstudio.web.trace.debug.DefaultSourceClassifier;
-import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
@@ -49,6 +47,7 @@ import org.openl.studio.projects.model.trace.BreakpointsRequest;
 import org.openl.studio.projects.model.trace.DebugFrameVariables;
 import org.openl.studio.projects.model.trace.DebugStackView;
 import org.openl.studio.projects.model.trace.DebugStatusView;
+import org.openl.studio.projects.model.trace.StepType;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -153,9 +152,9 @@ public class ProjectsTraceDebugController {
     @PostMapping("/step")
     public DebugStackView step(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @RequestParam("type") @Parameter(description = "trace.param.step-type.desc") String type) {
+            @RequestParam("type") @Parameter(description = "trace.param.step-type.desc") StepType type) {
         DebugSession session = requireSuspended(project);
-        session.getDebugger().command(toCommand(type), STEP_TIMEOUT_MILLIS);
+        session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
         return stackView(session);
     }
 
@@ -261,7 +260,7 @@ public class ProjectsTraceDebugController {
                 .filter(ExecutableRulesMethod.class::isInstance)
                 .map(classifier::describeFrame)
                 .filter(Objects::nonNull)
-                .forEach(d -> byName.putIfAbsent(d.name(), new BreakpointTableView(d.name(), d.kind().getCode())));
+                .forEach(d -> byName.putIfAbsent(d.name(), new BreakpointTableView(d.name(), d.kind())));
         return byName.values().stream()
                 .sorted(Comparator.comparing(BreakpointTableView::name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
@@ -295,15 +294,6 @@ public class ProjectsTraceDebugController {
     private DebugStackView stackView(DebugSession session) {
         var debugger = session.getDebugger();
         return createMapper().toStackView(debugger.status(), debugger.stack(), debugger.error());
-    }
-
-    private static DebugCommand toCommand(String type) {
-        return switch (type == null ? "" : type.toLowerCase()) {
-            case "into" -> DebugCommand.STEP_INTO;
-            case "over" -> DebugCommand.STEP_OVER;
-            case "out" -> DebugCommand.STEP_OUT;
-            default -> throw new BadRequestException("trace.debug.invalid-step.message");
-        };
     }
 
     private TraceDebugMapper createMapper() {

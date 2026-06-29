@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
@@ -52,6 +53,9 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Autowired(required = false)
     private List<Converter<?, ?>> converters;
+
+    @Autowired(required = false)
+    private List<ConverterFactory<?, ?>> converterFactories;
 
     @Autowired
     @Qualifier("webstudioValidatorBean")
@@ -121,6 +125,9 @@ public class ApiConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         if (converters != null) {
             converters.forEach(registry::addConverter);
+        }
+        if (converterFactories != null) {
+            converterFactories.forEach(registry::addConverterFactory);
         }
     }
 

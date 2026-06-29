@@ -11457,7 +11457,12 @@ Content-Type: application/json
             "name": "type",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "into",
+                "over",
+                "out"
+              ]
             }
           },
           {
@@ -16357,7 +16362,15 @@ Content-Type: application/json
         "properties": {
           "kind": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod"
+            ]
           },
           "name": {
             "type": "string",
@@ -17061,7 +17074,15 @@ Content-Type: application/json
           },
           "kind": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod"
+            ]
           },
           "location": {
             "$ref": "#/components/schemas/DebugLocationView"

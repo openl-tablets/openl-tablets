@@ -23,6 +23,7 @@ import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
+import org.openl.rules.webstudio.web.trace.debug.FrameKind;
 import org.openl.rules.webstudio.web.trace.debug.TraceDebugger;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
@@ -65,7 +66,7 @@ class TraceDebugMapperTest {
             assertEquals("SUSPENDED", stackView.status());
             assertFalse(stackView.frames().isEmpty(), "a suspended session has a stack");
             var top = stackView.frames().get(stackView.frames().size() - 1);
-            assertEquals("spreadsheet", top.kind());
+            assertEquals(FrameKind.SPREADSHEET, top.kind());
             assertEquals("MyRule", top.name());
             assertTrue(top.active(), "the deepest frame is the active one");
 

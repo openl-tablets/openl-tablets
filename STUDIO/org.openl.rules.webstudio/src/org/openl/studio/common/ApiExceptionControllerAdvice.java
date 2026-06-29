@@ -125,12 +125,12 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(ConversionFailedException.class)
     public ResponseEntity<?> handleConversionFailedException(ConversionFailedException e, WebRequest request) {
-        var causeEx = e.getCause();
-        if (causeEx instanceof RestRuntimeException ex) {
+        if (e.getCause() instanceof RestRuntimeException ex) {
             return handleAllRestRuntimeExceptions(ex, request);
-        } else {
-            return handleInternalErrors(e, request);
         }
+        // A value that cannot be converted to the target type is a malformed request, not a server error.
+        var message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+        return handleExceptionInternal(e, message, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @Override

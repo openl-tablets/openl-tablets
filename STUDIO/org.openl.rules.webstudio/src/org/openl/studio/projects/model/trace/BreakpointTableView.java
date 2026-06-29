@@ -2,6 +2,8 @@ package org.openl.studio.projects.model.trace;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.rules.webstudio.web.trace.debug.FrameKind;
+
 /**
  * A rule table that can be a breakpoint target, identified by name.
  *
@@ -10,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * breakpoint on an overloaded or dimensional rule stops on every version of it.
  *
  * @param name table name, the breakpoint key and the search term
- * @param kind frame kind code shared with the UI
+ * @param kind kind of the table
  */
 @Schema(description = "trace.type.breakpoint-table.desc")
 public record BreakpointTableView(
@@ -18,6 +20,6 @@ public record BreakpointTableView(
         String name,
 
         @Schema(description = "trace.field.breakpoint-table.kind.desc")
-        String kind
+        FrameKind kind
 ) {
 }

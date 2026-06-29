@@ -72,7 +72,7 @@ public class TraceDebugMapper {
                     .depth(frame.getDepth())
                     .uri(frame.getUri())
                     .name(frame.getName())
-                    .kind(frame.getKind().getCode())
+                    .kind(frame.getKind())
                     .location(toLocationView(frame.getLocation()))
                     .active(i == frames.size() - 1)
                     .completed(frame.isCompleted())
