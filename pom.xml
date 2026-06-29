@@ -92,6 +92,9 @@
 
         <!-- Security -->
         <spring.security.version>6.5.11</spring.security.version>
+        <!-- Newer spring-ldap-core than spring-security-ldap pulls in by default.
+             Stays on the Spring Framework 6 line; 4.x requires Spring 7. -->
+        <spring.ldap.version>3.3.8</spring.ldap.version>
         <opensaml.version>5.2.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
@@ -473,6 +476,13 @@
                 <version>${spring.security.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- Override the spring-ldap-core that spring-security-ldap drags in with a newer release.
+                 Remove once Spring Security ships this version by default. -->
+            <dependency>
+                <groupId>org.springframework.ldap</groupId>
+                <artifactId>spring-ldap-core</artifactId>
+                <version>${spring.ldap.version}</version>
             </dependency>
             <!-- Spring Integration -->
             <dependency>
