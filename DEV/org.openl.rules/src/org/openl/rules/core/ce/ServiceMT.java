@@ -1,8 +1,9 @@
 package org.openl.rules.core.ce;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -13,7 +14,15 @@ import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
-    private volatile ForkJoinPool forkJoinPool;
+    // Virtual threads for parallel rule evaluation, named for thread-dump/leak diagnostics. They do not inherit
+    // thread-locals: tasks carry their context in the runtime environment, not via the caller's thread-locals (the
+    // former ForkJoinPool workers did not propagate them either).
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+            .name("openl-rules-mt-", 0)
+            .inheritInheritableThreadLocals(false)
+            .factory();
+
+    private volatile ExecutorService executor;
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
@@ -23,43 +32,47 @@ public final class ServiceMT {
         return ServiceMTHolder.INSTANCE;
     }
 
-    private ForkJoinPool pool() {
-        ForkJoinPool pool = forkJoinPool;
-        if (pool == null || pool.isShutdown()) {
+    private ExecutorService executor() {
+        ExecutorService service = executor;
+        if (service == null || service.isShutdown()) {
             synchronized (this) {
-                pool = forkJoinPool;
-                if (pool == null || pool.isShutdown()) {
-                    pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
-                    forkJoinPool = pool;
+                service = executor;
+                if (service == null || service.isShutdown()) {
+                    // One virtual thread per task, intentionally unbounded: parallel evaluations nest, so a bounded
+                    // pool would deadlock with every worker blocked on its own children. Carrier threads still cap
+                    // real CPU parallelism at the processor count.
+                    service = Executors.newThreadPerTaskExecutor(THREAD_FACTORY);
+                    executor = service;
                 }
             }
         }
-        return pool;
+        return service;
     }
 
     /**
-     * Shuts down the parallel-execution pool and waits briefly for its worker threads to terminate.
+     * Stops the parallel-execution service and waits briefly for its in-flight tasks to finish.
      *
-     * <p>Call this when the owning context is closed (e.g. on web application undeploy) so the pool threads do not
-     * outlive it — the servlet container reports such threads as a leak. A later {@link #execute(IRuntimeEnv, Runnable)}
-     * lazily recreates the pool.
+     * <p>Each parallel rule evaluation runs on its own virtual thread, so there are no long-lived worker threads. Call
+     * this when the owning context is closed (e.g. on web application undeploy) to stop accepting new tasks and let the
+     * running ones complete, cancelling any that overrun the grace period, so no rule logic keeps executing after the
+     * context is gone. A later {@link #execute(IRuntimeEnv, Runnable)} lazily recreates the service.
      */
     public void shutdown() {
-        ForkJoinPool pool;
+        ExecutorService service;
         synchronized (this) {
-            pool = forkJoinPool;
-            forkJoinPool = null;
+            service = executor;
+            executor = null;
         }
-        if (pool == null) {
+        if (service == null) {
             return;
         }
-        pool.shutdown();
+        service.shutdown();
         try {
-            if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
-                pool.shutdownNow();
+            if (!service.awaitTermination(10, TimeUnit.SECONDS)) {
+                service.shutdownNow();
             }
         } catch (InterruptedException e) {
-            pool.shutdownNow();
+            service.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
@@ -70,20 +83,15 @@ public final class ServiceMT {
             return;
         }
         SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        RunnableRecursiveAction action = new RunnableRecursiveAction(runnable,
+        ParallelTask task = new ParallelTask(runnable,
                 simpleRuntimeEnv,
                 Thread.currentThread().getContextClassLoader());
-        simpleRuntimeEnv.pushAction(action);
-        if (simpleRuntimeEnv instanceof SimpleRulesRuntimeEnvMT) {
-            action.fork();
-        } else {
-            try {
-                pool().execute(action);
-            } catch (RejectedExecutionException e) {
-                // The pool can be shut down concurrently (e.g. on context close) between pool() and execute(). Run the
-                // already-pushed action inline so it still completes and join() does not block on an unscheduled task.
-                action.quietlyInvoke();
-            }
+        try {
+            simpleRuntimeEnv.pushAction(executor().submit(task));
+        } catch (RejectedExecutionException e) {
+            // The service can be shut down concurrently (e.g. on context close) between executor() and submit(). Run
+            // the task inline so it still completes and join() has nothing left to wait on.
+            task.run();
         }
     }
 
@@ -111,30 +119,22 @@ public final class ServiceMT {
         }
     }
 
-    private static class RunnableRecursiveAction extends RecursiveAction {
-        private static final long serialVersionUID = -6827837658658403954L;
-        private final Runnable runnable;
-        private final SimpleRuntimeEnv env;
-        private final ClassLoader classLoader;
-
-        private RunnableRecursiveAction(Runnable runnable, SimpleRuntimeEnv env, ClassLoader classLoader) {
-            this.runnable = runnable;
-            this.env = env;
-            this.classLoader = classLoader;
-        }
+    private record ParallelTask(Runnable runnable, SimpleRuntimeEnv env, ClassLoader classLoader)
+            implements java.lang.Runnable {
 
         @Override
-        protected void compute() {
-            final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        public void run() {
+            final Thread currentThread = Thread.currentThread();
+            final ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(classLoader);
+                currentThread.setContextClassLoader(classLoader);
                 if (env instanceof SimpleRulesRuntimeEnvMT) {
                     runnable.run(env.clone());
                 } else {
                     runnable.run(new SimpleRulesRuntimeEnvMT(env));
                 }
             } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
+                currentThread.setContextClassLoader(oldClassLoader);
             }
         }
     }

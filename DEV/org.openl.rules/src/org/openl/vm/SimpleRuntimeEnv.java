@@ -3,9 +3,11 @@ package org.openl.vm;
 import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.openl.IOpenRunner;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
@@ -22,7 +24,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     protected ArrayDeque<IRuntimeContext> contextStack;
     private IOpenClass topClass;
     private IRulesMethodWrapper methodWrapper;
-    private Queue<RecursiveAction> actionStack = null;
+    private Queue<Future<?>> actionStack = null;
 
     public SimpleRuntimeEnv() {
         this.runner = SimpleRunner.SIMPLE_RUNNER;
@@ -65,7 +67,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     }
 
 
-    public void pushAction(RecursiveAction action) {
+    public void pushAction(Future<?> action) {
         if (actionStack == null) {
             actionStack = new LinkedList<>();
         }
@@ -73,21 +75,35 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     }
 
     public boolean joinActionIfExists() {
-        if (actionStack != null && !actionStack.isEmpty()) {
-            RecursiveAction action = actionStack.poll();
-            action.join();
-            return true;
+        Future<?> action = actionStack != null ? actionStack.poll() : null;
+        if (action == null) {
+            return false;
         }
-        return false;
+        try {
+            action.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new OpenLRuntimeException(e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (cause instanceof Error error) {
+                throw error;
+            }
+            throw new OpenLRuntimeException(cause);
+        }
+        return true;
     }
 
     public boolean cancelActionIfExists() {
-        if (actionStack != null && !actionStack.isEmpty()) {
-            RecursiveAction action = actionStack.poll();
-            action.cancel(true);
-            return true;
+        Future<?> action = actionStack != null ? actionStack.poll() : null;
+        if (action == null) {
+            return false;
         }
-        return false;
+        action.cancel(true);
+        return true;
     }
 
     public SimpleRuntimeEnv(SimpleRuntimeEnv env) {
