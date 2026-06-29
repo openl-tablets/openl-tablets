@@ -743,8 +743,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
+        return getTableRaw(project, tableId, RawTableReader.ALL_ROWS, false);
+    }
+
+    /**
+     * Get table in raw format, returning at most {@code maxRows} rows from the top and, optionally, each
+     * cell's Excel style.
+     *
+     * @param project    project
+     * @param tableId    table id
+     * @param maxRows    maximum number of rows to return, or {@link RawTableReader#ALL_ROWS} for the whole table
+     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @return raw table data, with {@code totalRows} set when truncated
+     */
+    public RawTableView getTableRaw(RulesProject project, String tableId, int maxRows, boolean withStyles) {
         var context = getOpenLTable(project, tableId);
-        var tableView = rawTableReader.read(context.table());
+        var tableView = rawTableReader.read(context.table(), maxRows, withStyles);
         tableView.messages = mapMessages(context);
         return tableView;
     }

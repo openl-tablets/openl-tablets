@@ -84,6 +84,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
+import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
@@ -312,9 +313,12 @@ public class ProjectsController {
     @Operation(summary = "Get project table (BETA)")
     public EditableTableView getTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw) {
+                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw,
+                                      @RequestParam(value = "maxRows", required = false) @Parameter(description = "Maximum number of rows for the raw view; omit for the whole table. When truncated, the response carries totalRows.") Integer maxRows,
+                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "Whether the raw view should carry each cell's Excel style (background, font, alignment)") boolean styles) {
         if (raw) {
-            return projectService.getTableRaw(project, tableId);
+            int rows = maxRows == null ? RawTableReader.ALL_ROWS : maxRows;
+            return projectService.getTableRaw(project, tableId, rows, styles);
         }
         return (EditableTableView) projectService.getTable(project, tableId);
     }

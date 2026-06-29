@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -49,10 +50,16 @@ public class RawTableView extends TableView implements EditableTableView {
     @Schema(description = "2D matrix of raw table cells with merge information")
     public final List<List<RawTableCell>> source;   // 2D matrix of cells
 
+    @Schema(description = "Total number of rows when the result is truncated by maxRows; absent when the whole table is returned")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final Integer totalRows;
+
     private RawTableView(Builder builder) {
         super(builder);
         this.pos = builder.pos;
         this.source = builder.source;
+        this.totalRows = builder.totalRows;
     }
 
     @Override
@@ -91,6 +98,7 @@ public class RawTableView extends TableView implements EditableTableView {
     public static class Builder extends TableView.Builder<Builder> {
         private String pos;
         private List<List<RawTableCell>> source;
+        private Integer totalRows;
 
         private Builder() {
             tableType(TABLE_TYPE);
@@ -103,6 +111,11 @@ public class RawTableView extends TableView implements EditableTableView {
 
         public Builder source(List<List<RawTableCell>> source) {
             this.source = source;
+            return this;
+        }
+
+        public Builder totalRows(Integer totalRows) {
+            this.totalRows = totalRows;
             return this;
         }
 
