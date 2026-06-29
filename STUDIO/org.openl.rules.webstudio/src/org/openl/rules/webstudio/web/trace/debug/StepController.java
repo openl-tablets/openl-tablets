@@ -98,6 +98,10 @@ final class StepController {
     }
 
     private static boolean matchesLocationBreakpoint(Set<String> active, String uri, CurrentLocation location) {
+        if (active.isEmpty()) {
+            // No breakpoints set: skip building "uri#ref" keys on every sub-step of a plain run.
+            return false;
+        }
         for (String ref : location.breakpointRefs()) {
             if (active.contains(uri + "#" + ref)) {
                 return true;

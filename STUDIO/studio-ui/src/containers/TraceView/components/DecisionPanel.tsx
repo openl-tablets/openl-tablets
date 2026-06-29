@@ -49,11 +49,12 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
     const breakpoints = useTraceStore(s => s.breakpoints)
     const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
 
-    const breakpointKey = `${frameUri}#${RULE_FIRED_REF}`
+    const bpKey = (ref: string): string => `${frameUri}#${ref}`
+    const breakpointKey = bpKey(RULE_FIRED_REF)
     const breakOnFire = breakpoints.includes(breakpointKey)
     const fired = new Set(decision?.firedRules)
     const ruleLabel = (rule: string): string => t('decision.ruleBreakpointLabel', { table: frameName, rule })
-    const armedRules = (ruleNames ?? []).filter(rule => breakpoints.includes(`${frameUri}#${rule}`))
+    const armedRules = (ruleNames ?? []).filter(rule => breakpoints.includes(bpKey(rule)))
 
     const ruleFireToggle = (
         <Tooltip title={t('decision.breakOnFireHint')}>
@@ -82,8 +83,8 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
                         className={styles.ruleSelect}
                         data-testid="decision-rule-select"
                         mode="multiple"
-                        onDeselect={(rule: string) => toggleBreakpoint(`${frameUri}#${rule}`, ruleLabel(rule))}
-                        onSelect={(rule: string) => toggleBreakpoint(`${frameUri}#${rule}`, ruleLabel(rule))}
+                        onDeselect={(rule: string) => toggleBreakpoint(bpKey(rule), ruleLabel(rule))}
+                        onSelect={(rule: string) => toggleBreakpoint(bpKey(rule), ruleLabel(rule))}
                         options={ruleNames.map(rule => ({ value: rule, label: rule }))}
                         placeholder={t('decision.breakOnRulePlaceholder')}
                         size="small"
@@ -99,7 +100,7 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
                             : t('decision.noneFired')}
                     </div>
                     {groupByRule(decision).map(({ rule, conditions }) => {
-                        const ruleKey = `${frameUri}#${rule}`
+                        const ruleKey = bpKey(rule)
                         const hasRuleBreakpoint = breakpoints.includes(ruleKey)
                         const bpTooltip = hasRuleBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')
                         return (
