@@ -6,7 +6,7 @@ import { useTraceStore } from 'store'
 import type { DecisionView } from 'types/trace'
 import { useStyles } from './DecisionPanel.styles'
 
-/** Breakpoint key suffix that suspends when a rule fires; mirrors the backend CurrentLocation.RULE_FIRED_REF. */
+/** Breakpoint key suffix that suspends when any rule fires; mirrors the backend CurrentLocation.RULE_FIRED_REF. */
 const RULE_FIRED_REF = 'rule'
 
 interface RuleGroup {
@@ -38,9 +38,9 @@ interface DecisionPanelProps {
 
 /**
  * Plain-language "why this fired" panel for a decision-table frame. The "Break when a rule fires"
- * toggle is always available so a breakpoint can be set before any rule fires; once a rule fires the
- * panel also shows which rule it was and how each evaluated condition turned out, mirroring the
- * green/red table highlight as a scannable list.
+ * toggle suspends on any firing, and each rule has a gutter to break on that specific rule; both can be
+ * set before any rule fires. Once a rule fires the panel shows which rule it was and how each evaluated
+ * condition turned out, mirroring the green/red table highlight as a scannable list.
  */
 const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, frameUri, frameName }) => {
     const { t } = useTranslation('trace')
@@ -79,22 +79,35 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, frameUri, frame
                             ? t('decision.fired', { rules: decision.firedRules.join(', ') })
                             : t('decision.noneFired')}
                     </div>
-                    {groupByRule(decision).map(({ rule, conditions }) => (
-                        <div key={rule} className={cx(styles.rule, fired.has(rule) && styles.firedRule)}>
-                            <span className={styles.ruleName}>{rule}</span>
-                            <span className={styles.conditions}>
-                                {conditions.map((c, i) => (
-                                    <Tag
-                                        key={i}
-                                        color={c.matched ? 'success' : 'error'}
-                                        icon={c.matched ? <CheckOutlined /> : <CloseOutlined />}
-                                    >
-                                        {c.condition}
-                                    </Tag>
-                                ))}
-                            </span>
-                        </div>
-                    ))}
+                    {groupByRule(decision).map(({ rule, conditions }) => {
+                        const ruleKey = `${frameUri}#${rule}`
+                        const hasRuleBreakpoint = breakpoints.includes(ruleKey)
+                        const bpTooltip = hasRuleBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')
+                        const ruleLabel = t('decision.ruleBreakpointLabel', { table: frameName, rule })
+                        return (
+                            <div key={rule} className={cx(styles.rule, fired.has(rule) && styles.firedRule)}>
+                                <Tooltip title={bpTooltip}>
+                                    <span
+                                        className={cx(styles.gutter, hasRuleBreakpoint && styles.gutterActive)}
+                                        data-testid={`decision-rule-bp-${rule}`}
+                                        onClick={() => toggleBreakpoint(ruleKey, ruleLabel)}
+                                    />
+                                </Tooltip>
+                                <span className={styles.ruleName}>{rule}</span>
+                                <span className={styles.conditions}>
+                                    {conditions.map((c, i) => (
+                                        <Tag
+                                            key={i}
+                                            color={c.matched ? 'success' : 'error'}
+                                            icon={c.matched ? <CheckOutlined /> : <CloseOutlined />}
+                                        >
+                                            {c.condition}
+                                        </Tag>
+                                    ))}
+                                </span>
+                            </div>
+                        )
+                    })}
                 </>
             ) : (
                 <div className={styles.summary}>{t('decision.notYetFired')}</div>

@@ -45,4 +45,20 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-wrap: wrap;
         gap: ${token.marginXXS}px;
     `,
+    gutter: css`
+        align-self: center;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1px solid ${token.colorBorder};
+        flex: 0 0 auto;
+        cursor: pointer;
+        &:hover {
+            border-color: ${token.colorError};
+        }
+    `,
+    gutterActive: css`
+        background: ${token.colorError};
+        border-color: ${token.colorError};
+    `,
 }))

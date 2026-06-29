@@ -44,6 +44,7 @@ i18next.addResourceBundle('en', 'trace', {
         breakOnFire: 'Break when a rule fires',
         breakOnFireHint: "Suspend whenever this table fires a rule — when all of a rule's conditions match.",
         breakpointLabel: '{{table}} — on rule fired',
+        ruleBreakpointLabel: '{{table}} — when {{rule}} fires',
     },
 
     // Explains the cell/row colours shared by the traced table, the spreadsheet grid and the decision panel.

@@ -69,16 +69,17 @@ final class StepController {
      *
      * <p>A breakpoint is matched at table entry by URI (key {@code uri}) or by table name (key
      * {@code name}), or at a sub-step (key {@code uri#ref}): a spreadsheet cell such as {@code uri#R2C3},
-     * or a fired decision-table rule such as {@code uri#rule}. A name breakpoint suspends on any
-     * same-named table, since every overloaded or dimensional version shares the plain method name.
+     * any fired decision-table rule ({@code uri#rule}), or a specific fired rule by name such as
+     * {@code uri#R10}. A name breakpoint suspends on any same-named table, since every overloaded or
+     * dimensional version shares the plain method name.
      *
-     * @param event the kind of safepoint reached
-     * @param depth depth of the current frame (1 for the top-level call)
-     * @param uri   table URI of the current frame
-     * @param ref   current sub-step reference on a location change, or {@code null}
-     * @param name  table name of the current frame, for name breakpoints, or {@code null}
+     * @param event    the kind of safepoint reached
+     * @param depth    depth of the current frame (1 for the top-level call)
+     * @param uri      table URI of the current frame
+     * @param location current sub-step location on a location change, or {@code null}
+     * @param name     table name of the current frame, for name breakpoints, or {@code null}
      */
-    synchronized boolean shouldSuspend(DebugEvent event, int depth, String uri, @Nullable String ref,
+    synchronized boolean shouldSuspend(DebugEvent event, int depth, String uri, @Nullable CurrentLocation location,
                                        @Nullable String name) {
         if (pauseRequested) {
             return true;
@@ -87,12 +88,21 @@ final class StepController {
         if (event == DebugEvent.ENTER && (active.contains(uri) || (name != null && active.contains(name)))) {
             return true;
         }
-        if (event == DebugEvent.LOCATION && ref != null && active.contains(uri + "#" + ref)) {
+        if (event == DebugEvent.LOCATION && location != null && matchesLocationBreakpoint(active, uri, location)) {
             return true;
         }
         if (event == DebugEvent.EXIT) {
             return depth <= exitDepth;
         }
         return depth <= threshold;
+    }
+
+    private static boolean matchesLocationBreakpoint(Set<String> active, String uri, CurrentLocation location) {
+        for (String ref : location.breakpointRefs()) {
+            if (active.contains(uri + "#" + ref)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

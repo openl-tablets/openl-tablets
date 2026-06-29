@@ -3,24 +3,28 @@ package org.openl.rules.webstudio.web.trace.debug;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 class CurrentLocationTest {
 
     @Test
-    void breakpointRefIsTheCellReferenceForACell() {
-        assertEquals("R2C3", CurrentLocation.cell(2, 3).breakpointRef());
+    void breakpointRefsIsTheCellReferenceForACell() {
+        assertEquals(List.of("R2C3"), CurrentLocation.cell(2, 3).breakpointRefs());
     }
 
     @Test
-    void breakpointRefIsTheReservedRuleSuffixForAFiredRule() {
-        assertEquals(CurrentLocation.RULE_FIRED_REF, CurrentLocation.dtRule("R10").breakpointRef());
-        // The displayed ref stays null, so the location view is unchanged.
-        assertNull(CurrentLocation.dtRule("R10").ref());
+    void breakpointRefsCoverAnyRuleAndEachFiredRule() {
+        var location = CurrentLocation.dtRule(List.of("R10", "R11"));
+        assertEquals(List.of(CurrentLocation.RULE_FIRED_REF, "R10", "R11"), location.breakpointRefs());
+        // The displayed ref stays null; the label joins the fired rule names.
+        assertNull(location.ref());
+        assertEquals("R10, R11", location.label());
     }
 
     @Test
-    void breakpointRefIsAbsentForAnOperation() {
-        assertNull(CurrentLocation.operation("ADD").breakpointRef());
+    void breakpointRefsAreEmptyForAnOperation() {
+        assertEquals(List.of(), CurrentLocation.operation("ADD").breakpointRefs());
     }
 }

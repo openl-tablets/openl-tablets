@@ -94,7 +94,7 @@ class TraceDebuggerIntegrationTest {
         public CurrentLocation describeSubStep(Object executor, IRuntimeEnv env, Object frameSource) {
             return switch (executor) {
                 case FakeCell c -> CurrentLocation.cell(c.row(), c.col());
-                case FakeRule r -> CurrentLocation.dtRule(r.name());
+                case FakeRule r -> CurrentLocation.dtRule(List.of(r.name()));
                 case null, default -> null;
             };
         }
@@ -221,6 +221,24 @@ class TraceDebuggerIntegrationTest {
 
         // With no breakpoint and no stop-at-entry, a fired rule is an ordinary safepoint and runs through.
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+    }
+
+    @Test
+    void ruleBreakpointSuspendsOnlyOnTheNamedRule() {
+        FakeTable dt = new FakeTable("DT").rule("R1").rule("R2");
+        DebugBody program = () -> Tracer.invoke(dt, null, NO_PARAMS, new SimpleRuntimeEnv(), dt);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setBreakpoints(Set.of("DT#R2"));
+        debugger.start("test-worker", null, false, program);
+
+        // R1 fires first but is not the named rule, so execution runs on to R2.
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        CurrentLocation location = debugger.stack().get(0).getLocation();
+        assertNotNull(location, "expected a current location");
+        assertEquals("R2", location.label(), "stopped at R2, not R1");
+
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
     }
 
     @Test

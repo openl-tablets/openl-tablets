@@ -69,4 +69,14 @@ describe('DecisionPanel', () => {
         await userEvent.click(screen.getByRole('checkbox'))
         expect(useTraceStore.getState().breakpoints).toContain('dt/uri#rule')
     })
+
+    it('toggles a breakpoint on a specific rule via its gutter', async () => {
+        render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
+
+        await userEvent.click(screen.getByTestId('decision-rule-bp-Senior'))
+        expect(useTraceStore.getState().breakpoints).toContain('dt/uri#Senior')
+        // The any-rule and other-rule keys are untouched.
+        expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#rule')
+        expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#Standard')
+    })
 })

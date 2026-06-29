@@ -58,7 +58,7 @@ final class DebugHookImpl implements DebugHook {
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
         top.setLocation(location);
-        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location.breakpointRef(), top.getName());
+        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location, top.getName());
         R result = executor.invoke(target, params, env);
         top.recordExecutedStep(stepRef(location), location.label(), result);
         return result;
@@ -113,11 +113,12 @@ final class DebugHookImpl implements DebugHook {
         }
     }
 
-    private void handleEvent(DebugEvent event, int depth, String uri, @Nullable String ref, @Nullable String name) {
+    private void handleEvent(DebugEvent event, int depth, String uri, @Nullable CurrentLocation location,
+                             @Nullable String name) {
         if (channel.isTerminateRequested()) {
             throw new DebugTerminationError();
         }
-        if (stepController.shouldSuspend(event, depth, uri, ref, name)) {
+        if (stepController.shouldSuspend(event, depth, uri, location, name)) {
             suspendAndAwait(depth);
         }
     }
