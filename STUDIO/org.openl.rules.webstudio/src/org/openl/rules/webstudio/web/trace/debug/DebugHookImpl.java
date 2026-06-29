@@ -58,7 +58,7 @@ final class DebugHookImpl implements DebugHook {
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
         top.setLocation(location);
-        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location.ref(), top.getName());
+        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location.breakpointRef(), top.getName());
         R result = executor.invoke(target, params, env);
         top.recordExecutedStep(stepRef(location), location.label(), result);
         return result;

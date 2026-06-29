@@ -1,9 +1,13 @@
 import React from 'react'
-import { Card, Tag } from 'antd'
+import { Card, Checkbox, Tag, Tooltip } from 'antd'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useTraceStore } from 'store'
 import type { DecisionView } from 'types/trace'
 import { useStyles } from './DecisionPanel.styles'
+
+/** Breakpoint key suffix that suspends when a rule fires; mirrors the backend CurrentLocation.RULE_FIRED_REF. */
+const RULE_FIRED_REF = 'rule'
 
 interface RuleGroup {
     rule: string
@@ -26,17 +30,47 @@ const groupByRule = (decision: DecisionView): RuleGroup[] => {
     return order
 }
 
+interface DecisionPanelProps {
+    decision: DecisionView
+    frameUri: string
+    frameName: string
+}
+
 /**
  * Plain-language "why this fired" panel for a decision-table frame: which rule fired and how each
- * evaluated condition turned out, mirroring the green/red table highlight as a scannable list.
+ * evaluated condition turned out, mirroring the green/red table highlight as a scannable list. A toggle
+ * sets a breakpoint that suspends whenever this table fires a rule.
  */
-const DecisionPanel: React.FC<{ decision: DecisionView }> = ({ decision }) => {
+const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, frameUri, frameName }) => {
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
+    const breakpoints = useTraceStore(s => s.breakpoints)
+    const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
     const fired = new Set(decision.firedRules)
 
+    const breakpointKey = `${frameUri}#${RULE_FIRED_REF}`
+    const breakOnFire = breakpoints.includes(breakpointKey)
+
+    const ruleFireToggle = (
+        <Tooltip title={t('decision.breakOnFireHint')}>
+            <Checkbox
+                checked={breakOnFire}
+                data-testid="decision-break-on-fire"
+                onChange={() => toggleBreakpoint(breakpointKey, t('decision.breakpointLabel', { table: frameName }))}
+            >
+                {t('decision.breakOnFire')}
+            </Checkbox>
+        </Tooltip>
+    )
+
     return (
-        <Card className={styles.card} data-testid="decision-panel" size="small" title={t('details.decision')}>
+        <Card
+            className={styles.card}
+            data-testid="decision-panel"
+            extra={ruleFireToggle}
+            size="small"
+            title={t('details.decision')}
+        >
             <div className={styles.summary}>
                 {decision.firedRules.length > 0
                     ? t('decision.fired', { rules: decision.firedRules.join(', ') })

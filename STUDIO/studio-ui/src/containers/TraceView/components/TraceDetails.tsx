@@ -135,7 +135,7 @@ const TraceDetails: React.FC = () => {
                     )}
                     {/* For decision tables, explain in plain language which rule fired and why. */}
                     {frame?.kind === 'decisionTable' && variables?.decision && (
-                        <DecisionPanel decision={variables.decision} />
+                        <DecisionPanel decision={variables.decision} frameName={frame.name} frameUri={frame.uri} />
                     )}
                     <TraceParameters
                         copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}

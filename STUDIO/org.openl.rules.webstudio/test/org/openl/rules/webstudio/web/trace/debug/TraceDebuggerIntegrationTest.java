@@ -56,6 +56,11 @@ class TraceDebuggerIntegrationTest {
             return this;
         }
 
+        FakeTable rule(String name) {
+            body.add(env -> Tracer.invoke(new FakeRule(name), null, NO_PARAMS, env, new FakeRule(name)));
+            return this;
+        }
+
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             body.forEach(step -> step.accept(env));
@@ -71,6 +76,14 @@ class TraceDebuggerIntegrationTest {
         }
     }
 
+    /** A synthetic sub-step: a fired decision-table rule. */
+    private record FakeRule(String name) implements Invokable<Object, IRuntimeEnv> {
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return name + ":fired";
+        }
+    }
+
     private static final SourceClassifier CLASSIFIER = new SourceClassifier() {
         @Override
         public FrameDescriptor describeFrame(Object source) {
@@ -79,7 +92,11 @@ class TraceDebuggerIntegrationTest {
 
         @Override
         public CurrentLocation describeSubStep(Object executor, IRuntimeEnv env, Object frameSource) {
-            return executor instanceof FakeCell c ? CurrentLocation.cell(c.row(), c.col()) : null;
+            return switch (executor) {
+                case FakeCell c -> CurrentLocation.cell(c.row(), c.col());
+                case FakeRule r -> CurrentLocation.dtRule(r.name());
+                case null, default -> null;
+            };
         }
     };
 
@@ -173,6 +190,37 @@ class TraceDebuggerIntegrationTest {
 
         // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
         assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void ruleFiredBreakpointSuspendsWhenARuleFires() {
+        FakeTable dt = new FakeTable("DT").rule("R3");
+        DebugBody program = () -> Tracer.invoke(dt, null, NO_PARAMS, new SimpleRuntimeEnv(), dt);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setBreakpoints(Set.of("DT#" + CurrentLocation.RULE_FIRED_REF));
+        // No stop-at-entry: only the rule-fired breakpoint should suspend it.
+        debugger.start("test-worker", null, false, program);
+
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(List.of("DT"), uris(debugger));
+        CurrentLocation location = debugger.stack().get(0).getLocation();
+        assertNotNull(location, "expected a current location");
+        assertEquals("R3", location.label(), "suspended at the fired rule");
+
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void ruleFiringDoesNotSuspendWithoutARuleFiredBreakpoint() {
+        FakeTable dt = new FakeTable("DT").rule("R3");
+        DebugBody program = () -> Tracer.invoke(dt, null, NO_PARAMS, new SimpleRuntimeEnv(), dt);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("test-worker", null, false, program);
+
+        // With no breakpoint and no stop-at-entry, a fired rule is an ordinary safepoint and runs through.
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
     }
 
     @Test

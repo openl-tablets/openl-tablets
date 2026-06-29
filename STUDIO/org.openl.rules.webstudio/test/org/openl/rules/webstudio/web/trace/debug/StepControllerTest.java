@@ -46,6 +46,19 @@ class StepControllerTest {
     }
 
     @Test
+    void ruleFiredBreakpointStopsWhenARuleFires() {
+        StepController controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("uri#" + CurrentLocation.RULE_FIRED_REF));
+        // A fired decision-table rule reports the reserved rule-fired ref on a location change.
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.RULE_FIRED_REF, "DT"));
+        // A rule firing in a different table does not match this breakpoint.
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "other", CurrentLocation.RULE_FIRED_REF, "DT"));
+        // It is a location stop, not a table-entry stop.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 5, "uri", null, "DT"));
+    }
+
+    @Test
     void nameBreakpointStopsOnAnySameNamedTable() {
         StepController controller = new StepController();
         controller.armInitial(false);

@@ -68,9 +68,9 @@ final class StepController {
      * Whether execution should suspend at this event.
      *
      * <p>A breakpoint is matched at table entry by URI (key {@code uri}) or by table name (key
-     * {@code name}), or at a specific sub-step (key {@code uri#ref}, where {@code ref} is the current
-     * line's reference such as a spreadsheet cell). A name breakpoint suspends on any same-named table,
-     * since every overloaded or dimensional version shares the plain method name.
+     * {@code name}), or at a sub-step (key {@code uri#ref}): a spreadsheet cell such as {@code uri#R2C3},
+     * or a fired decision-table rule such as {@code uri#rule}. A name breakpoint suspends on any
+     * same-named table, since every overloaded or dimensional version shares the plain method name.
      *
      * @param event the kind of safepoint reached
      * @param depth depth of the current frame (1 for the top-level call)

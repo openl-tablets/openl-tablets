@@ -1,27 +1,41 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { useTraceStore } from 'store/traceStore'
 import type { DecisionView } from 'types/trace'
 
+vi.mock('services/traceService', () => ({
+    __esModule: true,
+    default: { setBreakpoints: vi.fn().mockResolvedValue(undefined) },
+}))
+
 vi.mock('react-i18next', () => {
-    const t = (key: string, opts?: { rules?: string }) =>
+    const t = (key: string, opts?: { rules?: string; table?: string }) =>
         key === 'decision.fired' ? `Fired: ${opts?.rules}` : key
     return { useTranslation: () => ({ t }) }
 })
 
 import DecisionPanel from 'containers/TraceView/components/DecisionPanel'
 
+const decision: DecisionView = {
+    firedRules: ['Standard'],
+    conditions: [
+        { condition: 'Age', rule: 'Standard', matched: true },
+        { condition: 'State', rule: 'Standard', matched: true },
+        { condition: 'Age', rule: 'Senior', matched: true },
+        { condition: 'State', rule: 'Senior', matched: false },
+    ],
+}
+
 describe('DecisionPanel', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        useTraceStore.getState().reset()
+        useTraceStore.setState({ projectId: 'p1' })
+    })
+
     it('shows the fired rule and per-rule condition outcomes', () => {
-        const decision: DecisionView = {
-            firedRules: ['Standard'],
-            conditions: [
-                { condition: 'Age', rule: 'Standard', matched: true },
-                { condition: 'State', rule: 'Standard', matched: true },
-                { condition: 'Age', rule: 'Senior', matched: true },
-                { condition: 'State', rule: 'Senior', matched: false },
-            ],
-        }
-        render(<DecisionPanel decision={decision} />)
+        render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
 
         expect(screen.getByText('Fired: Standard')).toBeInTheDocument()
         expect(screen.getByText('Senior')).toBeInTheDocument()
@@ -31,7 +45,19 @@ describe('DecisionPanel', () => {
     })
 
     it('reports when no rule fired', () => {
-        render(<DecisionPanel decision={{ firedRules: [], conditions: []}} />)
+        render(<DecisionPanel decision={{ firedRules: [], conditions: []}} frameName="DT" frameUri="dt/uri" />)
         expect(screen.getByText('decision.noneFired')).toBeInTheDocument()
+    })
+
+    it('toggles a rule-fired breakpoint keyed to the table', async () => {
+        render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
+        const toggle = screen.getByRole('checkbox')
+        expect(toggle).not.toBeChecked()
+
+        await userEvent.click(toggle)
+        expect(useTraceStore.getState().breakpoints).toContain('dt/uri#rule')
+
+        await userEvent.click(toggle)
+        expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#rule')
     })
 })
