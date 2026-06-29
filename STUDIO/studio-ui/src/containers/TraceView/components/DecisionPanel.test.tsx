@@ -15,6 +15,37 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
+// AntD Select virtualises its dropdown, which does not render in jsdom; replace it with a native
+// <select> so option selection is deterministic. The rest of antd (Card, Checkbox, Tag, Tooltip) stays real.
+interface MockSelectProps {
+    options?: { value: string; label: string }[]
+    value?: string[]
+    onSelect?: (value: string) => void
+    onDeselect?: (value: string) => void
+    'data-testid'?: string
+}
+
+vi.mock('antd', async () => {
+    const actual = await vi.importActual<typeof import('antd')>('antd')
+    const Select = ({ options = [], value = [], onSelect, onDeselect, ...rest }: MockSelectProps) => (
+        <select
+            multiple
+            data-testid={rest['data-testid']}
+            value={value}
+            onChange={e => {
+                const next = Array.from(e.target.selectedOptions, o => o.value)
+                next.filter(v => !value.includes(v)).forEach(v => onSelect?.(v))
+                value.filter(v => !next.includes(v)).forEach(v => onDeselect?.(v))
+            }}
+        >
+            {options.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+        </select>
+    )
+    return { ...actual, Select }
+})
+
 import DecisionPanel from 'containers/TraceView/components/DecisionPanel'
 
 const decision: DecisionView = {
@@ -78,5 +109,18 @@ describe('DecisionPanel', () => {
         // The any-rule and other-rule keys are untouched.
         expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#rule')
         expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#Standard')
+    })
+
+    it('arms a breakpoint on any rule chosen from the all-rules dropdown', async () => {
+        // The full rule list is available even before any rule fires (decision is null).
+        render(<DecisionPanel decision={null} frameName="DT" frameUri="dt/uri" ruleNames={['R1', 'R2', 'R3']} />)
+
+        await userEvent.selectOptions(screen.getByTestId('decision-rule-select'), 'R2')
+        expect(useTraceStore.getState().breakpoints).toContain('dt/uri#R2')
+    })
+
+    it('hides the rule dropdown when the rule list is unavailable', () => {
+        render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
+        expect(screen.queryByTestId('decision-rule-select')).not.toBeInTheDocument()
     })
 })

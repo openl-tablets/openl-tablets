@@ -149,4 +149,16 @@ class TraceDebugMapperTest {
         // Suspended at entry: nothing evaluated and no rule fired → no explanation.
         assertNull(TraceDebugMapper.buildDecision(dt, List.of(), new int[0]));
     }
+
+    @Test
+    void listsEveryDistinctRuleNameSoAnyRuleCanBeArmed() {
+        IDecisionTable dt = mock(IDecisionTable.class);
+        when(dt.getNumberOfRules()).thenReturn(4);
+        when(dt.getRuleName(0)).thenReturn("R1");
+        when(dt.getRuleName(1)).thenReturn("R2");
+        when(dt.getRuleName(2)).thenReturn("R3");
+        when(dt.getRuleName(3)).thenReturn("R2");  // a duplicate name collapses to one
+
+        assertEquals(List.of("R1", "R2", "R3"), TraceDebugMapper.ruleNames(dt));
+    }
 }

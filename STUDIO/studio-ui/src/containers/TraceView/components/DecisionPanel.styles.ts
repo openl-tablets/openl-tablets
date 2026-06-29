@@ -61,4 +61,18 @@ export const useStyles = createStyles(({ css, token }) => ({
         background: ${token.colorError};
         border-color: ${token.colorError};
     `,
+    rulePicker: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginXS}px;
+        margin-bottom: ${token.marginSM}px;
+    `,
+    rulePickerLabel: css`
+        color: ${token.colorTextTertiary};
+        white-space: nowrap;
+    `,
+    ruleSelect: css`
+        flex: 1;
+        min-width: 0;
+    `,
 }))

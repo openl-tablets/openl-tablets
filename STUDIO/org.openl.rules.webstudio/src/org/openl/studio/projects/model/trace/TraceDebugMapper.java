@@ -8,6 +8,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -173,6 +174,7 @@ public class TraceDebugMapper {
                     .gridColumns(gridNames(frame, true))
                     .gridRows(gridNames(frame, false))
                     .decision(decisionFor(frame))
+                    .ruleNames(ruleNamesFor(frame))
                     .errors(buildErrors(frame))
                     .build();
         } finally {
@@ -262,6 +264,19 @@ public class TraceDebugMapper {
         }
         String[] names = columns ? spreadsheet.getColumnNames() : spreadsheet.getRowNames();
         return Arrays.stream(names).map(name -> name == null ? "" : name).toList();
+    }
+
+    /** Every distinct rule name of a decision-table frame, so any rule can be armed; {@code null} otherwise. */
+    private static @Nullable List<String> ruleNamesFor(DebugFrame frame) {
+        return frame.getSource() instanceof IDecisionTable decisionTable ? ruleNames(decisionTable) : null;
+    }
+
+    /** Every distinct rule name of a decision table, in rule order. */
+    static List<String> ruleNames(IDecisionTable decisionTable) {
+        return IntStream.range(0, decisionTable.getNumberOfRules())
+                .mapToObj(decisionTable::getRuleName)
+                .distinct()
+                .toList();
     }
 
     private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones) {

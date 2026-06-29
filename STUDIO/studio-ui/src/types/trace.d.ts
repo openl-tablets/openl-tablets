@@ -179,6 +179,8 @@ export interface DebugFrameVariables {
     gridRows?: string[] | null
     /** Decision-table outcome explanation (only for decision-table frames). */
     decision?: DecisionView | null
+    /** All rule names of a decision-table frame, so a breakpoint can be set on any rule. */
+    ruleNames?: string[] | null
     errors: MessageDescription[]
 }
 

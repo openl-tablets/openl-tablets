@@ -17794,6 +17794,14 @@ Content-Type: application/json
           "result": {
             "$ref": "#/components/schemas/ParameterValue"
           },
+          "ruleNames": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
           "steps": {
             "type": "array",
             "description": "***",

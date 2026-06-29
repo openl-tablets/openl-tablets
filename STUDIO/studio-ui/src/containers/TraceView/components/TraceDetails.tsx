@@ -140,6 +140,7 @@ const TraceDetails: React.FC = () => {
                             decision={variables?.decision ?? null}
                             frameName={frame.name}
                             frameUri={frame.uri}
+                            ruleNames={variables?.ruleNames ?? null}
                         />
                     )}
                     <TraceParameters
