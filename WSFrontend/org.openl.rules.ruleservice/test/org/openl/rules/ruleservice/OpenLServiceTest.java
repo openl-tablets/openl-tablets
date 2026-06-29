@@ -119,7 +119,8 @@ class OpenLServiceTest {
         assertEquals("{\"data\":\"text\"}", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
         assertEquals("{\"s\":\"Mike\",\"i\":80}", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
 
-        assertEquals("org.openl.generated.interfaces.VirtualModule$proxy", OpenLService.callJSON("RulesFrontendTest_multimodule", "toString", null).substring(0, 50));
+        assertTrue(OpenLService.callJSON("RulesFrontendTest_multimodule", "toString", null)
+                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
         assertNotNull(OpenLService.rulesFrontend);
         OpenLService.reset();
@@ -160,7 +161,8 @@ class OpenLServiceTest {
         assertEquals("{\"result\":\"{\\\"data\\\":\\\"text\\\"}\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
         assertEquals("{\"result\":\"{\\\"s\\\":\\\"Mike\\\",\\\"i\\\":80}\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
 
-        assertEquals("{\"result\":\"org.openl.generated.interfaces.VirtualModule$proxy", OpenLService.tryJSON("RulesFrontendTest_multimodule", "toString", null).substring(0, 61));
+        assertTrue(OpenLService.tryJSON("RulesFrontendTest_multimodule", "toString", null)
+                .startsWith("{\"result\":\"org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
         assertEquals("{\"result\":null,\"error\":{\"message\":\"CA is not allowed\",\"type\":\"USER_ERROR\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "CA"));
         assertEquals("{\"result\":\"OK\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "NY"));
@@ -235,8 +237,10 @@ class OpenLServiceTest {
         assertEquals("{\"data\":\"text\"}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
         assertEquals("{\"s\":\"Mike\",\"i\":80}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
 
-        assertEquals("org.openl.generated.interfaces.VirtualModule$proxy", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString", (String[]) null).substring(0, 50));
-        assertEquals("org.openl.generated.interfaces.VirtualModule$proxy", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString").substring(0, 50));
+        assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString", (String[]) null)
+                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
+        assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString")
+                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
         assertNotNull(OpenLService.rulesFrontend);
         OpenLService.reset();
@@ -298,7 +302,7 @@ class OpenLServiceTest {
         assertEquals("i: 8 s: Peace", serviceBean.worldHello(8, "Peace"));
         assertNotNull(OpenLService.rulesFrontend);
 
-        assertEquals("org.openl.generated.interfaces.VirtualModule$proxy", serviceBean.toString().substring(0, 50));
+        assertTrue(serviceBean.toString().startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
         var ex = assertThrows(IllegalArgumentException.class, () -> {
             serviceBean.absent("Hello");
