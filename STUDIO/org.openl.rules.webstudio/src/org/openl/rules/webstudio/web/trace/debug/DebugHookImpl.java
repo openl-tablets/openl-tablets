@@ -121,8 +121,9 @@ final class DebugHookImpl implements DebugHook {
         } finally {
             stack.pop();
             // Profiling keeps the returned frame's structure (no values) so the executed call tree survives the pop.
-            // A returned root frame has no parent to hold it, so it is kept as the completed tree instead.
-            if (profiling) {
+            // A returned root frame has no parent to hold it, so it is kept as the completed tree instead. A frame
+            // unwound by a terminate neither completed nor failed, so it is skipped — no misleading zero-time tree.
+            if (profiling && (frame.isCompleted() || frame.getError() != null)) {
                 CallNode node = frame.toCallNode();
                 if (parent != null) {
                     parent.recordExecutedChild(callerRef, node);
