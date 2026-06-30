@@ -98,7 +98,7 @@
         <opensaml.version>5.2.2</opensaml.version>
         <!-- Apache HttpComponents 5.x come transitively through OpenSAML. Pinned to a consistent
              up-to-date set and to realign the drifted core5 / core5-h2 versions. -->
-        <httpcomponents.client5.version>5.6.1</httpcomponents.client5.version>
+        <httpcomponents.client5.version>5.6.2</httpcomponents.client5.version>
         <httpcomponents.core5.version>5.4.3</httpcomponents.core5.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
