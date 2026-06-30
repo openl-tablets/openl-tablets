@@ -137,7 +137,7 @@ public class ProjectsTraceDebugController {
         // cache is not later pinned to a different module by a concurrent open (e.g. GET /breakpoint-tables).
         createMapper(session);
         session.getDebugger().awaitInitialHalt(STEP_TIMEOUT_MILLIS);
-        return stackView(session);
+        return inspectStack(session);
     }
 
     @Operation(summary = "trace.status.summary", description = "trace.status.desc")
@@ -151,7 +151,7 @@ public class ProjectsTraceDebugController {
     @ApiResponse(responseCode = "200", description = "trace.stack.200.desc")
     @GetMapping("/stack")
     public DebugStackView stack(@ProjectId @PathVariable("projectId") RulesProject project) {
-        return stackView(requireSession(project));
+        return inspectStack(requireSession(project));
     }
 
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")
@@ -303,6 +303,20 @@ public class ProjectsTraceDebugController {
                 throw new NotFoundException("trace.frame.not.found.message");
             }
             return inspection.apply(frame);
+        });
+    }
+
+    /**
+     * Map the live stack under the session lock, refusing while the worker is still RUNNING. The worker mutates
+     * its frames as it executes, so reading them is safe only once it has parked (suspended) or finished; the lock
+     * keeps a concurrent step or resume from waking it mid-read.
+     */
+    private DebugStackView inspectStack(DebugSession session) {
+        return session.inLock(() -> {
+            if (session.getDebugger().status() == DebugStatus.RUNNING) {
+                throw new ConflictException("trace.execution.not.suspended.message");
+            }
+            return stackView(session);
         });
     }
 
