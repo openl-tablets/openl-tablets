@@ -25,14 +25,6 @@ class LastVersionProjectsServiceConfigurerTest {
     @Autowired
     private RuleServiceLoader rulesLoader;
 
-    RuleServiceLoader getRulesLoader() {
-        return rulesLoader;
-    }
-
-    void setRulesLoader(RuleServiceLoader rulesLoader) {
-        this.rulesLoader = rulesLoader;
-    }
-
     @Test
     void testConfigurer() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();

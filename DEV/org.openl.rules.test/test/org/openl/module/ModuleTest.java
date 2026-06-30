@@ -132,21 +132,15 @@ class ModuleTest {
     }
 
     /**
-     * Sample assert expressions in OGNL and OpenL. Note the syntax difference, and "context." prefix within OpenL
+     * Sample assert expressions in OpenL. Note the "context." prefix.
      */
-    final static String OGNL_EXPR = "address.zip == 10001";
-
     private static final String OPENL_EXPR = "context.address.zip.equals(\"10001\")";
-
-    final static String NEG_OGNL_EXPR = "address.zip != 90210";
 
     private static final String NEG_OPENL_EXPR = "!context.address.zip.equals(\"90210\")";
 
     /**
-     * Sample get expression in OGNL and OpenL. Note "context." prefix within OpenL
+     * Sample get expression in OpenL. Note the "context." prefix.
      */
-    final static String OGNL_GET_ADDRESS = "address";
-
     private static final String OPENL_GET_ADDRESS = "context.address";
 
     /**

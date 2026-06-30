@@ -23,6 +23,7 @@ class GenericKeyTest {
         assertNotEquals(getInstance("A", "B"), getInstance("B", "B"));
     }
 
+    @Test
     void hashCodeTest() {
         assertEquals(getInstance(null, null).hashCode(), getInstance(null, null).hashCode());
         assertEquals(getInstance(null, "A").hashCode(), getInstance(null, "A").hashCode());
