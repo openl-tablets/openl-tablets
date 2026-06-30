@@ -1,7 +1,7 @@
 import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'trace', {
-    title: 'Execution Trace',
+    title: 'Execution trace',
 
     tree: {
         title: 'Call tree',
@@ -84,9 +84,9 @@ i18next.addResourceBundle('en', 'trace', {
 
     details: {
         parameters: 'Parameters',
-        result: 'Returned Result',
+        result: 'Result',
         errors: 'Errors',
-        table: 'Traced Table',
+        table: 'Traced table',
         decision: 'Decision',
         noSelection: 'Select a stack frame to view its variables',
         noParameters: 'No parameters',
@@ -101,8 +101,8 @@ i18next.addResourceBundle('en', 'trace', {
         loadValue: 'Load value',
     },
 
-    loadingDetails: 'Loading details...',
-    loadingTable: 'Loading table...',
+    loadingDetails: 'Loading details…',
+    loadingTable: 'Loading table…',
 
     errors: {
         notFound: 'Trace not found. Please execute a trace first.',
@@ -116,9 +116,9 @@ i18next.addResourceBundle('en', 'trace', {
     },
 
     modal: {
-        title: 'Trace Execution',
+        title: 'Trace execution',
         statuses: {
-            started: 'Executing trace...',
+            started: 'Executing trace…',
         },
         errors: {
             startFailed: 'Failed to start trace',
