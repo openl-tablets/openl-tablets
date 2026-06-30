@@ -106,8 +106,10 @@ public class OpenApiSpringMvcReaderImpl {
                 // Process handlers in a deterministic order. Several handlers can collapse into one operation (e.g.
                 // the multipart/raw/archive variants of one path); the merged parameters, their order, and the _1/_2
                 // suffixes of duplicate operation ids are all assigned in processing order, which Spring does not keep
-                // stable between runs.
-                .sorted(Comparator.comparing(e -> e.getValue().getMethod().toString()))
+                // stable between runs. Order by the request mapping (path, method, consumes) rather than the Java
+                // method: a proxied controller (e.g. @Validated) reports a CGLIB method whose class name carries a
+                // run-specific suffix, so its toString() is not stable, while the mapping is.
+                .sorted(Comparator.comparing(e -> e.getKey().toString()))
                 .forEach(e -> visitHandlerMethod(openApiContext,
                         e.getKey(),
                         e.getValue(),
@@ -166,10 +168,13 @@ public class OpenApiSpringMvcReaderImpl {
                 // if request method is not defined, it means that ALL HTTP methods are accepted
                 requestMethods = Set.of(RequestMethod.values());
             }
-            for (RequestMethod requestMethod : requestMethods) {
+            // Iterate in the fixed enum order. A handler matching several methods (e.g. an all-methods endpoint)
+            // produces one operation per method, and the _1/_2 suffixes of duplicate operation ids are assigned in
+            // iteration order; neither Set.of(...) nor the mapping's method set keeps a stable order between runs.
+            requestMethods.stream().sorted().forEach(requestMethod -> {
                 methodInfoBuilder.requestMethod(requestMethod);
                 parseMethod(openApiContext, methodInfoBuilder.build(), controllerAdviceInfos);
-            }
+            });
         }
     }
 
