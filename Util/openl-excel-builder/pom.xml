@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>6.2.1-SNAPSHOT</version>
+        <version>6.3.0</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-excel-builder</artifactId>
