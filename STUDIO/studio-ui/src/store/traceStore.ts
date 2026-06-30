@@ -125,7 +125,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
         // Drop the one-shot run-to breakpoint once execution settles — whether it stopped there, stopped
         // at another breakpoint, or ran to the end without reaching it (a conditionally-skipped target).
         // applyStack only runs on a settled (non-running) stack, so clearing it here leaves none behind.
-        if (transient) {
+        // Remove it only if still present — a plain toggle would re-add a transient the user cleared meanwhile.
+        if (transient && get().breakpoints.includes(transient)) {
             void get().toggleBreakpoint(transient)
         }
         if (isSuspended(stack.status) && topIndex !== null) {
