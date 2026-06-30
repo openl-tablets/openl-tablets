@@ -772,15 +772,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var tableUri = table.getUri();
         var module = moduleModel.getModuleInfo();
         if (!module.containsTable(tableUri)) {
-            // if table is not in the current module, then need to find it and inititialize module.
-            // otherwise, all required listeners and hooks will not function properly
             var pd = getProjectDescriptor(project);
-            module = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
-            // initialize module
-            moduleModel = openProject(pd, project, module).awaitCompiled();
-            table = moduleModel.getTableById(tableId);
-            if (table == null) {
-                throw new NotFoundException("table.message");
+            var owningModule = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
+            // A table in another module of this project needs that module opened so its listeners and hooks
+            // function. A table from a dependency project belongs to no module of this project; it was already
+            // resolved across dependencies and carries its grid, so it is rendered as-is (read-only view).
+            if (owningModule != null) {
+                moduleModel = openProject(pd, project, owningModule).awaitCompiled();
+                table = moduleModel.getTableById(tableId);
+                if (table == null) {
+                    throw new NotFoundException("table.message");
+                }
             }
         }
         return new OpenLTableContext(table, moduleModel);
