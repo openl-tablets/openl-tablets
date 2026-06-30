@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Empty, Segmented, Tag, Tooltip } from 'antd'
+import { Empty, Segmented, Tooltip } from 'antd'
 import { CaretDownOutlined, CaretRightOutlined, RedoOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
@@ -141,10 +141,19 @@ const TraceTree: React.FC = () => {
         const ms = timingOf(row)
         return ms != null ? Math.max(max, ms) : max
     }, 0)
-    const heatOf = (ms: number): string | undefined => {
-        const ratio = maxDuration > 0 ? ms / maxDuration : 0
-        return ratio >= 0.5 ? styles.durationHot : ratio >= 0.2 ? styles.durationWarm : undefined
-    }
+    // Render a timing as a length-based heat bar plus the value, so relative cost reads pre-attentively by
+    // bar length and the status colours stay free to mean only execution state.
+    const durationCell = (ms: number): React.ReactNode => (
+        <span className={styles.duration}>
+            <span className={styles.durationBar}>
+                <span
+                    className={styles.durationFill}
+                    style={{ width: `${maxDuration > 0 && ms > 0 ? Math.max(4, (ms / maxDuration) * 100) : 0}%` }}
+                />
+            </span>
+            <span className={styles.durationValue}>{formatMs(ms)}</span>
+        </span>
+    )
 
     const toggle = (key: string): void => setExpanded(prev => {
         const next = new Set(prev)
@@ -198,8 +207,8 @@ const TraceTree: React.FC = () => {
                         : frame.completed ? styles.dotExecuted : styles.dotFrame)}
                 />
                 <span className={styles.name}>{frame.name}</span>
-                <Tag color="default">{frame.kind}</Tag>
-                {ms != null && <span className={cx(styles.duration, heatOf(ms))}>{formatMs(ms)}</span>}
+                <span className={styles.kind}>{frame.kind}</span>
+                {ms != null && durationCell(ms)}
                 {frame.completed && replayButton(frame.uri, frame.name, `tree-replay-${frame.uri}`, t('tree.replayHint'))}
             </div>
         )
@@ -249,8 +258,8 @@ const TraceTree: React.FC = () => {
                 <span className={styles.chevronSlot} />
                 <span className={cx(styles.dot, styles.dotExecuted)} />
                 <span className={styles.name}>{node.name}</span>
-                <Tag color="default">{node.kind}</Tag>
-                <span className={cx(styles.duration, heatOf(ms))}>{formatMs(ms)}</span>
+                <span className={styles.kind}>{node.kind}</span>
+                {durationCell(ms)}
                 {replayButton(node.uri, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>
         )

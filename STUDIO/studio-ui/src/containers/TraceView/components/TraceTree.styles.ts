@@ -90,20 +90,43 @@ export const useStyles = createStyles(({ css, token }) => ({
     callNode: css`
         color: ${token.colorTextSecondary};
     `,
-    // Real execution time of a returned node; coloured by how hot it is relative to the slowest node.
+    // Frame kind (spreadsheet, decision, …) as a quiet eyebrow, not a boxed Tag, so it does not
+    // compete with the table name on every row.
+    kind: css`
+        flex: 0 0 auto;
+        font-size: ${token.fontSizeSM}px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: ${token.colorTextTertiary};
+    `,
+    // Real execution time. A length-based heat bar keeps the timing channel separate from the status
+    // colours (amber/red already mean current/error), so a slow call reads by bar length, not by hue.
     duration: css`
+        display: inline-flex;
+        align-items: center;
+        gap: ${token.marginXXS}px;
         margin-left: auto;
         flex: 0 0 auto;
+    `,
+    durationBar: css`
+        width: 56px;
+        height: 4px;
+        flex: 0 0 auto;
+        border-radius: ${token.borderRadiusXS}px;
+        background: ${token.colorFillTertiary};
+        overflow: hidden;
+    `,
+    durationFill: css`
+        height: 100%;
+        border-radius: ${token.borderRadiusXS}px;
+        background: ${token.colorTextTertiary};
+    `,
+    durationValue: css`
+        min-width: 46px;
+        text-align: right;
         font-family: ${token.fontFamilyCode};
         font-size: ${token.fontSizeSM}px;
         color: ${token.colorTextTertiary};
-    `,
-    durationWarm: css`
-        color: ${token.colorWarning};
-    `,
-    durationHot: css`
-        color: ${token.colorError};
-        font-weight: 600;
     `,
     // Re-run the trace and stop at this returned table to inspect it live.
     replay: css`
@@ -121,23 +144,32 @@ export const useStyles = createStyles(({ css, token }) => ({
         text-overflow: ellipsis;
         color: ${token.colorText};
     `,
+    // Status is carried by shape as well as colour, so the three step states stay distinct without relying
+    // on hue: pending is a hollow ring, executed/error/frame are filled, and the current step gets a halo.
     dot: css`
         width: 8px;
         height: 8px;
         border-radius: 50%;
         flex: 0 0 auto;
-        background: ${token.colorTextQuaternary};
+        box-sizing: border-box;
+        background: transparent;
+        border: 1.5px solid ${token.colorTextQuaternary};
     `,
     dotExecuted: css`
         background: ${token.colorSuccess};
+        border-color: ${token.colorSuccess};
     `,
     dotCurrent: css`
         background: ${token.colorWarning};
+        border-color: ${token.colorWarning};
+        box-shadow: 0 0 0 2px ${token.colorWarningBg};
     `,
     dotError: css`
         background: ${token.colorError};
+        border-color: ${token.colorError};
     `,
     dotFrame: css`
         background: ${token.colorPrimary};
+        border-color: ${token.colorPrimary};
     `,
 }))
