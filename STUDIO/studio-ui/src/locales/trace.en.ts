@@ -3,6 +3,14 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'trace', {
     title: 'Execution Trace',
 
+    tree: {
+        title: 'Call tree',
+        modeSimple: 'Tree',
+        modeCallStack: 'Call Stack',
+        runToHint: 'Run execution to here',
+        resultHint: 'View result',
+    },
+
     debug: {
         resume: 'Resume — run to the next breakpoint or the end',
         pause: 'Pause — stop at the next step',

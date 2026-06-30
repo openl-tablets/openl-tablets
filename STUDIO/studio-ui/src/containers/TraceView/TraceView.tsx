@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Badge, Collapse } from 'antd'
+import { Alert, Badge, Collapse, Segmented } from 'antd'
 import type { BadgeProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DebugError } from 'types/trace'
 import DebugToolbar from './components/DebugToolbar'
 import DebugCallStack from './components/DebugCallStack'
+import TraceTree from './components/TraceTree'
+import BreakpointsPanel from './components/BreakpointsPanel'
 import TraceDetails from './components/TraceDetails'
 import useTraceProgress from './hooks/useTraceProgress'
 import { isTraceExecutionError, isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
@@ -87,6 +89,8 @@ const TraceView: React.FC = () => {
     const [leftPanelWidth, setLeftPanelWidth] = useState(35)
     const [isResizing, setIsResizing] = useState(false)
     const [bannerDismissed, setBannerDismissed] = useState(false)
+    // Default to the simple call-tree view; the stepwise call stack is the "Advanced" mode.
+    const [viewMode, setViewMode] = useState<'tree' | 'advanced'>('tree')
     const containerRef = useRef<HTMLDivElement>(null)
 
     useTraceProgress({
@@ -182,7 +186,22 @@ const TraceView: React.FC = () => {
                     className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}
                     style={{ width: `${leftPanelWidth}%` }}
                 >
-                    <DebugCallStack />
+                    <Segmented
+                        block
+                        className={styles.viewModeToggle}
+                        data-testid="trace-view-mode"
+                        onChange={(value) => setViewMode(value as 'tree' | 'advanced')}
+                        size="small"
+                        value={viewMode}
+                        options={[
+                            { label: t('tree.modeSimple'), value: 'tree' },
+                            { label: t('tree.modeCallStack'), value: 'advanced' },
+                        ]}
+                    />
+                    <BreakpointsPanel />
+                    <div className={styles.viewContent}>
+                        {viewMode === 'tree' ? <TraceTree /> : <DebugCallStack />}
+                    </div>
                 </div>
                 <div className={styles.resizer} onMouseDown={handleMouseDown} />
                 <div

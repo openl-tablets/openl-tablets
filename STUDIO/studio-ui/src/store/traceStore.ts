@@ -34,6 +34,8 @@ interface DebugState {
     stackVersion: number
     breakpoints: string[]
     breakpointLabels: Record<string, string>
+    /** A one-shot breakpoint set by runTo; dropped on the next suspension so "run to here" leaves none behind. */
+    transientBreakpoint: string | null
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
@@ -59,6 +61,8 @@ interface DebugState {
     stepOut: () => Promise<void>
     resume: () => Promise<void>
     pause: () => Promise<void>
+    /** Run execution to a node (table/cell/rule breakpoint key) without leaving a permanent breakpoint. */
+    runTo: (key: string, label?: string) => Promise<void>
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
@@ -83,6 +87,7 @@ const initialState = {
     stackVersion: 0,
     breakpoints: [],
     breakpointLabels: {},
+    transientBreakpoint: null,
     rawTableCache: {},
     loading: false,
     error: null,
@@ -94,6 +99,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
+        const transient = get().transientBreakpoint
         set({
             status: stack.status,
             frames: stack.frames,
@@ -102,7 +108,14 @@ export const useTraceStore = create<DebugState>((set, get) => {
             variables: null,
             variablesLoading: false,
             stackVersion: get().stackVersion + 1,
+            transientBreakpoint: null,
         })
+        // Drop the one-shot run-to breakpoint once execution settles — whether it stopped there, stopped
+        // at another breakpoint, or ran to the end without reaching it (a conditionally-skipped target).
+        // applyStack only runs on a settled (non-running) stack, so clearing it here leaves none behind.
+        if (transient) {
+            void get().toggleBreakpoint(transient)
+        }
         if (isSuspended(stack.status) && topIndex !== null) {
             void get().selectFrame(topIndex)
         }
@@ -226,6 +239,18 @@ export const useTraceStore = create<DebugState>((set, get) => {
             } catch (error: any) {
                 set({ error: error?.message || 'Pause failed' })
             }
+        },
+
+        runTo: async (key, label) => {
+            // Run to a node (its breakpoint key) without leaving a permanent breakpoint: add a one-shot
+            // breakpoint unless the user already pinned one here, then resume. applyStack drops it on the
+            // next suspension. Only meaningful while paused.
+            if (get().status !== 'SUSPENDED') return
+            if (!get().breakpoints.includes(key)) {
+                await get().toggleBreakpoint(key, label)
+                set({ transientBreakpoint: key })
+            }
+            await get().resume()
         },
 
         terminate: async () => {

@@ -65,6 +65,11 @@ export interface DebugFrameView {
     completed: boolean
     /** Whether the frame failed */
     error: boolean
+    /**
+     * The frame's sub-steps (spreadsheet cells or decision-table rules) with their status, so the call
+     * tree shows every level at once. Values are omitted here and fetched per frame on demand.
+     */
+    steps?: StepValueView[] | null
 }
 
 /** How a traced cell is highlighted, shared with the spreadsheet grid and the decision panel. */

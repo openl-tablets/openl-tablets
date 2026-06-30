@@ -61,6 +61,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         border-right: 1px solid ${token.colorBorderSecondary};
     `,
+    viewModeToggle: css`
+        margin: ${token.marginXS}px;
+        flex: 0 0 auto;
+    `,
+    viewContent: css`
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+    `,
     resizer: css`
         width: 5px;
         cursor: ew-resize;

@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.trace;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -20,6 +22,8 @@ import org.openl.rules.webstudio.web.trace.debug.FrameKind;
  * @param active    whether this is the current (top) frame
  * @param completed whether the frame has returned
  * @param error     whether the frame failed
+ * @param steps     the frame's sub-steps (spreadsheet cells or decision-table rules) with their status,
+ *                  so the call tree shows every level at once; values are omitted (fetched per frame on demand)
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,6 +57,9 @@ public record DebugFrameView(
         boolean completed,
 
         @Schema(description = "trace.field.frame.error.desc")
-        boolean error
+        boolean error,
+
+        @Schema(description = "trace.field.frame.steps.desc")
+        @Nullable List<StepValueView> steps
 ) {
 }

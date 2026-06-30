@@ -8,6 +8,9 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -79,6 +82,7 @@ public class TraceDebugMapper {
                     .active(i == frames.size() - 1)
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
+                    .steps(outlineSteps(frame))
                     .build());
         }
         return DebugStackView.builder()
@@ -234,27 +238,95 @@ public class TraceDebugMapper {
         for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
             executed.put(step.ref(), step.value());
         }
-        CurrentLocation location = frame.getLocation();
-        String currentRef = location == null ? null : location.ref();
+        String currentRef = currentRef(frame);
         List<StepValueView> steps = new ArrayList<>();
+        forEachCell(spreadsheet, cell -> {
+            String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+            var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
+            if (executed.containsKey(ref)) {
+                var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
+                steps.add(builder.status("executed").value(buildParameterValue(param, true)).build());
+            } else {
+                steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
+            }
+        });
+        return steps;
+    }
+
+    /**
+     * The frame's sub-steps with status only (no values, no freeze), for the live-stack call tree.
+     *
+     * <p>Spreadsheet frames yield every cell, decision-table frames yield every rule, other frames yield
+     * the executed sub-steps. Each carries {@code executed}, {@code current}, or {@code pending} so the
+     * tree can render the whole stack in one pass without cloning any values.
+     */
+    static List<StepValueView> outlineSteps(DebugFrame frame) {
+        if (frame.getSource() instanceof Spreadsheet spreadsheet) {
+            Set<String> executedRefs = executedRefs(frame);
+            String currentRef = currentRef(frame);
+            List<StepValueView> steps = new ArrayList<>();
+            forEachCell(spreadsheet, cell -> {
+                String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+                steps.add(StepValueView.builder()
+                        .ref(ref)
+                        .label(SpreadsheetCellNames.of(spreadsheet, cell))
+                        .status(stepStatus(ref, executedRefs, currentRef))
+                        .build());
+            });
+            return steps;
+        }
+        if (frame.getSource() instanceof IDecisionTable decisionTable) {
+            return ruleOutline(decisionTable, firedRuleIndices(frame));
+        }
+        return frame.getExecutedSteps().stream()
+                .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status("executed").build())
+                .toList();
+    }
+
+    /**
+     * Every rule of a decision table as a step. A decision-table frame on the live stack is always
+     * mid-firing, so the rule whose action is running is the current one — and the called sub-table nests
+     * under it. The rest are still pending and can be armed for a run-to.
+     */
+    static List<StepValueView> ruleOutline(IDecisionTable decisionTable, int[] firedRuleIndices) {
+        Set<String> fired = Arrays.stream(firedRuleIndices)
+                .mapToObj(decisionTable::getRuleName)
+                .collect(Collectors.toSet());
+        return ruleNames(decisionTable).stream()
+                .map(name -> StepValueView.builder()
+                        .ref(name)
+                        .label(name)
+                        .status(fired.contains(name) ? "current" : "pending")
+                        .build())
+                .toList();
+    }
+
+    /** Apply an action to every non-empty spreadsheet cell, in grid order. */
+    private static void forEachCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
-                if (cell == null || cell.isEmpty()) {
-                    continue;
-                }
-                String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-                var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
-                if (executed.containsKey(ref)) {
-                    var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
-                    steps.add(builder.status("executed").value(buildParameterValue(param, true)).build());
-                } else if (ref.equals(currentRef)) {
-                    steps.add(builder.status("current").build());
-                } else {
-                    steps.add(builder.status("pending").build());
+                if (cell != null && !cell.isEmpty()) {
+                    action.accept(cell);
                 }
             }
         }
-        return steps;
+    }
+
+    /** Classify a step: already executed, currently executing, or still pending. */
+    private static String stepStatus(String ref, Set<String> executedRefs, @Nullable String currentRef) {
+        if (executedRefs.contains(ref)) {
+            return "executed";
+        }
+        return ref.equals(currentRef) ? "current" : "pending";
+    }
+
+    private static Set<String> executedRefs(DebugFrame frame) {
+        return frame.getExecutedSteps().stream().map(DebugFrame.ExecutedStep::ref).collect(Collectors.toSet());
+    }
+
+    private static @Nullable String currentRef(DebugFrame frame) {
+        CurrentLocation location = frame.getLocation();
+        return location == null ? null : location.ref();
     }
 
     /** Spreadsheet column or row names, so the UI can lay the steps out as a grid like the source table. */
