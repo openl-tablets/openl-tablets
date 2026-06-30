@@ -8,12 +8,19 @@ Content-Type: application/json
       "index": 0,
       "depth": 1,
       "uri": "EPBDS-16160/generalProject.xlsx?sheet=Sheet1&range=C19:D21",
+      "tableId": "***",
       "name": "MyRule",
       "kind": "spreadsheet",
       "active": true,
       "completed": false,
       "error": false,
-      "tableId": "***"
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$Test",
+          "status": "pending"
+        }
+      ]
     }
   ]
 }

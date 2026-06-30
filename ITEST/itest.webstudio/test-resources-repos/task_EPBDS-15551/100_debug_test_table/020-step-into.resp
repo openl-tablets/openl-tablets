@@ -8,6 +8,7 @@ Content-Type: application/json
       "index": 0,
       "depth": 1,
       "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D9:G22",
+      "tableId": "***",
       "name": "BankRatingCalculation",
       "kind": "spreadsheet",
       "location": {
@@ -20,7 +21,93 @@ Content-Type: application/json
       "active": true,
       "completed": false,
       "error": false,
-      "tableId": "***"
+      "steps": [
+        {
+          "ref": "R0C1",
+          "label": "$Value$CheckCurrentFinancialData",
+          "status": "current"
+        },
+        {
+          "ref": "R1C1",
+          "label": "$Value$CheckPreviousPeriodFinancialData",
+          "status": "pending"
+        },
+        {
+          "ref": "R2C1",
+          "label": "$Value$BalanceQualityIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R3C0",
+          "label": "$Description$BalanceDynamicIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R3C1",
+          "label": "$Value$BalanceDynamicIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R4C0",
+          "label": "$Description$BankQualitativeIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R4C1",
+          "label": "$Value$BankQualitativeIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R5C0",
+          "label": "$Description$IsAdequateNormativeIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R5C1",
+          "label": "$Value$IsAdequateNormativeIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R6C0",
+          "label": "$Description$BankRating",
+          "status": "pending"
+        },
+        {
+          "ref": "R6C1",
+          "label": "$Value$BankRating",
+          "status": "pending"
+        },
+        {
+          "ref": "R7C0",
+          "label": "$Description$BankRatingGroup",
+          "status": "pending"
+        },
+        {
+          "ref": "R7C1",
+          "label": "$Value$BankRatingGroup",
+          "status": "pending"
+        },
+        {
+          "ref": "R8C0",
+          "label": "$Description$LimitIndex",
+          "status": "pending"
+        },
+        {
+          "ref": "R8C1",
+          "label": "$Value$LimitIndex",
+          "status": "pending"
+        },
+        {
+          "ref": "R9C0",
+          "label": "$Description$Limit",
+          "status": "pending"
+        },
+        {
+          "ref": "R9C1",
+          "label": "$Value$Limit",
+          "status": "pending"
+        }
+      ]
     }
   ]
 }
