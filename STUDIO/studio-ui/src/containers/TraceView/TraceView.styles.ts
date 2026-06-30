@@ -73,13 +73,23 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
     `,
     resizer: css`
-        width: 5px;
-        cursor: ew-resize;
-        background: ${token.colorFillTertiary};
         flex-shrink: 0;
-        transition: background ${token.motionDurationMid};
+        width: 9px;
+        cursor: ew-resize;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-        &:hover {
+        // A hairline within a wide grab zone: easy to grab, quiet until hovered, then it thickens and lights up.
+        &::before {
+            content: '';
+            width: 1px;
+            height: 100%;
+            background: ${token.colorBorderSecondary};
+            transition: width ${token.motionDurationMid}, background ${token.motionDurationMid};
+        }
+        &:hover::before {
+            width: 3px;
             background: ${token.colorPrimaryBorder};
         }
     `,
