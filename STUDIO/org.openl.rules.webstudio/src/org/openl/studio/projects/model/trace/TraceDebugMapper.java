@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -341,23 +342,20 @@ public class TraceDebugMapper {
                         .build())
                 .toList();
         // Self time is the node's own work: its total minus the time spent in the tables it called.
-        long childrenNanos = node.steps().stream()
-                .flatMap(step -> step.children().stream())
-                .mapToLong(CallNode::durationNanos)
-                .sum();
+        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
         return CallNodeView.builder()
                 .uri(node.uri())
                 .name(node.name())
                 .kind(node.kind())
-                .durationMillis(node.durationNanos() / 1_000_000.0)
-                .selfMillis(Math.max(0, node.durationNanos() - childrenNanos) / 1_000_000.0)
+                .durationMillis(toMillis(node.durationNanos()))
+                .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
                 .steps(steps)
                 .build();
     }
 
     /** Total time of a frame that has already returned (for example after a step out), otherwise {@code null}. */
     private static @Nullable Double completedMillis(DebugFrame frame) {
-        return frame.isCompleted() ? frame.getDurationNanos() / 1_000_000.0 : null;
+        return frame.isCompleted() ? toMillis(frame.getDurationNanos()) : null;
     }
 
     /** Own time of a returned frame: its total minus the time spent in the tables it called. */
@@ -365,11 +363,23 @@ public class TraceDebugMapper {
         if (!frame.isCompleted()) {
             return null;
         }
-        long childrenNanos = frame.getExecutedChildren().values().stream()
-                .flatMap(List::stream)
-                .mapToLong(CallNode::durationNanos)
-                .sum();
-        return Math.max(0, frame.getDurationNanos() - childrenNanos) / 1_000_000.0;
+        long childrenNanos = sumDurations(frame.getExecutedChildren().values().stream().flatMap(List::stream));
+        return selfMillis(frame.getDurationNanos(), childrenNanos);
+    }
+
+    /** Sum of the durations of returned sub-calls. */
+    private static long sumDurations(Stream<CallNode> nodes) {
+        return nodes.mapToLong(CallNode::durationNanos).sum();
+    }
+
+    /** Nanoseconds as fractional milliseconds. */
+    private static double toMillis(long nanos) {
+        return nanos / 1_000_000.0;
+    }
+
+    /** Own time: a total minus the time spent in the tables it called, clamped at zero. */
+    private static double selfMillis(long totalNanos, long childrenNanos) {
+        return toMillis(Math.max(0, totalNanos - childrenNanos));
     }
 
     /**

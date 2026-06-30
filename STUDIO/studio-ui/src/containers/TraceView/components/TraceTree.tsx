@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Empty, Segmented, Tag, Tooltip } from 'antd'
 import { CaretDownOutlined, CaretRightOutlined, RedoOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -115,6 +115,7 @@ const TraceTree: React.FC = () => {
     const status = useTraceStore(s => s.status)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<'total' | 'self'>('total')
+    const rows = useMemo(() => flatten(frames, tree, expanded), [frames, tree, expanded])
 
     if (frames.length === 0 && !tree) {
         return <Empty description={t('debug.notSuspended')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -122,7 +123,6 @@ const TraceTree: React.FC = () => {
 
     const canRunTo = status === 'SUSPENDED'
     const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
-    const rows = flatten(frames, tree, expanded)
     // Timing of a row that has one: an executed call-tree node, or a frame that has already returned
     // (for example the root after a step out). In-progress frames have no timing yet.
     const timingOf = (row: TreeRow): number | null => {
@@ -169,6 +169,16 @@ const TraceTree: React.FC = () => {
         )
     }
 
+    const replayButton = (key: string, label: string, testId: string, hint: string): React.ReactNode => (
+        <Tooltip title={hint}>
+            <RedoOutlined
+                className={styles.replay}
+                data-testid={testId}
+                onClick={(e) => { e.stopPropagation(); void replayNode(key, label) }}
+            />
+        </Tooltip>
+    )
+
     const renderFrame = (row: TreeRow): React.ReactNode => {
         const frame = row.frame as DebugFrameView
         const ms = timingOf(row)
@@ -190,15 +200,7 @@ const TraceTree: React.FC = () => {
                 <span className={styles.name}>{frame.name}</span>
                 <Tag color="default">{frame.kind}</Tag>
                 {ms != null && <span className={cx(styles.duration, heatOf(ms))}>{formatMs(ms)}</span>}
-                {frame.completed && (
-                    <Tooltip title={t('tree.replayHint')}>
-                        <RedoOutlined
-                            className={styles.replay}
-                            data-testid={`tree-replay-${frame.uri}`}
-                            onClick={(e) => { e.stopPropagation(); void replayNode(frame.uri, frame.name) }}
-                        />
-                    </Tooltip>
-                )}
+                {frame.completed && replayButton(frame.uri, frame.name, `tree-replay-${frame.uri}`, t('tree.replayHint'))}
             </div>
         )
     }
@@ -228,18 +230,8 @@ const TraceTree: React.FC = () => {
                     {twisty(row.expandKey)}
                     <span className={cx(styles.dot, styles[dotFor(step.status)])} />
                     <span className={styles.leafLabel}>{step.label || step.ref}</span>
-                    {step.status === 'executed' && (
-                        <Tooltip title={t('tree.replayStepHint')}>
-                            <RedoOutlined
-                                className={styles.replay}
-                                data-testid={`tree-replay-${frame.uri}#${step.ref}`}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    void replayNode(`${frame.uri}#${step.ref}`, step.label || step.ref)
-                                }}
-                            />
-                        </Tooltip>
-                    )}
+                    {step.status === 'executed' && replayButton(`${frame.uri}#${step.ref}`,
+                        step.label || step.ref, `tree-replay-${frame.uri}#${step.ref}`, t('tree.replayStepHint'))}
                 </div>
             </Tooltip>
         )
@@ -259,13 +251,7 @@ const TraceTree: React.FC = () => {
                 <span className={styles.name}>{node.name}</span>
                 <Tag color="default">{node.kind}</Tag>
                 <span className={cx(styles.duration, heatOf(ms))}>{formatMs(ms)}</span>
-                <Tooltip title={t('tree.replayHint')}>
-                    <RedoOutlined
-                        className={styles.replay}
-                        data-testid={`tree-replay-${node.uri}`}
-                        onClick={(e) => { e.stopPropagation(); void replayNode(node.uri, node.name) }}
-                    />
-                </Tooltip>
+                {replayButton(node.uri, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>
         )
     }
@@ -283,15 +269,8 @@ const TraceTree: React.FC = () => {
                 {twisty(row.expandKey)}
                 <span className={cx(styles.dot, styles.dotExecuted)} />
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
-                {row.nodeUri && (
-                    <Tooltip title={t('tree.replayStepHint')}>
-                        <RedoOutlined
-                            className={styles.replay}
-                            data-testid={`tree-replay-${replayKey}`}
-                            onClick={(e) => { e.stopPropagation(); void replayNode(replayKey, step.label || step.ref) }}
-                        />
-                    </Tooltip>
-                )}
+                {row.nodeUri && replayButton(replayKey, step.label || step.ref,
+                    `tree-replay-${replayKey}`, t('tree.replayStepHint'))}
             </div>
         )
     }
