@@ -13,6 +13,8 @@ import org.jspecify.annotations.Nullable;
  * @param status debug session status
  * @param frames stack frames ordered from the root call to the current frame
  * @param error  failure detail when the session ended in error, otherwise {@code null}
+ * @param tree   the whole executed tree once the trace has finished (profiling mode), so it outlives the
+ *               now-empty stack; {@code null} while the trace is still running
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,6 +27,9 @@ public record DebugStackView(
         List<DebugFrameView> frames,
 
         @Schema(description = "trace.field.stack.error.desc")
-        @Nullable DebugError error
+        @Nullable DebugError error,
+
+        @Schema(description = "trace.field.stack.tree.desc")
+        @Nullable CallNodeView tree
 ) {
 }

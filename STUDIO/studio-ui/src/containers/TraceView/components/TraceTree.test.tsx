@@ -11,6 +11,8 @@ vi.mock('services/traceService', () => ({
         setBreakpoints: vi.fn().mockResolvedValue(undefined),
         resume: vi.fn().mockResolvedValue(undefined),
         getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
+        cancelTrace: vi.fn().mockResolvedValue(undefined),
+        getStack: vi.fn().mockResolvedValue({ status: 'SUSPENDED', frames: []}),
     },
 }))
 
@@ -23,6 +25,7 @@ import traceService from 'services/traceService'
 
 const resume = traceService.resume as ReturnType<typeof vi.fn>
 const getVariables = traceService.getVariables as ReturnType<typeof vi.fn>
+const cancelTrace = traceService.cancelTrace as ReturnType<typeof vi.fn>
 
 const step = (ref: string, status: StepValueView['status'], label?: string): StepValueView =>
     ({ ref, label: label ?? ref, status })
@@ -110,8 +113,71 @@ describe('TraceTree', () => {
         expect(useTraceStore.getState().breakpoints).not.toContain('u0#R0C0')
     })
 
+    it('keeps an executed sub-call collapsed and expands its retained structure on demand', async () => {
+        useTraceStore.setState({
+            status: 'SUSPENDED',
+            frames: [frame(0, {
+                name: 'ROOT',
+                active: true,
+                steps: [{
+                    ...step('R0C0', 'executed', '$CoveragePremium'),
+                    children: [{
+                        uri: 'u9',
+                        name: 'CoveragePremium',
+                        kind: 'decisionTable',
+                        durationMillis: 3.4,
+                        selfMillis: 3.4,
+                        steps: [step('R1', 'executed')],
+                    }],
+                }],
+            })],
+            selectedFrameIndex: 0,
+        })
+
+        render(<TraceTree />)
+        // Collapsed by default — the returned branch is not drawn until asked for.
+        expect(screen.queryByText('CoveragePremium')).not.toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
+        expect(screen.getByText('CoveragePremium')).toBeInTheDocument()
+        expect(screen.getByText('R1')).toBeInTheDocument()
+        // The rule can be replayed to directly, not only its table (key is uri#ref).
+        expect(screen.getByTestId('tree-replay-u9#R1')).toBeInTheDocument()
+    })
+
+    it('renders the completed tree with a node timing and toggles Total/Self', async () => {
+        useTraceStore.setState({
+            status: 'COMPLETED',
+            frames: [],
+            tree: { uri: 'uRoot', name: 'ROOT', kind: 'spreadsheet', durationMillis: 42, selfMillis: 12, steps: []},
+        })
+        render(<TraceTree />)
+        // The empty live stack does not hide the tree; total time shows by default.
+        expect(screen.getByText('ROOT')).toBeInTheDocument()
+        expect(screen.getByText('42 ms')).toBeInTheDocument()
+
+        // Switching to Self time shows the node's own time instead of the inclusive total.
+        await userEvent.click(screen.getByText('tree.timeSelf'))
+        expect(screen.getByText('12 ms')).toBeInTheDocument()
+    })
+
+    it('replays a returned node by restarting the trace and running to it', async () => {
+        useTraceStore.setState({
+            projectId: 'p1',
+            tableId: 'tRoot',
+            status: 'COMPLETED',
+            frames: [],
+            tree: { uri: 'uRoot', name: 'ROOT', kind: 'spreadsheet', durationMillis: 42, selfMillis: 42, steps: []},
+        })
+        render(<TraceTree />)
+        await userEvent.click(screen.getByTestId('tree-replay-uRoot'))
+        // Replay restarts (terminate) and then runs to the table.
+        await waitFor(() => expect(cancelTrace).toHaveBeenCalledWith('p1'))
+        await waitFor(() => expect(resume).toHaveBeenCalledWith('p1'))
+    })
+
     it('shows the empty state when there is no stack', () => {
-        useTraceStore.setState({ status: null, frames: []})
+        useTraceStore.setState({ status: null, frames: [], tree: null })
         render(<TraceTree />)
         expect(screen.getByText('debug.notSuspended')).toBeInTheDocument()
     })

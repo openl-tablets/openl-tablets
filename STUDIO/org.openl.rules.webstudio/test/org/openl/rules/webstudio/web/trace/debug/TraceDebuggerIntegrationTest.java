@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.trace.debug;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -172,6 +173,71 @@ class TraceDebuggerIntegrationTest {
         assertEquals("R0C1", topRef(debugger));
 
         assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    /** Walk T0 → T1 → out, leaving T0 live after T1 returned; used by both profiling cases below. */
+    private static void runUntilSubCallReturned(TraceDebugger debugger) {
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT)); // T0:R0C0
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT)); // enter T1
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));  // T1 completes
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT)); // back in T0, T1 popped
+        assertEquals(List.of("T0"), uris(debugger));
+    }
+
+    @Test
+    void profilingRetainsAReturnedSubCallUnderTheCallingCell() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("profiling-worker", null, true, true, program());
+        try {
+            runUntilSubCallReturned(debugger);
+            DebugFrame t0 = debugger.stack().get(0);
+            assertTrue(t0.getExecutedChildren().containsKey("R0C0"),
+                    "the returned sub-call is retained under the cell that called it");
+            CallNode t1 = t0.getExecutedChildren().get("R0C0").get(0);
+            assertEquals("T1", t1.name());
+            assertEquals(FrameKind.METHOD, t1.kind());
+            assertEquals(List.of("R1C0"), t1.steps().stream().map(CallNode.Step::ref).toList());
+        } finally {
+            debugger.terminate(TIMEOUT);
+        }
+    }
+
+    @Test
+    void withoutProfilingReturnedSubCallsAreNotRetained() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("plain-worker", null, true, program());
+        try {
+            runUntilSubCallReturned(debugger);
+            assertTrue(debugger.stack().get(0).getExecutedChildren().isEmpty(),
+                    "off by default: a returned sub-call leaves no structure behind");
+        } finally {
+            debugger.terminate(TIMEOUT);
+        }
+    }
+
+    @Test
+    void profilingKeepsTheWholeTreeWithTimingsAfterCompletion() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        // No stop-at-entry, profiling on: it runs straight to completion, keeping the executed tree.
+        debugger.start("completed-tree-worker", null, false, true, program());
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+
+        CallNode tree = debugger.completedTree();
+        assertNotNull(tree, "the whole executed tree outlives the empty stack on completion");
+        assertEquals("T0", tree.name());
+        CallNode.Step caller = tree.steps().stream()
+                .filter(step -> step.ref().equals("R0C0")).findFirst().orElseThrow();
+        assertEquals(List.of("T1"), caller.children().stream().map(CallNode::name).toList());
+        assertTrue(tree.durationNanos() >= 0, "the root carries its measured execution time");
+    }
+
+    @Test
+    void withoutProfilingNoTreeIsKeptAfterCompletion() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("plain-completion-worker", null, false, program());
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+        assertNull(debugger.completedTree(), "off by default: nothing is kept after completion");
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.openl.types.IOpenMethod;
  * @param objectMapper        project-configured mapper for parsing inputs
  * @param breakpoints         initial breakpoints by table URI
  * @param stopAtEntry         suspend at the first frame instead of running to the first breakpoint
+ * @param profiling           retain the executed call tree's structure so it can be browsed after it returns
  * @param listener            status sink for WebSocket notifications
  */
 public record TraceDebugStartRequest(
@@ -39,6 +40,7 @@ public record TraceDebugStartRequest(
         ObjectMapper objectMapper,
         Set<String> breakpoints,
         boolean stopAtEntry,
+        boolean profiling,
         DebugListener listener
 ) {
 }

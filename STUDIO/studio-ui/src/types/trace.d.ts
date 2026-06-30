@@ -70,6 +70,10 @@ export interface DebugFrameView {
      * tree shows every level at once. Values are omitted here and fetched per frame on demand.
      */
     steps?: StepValueView[] | null
+    /** Total execution time (ms) once the frame has returned, e.g. after a step out; absent while it runs. */
+    durationMillis?: number | null
+    /** Own execution time (ms) once the frame has returned (total minus called tables); absent while it runs. */
+    selfMillis?: number | null
 }
 
 /** How a traced cell is highlighted, shared with the spreadsheet grid and the decision panel. */
@@ -144,6 +148,8 @@ export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
     error?: DebugError | null
+    /** The whole executed call tree once the trace has finished (profiling mode); absent while it runs. */
+    tree?: CallNodeView | null
 }
 
 /**
@@ -155,6 +161,23 @@ export interface StepValueView {
     label?: string | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
+    /** Tables this step called, retained in profiling mode so a returned branch can be browsed. */
+    children?: CallNodeView[] | null
+}
+
+/**
+ * A node of the executed call tree: a table invocation that has already returned. Structure only — no
+ * values — present only when the session runs in profiling mode.
+ */
+export interface CallNodeView {
+    uri: string
+    name: string
+    kind: FrameKind
+    /** Total execution time in milliseconds (this table and everything it called), excluding parked time. */
+    durationMillis: number
+    /** Own execution time in milliseconds: total minus the time spent in the tables it called. */
+    selfMillis: number
+    steps: StepValueView[]
 }
 
 /** One evaluated decision-table condition, for one rule. */

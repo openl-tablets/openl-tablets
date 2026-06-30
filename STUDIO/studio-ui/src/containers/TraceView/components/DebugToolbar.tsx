@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Divider, Space, Tooltip } from 'antd'
+import { Button, Divider, notification, Space, Switch, Tooltip } from 'antd'
 import {
     CaretRightOutlined,
     PauseOutlined,
@@ -26,6 +26,8 @@ const DebugToolbar: React.FC = () => {
     const resume = useTraceStore(s => s.resume)
     const pause = useTraceStore(s => s.pause)
     const terminate = useTraceStore(s => s.terminate)
+    const profiling = useTraceStore(s => s.profiling)
+    const setProfiling = useTraceStore(s => s.setProfiling)
 
     const suspended = status === 'SUSPENDED'
     const running = isTraceExecutionInProgress(status)
@@ -89,6 +91,24 @@ const DebugToolbar: React.FC = () => {
                     onClick={terminate}
                     type="text"
                 />
+            </Tooltip>
+            <Divider style={{ height: '1.2em', margin: 0 }} type="vertical" />
+            <Tooltip title={t('debug.profilingHint')}>
+                <Space size={4}>
+                    <Switch
+                        checked={profiling}
+                        data-testid="debug-profiling"
+                        disabled={loading}
+                        size="small"
+                        onChange={(checked) => {
+                            void setProfiling(checked)
+                            if (checked) {
+                                notification.info({ title: t('debug.profilingNotice') })
+                            }
+                        }}
+                    />
+                    <span>{t('debug.profiling')}</span>
+                </Space>
             </Tooltip>
         </Space>
     )

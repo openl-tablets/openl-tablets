@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.webstudio.web.trace.debug.CallNode;
 import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.CurrentLocation;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
@@ -68,6 +70,12 @@ public class TraceDebugMapper {
 
     /** Map the live stack (root to current frame) to a stack view. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
+        return toStackView(status, frames, error, null);
+    }
+
+    /** Map the live stack to a stack view, plus the completed executed tree once the trace has finished. */
+    public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
+                                             @Nullable CallNode completedTree) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -83,12 +91,15 @@ public class TraceDebugMapper {
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
                     .steps(outlineSteps(frame))
+                    .durationMillis(completedMillis(frame))
+                    .selfMillis(completedSelfMillis(frame))
                     .build());
         }
         return DebugStackView.builder()
                 .status(status.name())
                 .frames(views)
                 .error(buildStackError(frames, error))
+                .tree(completedTree == null ? null : toCallNodeView(completedTree))
                 .build();
     }
 
@@ -261,6 +272,11 @@ public class TraceDebugMapper {
      * tree can render the whole stack in one pass without cloning any values.
      */
     static List<StepValueView> outlineSteps(DebugFrame frame) {
+        return attachExecutedChildren(frame, baseSteps(frame));
+    }
+
+    /** The frame's own sub-steps (cells or rules) with status, before any executed children are attached. */
+    private static List<StepValueView> baseSteps(DebugFrame frame) {
         if (frame.getSource() instanceof Spreadsheet spreadsheet) {
             Set<String> executedRefs = executedRefs(frame);
             String currentRef = currentRef(frame);
@@ -281,6 +297,79 @@ public class TraceDebugMapper {
         return frame.getExecutedSteps().stream()
                 .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status("executed").build())
                 .toList();
+    }
+
+    /**
+     * Attach each step's executed sub-calls (profiling mode) as children. Sub-calls whose calling step is
+     * not itself listed — for example a decision-table action — are appended as their own steps, so no
+     * executed branch is lost.
+     */
+    private static List<StepValueView> attachExecutedChildren(DebugFrame frame, List<StepValueView> steps) {
+        Map<String, List<CallNode>> children = frame.getExecutedChildren();
+        if (children.isEmpty()) {
+            return steps;
+        }
+        Set<String> covered = new HashSet<>();
+        List<StepValueView> result = new ArrayList<>(steps.size());
+        for (StepValueView step : steps) {
+            covered.add(step.ref());
+            List<CallNode> kids = children.get(step.ref());
+            result.add(kids == null || kids.isEmpty()
+                    ? step
+                    : step.toBuilder().children(toCallNodeViews(kids)).build());
+        }
+        children.forEach((ref, kids) -> {
+            if (!covered.contains(ref) && !kids.isEmpty()) {
+                result.add(StepValueView.builder().ref(ref).status("executed").children(toCallNodeViews(kids)).build());
+            }
+        });
+        return result;
+    }
+
+    /** Convert returned sub-calls to views, recursively — structure only, never values. */
+    private static List<CallNodeView> toCallNodeViews(List<CallNode> nodes) {
+        return nodes.stream().map(TraceDebugMapper::toCallNodeView).toList();
+    }
+
+    private static CallNodeView toCallNodeView(CallNode node) {
+        List<StepValueView> steps = node.steps().stream()
+                .map(step -> StepValueView.builder()
+                        .ref(step.ref())
+                        .label(step.label())
+                        .status("executed")
+                        .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
+                        .build())
+                .toList();
+        // Self time is the node's own work: its total minus the time spent in the tables it called.
+        long childrenNanos = node.steps().stream()
+                .flatMap(step -> step.children().stream())
+                .mapToLong(CallNode::durationNanos)
+                .sum();
+        return CallNodeView.builder()
+                .uri(node.uri())
+                .name(node.name())
+                .kind(node.kind())
+                .durationMillis(node.durationNanos() / 1_000_000.0)
+                .selfMillis(Math.max(0, node.durationNanos() - childrenNanos) / 1_000_000.0)
+                .steps(steps)
+                .build();
+    }
+
+    /** Total time of a frame that has already returned (for example after a step out), otherwise {@code null}. */
+    private static @Nullable Double completedMillis(DebugFrame frame) {
+        return frame.isCompleted() ? frame.getDurationNanos() / 1_000_000.0 : null;
+    }
+
+    /** Own time of a returned frame: its total minus the time spent in the tables it called. */
+    private static @Nullable Double completedSelfMillis(DebugFrame frame) {
+        if (!frame.isCompleted()) {
+            return null;
+        }
+        long childrenNanos = frame.getExecutedChildren().values().stream()
+                .flatMap(List::stream)
+                .mapToLong(CallNode::durationNanos)
+                .sum();
+        return Math.max(0, frame.getDurationNanos() - childrenNanos) / 1_000_000.0;
     }
 
     /**

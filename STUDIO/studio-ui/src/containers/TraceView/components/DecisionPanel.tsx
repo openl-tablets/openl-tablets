@@ -1,5 +1,5 @@
-import React from 'react'
-import { Card, Checkbox, Select, Tag, Tooltip } from 'antd'
+import React, { useState } from 'react'
+import { Button, Card, Checkbox, Select, Tag, Tooltip } from 'antd'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
@@ -8,6 +8,10 @@ import { useStyles } from './DecisionPanel.styles'
 
 /** Breakpoint key suffix that suspends when any rule fires; mirrors the backend CurrentLocation.RULE_FIRED_REF. */
 const RULE_FIRED_REF = 'rule'
+
+/** A collect-all table can fire hundreds of rules; cap the summary and the per-rule breakdown so the panel stays usable. */
+const FIRED_PREVIEW = 12
+const RULE_ROWS_CAP = 25
 
 interface RuleGroup {
     rule: string
@@ -48,6 +52,7 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
     const { styles, cx } = useStyles()
     const breakpoints = useTraceStore(s => s.breakpoints)
     const toggleBreakpoint = useTraceStore(s => s.toggleBreakpoint)
+    const [showAllRules, setShowAllRules] = useState(false)
 
     const bpKey = (ref: string): string => `${frameUri}#${ref}`
     const breakpointKey = bpKey(RULE_FIRED_REF)
@@ -55,6 +60,15 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
     const fired = new Set(decision?.firedRules)
     const ruleLabel = (rule: string): string => t('decision.ruleBreakpointLabel', { table: frameName, rule })
     const armedRules = (ruleNames ?? []).filter(rule => breakpoints.includes(bpKey(rule)))
+
+    const firedRules = decision?.firedRules ?? []
+    const firedSummary = firedRules.length === 0
+        ? t('decision.noneFired')
+        : firedRules.length <= FIRED_PREVIEW
+            ? t('decision.fired', { rules: firedRules.join(', ') })
+            : t('decision.firedCount', { count: firedRules.length, rules: firedRules.slice(0, FIRED_PREVIEW).join(', ') })
+    const groups = decision ? groupByRule(decision) : []
+    const visibleGroups = showAllRules ? groups : groups.slice(0, RULE_ROWS_CAP)
 
     const ruleFireToggle = (
         <Tooltip title={t('decision.breakOnFireHint')}>
@@ -94,12 +108,8 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
             )}
             {decision ? (
                 <>
-                    <div className={styles.summary}>
-                        {decision.firedRules.length > 0
-                            ? t('decision.fired', { rules: decision.firedRules.join(', ') })
-                            : t('decision.noneFired')}
-                    </div>
-                    {groupByRule(decision).map(({ rule, conditions }) => {
+                    <div className={styles.summary}>{firedSummary}</div>
+                    {visibleGroups.map(({ rule, conditions }) => {
                         const ruleKey = bpKey(rule)
                         const hasRuleBreakpoint = breakpoints.includes(ruleKey)
                         const bpTooltip = hasRuleBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')
@@ -127,6 +137,19 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
                             </div>
                         )
                     })}
+                    {groups.length > RULE_ROWS_CAP && (
+                        <Button
+                            className={styles.showAll}
+                            data-testid="decision-show-all-rules"
+                            onClick={() => setShowAllRules(value => !value)}
+                            size="small"
+                            type="link"
+                        >
+                            {showAllRules
+                                ? t('decision.showFewer')
+                                : t('decision.showAllRules', { count: groups.length })}
+                        </Button>
+                    )}
                 </>
             ) : (
                 <div className={styles.summary}>{t('decision.notYetFired')}</div>

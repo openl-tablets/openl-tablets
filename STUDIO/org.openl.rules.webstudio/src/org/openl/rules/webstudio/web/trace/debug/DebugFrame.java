@@ -1,7 +1,11 @@
 package org.openl.rules.webstudio.web.trace.debug;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -46,12 +50,17 @@ public final class DebugFrame {
     private final int depth;
     private final List<ExecutedStep> executedSteps = new ArrayList<>();
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
+    /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
+    private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
+    private int executedChildCount;
 
     private @Nullable CurrentLocation location;
     private @Nullable Object currentStep;
     private @Nullable Object result;
     private @Nullable Throwable error;
     private boolean completed;
+    /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
+    private long durationNanos;
 
     public DebugFrame(SourceClassifier.FrameDescriptor descriptor,
                       Object source,
@@ -89,6 +98,36 @@ public final class DebugFrame {
         }
     }
 
+    /** Record a returned sub-call's structure under the step that made it (profiling mode only). */
+    void recordExecutedChild(@Nullable String callerRef, CallNode child) {
+        if (executedChildCount >= MAX_RECORDED_PER_FRAME) {
+            return;
+        }
+        executedChildren.computeIfAbsent(callerRef == null ? "" : callerRef, key -> new ArrayList<>()).add(child);
+        executedChildCount++;
+    }
+
+    /** Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values. */
+    CallNode toCallNode() {
+        List<CallNode.Step> steps = new ArrayList<>();
+        Set<String> covered = new HashSet<>();
+        for (ExecutedStep step : executedSteps) {
+            if (covered.add(step.ref())) {
+                steps.add(new CallNode.Step(step.ref(), step.label(), List.copyOf(childrenOf(step.ref()))));
+            }
+        }
+        executedChildren.forEach((ref, children) -> {
+            if (!covered.contains(ref)) {
+                steps.add(new CallNode.Step(ref, null, List.copyOf(children)));
+            }
+        });
+        return new CallNode(uri, name, kind, durationNanos, steps);
+    }
+
+    private List<CallNode> childrenOf(String ref) {
+        return executedChildren.getOrDefault(ref, List.of());
+    }
+
     void completeWith(@Nullable Object result) {
         this.result = result;
         this.completed = true;
@@ -97,5 +136,9 @@ public final class DebugFrame {
     void failWith(Throwable error) {
         this.error = error;
         this.completed = true;
+    }
+
+    void setDurationNanos(long durationNanos) {
+        this.durationNanos = durationNanos;
     }
 }

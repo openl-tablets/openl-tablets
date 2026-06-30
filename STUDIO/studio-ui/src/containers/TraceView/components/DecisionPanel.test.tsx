@@ -123,4 +123,20 @@ describe('DecisionPanel', () => {
         render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
         expect(screen.queryByTestId('decision-rule-select')).not.toBeInTheDocument()
     })
+
+    it('caps the rule breakdown for a collect-all table and expands on demand', async () => {
+        const many = Array.from({ length: 40 }, (_, i) => `R${i + 1}`)
+        render(<DecisionPanel
+            decision={{ firedRules: many, conditions: many.map(rule => ({ condition: 'C1', rule, matched: true })) }}
+            frameName="DT"
+            frameUri="dt/uri"
+        />)
+
+        // First rules are shown, rules beyond the cap are hidden until expanded.
+        expect(screen.getByText('R1')).toBeInTheDocument()
+        expect(screen.queryByText('R40')).not.toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('decision-show-all-rules'))
+        expect(screen.getByText('R40')).toBeInTheDocument()
+    })
 })

@@ -104,6 +104,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "testRanges", required = false) @Parameter(description = "trace.param.test-ranges.desc") String testRanges,
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "trace.param.from-module.desc") String fromModule,
             @RequestParam(value = "stopAtEntry", defaultValue = "true") @Parameter(description = "trace.param.stop-at-entry.desc") boolean stopAtEntry,
+            @RequestParam(value = "profiling", defaultValue = "false") @Parameter(description = "trace.param.profiling.desc") boolean profiling,
             @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
 
         parameterRegistry.clear();
@@ -129,7 +130,7 @@ public class ProjectsTraceDebugController {
         var objectMapper = configureObjectMapper();
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
                 currentOpenedModule, inputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
-                listener);
+                profiling, listener);
 
         DebugSession session = sessionRegistry.start(traceDebugService.startSession(request));
         // Build the inspection mapper now, while the traced module is the current module, so the session
@@ -307,7 +308,8 @@ public class ProjectsTraceDebugController {
 
     private DebugStackView stackView(DebugSession session) {
         var debugger = session.getDebugger();
-        return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error());
+        return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
+                debugger.completedTree());
     }
 
     private TraceDebugMapper createMapper(DebugSession session) {

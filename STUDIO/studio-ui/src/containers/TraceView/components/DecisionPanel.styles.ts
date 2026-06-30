@@ -26,6 +26,9 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-weight: 600;
         margin-bottom: ${token.marginXS}px;
     `,
+    showAll: css`
+        padding-inline: 0;
+    `,
     rule: css`
         display: flex;
         align-items: baseline;

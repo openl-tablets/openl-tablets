@@ -9,6 +9,10 @@ i18next.addResourceBundle('en', 'trace', {
         modeCallStack: 'Call Stack',
         runToHint: 'Run execution to here',
         resultHint: 'View result',
+        replayHint: 'Replay — restart and run to this table to inspect it live',
+        replayStepHint: 'Replay — restart and run to this step to inspect it live',
+        timeTotal: 'Total',
+        timeSelf: 'Self',
     },
 
     debug: {
@@ -18,6 +22,9 @@ i18next.addResourceBundle('en', 'trace', {
         stepOver: 'Step over — run the next line without going inside',
         stepOut: 'Step out — finish this rule and return to its caller',
         stop: 'Stop debugging',
+        profiling: 'Profiling',
+        profilingHint: 'Keep the executed call tree (timings + replay). It uses more memory and runs slower, and switching restarts the trace.',
+        profilingNotice: 'Profiling keeps the whole executed tree — it uses more memory and runs slower. Turn it off when you do not need the executed branches.',
         callStack: 'Call stack',
         notSuspended: 'Execution is not suspended',
         breakpoints: 'Breakpoints',
@@ -47,6 +54,9 @@ i18next.addResourceBundle('en', 'trace', {
 
     decision: {
         fired: 'Fired: {{rules}}',
+        firedCount: 'Fired {{count}} rules: {{rules}}, …',
+        showAllRules: 'Show all {{count}} rules',
+        showFewer: 'Show fewer',
         noneFired: 'No rule fired',
         notYetFired: 'No rule has fired yet.',
         breakOnFire: 'Break when a rule fires',

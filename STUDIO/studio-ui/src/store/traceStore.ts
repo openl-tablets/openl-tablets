@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { notification } from 'antd'
 import type {
+    CallNodeView,
     DebugError,
     DebugFrameVariables,
     DebugFrameView,
@@ -26,6 +27,8 @@ interface DebugState {
     // Session state
     status: DebugStatus | null
     frames: DebugFrameView[]
+    /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
+    tree: CallNodeView | null
     debugError: DebugError | null
     selectedFrameIndex: number | null
     variables: DebugFrameVariables | null
@@ -36,6 +39,8 @@ interface DebugState {
     breakpointLabels: Record<string, string>
     /** A one-shot breakpoint set by runTo; dropped on the next suspension so "run to here" leaves none behind. */
     transientBreakpoint: string | null
+    /** Profiling mode: retain the executed call tree so returned branches stay browsable. Toggling restarts. */
+    profiling: boolean
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
@@ -63,6 +68,10 @@ interface DebugState {
     pause: () => Promise<void>
     /** Run execution to a node (table/cell/rule breakpoint key) without leaving a permanent breakpoint. */
     runTo: (key: string, label?: string) => Promise<void>
+    /** Turn profiling on/off; restarts the trace since the executed tree can only be captured from the start. */
+    setProfiling: (value: boolean) => Promise<void>
+    /** Replay a returned branch: restart from the top and run to that table so it is live again, with values. */
+    replayNode: (uri: string, label?: string) => Promise<void>
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
@@ -80,6 +89,7 @@ const initialState = {
     inputJson: null,
     status: null,
     frames: [],
+    tree: null,
     debugError: null,
     selectedFrameIndex: null,
     variables: null,
@@ -88,6 +98,7 @@ const initialState = {
     breakpoints: [],
     breakpointLabels: {},
     transientBreakpoint: null,
+    profiling: false,
     rawTableCache: {},
     loading: false,
     error: null,
@@ -103,6 +114,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         set({
             status: stack.status,
             frames: stack.frames,
+            tree: stack.tree ?? null,
             debugError: stack.error ?? null,
             selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
             variables: null,
@@ -163,6 +175,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                         ...(testRanges ? { testRanges } : {}),
                         ...(inputJson ? { inputJson } : {}),
                         stopAtEntry: true,
+                        ...(get().profiling ? { profiling: true } : {}),
                     })
                 }
                 applyStack(stack)
@@ -251,6 +264,32 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 set({ transientBreakpoint: key })
             }
             await get().resume()
+        },
+
+        setProfiling: async (value) => {
+            const { projectId, profiling, breakpoints } = get()
+            if (!projectId || profiling === value) return
+            // The executed tree can only be captured from the start, so switching restarts the session.
+            set({ profiling: value })
+            await get().terminate()
+            await get().start()
+            // A fresh session has no breakpoints; re-apply the ones the user had set.
+            if (breakpoints.length > 0) {
+                try {
+                    await traceService.setBreakpoints(projectId, breakpoints)
+                } catch {
+                    // best-effort: the user can re-add them
+                }
+            }
+        },
+
+        replayNode: async (uri, label) => {
+            if (!get().projectId) return
+            // The executed tree has structure only, so to inspect a returned branch we re-run to it: restart
+            // from the top, then run to that table, where it becomes the live frame again with its values.
+            await get().terminate()
+            await get().start()
+            await get().runTo(uri, label)
         },
 
         terminate: async () => {

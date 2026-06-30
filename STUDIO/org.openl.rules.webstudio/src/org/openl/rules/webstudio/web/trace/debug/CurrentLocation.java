@@ -58,11 +58,26 @@ public record CurrentLocation(String kind, int row, int column, @Nullable String
      * @param ruleNames the names of the rules that fired (one for a single match, several for a collect)
      */
     public static CurrentLocation dtRule(List<String> ruleNames) {
-        String label = ruleNames.isEmpty() ? null : String.join(", ", ruleNames);
         List<String> refs = new ArrayList<>(ruleNames.size() + 1);
         refs.add(RULE_FIRED_REF);
         refs.addAll(ruleNames);
-        return new CurrentLocation(DT_RULE, -1, -1, null, label, refs);
+        // A single rule is its own breakpoint key; a collect that fired many rules uses the any-rule key so
+        // the step stays a single valid target (uri#rule) instead of an un-targetable comma-joined list.
+        String ref = ruleNames.isEmpty() ? null
+                : ruleNames.size() == 1 ? ruleNames.get(0)
+                : RULE_FIRED_REF;
+        return new CurrentLocation(DT_RULE, -1, -1, ref, ruleLabel(ruleNames), refs);
+    }
+
+    /** Compact label for the fired rules: the names, or the first few with a {@code +N more} for a big collect. */
+    private static @Nullable String ruleLabel(List<String> ruleNames) {
+        if (ruleNames.isEmpty()) {
+            return null;
+        }
+        if (ruleNames.size() <= 3) {
+            return String.join(", ", ruleNames);
+        }
+        return String.join(", ", ruleNames.subList(0, 3)) + " +" + (ruleNames.size() - 3) + " more";
     }
 
     /** A TBasic operation location. */

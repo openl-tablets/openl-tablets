@@ -38,7 +38,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         debugger.setBreakpoints(request.breakpoints());
         DebugSession session = new DebugSession(request.projectId(), request.tableId(), debugger, classLoader);
 
-        debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(),
+        debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(), request.profiling(),
                 () -> testSuite.invokeSequentially(openClass, 1));
         return session;
     }

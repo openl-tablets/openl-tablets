@@ -22,8 +22,10 @@ import org.openl.rules.webstudio.web.trace.debug.FrameKind;
  * @param active    whether this is the current (top) frame
  * @param completed whether the frame has returned
  * @param error     whether the frame failed
- * @param steps     the frame's sub-steps (spreadsheet cells or decision-table rules) with their status,
- *                  so the call tree shows every level at once; values are omitted (fetched per frame on demand)
+ * @param steps          the frame's sub-steps (spreadsheet cells or decision-table rules) with their status,
+ *                       so the call tree shows every level at once; values are omitted (fetched per frame on demand)
+ * @param durationMillis total execution time once the frame has returned, otherwise {@code null}
+ * @param selfMillis     own execution time once the frame has returned (total minus called tables), otherwise {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -60,6 +62,12 @@ public record DebugFrameView(
         boolean error,
 
         @Schema(description = "trace.field.frame.steps.desc")
-        @Nullable List<StepValueView> steps
+        @Nullable List<StepValueView> steps,
+
+        @Schema(description = "trace.field.frame.duration.desc")
+        @Nullable Double durationMillis,
+
+        @Schema(description = "trace.field.frame.self.desc")
+        @Nullable Double selfMillis
 ) {
 }
