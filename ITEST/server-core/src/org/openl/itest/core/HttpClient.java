@@ -258,7 +258,7 @@ public class HttpClient implements AutoCloseable {
                 }
 
                 // Bulk update of OpenAPI files
-//                if (Files.readAllLines(Paths.get(requestFile)).get(0).contains("/openapi.")) {
+//                if (Files.readAllLines(Path.of(requestFile)).get(0).contains("/openapi.")) {
 //                    response.writeBodyTo(responseFile);
 //                }
 
