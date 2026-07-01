@@ -1,4 +1,33 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{"id":"5f19c559b438962ed5206edb9b063f8e","tableType":"RawSource","kind":"Datatype","name":"StyledData","pos":"B2:C6","source":[[{"cell":"B3","value":"String"},{"cell":"C3","value":"name"}],[{"cell":"B4","value":"Integer"},{"cell":"C4","value":"count"}]],"totalRows":5}
+{
+  "id": "5f19c559b438962ed5206edb9b063f8e",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "StyledData",
+  "pos": "B2:C6",
+  "source": [
+    [
+      {
+        "cell": "B3",
+        "value": "String"
+      },
+      {
+        "cell": "C3",
+        "value": "name"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Integer"
+      },
+      {
+        "cell": "C4",
+        "value": "count"
+      }
+    ]
+  ],
+  "totalRows": 5
+}

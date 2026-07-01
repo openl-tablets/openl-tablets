@@ -164,7 +164,7 @@ class HttpData {
      * keeps them as {@code ***} wildcards to avoid churn, so the body is masked here before it is written.
      */
     private static final Pattern VOLATILE_FIELDS = Pattern
-            .compile("(\"(?:description|summary|operationId|version)\"\\s*:\\s*)\".*\"");
+            .compile("(\"(?:description|summary|operationId|version)\"\\s*:\\s*)\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\"");
 
     void writeBodyTo(String responseFile) throws IOException {
         try (var rf = new RandomAccessFile(responseFile, "rw")) {
