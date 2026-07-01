@@ -65,7 +65,7 @@ public record RawTableCell(
         @Schema(description = "Whether this cell is covered by another cell's span (true for masked cells, null otherwise)")
         Boolean covered,
 
-        @Schema(description = "Excel cell style (background, font, alignment); present only when styles are requested")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         RawTableCellStyle style
 ) {
 

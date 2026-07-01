@@ -18,10 +18,11 @@ import lombok.Builder;
  * @param italic    {@code true} when the font is italic, absent otherwise
  * @param underline {@code true} when the font is underlined, absent otherwise
  * @param indent    left indent in Excel indent units, absent when zero
+ * @param border    cell borders per side, absent when the cell has no borders
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Excel cell style: background, font and alignment")
+@Schema(description = "Excel cell style: background, font, alignment and borders")
 public record RawTableCellStyle(
         String background,
         String color,
@@ -30,6 +31,7 @@ public record RawTableCellStyle(
         Boolean bold,
         Boolean italic,
         Boolean underline,
-        Integer indent
+        Integer indent,
+        RawTableCellBorder border
 ) {
 }

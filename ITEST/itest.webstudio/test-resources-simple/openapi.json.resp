@@ -18300,6 +18300,44 @@ Content-Type: application/json
           }
         }
       },
+      "RawTableCellBorder": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "bottom": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "left": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "right": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "top": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          }
+        }
+      },
+      "RawTableCellBorderSide": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "style": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "solid",
+              "dashed",
+              "dotted",
+              "double"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "RawTableCellStyle": {
         "type": "object",
         "description": "***",
@@ -18312,6 +18350,9 @@ Content-Type: application/json
           },
           "bold": {
             "type": "boolean"
+          },
+          "border": {
+            "$ref": "#/components/schemas/RawTableCellBorder"
           },
           "color": {
             "type": "string"

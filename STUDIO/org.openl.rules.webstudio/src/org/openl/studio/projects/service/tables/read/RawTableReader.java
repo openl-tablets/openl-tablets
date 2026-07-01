@@ -12,9 +12,14 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableCellBorder;
+import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableView;
 
@@ -194,8 +199,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         Integer indent = cm.getIndent() > 0 ? cm.getIndent() : null;
         String align = cm.getHalign();
         String valign = cm.getValign();
+        RawTableCellBorder border = borderOf(cm);
         if (background == null && color == null && bold == null && italic == null
-                && underline == null && indent == null && align == null && valign == null) {
+                && underline == null && indent == null && align == null && valign == null && border == null) {
             return null;
         }
         return RawTableCellStyle.builder()
@@ -207,7 +213,42 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .italic(italic)
                 .underline(underline)
                 .indent(indent)
+                .border(border)
                 .build();
+    }
+
+    /** The cell's borders per side, or {@code null} when the cell has no border on any side. */
+    private static @Nullable RawTableCellBorder borderOf(CellModel cm) {
+        BorderStyle[] sides = cm.getBorderStyle();
+        if (sides == null) {
+            return null;
+        }
+        var top = borderSide(sides, ICellStyle.TOP);
+        var right = borderSide(sides, ICellStyle.RIGHT);
+        var bottom = borderSide(sides, ICellStyle.BOTTOM);
+        var left = borderSide(sides, ICellStyle.LEFT);
+        if (top == null && right == null && bottom == null && left == null) {
+            return null;
+        }
+        return RawTableCellBorder.builder().top(top).right(right).bottom(bottom).left(left).build();
+    }
+
+    /** One border side, or {@code null} when that side has no border. */
+    private static @Nullable RawTableCellBorderSide borderSide(BorderStyle[] sides, int side) {
+        if (side >= sides.length) {
+            return null;
+        }
+        BorderStyle bs = sides[side];
+        if (bs == null || bs == BorderStyle.NONE || bs.getWidth() == 0) {
+            return null;
+        }
+        RawTableBorderLineStyle style = switch (bs.getStyle() == null ? "solid" : bs.getStyle()) {
+            case "dashed" -> RawTableBorderLineStyle.DASHED;
+            case "dotted" -> RawTableBorderLineStyle.DOTTED;
+            case "double" -> RawTableBorderLineStyle.DOUBLE;
+            default -> RawTableBorderLineStyle.SOLID;
+        };
+        return RawTableCellBorderSide.builder().style(style).width(bs.getWidth()).build();
     }
 
     /** Hex form of an RGB triple, or {@code null} when it is missing or equals the given default colour. */
