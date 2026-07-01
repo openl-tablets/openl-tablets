@@ -20316,12 +20316,22 @@ Content-Type: application/json
               "$ref": "#/components/schemas/CallNodeView"
             }
           },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
           "label": {
             "type": "string",
             "description": "***"
           },
           "ref": {
             "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
             "description": "***"
           },
           "status": {
