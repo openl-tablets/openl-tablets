@@ -117,7 +117,9 @@ export const useStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
     `,
     durationFill: css`
+        display: block;
         height: 100%;
+        min-width: 1px;
         border-radius: ${token.borderRadiusXS}px;
         background: ${token.colorTextTertiary};
     `,
