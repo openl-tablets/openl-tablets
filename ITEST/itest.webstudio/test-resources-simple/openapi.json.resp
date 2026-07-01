@@ -16466,6 +16466,9 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "dispatch": {
+            "$ref": "#/components/schemas/DispatchInfo"
+          },
           "durationMillis": {
             "type": "number",
             "format": "double",
@@ -16502,6 +16505,17 @@ Content-Type: application/json
           "uri": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "chosen": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": "string"
           }
         }
       },
@@ -17170,6 +17184,9 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "dispatch": {
+            "$ref": "#/components/schemas/DispatchInfo"
+          },
           "durationMillis": {
             "type": "number",
             "format": "double",
@@ -17505,6 +17522,18 @@ Content-Type: application/json
           },
           "summary": {
             "type": "string"
+          }
+        }
+      },
+      "DispatchInfo": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            }
           }
         }
       },
