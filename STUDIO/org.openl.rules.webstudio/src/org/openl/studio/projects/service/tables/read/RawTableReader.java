@@ -272,7 +272,8 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         if (rgb == null || rgb.length < 3) {
             return null;
         }
-        String hex = String.format("#%02x%02x%02x", rgb[0], rgb[1], rgb[2]);
+        // Mask each component to an unsigned byte so a negative short never sign-extends to 8 hex digits.
+        String hex = String.format("#%02x%02x%02x", rgb[0] & 0xff, rgb[1] & 0xff, rgb[2] & 0xff);
         return hex.equals(defaultHex) ? null : hex;
     }
 

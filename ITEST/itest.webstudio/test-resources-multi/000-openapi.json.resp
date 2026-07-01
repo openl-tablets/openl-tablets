@@ -9506,7 +9506,8 @@ Content-Type: application/json
             "name": "maxRows",
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "format": "int32",
+              "minimum": 1
             }
           },
           {
