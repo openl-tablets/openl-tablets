@@ -54,7 +54,7 @@ public class RawTableView extends TableView implements EditableTableView {
     @NotEmpty
     public final List<List<@Valid RawTableCell>> source;   // 2D matrix of cells
 
-    @Schema(description = "Total number of rows when the result is truncated by maxRows; absent when the whole table is returned")
+    @Schema(description = "Total number of rows when the returned window omits rows (a startRow offset or a maxRows cap); absent when the whole table is returned")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final Integer totalRows;

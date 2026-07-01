@@ -9493,6 +9493,16 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "startRow",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "maxRows",
             "schema": {
               "type": "integer",

@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
@@ -54,60 +55,75 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         super(RawTableView::builder);
     }
 
-    /** Sentinel for "return the whole table" — the default, so the shared API stays non-regressive. */
-    public static final int ALL_ROWS = -1;
+    /** The value that tells {@link TableModel} not to cap rows; used when {@code maxRows} is unspecified. */
+    private static final int NO_ROW_CAP = -1;
 
     @Override
     protected void initialize(RawTableView.Builder builder, IOpenLTable openLTable) {
-        initialize(builder, openLTable, ALL_ROWS, false);
+        initialize(builder, openLTable, null, null, false);
     }
 
     /**
-     * Read a table in raw format, returning at most {@code maxRows} rows from the top.
+     * Read a window of a table in raw format, optionally including each cell's Excel style.
      * <p>
-     * The cap is applied while building the grid model, so a very large table is never fully
-     * materialised. When the result is truncated, {@link RawTableView#totalRows} reports the full row
-     * count so the caller can page or open the table in Excel.
+     * The window is the {@code maxRows} rows starting at {@code startRow}, so a caller can page through a
+     * large table in slices — read a chunk, edit it through the table actions API, then read the next chunk.
+     * Rows outside the window are cropped while building the grid model, so they are never materialised.
+     * <p>
+     * Cell addresses stay absolute, so a sliced cell keeps the same address it has in the whole table.
+     * {@link RawTableView#totalRows} reports the full row count whenever the window omits rows. The matrix is
+     * empty when {@code startRow} is past the last row.
      *
      * @param openLTable the table to read
-     * @param maxRows    the maximum number of rows to return, or {@link #ALL_ROWS} for the whole table
-     * @return the raw table view
-     */
-    public RawTableView read(IOpenLTable openLTable, int maxRows) {
-        return read(openLTable, maxRows, false);
-    }
-
-    /**
-     * Read a table in raw format, optionally including each cell's Excel style.
-     *
-     * @param openLTable the table to read
-     * @param maxRows    the maximum number of rows to return, or {@link #ALL_ROWS} for the whole table
+     * @param startRow   the zero-based index of the first row to return; {@code null} starts at the top
+     * @param maxRows    the maximum number of rows to return from {@code startRow}; {@code null} returns every
+     *                   remaining row
      * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
      * @return the raw table view
      */
-    public RawTableView read(IOpenLTable openLTable, int maxRows, boolean withStyles) {
+    public RawTableView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows,
+            boolean withStyles) {
         RawTableView.Builder builder = RawTableView.builder();
-        initialize(builder, openLTable, maxRows, withStyles);
+        initialize(builder, openLTable, startRow, maxRows, withStyles);
         return builder.build();
     }
 
-    private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, int maxRows, boolean withStyles) {
+    private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, @Nullable Integer startRow,
+            @Nullable Integer maxRows, boolean withStyles) {
         super.initialize(builder, openLTable);
         builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = openLTable.getSyntaxNode().getMetaInfoReader();
-        // Use TableModel to properly handle cell merging and content; numRows caps the materialised region.
-        var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), maxRows, metaInfoReader);
+        int fullHeight = openLTable.getGridTable().getHeight();
+        // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
+        // region, so rows outside the window are never materialised and cell addresses stay absolute.
+        var gridTable = sliceFrom(openLTable.getGridTable(), startRow);
+        int cap = maxRows == null ? NO_ROW_CAP : maxRows;
+        var tableModel = gridTable == null ? null
+                : TableModel.initializeTableModel(gridTable, cap, metaInfoReader);
 
-        if (tableModel != null) {
-            // Convert TableModel to raw source
-            var cellValueReader = new CellValueReader(metaInfoReader);
-            List<List<RawTableCell>> source = convertTableModelToMatrix(tableModel, cellValueReader, withStyles);
-            builder.source(source);
-            int fullHeight = openLTable.getGridTable().getHeight();
-            if (source.size() < fullHeight) {
-                builder.totalRows(fullHeight);
-            }
+        List<List<RawTableCell>> source = tableModel == null ? List.of()
+                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles);
+        // The grid model keeps one extra row rather than hiding a single row; trim to exactly maxRows so the
+        // window size is predictable for paging.
+        if (maxRows != null && source.size() > maxRows) {
+            source = source.subList(0, maxRows);
         }
+        builder.source(source);
+        // Report the full height whenever the window omits rows (a non-zero offset or a top cap).
+        if ((startRow != null && startRow > 0) || source.size() < fullHeight) {
+            builder.totalRows(fullHeight);
+        }
+    }
+
+    /** Crop the table to the rows at and below {@code startRow}, or {@code null} when the offset is past the end. */
+    private static @Nullable IGridTable sliceFrom(IGridTable table, @Nullable Integer startRow) {
+        if (startRow == null || startRow <= 0) {
+            return table;
+        }
+        if (startRow >= table.getHeight()) {
+            return null;
+        }
+        return table.getRows(startRow);
     }
 
     /**

@@ -743,22 +743,28 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, RawTableReader.ALL_ROWS, false);
+        return getTableRaw(project, tableId, null, null, false);
     }
 
     /**
-     * Get table in raw format, returning at most {@code maxRows} rows from the top and, optionally, each
-     * cell's Excel style.
+     * Get a window of a table in raw format: the {@code maxRows} rows starting at {@code startRow} and,
+     * optionally, each cell's Excel style.
+     * <p>
+     * The window lets a caller page through a large table in slices. Cell addresses stay absolute, and
+     * {@code totalRows} is set whenever the window omits rows.
      *
      * @param project    project
      * @param tableId    table id
-     * @param maxRows    maximum number of rows to return, or {@link RawTableReader#ALL_ROWS} for the whole table
+     * @param startRow   zero-based index of the first row to return, or {@code null} for the top
+     * @param maxRows    maximum number of rows to return from {@code startRow}, or {@code null} for every
+     *                   remaining row
      * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
-     * @return raw table data, with {@code totalRows} set when truncated
+     * @return raw table data, with {@code totalRows} set when the window omits rows
      */
-    public RawTableView getTableRaw(RulesProject project, String tableId, int maxRows, boolean withStyles) {
+    public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
+            @Nullable Integer maxRows, boolean withStyles) {
         var context = getOpenLTable(project, tableId);
-        var tableView = rawTableReader.read(context.table(), maxRows, withStyles);
+        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles);
         tableView.messages = mapMessages(context);
         return tableView;
     }

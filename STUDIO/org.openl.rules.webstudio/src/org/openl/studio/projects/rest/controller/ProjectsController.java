@@ -84,7 +84,6 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
-import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
@@ -314,11 +313,11 @@ public class ProjectsController {
     public EditableTableView getTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
                                       @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw,
-                                      @RequestParam(value = "maxRows", required = false) @Parameter(description = "Maximum number of rows for the raw view; omit for the whole table. When truncated, the response carries totalRows.") Integer maxRows,
+                                      @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "Zero-based index of the first row of the raw view; omit to start at the top. Combine with maxRows to read a large table in slices.") Integer startRow,
+                                      @RequestParam(value = "maxRows", required = false) @Parameter(description = "Maximum number of rows for the raw view, counted from startRow; omit to read to the end. When the window omits rows, the response carries totalRows.") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "Whether the raw view should carry each cell's Excel style (background, font, alignment)") boolean styles) {
         if (raw) {
-            int rows = maxRows == null ? RawTableReader.ALL_ROWS : maxRows;
-            return projectService.getTableRaw(project, tableId, rows, styles);
+            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles);
         }
         return (EditableTableView) projectService.getTable(project, tableId);
     }
