@@ -18354,32 +18354,40 @@ Content-Type: application/json
         "description": "***",
         "properties": {
           "align": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "background": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "bold": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "border": {
             "$ref": "#/components/schemas/RawTableCellBorder"
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "indent": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "***"
           },
           "italic": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "underline": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "valign": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -18487,8 +18495,7 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawTableCell"
                   }
-                },
-                "minItems": 1
+                }
               },
               "totalRows": {
                 "type": "integer",

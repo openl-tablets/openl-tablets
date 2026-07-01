@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -207,30 +208,30 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     /** The cell's Excel style, or {@code null} when every attribute is at its default. */
     private static @Nullable RawTableCellStyle styleOf(CellModel cm) {
         ICellFont font = cm.getFont();
-        String background = nonDefault(cm.getRgbBackground(), "#ffffff");
-        String color = font == null ? null : nonDefault(font.getFontColor(), "#000000");
-        Boolean bold = font != null && font.isBold() ? Boolean.TRUE : null;
-        Boolean italic = font != null && font.isItalic() ? Boolean.TRUE : null;
-        Boolean underline = font != null && font.isUnderlined() ? Boolean.TRUE : null;
-        Integer indent = cm.getIndent() > 0 ? cm.getIndent() : null;
-        String align = cm.getHalign();
-        String valign = cm.getValign();
-        RawTableCellBorder border = borderOf(cm);
-        if (background == null && color == null && bold == null && italic == null
-                && underline == null && indent == null && align == null && valign == null && border == null) {
-            return null;
-        }
-        return RawTableCellStyle.builder()
-                .background(background)
-                .color(color)
-                .align(align)
-                .valign(valign)
-                .bold(bold)
-                .italic(italic)
-                .underline(underline)
-                .indent(indent)
-                .border(border)
+
+        RawTableCellStyle style = RawTableCellStyle.builder()
+                .background(nonDefault(cm.getRgbBackground(), "#ffffff"))
+                .color(font == null ? null : nonDefault(font.getFontColor(), "#000000"))
+                .align(cm.getHalign())
+                .valign(cm.getValign())
+                .bold(flag(font, ICellFont::isBold))
+                .italic(flag(font, ICellFont::isItalic))
+                .underline(flag(font, ICellFont::isUnderlined))
+                .indent(positive(cm.getIndent()))
+                .border(borderOf(cm))
                 .build();
+
+        return style.isEmpty() ? null : style;
+    }
+
+    /** The font flag as {@link Boolean#TRUE}, or {@code null} when the font is absent or the flag is off. */
+    private static @Nullable Boolean flag(@Nullable ICellFont font, Predicate<ICellFont> predicate) {
+        return font != null && predicate.test(font) ? Boolean.TRUE : null;
+    }
+
+    /** The value when positive, or {@code null} otherwise. */
+    private static @Nullable Integer positive(int value) {
+        return value > 0 ? value : null;
     }
 
     /** The cell's borders per side, or {@code null} when the cell has no border on any side. */
@@ -239,14 +240,13 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         if (sides == null) {
             return null;
         }
-        var top = borderSide(sides, ICellStyle.TOP);
-        var right = borderSide(sides, ICellStyle.RIGHT);
-        var bottom = borderSide(sides, ICellStyle.BOTTOM);
-        var left = borderSide(sides, ICellStyle.LEFT);
-        if (top == null && right == null && bottom == null && left == null) {
-            return null;
-        }
-        return RawTableCellBorder.builder().top(top).right(right).bottom(bottom).left(left).build();
+        RawTableCellBorder border = RawTableCellBorder.builder()
+                .top(borderSide(sides, ICellStyle.TOP))
+                .right(borderSide(sides, ICellStyle.RIGHT))
+                .bottom(borderSide(sides, ICellStyle.BOTTOM))
+                .left(borderSide(sides, ICellStyle.LEFT))
+                .build();
+        return border.isEmpty() ? null : border;
     }
 
     /** One border side, or {@code null} when that side has no border. */

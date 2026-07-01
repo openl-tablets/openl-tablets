@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -22,4 +23,10 @@ public record RawTableCellBorder(
         RawTableCellBorderSide bottom,
         RawTableCellBorderSide left
 ) {
+
+    /** Whether the cell has no border on any side. */
+    @JsonIgnore
+    public boolean isEmpty() {
+        return top == null && right == null && bottom == null && left == null;
+    }
 }

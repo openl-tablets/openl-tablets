@@ -3,7 +3,7 @@ package org.openl.studio.projects.model.tables;
 import java.util.List;
 import java.util.Map;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -50,11 +50,13 @@ public class RawTableView extends TableView implements EditableTableView {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final String pos;
 
-    @Schema(description = "2D matrix of raw table cells with merge information")
-    @NotEmpty
+    @Schema(description = "2D matrix of raw table cells with merge information; empty only for a slice whose "
+            + "startRow is past the last row")
+    @NotNull
     public final List<List<@Valid RawTableCell>> source;   // 2D matrix of cells
 
-    @Schema(description = "Total number of rows when the returned window omits rows (a startRow offset or a maxRows cap); absent when the whole table is returned")
+    @Schema(description = "Total number of rows when the returned window omits rows (a startRow offset or a "
+            + "maxRows cap); absent when the whole table is returned")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final Integer totalRows;

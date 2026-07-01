@@ -1,6 +1,8 @@
 package org.openl.studio.projects.model.tables;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -24,14 +26,45 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Excel cell style: background, font, alignment and borders")
 public record RawTableCellStyle(
+        @Parameter(description = "Background colour as #rrggbb; absent when white (the default)")
         String background,
+
+        @Parameter(description = "Font colour as #rrggbb; absent when black (the default)")
         String color,
+
+        @Parameter(description = "Horizontal alignment: left, center or right")
         String align,
+
+        @Parameter(description = "Vertical alignment: top, middle or bottom")
         String valign,
+
+        @Parameter(description = "true when the font is bold, absent otherwise")
         Boolean bold,
+
+        @Parameter(description = "true when the font is italic, absent otherwise")
         Boolean italic,
+
+        @Parameter(description = "true when the font is underlined, absent otherwise")
         Boolean underline,
+
+        @Parameter(description = "Left indent in Excel indent units, absent when zero")
         Integer indent,
+
+        @Parameter(description = "Cell borders per side, absent when the cell has no borders")
         RawTableCellBorder border
 ) {
+
+    /** Whether every attribute is absent, so the cell carries no style at all. */
+    @JsonIgnore
+    public boolean isEmpty() {
+        return background == null
+                && color == null
+                && align == null
+                && valign == null
+                && bold == null
+                && italic == null
+                && underline == null
+                && indent == null
+                && border == null;
+    }
 }
