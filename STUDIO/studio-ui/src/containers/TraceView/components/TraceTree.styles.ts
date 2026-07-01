@@ -99,6 +99,34 @@ export const useStyles = createStyles(({ css, token }) => ({
         letter-spacing: 0.04em;
         color: ${token.colorTextTertiary};
     `,
+    // Dispatch badge: the table is one of several versions overloaded by dimension properties; hovering
+    // lists the versions with the chosen one marked.
+    dispatchTag: css`
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        flex: 0 0 auto;
+        padding: 0 ${token.paddingXXS}px;
+        border-radius: ${token.borderRadiusSM}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
+        background: ${token.colorFillQuaternary};
+        cursor: help;
+    `,
+    dispatchTipTitle: css`
+        font-weight: 600;
+        margin-bottom: ${token.marginXXS}px;
+    `,
+    dispatchCandidate: css`
+        opacity: 0.75;
+    `,
+    dispatchChosen: css`
+        opacity: 1;
+        font-weight: 600;
+        &::before {
+            content: '✓ ';
+        }
+    `,
     // Real execution time. A length-based heat bar keeps the timing channel separate from the status
     // colours (amber/red already mean current/error), so a slow call reads by bar length, not by hue.
     duration: css`

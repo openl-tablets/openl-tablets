@@ -95,6 +95,7 @@ public class TraceDebugMapper {
                     .steps(outlineSteps(frame))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))
+                    .dispatch(frame.getDispatch())
                     .build());
         }
         return DebugStackView.builder()
@@ -351,6 +352,7 @@ public class TraceDebugMapper {
                 .durationMillis(toMillis(node.durationNanos()))
                 .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
                 .steps(steps)
+                .dispatch(node.dispatch())
                 .build();
     }
 

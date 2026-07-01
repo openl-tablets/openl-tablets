@@ -61,6 +61,8 @@ public final class DebugFrame {
     private boolean completed;
     /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
     private long durationNanos;
+    /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
+    private @Nullable DispatchInfo dispatch;
 
     public DebugFrame(SourceClassifier.FrameDescriptor descriptor,
                       Object source,
@@ -121,7 +123,7 @@ public final class DebugFrame {
                 steps.add(new CallNode.Step(ref, null, List.copyOf(children)));
             }
         });
-        return new CallNode(uri, name, kind, durationNanos, steps);
+        return new CallNode(uri, name, kind, durationNanos, steps, dispatch);
     }
 
     private List<CallNode> childrenOf(String ref) {
@@ -140,5 +142,9 @@ public final class DebugFrame {
 
     void setDurationNanos(long durationNanos) {
         this.durationNanos = durationNanos;
+    }
+
+    void setDispatch(DispatchInfo dispatch) {
+        this.dispatch = dispatch;
     }
 }

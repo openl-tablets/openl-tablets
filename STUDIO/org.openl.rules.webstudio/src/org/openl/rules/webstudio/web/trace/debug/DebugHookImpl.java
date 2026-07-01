@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
@@ -36,6 +38,10 @@ final class DebugHookImpl implements DebugHook {
     private long parkedNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
     private @Nullable CallNode completedTree;
+    /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
+    private @Nullable OpenMethodDispatcher pendingDispatch;
+    /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
+    private @Nullable IOpenMethod pendingChosen;
 
     DebugHookImpl(SourceClassifier classifier, StepController stepController, DebugChannel channel,
                   DebugListener listener) {
@@ -58,6 +64,20 @@ final class DebugHookImpl implements DebugHook {
         SourceClassifier.FrameDescriptor descriptor = classifier.describeFrame(source);
         if (descriptor != null) {
             return invokeFrame(descriptor, executor, target, params, env, source);
+        }
+        if (source instanceof OpenMethodDispatcher dispatcher) {
+            // The dispatcher itself is transparent (no frame), but the version it selects — the next frame — is
+            // badged with the choice, so run it while remembering which dispatcher is choosing.
+            OpenMethodDispatcher previousDispatch = pendingDispatch;
+            IOpenMethod previousChosen = pendingChosen;
+            pendingDispatch = dispatcher;
+            pendingChosen = null;
+            try {
+                return executor.invoke(target, params, env);
+            } finally {
+                pendingDispatch = previousDispatch;
+                pendingChosen = previousChosen;
+            }
         }
         DebugFrame top = stack.peek();
         CurrentLocation location = classifier.describeSubStep(executor, env, top == null ? null : top.getSource());
@@ -101,6 +121,13 @@ final class DebugHookImpl implements DebugHook {
         int depth = stack.size() + 1;
         DebugFrame frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
+        if (pendingDispatch != null) {
+            // This frame is the version the pending dispatcher chose; badge it and consume the dispatch so only
+            // the immediate child carries it.
+            frame.setDispatch(DispatchInfo.of(pendingDispatch, pendingChosen));
+            pendingDispatch = null;
+            pendingChosen = null;
+        }
         stack.push(frame);
         try {
             handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name());
@@ -136,6 +163,10 @@ final class DebugHookImpl implements DebugHook {
 
     @Override
     public void onPut(Object source, String id, Object[] args) {
+        if (pendingDispatch == source && "rule".equals(id) && args.length > 0 && args[0] instanceof IOpenMethod chosen) {
+            pendingChosen = chosen;
+            return;
+        }
         DebugFrame top = stack.peek();
         if (top == null) {
             return;

@@ -13,6 +13,7 @@ i18next.addResourceBundle('en', 'trace', {
         replayStepHint: 'Replay — restart and run to this step to inspect it live',
         timeTotal: 'Total',
         timeSelf: 'Self',
+        dispatchTitle: 'Chosen from {{count}} versions by dimension properties:',
     },
 
     debug: {

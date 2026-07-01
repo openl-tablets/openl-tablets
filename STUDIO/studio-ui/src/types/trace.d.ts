@@ -44,6 +44,20 @@ export interface DebugLocationView {
 /**
  * One frame of the live execution stack.
  */
+/** A table chosen at runtime from versions overloaded by dimension properties (a dispatcher). */
+export interface DispatchInfo {
+    /** The overloaded versions, each labelled by its dimension properties, with the chosen one flagged. */
+    candidates: DispatchCandidate[]
+}
+
+/** One overloaded version of a dispatched table. */
+export interface DispatchCandidate {
+    /** The version's dimension properties (e.g. `effectiveDate: 01/01/2020`), or its name. */
+    label: string
+    /** Whether the dispatcher selected this version for the current runtime context. */
+    chosen: boolean
+}
+
 export interface DebugFrameView {
     /** Position in the stack, 0 for the root call */
     index: number
@@ -74,6 +88,8 @@ export interface DebugFrameView {
     durationMillis?: number | null
     /** Own execution time (ms) once the frame has returned (total minus called tables); absent while it runs. */
     selfMillis?: number | null
+    /** Set when the table was chosen by a dispatcher (versioned by dimension properties); absent otherwise. */
+    dispatch?: DispatchInfo | null
 }
 
 /** How a traced cell is highlighted, shared with the spreadsheet grid and the decision panel. */
@@ -178,6 +194,8 @@ export interface CallNodeView {
     /** Own execution time in milliseconds: total minus the time spent in the tables it called. */
     selfMillis: number
     steps: StepValueView[]
+    /** Set when the table was chosen by a dispatcher (versioned by dimension properties); absent otherwise. */
+    dispatch?: DispatchInfo | null
 }
 
 /** One evaluated decision-table condition, for one rule. */

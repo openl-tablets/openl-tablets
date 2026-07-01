@@ -16,8 +16,10 @@ import org.jspecify.annotations.Nullable;
  * @param kind          kind of the table
  * @param durationNanos real execution time of this invocation, excluding time spent parked at suspend points
  * @param steps         the sub-steps that executed, each with the sub-calls it made
+ * @param dispatch      set when this table was selected by a dispatcher (overloaded by dimensions), else {@code null}
  */
-public record CallNode(String uri, String name, FrameKind kind, long durationNanos, List<Step> steps) {
+public record CallNode(String uri, String name, FrameKind kind, long durationNanos, List<Step> steps,
+                       @Nullable DispatchInfo dispatch) {
 
     /**
      * One executed sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.

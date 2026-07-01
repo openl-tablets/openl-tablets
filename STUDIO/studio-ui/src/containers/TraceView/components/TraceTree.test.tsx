@@ -181,4 +181,21 @@ describe('TraceTree', () => {
         render(<TraceTree />)
         expect(screen.getByText('debug.notSuspended')).toBeInTheDocument()
     })
+
+    it('badges a version-dispatched frame with the number of versions', () => {
+        useTraceStore.setState({
+            status: 'SUSPENDED',
+            frames: [frame(0, {
+                name: 'RateRule',
+                active: true,
+                dispatch: { candidates: [
+                    { label: 'effectiveDate: 01/01/2020', chosen: false },
+                    { label: 'effectiveDate: 01/01/2021', chosen: true },
+                ]},
+            })],
+            selectedFrameIndex: 0,
+        })
+        render(<TraceTree />)
+        expect(screen.getByTestId('tree-dispatch')).toHaveTextContent('2')
+    })
 })

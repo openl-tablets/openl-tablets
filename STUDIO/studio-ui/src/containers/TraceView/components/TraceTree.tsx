@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react'
 import { Empty, Segmented, Tooltip } from 'antd'
-import { CaretDownOutlined, CaretRightOutlined, RedoOutlined } from '@ant-design/icons'
+import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, RedoOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
-import type { CallNodeView, DebugFrameView, StepValueView } from 'types/trace'
+import type { CallNodeView, DebugFrameView, DispatchInfo, StepValueView } from 'types/trace'
 import { useStyles } from './TraceTree.styles'
 
 /** Format a millisecond duration compactly: `1.2 s`, `45 ms`, `3.4 ms`, `<1 ms`. */
@@ -188,6 +188,37 @@ const TraceTree: React.FC = () => {
         </Tooltip>
     )
 
+    // A dispatched table (versioned by dimension properties) is shown in place, badged with the versions it
+    // was chosen from — the chosen one flagged — rather than as an extra dispatcher node in the tree.
+    const dispatchBadge = (dispatch?: DispatchInfo | null): React.ReactNode => {
+        if (!dispatch || dispatch.candidates.length === 0) {
+            return null
+        }
+        const tip = (
+            <div>
+                <div className={styles.dispatchTipTitle}>
+                    {t('tree.dispatchTitle', { count: dispatch.candidates.length })}
+                </div>
+                {dispatch.candidates.map((candidate, i) => (
+                    <div
+                        key={`${i}-${candidate.label}`}
+                        className={cx(styles.dispatchCandidate, candidate.chosen && styles.dispatchChosen)}
+                    >
+                        {candidate.label}
+                    </div>
+                ))}
+            </div>
+        )
+        return (
+            <Tooltip title={tip}>
+                <span className={styles.dispatchTag} data-testid="tree-dispatch">
+                    <BranchesOutlined />
+                    {dispatch.candidates.length}
+                </span>
+            </Tooltip>
+        )
+    }
+
     const renderFrame = (row: TreeRow): React.ReactNode => {
         const frame = row.frame as DebugFrameView
         const ms = timingOf(row)
@@ -208,6 +239,7 @@ const TraceTree: React.FC = () => {
                 />
                 <span className={styles.name}>{frame.name}</span>
                 <span className={styles.kind}>{frame.kind}</span>
+                {dispatchBadge(frame.dispatch)}
                 {ms != null && durationCell(ms)}
                 {frame.completed && replayButton(frame.uri, frame.name, `tree-replay-${frame.uri}`, t('tree.replayHint'))}
             </div>
@@ -259,6 +291,7 @@ const TraceTree: React.FC = () => {
                 <span className={cx(styles.dot, styles.dotExecuted)} />
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
+                {dispatchBadge(node.dispatch)}
                 {durationCell(ms)}
                 {replayButton(node.uri, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>

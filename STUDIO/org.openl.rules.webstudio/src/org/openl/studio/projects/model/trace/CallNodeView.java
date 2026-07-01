@@ -5,7 +5,9 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.webstudio.web.trace.debug.DispatchInfo;
 import org.openl.rules.webstudio.web.trace.debug.FrameKind;
 
 /**
@@ -21,6 +23,7 @@ import org.openl.rules.webstudio.web.trace.debug.FrameKind;
  * @param durationMillis total execution time in milliseconds (this table and everything it called), excluding parked time
  * @param selfMillis     own execution time in milliseconds (total minus the time spent in the tables it called)
  * @param steps          the executed sub-steps, each of which may carry its own executed sub-calls
+ * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,6 +45,9 @@ public record CallNodeView(
         double selfMillis,
 
         @Schema(description = "trace.field.call-node.steps.desc")
-        List<StepValueView> steps
+        List<StepValueView> steps,
+
+        @Schema(description = "trace.field.call-node.dispatch.desc")
+        @Nullable DispatchInfo dispatch
 ) {
 }

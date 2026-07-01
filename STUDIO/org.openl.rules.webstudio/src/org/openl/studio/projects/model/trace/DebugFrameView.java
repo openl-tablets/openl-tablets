@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.webstudio.web.trace.debug.DispatchInfo;
 import org.openl.rules.webstudio.web.trace.debug.FrameKind;
 
 /**
@@ -26,6 +27,7 @@ import org.openl.rules.webstudio.web.trace.debug.FrameKind;
  *                       so the call tree shows every level at once; values are omitted (fetched per frame on demand)
  * @param durationMillis total execution time once the frame has returned, otherwise {@code null}
  * @param selfMillis     own execution time once the frame has returned (total minus called tables), otherwise {@code null}
+ * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -68,6 +70,9 @@ public record DebugFrameView(
         @Nullable Double durationMillis,
 
         @Schema(description = "trace.field.frame.self.desc")
-        @Nullable Double selfMillis
+        @Nullable Double selfMillis,
+
+        @Schema(description = "trace.field.frame.dispatch.desc")
+        @Nullable DispatchInfo dispatch
 ) {
 }
