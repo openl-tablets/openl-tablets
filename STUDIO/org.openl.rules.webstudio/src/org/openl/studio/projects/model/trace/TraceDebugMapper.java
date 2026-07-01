@@ -275,7 +275,23 @@ public class TraceDebugMapper {
      * tree can render the whole stack in one pass without cloning any values.
      */
     static List<StepValueView> outlineSteps(DebugFrame frame) {
-        return attachExecutedChildren(frame, baseSteps(frame));
+        return attachExecutedChildren(frame, withStepDurations(frame, baseSteps(frame)));
+    }
+
+    /** Attach each executed step's own measured total time, looked up by its ref. */
+    private static List<StepValueView> withStepDurations(DebugFrame frame, List<StepValueView> steps) {
+        Map<String, Long> durations = frame.getExecutedSteps().stream()
+                .collect(Collectors.toMap(DebugFrame.ExecutedStep::ref, DebugFrame.ExecutedStep::durationNanos,
+                        (first, second) -> second));
+        if (durations.isEmpty()) {
+            return steps;
+        }
+        return steps.stream()
+                .map(step -> {
+                    Long nanos = durations.get(step.ref());
+                    return nanos == null ? step : step.toBuilder().durationMillis(toMillis(nanos)).build();
+                })
+                .toList();
     }
 
     /** The frame's own sub-steps (cells or rules) with status, before any executed children are attached. */
@@ -340,6 +356,8 @@ public class TraceDebugMapper {
                         .ref(step.ref())
                         .label(step.label())
                         .status("executed")
+                        .durationMillis(toMillis(step.durationNanos()))
+                        .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
                         .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
                         .build())
                 .toList();

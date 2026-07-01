@@ -89,8 +89,12 @@ final class DebugHookImpl implements DebugHook {
         top.setCurrentStep(executor);
         top.setLocation(location);
         handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location, top.getName());
+        // Time the step around its own execution, excluding parked time, so an inefficient step that makes no
+        // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
+        long stepEnter = System.nanoTime();
+        long parkedAtStepEnter = parkedNanos;
         R result = executor.invoke(target, params, env);
-        top.recordExecutedStep(stepRef(location), location.label(), result);
+        top.recordExecutedStep(stepRef(location), location.label(), result, elapsed(stepEnter, parkedAtStepEnter));
         return result;
     }
 

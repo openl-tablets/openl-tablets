@@ -179,6 +179,10 @@ export interface StepValueView {
     value?: TraceParameterValue | null
     /** Tables this step called, retained in profiling mode so a returned branch can be browsed. */
     children?: CallNodeView[] | null
+    /** Total execution time (ms) of an executed step: its own work plus called tables; absent if not run. */
+    durationMillis?: number | null
+    /** Own execution time (ms) of an executed step: total minus called tables; absent if not run. */
+    selfMillis?: number | null
 }
 
 /**

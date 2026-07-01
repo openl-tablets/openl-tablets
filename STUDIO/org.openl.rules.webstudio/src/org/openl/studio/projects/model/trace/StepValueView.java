@@ -23,6 +23,8 @@ import org.openl.studio.projects.model.ParameterValue;
  * @param status   one of {@code executed}, {@code current}, {@code pending}
  * @param value    the frozen computed value for an executed step, otherwise {@code null}
  * @param children the tables this step called (profiling mode only), otherwise {@code null}
+ * @param durationMillis total execution time of an executed step in ms (own work plus called tables), else {@code null}
+ * @param selfMillis     own execution time of an executed step in ms (total minus called tables), else {@code null}
  */
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -41,6 +43,12 @@ public record StepValueView(
         @Nullable ParameterValue value,
 
         @Schema(description = "trace.field.step.children.desc")
-        @Nullable List<CallNodeView> children
+        @Nullable List<CallNodeView> children,
+
+        @Schema(description = "trace.field.step.duration.desc")
+        @Nullable Double durationMillis,
+
+        @Schema(description = "trace.field.step.self.desc")
+        @Nullable Double selfMillis
 ) {
 }

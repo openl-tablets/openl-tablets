@@ -24,10 +24,11 @@ public record CallNode(String uri, String name, FrameKind kind, long durationNan
     /**
      * One executed sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.
      *
-     * @param ref      short reference of the step (for example {@code R2C3})
-     * @param label    human-readable name, or {@code null}
-     * @param children the table invocations this step made, in execution order
+     * @param ref           short reference of the step (for example {@code R2C3})
+     * @param label         human-readable name, or {@code null}
+     * @param durationNanos real execution time of the step (its own work plus the tables it called)
+     * @param children      the table invocations this step made, in execution order
      */
-    public record Step(String ref, @Nullable String label, List<CallNode> children) {
+    public record Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
     }
 }

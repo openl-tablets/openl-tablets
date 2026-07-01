@@ -198,4 +198,19 @@ describe('TraceTree', () => {
         render(<TraceTree />)
         expect(screen.getByTestId('tree-dispatch')).toHaveTextContent('2')
     })
+
+    it('shows execution time on an executed step', () => {
+        useTraceStore.setState({
+            status: 'COMPLETED',
+            frames: [],
+            tree: {
+                uri: 'uRoot', name: 'ROOT', kind: 'spreadsheet', durationMillis: 20, selfMillis: 8,
+                steps: [{ ref: 'R0C0', label: '$Slow', status: 'executed', durationMillis: 12, selfMillis: 12, children: [] }],
+            },
+        })
+        render(<TraceTree />)
+        // A step that does its own heavy work (no sub-call) still carries a time.
+        expect(screen.getByText('$Slow')).toBeInTheDocument()
+        expect(screen.getByText('12 ms')).toBeInTheDocument()
+    })
 })

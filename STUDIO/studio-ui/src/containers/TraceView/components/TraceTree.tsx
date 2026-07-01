@@ -129,6 +129,9 @@ const TraceTree: React.FC = () => {
         if (row.node) {
             return timeMode === 'self' ? row.node.selfMillis : row.node.durationMillis
         }
+        if (row.step?.durationMillis != null) {
+            return timeMode === 'self' ? (row.step.selfMillis ?? row.step.durationMillis) : row.step.durationMillis
+        }
         const frame = row.frame
         if (frame?.completed && frame.durationMillis != null) {
             return timeMode === 'self' ? (frame.selfMillis ?? frame.durationMillis) : frame.durationMillis
@@ -249,6 +252,7 @@ const TraceTree: React.FC = () => {
     const renderLiveStep = (row: TreeRow): React.ReactNode => {
         const step = row.step as StepValueView
         const frame = row.frame as DebugFrameView
+        const ms = timingOf(row)
         const runnable = canRunTo && step.status === 'pending'
         const onClick = runnable
             ? () => runTo(`${frame.uri}#${step.ref}`, `${frame.name}: ${step.label || step.ref}`)
@@ -271,6 +275,7 @@ const TraceTree: React.FC = () => {
                     {twisty(row.expandKey)}
                     <span className={cx(styles.dot, styles[dotFor(step.status)])} />
                     <span className={styles.leafLabel}>{step.label || step.ref}</span>
+                    {ms != null && durationCell(ms)}
                     {step.status === 'executed' && replayButton(`${frame.uri}#${step.ref}`,
                         step.label || step.ref, `tree-replay-${frame.uri}#${step.ref}`, t('tree.replayStepHint'))}
                 </div>
@@ -300,6 +305,7 @@ const TraceTree: React.FC = () => {
 
     const renderCallStep = (row: TreeRow): React.ReactNode => {
         const step = row.step as StepValueView
+        const ms = timingOf(row)
         const replayKey = `${row.nodeUri}#${step.ref}`
         return (
             <div
@@ -311,6 +317,7 @@ const TraceTree: React.FC = () => {
                 {twisty(row.expandKey)}
                 <span className={cx(styles.dot, styles.dotExecuted)} />
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
+                {ms != null && durationCell(ms)}
                 {row.nodeUri && replayButton(replayKey, step.label || step.ref,
                     `tree-replay-${replayKey}`, t('tree.replayStepHint'))}
             </div>

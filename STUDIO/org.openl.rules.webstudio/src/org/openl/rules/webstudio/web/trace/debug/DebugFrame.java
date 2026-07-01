@@ -30,11 +30,12 @@ public final class DebugFrame {
     /**
      * A sub-step that has finished inside this frame, with its computed value.
      *
-     * @param ref   short reference of the step (for example {@code R2C3} for a spreadsheet cell)
-     * @param label human-readable label, or {@code null}
-     * @param value the computed value (a live reference, frozen on inspection)
+     * @param ref           short reference of the step (for example {@code R2C3} for a spreadsheet cell)
+     * @param label         human-readable label, or {@code null}
+     * @param value         the computed value (a live reference, frozen on inspection)
+     * @param durationNanos real execution time of the step (its own work plus the tables it called), minus parked time
      */
-    public record ExecutedStep(String ref, @Nullable String label, @Nullable Object value) {
+    public record ExecutedStep(String ref, @Nullable String label, @Nullable Object value, long durationNanos) {
     }
 
     /** Upper bound on recorded sub-steps and condition checks, so a long loop or huge table cannot grow unbounded. */
@@ -88,9 +89,9 @@ public final class DebugFrame {
         this.currentStep = currentStep;
     }
 
-    void recordExecutedStep(String ref, @Nullable String label, @Nullable Object value) {
+    void recordExecutedStep(String ref, @Nullable String label, @Nullable Object value, long durationNanos) {
         if (executedSteps.size() < MAX_RECORDED_PER_FRAME) {
-            executedSteps.add(new ExecutedStep(ref, label, value));
+            executedSteps.add(new ExecutedStep(ref, label, value, durationNanos));
         }
     }
 
@@ -115,12 +116,13 @@ public final class DebugFrame {
         Set<String> covered = new HashSet<>();
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
-                steps.add(new CallNode.Step(step.ref(), step.label(), List.copyOf(childrenOf(step.ref()))));
+                steps.add(new CallNode.Step(step.ref(), step.label(), step.durationNanos(),
+                        List.copyOf(childrenOf(step.ref()))));
             }
         }
         executedChildren.forEach((ref, children) -> {
             if (!covered.contains(ref)) {
-                steps.add(new CallNode.Step(ref, null, List.copyOf(children)));
+                steps.add(new CallNode.Step(ref, null, 0, List.copyOf(children)));
             }
         });
         return new CallNode(uri, name, kind, durationNanos, steps, dispatch);
