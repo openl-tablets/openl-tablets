@@ -18,7 +18,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
@@ -33,7 +32,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 public abstract class WebStudioUtils {
 
     private static final String STUDIO_ATTR = "studio";
-    private static final String TRACER_NAME = "tracer";
 
     public static RulesUserSession getRulesUserSession() {
         return getRulesUserSession(getSession());
@@ -67,21 +65,6 @@ public abstract class WebStudioUtils {
     public static WebStudio getWebStudio(HttpSession session) {
         var rulesUserSession = getRulesUserSession(session);
         return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
-    }
-
-    public static TraceHelper getTraceHelper() {
-        return getTraceHelper(getSession());
-    }
-
-    public static TraceHelper getTraceHelper(HttpSession session) {
-        TraceHelper traceHelper = (TraceHelper) session.getAttribute(TRACER_NAME);
-
-        if (traceHelper == null) {
-            traceHelper = new TraceHelper();
-            session.setAttribute(TRACER_NAME, traceHelper);
-        }
-
-        return traceHelper;
     }
 
     public static WebStudio getWebStudio(boolean create) {

@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
+import org.openl.rules.webstudio.web.trace.DebugDispatchTracer;
 
 /**
  * Drives one debug session: runs the rule on a dedicated virtual thread and exposes debugger controls.
@@ -87,7 +87,7 @@ public final class TraceDebugger {
         if (classLoader != null) {
             current.setContextClassLoader(classLoader);
         }
-        TreeBuildTracer.enableDebug(hook);
+        DebugDispatchTracer.enableDebug(hook);
         DebugStatus terminal;
         try {
             body.execute();
@@ -102,7 +102,7 @@ public final class TraceDebugger {
             channel.markError();
             terminal = DebugStatus.ERROR;
         } finally {
-            TreeBuildTracer.disableDebug();
+            DebugDispatchTracer.disableDebug();
             current.setContextClassLoader(previous);
         }
         listener.onStatusChanged(terminal);

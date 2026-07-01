@@ -6,7 +6,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * Receives traced invocations on the worker thread.
  *
- * <p>{@link org.openl.rules.webstudio.web.trace.TreeBuildTracer} routes every invocation to the hook
+ * <p>{@link org.openl.rules.webstudio.web.trace.DebugDispatchTracer} routes every invocation to the hook
  * registered for the current thread, so the debugger sees the same call chain the engine executes.
  * The hook is responsible for actually running the invocation it brackets.
  */
