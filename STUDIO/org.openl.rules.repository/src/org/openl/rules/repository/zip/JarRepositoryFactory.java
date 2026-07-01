@@ -3,7 +3,6 @@ package org.openl.rules.repository.zip;
 import java.util.function.Function;
 
 import org.openl.rules.repository.RepositoryFactory;
-import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 
 /**
@@ -28,7 +27,6 @@ public class JarRepositoryFactory implements RepositoryFactory {
     @Override
     public Repository create(Function<String, String> settings) {
         JarLocalRepository repository = new JarLocalRepository();
-        RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;
     }

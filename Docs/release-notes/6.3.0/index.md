@@ -2,15 +2,13 @@
 title: OpenL Tablets 6.3.0 Release Notes
 date: 2026-06-30
 description: Adds a REST API for granular, in-place editing of table sources that powers efficient large-table
-    manipulation in the OpenL MCP server, extends Personal Access Tokens to Active Directory and multi-user modes, and
-    makes the JAR repository location configurable. Fixes a Metaspace leak, a trace StackOverflowError, and SAML single
-    logout.
+    manipulation in the OpenL MCP server, extends Personal Access Tokens to Active Directory and multi-user modes.
+    Fixes a Metaspace leak, a trace StackOverflowError, and SAML single logout.
 ---
 
 OpenL Tablets **6.3.0** introduces a REST API for granular, in-place editing of table sources, which lets the OpenL MCP
 server change large tables one cell or one row at a time instead of resending the whole table. It also extends Personal
-Access Token authentication to Active Directory and multi-user deployments and makes the JAR repository search location
-configurable.
+Access Token authentication to Active Directory and multi-user deployments.
 
 The release resolves a critical `OpenLClassLoader`/Metaspace leak that crashed long-running servers, a trace
 `StackOverflowError` on self-referential spreadsheets, and SAML Single Logout, which previously left the identity
@@ -75,17 +73,6 @@ which keeps edits within MCP message and token budgets and avoids clobbering con
   security chain ahead of HTTP Basic authentication, and the Personal Access Tokens screen appears in all authenticated
   modes. Active Directory and internal multi-user deployments can now use token-based, service-to-service REST access as
   an alternative to interactive login. PAT remains disabled in `single` mode.
-
-### Repository
-
-* Made the JAR local repository search location configurable. `JarLocalRepository` previously scanned a hard-coded
-  `/openl/*.zip` on the classpath. The new `repo-jar.location` property accepts a Spring resource pattern and
-  defaults to `/openl/*.zip`, so existing behavior is unchanged, while a `file:` pattern can point at deployment
-  archives outside the classpath — for example on a mounted volume in a Docker image.
-
-  ```properties
-  repo-jar.location = file:./openl/*.zip
-  ```
 
 ## Bug Fixes
 

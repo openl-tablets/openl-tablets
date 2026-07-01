@@ -15,14 +15,6 @@ No action required. Existing projects, tables, and tests are unaffected.
   Logout Service and ends the IdP session, instead of clearing only the local OpenL Studio session. No configuration
   change is needed in OpenL Studio. Confirm that your identity provider's metadata advertises a Single Logout Service
   endpoint, and verify the end-to-end logout flow after upgrading.
-* **JAR repository location (optional)** — Deployment archives for the JAR local repository can now live outside the
-  application classpath. The search location is controlled by the `repo-jar.location` property, which accepts a Spring
-  resource pattern and defaults to `/openl/*.zip`. Leave it unset to keep the previous behavior, or point it at an
-  external location such as a mounted Docker volume:
-
-  ```properties
-  repo-jar.location = file:./openl/*.zip
-  ```
 
 ## Developers
 

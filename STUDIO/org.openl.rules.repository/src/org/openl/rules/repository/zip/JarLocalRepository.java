@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import lombok.Setter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -36,9 +35,6 @@ public class JarLocalRepository extends AbstractArchiveRepository {
 
     private final PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
-    @Setter
-    private String location;
-
     public void initialize() {
         final Map<String, Path> localStorage = new HashMap<>();
         final Consumer<Resource> collector = res -> {
@@ -61,7 +57,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
             getResources(DEPLOYMENT_DESCRIPTOR_YAML_FILE).forEach(collector);
             Stream<Resource> archives;
             try {
-                archives = Stream.of(resourceResolver.getResources(location));
+                archives = Stream.of(resourceResolver.getResources("/openl/*.zip"));
             } catch (FileNotFoundException ignored) {
                 archives = Stream.empty();// OK
             }
