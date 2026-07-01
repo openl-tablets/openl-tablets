@@ -128,8 +128,17 @@ public class ProjectsTraceDebugController {
 
         DebugListener listener = listenerFactory.create(user, projectId, tableId);
         var objectMapper = configureObjectMapper();
+        // The launcher sends the input server-side once; a restart (profiling toggle, replay) re-runs the trace
+        // without resending it. Reuse the remembered input when this call carries neither input nor test ranges;
+        // otherwise it is a fresh launch, so remember its input for the next restart.
+        String effectiveInputJson = inputJson;
+        if (inputJson == null && testRanges == null) {
+            effectiveInputJson = sessionRegistry.lastInputJson();
+        } else {
+            sessionRegistry.rememberInputJson(inputJson);
+        }
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
-                currentOpenedModule, inputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
+                currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
                 profiling, listener);
 
         DebugSession session = sessionRegistry.start(traceDebugService.startSession(request));

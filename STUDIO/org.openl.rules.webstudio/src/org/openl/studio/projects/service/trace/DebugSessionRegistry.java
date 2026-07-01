@@ -33,6 +33,18 @@ public class DebugSessionRegistry {
     private final AtomicReference<DebugSession> ref = new AtomicReference<>();
     private final Set<String> breakpoints = ConcurrentHashMap.newKeySet();
     private final DebugSessionReaper reaper;
+    /** Input JSON of the last launch, kept so a restart (profiling toggle, replay) can re-run with the same input. */
+    private volatile @Nullable String lastInputJson;
+
+    /** The input JSON the current trace was launched with, or {@code null}. Survives a session cancel. */
+    public @Nullable String lastInputJson() {
+        return lastInputJson;
+    }
+
+    /** Remember the input JSON a fresh launch was started with. */
+    public void rememberInputJson(@Nullable String inputJson) {
+        this.lastInputJson = inputJson;
+    }
 
     /** Register a new session, terminating any previous one. */
     public DebugSession start(DebugSession session) {
