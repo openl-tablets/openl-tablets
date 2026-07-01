@@ -31,6 +31,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IBaseCondition;
@@ -400,15 +401,23 @@ public class TraceDebugMapper {
                 .toList();
     }
 
-    /** Apply an action to every non-empty spreadsheet cell, in grid order. */
+    /** Apply an action to every real spreadsheet step cell, in grid order. */
     private static void forEachCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
-                if (cell != null && !cell.isEmpty()) {
+                if (isStepCell(cell)) {
                     action.accept(cell);
                 }
             }
         }
+    }
+
+    /**
+     * A real spreadsheet step: a value, constant, or method cell. Empty cells and description cells — the
+     * section-title dividers that span a row — are structural, not computed, so they never become steps.
+     */
+    private static boolean isStepCell(@Nullable SpreadsheetCell cell) {
+        return cell != null && !cell.isEmpty() && cell.getSpreadsheetCellType() != SpreadsheetCellType.DESCRIPTION;
     }
 
     /** Classify a step: already executed, currently executing, or still pending. */
