@@ -48,6 +48,12 @@ Studio.
   [internals](architecture/mcp-server-internals.md), [MCP File Transfer Links](architecture/mcp-file-transfer.md),
   [Table Formatting](architecture/table-formatting.md),
   [Stable Table Ids](architecture/table-ids.md), and [Stable Project Ids](architecture/project-ids.md).
+- Token access to the REST API, the design beyond [Client Sessions](architecture/client-sessions.md):
+  [REST API Access with Tokens](architecture/rest-api-token-access.md), the plan of record;
+  [Authentication Precedence](architecture/auth-precedence-header-over-cookie.md);
+  [Contract and Operations](architecture/rest-token-contract-and-ops.md);
+  [Decoupling `ProjectModel` from `WebStudio`](architecture/decoupling-projectmodel-from-webstudio.md); and the
+  deferred [Principal-Scoped Shared State](architecture/principal-scoped-shared-state.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),
   [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md),
