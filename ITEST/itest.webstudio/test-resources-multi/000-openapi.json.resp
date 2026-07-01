@@ -14,7 +14,7 @@ Content-Type: application/json
   ],
   "security": [
     {
-      "basicAuth": []
+      "basicAuth": [ ]
     }
   ],
   "tags": [
@@ -7608,14 +7608,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -7625,6 +7617,14 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -9485,6 +9485,24 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "raw",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "styles",
             "schema": {
               "type": "boolean",
               "default": false
@@ -13367,14 +13385,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -13384,6 +13394,14 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -19033,9 +19051,43 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "style": {
+            "$ref": "#/components/schemas/RawTableCellStyle"
+          },
           "value": {
             "type": "object",
             "description": "***"
+          }
+        }
+      },
+      "RawTableCellStyle": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "align": {
+            "type": "string"
+          },
+          "background": {
+            "type": "string"
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "indent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "underline": {
+            "type": "boolean"
+          },
+          "valign": {
+            "type": "string"
           }
         }
       },
@@ -19145,6 +19197,12 @@ Content-Type: application/json
                   }
                 },
                 "minItems": 1
+              },
+              "totalRows": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "readOnly": true
               }
             }
           }
