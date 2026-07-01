@@ -23,6 +23,8 @@ import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
+import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
+import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
 
 /**
@@ -212,8 +214,8 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         RawTableCellStyle style = RawTableCellStyle.builder()
                 .background(nonDefault(cm.getRgbBackground(), "#ffffff"))
                 .color(font == null ? null : nonDefault(font.getFontColor(), "#000000"))
-                .align(cm.getHalign())
-                .valign(cm.getValign())
+                .align(horizontalAlign(cm.getHalign()))
+                .valign(verticalAlign(cm.getValign()))
                 .bold(flag(font, ICellFont::isBold))
                 .italic(flag(font, ICellFont::isItalic))
                 .underline(flag(font, ICellFont::isUnderlined))
@@ -232,6 +234,31 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     /** The value when positive, or {@code null} otherwise. */
     private static @Nullable Integer positive(int value) {
         return value > 0 ? value : null;
+    }
+
+    /** The horizontal alignment mapped to the API enum, or {@code null} for the default (left). */
+    private static @Nullable RawTableHorizontalAlign horizontalAlign(@Nullable String halign) {
+        if (halign == null) {
+            return null;
+        }
+        return switch (halign) {
+            case "right" -> RawTableHorizontalAlign.RIGHT;
+            case "center" -> RawTableHorizontalAlign.CENTER;
+            case "justify" -> RawTableHorizontalAlign.JUSTIFY;
+            default -> null;
+        };
+    }
+
+    /** The vertical alignment mapped to the API enum, or {@code null} for the default (bottom). */
+    private static @Nullable RawTableVerticalAlign verticalAlign(@Nullable String valign) {
+        if (valign == null) {
+            return null;
+        }
+        return switch (valign) {
+            case "center" -> RawTableVerticalAlign.CENTER;
+            case "top" -> RawTableVerticalAlign.TOP;
+            default -> null;
+        };
     }
 
     /** The cell's borders per side, or {@code null} when the cell has no border on any side. */

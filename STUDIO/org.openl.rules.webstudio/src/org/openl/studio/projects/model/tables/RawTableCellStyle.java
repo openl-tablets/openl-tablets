@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.constraints.Min;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,8 +16,8 @@ import lombok.Builder;
  *
  * @param background background colour as {@code #rrggbb}, absent when white (the default)
  * @param color     font colour as {@code #rrggbb}, absent when black (the default)
- * @param align     horizontal alignment: {@code left}, {@code center} or {@code right}
- * @param valign    vertical alignment: {@code top}, {@code middle} or {@code bottom}
+ * @param align     horizontal alignment, absent when left (the default)
+ * @param valign    vertical alignment, absent when bottom (the default)
  * @param bold      {@code true} when the font is bold, absent otherwise
  * @param italic    {@code true} when the font is italic, absent otherwise
  * @param underline {@code true} when the font is underlined, absent otherwise
@@ -32,11 +34,11 @@ public record RawTableCellStyle(
         @Parameter(description = "Font colour as #rrggbb; absent when black (the default)")
         String color,
 
-        @Parameter(description = "Horizontal alignment: left, center or right")
-        String align,
+        @Parameter(description = "Horizontal alignment; absent for the default left alignment")
+        RawTableHorizontalAlign align,
 
-        @Parameter(description = "Vertical alignment: top, middle or bottom")
-        String valign,
+        @Parameter(description = "Vertical alignment; absent for the default bottom alignment")
+        RawTableVerticalAlign valign,
 
         @Parameter(description = "true when the font is bold, absent otherwise")
         Boolean bold,
@@ -48,6 +50,7 @@ public record RawTableCellStyle(
         Boolean underline,
 
         @Parameter(description = "Left indent in Excel indent units, absent when zero")
+        @Min(1)
         Integer indent,
 
         @Parameter(description = "Cell borders per side, absent when the cell has no borders")

@@ -19115,7 +19115,12 @@ Content-Type: application/json
         "properties": {
           "align": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "right",
+              "center",
+              "justify"
+            ]
           },
           "background": {
             "type": "string",
@@ -19135,7 +19140,8 @@ Content-Type: application/json
           "indent": {
             "type": "integer",
             "format": "int32",
-            "description": "***"
+            "description": "***",
+            "minimum": 1
           },
           "italic": {
             "type": "boolean",
@@ -19147,7 +19153,11 @@ Content-Type: application/json
           },
           "valign": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "center",
+              "top"
+            ]
           }
         }
       },
