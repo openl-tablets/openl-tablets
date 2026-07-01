@@ -31,7 +31,6 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IBaseCondition;
@@ -433,11 +432,12 @@ public class TraceDebugMapper {
     }
 
     /**
-     * A real spreadsheet step: a value, constant, or method cell. Empty cells and description cells — the
-     * section-title dividers that span a row — are structural, not computed, so they never become steps.
+     * A real spreadsheet step: a cell with a formula that is actually evaluated. Only these are invoked,
+     * timed, and recorded during a trace. Value cells (plain literals), constant cells, section-title
+     * dividers, and empty cells are static data or labels — they never execute, so they are not steps.
      */
     private static boolean isStepCell(@Nullable SpreadsheetCell cell) {
-        return cell != null && !cell.isEmpty() && cell.getSpreadsheetCellType() != SpreadsheetCellType.DESCRIPTION;
+        return cell != null && cell.isMethodCell();
     }
 
     /** Classify a step: already executed, currently executing, or still pending. */

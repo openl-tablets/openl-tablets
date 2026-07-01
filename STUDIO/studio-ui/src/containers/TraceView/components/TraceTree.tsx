@@ -132,8 +132,10 @@ const TraceTree: React.FC = () => {
         if (row.step?.durationMillis != null) {
             return timeMode === 'self' ? (row.step.selfMillis ?? row.step.durationMillis) : row.step.durationMillis
         }
+        // Only a frame row shows its frame's total; a step with no measured time of its own stays blank
+        // rather than inheriting the frame's duration.
         const frame = row.frame
-        if (frame?.completed && frame.durationMillis != null) {
+        if (!row.step && frame?.completed && frame.durationMillis != null) {
             return timeMode === 'self' ? (frame.selfMillis ?? frame.durationMillis) : frame.durationMillis
         }
         return null

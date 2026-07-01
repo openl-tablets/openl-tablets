@@ -508,18 +508,8 @@ Content-Type: application/json
   },
   "steps": [
     {
-      "ref": "R0C0",
-      "label": "$Description$CapitalDynamic",
-      "status": "pending"
-    },
-    {
       "ref": "R0C1",
       "label": "$Value$CapitalDynamic",
-      "status": "pending"
-    },
-    {
-      "ref": "R1C0",
-      "label": "$Description$CapitalDynamicScore",
       "status": "pending"
     },
     {
@@ -528,18 +518,8 @@ Content-Type: application/json
       "status": "pending"
     },
     {
-      "ref": "R2C0",
-      "label": "$Description$QuickLiquidityDynamic",
-      "status": "pending"
-    },
-    {
       "ref": "R2C1",
       "label": "$Value$QuickLiquidityDynamic",
-      "status": "pending"
-    },
-    {
-      "ref": "R3C0",
-      "label": "$Description$QuickLiquidityDynamicScore",
       "status": "pending"
     },
     {
@@ -548,18 +528,8 @@ Content-Type: application/json
       "status": "pending"
     },
     {
-      "ref": "R4C0",
-      "label": "$Description$LiquidityDynamic",
-      "status": "pending"
-    },
-    {
       "ref": "R4C1",
       "label": "$Value$LiquidityDynamic",
-      "status": "pending"
-    },
-    {
-      "ref": "R5C0",
-      "label": "$Description$LiquidityDynamicScore",
       "status": "pending"
     },
     {
@@ -568,18 +538,8 @@ Content-Type: application/json
       "status": "pending"
     },
     {
-      "ref": "R6C0",
-      "label": "$Description$ProfitDynamic",
-      "status": "pending"
-    },
-    {
       "ref": "R6C1",
       "label": "$Value$ProfitDynamic",
-      "status": "pending"
-    },
-    {
-      "ref": "R7C0",
-      "label": "$Description$ProfitDynamicScore",
       "status": "pending"
     },
     {
@@ -588,28 +548,13 @@ Content-Type: application/json
       "status": "pending"
     },
     {
-      "ref": "R8C0",
-      "label": "$Description$LiabilitiesToCustomersDynamic",
-      "status": "pending"
-    },
-    {
       "ref": "R8C1",
       "label": "$Value$LiabilitiesToCustomersDynamic",
       "status": "pending"
     },
     {
-      "ref": "R9C0",
-      "label": "$Description$LiabilitiesToCustomersDynamicScore",
-      "status": "pending"
-    },
-    {
       "ref": "R9C1",
       "label": "$Value$LiabilitiesToCustomersDynamicScore",
-      "status": "pending"
-    },
-    {
-      "ref": "R10C0",
-      "label": "$Description$BalanceDynamicIndex",
       "status": "pending"
     },
     {

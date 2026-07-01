@@ -213,4 +213,24 @@ describe('TraceTree', () => {
         expect(screen.getByText('$Slow')).toBeInTheDocument()
         expect(screen.getByText('12 ms')).toBeInTheDocument()
     })
+
+    it('does not lend a completed frame time to a step that has none', () => {
+        useTraceStore.setState({
+            status: 'SUSPENDED',
+            frames: [frame(0, {
+                name: 'ROOT',
+                active: true,
+                completed: true,
+                durationMillis: 42,
+                selfMillis: 42,
+                steps: [step('R0C0', 'pending', '$Divider')],
+            })],
+            selectedFrameIndex: 0,
+        })
+        render(<TraceTree />)
+        // The completed frame shows its total; a step that never ran must not inherit that 42 ms.
+        expect(screen.getByText('ROOT')).toBeInTheDocument()
+        expect(screen.getByText('$Divider')).toBeInTheDocument()
+        expect(screen.getAllByText('42 ms')).toHaveLength(1)
+    })
 })
