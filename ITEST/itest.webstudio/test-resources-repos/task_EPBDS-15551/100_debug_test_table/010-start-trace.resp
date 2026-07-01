@@ -100,7 +100,15 @@ Content-Type: application/json
           "label": "$Value$Limit",
           "status": "pending"
         }
-      ]
+      ],
+      "dispatch": {
+        "candidates": [
+          {
+            "label": "lob: BANK",
+            "chosen": true
+          }
+        ]
+      }
     }
   ]
 }
