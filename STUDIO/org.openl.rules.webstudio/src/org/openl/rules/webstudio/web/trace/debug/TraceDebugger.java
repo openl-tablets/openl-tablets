@@ -67,6 +67,11 @@ public final class TraceDebugger {
         return hook.isWatchTruncated();
     }
 
+    /** Whether the executed tree hit the node cap, so the profile overview is incomplete. */
+    public boolean isTreeTruncated() {
+        return hook.isTreeTruncated();
+    }
+
     /**
      * Start execution on a fresh virtual thread.
      *

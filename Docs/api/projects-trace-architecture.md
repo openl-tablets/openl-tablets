@@ -115,7 +115,10 @@ stateDiagram-v2
 Status changes are pushed over WebSocket; `RUNNING ⇄ SUSPENDED` may repeat any number of times before a
 terminal state. A terminal state accepts no further commands. A suspended session left idle (no API
 access) is terminated by a reaper after 10 minutes, so an abandoned browser tab cannot pin a parked
-worker forever.
+worker forever. The reaper also caps the **total** number of live sessions: the one-per-user limit only
+holds within a single browser session, so one user opening several (multiple browsers, API clients) could
+otherwise pile up workers. When a new session pushes the count over the limit, the least-recently-accessed
+session is reclaimed first, so an active session survives while stale ones are dropped.
 
 ## Architecture layers
 
@@ -251,7 +254,9 @@ the slowest tables aggregated by own time, constant-sized regardless of run size
 returns only that, and `view=compact` drops the non-active frames' step lists — both keep a large run's
 responses small (mainly for agents/MCP with bounded context).
 
-Off by default: a non-profiling session keeps only the live stack.
+Off by default: a non-profiling session keeps only the live stack. The retained tree is capped at a fixed
+node count so one enormous run cannot balloon the heap; once the cap is hit, further nodes are dropped and
+`profile.truncated` is set, so the overview reports itself incomplete rather than exhausting memory.
 
 ## Breakpoints
 

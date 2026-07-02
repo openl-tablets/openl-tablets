@@ -18,7 +18,7 @@ class DebugSessionReaperTest {
 
     @Test
     void sweepTerminatesOnlySessionsIdlePastTheTimeout() {
-        var reaper = new DebugSessionReaper(60_000, 60_000);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16);
         var idle = sessionLastAccessedAt(0L);                            // far in the past
         var fresh = sessionLastAccessedAt(System.currentTimeMillis());   // just now
         reaper.register(idle);
@@ -32,8 +32,24 @@ class DebugSessionReaperTest {
     }
 
     @Test
+    void registerEvictsTheLeastRecentlyAccessedWhenOverTheLimit() {
+        var reaper = new DebugSessionReaper(60_000, 60_000, 2);
+        var oldest = sessionLastAccessedAt(1_000L);
+        var middle = sessionLastAccessedAt(2_000L);
+        var newest = sessionLastAccessedAt(3_000L);
+        reaper.register(oldest);
+        reaper.register(middle);
+        reaper.register(newest); // exceeds the cap of 2
+
+        verify(oldest).terminate();
+        verify(middle, never()).terminate();
+        verify(newest, never()).terminate();
+        assertEquals(2, reaper.trackedCount(), "the two most-recently-accessed sessions are kept");
+    }
+
+    @Test
     void unregisterStopsTracking() {
-        var reaper = new DebugSessionReaper(60_000, 60_000);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16);
         var session = sessionLastAccessedAt(System.currentTimeMillis());
         reaper.register(session);
         assertEquals(1, reaper.trackedCount());
@@ -44,7 +60,7 @@ class DebugSessionReaperTest {
 
     @Test
     void stopTerminatesEveryRemainingSession() {
-        var reaper = new DebugSessionReaper(60_000, 60_000);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16);
         var session = sessionLastAccessedAt(System.currentTimeMillis());
         reaper.register(session);
 

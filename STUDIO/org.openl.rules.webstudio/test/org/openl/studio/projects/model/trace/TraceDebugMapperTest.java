@@ -262,6 +262,18 @@ class TraceDebugMapperTest {
     }
 
     @Test
+    void flagsTruncationWhenTheExecutedTreeHitTheNodeCap() {
+        CallNode root = new CallNode("uA", "A", FrameKind.SPREADSHEET, ms(60),
+                List.of(new CallNode.Step("R0C0", "$s", ms(60), List.of(leaf("uB", "B", 30)))), null, null);
+
+        // Both tables fit within top=10, so only the tree-node cap can mark the profile incomplete.
+        var summary = TraceDebugMapper.buildProfileSummary(root, 10, true);
+
+        assertEquals(2, summary.hotspots().size(), "both tables are returned, so hotspots are complete");
+        assertTrue(summary.truncated(), "the node cap alone marks the profile incomplete");
+    }
+
+    @Test
     void compactViewKeepsStepsOnlyOnTheActiveFrame() {
         List<DebugFrame> stack = List.of(
                 debugFrame(FrameKind.METHOD, "uRoot", "Root", 1),
