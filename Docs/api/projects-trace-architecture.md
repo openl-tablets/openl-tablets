@@ -23,13 +23,14 @@
 8. [Profiling: the executed call tree](#profiling-the-executed-call-tree)
 9. [Breakpoints](#breakpoints)
 10. [Freezing variables](#freezing-variables-live-stack-only)
-11. [Avoiding the ProjectModel monitor](#avoiding-the-projectmodel-monitor)
-12. [Highlighting in the traced table](#highlighting-in-the-traced-table)
-13. [Memory: old vs new](#memory-old-vs-new)
-14. [REST API](#rest-api)
-15. [Concurrency and isolation](#concurrency-and-isolation)
-16. [Limitations and follow-ups](#limitations-and-follow-ups)
-17. [Key files](#key-files)
+11. [Watch: a value across every execution](#watch-a-value-across-every-execution)
+12. [Avoiding the ProjectModel monitor](#avoiding-the-projectmodel-monitor)
+13. [Highlighting in the traced table](#highlighting-in-the-traced-table)
+14. [Memory: old vs new](#memory-old-vs-new)
+15. [REST API](#rest-api)
+16. [Concurrency and isolation](#concurrency-and-isolation)
+17. [Limitations and follow-ups](#limitations-and-follow-ups)
+18. [Key files](#key-files)
 
 ---
 
@@ -148,15 +149,15 @@ flowchart TD
 - **Service / session** (`org.openl.studio.projects.service.trace`) — `TraceDebugService` builds the test
   suite and spawns the worker; `DebugSession` holds one running session (plus a per-session lock and the
   cached inspection mapper); `DebugSessionRegistry` (`@SessionScope`, at most one session per user)
-  manages lifecycle, persistent breakpoints, and the remembered input; `DebugSessionReaper` terminates
-  idle sessions.
-- **Model / mapper** (`org.openl.studio.projects.model.trace`) — `TraceDebugMapper` maps the live stack
-  and the executed tree to view DTOs and freezes a frame's variables on demand;
-  `TraceHighlightService` computes the A1-keyed highlight overlay.
+  manages lifecycle, persistent breakpoints and watches, and the remembered input; `DebugSessionReaper`
+  terminates idle sessions.
+- **Model / mapper** (`org.openl.studio.projects.model.trace`) — `TraceDebugMapper` maps the live stack,
+  the executed tree, and the profile overview to view DTOs, freezes a frame's variables on demand, and
+  groups watch captures into per-cell series; `TraceHighlightService` computes the A1-keyed overlay.
 - **REST + WebSocket** — `ProjectsTraceDebugController` under `/projects/{projectId}/trace`; status events
   reuse the trace topic via `ProjectSocketNotificationService`.
 - **UI** (`STUDIO/studio-ui`) — `TraceView` debugger layout: toolbar, call tree, variables, decision
-  panel, spreadsheet grid, and the client-rendered traced table.
+  panel, spreadsheet grid, watch panel, and the client-rendered traced table.
 
 ## Frames and stepping
 
@@ -245,6 +246,11 @@ would drop:
   while suspended — to look inside a returned branch, replay: restart the trace with a one-shot
   breakpoint on that node (the UI does this in one click; the input is remembered across restarts).
 
+The full tree can be huge, so the response also carries a **bounded overview** (`DebugStackView.profile`):
+the slowest tables aggregated by own time, constant-sized regardless of run size. `includeTree=false`
+returns only that, and `view=compact` drops the non-active frames' step lists — both keep a large run's
+responses small (mainly for agents/MCP with bounded context).
+
 Off by default: a non-profiling session keeps only the live stack.
 
 ## Breakpoints
@@ -266,18 +272,40 @@ name so one key covers every version.
 
 ## Freezing variables (live stack only)
 
-Variables are **frozen lazily, on first inspection, while the worker is parked**. Because the worker runs
-no code while parked, its object graph is stable, so the controller thread safely deep-clones a frame's
-parameters/context (a fresh `Cloner` identity map under the captured classloader). The snapshot is cached
-on the frame and **discarded when the frame returns**. Large values are registered in the
-`TraceParameterRegistry` and fetched lazily. Memory is therefore bounded by **live stack depth × the size
-of the frames you actually open**, never by total executed steps.
+Variables are **frozen lazily, on inspection, while the worker is parked**. Because the worker runs no
+code while parked, its object graph is stable, so the controller thread safely **deep-clones** a frame's
+parameters, context, and result (a fresh `Cloner` identity map under the captured classloader) — the same
+cloning the original trace used, but only for the frame you actually open, and only its own values.
+**Nothing is retained between requests**: each inspection re-clones from the live graph, so no frozen
+snapshot outlives the call. Large cloned values go to the `TraceParameterRegistry` for lazy
+`GET /parameters/{id}` fetch. Memory is therefore bounded by **live stack depth**, never by total executed
+steps.
 
 For a spreadsheet, the frame's steps carry each executed cell's value as it runs, so an analyst can
 inspect already-computed steps while a later step executes; the grid row/column names let the UI lay the
 steps out like the source table. For a decision table, the frame carries the **decision outcome** — which
 rule fired and which conditions matched — derived from the same condition events that drive the table
 highlighting.
+
+## Watch: a value across every execution
+
+Freezing gives one frame's values while suspended; a **watch** gives one cell's value across the *whole
+run*. Cells are named by their `$...` label or ref; the hook then captures that cell's value on **every**
+execution of its table — each capture tagged with the table's invocation number, the call path to it, and
+the cell's breakpoint key — so a factor can be read across all coverages or iterations without opening
+every frame.
+
+This is the one **opt-in exception** to structure-only profiling: values are retained, but only for the
+named cells, so cost stays bounded (`#watched cells × #executions`, capped). The watch set lives in the
+session registry like breakpoints and is **applied live** to the running worker — a cell added mid-run is
+captured as stepping reaches it, while a fresh start captures it from the beginning of the run. Each frame
+enter bumps a per-table invocation counter, so instances stay numbered correctly regardless of when
+watching began.
+
+Captures hold the **raw** value during the run; on `GET /watch` each is deep-cloned and serialized through
+the **same `Cloner` and parameter machinery as frame variables**, so dates, arrays, and spreadsheet
+results render the same way and large values load lazily. The captures are grouped into one series per
+cell (points in execution order), readable while suspended or after completion.
 
 ## Avoiding the ProjectModel monitor
 
@@ -322,16 +350,18 @@ for request/response details.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| POST | `/` | Start a session (`profiling` optional); returns the initial stack |
-| GET | `/stack` | Current execution stack (root → current); the executed tree after completion |
+| POST | `/` | Start a session (`profiling`/`includeTree`/`profileTop`/`view` optional); returns the initial stack |
+| GET | `/stack` | Current execution stack (root → current); the executed tree/profile after completion |
 | GET | `/status` | Lightweight status poll |
-| POST | `/step?type=into\|over\|out` | Step and return the new stack |
+| POST | `/step?type=into\|over\|out` | Step and return the new stack (`view=compact` trims to the active frame) |
 | POST | `/resume` | Run to the next breakpoint (async) |
 | POST | `/pause` | Request a suspend |
 | GET | `/frames/{i}/variables` | Freeze and return a frame's variables, steps, and decision outcome |
 | GET | `/frames/{i}/highlights` | A1-keyed highlight overlay for the client-rendered table |
 | GET / PUT | `/breakpoints` | List / replace breakpoint keys |
 | GET | `/breakpoint-tables` | Breakpoint targets: reachable tables, deduplicated by name |
+| GET / PUT | `/watches` | List / replace watched cell names or refs |
+| GET | `/watch` | The watched cells' values across the run, one series per cell |
 | GET | `/parameters/{id}` | Lazy-load a large parameter value |
 | DELETE | `/` | Terminate the session |
 
@@ -367,13 +397,16 @@ client then reads the new stack.
 - Multiple test cases in a suite are debugged sequentially; the worker stops at the entry of each case.
 - The executed call tree keeps structure only; inspecting values inside a returned branch requires a
   replay (one click in the UI, with the remembered input).
+- A watch added mid-run captures only from that point forward — past executions are gone; a fresh start
+  (or the UI's Collect) captures the whole run. Watched values are held raw until read, then cloned; a
+  value mutated later in the same run would need a clone-at-capture to stay exact.
 
 ## Key files
 
 - `DEV/.../org/openl/vm/Tracer.java` — the invocation chokepoint (unchanged).
 - `STUDIO/.../web/trace/DebugDispatchTracer.java` — installs `Tracer.instance`; per-thread dispatch to the debug hook.
 - `STUDIO/.../web/trace/debug/` — the engine (`TraceDebugger`, `DebugChannel`, `DebugHookImpl`,
-  `StepController`, `DebugFrame`, `CallNode`, `DefaultSourceClassifier`, `ConditionCheck`).
+  `StepController`, `DebugFrame`, `CallNode`, `WatchCapture`, `DefaultSourceClassifier`, `ConditionCheck`).
 - `STUDIO/.../studio/projects/service/trace/` — `TraceDebugService(Impl)`, `DebugSession`,
   `DebugSessionRegistry`, `DebugSessionReaper`, `TraceHighlightService(Impl)`.
 - `STUDIO/.../studio/projects/model/trace/TraceDebugMapper.java` — stack/tree mapping and variable freezing.
