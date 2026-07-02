@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -28,5 +29,15 @@ class ProjectIdModelTest {
 
         assertEquals("r", decoded.getRepository());
         assertEquals("????", decoded.getProjectName());
+    }
+
+    @Test
+    void encodeUrlSafeStaysWithinOnePathSegment() {
+        var id = ProjectIdModel.builder().repository("r").projectName("????").build();
+        var urlSafe = id.encodeUrlSafe();
+
+        assertFalse(urlSafe.contains("/"), "URL-safe id must not contain '/'");
+        assertFalse(urlSafe.contains("+"), "URL-safe id must not contain '+'");
+        assertEquals(id, ProjectIdModel.decode(urlSafe));
     }
 }

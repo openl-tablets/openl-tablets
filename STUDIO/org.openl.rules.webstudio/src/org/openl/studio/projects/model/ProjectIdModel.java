@@ -24,6 +24,15 @@ public class ProjectIdModel {
         return Base64.getEncoder().encodeToString(src.getBytes());
     }
 
+    /**
+     * Encodes this id with the URL-safe Base64 alphabet for use in a URL path segment.
+     * {@link #decode(String)} accepts both this and the standard {@link #encode()} form.
+     */
+    public String encodeUrlSafe() {
+        String src = repository + ID_SEPARATOR + projectName;
+        return Base64.getUrlEncoder().encodeToString(src.getBytes());
+    }
+
     @JsonCreator
     public static ProjectIdModel decode(String encoded) {
         // Accept both the standard and the URL-safe Base64 alphabets. Callers that put the id in a URL path

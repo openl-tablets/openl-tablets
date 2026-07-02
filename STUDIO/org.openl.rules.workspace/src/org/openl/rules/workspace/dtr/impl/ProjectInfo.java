@@ -2,11 +2,13 @@ package org.openl.rules.workspace.dtr.impl;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectInfo {
     private String name;
     private String path;
     private Date modifiedAt;
-    private boolean archived;
 
     public ProjectInfo() {
     }
@@ -43,18 +45,9 @@ public class ProjectInfo {
         this.modifiedAt = modifiedAt;
     }
 
-    public boolean isArchived() {
-        return archived;
-    }
-
-    public void setArchived(boolean archived) {
-        this.archived = archived;
-    }
-
     public ProjectInfo copy() {
         ProjectInfo info = new ProjectInfo(getName(), getPath());
         info.setModifiedAt(getModifiedAt());
-        info.setArchived(isArchived());
         return info;
     }
 }

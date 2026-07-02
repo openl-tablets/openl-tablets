@@ -1,6 +1,4 @@
-DELETE /rest/user-workspace/design-flat/projects/{FLAT_PROJECT_WORKSPACE}/delete HTTP/1.1
+DELETE /rest/projects/{FLAT_PROJECT_ID}?comment=Cleanup%20EPBDS-15595 HTTP/1.1
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Cookie: NO_JSESSIONID=noAuth
-Content-Type: application/x-www-form-urlencoded
 
-comment=Cleanup EPBDS-15595

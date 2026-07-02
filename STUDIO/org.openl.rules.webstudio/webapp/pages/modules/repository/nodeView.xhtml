@@ -29,12 +29,10 @@
         <ui:include src="/pages/modules/repository/projectsProduction.xhtml"/>
     </h:panelGroup>
 
-    <c:set var="deleteMessage" value="Archive project"/>
+    <c:set var="deleteMessage" value="Delete project"/>
     <c:set var="deleteBranchMessage" value="Delete Branch"/>
     <c:set var="addFolderMessage" value="Create a new folder in the project"/>
     <c:set var="uploadFileMessage" value="Upload a file to the project folder"/>
-    <c:set var="undeleteMessage" value="Restore the project in Repository"/>
-    <c:set var="eraseMessage" value="Permanently delete the project from repository"/>
     <c:set var="openMessage" value="Open project for viewing in rules editor"/>
     <c:set var="openVersionMessage" value="Open the latest project revision"/>
     <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor"/>
@@ -76,13 +74,6 @@
             </h:panelGroup>
 
             <h:panelGroup rendered="#{node.type == 'project'}">
-                <h:panelGroup rendered="#{artefact.deleted}">
-                    <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
-                                     onclick="confirmUndeleteProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{undeleteMessage}"/>
-                    <h:commandButton id="eraseId1" rendered="#{repositoryTreeState.canErase}" value="Erase"
-                                     onclick="confirmEraseProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{eraseMessage}"/>
-                </h:panelGroup>
-
                 <h:panelGroup rendered="#{!artefact.deleted}">
                     <h:panelGroup>
                         <h:panelGroup>
@@ -109,7 +100,7 @@
                                          onclick="openCopyProjectDialog('#{artefact.repository.id}', '#{repositoryTreeController.currentNodeRepositoryType}', '#{artefact.name}', function() {location.href = location.href;});return false;"
                                          title="#{copyMessage}"/>
                         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"
-                                         onclick="onShowModalDeleteNode('#{repositoryTreeController.currentNodeRepositoryType}');return false;"
+                                         onclick="openDeleteProjectDialog('#{repositoryTreeController.getProjectId(artefact)}', '#{artefact.name}');return false;"
                                          title="#{deleteMessage}"/>
                         <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}" value="Delete Branch"
                                          onclick="openDeleteBranchDialog('#{artefact.repository.id}', '#{artefact.name}', '#{artefact.branch}', '#{repositoryTreeController.getMainBranch(artefact)}');return false;"
@@ -183,7 +174,7 @@
                                              onchange="return canOpenOtherBranch(this);">
                                 <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
                                 <f:ajax event="change" immediate="true"
-                                        render="projectTree nodeView :eraseProjectForm"/>
+                                        render="projectTree nodeView"/>
                             </h:selectOneMenu>
                             <input type="button" value="..." title="Manage project branches"
                                    onclick="openEditBranchesDialog('#{artefact.repository.id}', '#{artefact.name}');"

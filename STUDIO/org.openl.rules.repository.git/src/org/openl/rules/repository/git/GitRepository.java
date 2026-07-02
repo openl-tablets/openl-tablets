@@ -3,7 +3,6 @@ package org.openl.rules.repository.git;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -139,9 +138,6 @@ import org.openl.util.StringUtils;
 
 @Slf4j
 public class GitRepository implements BranchRepository, RepositorySettingsAware, Closeable {
-    static final String DELETED_MARKER_FILE = ".archived";
-
-
     private String id;
     private String name;
     private String uri;
@@ -377,40 +373,17 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 return false;
             }
 
-            if (file.isDirectory()) {
-                String commitMessage = formatComment(CommitType.ARCHIVE, data);
+            git.rm().addFilepattern(name).call();
+            RevCommit commit = git.commit()
+                    .setMessage(formatComment(CommitType.DELETE, data))
+                    .setOnly(name)
+                    .setNoVerify(noVerify)
+                    .setCommitter(data.getAuthor().getDisplayName(),
+                            Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
+                    .call();
+            commitId = commit.getId().getName();
 
-                // Create marker file if it absents and write current time
-                try (DataOutputStream os = new DataOutputStream(
-                        new FileOutputStream(new File(file, DELETED_MARKER_FILE)))) {
-                    os.writeLong(System.currentTimeMillis());
-                }
-
-                String markerFile = name + "/" + DELETED_MARKER_FILE;
-                git.add().addFilepattern(markerFile).call();
-                RevCommit commit = git.commit()
-                        .setMessage(commitMessage)
-                        .setOnly(markerFile)
-                        .setNoVerify(noVerify)
-                        .setCommitter(data.getAuthor().getDisplayName(),
-                                Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
-                        .call();
-                commitId = commit.getId().getName();
-
-                addTagToCommit(commit, data.getAuthor());
-            } else {
-                // Files cannot be archived. Only folders.
-                git.rm().addFilepattern(name).call();
-                RevCommit commit = git.commit()
-                        .setMessage(formatComment(CommitType.ERASE, data))
-                        .setNoVerify(noVerify)
-                        .setCommitter(data.getAuthor().getDisplayName(),
-                                Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
-                        .call();
-                commitId = commit.getId().getName();
-
-                addTagToCommit(commit, data.getAuthor());
-            }
+            addTagToCommit(commit, data.getAuthor());
 
             push();
 
@@ -535,72 +508,10 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public boolean deleteHistory(FileData data) throws IOException {
         initializeGit(true);
 
-        String name = data.getName();
-        String version = data.getVersion();
-        String commitId = null;
-
-        Lock writeLock = repositoryLock.writeLock();
-        try {
-            log.debug("deleteHistory(): lock");
-            writeLock.lock();
-            initLfsCredentials();
-
-            checkoutForcedOrReset(branch);
-
-            RevCommit commit;
-            if (version == null) {
-                git.rm().addFilepattern(name).call();
-                String commitMessage = formatComment(CommitType.ERASE, data);
-                commit = git.commit()
-                        .setMessage(commitMessage)
-                        .setOnly(name)
-                        .setNoVerify(noVerify)
-                        .setCommitter(data.getAuthor().getDisplayName(),
-                                Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
-                        .call();
-            } else {
-                FileData fileData = checkHistory(name, version);
-                if (fileData == null) {
-                    return false;
-                }
-
-                if (!fileData.isDeleted()) {
-                    // We can "delete" only archived versions. Other version cannot be deleted.
-                    return false;
-                }
-
-                String markerFile = name + "/" + DELETED_MARKER_FILE;
-                git.rm().addFilepattern(markerFile).call();
-                String commitMessage = formatComment(CommitType.RESTORE, data);
-                commit = git.commit()
-                        .setMessage(commitMessage)
-                        .setOnly(markerFile)
-                        .setNoVerify(noVerify)
-                        .setCommitter(data.getAuthor().getDisplayName(),
-                                Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
-                        .call();
-            }
-
-            commitId = commit.getId().getName();
-            addTagToCommit(commit, data.getAuthor());
-
-            push();
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            reset(commitId);
-            throw e;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            reset(commitId);
-            throw new IOException(e.getMessage(), e);
-        } finally {
-            resetLfsCredentials();
-            writeLock.unlock();
-            log.debug("deleteHistory(): unlock");
+        if (data.getVersion() != null) {
+            return false;
         }
-
-        monitor.fireOnChange();
-        return true;
+        return delete(data);
     }
 
     @Override

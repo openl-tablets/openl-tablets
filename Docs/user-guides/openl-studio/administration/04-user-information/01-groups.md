@@ -37,8 +37,8 @@ Where the individual permissions that make up each role:
 - **Create** — Allows adding a new **lower-level** resource within the resource. For example, when granted on a
   repository, this permission allows creating new projects in that repository, but does not affect the repository
   itself.
-- **Delete** — Allows removing a **lower-level** resource from within the resource. The resource is completely removed
-  from the system without archiving. For example, when granted on a repository, this permission allows deleting projects
+- **Delete** — Allows removing a **lower-level** resource from within the resource. The resource is deleted from the
+  system. For example, when granted on a repository, this permission allows deleting projects
   from that repository, but does not affect the repository itself.
 - **Manage** — Allows assigning roles to users and groups on the resources the user manages.
 

@@ -158,7 +158,11 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void delete(CommonUser user, String comment) throws ProjectException {
         if (isLocalOnly()) {
-            erase(user, comment);
+            try {
+                deleteFromLocalRepository();
+            } finally {
+                refresh();
+            }
         } else {
             super.delete(user, comment);
         }
@@ -221,26 +225,6 @@ public class RulesProject extends UserWorkspaceProject {
             localRepository.delete(folderData);
         } catch (IOException e) {
             throw new ProjectException("Not possible to read the directory", e);
-        }
-    }
-
-    @Override
-    public void erase(CommonUser user, String comment) throws ProjectException {
-        try {
-            if (designFolderName != null) {
-                FileData data = new FileData();
-                data.setName(designFolderName);
-                data.setVersion(null);
-                data.setAuthor(getUser().getUserInfo());
-                data.setComment(comment);
-                designRepository.deleteHistory(data);
-            } else {
-                deleteFromLocalRepository();
-            }
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage(), e);
-        } finally {
-            refresh();
         }
     }
 

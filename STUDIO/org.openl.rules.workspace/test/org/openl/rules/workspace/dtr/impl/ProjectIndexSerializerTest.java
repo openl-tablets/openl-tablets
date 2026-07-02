@@ -1,10 +1,8 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -58,17 +56,14 @@ class ProjectIndexSerializerTest {
         assertEquals("Project", projectIndex.getProjects().getFirst().getName());
         assertEquals("Project", projectIndex.getProjects().getFirst().getPath());
         assertNull(projectIndex.getProjects().getFirst().getModifiedAt());
-        assertFalse(projectIndex.getProjects().getFirst().isArchived());
 
         assertEquals("Project4", projectIndex.getProjects().get(1).getName());
         assertEquals("foo/bar/Project4", projectIndex.getProjects().get(1).getPath());
         assertNull(projectIndex.getProjects().get(1).getModifiedAt());
-        assertTrue(projectIndex.getProjects().get(1).isArchived());
 
         assertEquals("Project7", projectIndex.getProjects().get(2).getName());
         assertEquals("foo/bar/project-custom-name", projectIndex.getProjects().get(2).getPath());
         assertEquals(createDate(2023, 2, 28, 12, 34, 14), projectIndex.getProjects().get(2).getModifiedAt());
-        assertFalse(projectIndex.getProjects().get(2).isArchived());
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour, int minute, int seconds) {

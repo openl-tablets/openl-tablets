@@ -1,5 +1,3 @@
-DELETE /rest/user-workspace/design-flat/projects/EPBDS_15818:a8709cf629302b4468ee8bf22745cafa89131ef08d69ef4dfaf7b1acd0bec5eb/delete HTTP/1.1
+DELETE /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU4MTg6YTg3MDljZjYyOTMwMmI0NDY4ZWU4YmYyMjc0NWNhZmE4OTEzMWVmMDhkNjllZjRkZmFmN2IxYWNkMGJlYzVlYg==?comment=Cleanup%20EPBDS-15818 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
-Content-Type: application/x-www-form-urlencoded
 
-comment=Cleanup EPBDS-15818

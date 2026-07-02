@@ -72,7 +72,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
                     throw new NotFoundException("project.message", model.getProjectName());
                 }
                 if (project.isDeleted()) {
-                    throw new ConflictException("project.archived.message", model.getProjectName());
+                    throw new ConflictException("project.deleted.message", model.getProjectName());
                 }
             } catch (ProjectException e) {
                 throw new NotFoundException("project.message", model.getProjectName());
@@ -87,7 +87,8 @@ public class CreateUpdateProjectModelValidator implements Validator {
             Repository repository = designTimeRepository.getRepository(model.getRepoName());
             if (repository.supports().mappedFolders()) {
                 try {
-                    if (((FolderMapper) repository).getDelegate().check(model.getFullPath()) != null) {
+                    var fileData = ((FolderMapper) repository).getDelegate().check(model.getFullPath());
+                    if (fileData != null && !fileData.isDeleted()) {
                         throw new ConflictException("duplicated.project.1.message");
                     } else {
                         final Path currentPath = Path.of(model.getFullPath());

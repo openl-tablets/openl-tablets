@@ -1,6 +1,4 @@
-DELETE /rest/user-workspace/design-flat/projects/EPBDS-15612%3A503f2386008a91db7e24682cb4c5a4a4e632a53b9e393d6a399360f41784d929/delete HTTP/1.1
+DELETE /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU2MTI6NTAzZjIzODYwMDhhOTFkYjdlMjQ2ODJjYjRjNWE0YTRlNjMyYTUzYjllMzkzZDZhMzk5MzYwZjQxNzg0ZDkyOQ==?comment=Cleanup HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Cookie: NO_JSESSIONID=noAuth
-Content-Type: application/x-www-form-urlencoded
 
-comment=Cleanup

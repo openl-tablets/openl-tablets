@@ -48,7 +48,9 @@ This section describes how to view existing branches, switch between them in the
 
 1.  To delete a non-default branch, switch to this branch in the project properties and click **Delete Branch.**
 
-    The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage branches** list. The project in the branch is erased. If the non-default branch contains commits not merged to the default branch, a warning message is displayed upon deletion attempt.
+    The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage
+    branches** list. The project in the branch is deleted. If the non-default branch contains commits not merged to the
+    default branch, a warning message is displayed upon deletion attempt.
 
     ![](images/delete-branch-unmerged-commits.png)
 
@@ -56,14 +58,10 @@ This section describes how to view existing branches, switch between them in the
 
 1.  To delete a default branch, in the repository, select the required project branch and click **Delete.**
 
-    The project is archived and disappears from the list of active projects.
+    The project is deleted from the current state of Design repository and disappears from the list of projects. This
+    change is recorded in repository history.
 
-1.  To completely delete the default branch or restore the archived project, proceed as follows:
-2.  Click the filter icon and clear the **Hide deleted projects** check box.
-3.  In the branch drop-down list, select an archived branch.
-4.  To restore an archived project, select it in the list of projects and click **Undelete.**
-5.  To completely remove the project and the branch, click **Erase.**
-6.  To merge two branches, click **Sync** and select one of the following options:
+1.  To merge two branches, click **Sync** and select one of the following options:
 
     | Option                | Description                                                                   |
     |-----------------------|-------------------------------------------------------------------------------|

@@ -1,0 +1,3 @@
+DELETE /rest/projects/ZGVzaWduOkVQQkRTLTE1Mzg1?comment=EPBDS-15385%20Delete%20opened%20project HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

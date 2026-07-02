@@ -22,30 +22,11 @@ class CommitMessageParserTest {
         assertEquals("John Smith", commitMessage.getAuthor());
         assertEquals(CommitType.SAVE, commitMessage.getCommitType());
 
-        commitMessage = decompiler.parse("Project My Rules is archived. Author: John Smith. Commit type: ARCHIVE.");
+        commitMessage = decompiler.parse("Project My Rules is deleted. Author: John Smith. Commit type: DELETE.");
         assertNotNull(commitMessage, "Commit message must be parsed!");
-        assertEquals("Project My Rules is archived.", commitMessage.getMessage());
+        assertEquals("Project My Rules is deleted.", commitMessage.getMessage());
         assertEquals("John Smith", commitMessage.getAuthor());
-        assertEquals(CommitType.ARCHIVE, commitMessage.getCommitType());
-
-        commitMessage = decompiler.parse("Project My Rules is restored. Author: John Smith. Commit type: RESTORE.");
-        assertNotNull(commitMessage, "Commit message must be parsed!");
-        assertEquals("Project My Rules is restored.", commitMessage.getMessage());
-        assertEquals("John Smith", commitMessage.getAuthor());
-        assertEquals(CommitType.RESTORE, commitMessage.getCommitType());
-
-        commitMessage = decompiler.parse("Project My Rules is erased. Author: John Smith. Commit type: ERASE.");
-        assertNotNull(commitMessage, "Commit message must be parsed!");
-        assertEquals("Project My Rules is erased.", commitMessage.getMessage());
-        assertEquals("John Smith", commitMessage.getAuthor());
-        assertEquals(CommitType.ERASE, commitMessage.getCommitType());
-
-        commitMessage = decompiler
-                .parse("\n\rProject\n\rMy\n\r\n\rRules\n\ris erased\n\r. Author: John Smith. Commit type: ERASE.");
-        assertNotNull(commitMessage, "Commit message must be parsed!");
-        assertEquals("\n\rProject\n\rMy\n\r\n\rRules\n\ris erased\n\r.", commitMessage.getMessage());
-        assertEquals("John Smith", commitMessage.getAuthor());
-        assertEquals(CommitType.ERASE, commitMessage.getCommitType());
+        assertEquals(CommitType.DELETE, commitMessage.getCommitType());
 
         commitMessage = decompiler
                 .parse("Project my-project was saved. Author: John Smith. Commit type: SAVE.\n");
@@ -86,6 +67,12 @@ class CommitMessageParserTest {
         commitMessage = decompiler.parse("Project My Rules is archived. Author: John Smith. Commit type: ARCHIVE.");
         assertNull(commitMessage, "Commit message must not be parsed!");
 
+        commitMessage = decompiler.parse("Project My Rules is restored. Author: John Smith. Commit type: RESTORE.");
+        assertNull(commitMessage, "Commit message must not be parsed!");
+
+        commitMessage = decompiler.parse("Project My Rules is erased. Author: John Smith. Commit type: ERASE.");
+        assertNull(commitMessage, "Commit message must not be parsed!");
+
         decompiler = new CommitMessageParser(".*? {commit-type} {username}.");
         commitMessage = decompiler.parse(".*? SAVE John Smith.");
         assertNotNull(commitMessage, "Commit message must be parsed!");
@@ -108,10 +95,7 @@ class CommitMessageParserTest {
                 "Webstudio {user-message} Author: {username}. Commit type: {commit-type}. {user-message} Author: {username}. Commit type: {commit-type}.");
         commitMessage = decompiler.parse(
                 "Webstudio foo-bar Author: John Smith. Commit type: ARCHIVE. foo-bar Author: John Smith. Commit type: ARCHIVE.");
-        assertNotNull(commitMessage, "Commit message must be parsed!");
-        assertEquals("foo-bar", commitMessage.getMessage());
-        assertEquals("John Smith", commitMessage.getAuthor());
-        assertEquals(CommitType.ARCHIVE, commitMessage.getCommitType());
+        assertNull(commitMessage, "Commit message must not be parsed!");
     }
 
 }

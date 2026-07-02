@@ -221,6 +221,23 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
     }
 
     @Test
+    void testCreateProject_DeletedMappedPathIsAvailable() throws IOException {
+        MappedRepository mockedRepo = mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
+        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                null,
+                false);
+        FileData deletedProject = new FileData();
+        deletedProject.setDeleted(true);
+
+        when(mockedRepo.check(eq(model.getFullPath()))).thenReturn(deletedProject);
+
+        assertNull(validateAndGetResult(model, validator));
+    }
+
+    @Test
     void testCreateProject_NotValid7() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",

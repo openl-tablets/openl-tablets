@@ -1,6 +1,6 @@
 export enum ProjectStatus {
     Local = 'LOCAL',
-    Archived = 'ARCHIVED',
+    Deleted = 'DELETED',
     Opened = 'OPENED',
     ViewingVersion = 'VIEWING_VERSION',
     Editing = 'EDITING',

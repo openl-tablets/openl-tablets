@@ -31,9 +31,6 @@ public final class Comments {
 
     private final String saveProjectTemplate;
     private final String createProjectTemplate;
-    private final String archiveProjectTemplate;
-    private final String restoreProjectTemplate;
-    private final String eraseProjectTemplate;
     private final String copiedFromTemplate;
     private final String restoredFromTemplate;
     private final String newBranchNameTemplate;
@@ -45,12 +42,6 @@ public final class Comments {
                 .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.save");
         createProjectTemplate = environment
                 .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.create");
-        archiveProjectTemplate = environment
-                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.archive");
-        restoreProjectTemplate = environment
-                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restore");
-        eraseProjectTemplate = environment
-                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.erase");
         copiedFromTemplate = environment
                 .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.copied-from");
         restoredFromTemplate = environment
@@ -62,18 +53,12 @@ public final class Comments {
     protected Comments(String dateTimeFormat,
                        String saveProjectTemplate,
                        String createProjectTemplate,
-                       String archiveProjectTemplate,
-                       String restoreProjectTemplate,
-                       String eraseProjectTemplate,
                        String copiedFromTemplate,
                        String restoredFromTemplate,
                        String newBranchNameTemplate) {
         this.dateTimeFormat = Objects.requireNonNull(dateTimeFormat);
         this.saveProjectTemplate = saveProjectTemplate;
         this.createProjectTemplate = createProjectTemplate;
-        this.archiveProjectTemplate = archiveProjectTemplate;
-        this.restoreProjectTemplate = restoreProjectTemplate;
-        this.eraseProjectTemplate = eraseProjectTemplate;
         this.copiedFromTemplate = copiedFromTemplate;
         this.restoredFromTemplate = restoredFromTemplate;
         this.newBranchNameTemplate = newBranchNameTemplate;
@@ -93,18 +78,6 @@ public final class Comments {
             return createProject(projectName);
         }
         return template.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
-    }
-
-    public String archiveProject(String projectName) {
-        return archiveProjectTemplate.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
-    }
-
-    public String restoreProject(String projectName) {
-        return restoreProjectTemplate.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
-    }
-
-    public String eraseProject(String projectName) {
-        return eraseProjectTemplate.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
     }
 
     public String copiedFrom(String sourceProjectName) {

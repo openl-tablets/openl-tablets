@@ -608,7 +608,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         } catch (ProjectException e) {
             try {
                 if (designTimeRepository.hasProject(repositoryId, name)) {
-                    designTimeRepository.getProject(repositoryId, name).erase(user, comment);
+                    designTimeRepository.getProject(repositoryId, name).delete(user, comment);
                 }
             } catch (ProjectException e1) {
                 log.error(e1.getMessage(), e1);

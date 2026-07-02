@@ -81,16 +81,11 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
             // any user can delete own local project
             return true;
         }
-        if (project.getRepository().supports().branches() && project.getVersion() == null) {
+        if (project.getDesignRepository().supports().branches() && project.getVersion() == null) {
             return false;
         }
-
-        return !project.isOpened() && !project.isLocked() && !project.isLockedByMe();
-    }
-
-    @Override
-    public boolean canErase(UserWorkspaceProject project) {
-        return project != null && project.isDeleted();
+        // An opened project is closed for all users during deletion, so only a lock held by another user blocks it.
+        return !project.isLocked() || project.isLockedByMe();
     }
 
     @Override

@@ -64,7 +64,7 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         // Get full path based on repository features
         String fullPath;
         if (repository.supports().mappedFolders()) {
-            fullPath = designTimeRepository.getProject(repository.getId(), projectName).getFolderPath();
+            fullPath = project.getFolderPath();
         } else {
             fullPath = designTimeRepository.getRulesLocation() + projectName;
         }

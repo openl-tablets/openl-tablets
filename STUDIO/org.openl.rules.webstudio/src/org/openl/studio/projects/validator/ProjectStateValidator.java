@@ -57,14 +57,6 @@ public interface ProjectStateValidator {
     boolean canDelete(UserWorkspaceProject project);
 
     /**
-     * Check if project can be erased
-     *
-     * @param project project
-     * @return true or false
-     */
-    boolean canErase(UserWorkspaceProject project);
-
-    /**
      * Check if project can be merged
      *
      * @param project project

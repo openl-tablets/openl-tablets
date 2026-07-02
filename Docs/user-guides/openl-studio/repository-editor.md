@@ -41,7 +41,6 @@ The status of each project in the tree is identified by a specific icon. The fol
 | ![](images/project-status-closed-locked-icon.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ![](images/project-status-viewing-locked-icon.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ![](images/project-status-local-icon.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
-| ![](images/project-status-marked-for-deletion-icon.png) | Project is marked for deletion. In OpenL Studio, deletion of a project takes place in the following phases: <br/>- Deleting a project: Project is removed from user's workspace and marked for deletion. <br/>In this phase, the project can be restored using the undelete function. <br/>For information on deleting a project, see [Deleting a Project](#deleting-a-project). <br/><br/>- Erasing a project: Deleted project is permanently removed from Design repository. <Br/>After this phase, the project cannot be restored. <br/>For information on erasing a project, see [Erasing a Project](#erasing-a-project). |
 
 ### Filtering and Grouping the Project Tree
 
@@ -56,8 +55,6 @@ To group projects by repository or tag types, click the **Group Projects** icon 
 *Grouping projects by tags*
 
 To expand or collapse the repository tree, use the expand and collapse icons ![](images/expand-collapse-tree-icon.png).
-
-To view archived deleted projects, click the advanced filter icon ![](images/advanced-filter-icon.png)and clear that the **Hide deleted projects** option.
 
 ### Creating Projects in Design Repository
 
@@ -514,14 +511,9 @@ The new project appears in the list of projects.
 
 ### Removing a Project
 
-Removing a project is executed in the following phases:
-
--   [Deleting a Project](#deleting-a-project)
--   [Erasing a Project](#erasing-a-project)
-
-#### Deleting a Project
-
-A deleted project is removed from user's workspace and marked as deleted in Design repository. All users can see that a project is deleted. Physically, it still remains in Design repository.
+Deleting a project removes it from the user's workspace and from the current state of Design repository. For Git
+repositories, OpenL Studio stores this change as a regular delete commit, so repository history keeps the deletion
+event. If the project is opened by any user, OpenL Studio closes it before removal.
 
 **Note:** Projects in the **Local** status that were not uploaded to Design repository will be removed physically and cannot be restored.
 
@@ -530,36 +522,9 @@ To delete a project, proceed as follows:
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the project and, in the right pane, click **Delete**.
     -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](images/delete-element-icon.png)** on the right.
-1.  In the confirmation window, click **Delete** or **OK**.
-
-    Deleted projects, except for those in the **Local** status, can be restored by using the **Undelete** button.
-
-    To make deleted projects visible, uncheck the **Hide deleted projects** checkbox in the filter pop-up window, which appears after clicking the **Filter** button above the **Projects** tree, and click **Apply**.
-
-    To restore a deleted project, proceed as follows:
-
-1.  Navigate to the deleted project in the **Projects** tree.
-2.  Click the **Undelete** button in the right pane.
-3.  Click **Undelete** in the confirmation window.
-
-#### Erasing a Project
-
-Erasing a project permanently removes it from Design repository.
-
-**Warning:** Erased projects cannot be restored.
-
-To erase a project, proceed as follows:
-
-1.  Delete the project as described in [Deleting a Project](#deleting-a-project).
-2.  Ensure that the **Hide deleted projects** option is cleared.
-3.  In the **Projects** tree, select the project and, in the right pane, click **Erase**.
-4.  If the project is erased from the non-flat Git repository, to delete a project from the repository project tree but keep it in the Git repository, ensure that the **Also erase it from repository** check box is cleared.
-
-    In this case, it can later be imported into the repository as described in [Creating a Project from a Repository](#creating-a-project-from-a-repository).
-
-    If this check box is selected, the project is erased from both repository project tree and Git repository and becomes no longer available for import.
-
-1.  In the confirmation window, click **Erase**.
+1.  In the confirmation window, enter a comment.
+2.  Select **I understand that the project will be deleted**.
+3.  Click **Delete**.
 
 ### Deploying a Project
 
@@ -745,8 +710,6 @@ Upon user logon, the user’s display name and email are used for Git commits if
 -   create a project
 -   save a project
 -   delete a project
--   undelete a project
--   erase a project
 -   deploy a project
 -   synchronize a project
 

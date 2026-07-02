@@ -145,14 +145,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     public FileData check(String name) throws IOException {
         ProjectIndex mapping = getUpToDateMapping(true);
         FileData check = delegate.check(toInternal(mapping, name));
-        if (check != null && delegate.supports().versions()) {
-            Optional<ProjectInfo> project = mapping.getProjects()
-                    .stream()
-                    .filter(p -> name.equals(baseFolder + getMappedName(p)))
-                    .findFirst();
-            check.setDeleted(project.isPresent() && project.get().isArchived());
-        }
-        return toExternal(mapping, check);
+        FileData external = toExternal(mapping, check);
+        return external == null || external.isDeleted() ? null : external;
     }
 
     @Override
@@ -181,23 +175,12 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        if (delegate.supports().versions()) {
-            indexLock.writeLock().lock();
-            try {
-                ProjectIndex projectIndex = getUpToDateMapping(false);
-                Optional<ProjectInfo> projectInfo = findProject(projectIndex, data);
-                if (projectInfo.isPresent()) {
-                    projectInfo.get().setArchived(true);
-                    indexCache.set(new ProjectIndexCache(projectIndex));
-                    return true;
-                }
-            } finally {
-                indexLock.writeLock().unlock();
-            }
-        }
-
         ProjectIndex mapping = getUpToDateMapping(true);
-        return delegate.delete(toInternal(mapping, data));
+        boolean deleted = delegate.delete(toInternal(mapping, data));
+        if (deleted) {
+            removeMapping(data.getName());
+        }
+        return deleted;
     }
 
     @Override
@@ -262,39 +245,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-
-        FileData internalToDelete = toInternal(mapping, data);
-        if (data.getVersion() == null) {
-            try {
-                removeMapping(data.getName());
-
-                // Use mapping before modification
-                return delegate.deleteHistory(internalToDelete);
-            } catch (IOException | RuntimeException e) {
-                refreshMappingWithLock();
-                throw e;
-            }
-        } else {
-            if (delegate.supports().versions()) {
-                indexLock.writeLock().lock();
-                try {
-                    ProjectIndex projectIndex = getUpToDateMapping(false);
-                    Optional<ProjectInfo> project = findProject(projectIndex, data);
-                    if (project.isPresent()) {
-                        ProjectInfo projectInfo = project.get();
-                        if (projectInfo.isArchived()) {
-                            projectInfo.setArchived(false);
-                            indexCache.set(new ProjectIndexCache(projectIndex));
-                            return true;
-                        }
-                    }
-                } finally {
-                    indexLock.writeLock().unlock();
-                }
-            }
-            return delegate.deleteHistory(internalToDelete);
+        if (data.getVersion() != null) {
+            return false;
         }
+        return delete(data);
     }
 
     @Override
@@ -320,14 +274,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             if (external.startsWith(path) && !external.substring(path.length()).contains("/")) {
                 // "external" is direct child of "path"
                 FileData data = delegate.check(project.getPath());
-                if (data == null) {
+                if (data == null || data.isDeleted()) {
                     // It can be intermediate state: project is added to index, but not still committed.
                     // Or project could be removed from repository, but index is not updated. Will be updated later.
                     log.debug("Project {} is not found.", project.getPath());
                 } else {
-                    if (delegate.supports().versions()) {
-                        data.setDeleted(project.isArchived());
-                    }
                     internal.add(data);
                 }
             }
@@ -661,12 +612,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         data.addAdditionalData(new FileMappingData(name, data.getName()));
         data.setName(name);
 
-        Optional<ProjectInfo> project = externalToInternal.getProjects()
-                .stream()
-                .filter(p -> name.equals(baseFolder + getMappedName(p)))
-                .findFirst();
-        data.setDeleted(project.isPresent() && project.get().isArchived());
-
         return data;
     }
 
@@ -717,7 +662,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
             ProjectInfo project = iterator.next();
 
-            if (delegate.check(project.getPath()) == null) {
+            FileData projectData = delegate.check(project.getPath());
+            if (projectData == null || projectData.isDeleted()) {
                 // Folder was removed.
                 iterator.remove();
                 modified = true;
@@ -808,6 +754,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
         while (!folderQueue.isEmpty()) {
             FileData folderData = folderQueue.poll();
+            if (folderData.isDeleted()) {
+                continue;
+            }
             String folderPath = folderData.getName();
 
             ProjectInfo projectInfo = tryResolveProjectFromDescriptor(externalToInternal, folderPath, delegate, baseFolder);

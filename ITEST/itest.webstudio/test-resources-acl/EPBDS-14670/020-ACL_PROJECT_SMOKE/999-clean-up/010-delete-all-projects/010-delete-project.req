@@ -1,6 +1,4 @@
-DELETE /rest/user-workspace/design/projects/EPBDS_14670_Project/delete HTTP/1.1
+DELETE /rest/projects/EPBDS_14670_Project?comment=Foo%20Bar HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Cookie: NO_JSESSIONID=noAuth
-Content-Type: application/x-www-form-urlencoded
 
-comment=Foo Bar

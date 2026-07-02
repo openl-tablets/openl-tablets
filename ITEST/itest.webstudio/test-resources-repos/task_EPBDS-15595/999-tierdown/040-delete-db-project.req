@@ -1,6 +1,4 @@
-DELETE /rest/user-workspace/design/projects/EPBDS_15595/delete HTTP/1.1
+DELETE /rest/projects/ZGVzaWduOkVQQkRTXzE1NTk1?comment=Cleanup%20EPBDS-15595 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Cookie: NO_JSESSIONID=noAuth
-Content-Type: application/x-www-form-urlencoded
 
-comment=Cleanup EPBDS-15595

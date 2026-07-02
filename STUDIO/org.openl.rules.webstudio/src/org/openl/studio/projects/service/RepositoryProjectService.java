@@ -56,8 +56,8 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
         var filter = super.buildFilterCriteria(query);
         if (query.status() != null) {
             var status = query.status();
-            if (status == ProjectStatus.ARCHIVED) {
-                filter = filter.and(AProject::isDeleted);
+            if (status == ProjectStatus.DELETED) {
+                filter = filter.and(project -> false);
             } else if (status == ProjectStatus.EDITING) {
                 filter = filter.and(project -> !project.isDeleted() && project.isModified());
             } else if (status == ProjectStatus.VIEWING_VERSION) {

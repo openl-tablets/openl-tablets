@@ -227,7 +227,7 @@ public class AProject extends AProjectFolder implements IProject {
 
     public void delete(CommonUser user, String comment) throws ProjectException {
         if (isDeleted()) {
-            throw new ProjectException("Project ''{0}'' is already marked for deletion.", null, getBusinessName());
+            throw new ProjectException("Project ''{0}'' is already deleted.", null, getBusinessName());
         }
 
         unlock();
@@ -252,20 +252,6 @@ public class AProject extends AProjectFolder implements IProject {
         refresh();
     }
 
-    public void erase(CommonUser user, String comment) throws ProjectException {
-        FileData fileData = getFileData();
-        FileData data = new FileData();
-        data.setName(fileData.getName());
-        data.setVersion(null);
-        data.setAuthor(user.getUserInfo());
-        data.setComment(comment);
-        try {
-            getRepository().deleteHistory(data);
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage(), e);
-        }
-    }
-
     @Override
     public boolean isDeleted() {
         try {
@@ -275,33 +261,6 @@ public class AProject extends AProjectFolder implements IProject {
             log.error(e.getMessage(), e);
             return false;
         }
-    }
-
-    public void undelete(CommonUser user, String comment) throws ProjectException {
-        try {
-            if (!isDeleted()) {
-                throw new ProjectException("Cannot undelete non-marked project ''{0}''.", null, getBusinessName());
-            }
-
-            Repository repository = getRepository();
-            FileData fileData = repository.check(getFileData().getName());
-            if (fileData != null && fileData.isDeleted()) {
-                FileData data = new FileData();
-                data.setName(fileData.getName());
-                data.setVersion(fileData.getVersion());
-                data.setAuthor(user.getUserInfo());
-                data.setComment(comment);
-                repository.deleteHistory(data);
-                FileData actual = repository.check(fileData.getName());
-                setFileData(actual);
-                String version = actual.getVersion();
-                setLastHistoryVersion(version);
-                setHistoryVersion(version);
-            }
-        } catch (IOException ex) {
-            throw new ProjectException(ex.getMessage(), ex);
-        }
-
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {

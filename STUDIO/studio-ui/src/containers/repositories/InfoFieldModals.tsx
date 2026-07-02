@@ -133,46 +133,6 @@ export const MessageCreateProjectModal = (
     />
 )
 
-export const MessageArchiveProjectModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message for 'Archive project' action.</p>
-                <ul>
-
-                    <li>&#123;project-name&#125; is replaced by current project in the message.</li>
-                </ul>
-            </>
-        )}
-    />
-)
-
-export const MessageRestoreProjectModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message for 'Restore project' action.</p>
-                <ul>
-                    <li>&#123;project-name&#125; is replaced by current project in the message.</li>
-                </ul>
-            </>
-        )}
-    />
-)
-
-export const MessageEraseProjectModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>This specified value is used as default message for 'Erase project' action.</p>
-                <ul>
-                    <li>&#123;project-name&#125; is replaced by current project in the message.</li>
-                </ul>
-            </>
-        )}
-    />
-)
-
 export const MessageCopyProjectModal = (
     <InfoFieldModal
         text={(
