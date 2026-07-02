@@ -145,6 +145,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
         if (isSuspended(stack.status) && topIndex !== null) {
             void get().selectFrame(topIndex)
         }
+        // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
+        // not only on Collect — the panel then tracks the value as the user steps through.
+        if (get().watches.length > 0) {
+            void get().fetchWatch()
+        }
     }
 
     const runStep = async (step: () => Promise<DebugStackView>): Promise<void> => {
@@ -313,8 +318,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const series = watch ? watch.series.filter(s => cells.includes(s.name)) : []
             set({ watches: cells, watch: watch ? { ...watch, series } : null })
             if (!projectId) return
-            // The set takes effect on the next collect/run — a watch captures from the beginning of a run.
+            // Applies to the running session immediately (like breakpoints), so a cell added mid-debug is
+            // captured as stepping reaches it; on the next start it captures from the beginning of the run.
             await traceService.setWatches(projectId, cells)
+            if (cells.length > 0) await get().fetchWatch()
         },
 
         collectWatch: async () => {

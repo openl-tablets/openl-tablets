@@ -40,8 +40,8 @@ final class DebugHookImpl implements DebugHook {
     private @Nullable Throwable brokenException;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     private boolean profiling;
-    /** Cell names or refs whose value is captured on every execution of their table. Set before the worker runs. */
-    private Set<String> watches = Set.of();
+    /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
+    private volatile Set<String> watches = Set.of();
     /** Captured watched values, appended on the worker thread as cells compute. */
     private final List<WatchCapture> captures = new ArrayList<>();
     /** Per-table invocation counter, so each execution of a table gets a stable instance number. */
@@ -72,6 +72,10 @@ final class DebugHookImpl implements DebugHook {
     /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
     void setWatches(Set<String> watches) {
         this.watches = Set.copyOf(watches);
+    }
+
+    Set<String> getWatches() {
+        return watches;
     }
 
     /** All watched-cell captures gathered so far. Read while the worker is parked or finished. */
@@ -219,10 +223,9 @@ final class DebugHookImpl implements DebugHook {
         int depth = stack.size() + 1;
         DebugFrame frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
-        if (!watches.isEmpty()) {
-            // Number each execution of the table, so a watched cell's captures form a per-instance series.
-            frame.setInvocationIndex(invocationCounts.merge(descriptor.uri(), 1, Integer::sum) - 1);
-        }
+        // Number each execution of the table so a watched cell's captures form a per-instance series. Counted
+        // always (not only while watching), so instances stay correct even for a watch added mid-run.
+        frame.setInvocationIndex(invocationCounts.merge(descriptor.uri(), 1, Integer::sum) - 1);
         if (pendingDispatch != null) {
             // This frame is the version the pending dispatcher chose; badge it and consume the dispatch so only
             // the immediate child carries it.

@@ -10,9 +10,12 @@ vi.mock('services/traceService', () => ({
     default: {
         setWatches: vi.fn().mockResolvedValue(undefined),
         getWatch: vi.fn(),
-        startTrace: vi.fn().mockResolvedValue({ status: 'completed', frames: []}),
+        startTrace: vi.fn().mockResolvedValue({ status: 'suspended', frames: [{ index: 0, uri: 'uCov', name: 'CoveragePremium', active: true, depth: 1, kind: 'spreadsheet', completed: false, error: false, steps: []}]}),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
-        getStack: vi.fn().mockResolvedValue({ status: 'completed', frames: []}),
+        getStack: vi.fn().mockRejectedValue(new Error('no session')),
+        setBreakpoints: vi.fn().mockResolvedValue(undefined),
+        resume: vi.fn().mockResolvedValue(undefined),
+        getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
     },
 }))
 
@@ -25,6 +28,8 @@ import traceService from 'services/traceService'
 
 const setWatches = traceService.setWatches as ReturnType<typeof vi.fn>
 const getWatch = traceService.getWatch as ReturnType<typeof vi.fn>
+const cancelTrace = traceService.cancelTrace as ReturnType<typeof vi.fn>
+const setBreakpoints = traceService.setBreakpoints as ReturnType<typeof vi.fn>
 
 const scalar = (value: number) => ({ name: '$VehiclePriceFactor', description: 'Double', lazy: false, value })
 
@@ -61,6 +66,26 @@ describe('WatchPanel', () => {
         expect(await screen.findByText('83.372')).toBeInTheDocument()
         expect(screen.getAllByTestId('watch-point')).toHaveLength(2)
         expect(screen.getByTestId('watch-series')).toHaveTextContent('$VehiclePriceFactor')
+    })
+
+    it('jumps to the watched cell (its ref), not its table, when replaying a point', async () => {
+        const onePoint: WatchView = {
+            truncated: false,
+            series: [{
+                name: '$VehiclePriceFactor', table: 'CoveragePremium', tableUri: 'uCov',
+                points: [{ instance: 0, label: 'CoveragePremium #1', path: ['Root'], ref: 'uCov#R2C0', value: scalar(1.0) }],
+            }],
+        }
+        useTraceStore.setState({ watch: onePoint, watches: ['$VehiclePriceFactor']})
+        render(<WatchPanel />)
+
+        await userEvent.click(screen.getByTestId('watch-replay'))
+
+        // Replay restarts and runs to the cell breakpoint key (uri#cellRef) — the same key a manual
+        // breakpoint on the step uses — not the owning table's URI (which, for the root, never re-fires).
+        await waitFor(() => expect(cancelTrace).toHaveBeenCalledWith('p1'))
+        await waitFor(() =>
+            expect(setBreakpoints).toHaveBeenCalledWith('p1', expect.arrayContaining(['uCov#R2C0'])))
     })
 
     it('removing a watch also clears its already-collected series', async () => {

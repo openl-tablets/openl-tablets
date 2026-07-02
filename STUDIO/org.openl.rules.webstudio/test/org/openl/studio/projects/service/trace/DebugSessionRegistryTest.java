@@ -68,6 +68,18 @@ class DebugSessionRegistryTest {
     }
 
     @Test
+    void watchesPersistAndApplyToTheRunningSession() {
+        var registry = registry();
+        var session = session(projectId("A"));
+        registry.start(session);
+
+        registry.setWatches(Set.of("$A", "$B"));
+        assertEquals(Set.of("$A", "$B"), registry.watches());
+        assertEquals(Set.of("$A", "$B"), session.getDebugger().getWatches(),
+                "a watch added mid-debug applies to the running session");
+    }
+
+    @Test
     void workspaceResetClearsTheSession() {
         var registry = registry();
         registry.start(session(projectId("A")));

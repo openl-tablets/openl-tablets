@@ -102,7 +102,7 @@ const WatchPanel: React.FC = () => {
                                     className={styles.replay}
                                     data-testid="watch-replay"
                                     icon={<AimOutlined />}
-                                    onClick={() => void replayNode(series.tableUri, series.name)}
+                                    onClick={() => void replayNode(point.ref, series.name)}
                                     size="small"
                                     type="text"
                                 />

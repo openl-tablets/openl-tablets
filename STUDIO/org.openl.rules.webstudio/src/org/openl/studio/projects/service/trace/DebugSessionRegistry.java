@@ -96,12 +96,17 @@ public class DebugSessionRegistry {
     }
 
     /**
-     * Replace the watch set. Applied on the next start, not to a running session: a watch captures from
-     * the beginning of a run, so adding one mid-run cannot recover the executions that already happened.
+     * Replace the watch set and apply it to the running session, if any, so a cell added mid-debug is
+     * captured as stepping reaches it. It cannot recover executions that already happened; a fresh start
+     * captures from the beginning of the run.
      */
     public void setWatches(Collection<String> cells) {
         watches.clear();
         watches.addAll(cells);
+        DebugSession session = ref.get();
+        if (session != null) {
+            session.getDebugger().setWatches(watches());
+        }
     }
 
     @EventListener
