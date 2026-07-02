@@ -14,10 +14,14 @@ import lombok.Builder;
  * across coverages or iterations. The UI can pivot several series that share a table into a matrix (rows
  * = executions, columns = cells); an agent can read a single series as a value sequence.
  *
+ * <p>For a factor computed thousands of times in a loop, only the first points are returned — more would
+ * overwhelm the client — while {@code total} still reports how many executions there were.
+ *
  * @param name     the watched cell name (its {@code $...} step label)
  * @param table    display name of the table the cell belongs to
  * @param tableUri source URI of that table
- * @param points   the captured values, one per execution of the table, in execution order
+ * @param points   the captured values in execution order, capped to the first several executions
+ * @param total    the full number of executions, which may exceed the returned points
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,6 +37,9 @@ public record WatchSeriesView(
         String tableUri,
 
         @Schema(description = "trace.field.watch-series.points.desc")
-        List<WatchPointView> points
+        List<WatchPointView> points,
+
+        @Schema(description = "trace.field.watch-series.total.desc")
+        int total
 ) {
 }

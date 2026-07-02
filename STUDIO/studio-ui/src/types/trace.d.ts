@@ -337,8 +337,10 @@ export interface WatchSeriesView {
     table: string
     /** Source URI of that table. */
     tableUri: string
-    /** The captured values, one per execution of the table, in execution order. */
+    /** The captured values in execution order, capped to the first several executions of the table. */
     points: WatchPointView[]
+    /** The full number of executions, which may exceed the number of returned points. */
+    total: number
 }
 
 /** One value of a watched cell, from one execution of its table. */

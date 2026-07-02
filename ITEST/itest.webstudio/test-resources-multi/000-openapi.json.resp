@@ -23198,6 +23198,11 @@ Content-Type: application/json
           "tableUri": {
             "type": "string",
             "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
           }
         }
       },

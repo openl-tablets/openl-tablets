@@ -99,6 +99,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         letter-spacing: 0.04em;
         color: ${token.colorTextTertiary};
     `,
+    // Execution-instance badge: which pass of a looped table this frame is, so stepping through a loop
+    // visibly advances (#2, #3, …) instead of repeating the same name.
+    pass: css`
+        flex: 0 0 auto;
+        padding: 0 ${token.paddingXXS}px;
+        border-radius: ${token.borderRadiusSM}px;
+        font-family: ${token.fontFamilyCode};
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
+        background: ${token.colorFillQuaternary};
+    `,
     // Dispatch badge: the table is one of several versions overloaded by dimension properties; hovering
     // lists the versions with the chosen one marked.
     dispatchTag: css`

@@ -20,9 +20,12 @@ const formatMs = (ms: number): string => {
     return '0 ms'
 }
 
-/** One row of the flattened tree: a live frame, a live step, or an executed-branch node/step. */
+/** A table computed in a loop can return thousands of executed branches; render only the first, on expand. */
+const MAX_TREE_CHILDREN = 100
+
+/** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
 interface TreeRow {
-    type: 'frame' | 'liveStep' | 'callNode' | 'callStep'
+    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more'
     key: string
     depth: number
     frame?: DebugFrameView
@@ -35,6 +38,8 @@ interface TreeRow {
     expandKey?: string
     /** For a step-reference row, the key of the original step row it points at. */
     refTargetKey?: string
+    /** For a "more" row, how many further executions were not rendered. */
+    moreCount?: number
 }
 
 const hasChildren = (step: StepValueView): boolean => !!step.children && step.children.length > 0
@@ -58,8 +63,21 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                step.children?.forEach((child, i) => walkNode(child, depth + 2, `${stepKey}#${i}`, path))
+                walkChildren(step.children, depth + 2, stepKey, path)
             }
+        }
+    }
+
+    // Render only the first executions of a step's branch — a looped table can return thousands — and mark
+    // the rest with a single "more" row, so expanding a hot branch never floods the tree.
+    const walkChildren = (children: CallNodeView[] | null | undefined, depth: number, keyBase: string,
+                          refBase: string): void => {
+        if (!children) {
+            return
+        }
+        children.slice(0, MAX_TREE_CHILDREN).forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+        if (children.length > MAX_TREE_CHILDREN) {
+            rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: children.length - MAX_TREE_CHILDREN })
         }
     }
 
@@ -76,7 +94,7 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'liveStep', key: stepKey, depth: depth + 1, frameIndex: i, frame, step,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                step.children?.forEach((child, idx) => walkNode(child, depth + 2, `${stepKey}#${idx}`, `f${i}`))
+                walkChildren(step.children, depth + 2, stepKey, `f${i}`)
             }
             if (!drilled && step.status === 'current' && i + 1 < frames.length) {
                 walk(i + 1, depth + 2)
@@ -258,6 +276,13 @@ const TraceTree: React.FC = () => {
                         : frame.completed ? styles.dotExecuted : styles.dotFrame)}
                 />
                 <span className={styles.name}>{frame.name}</span>
+                {frame.instance > 0 && (
+                    <Tooltip title={t('tree.passHint', { n: frame.instance + 1 })}>
+                        <span className={styles.pass} data-testid={`tree-pass-${row.frameIndex}`}>
+                            #{frame.instance + 1}
+                        </span>
+                    </Tooltip>
+                )}
                 <span className={styles.kind}>{frame.kind}</span>
                 {dispatchBadge(frame.dispatch)}
                 {ms != null && durationCell(ms)}
@@ -364,11 +389,19 @@ const TraceTree: React.FC = () => {
         )
     }
 
+    const renderMore = (row: TreeRow): React.ReactNode => (
+        <div key={row.key} className={cx(styles.row, styles.inactive)} style={indent(row.depth)}>
+            <span className={styles.chevronSlot} />
+            <span className={styles.leafLabel}>{t('tree.more', { count: row.moreCount })}</span>
+        </div>
+    )
+
     const render = (row: TreeRow): React.ReactNode => {
         switch (row.type) {
             case 'frame': return renderFrame(row)
             case 'liveStep': return renderLiveStep(row)
             case 'callNode': return renderCallNode(row)
+            case 'more': return renderMore(row)
             default: return renderCallStep(row)
         }
     }

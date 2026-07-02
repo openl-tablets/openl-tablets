@@ -43,6 +43,7 @@ const series: WatchView = {
             { instance: 0, label: 'CoveragePremium #1', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: scalar(1.0) },
             { instance: 1, label: 'CoveragePremium #2', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: scalar(83.372) },
         ],
+        total: 2,
     }],
 }
 
@@ -68,12 +69,28 @@ describe('WatchPanel', () => {
         expect(screen.getByTestId('watch-series')).toHaveTextContent('$VehiclePriceFactor')
     })
 
+    it('shows a capped notice when a looped factor has more executions than returned points', () => {
+        const capped: WatchView = {
+            truncated: false,
+            series: [{
+                name: '$Loop', table: 'Rate', tableUri: 'uR', total: 6400,
+                points: [{ instance: 0, label: 'Rate #1', path: ['Rate'], ref: 'uR#R0C0', value: scalar(1) }],
+            }],
+        }
+        render(<WatchPanel />)
+        act(() => { useTraceStore.setState({ watch: capped }) })
+
+        expect(screen.getAllByTestId('watch-point')).toHaveLength(1)
+        expect(screen.getByTestId('watch-more')).toBeInTheDocument()
+    })
+
     it('jumps to the watched cell (its ref), not its table, when replaying a point', async () => {
         const onePoint: WatchView = {
             truncated: false,
             series: [{
                 name: '$VehiclePriceFactor', table: 'CoveragePremium', tableUri: 'uCov',
                 points: [{ instance: 0, label: 'CoveragePremium #1', path: ['Root'], ref: 'uCov#R2C0', value: scalar(1.0) }],
+                total: 1,
             }],
         }
         useTraceStore.setState({ watch: onePoint, watches: ['$VehiclePriceFactor']})

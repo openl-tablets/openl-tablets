@@ -109,6 +109,11 @@ const WatchPanel: React.FC = () => {
                             </Tooltip>
                         </div>
                     ))}
+                    {series.total > series.points.length && (
+                        <div className={styles.hint} data-testid="watch-more">
+                            {t('watch.showing', { shown: series.points.length, total: series.total })}
+                        </div>
+                    )}
                 </div>
             ))}
         </div>

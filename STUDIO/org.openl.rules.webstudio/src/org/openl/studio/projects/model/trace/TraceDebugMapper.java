@@ -73,6 +73,9 @@ public class TraceDebugMapper {
     /** Upper bound on the technical stack-trace detail, so a deep failure cannot bloat the response. */
     private static final int MAX_DETAIL = 8_000;
 
+    /** Upper bound on points returned per watch series, so a factor looped thousands of times stays renderable. */
+    private static final int MAX_POINTS_PER_SERIES = 100;
+
     /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
     public static final int DEFAULT_PROFILE_TOP = 20;
 
@@ -147,22 +150,27 @@ public class TraceDebugMapper {
             Thread.currentThread().setContextClassLoader(classLoader);
         }
         try {
-            Map<Object, Object> clones = new IdentityHashMap<>();
-            Map<String, List<WatchPointView>> pointsByKey = new LinkedHashMap<>();
-            Map<String, WatchCapture> firstByKey = new LinkedHashMap<>();
+            // Group raw captures by series first, so a factor computed thousands of times in a loop only
+            // serializes its first points: the client cannot render more, and the full response would be huge.
+            // total still reports how many executions there were, so the outlier count stays visible.
+            Map<String, List<WatchCapture>> byKey = new LinkedHashMap<>();
             for (WatchCapture capture : captures) {
-                String key = capture.name() + ' ' + capture.tableUri();
-                pointsByKey.computeIfAbsent(key, k -> new ArrayList<>()).add(toWatchPoint(capture, clones));
-                firstByKey.putIfAbsent(key, capture);
+                byKey.computeIfAbsent(capture.name() + ' ' + capture.tableUri(), k -> new ArrayList<>()).add(capture);
             }
-            List<WatchSeriesView> series = new ArrayList<>(pointsByKey.size());
-            pointsByKey.forEach((key, points) -> {
-                WatchCapture first = firstByKey.get(key);
+            Map<Object, Object> clones = new IdentityHashMap<>();
+            List<WatchSeriesView> series = new ArrayList<>(byKey.size());
+            byKey.forEach((key, group) -> {
+                WatchCapture first = group.get(0);
+                List<WatchPointView> points = group.stream()
+                        .limit(MAX_POINTS_PER_SERIES)
+                        .map(capture -> toWatchPoint(capture, clones))
+                        .toList();
                 series.add(WatchSeriesView.builder()
                         .name(first.name())
                         .table(first.table())
                         .tableUri(first.tableUri())
                         .points(points)
+                        .total(group.size())
                         .build());
             });
             return WatchView.builder().series(series).truncated(truncated).build();

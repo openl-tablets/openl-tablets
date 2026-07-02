@@ -10,6 +10,7 @@ i18next.addResourceBundle('en', 'trace', {
         collect: 'Collect',
         empty: 'No values captured — run a table that computes these cells.',
         truncated: 'Too many values — the series is capped and may miss late executions.',
+        showing: 'Showing the first {{shown}} of {{total}} executions.',
         noValue: '—',
         replayHint: 'Replay: restart and run to this table to inspect it live',
     },
@@ -27,6 +28,8 @@ i18next.addResourceBundle('en', 'trace', {
         dispatchTitle: 'Chosen from {{count}} versions by dimension properties:',
         referenceTag: 'ref',
         referenceHint: 'Uses a step that already executed — click to jump to it',
+        passHint: 'Execution #{{n}} of this table in the run',
+        more: '+{{count}} more executions',
     },
 
     debug: {

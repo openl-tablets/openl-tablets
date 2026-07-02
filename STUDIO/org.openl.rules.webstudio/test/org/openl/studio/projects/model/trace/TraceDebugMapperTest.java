@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -308,7 +309,22 @@ class TraceDebugMapperTest {
                 "the factor's values across both executions, in order");
         assertEquals("Cov #2", factor.points().get(1).label(), "instance 1 reads as the 2nd execution");
         assertEquals("uCov#R2C0", factor.points().get(0).ref());
+        assertEquals(2, factor.total(), "both executions counted in the total");
         assertFalse(view.truncated());
+    }
+
+    @Test
+    void capsWatchSeriesPointsButReportsTheFullTotal() {
+        List<WatchCapture> captures = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            captures.add(new WatchCapture("$Loop", "T", "uT", i, List.of("T"), "uT#R0C0", i));
+        }
+
+        var series = mapper().toWatchView(captures, false, null).series().get(0);
+
+        assertEquals(100, series.points().size(), "a factor looped 150 times returns only the first 100 points");
+        assertEquals(150, series.total(), "the full execution count is still reported");
+        assertEquals(0.0, series.points().get(0).value().value().asDouble(), "points keep execution order from the start");
     }
 
     @Test

@@ -74,6 +74,50 @@ describe('TraceTree', () => {
         expect(useTraceStore.getState().breakpoints).toContain('u0#R1C0')
     })
 
+    it('badges a looped frame with its execution pass so stepping through a loop visibly advances', () => {
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame(0, { name: 'ClaimCost', active: true, instance: 4, steps: [step('R0C0', 'current')] })],
+            selectedFrameIndex: 0,
+        })
+
+        render(<TraceTree />)
+        expect(screen.getByTestId('tree-pass-0')).toHaveTextContent('#5') // instance 4 → the 5th execution
+    })
+
+    it('does not badge a table executed only once', () => {
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame(0, { name: 'Once', active: true, instance: 0 })],
+            selectedFrameIndex: 0,
+        })
+
+        render(<TraceTree />)
+        expect(screen.queryByTestId('tree-pass-0')).toBeNull()
+    })
+
+    it('caps an expanded branch to the first executions and marks the rest with one more row', async () => {
+        const children = Array.from({ length: 101 }, (_, i) => ({
+            uri: `uc${i}`, name: `Call${i}`, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
+        }))
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame(0, {
+                name: 'ROOT', active: true,
+                steps: [{ ...step('R0C0', 'executed', '$Loop'), children }],
+            })],
+            selectedFrameIndex: 0,
+        })
+
+        render(<TraceTree />)
+        await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
+
+        expect(screen.getByText('Call0')).toBeInTheDocument()
+        expect(screen.getByText('Call99')).toBeInTheDocument()   // the 100th executed branch
+        expect(screen.queryByText('Call100')).toBeNull()         // the 101st is dropped
+        expect(screen.getByText('tree.more')).toBeInTheDocument() // a single marker stands in for the rest
+    })
+
     it('drills the current step into the child frame so every level shows at once', () => {
         useTraceStore.setState({
             status: 'suspended',
