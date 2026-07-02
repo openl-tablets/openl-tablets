@@ -128,36 +128,48 @@ public class TraceDebugMapper {
 
     /**
      * Group watched-cell captures into series: one per cell (scoped to its table), points in execution
-     * order. Captures already arrive in execution order, so the points need no re-sorting.
+     * order. Captures already arrive in execution order, so the points need no re-sorting. Each value is
+     * deep-cloned and serialized to the rich parameter view (like frame variables), so dates, arrays, and
+     * spreadsheet results render properly and large values load lazily.
      */
-    public static WatchView toWatchView(List<WatchCapture> captures, boolean truncated) {
-        Map<String, List<WatchPointView>> pointsByKey = new LinkedHashMap<>();
-        Map<String, WatchCapture> firstByKey = new LinkedHashMap<>();
-        for (WatchCapture capture : captures) {
-            String key = capture.name() + ' ' + capture.tableUri();
-            pointsByKey.computeIfAbsent(key, k -> new ArrayList<>()).add(toWatchPoint(capture));
-            firstByKey.putIfAbsent(key, capture);
+    public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader) {
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        if (classLoader != null) {
+            Thread.currentThread().setContextClassLoader(classLoader);
         }
-        List<WatchSeriesView> series = new ArrayList<>(pointsByKey.size());
-        pointsByKey.forEach((key, points) -> {
-            WatchCapture first = firstByKey.get(key);
-            series.add(WatchSeriesView.builder()
-                    .name(first.name())
-                    .table(first.table())
-                    .tableUri(first.tableUri())
-                    .points(points)
-                    .build());
-        });
-        return WatchView.builder().series(series).truncated(truncated).build();
+        try {
+            Map<Object, Object> clones = new IdentityHashMap<>();
+            Map<String, List<WatchPointView>> pointsByKey = new LinkedHashMap<>();
+            Map<String, WatchCapture> firstByKey = new LinkedHashMap<>();
+            for (WatchCapture capture : captures) {
+                String key = capture.name() + ' ' + capture.tableUri();
+                pointsByKey.computeIfAbsent(key, k -> new ArrayList<>()).add(toWatchPoint(capture, clones));
+                firstByKey.putIfAbsent(key, capture);
+            }
+            List<WatchSeriesView> series = new ArrayList<>(pointsByKey.size());
+            pointsByKey.forEach((key, points) -> {
+                WatchCapture first = firstByKey.get(key);
+                series.add(WatchSeriesView.builder()
+                        .name(first.name())
+                        .table(first.table())
+                        .tableUri(first.tableUri())
+                        .points(points)
+                        .build());
+            });
+            return WatchView.builder().series(series).truncated(truncated).build();
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
+        }
     }
 
-    private static WatchPointView toWatchPoint(WatchCapture capture) {
+    private WatchPointView toWatchPoint(WatchCapture capture, Map<Object, Object> clones) {
+        var param = new ParameterWithValueDeclaration(capture.name(), safeClone(capture.value(), clones));
         return WatchPointView.builder()
                 .instance(capture.instance())
                 .label(capture.table() + " #" + (capture.instance() + 1))
                 .path(capture.path())
                 .ref(capture.ref())
-                .value(capture.value())
+                .value(buildParameterValue(param, true))
                 .build();
     }
 

@@ -349,6 +349,6 @@ export interface WatchPointView {
     path: string[]
     /** Breakpoint key `uri#cellRef` that reaches this cell, to replay and inspect this execution live. */
     ref: string
-    /** The captured value: a scalar, or a short summary of a non-scalar. */
-    value: number | string | boolean | null
+    /** The captured value, serialized like any traced value (dates, arrays, spreadsheet results); lazy when large. */
+    value: TraceParameterValue | null
 }

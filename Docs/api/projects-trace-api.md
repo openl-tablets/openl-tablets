@@ -585,7 +585,7 @@ interface WatchPointView {
   label: string;               // human axis label, e.g. "CoveragePremium #3"
   path: string[];              // call path root → owning frame, as table names
   ref: string;                 // breakpoint key uri#cellRef to reach this cell (replay + breakpoint)
-  value: number | string | boolean | null;  // scalar, or a short summary of a non-scalar
+  value: ParameterValue;       // serialized like any traced value (dates, arrays, results); lazy when large
 }
 ```
 

@@ -26,6 +26,8 @@ import traceService from 'services/traceService'
 const setWatches = traceService.setWatches as ReturnType<typeof vi.fn>
 const getWatch = traceService.getWatch as ReturnType<typeof vi.fn>
 
+const scalar = (value: number) => ({ name: '$VehiclePriceFactor', description: 'Double', lazy: false, value })
+
 const series: WatchView = {
     truncated: false,
     series: [{
@@ -33,8 +35,8 @@ const series: WatchView = {
         table: 'CoveragePremium',
         tableUri: 'uCov',
         points: [
-            { instance: 0, label: 'CoveragePremium #1', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: 1.0 },
-            { instance: 1, label: 'CoveragePremium #2', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: 83.372 },
+            { instance: 0, label: 'CoveragePremium #1', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: scalar(1.0) },
+            { instance: 1, label: 'CoveragePremium #2', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: scalar(83.372) },
         ],
     }],
 }
@@ -59,6 +61,16 @@ describe('WatchPanel', () => {
         expect(await screen.findByText('83.372')).toBeInTheDocument()
         expect(screen.getAllByTestId('watch-point')).toHaveLength(2)
         expect(screen.getByTestId('watch-series')).toHaveTextContent('$VehiclePriceFactor')
+    })
+
+    it('removing a watch also clears its already-collected series', async () => {
+        useTraceStore.setState({ watches: ['$VehiclePriceFactor'], watch: series })
+
+        await useTraceStore.getState().setWatchCells([])
+
+        expect(setWatches).toHaveBeenCalledWith('p1', [])
+        expect(useTraceStore.getState().watches).toEqual([])
+        expect(useTraceStore.getState().watch?.series).toEqual([])
     })
 
     it('collects the series by running the trace to completion', async () => {

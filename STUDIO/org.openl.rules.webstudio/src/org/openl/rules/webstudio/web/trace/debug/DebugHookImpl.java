@@ -34,8 +34,6 @@ final class DebugHookImpl implements DebugHook {
 
     /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
     private static final int MAX_WATCH_CAPTURES = 50_000;
-    /** Upper bound on a captured non-scalar value's summary, so one big object cannot bloat the response. */
-    private static final int MAX_WATCH_VALUE = 2_000;
 
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
@@ -185,8 +183,10 @@ final class DebugHookImpl implements DebugHook {
             return;
         }
         String name = label != null ? label : ref;
+        // Keep the live value; it is deep-cloned and serialized to the rich parameter view on read, so it
+        // renders like any other traced value (dates, arrays, spreadsheet results) instead of a raw toString.
         captures.add(new WatchCapture(name, frame.getName(), frame.getUri(), frame.getInvocationIndex(),
-                framePath(), frame.getUri() + "#" + ref, watchValue(value)));
+                framePath(), frame.getUri() + "#" + ref, value));
     }
 
     /** The call path from the root frame to the current frame, as display names, for a capture. */
@@ -197,15 +197,6 @@ final class DebugHookImpl implements DebugHook {
             path.add(it.next().getName());
         }
         return path;
-    }
-
-    /** Capture a scalar value as-is; summarize anything else to a bounded string so the response stays small. */
-    private static @Nullable Object watchValue(@Nullable Object value) {
-        if (value == null || value instanceof Number || value instanceof Boolean) {
-            return value;
-        }
-        String text = String.valueOf(value);
-        return text.length() > MAX_WATCH_VALUE ? text.substring(0, MAX_WATCH_VALUE) + "…" : text;
     }
 
     /** Wall time since the frame entered, minus the time spent parked at suspend points: real execution time. */

@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { Button, Input, Tag, Tooltip } from 'antd'
+import { AimOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
+import { ParameterTree } from './TraceParameters'
 import { useStyles } from './WatchPanel.styles'
 
 /**
@@ -86,18 +88,26 @@ const WatchPanel: React.FC = () => {
                         {series.name} <span className={styles.seriesTable}>· {series.table}</span>
                     </div>
                     {series.points.map(point => (
-                        <Tooltip key={`${point.instance} ${point.ref}`} title={point.path.join(' ▸ ')}>
-                            <div
-                                className={styles.point}
-                                data-testid="watch-point"
-                                onClick={() => void replayNode(series.tableUri, series.name)}
-                            >
-                                <span className={styles.pointLabel}>{point.label}</span>
-                                <span className={styles.pointValue}>
-                                    {point.value === null ? t('watch.noValue') : String(point.value)}
-                                </span>
+                        <div className={styles.point} data-testid="watch-point" key={`${point.instance} ${point.ref}`}>
+                            <div className={styles.pointValue}>
+                                {point.value
+                                    ? <ParameterTree
+                                        param={{ ...point.value, name: point.label }}
+                                        paramKey={`watch-${series.name}-${point.instance}`}
+                                    />
+                                    : <span className={styles.pointLabel}>{point.label} = {t('watch.noValue')}</span>}
                             </div>
-                        </Tooltip>
+                            <Tooltip title={`${point.path.join(' ▸ ')} — ${t('watch.replayHint')}`}>
+                                <Button
+                                    className={styles.replay}
+                                    data-testid="watch-replay"
+                                    icon={<AimOutlined />}
+                                    onClick={() => void replayNode(series.tableUri, series.name)}
+                                    size="small"
+                                    type="text"
+                                />
+                            </Tooltip>
+                        </div>
                     ))}
                 </div>
             ))}

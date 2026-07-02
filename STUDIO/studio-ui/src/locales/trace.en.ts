@@ -11,6 +11,7 @@ i18next.addResourceBundle('en', 'trace', {
         empty: 'No values captured — run a table that computes these cells.',
         truncated: 'Too many values — the series is capped and may miss late executions.',
         noValue: '—',
+        replayHint: 'Replay: restart and run to this table to inspect it live',
     },
 
     tree: {

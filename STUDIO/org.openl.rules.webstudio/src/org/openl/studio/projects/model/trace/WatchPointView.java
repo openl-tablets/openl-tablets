@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.studio.projects.model.ParameterValue;
+
 /**
  * One value of a watched cell, from one execution of its table.
  *
@@ -18,7 +20,8 @@ import org.jspecify.annotations.Nullable;
  * @param label    human-readable axis label for the execution, for example {@code "CoveragePremium #3"}
  * @param path     call path from the root frame to the owning frame, as table display names
  * @param ref      breakpoint key {@code uri#cellRef} that reaches this cell
- * @param value    the captured value: a scalar (number, string, boolean), or a short summary of a non-scalar
+ * @param value    the captured value, serialized like any traced value (dates, arrays, spreadsheet results),
+ *                 loaded lazily when large
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -37,6 +40,6 @@ public record WatchPointView(
         String ref,
 
         @Schema(description = "trace.field.watch-point.value.desc")
-        @Nullable Object value
+        @Nullable ParameterValue value
 ) {
 }

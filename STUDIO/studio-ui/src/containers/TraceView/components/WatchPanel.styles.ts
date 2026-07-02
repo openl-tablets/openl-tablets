@@ -51,11 +51,10 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     point: css`
         display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 1px 4px;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 1px 2px;
         border-radius: 3px;
-        cursor: pointer;
 
         &:hover {
             background: ${token.colorFillTertiary};
@@ -65,8 +64,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextSecondary};
     `,
     pointValue: css`
-        font-family: ${token.fontFamilyCode};
-        color: ${token.colorText};
-        font-weight: 600;
+        flex: 1;
+        min-width: 0;
+    `,
+    replay: css`
+        flex: none;
+        color: ${token.colorTextTertiary};
     `,
 }))

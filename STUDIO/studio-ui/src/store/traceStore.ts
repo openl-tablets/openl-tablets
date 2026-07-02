@@ -307,8 +307,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         setWatchCells: async (cells) => {
-            const { projectId } = get()
-            set({ watches: cells })
+            const { projectId, watch } = get()
+            // Drop any already-collected series for cells that are no longer watched, so removing a watch
+            // clears its values instead of leaving stale rows on screen.
+            const series = watch ? watch.series.filter(s => cells.includes(s.name)) : []
+            set({ watches: cells, watch: watch ? { ...watch, series } : null })
             if (!projectId) return
             // The set takes effect on the next collect/run — a watch captures from the beginning of a run.
             await traceService.setWatches(projectId, cells)

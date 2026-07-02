@@ -22338,8 +22338,7 @@ Content-Type: application/json
             "description": "***"
           },
           "value": {
-            "type": "object",
-            "description": "***"
+            "$ref": "#/components/schemas/ParameterValue"
           }
         }
       },

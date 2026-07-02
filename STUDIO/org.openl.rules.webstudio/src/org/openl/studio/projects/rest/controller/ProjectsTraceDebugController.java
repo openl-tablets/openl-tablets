@@ -269,12 +269,13 @@ public class ProjectsTraceDebugController {
     @GetMapping("/watch")
     public WatchView watch(@ProjectId @PathVariable("projectId") RulesProject project) {
         DebugSession session = requireSession(project);
+        TraceDebugMapper mapper = createMapper(session);
         return session.inLock(() -> {
             if (session.getDebugger().status() == DebugStatus.RUNNING) {
                 throw new ConflictException("trace.execution.not.suspended.message");
             }
             var debugger = session.getDebugger();
-            return TraceDebugMapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated());
+            return mapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated(), session.getClassLoader());
         });
     }
 

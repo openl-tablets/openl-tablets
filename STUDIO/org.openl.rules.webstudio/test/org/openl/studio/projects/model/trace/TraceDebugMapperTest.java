@@ -285,13 +285,14 @@ class TraceDebugMapperTest {
                 new WatchCapture("$Factor", "Cov", "uCov", 1, List.of("Root", "Cov"), "uCov#R2C0", 83.372),
                 new WatchCapture("$Other", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R3C0", 2.0));
 
-        var view = TraceDebugMapper.toWatchView(captures, false);
+        var view = mapper().toWatchView(captures, false, null);
 
         assertEquals(2, view.series().size(), "two distinct cells → two series");
         var factor = view.series().get(0);
         assertEquals("$Factor", factor.name());
         assertEquals("uCov", factor.tableUri());
-        assertEquals(List.of(1.0, 83.372), factor.points().stream().map(WatchPointView::value).toList(),
+        assertEquals(List.of(1.0, 83.372),
+                factor.points().stream().map(p -> p.value().value().asDouble()).toList(),
                 "the factor's values across both executions, in order");
         assertEquals("Cov #2", factor.points().get(1).label(), "instance 1 reads as the 2nd execution");
         assertEquals("uCov#R2C0", factor.points().get(0).ref());
@@ -304,7 +305,7 @@ class TraceDebugMapperTest {
                 new WatchCapture("$X", "A", "uA", 0, List.of("A"), "uA#R0C0", 1),
                 new WatchCapture("$X", "B", "uB", 0, List.of("B"), "uB#R0C0", 2));
 
-        var view = TraceDebugMapper.toWatchView(captures, true);
+        var view = mapper().toWatchView(captures, true, null);
 
         assertEquals(2, view.series().size(), "the same name in two tables stays two series");
         assertTrue(view.truncated(), "the cap flag is carried through");
