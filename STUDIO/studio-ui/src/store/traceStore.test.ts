@@ -7,6 +7,7 @@ vi.mock('services/traceService', () => ({
     default: {
         getVariables: vi.fn(),
         getStack: vi.fn(),
+        getRawTable: vi.fn(),
     },
 }))
 
@@ -25,6 +26,7 @@ function deferred<T>() {
 
 const getVariables = traceService.getVariables as MockedFunction<typeof traceService.getVariables>
 const getStack = traceService.getStack as MockedFunction<typeof traceService.getStack>
+const getRawTable = traceService.getRawTable as MockedFunction<typeof traceService.getRawTable>
 
 describe('traceStore race hardening', () => {
     beforeEach(() => {
@@ -63,7 +65,7 @@ describe('traceStore race hardening', () => {
 
         // The worker finishes (or errors/terminates) while the variables fetch is still in flight.
         useTraceStore.getState().onSocketStatus('COMPLETED')
-        slowFrame.resolve({ parameters: [], steps: [], errors: [] } as any)
+        slowFrame.resolve({ parameters: [], steps: [], errors: []} as any)
         await pending
 
         const state = useTraceStore.getState()
@@ -118,5 +120,27 @@ describe('traceStore race hardening', () => {
         await useTraceStore.getState().fetchTerminalError()
 
         expect(useTraceStore.getState().debugError).toEqual(debugError)
+    })
+
+    it('caches a raw table for the session and serves repeats without refetching', async () => {
+        const raw = { id: 'tbl', name: 'BaseRate', source: []} as any
+        getRawTable.mockResolvedValue(raw)
+
+        const first = await useTraceStore.getState().loadRawTable('tbl')
+        const second = await useTraceStore.getState().loadRawTable('tbl')
+
+        expect(first).toBe(raw)
+        expect(second).toBe(raw)
+        expect(getRawTable).toHaveBeenCalledTimes(1) // the second call is served from the cache
+        expect(useTraceStore.getState().rawTableCache['tbl']).toBe(raw)
+    })
+
+    it('clears the raw table cache on reset', async () => {
+        getRawTable.mockResolvedValue({ id: 'tbl', name: 'BaseRate', source: []} as any)
+        await useTraceStore.getState().loadRawTable('tbl')
+
+        useTraceStore.getState().reset()
+
+        expect(useTraceStore.getState().rawTableCache).toEqual({})
     })
 })

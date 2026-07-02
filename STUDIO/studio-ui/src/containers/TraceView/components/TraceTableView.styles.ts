@@ -28,41 +28,37 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     content: css`
         overflow: auto;
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        td,
-        th {
-            border: 1px solid ${token.colorBorderSecondary};
-            padding: ${token.paddingXXS}px ${token.paddingXS}px;
-            font-size: ${token.fontSizeSM}px;
-        }
-
-        th {
-            background: ${token.colorFillQuaternary};
-            font-weight: 500;
-        }
-
-        /* One execution-state colour language, shared with the spreadsheet grid and decision panel:
-           amber = the current line, green = a result, blue = a passed condition, red = a failed one. */
-        .trace-highlighted {
-            background: ${token.colorWarningBg};
-        }
-
-        .trace-result {
-            background: ${token.colorSuccessBg};
-            font-weight: 600;
-        }
-
-        .trace-condition-true {
-            background: ${token.colorInfoBg};
-        }
-
-        .trace-condition-false {
-            background: ${token.colorErrorBg};
-        }
+        max-width: 100%;
+    `,
+    table: css`
+        border-collapse: collapse;
+        width: 100%;
+        font-size: ${token.fontSizeSM}px;
+    `,
+    cell: css`
+        border: 1px solid ${token.colorBorderSecondary};
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
+        text-align: left;
+        vertical-align: top;
+        white-space: pre-wrap;
+    `,
+    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend. */
+    current: css`
+        background: ${token.colorWarningBg};
+    `,
+    result: css`
+        background: ${token.colorSuccessBg};
+        font-weight: 600;
+    `,
+    conditionTrue: css`
+        background: ${token.colorInfoBg};
+    `,
+    conditionFalse: css`
+        background: ${token.colorErrorBg};
+    `,
+    truncated: css`
+        margin-top: ${token.marginXS}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
     `,
 }))

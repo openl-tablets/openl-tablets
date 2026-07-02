@@ -7419,6 +7419,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -7428,14 +7436,6 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -9304,21 +9304,10 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "startRow",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "maxRows",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "minimum": 1
+              "format": "int32"
             }
           },
           {
@@ -10685,118 +10674,6 @@ Content-Type: application/json
         },
         "responses": {
           "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects: Trace (BETA)"
-        ]
-      }
-    },
-    "/projects/{projectId}/trace/frames/{index}/table": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "path",
-            "name": "index",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "showFormulas",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
             "description": "***"
           },
           "400": {
@@ -13764,6 +13641,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -13773,14 +13658,6 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -15738,6 +15615,121 @@ Content-Type: application/json
           "Users"
         ]
       }
+    },
+    "/projects/{projectId}/trace/frames/{index}/highlights": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "index",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CellHighlight"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
     }
   },
   "components": {
@@ -16134,7 +16126,7 @@ Content-Type: application/json
           "target"
         ]
       },
-      "AppendColumns": {
+      "AppendColumn": {
         "type": "object",
         "allOf": [
           {
@@ -16147,10 +16139,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RawCellInput"
-                  }
+                  "$ref": "#/components/schemas/RawCellInput"
                 },
                 "minItems": 1
               }
@@ -16162,7 +16151,7 @@ Content-Type: application/json
           "cells"
         ]
       },
-      "AppendRows": {
+      "AppendRow": {
         "type": "object",
         "allOf": [
           {
@@ -16175,10 +16164,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RawCellInput"
-                  }
+                  "$ref": "#/components/schemas/RawCellInput"
                 },
                 "minItems": 1
               }
@@ -16251,17 +16237,17 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "columns": "#/components/schemas/AppendColumns",
-            "rows": "#/components/schemas/AppendRows"
+            "column": "#/components/schemas/AppendColumn",
+            "row": "#/components/schemas/AppendRow"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
-            "$ref": "#/components/schemas/AppendRows"
+            "$ref": "#/components/schemas/AppendRow"
           },
           {
-            "$ref": "#/components/schemas/AppendColumns"
+            "$ref": "#/components/schemas/AppendColumn"
           }
         ],
         "properties": {
@@ -17129,6 +17115,10 @@ Content-Type: application/json
           "uri": {
             "type": "string",
             "description": "***"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -17249,7 +17239,7 @@ Content-Type: application/json
           "target"
         ]
       },
-      "DeleteColumns": {
+      "DeleteColumn": {
         "type": "object",
         "allOf": [
           {
@@ -17258,12 +17248,6 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
-              "count": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 1
-              },
               "position": {
                 "type": "integer",
                 "format": "int32",
@@ -17275,11 +17259,10 @@ Content-Type: application/json
         ],
         "description": "***",
         "required": [
-          "count",
           "position"
         ]
       },
-      "DeleteRows": {
+      "DeleteRow": {
         "type": "object",
         "allOf": [
           {
@@ -17288,12 +17271,6 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
-              "count": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 1
-              },
               "position": {
                 "type": "integer",
                 "format": "int32",
@@ -17305,7 +17282,6 @@ Content-Type: application/json
         ],
         "description": "***",
         "required": [
-          "count",
           "position"
         ]
       },
@@ -17313,17 +17289,17 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "columns": "#/components/schemas/DeleteColumns",
-            "rows": "#/components/schemas/DeleteRows"
+            "column": "#/components/schemas/DeleteColumn",
+            "row": "#/components/schemas/DeleteRow"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
-            "$ref": "#/components/schemas/DeleteRows"
+            "$ref": "#/components/schemas/DeleteRow"
           },
           {
-            "$ref": "#/components/schemas/DeleteColumns"
+            "$ref": "#/components/schemas/DeleteColumn"
           }
         ],
         "properties": {
@@ -17773,7 +17749,7 @@ Content-Type: application/json
           "target"
         ]
       },
-      "InsertColumns": {
+      "InsertColumn": {
         "type": "object",
         "allOf": [
           {
@@ -17786,10 +17762,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RawCellInput"
-                  }
+                  "$ref": "#/components/schemas/RawCellInput"
                 },
                 "minItems": 1
               },
@@ -17808,7 +17781,7 @@ Content-Type: application/json
           "position"
         ]
       },
-      "InsertRows": {
+      "InsertRow": {
         "type": "object",
         "allOf": [
           {
@@ -17821,10 +17794,7 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RawCellInput"
-                  }
+                  "$ref": "#/components/schemas/RawCellInput"
                 },
                 "minItems": 1
               },
@@ -17847,17 +17817,17 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "columns": "#/components/schemas/InsertColumns",
-            "rows": "#/components/schemas/InsertRows"
+            "column": "#/components/schemas/InsertColumn",
+            "row": "#/components/schemas/InsertRow"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
-            "$ref": "#/components/schemas/InsertRows"
+            "$ref": "#/components/schemas/InsertRow"
           },
           {
-            "$ref": "#/components/schemas/InsertColumns"
+            "$ref": "#/components/schemas/InsertColumn"
           }
         ],
         "properties": {
@@ -19003,18 +18973,7 @@ Content-Type: application/json
           },
           "value": {
             "type": "object",
-            "description": "***",
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "number"
-              },
-              {
-                "type": "boolean"
-              }
-            ]
+            "description": "***"
           }
         }
       },
@@ -19036,14 +18995,10 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawTableCell"
                   }
-                },
-                "minItems": 1
+                }
               }
             }
           }
-        ],
-        "required": [
-          "rows"
         ]
       },
       "RawTableCell": {
@@ -19069,102 +19024,12 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
-          "style": {
-            "$ref": "#/components/schemas/RawTableCellStyle"
-          },
           "value": {
             "type": "object",
             "description": "***"
-          }
-        }
-      },
-      "RawTableCellBorder": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "bottom": {
-            "$ref": "#/components/schemas/RawTableCellBorderSide"
           },
-          "left": {
-            "$ref": "#/components/schemas/RawTableCellBorderSide"
-          },
-          "right": {
-            "$ref": "#/components/schemas/RawTableCellBorderSide"
-          },
-          "top": {
-            "$ref": "#/components/schemas/RawTableCellBorderSide"
-          }
-        }
-      },
-      "RawTableCellBorderSide": {
-        "type": "object",
-        "description": "***",
-        "properties": {
           "style": {
-            "type": "string",
-            "description": "***",
-            "enum": [
-              "solid",
-              "dashed",
-              "dotted",
-              "double"
-            ]
-          },
-          "width": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "RawTableCellStyle": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "align": {
-            "type": "string",
-            "description": "***",
-            "enum": [
-              "right",
-              "center",
-              "justify"
-            ]
-          },
-          "background": {
-            "type": "string",
-            "description": "***"
-          },
-          "bold": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "border": {
-            "$ref": "#/components/schemas/RawTableCellBorder"
-          },
-          "color": {
-            "type": "string",
-            "description": "***"
-          },
-          "indent": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***",
-            "minimum": 1
-          },
-          "italic": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "underline": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "valign": {
-            "type": "string",
-            "description": "***",
-            "enum": [
-              "center",
-              "top"
-            ]
+            "$ref": "#/components/schemas/RawTableCellStyle"
           }
         }
       },
@@ -19282,9 +19147,6 @@ Content-Type: application/json
               }
             }
           }
-        ],
-        "required": [
-          "source"
         ]
       },
       "RedeployProjectModel": {
@@ -20983,18 +20845,7 @@ Content-Type: application/json
               },
               "value": {
                 "type": "object",
-                "description": "***",
-                "oneOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "boolean"
-                  }
-                ]
+                "description": "***"
               }
             }
           }
@@ -21037,48 +20888,6 @@ Content-Type: application/json
           "position"
         ]
       },
-      "UpdateRange": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/UpdateTarget"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "cells": {
-                "type": "array",
-                "description": "***",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RawCellInput"
-                  }
-                },
-                "minItems": 1
-              },
-              "column": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 0
-              },
-              "row": {
-                "type": "integer",
-                "format": "int32",
-                "description": "***",
-                "minimum": 0
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "cells",
-          "column",
-          "row"
-        ]
-      },
       "UpdateRow": {
         "type": "object",
         "allOf": [
@@ -21117,7 +20926,6 @@ Content-Type: application/json
           "mapping": {
             "cell": "#/components/schemas/UpdateCell",
             "column": "#/components/schemas/UpdateColumn",
-            "range": "#/components/schemas/UpdateRange",
             "row": "#/components/schemas/UpdateRow"
           },
           "propertyName": "type"
@@ -21131,9 +20939,6 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/UpdateCell"
-          },
-          {
-            "$ref": "#/components/schemas/UpdateRange"
           }
         ],
         "properties": {
@@ -21726,6 +21531,57 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "CellHighlight": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cell": {
+            "type": "string",
+            "description": "***"
+          },
+          "state": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "current",
+              "result",
+              "conditionTrue",
+              "conditionFalse"
+            ]
+          }
+        }
+      },
+      "RawTableCellStyle": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "align": {
+            "type": "string"
+          },
+          "background": {
+            "type": "string"
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "indent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "underline": {
+            "type": "boolean"
+          },
+          "valign": {
+            "type": "string"
+          }
+        }
       }
     }
   }
