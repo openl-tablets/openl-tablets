@@ -24,6 +24,7 @@ import org.openl.rules.webstudio.web.trace.debug.FrameKind;
  * @param selfMillis     own execution time in milliseconds (total minus the time spent in the tables it called)
  * @param steps          the executed sub-steps, each of which may carry its own executed sub-calls
  * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null}
+ * @param refStep        for a step-reference node, the reference of the step it points at, otherwise {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,6 +49,9 @@ public record CallNodeView(
         List<StepValueView> steps,
 
         @Schema(description = "trace.field.call-node.dispatch.desc")
-        @Nullable DispatchInfo dispatch
+        @Nullable DispatchInfo dispatch,
+
+        @Schema(description = "trace.field.call-node.ref-step.desc")
+        @Nullable String refStep
 ) {
 }

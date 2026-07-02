@@ -16405,7 +16405,8 @@ Content-Type: application/json
               "method",
               "cmatch",
               "tbasic",
-              "tbasicMethod"
+              "tbasicMethod",
+              "stepRef"
             ]
           },
           "name": {
@@ -16483,10 +16484,15 @@ Content-Type: application/json
               "method",
               "cmatch",
               "tbasic",
-              "tbasicMethod"
+              "tbasicMethod",
+              "stepRef"
             ]
           },
           "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "refStep": {
             "type": "string",
             "description": "***"
           },
@@ -17210,7 +17216,8 @@ Content-Type: application/json
               "method",
               "cmatch",
               "tbasic",
-              "tbasicMethod"
+              "tbasicMethod",
+              "stepRef"
             ]
           },
           "location": {

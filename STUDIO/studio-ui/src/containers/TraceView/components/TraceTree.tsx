@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { Empty, Segmented, Tooltip } from 'antd'
-import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, RedoOutlined } from '@ant-design/icons'
+import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, LinkOutlined, RedoOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { CallNodeView, DebugFrameView, DispatchInfo, StepValueView } from 'types/trace'
@@ -33,6 +33,8 @@ interface TreeRow {
     nodeUri?: string
     /** Set when the row has an executed sub-tree to expand. */
     expandKey?: string
+    /** For a step-reference row, the key of the original step row it points at. */
+    refTargetKey?: string
 }
 
 const hasChildren = (step: StepValueView): boolean => !!step.children && step.children.length > 0
@@ -45,15 +47,18 @@ const hasChildren = (step: StepValueView): boolean => !!step.children && step.ch
 const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: Set<string>): TreeRow[] => {
     const rows: TreeRow[] = []
 
-    const walkNode = (node: CallNodeView, depth: number, path: string): void => {
-        rows.push({ type: 'callNode', key: path, depth, node })
+    // `refBase` is the key namespace of the branch the node hangs off, so a step-reference node can point
+    // back at the original step row (`${refBase}/${refStep}`) of the frame or table that owns both.
+    const walkNode = (node: CallNodeView, depth: number, path: string, refBase?: string): void => {
+        rows.push({ type: 'callNode', key: path, depth, node,
+            ...(node.refStep && refBase ? { refTargetKey: `${refBase}/${node.refStep}` } : {}) })
         for (const step of node.steps) {
             const stepKey = `${path}/${step.ref}`
             const open = hasChildren(step)
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                step.children?.forEach((child, i) => walkNode(child, depth + 2, `${stepKey}#${i}`))
+                step.children?.forEach((child, i) => walkNode(child, depth + 2, `${stepKey}#${i}`, path))
             }
         }
     }
@@ -71,7 +76,7 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'liveStep', key: stepKey, depth: depth + 1, frameIndex: i, frame, step,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                step.children?.forEach((child, idx) => walkNode(child, depth + 2, `${stepKey}#${idx}`))
+                step.children?.forEach((child, idx) => walkNode(child, depth + 2, `${stepKey}#${idx}`, `f${i}`))
             }
             if (!drilled && step.status === 'current' && i + 1 < frames.length) {
                 walk(i + 1, depth + 2)
@@ -115,7 +120,17 @@ const TraceTree: React.FC = () => {
     const status = useTraceStore(s => s.status)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<'total' | 'self'>('total')
+    const [flashKey, setFlashKey] = useState<string | null>(null)
+    const treeRef = useRef<HTMLDivElement>(null)
     const rows = useMemo(() => flatten(frames, tree, expanded), [frames, tree, expanded])
+
+    // Scroll the referenced original step into view and flash it, so the eye lands on it.
+    const jumpToRow = (key: string): void => {
+        treeRef.current?.querySelector(`[data-rowkey="${CSS.escape(key)}"]`)
+            ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        setFlashKey(key)
+        window.setTimeout(() => setFlashKey(prev => (prev === key ? null : prev)), 1600)
+    }
 
     if (frames.length === 0 && !tree) {
         return <Empty description={t('debug.notSuspended')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -266,13 +281,15 @@ const TraceTree: React.FC = () => {
             <Tooltip key={row.key} title={tooltip}>
                 <div
                     data-testid={`tree-step-${row.frameIndex}-${step.ref}`}
+                    data-rowkey={row.key}
                     onClick={onClick}
                     style={indent(row.depth)}
                     className={cx(styles.row,
                         runnable && styles.runnable,
                         step.status === 'executed' && styles.inactive,
                         step.status === 'current' && styles.currentStep,
-                        step.status === 'pending' && styles.pending)}
+                        step.status === 'pending' && styles.pending,
+                        flashKey === row.key && styles.flashed)}
                 >
                     {twisty(row.expandKey)}
                     <span className={cx(styles.dot, styles[dotFor(step.status)])} />
@@ -287,6 +304,25 @@ const TraceTree: React.FC = () => {
 
     const renderCallNode = (row: TreeRow): React.ReactNode => {
         const node = row.node as CallNodeView
+        // A step reference is not an execution of its own: the formula used a step computed elsewhere in
+        // the same table. It is marked as a link, never duplicated, and a click jumps to the original row.
+        if (node.kind === 'stepRef') {
+            return (
+                <Tooltip key={row.key} title={t('tree.referenceHint')}>
+                    <div
+                        data-testid={`tree-ref-${row.key}`}
+                        className={cx(styles.row, styles.inactive, row.refTargetKey && styles.runnable)}
+                        style={indent(row.depth)}
+                        onClick={row.refTargetKey ? () => jumpToRow(row.refTargetKey as string) : undefined}
+                    >
+                        <span className={styles.chevronSlot} />
+                        <LinkOutlined className={styles.refIcon} />
+                        <span className={styles.leafLabel}>{node.name}</span>
+                        <span className={styles.kind}>{t('tree.referenceTag')}</span>
+                    </div>
+                </Tooltip>
+            )
+        }
         const ms = timingOf(row) ?? 0
         return (
             <div
@@ -312,7 +348,9 @@ const TraceTree: React.FC = () => {
         return (
             <div
                 key={row.key}
-                className={cx(styles.row, styles.inactive, row.expandKey && styles.runnable)}
+                data-rowkey={row.key}
+                className={cx(styles.row, styles.inactive, row.expandKey && styles.runnable,
+                    flashKey === row.key && styles.flashed)}
                 onClick={row.expandKey ? () => toggle(row.expandKey as string) : undefined}
                 style={indent(row.depth)}
             >
@@ -336,7 +374,7 @@ const TraceTree: React.FC = () => {
     }
 
     return (
-        <div className={styles.tree} data-testid="trace-tree">
+        <div ref={treeRef} className={styles.tree} data-testid="trace-tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
                 {hasTimings && (

@@ -25,4 +25,11 @@ public interface DebugHook {
 
     /** Record a current-line change reported through {@code Tracer.put} and possibly suspend. */
     void onPut(Object source, String id, Object[] args);
+
+    /**
+     * Resolve a re-read of a step that may have already executed (for example a spreadsheet cell whose
+     * value is cached). Returns {@code true} when the step is known and the re-read has been recorded as
+     * a reference, so the engine does not report it again.
+     */
+    boolean onResolveNode(Object executor);
 }

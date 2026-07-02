@@ -202,4 +202,23 @@ export const useStyles = createStyles(({ css, token }) => ({
         background: ${token.colorPrimary};
         border-color: ${token.colorPrimary};
     `,
+    // Step-reference marker: the formula used a step computed elsewhere; the row links to the original.
+    refIcon: css`
+        width: 8px;
+        flex: 0 0 auto;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
+    `,
+    // Short attention pulse on the original step row after a reference jump.
+    flashed: css`
+        animation: trace-ref-flash 1.6s ease-out;
+        @keyframes trace-ref-flash {
+            0%, 60% {
+                background: ${token.colorPrimaryBg};
+            }
+            100% {
+                background: transparent;
+            }
+        }
+    `,
 }))

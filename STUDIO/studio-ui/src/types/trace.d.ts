@@ -13,8 +13,11 @@ export type DebugStatus = 'PENDING' | 'RUNNING' | 'SUSPENDED' | 'COMPLETED' | 'E
 /** Step command issued to a suspended session. */
 export type StepType = 'into' | 'over' | 'out'
 
-/** Kind of rule table a stack frame represents (mirrors the backend FrameKind codes). */
-export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 'tbasic' | 'tbasicMethod'
+/**
+ * Kind of rule table a stack frame represents (mirrors the backend FrameKind codes). `stepRef` is not a
+ * table: a reference to a step that already executed elsewhere in the same frame.
+ */
+export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 'tbasic' | 'tbasicMethod' | 'stepRef'
 
 /** Location type of the current line inside a frame. */
 export type LocationKind = 'cell' | 'dtrule' | 'operation'
@@ -200,6 +203,8 @@ export interface CallNodeView {
     steps: StepValueView[]
     /** Set when the table was chosen by a dispatcher (versioned by dimension properties); absent otherwise. */
     dispatch?: DispatchInfo | null
+    /** For a `stepRef` node, the reference of the already-executed step it points at; absent otherwise. */
+    refStep?: string | null
 }
 
 /** One evaluated decision-table condition, for one rule. */

@@ -14,6 +14,8 @@ i18next.addResourceBundle('en', 'trace', {
         timeTotal: 'Total',
         timeSelf: 'Self',
         dispatchTitle: 'Chosen from {{count}} versions by dimension properties:',
+        referenceTag: 'ref',
+        referenceHint: 'Uses a step that already executed — click to jump to it',
     },
 
     debug: {

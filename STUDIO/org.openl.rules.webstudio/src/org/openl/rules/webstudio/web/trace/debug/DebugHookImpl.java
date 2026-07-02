@@ -84,6 +84,12 @@ final class DebugHookImpl implements DebugHook {
         if (location == null || top == null) {
             return executor.invoke(target, params, env);
         }
+        // A step can start while another step of the same frame is still running: a formula computes the
+        // cell it references before using it. Remember the enclosing step, so it can be restored when this
+        // one completes — a table called from the rest of the enclosing formula belongs to it, not to the
+        // step computed on the way.
+        CurrentLocation enclosing = top.getLocation();
+        Object enclosingStep = top.getCurrentStep();
         // Mark the current line, suspend if requested, then run the step and record its value so a later
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
@@ -93,9 +99,38 @@ final class DebugHookImpl implements DebugHook {
         // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
         long stepEnter = System.nanoTime();
         long parkedAtStepEnter = parkedNanos;
+        // On failure the location intentionally stays on the failing step, so the exception break shows it.
         R result = executor.invoke(target, params, env);
-        top.recordExecutedStep(stepRef(location), location.label(), result, elapsed(stepEnter, parkedAtStepEnter));
+        top.recordExecutedStep(executor, stepRef(location), location.label(), result,
+                elapsed(stepEnter, parkedAtStepEnter));
+        if (profiling && enclosing != null) {
+            // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
+            top.recordExecutedChild(stepRef(enclosing),
+                    CallNode.referenceTo(top.getUri(), stepRef(location), location.label()));
+        }
+        top.setLocation(enclosing);
+        top.setCurrentStep(enclosingStep);
         return result;
+    }
+
+    @Override
+    public boolean onResolveNode(Object executor) {
+        DebugFrame top = stack.peek();
+        if (top == null) {
+            return false;
+        }
+        DebugFrame.ExecutedStep original = top.executedStepFor(executor);
+        if (original == null) {
+            return false;
+        }
+        // A formula re-read a step that already executed: leave a reference to it, like the legacy
+        // ref-to-node, but only under another step — a top-level re-read adds nothing to the tree.
+        CurrentLocation location = top.getLocation();
+        if (profiling && location != null && !stepRef(location).equals(original.ref())) {
+            top.recordExecutedChild(stepRef(location),
+                    CallNode.referenceTo(top.getUri(), original.ref(), original.label()));
+        }
+        return true;
     }
 
     private static String stepRef(CurrentLocation location) {

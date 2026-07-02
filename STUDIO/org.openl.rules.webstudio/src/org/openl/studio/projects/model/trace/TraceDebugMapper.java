@@ -370,6 +370,7 @@ public class TraceDebugMapper {
                 .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
                 .steps(steps)
                 .dispatch(node.dispatch())
+                .refStep(node.refStep())
                 .build();
     }
 

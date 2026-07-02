@@ -41,10 +41,19 @@ class TraceDebuggerIntegrationTest {
         }
 
         FakeTable cell(int row, int col) {
-            body.add(env -> Tracer.invoke(new FakeCell(row, col), null, NO_PARAMS, env, new FakeCell(row, col)));
+            body.add(env -> Tracer.invoke(new FakeCell(row, col, null), null, NO_PARAMS, env,
+                    new FakeCell(row, col, null)));
             return this;
         }
 
+        /** A cell whose formula calls another table — the call happens inside the cell, as in a spreadsheet. */
+        FakeTable cellCalling(int row, int col, FakeTable child) {
+            body.add(env -> Tracer.invoke(new FakeCell(row, col, child), null, NO_PARAMS, env,
+                    new FakeCell(row, col, child)));
+            return this;
+        }
+
+        /** A direct table-to-table call with no step in between, as in a method table body. */
         FakeTable call(FakeTable child) {
             body.add(env -> Tracer.invoke(child, null, NO_PARAMS, env, child));
             return this;
@@ -69,10 +78,13 @@ class TraceDebuggerIntegrationTest {
         }
     }
 
-    /** A synthetic sub-step: a spreadsheet-like cell. */
-    private record FakeCell(int row, int col) implements Invokable<Object, IRuntimeEnv> {
+    /** A synthetic sub-step: a spreadsheet-like cell, optionally calling a table from its formula. */
+    private record FakeCell(int row, int col, FakeTable calls) implements Invokable<Object, IRuntimeEnv> {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            if (calls != null) {
+                Tracer.invoke(calls, null, NO_PARAMS, env, calls);
+            }
             return "R" + row + "C" + col;
         }
     }
@@ -103,7 +115,7 @@ class TraceDebuggerIntegrationTest {
 
     private static DebugBody program() {
         FakeTable t1 = new FakeTable("T1").cell(1, 0);
-        FakeTable t0 = new FakeTable("T0").cell(0, 0).call(t1).cell(0, 1);
+        FakeTable t0 = new FakeTable("T0").cellCalling(0, 0, t1).cell(0, 1);
         return () -> Tracer.invoke(t0, null, NO_PARAMS, new SimpleRuntimeEnv(), t0);
     }
 
@@ -352,7 +364,13 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
         assertTrue(debugger.stack().get(0).getExecutedSteps().isEmpty());
 
-        // Next step computes the first cell and records its value, then stops at the nested call.
+        // The first cell's formula calls a table: at that call's entry the cell is still executing.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertTrue(debugger.stack().get(0).getExecutedSteps().isEmpty(),
+                "a cell still running its formula is not executed yet");
+
+        // Once the call returns and the cell completes, its value is recorded — visible at the next cell.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
         DebugFrame root = debugger.stack().get(0);
         assertFalse(root.getExecutedSteps().isEmpty(), "the executed cell must be recorded");

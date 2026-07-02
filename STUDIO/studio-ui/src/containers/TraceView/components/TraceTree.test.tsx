@@ -176,6 +176,50 @@ describe('TraceTree', () => {
         await waitFor(() => expect(resume).toHaveBeenCalledWith('p1'))
     })
 
+    it('marks a step reference without duplicating it and jumps to the original on click', async () => {
+        const scrollIntoView = vi.fn()
+        Element.prototype.scrollIntoView = scrollIntoView
+        try {
+            useTraceStore.setState({
+                status: 'SUSPENDED',
+                frames: [frame(0, {
+                    name: 'ROOT',
+                    active: true,
+                    steps: [
+                        step('R0C0', 'executed', '$Term'),
+                        {
+                            ...step('R2C0', 'executed', '$Value'),
+                            children: [
+                                { uri: 'u0', name: '$Term', kind: 'stepRef', durationMillis: 0, selfMillis: 0,
+                                    steps: [], refStep: 'R0C0' },
+                                { uri: 'u9', name: 'SubPremium', kind: 'spreadsheet', durationMillis: 3,
+                                    selfMillis: 3, steps: [] },
+                            ],
+                        },
+                    ],
+                })],
+                selectedFrameIndex: 0,
+            })
+
+            render(<TraceTree />)
+            await userEvent.click(screen.getByTestId('tree-toggle-f0/R2C0'))
+
+            // The reference is marked as a link, never drawn as a duplicated branch: no replay, no timing.
+            const reference = screen.getByTestId('tree-ref-f0/R2C0#0')
+            expect(reference).toHaveTextContent('$Term')
+            expect(reference).toHaveTextContent('tree.referenceTag')
+            expect(reference.querySelector('[data-testid^="tree-replay"]')).toBeNull()
+            // The real sub-call next to it still renders as a normal node.
+            expect(screen.getByText('SubPremium')).toBeInTheDocument()
+
+            // Clicking the reference scrolls to the original step row and flashes it.
+            await userEvent.click(reference)
+            expect(scrollIntoView).toHaveBeenCalled()
+        } finally {
+            delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView
+        }
+    })
+
     it('shows the empty state when there is no stack', () => {
         useTraceStore.setState({ status: null, frames: [], tree: null })
         render(<TraceTree />)

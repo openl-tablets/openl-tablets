@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.trace.debug;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,9 @@ public final class DebugFrame {
     private final @Nullable IRuntimeContext context;
     private final int depth;
     private final List<ExecutedStep> executedSteps = new ArrayList<>();
+    /** Executed steps by their live executor, so a later re-read of the same cell can reference them. */
+    @Getter(lombok.AccessLevel.NONE)
+    private final Map<Object, ExecutedStep> executedByExecutor = new IdentityHashMap<>();
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
     /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
     private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
@@ -81,7 +85,7 @@ public final class DebugFrame {
         this.depth = depth;
     }
 
-    void setLocation(CurrentLocation location) {
+    void setLocation(@Nullable CurrentLocation location) {
         this.location = location;
     }
 
@@ -89,10 +93,19 @@ public final class DebugFrame {
         this.currentStep = currentStep;
     }
 
-    void recordExecutedStep(String ref, @Nullable String label, @Nullable Object value, long durationNanos) {
+    void recordExecutedStep(Object executor, String ref, @Nullable String label, @Nullable Object value,
+                            long durationNanos) {
         if (executedSteps.size() < MAX_RECORDED_PER_FRAME) {
-            executedSteps.add(new ExecutedStep(ref, label, value, durationNanos));
+            ExecutedStep step = new ExecutedStep(ref, label, value, durationNanos);
+            executedSteps.add(step);
+            executedByExecutor.putIfAbsent(executor, step);
         }
+    }
+
+    /** The already-executed step run by the given executor, or {@code null} if it has not run in this frame. */
+    @Nullable
+    ExecutedStep executedStepFor(Object executor) {
+        return executedByExecutor.get(executor);
     }
 
     void recordConditionCheck(ConditionCheck check) {
@@ -125,7 +138,7 @@ public final class DebugFrame {
                 steps.add(new CallNode.Step(ref, null, 0, List.copyOf(children)));
             }
         });
-        return new CallNode(uri, name, kind, durationNanos, steps, dispatch);
+        return new CallNode(uri, name, kind, durationNanos, steps, dispatch, null);
     }
 
     private List<CallNode> childrenOf(String ref) {

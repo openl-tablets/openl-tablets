@@ -63,6 +63,16 @@ public final class DebugDispatchTracer extends Tracer {
     }
 
     @Override
+    protected <T, E extends IRuntimeEnv> boolean doResolveTraceNode(Invokable<? super T, E> executor,
+                                                                    T target,
+                                                                    Object[] params,
+                                                                    E env,
+                                                                    Object source) {
+        DebugHook hook = debugHook.get();
+        return hook != null && hook.onResolveNode(executor);
+    }
+
+    @Override
     protected <T> T doWrap(Object source, T target, Object[] args) {
         // In debug mode, wrap int selectors so a decision table's per-rule condition checks
         // (success/failure) are recorded via Tracer.put.
