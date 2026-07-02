@@ -317,14 +317,16 @@ The Projects Trace API is an **interactive debugger** for OpenL rules: it suspen
 **Key Features:**
 - Real suspended execution (step into/over/out, resume, pause) — not a pre-built tree
 - Live call stack (root → current), so memory is bounded by stack depth
-- Breakpoints on tables and on spreadsheet sub-steps, persisted per session
-- Lazy per-frame variable freezing; executed-step values for spreadsheets
-- Frame table HTML with current-line highlighting (cell; decision-table condition/result)
-- WebSocket status notifications; one session per user
+- Breakpoints on tables (by URI or by name), spreadsheet cells, and fired decision-table rules
+- Profiling: the executed call tree with per-frame and per-step timings and step references
+- Lazy per-frame variable freezing; executed-step values; decision-table outcome explanation
+- Client-rendered traced table: A1-keyed highlight overlay on top of the shared raw Tables API
+- WebSocket status notifications; one session per user; idle sessions reaped
 
 **Use Cases:**
 - Rule debugging and analysis
 - Decision table execution visualization (matched/unmatched conditions, fired rule)
+- Performance profiling of a calculation
 - Test case failure investigation
 - Spreadsheet cell dependency and value inspection
 
@@ -344,8 +346,8 @@ POST /projects/MyProject/trace/step?type=into
 # Inspect the top frame's variables
 GET /projects/MyProject/trace/frames/0/variables
 
-# Frame table HTML with the current line highlighted
-GET /projects/MyProject/trace/frames/0/table
+# Highlight overlay for the client-rendered table
+GET /projects/MyProject/trace/frames/0/highlights
 
 # Run to the next breakpoint / completion
 POST /projects/MyProject/trace/resume      # 202; outcome via WebSocket
@@ -594,16 +596,19 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Start Session | ✅ Complete | Suspended execution on a worker thread; returns the live stack |
-| Stepping | ✅ Complete | Step into / over / out, resume, pause |
+| Stepping | ✅ Complete | Step into / over / out (with frame-exit stop), resume, pause |
 | Stack & Status | ✅ Complete | Live call stack (root → current) and status poll |
-| Frame Variables | ✅ Complete | Lazy per-frame freezing; executed-step values |
-| Breakpoints | ✅ Complete | Table `uri` and spreadsheet sub-step `uri#ref`, per session |
-| Frame Table HTML | ✅ Complete | Current-line highlight (cell; DT condition/result) |
+| Frame Variables | ✅ Complete | Lazy per-frame freezing; executed-step values; DT decision outcome |
+| Breakpoints | ✅ Complete | Table `uri` or `name`, cell `uri#ref`, rule `uri#rule` / `uri#{ruleName}` |
+| Breakpoint Targets | ✅ Complete | Reachable tables, deduplicated by name |
+| Frame Highlights | ✅ Complete | A1-keyed overlay for the client-rendered table (cell; DT condition/result) |
+| Profiling | ✅ Complete | Executed call tree, total/self timings, dispatch badges, step references |
+| Break on Exception | ✅ Complete | Suspends at the throwing frame with a structured error |
 | Cancel Session | ✅ Complete | Idempotent termination |
 | Lazy Parameters | ✅ Complete | On-demand loading for large values |
 | Test Range Support | ✅ Complete | Parse ranges like "1-3,5" |
 | WebSocket Status | ✅ Complete | SUSPENDED/RUNNING/COMPLETED/ERROR/TERMINATED |
-| Session Management | ✅ Complete | One session per user |
+| Session Management | ✅ Complete | One session per user; idle sessions reaped |
 
 ---
 

@@ -50,9 +50,11 @@ stateDiagram-v2
     TERMINATED --> [*]
 ```
 
-- Инспекция и шаги валидны **только при `SUSPENDED`** (иначе `409`).
-- `COMPLETED`/`ERROR`/`TERMINATED` — терминальные: дальше только `trace_inspect` (последнего состояния
-  стека) и `trace_stop`. На `ERROR` стек содержит `error: DebugError`.
+- Инспекция кадров и шаги валидны **только при `SUSPENDED`** (иначе `409`); чтение стека — при любом
+  статусе, кроме `RUNNING`.
+- `COMPLETED`/`ERROR`/`TERMINATED` — терминальные: дальше только чтение стека (`GET /stack` — на
+  `ERROR` в нём `error: DebugError`, при `profiling` — весь `tree`) и `trace_stop`; `trace_inspect`
+  на терминале вернёт `409`.
 
 ## 3. Грамматика ключей брейкпоинтов
 
@@ -81,8 +83,9 @@ stateDiagram-v2
 // DebugStackView — возвращают trace_start / trace_step / trace_resume / trace_stack
 {
   "status": "SUSPENDED",
-  "frames": [ /* DebugFrameView, root → current */ ],
-  "error": null            // DebugError, присутствует только при status=ERROR
+  "frames": [ /* DebugFrameView, root → current; пуст после завершения */ ],
+  "error": null,           // DebugError, присутствует только при status=ERROR
+  "tree": null             // ? CallNodeView — ВЕСЬ выполненный колл-три после завершения (только profiling)
 }
 
 // DebugFrameView — один кадр стека
@@ -96,11 +99,19 @@ stateDiagram-v2
   "location": null,        // DebugLocationView — текущая «строка», null на входе
   "active": true,          // true у текущего (последнего) кадра
   "completed": false,      // true когда кадр отработал (есть результат)
-  "error": false           // true когда кадр упал
+  "error": false,          // true когда кадр упал
+  "steps": [ /* ? StepValueView — под-шаги кадра со статусами (executed/current/pending) */ ],
+  "durationMillis": 12.4,  // ? общее время ЗАВЕРШЁННОГО кадра (без времени паркинга)
+  "selfMillis": 3.1,       // ? собственное время (без вызванных таблиц)
+  "dispatch": null         // ? DispatchInfo — если таблица выбрана диспетчером из перегруженных версий
 }
 
 // FrameKind
 "decisionTable" | "spreadsheet" | "method" | "cmatch" | "tbasic" | "tbasicMethod"
+// + "stepRef" — только у CallNodeView: ссылка на уже выполненный шаг, не таблица
+
+// DispatchInfo — бейдж версии, выбранной по dimension-свойствам (сам диспетчер кадра не создаёт)
+{ "candidates": [ { "label": "effectiveDate: 01/01/2021", "chosen": true }, { "label": "…", "chosen": false } ] }
 
 // DebugLocationView — текущая строка внутри кадра
 {
@@ -136,9 +147,27 @@ stateDiagram-v2
   "schema": { /* JSON Schema */ }  // ? схема значения (опускать через ?fields для экономии токенов)
 }
 
-// StepValueView — под-шаг кадра
-{ "ref": "R0C1", "label": "$Value$Total", "status": "executed", "value": { /* ParameterValue */ } }
-// status: "executed" | "current" | "pending"
+// StepValueView — под-шаг кадра (только ИСПОЛНЯЕМЫЕ ячейки: формулы; константы/заголовки не шаги)
+{
+  "ref": "R0C1", "label": "$Value$Total",
+  "status": "executed",            // "executed" | "current" | "pending"
+  "value": { /* ParameterValue */ },  // ? только из trace_inspect (variables)
+  "children": [ /* ? CallNodeView — что этот шаг вызвал/на что сослался (profiling) */ ],
+  "durationMillis": 5.0,           // ? общее время выполненного шага (своя работа + вызванные таблицы)
+  "selfMillis": 1.2                // ? собственное время (без вызванных таблиц)
+}
+
+// CallNodeView — узел выполненного колл-три (profiling): вернувшийся вызов, только структура, БЕЗ значений
+{
+  "uri": "…", "name": "SubPremium",
+  "kind": "spreadsheet",           // или "stepRef" — ссылка на шаг того же кадра
+  "durationMillis": 8.3, "selfMillis": 2.0,
+  "steps": [ /* StepValueView — выполненные под-шаги, рекурсивно */ ],
+  "dispatch": null,                // ? DispatchInfo
+  "refStep": null                  // ? для kind=stepRef: ref оригинального шага (напр. "R1C0")
+}
+// stepRef = формула вычислила/перечитала другой шаг того же кадра: время 0, детей нет —
+// исполнение учтено один раз, у оригинального шага; ветка никогда не дублируется.
 
 // DecisionView — «почему сработало правило» (киллер-фича для агента)
 {
@@ -166,12 +195,13 @@ stateDiagram-v2
 | 1 | `trace_start` | `POST /trace` | нет сессии | `DebugStackView` |
 | 2 | `trace_step` | `POST /step?type=` | `SUSPENDED` | `DebugStackView` |
 | 3 | `trace_resume` | `POST /resume` + поллинг `GET /status` → `GET /stack` | `SUSPENDED` | `DebugStackView` |
-| 4 | `trace_inspect` | `GET …/variables` (+ опц. `…/highlights`, raw-сетка) | `SUSPENDED`* | `DebugFrameVariables` (+ highlights) |
+| 4 | `trace_inspect` | `GET …/variables` (+ опц. `…/highlights`, raw-сетка) | `SUSPENDED` | `DebugFrameVariables` (+ highlights) |
 | 5 | `trace_breakpoints` | `GET /breakpoint-tables`, `GET`/`PUT /breakpoints` | любой | `{ breakpoints, targets }` |
 | 6 | `trace_get_value` | `GET /parameters/{id}` | сессия жива | `ParameterValue` |
 | 7 | `trace_stop` | `DELETE /trace` | любой | `{ ok: true }` |
 
-\* `trace_inspect` на терминальном статусе вернёт последнее замороженное состояние, если кадр ещё в стеке.
+На терминальном статусе финальное состояние (структурированная ошибка, выполненный `tree`) читается
+из стека — его уже вернул `trace_start`/`trace_step`/`trace_resume`; `trace_inspect` там даст `409`.
 
 ---
 
@@ -190,13 +220,19 @@ stateDiagram-v2
   "inputJson": { /* … */ },   // ? тело-вход, если без тест-кейса
   "fromModule": "string",     // ? трассировать в контексте конкретного открытого модуля
   "stopAtEntry": true,        // по умолчанию true — остановиться на входе
+  "profiling": false,         // ? true — сохранять выполненный колл-три (структура+тайминги, без значений)
   "breakpoints": ["MyDT#rule"]// ? начальный набор (иначе ставить через trace_breakpoints до старта)
 }
 ```
 
-**API:** `POST {base}?tableId=…&testRanges=…&stopAtEntry=…` (тело = `inputJson`).
-**Выход:** `DebugStackView` (обычно `status=SUSPENDED`, один кадр на входе).
+**API:** `POST {base}?tableId=…&testRanges=…&stopAtEntry=…&profiling=…` (тело = `inputJson`).
+**Выход:** `DebugStackView` (обычно `status=SUSPENDED`, один кадр на входе; при
+`stopAtEntry=false` без брейкпоинтов — сразу терминальный, с `tree` при `profiling=true`).
 **Ошибки:** `404` таблица/метод не найдены; `409` ошибка конфигурации mapper.
+
+> [!Note]
+> Сервер запоминает последний вход: рестарт **без** `inputJson` и **без** `testRanges` (реплей,
+> переключение `profiling`) повторяет трассировку с тем же входом — MCP не обязан его пересылать.
 
 ---
 
@@ -208,6 +244,10 @@ stateDiagram-v2
 - `into` — внутрь следующего вызова / на следующий под-шаг;
 - `over` — следующий под-шаг текущего кадра (вложенные вызовы пробегаются);
 - `out` — доводит текущий кадр до его собственного выхода (виден `result`), дальше — в вызывающий.
+
+Шаг, завершающий кадр (любой из трёх), сперва останавливается на **выходе этого кадра**: он ещё в
+стеке, `completed=true`, `result` доступен через `trace_inspect`. Исключение в правиле само
+останавливает на падающем кадре до раскрутки (дальше `trace_resume` → терминальный `ERROR`).
 
 **Выход:** `DebugStackView`. **Ошибки:** `404` нет сессии; `409` не `SUSPENDED`.
 
@@ -315,6 +355,13 @@ stateDiagram-v2
   `/step` уже синхронный.
 - **Токен-бюджет.** Не тащить `schema` и полные графы в `trace_inspect` без `full`; крупные значения —
   по требованию через `trace_get_value`.
+- **Профилирование = самый дешёвый «понять весь прогон».** `trace_start(profiling=true,
+  stopAtEntry=false)` без брейкпоинтов добегает до конца за ОДИН вызов и возвращает `tree` — полную
+  структуру исполнения: какие шаги выполнились, что каждый вызвал (`children`), тайминги
+  total/self, бейджи версий и `stepRef`-ссылки. Значений в дереве нет — чтобы заглянуть внутрь
+  ветки, реплей: рестарт с брейкпоинтом на нужной таблице (вход запоминается) и `trace_inspect`
+  вживую. Паттерн для агента: сперва дерево (дёшево, целиком), потом точечный дебаг подозрительной
+  ветки.
 - **Highlights.** Ключи — A1-адреса (`B3`); смысл ячейки берётся из raw-сетки (`?raw=true`). Для
   decision-таблиц `decision` обычно информативнее, чем подсветка.
 - **Безопасность.** Трассировка = READ-операция (проверяется грант READ на проект, как у run/test).
