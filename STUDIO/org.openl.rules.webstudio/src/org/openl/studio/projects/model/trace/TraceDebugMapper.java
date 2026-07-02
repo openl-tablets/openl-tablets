@@ -96,6 +96,13 @@ public class TraceDebugMapper {
      */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
                                              @Nullable CallNode completedTree, StackRenderOptions options) {
+        return toStackView(status, frames, error, completedTree, options, false);
+    }
+
+    /** Map the live stack shaped by {@code options}, marking the profile incomplete when the tree hit the node cap. */
+    public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
+                                             @Nullable CallNode completedTree, StackRenderOptions options,
+                                             boolean treeTruncated) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -123,7 +130,8 @@ public class TraceDebugMapper {
                 .frames(views)
                 .error(buildStackError(frames, error))
                 .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
-                .profile(completedTree == null ? null : buildProfileSummary(completedTree, options.profileTop()))
+                .profile(completedTree == null ? null
+                        : buildProfileSummary(completedTree, options.profileTop(), treeTruncated))
                 .build();
     }
 
@@ -179,6 +187,10 @@ public class TraceDebugMapper {
      * aggregated, keeping only the slowest {@code top} by own time. Constant-sized regardless of run size.
      */
     static ProfileSummaryView buildProfileSummary(CallNode root, int top) {
+        return buildProfileSummary(root, top, false);
+    }
+
+    static ProfileSummaryView buildProfileSummary(CallNode root, int top, boolean treeTruncated) {
         Map<String, Hotspot> byUri = new HashMap<>();
         int nodeCount = accumulateHotspots(root, byUri, 0);
         List<ProfileHotspotView> hotspots = byUri.values().stream()
@@ -191,7 +203,7 @@ public class TraceDebugMapper {
                 .distinctTables(byUri.size())
                 .nodeCount(nodeCount)
                 .totalMillis(toMillis(root.durationNanos()))
-                .truncated(byUri.size() > hotspots.size())
+                .truncated(byUri.size() > hotspots.size() || treeTruncated)
                 .build();
     }
 

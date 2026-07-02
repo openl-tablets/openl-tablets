@@ -35,6 +35,9 @@ final class DebugHookImpl implements DebugHook {
     /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
     private static final int MAX_WATCH_CAPTURES = 50_000;
 
+    /** Upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. */
+    private static final int MAX_TREE_NODES = 200_000;
+
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
@@ -52,6 +55,9 @@ final class DebugHookImpl implements DebugHook {
     private long parkedNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
     private @Nullable CallNode completedTree;
+    /** Running count of retained tree nodes and the flag set once the node cap stops the tree from growing. */
+    private int recordedNodes;
+    private boolean treeTruncated;
     /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
@@ -141,7 +147,7 @@ final class DebugHookImpl implements DebugHook {
         }
         if (profiling && enclosing != null) {
             // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
-            top.recordExecutedChild(stepRef(enclosing),
+            recordChild(top, stepRef(enclosing),
                     CallNode.referenceTo(top.getUri(), stepRef(location), location.label()));
         }
         top.setLocation(enclosing);
@@ -163,7 +169,7 @@ final class DebugHookImpl implements DebugHook {
         // ref-to-node, but only under another step — a top-level re-read adds nothing to the tree.
         CurrentLocation location = top.getLocation();
         if (profiling && location != null && !stepRef(location).equals(original.ref())) {
-            top.recordExecutedChild(stepRef(location),
+            recordChild(top, stepRef(location),
                     CallNode.referenceTo(top.getUri(), original.ref(), original.label()));
         }
         return true;
@@ -174,6 +180,25 @@ final class DebugHookImpl implements DebugHook {
             return location.ref();
         }
         return location.label() != null ? location.label() : location.kind().getCode();
+    }
+
+    /**
+     * Attach a returned call or reference to its caller frame while the tree is under the node cap.
+     *
+     * <p>Bounds the retained tree for a huge run: once the cap is reached further nodes are dropped and the
+     * tree is flagged truncated, so the profile can report that it is incomplete instead of exhausting memory.
+     */
+    private void recordChild(DebugFrame frame, @Nullable String callerRef, CallNode node) {
+        if (recordedNodes >= MAX_TREE_NODES) {
+            treeTruncated = true;
+            return;
+        }
+        frame.recordExecutedChild(callerRef, node);
+        recordedNodes++;
+    }
+
+    boolean isTreeTruncated() {
+        return treeTruncated;
     }
 
     /** Record a watched cell's value if this step is watched (by its name or ref), unless the cap is hit. */
@@ -261,7 +286,7 @@ final class DebugHookImpl implements DebugHook {
             if (profiling && (frame.isCompleted() || frame.getError() != null)) {
                 CallNode node = frame.toCallNode();
                 if (parent != null) {
-                    parent.recordExecutedChild(callerRef, node);
+                    recordChild(parent, callerRef, node);
                 } else {
                     completedTree = node;
                 }

@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.trace;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +25,10 @@ import org.springframework.stereotype.Component;
  * <p>This singleton is the safety net: it periodically terminates sessions that have not been accessed
  * within the idle timeout, bounding how long an orphaned worker can hold memory. It also doubles as a
  * backstop for a runaway rule that never reaches a step point.
+ *
+ * <p>It further caps the total number of live sessions: because the one-per-user limit only holds within a
+ * single browser session, one user opening several sessions could otherwise pile up workers and heap. When
+ * a new session pushes the count over the limit, the least-recently-accessed session is reclaimed first.
  */
 @Slf4j
 @Component
@@ -31,19 +36,22 @@ public class DebugSessionReaper {
 
     private static final long IDLE_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(10);
     private static final long SWEEP_INTERVAL_MILLIS = TimeUnit.MINUTES.toMillis(1);
+    private static final int MAX_ACTIVE_SESSIONS = 16;
 
     private final Set<DebugSession> sessions = ConcurrentHashMap.newKeySet();
     private final long idleTimeoutMillis;
     private final long sweepIntervalMillis;
+    private final int maxActiveSessions;
     private @Nullable ScheduledExecutorService scheduler;
 
     public DebugSessionReaper() {
-        this(IDLE_TIMEOUT_MILLIS, SWEEP_INTERVAL_MILLIS);
+        this(IDLE_TIMEOUT_MILLIS, SWEEP_INTERVAL_MILLIS, MAX_ACTIVE_SESSIONS);
     }
 
-    DebugSessionReaper(long idleTimeoutMillis, long sweepIntervalMillis) {
+    DebugSessionReaper(long idleTimeoutMillis, long sweepIntervalMillis, int maxActiveSessions) {
         this.idleTimeoutMillis = idleTimeoutMillis;
         this.sweepIntervalMillis = sweepIntervalMillis;
+        this.maxActiveSessions = maxActiveSessions;
     }
 
     @PostConstruct
@@ -55,9 +63,30 @@ public class DebugSessionReaper {
         scheduler = executor;
     }
 
-    /** Start tracking a session so it can be reaped once idle. */
+    /** Start tracking a session so it can be reaped once idle, evicting the oldest if the global limit is exceeded. */
     public void register(DebugSession session) {
         sessions.add(session);
+        enforceCapacity();
+    }
+
+    /**
+     * Bound the number of concurrently tracked sessions across the whole application.
+     *
+     * <p>The per-HTTP-session registry keeps only one active session per browser session, but a single
+     * user can open several (multiple browsers, API clients) and each holds a worker thread and its frozen
+     * object graph. This global limit reclaims the least-recently-accessed sessions once the total exceeds
+     * the cap, so an actively used session survives while stale or abandoned ones are dropped first.
+     */
+    private void enforceCapacity() {
+        while (sessions.size() > maxActiveSessions) {
+            var oldest = sessions.stream()
+                    .min(Comparator.comparingLong(DebugSession::getLastAccessMillis))
+                    .orElse(null);
+            if (oldest == null) {
+                break;
+            }
+            reap(oldest, "active session limit " + maxActiveSessions + " exceeded");
+        }
     }
 
     /** Stop tracking a session that has already been released. */
@@ -71,7 +100,7 @@ public class DebugSessionReaper {
         sessions.stream()
                 .filter(session -> now - session.getLastAccessMillis() >= idleTimeoutMillis)
                 .toList()
-                .forEach(this::reap);
+                .forEach(session -> reap(session, "idle for over " + idleTimeoutMillis + " ms"));
     }
 
     int trackedCount() {
@@ -86,14 +115,15 @@ public class DebugSessionReaper {
         }
     }
 
-    private void reap(DebugSession session) {
-        sessions.remove(session);
+    private void reap(DebugSession session, String reason) {
+        if (!sessions.remove(session)) {
+            return; // already reclaimed by a concurrent sweep or capacity check
+        }
         try {
-            log.warn("Reaping idle debug session (table '{}'): no access for over {} ms",
-                    session.getTableId(), idleTimeoutMillis);
+            log.warn("Reaping debug session (table '{}'): {}", session.getTableId(), reason);
             session.terminate();
         } catch (RuntimeException e) {
-            log.warn("Failed to reap idle debug session", e);
+            log.warn("Failed to reap debug session", e);
         }
     }
 
@@ -102,6 +132,6 @@ public class DebugSessionReaper {
         if (scheduler != null) {
             scheduler.shutdownNow();
         }
-        List.copyOf(sessions).forEach(this::reap);
+        List.copyOf(sessions).forEach(session -> reap(session, "reaper shutdown"));
     }
 }

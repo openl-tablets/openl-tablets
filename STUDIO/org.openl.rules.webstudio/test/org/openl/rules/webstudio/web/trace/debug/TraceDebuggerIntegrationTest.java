@@ -284,6 +284,7 @@ class TraceDebuggerIntegrationTest {
                 .filter(step -> step.ref().equals("R0C0")).findFirst().orElseThrow();
         assertEquals(List.of("T1"), caller.children().stream().map(CallNode::name).toList());
         assertTrue(tree.durationNanos() >= 0, "the root carries its measured execution time");
+        assertFalse(debugger.isTreeTruncated(), "a small run stays well under the node cap");
     }
 
     @Test
