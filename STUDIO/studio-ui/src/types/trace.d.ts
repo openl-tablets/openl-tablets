@@ -13,8 +13,11 @@ export type DebugStatus = 'PENDING' | 'RUNNING' | 'SUSPENDED' | 'COMPLETED' | 'E
 /** Step command issued to a suspended session. */
 export type StepType = 'into' | 'over' | 'out'
 
-/** Kind of rule table a stack frame represents (mirrors the backend FrameKind codes). */
-export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 'tbasic' | 'tbasicMethod'
+/**
+ * Kind of rule table a stack frame represents (mirrors the backend FrameKind codes). `stepRef` is not a
+ * table: a reference to a step that already executed elsewhere in the same frame.
+ */
+export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 'tbasic' | 'tbasicMethod' | 'stepRef'
 
 /** Location type of the current line inside a frame. */
 export type LocationKind = 'cell' | 'dtrule' | 'operation'
@@ -44,6 +47,20 @@ export interface DebugLocationView {
 /**
  * One frame of the live execution stack.
  */
+/** A table chosen at runtime from versions overloaded by dimension properties (a dispatcher). */
+export interface DispatchInfo {
+    /** The overloaded versions, each labelled by its dimension properties, with the chosen one flagged. */
+    candidates: DispatchCandidate[]
+}
+
+/** One overloaded version of a dispatched table. */
+export interface DispatchCandidate {
+    /** The version's dimension properties (e.g. `effectiveDate: 01/01/2020`), or its name. */
+    label: string
+    /** Whether the dispatcher selected this version for the current runtime context. */
+    chosen: boolean
+}
+
 export interface DebugFrameView {
     /** Position in the stack, 0 for the root call */
     index: number
@@ -65,6 +82,17 @@ export interface DebugFrameView {
     completed: boolean
     /** Whether the frame failed */
     error: boolean
+    /**
+     * The frame's sub-steps (spreadsheet cells or decision-table rules) with their status, so the call
+     * tree shows every level at once. Values are omitted here and fetched per frame on demand.
+     */
+    steps?: StepValueView[] | null
+    /** Total execution time (ms) once the frame has returned, e.g. after a step out; absent while it runs. */
+    durationMillis?: number | null
+    /** Own execution time (ms) once the frame has returned (total minus called tables); absent while it runs. */
+    selfMillis?: number | null
+    /** Set when the table was chosen by a dispatcher (versioned by dimension properties); absent otherwise. */
+    dispatch?: DispatchInfo | null
 }
 
 /** How a traced cell is highlighted, shared with the spreadsheet grid and the decision panel. */
@@ -139,6 +167,8 @@ export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
     error?: DebugError | null
+    /** The whole executed call tree once the trace has finished (profiling mode); absent while it runs. */
+    tree?: CallNodeView | null
 }
 
 /**
@@ -150,6 +180,31 @@ export interface StepValueView {
     label?: string | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
+    /** Tables this step called, retained in profiling mode so a returned branch can be browsed. */
+    children?: CallNodeView[] | null
+    /** Total execution time (ms) of an executed step: its own work plus called tables; absent if not run. */
+    durationMillis?: number | null
+    /** Own execution time (ms) of an executed step: total minus called tables; absent if not run. */
+    selfMillis?: number | null
+}
+
+/**
+ * A node of the executed call tree: a table invocation that has already returned. Structure only — no
+ * values — present only when the session runs in profiling mode.
+ */
+export interface CallNodeView {
+    uri: string
+    name: string
+    kind: FrameKind
+    /** Total execution time in milliseconds (this table and everything it called), excluding parked time. */
+    durationMillis: number
+    /** Own execution time in milliseconds: total minus the time spent in the tables it called. */
+    selfMillis: number
+    steps: StepValueView[]
+    /** Set when the table was chosen by a dispatcher (versioned by dimension properties); absent otherwise. */
+    dispatch?: DispatchInfo | null
+    /** For a `stepRef` node, the reference of the already-executed step it points at; absent otherwise. */
+    refStep?: string | null
 }
 
 /** One evaluated decision-table condition, for one rule. */
@@ -179,6 +234,8 @@ export interface DebugFrameVariables {
     gridRows?: string[] | null
     /** Decision-table outcome explanation (only for decision-table frames). */
     decision?: DecisionView | null
+    /** All rule names of a decision-table frame, so a breakpoint can be set on any rule. */
+    ruleNames?: string[] | null
     errors: MessageDescription[]
 }
 

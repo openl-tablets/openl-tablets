@@ -1,4 +1,86 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{"status":"SUSPENDED","frames":[{"index":0,"depth":1,"uri":"EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D9:G22","name":"BankRatingCalculation","kind":"spreadsheet","location":{"kind":"cell","row":0,"column":1,"ref":"R0C1","label":"$Value$CheckCurrentFinancialData"},"active":true,"completed":false,"error":false,"tableId":"***"}]}
+{
+  "status": "SUSPENDED",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D9:G22",
+      "tableId": "b744102658a823f249590bec533c53e7",
+      "name": "BankRatingCalculation",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 0,
+        "column": 1,
+        "ref": "R0C1",
+        "label": "$Value$CheckCurrentFinancialData"
+      },
+      "active": true,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C1",
+          "label": "$Value$CheckCurrentFinancialData",
+          "status": "current"
+        },
+        {
+          "ref": "R1C1",
+          "label": "$Value$CheckPreviousPeriodFinancialData",
+          "status": "pending"
+        },
+        {
+          "ref": "R2C1",
+          "label": "$Value$BalanceQualityIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R3C1",
+          "label": "$Value$BalanceDynamicIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R4C1",
+          "label": "$Value$BankQualitativeIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R5C1",
+          "label": "$Value$IsAdequateNormativeIndexCalculation",
+          "status": "pending"
+        },
+        {
+          "ref": "R6C1",
+          "label": "$Value$BankRating",
+          "status": "pending"
+        },
+        {
+          "ref": "R7C1",
+          "label": "$Value$BankRatingGroup",
+          "status": "pending"
+        },
+        {
+          "ref": "R8C1",
+          "label": "$Value$LimitIndex",
+          "status": "pending"
+        },
+        {
+          "ref": "R9C1",
+          "label": "$Value$Limit",
+          "status": "pending"
+        }
+      ],
+      "dispatch": {
+        "candidates": [
+          {
+            "label": "lob: BANK",
+            "chosen": true
+          }
+        ]
+      }
+    }
+  ]
+}

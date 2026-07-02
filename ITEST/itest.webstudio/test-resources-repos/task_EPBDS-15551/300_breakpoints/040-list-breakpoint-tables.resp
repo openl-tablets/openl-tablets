@@ -1,4 +1,137 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[{"name":"BalanceDynamicIndexCalculation","kind":"spreadsheet"},{"name":"BalanceQualityIndexCalculation","kind":"spreadsheet"},{"name":"BankLimitIndex","kind":"decisionTable"},{"name":"BankQualitativeIndexCalculation","kind":"spreadsheet"},{"name":"BankRatingCalculation","kind":"spreadsheet"},{"name":"BankRatingGroup","kind":"decisionTable"},{"name":"CapitalAdequacyScore","kind":"decisionTable"},{"name":"CapitalDynamicScore","kind":"decisionTable"},{"name":"ClaimsOnCustomerRatioScore","kind":"decisionTable"},{"name":"CreditPortfolioQualityScore","kind":"decisionTable"},{"name":"DowngradesOfBankRatingScore","kind":"decisionTable"},{"name":"EquityScore","kind":"decisionTable"},{"name":"HighLiquidityRatioScore","kind":"decisionTable"},{"name":"IsAdequateCoreCapitalRatioScore","kind":"decisionTable"},{"name":"IsAdequateLiquidityRatioScore","kind":"decisionTable"},{"name":"IsAdequateMaxCreditRiskScore","kind":"decisionTable"},{"name":"IsAdequateNormativeIndexCalculation","kind":"spreadsheet"},{"name":"LiabilitiesToCustomersDynamicScore","kind":"decisionTable"},{"name":"LiabilitiesToCustomersOnDemandRatioScore","kind":"decisionTable"},{"name":"LiquidityDynamicScore","kind":"decisionTable"},{"name":"LiquidityRatioScore","kind":"decisionTable"},{"name":"LossesInThisYearScore","kind":"decisionTable"},{"name":"NegativeHistoryRelationsScore","kind":"decisionTable"},{"name":"NegativeInfoShareHoldersOrManagementScore","kind":"decisionTable"},{"name":"NegativeMassMediaScore","kind":"decisionTable"},{"name":"NetMoneyMarketLiabilitiesScore","kind":"decisionTable"},{"name":"NonZeroValues","kind":"decisionTable"},{"name":"OtherAssetsRatioScore","kind":"decisionTable"},{"name":"ProfitDynamicScore","kind":"decisionTable"},{"name":"QuickRatioScore","kind":"decisionTable"},{"name":"SecuredByPropertyChargesClaimsRatioScore","kind":"decisionTable"},{"name":"SetNonZeroValues","kind":"spreadsheet"},{"name":"TotalBalanceScore","kind":"decisionTable"}]
+[
+  {
+    "name": "BalanceDynamicIndexCalculation",
+    "kind": "spreadsheet"
+  },
+  {
+    "name": "BalanceQualityIndexCalculation",
+    "kind": "spreadsheet"
+  },
+  {
+    "name": "BankLimitIndex",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "BankQualitativeIndexCalculation",
+    "kind": "spreadsheet"
+  },
+  {
+    "name": "BankRatingCalculation",
+    "kind": "spreadsheet"
+  },
+  {
+    "name": "BankRatingGroup",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "CapitalAdequacyScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "CapitalDynamicScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "ClaimsOnCustomerRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "CreditPortfolioQualityScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "DowngradesOfBankRatingScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "EquityScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "HighLiquidityRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "IsAdequateCoreCapitalRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "IsAdequateLiquidityRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "IsAdequateMaxCreditRiskScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "IsAdequateNormativeIndexCalculation",
+    "kind": "spreadsheet"
+  },
+  {
+    "name": "LiabilitiesToCustomersDynamicScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "LiabilitiesToCustomersOnDemandRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "LiquidityDynamicScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "LiquidityRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "LossesInThisYearScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "NegativeHistoryRelationsScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "NegativeInfoShareHoldersOrManagementScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "NegativeMassMediaScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "NetMoneyMarketLiabilitiesScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "NonZeroValues",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "OtherAssetsRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "ProfitDynamicScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "QuickRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "SecuredByPropertyChargesClaimsRatioScore",
+    "kind": "decisionTable"
+  },
+  {
+    "name": "SetNonZeroValues",
+    "kind": "spreadsheet"
+  },
+  {
+    "name": "TotalBalanceScore",
+    "kind": "decisionTable"
+  }
+]

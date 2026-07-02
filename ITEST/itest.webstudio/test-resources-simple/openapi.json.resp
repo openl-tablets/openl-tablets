@@ -7419,14 +7419,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -7436,6 +7428,14 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -10353,6 +10353,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "profiling",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -10674,6 +10683,121 @@ Content-Type: application/json
         },
         "responses": {
           "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/frames/{index}/highlights": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "index",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CellHighlight"
+                  }
+                }
+              }
+            },
             "description": "***"
           },
           "400": {
@@ -13641,14 +13765,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -13658,6 +13774,14 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -15615,121 +15739,6 @@ Content-Type: application/json
           "Users"
         ]
       }
-    },
-    "/projects/{projectId}/trace/frames/{index}/highlights": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "path",
-            "name": "index",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CellHighlight"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects: Trace (BETA)"
-        ]
-      }
     }
   },
   "components": {
@@ -16390,7 +16399,8 @@ Content-Type: application/json
               "method",
               "cmatch",
               "tbasic",
-              "tbasicMethod"
+              "tbasicMethod",
+              "stepRef"
             ]
           },
           "name": {
@@ -16446,6 +16456,88 @@ Content-Type: application/json
           "settings",
           "type"
         ]
+      },
+      "CallNodeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "dispatch": {
+            "$ref": "#/components/schemas/DispatchInfo"
+          },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "refStep": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "steps": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/StepValueView"
+            }
+          },
+          "uri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "chosen": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "CellHighlight": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cell": {
+            "type": "string",
+            "description": "***"
+          },
+          "state": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "current",
+              "result",
+              "conditionTrue",
+              "conditionFalse"
+            ]
+          }
+        }
       },
       "ChangePasswordModel": {
         "type": "object",
@@ -17058,6 +17150,14 @@ Content-Type: application/json
           "result": {
             "$ref": "#/components/schemas/ParameterValue"
           },
+          "ruleNames": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
           "steps": {
             "type": "array",
             "description": "***",
@@ -17084,6 +17184,14 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "dispatch": {
+            "$ref": "#/components/schemas/DispatchInfo"
+          },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
           "error": {
             "type": "boolean",
             "description": "***"
@@ -17102,7 +17210,8 @@ Content-Type: application/json
               "method",
               "cmatch",
               "tbasic",
-              "tbasicMethod"
+              "tbasicMethod",
+              "stepRef"
             ]
           },
           "location": {
@@ -17112,11 +17221,23 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "uri": {
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "steps": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/StepValueView"
+            }
+          },
+          "tableId": {
             "type": "string",
             "description": "***"
           },
-          "tableId": {
+          "uri": {
             "type": "string",
             "description": "***"
           }
@@ -17167,6 +17288,9 @@ Content-Type: application/json
           "status": {
             "type": "string",
             "description": "***"
+          },
+          "tree": {
+            "$ref": "#/components/schemas/CallNodeView"
           }
         }
       },
@@ -17385,6 +17509,18 @@ Content-Type: application/json
           },
           "summary": {
             "type": "string"
+          }
+        }
+      },
+      "DispatchInfo": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            }
           }
         }
       },
@@ -19024,12 +19160,43 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "style": {
+            "$ref": "#/components/schemas/RawTableCellStyle"
+          },
           "value": {
             "type": "object",
             "description": "***"
+          }
+        }
+      },
+      "RawTableCellStyle": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "align": {
+            "type": "string"
           },
-          "style": {
-            "$ref": "#/components/schemas/RawTableCellStyle"
+          "background": {
+            "type": "string"
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "indent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "underline": {
+            "type": "boolean"
+          },
+          "valign": {
+            "type": "string"
           }
         }
       },
@@ -20104,12 +20271,29 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "children": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/CallNodeView"
+            }
+          },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
           "label": {
             "type": "string",
             "description": "***"
           },
           "ref": {
             "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
             "description": "***"
           },
           "status": {
@@ -21531,57 +21715,6 @@ Content-Type: application/json
             }
           }
         ]
-      },
-      "CellHighlight": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "cell": {
-            "type": "string",
-            "description": "***"
-          },
-          "state": {
-            "type": "string",
-            "description": "***",
-            "enum": [
-              "current",
-              "result",
-              "conditionTrue",
-              "conditionFalse"
-            ]
-          }
-        }
-      },
-      "RawTableCellStyle": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "align": {
-            "type": "string"
-          },
-          "background": {
-            "type": "string"
-          },
-          "bold": {
-            "type": "boolean"
-          },
-          "color": {
-            "type": "string"
-          },
-          "indent": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "italic": {
-            "type": "boolean"
-          },
-          "underline": {
-            "type": "boolean"
-          },
-          "valign": {
-            "type": "string"
-          }
-        }
       }
     }
   }

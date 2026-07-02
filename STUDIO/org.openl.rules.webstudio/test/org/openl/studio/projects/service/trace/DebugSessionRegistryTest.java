@@ -74,4 +74,16 @@ class DebugSessionRegistryTest {
         registry.onWorkspaceReset(new WorkspaceResetEvent(this));
         assertNull(registry.find(projectId("A")));
     }
+
+    @Test
+    void remembersLaunchInputAcrossAClearSoARestartCanReuseIt() {
+        var registry = registry();
+        assertNull(registry.lastInputJson());
+
+        registry.rememberInputJson("{\"policy\":1}");
+        registry.clear();
+
+        // A restart (profiling toggle, replay) cancels then re-launches; the input must survive the cancel.
+        assertEquals("{\"policy\":1}", registry.lastInputJson());
+    }
 }

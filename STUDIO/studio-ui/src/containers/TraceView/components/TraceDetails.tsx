@@ -133,9 +133,15 @@ const TraceDetails: React.FC = () => {
                             steps={variables?.steps}
                         />
                     )}
-                    {/* For decision tables, explain in plain language which rule fired and why. */}
-                    {frame?.kind === 'decisionTable' && variables?.decision && (
-                        <DecisionPanel decision={variables.decision} />
+                    {/* For decision tables, always offer the rule-fired breakpoint; the firing is
+                        explained once a rule fires. */}
+                    {frame?.kind === 'decisionTable' && (
+                        <DecisionPanel
+                            decision={variables?.decision ?? null}
+                            frameName={frame.name}
+                            frameUri={frame.uri}
+                            ruleNames={variables?.ruleNames ?? null}
+                        />
                     )}
                     <TraceParameters
                         copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}

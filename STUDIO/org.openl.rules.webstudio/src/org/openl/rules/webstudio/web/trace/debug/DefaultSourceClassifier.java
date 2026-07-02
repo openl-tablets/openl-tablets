@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.trace.debug;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
@@ -63,12 +63,12 @@ public final class DefaultSourceClassifier implements SourceClassifier {
     private static CurrentLocation dtRuleLocation(ActionInvoker invoker, @Nullable Object frameSource) {
         int[] rules = invoker.getRules();
         if (frameSource instanceof IDecisionTable decisionTable) {
-            String label = Arrays.stream(rules)
+            List<String> ruleNames = Arrays.stream(rules)
                     .mapToObj(decisionTable::getRuleName)
-                    .collect(Collectors.joining(", "));
-            return CurrentLocation.dtRule(label);
+                    .toList();
+            return CurrentLocation.dtRule(ruleNames);
         }
-        return CurrentLocation.dtRule("rule " + Arrays.toString(rules));
+        return CurrentLocation.dtRule(List.of("rule " + Arrays.toString(rules)));
     }
 
     private static CurrentLocation cellLocation(SpreadsheetCell cell, @Nullable Object frameSource) {

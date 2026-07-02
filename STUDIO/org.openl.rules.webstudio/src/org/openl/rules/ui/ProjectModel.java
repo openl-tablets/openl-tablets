@@ -95,7 +95,6 @@ import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependenc
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -1537,31 +1536,6 @@ public class ProjectModel {
                             .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
                 }
             }
-        }
-    }
-
-    /**
-     * Execute trace for a test suite without relying on request parameters.
-     * This method is designed for REST API usage where request context is not available.
-     *
-     * @param testSuite           the test suite to trace
-     * @param currentOpenedModule if true, use currently opened module; otherwise, use full project
-     */
-    public synchronized void traceElement(TestSuite testSuite, boolean currentOpenedModule) {
-        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            if (currentOpenedModule) {
-                Thread.currentThread().setContextClassLoader(openedModuleCompiledOpenClass.getClassLoader());
-                CachingArgumentsCloner.initInstance();
-                runTest(testSuite, false, openedModuleCompiledOpenClass.getOpenClassWithErrors());
-            } else {
-                Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
-                CachingArgumentsCloner.initInstance();
-                runTest(testSuite, false, compiledOpenClass.getOpenClassWithErrors());
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
-            CachingArgumentsCloner.removeInstance();
         }
     }
 

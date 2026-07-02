@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
+import org.openl.rules.webstudio.web.trace.DebugDispatchTracer;
 
 /**
  * Drives one debug session: runs the rule on a dedicated virtual thread and exposes debugger controls.
@@ -58,6 +58,21 @@ public final class TraceDebugger {
      * @param body        the rule execution to run
      */
     public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, DebugBody body) {
+        start(threadName, classLoader, stopAtEntry, false, body);
+    }
+
+    /**
+     * Start a debug session, optionally retaining the executed call tree.
+     *
+     * @param threadName  worker thread name
+     * @param classLoader context classloader for the worker, or {@code null} to keep the current one
+     * @param stopAtEntry suspend at the first frame instead of running to the first breakpoint
+     * @param profiling   retain the structure of returned sub-calls so the executed call tree can be shown
+     * @param body        the rule execution to run
+     */
+    public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, boolean profiling,
+                      DebugBody body) {
+        hook.setProfiling(profiling);
         stepController.armInitial(stopAtEntry);
         startHaltCount = channel.haltCount();
         channel.markRunning();
@@ -72,7 +87,7 @@ public final class TraceDebugger {
         if (classLoader != null) {
             current.setContextClassLoader(classLoader);
         }
-        TreeBuildTracer.enableDebug(hook);
+        DebugDispatchTracer.enableDebug(hook);
         DebugStatus terminal;
         try {
             body.execute();
@@ -87,7 +102,7 @@ public final class TraceDebugger {
             channel.markError();
             terminal = DebugStatus.ERROR;
         } finally {
-            TreeBuildTracer.disableDebug();
+            DebugDispatchTracer.disableDebug();
             current.setContextClassLoader(previous);
         }
         listener.onStatusChanged(terminal);
@@ -108,6 +123,11 @@ public final class TraceDebugger {
 
     public @Nullable DebugFrame frameAt(int index) {
         return hook.frameAt(index);
+    }
+
+    /** The whole executed tree once the trace has finished (profiling mode), or {@code null} while it runs. */
+    public @Nullable CallNode completedTree() {
+        return hook.completedTree();
     }
 
     /** Wait for the worker to reach its first suspend or a terminal state. */

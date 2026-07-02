@@ -126,6 +126,7 @@ export const traceService = {
             testRanges?: string
             fromModule?: string
             stopAtEntry?: boolean
+            profiling?: boolean
             inputJson?: string
         }
     ): Promise<DebugStackView> => {
@@ -134,6 +135,7 @@ export const traceService = {
         if (options.testRanges) params.set('testRanges', options.testRanges)
         if (options.fromModule) params.set('fromModule', options.fromModule)
         params.set('stopAtEntry', String(options.stopAtEntry ?? true))
+        if (options.profiling) params.set('profiling', 'true')
 
         return await retryApiCall<DebugStackView>(
             `${base(projectId)}?${params.toString()}`,

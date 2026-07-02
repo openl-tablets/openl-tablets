@@ -18,8 +18,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     frame: css`
+        display: flex;
+        align-items: center;
         cursor: pointer;
         gap: ${token.marginXS}px;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px;
         border-left: 2px solid transparent;
         transition: background ${token.motionDurationMid};
         &:hover {
@@ -31,26 +34,6 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     frameCurrent: css`
         border-left-color: ${token.colorPrimary};
-    `,
-    addBreakpoint: css`
-        width: calc(100% - ${token.paddingSM * 2}px);
-        margin: ${token.marginXS}px ${token.paddingSM}px;
-    `,
-    breakpoint: css`
-        gap: ${token.marginXS}px;
-    `,
-    breakpointDot: css`
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: ${token.colorError};
-        flex: 0 0 auto;
-    `,
-    hint: css`
-        padding: ${token.paddingXS}px ${token.paddingSM}px;
-        color: ${token.colorTextTertiary};
-        font-size: ${token.fontSizeSM}px;
     `,
     name: css`
         font-weight: 500;

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { notification } from 'antd'
 import type {
+    CallNodeView,
     DebugError,
     DebugFrameVariables,
     DebugFrameView,
@@ -26,6 +27,8 @@ interface DebugState {
     // Session state
     status: DebugStatus | null
     frames: DebugFrameView[]
+    /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
+    tree: CallNodeView | null
     debugError: DebugError | null
     selectedFrameIndex: number | null
     variables: DebugFrameVariables | null
@@ -34,6 +37,10 @@ interface DebugState {
     stackVersion: number
     breakpoints: string[]
     breakpointLabels: Record<string, string>
+    /** A one-shot breakpoint set by runTo; dropped on the next suspension so "run to here" leaves none behind. */
+    transientBreakpoint: string | null
+    /** Profiling mode: retain the executed call tree so returned branches stay browsable. Toggling restarts. */
+    profiling: boolean
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
@@ -59,6 +66,12 @@ interface DebugState {
     stepOut: () => Promise<void>
     resume: () => Promise<void>
     pause: () => Promise<void>
+    /** Run execution to a node (table/cell/rule breakpoint key) without leaving a permanent breakpoint. */
+    runTo: (key: string, label?: string) => Promise<void>
+    /** Turn profiling on/off; restarts the trace since the executed tree can only be captured from the start. */
+    setProfiling: (value: boolean) => Promise<void>
+    /** Replay a returned branch: restart from the top and run to that table so it is live again, with values. */
+    replayNode: (uri: string, label?: string) => Promise<void>
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
@@ -76,6 +89,7 @@ const initialState = {
     inputJson: null,
     status: null,
     frames: [],
+    tree: null,
     debugError: null,
     selectedFrameIndex: null,
     variables: null,
@@ -83,6 +97,8 @@ const initialState = {
     stackVersion: 0,
     breakpoints: [],
     breakpointLabels: {},
+    transientBreakpoint: null,
+    profiling: false,
     rawTableCache: {},
     loading: false,
     error: null,
@@ -94,15 +110,25 @@ export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
+        const transient = get().transientBreakpoint
         set({
             status: stack.status,
             frames: stack.frames,
+            tree: stack.tree ?? null,
             debugError: stack.error ?? null,
             selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
             variables: null,
             variablesLoading: false,
             stackVersion: get().stackVersion + 1,
+            transientBreakpoint: null,
         })
+        // Drop the one-shot run-to breakpoint once execution settles — whether it stopped there, stopped
+        // at another breakpoint, or ran to the end without reaching it (a conditionally-skipped target).
+        // applyStack only runs on a settled (non-running) stack, so clearing it here leaves none behind.
+        // Remove it only if still present — a plain toggle would re-add a transient the user cleared meanwhile.
+        if (transient && get().breakpoints.includes(transient)) {
+            void get().toggleBreakpoint(transient)
+        }
         if (isSuspended(stack.status) && topIndex !== null) {
             void get().selectFrame(topIndex)
         }
@@ -150,6 +176,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                         ...(testRanges ? { testRanges } : {}),
                         ...(inputJson ? { inputJson } : {}),
                         stopAtEntry: true,
+                        ...(get().profiling ? { profiling: true } : {}),
                     })
                 }
                 applyStack(stack)
@@ -226,6 +253,44 @@ export const useTraceStore = create<DebugState>((set, get) => {
             } catch (error: any) {
                 set({ error: error?.message || 'Pause failed' })
             }
+        },
+
+        runTo: async (key, label) => {
+            // Run to a node (its breakpoint key) without leaving a permanent breakpoint: add a one-shot
+            // breakpoint unless the user already pinned one here, then resume. applyStack drops it on the
+            // next suspension. Only meaningful while paused.
+            if (get().status !== 'SUSPENDED') return
+            if (!get().breakpoints.includes(key)) {
+                await get().toggleBreakpoint(key, label)
+                set({ transientBreakpoint: key })
+            }
+            await get().resume()
+        },
+
+        setProfiling: async (value) => {
+            const { projectId, profiling, breakpoints } = get()
+            if (!projectId || profiling === value) return
+            // The executed tree can only be captured from the start, so switching restarts the session.
+            set({ profiling: value })
+            await get().terminate()
+            await get().start()
+            // A fresh session has no breakpoints; re-apply the ones the user had set.
+            if (breakpoints.length > 0) {
+                try {
+                    await traceService.setBreakpoints(projectId, breakpoints)
+                } catch {
+                    // best-effort: the user can re-add them
+                }
+            }
+        },
+
+        replayNode: async (uri, label) => {
+            if (!get().projectId) return
+            // The executed tree has structure only, so to inspect a returned branch we re-run to it: restart
+            // from the top, then run to that table, where it becomes the live frame again with its values.
+            await get().terminate()
+            await get().start()
+            await get().runTo(uri, label)
         },
 
         terminate: async () => {

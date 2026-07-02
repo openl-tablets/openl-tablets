@@ -4,10 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +39,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.webstudio.web.trace.debug.CallNode;
 import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.CurrentLocation;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
@@ -64,6 +71,12 @@ public class TraceDebugMapper {
 
     /** Map the live stack (root to current frame) to a stack view. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
+        return toStackView(status, frames, error, null);
+    }
+
+    /** Map the live stack to a stack view, plus the completed executed tree once the trace has finished. */
+    public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
+                                             @Nullable CallNode completedTree) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -78,12 +91,17 @@ public class TraceDebugMapper {
                     .active(i == frames.size() - 1)
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
+                    .steps(outlineSteps(frame))
+                    .durationMillis(completedMillis(frame))
+                    .selfMillis(completedSelfMillis(frame))
+                    .dispatch(frame.getDispatch())
                     .build());
         }
         return DebugStackView.builder()
                 .status(status.name())
                 .frames(views)
                 .error(buildStackError(frames, error))
+                .tree(completedTree == null ? null : toCallNodeView(completedTree))
                 .build();
     }
 
@@ -173,6 +191,7 @@ public class TraceDebugMapper {
                     .gridColumns(gridNames(frame, true))
                     .gridRows(gridNames(frame, false))
                     .decision(decisionFor(frame))
+                    .ruleNames(ruleNamesFor(frame))
                     .errors(buildErrors(frame))
                     .build();
         } finally {
@@ -232,27 +251,211 @@ public class TraceDebugMapper {
         for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
             executed.put(step.ref(), step.value());
         }
-        CurrentLocation location = frame.getLocation();
-        String currentRef = location == null ? null : location.ref();
+        String currentRef = currentRef(frame);
         List<StepValueView> steps = new ArrayList<>();
+        forEachCell(spreadsheet, cell -> {
+            String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+            var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
+            if (executed.containsKey(ref)) {
+                var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
+                steps.add(builder.status("executed").value(buildParameterValue(param, true)).build());
+            } else {
+                steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
+            }
+        });
+        return steps;
+    }
+
+    /**
+     * The frame's sub-steps with status only (no values, no freeze), for the live-stack call tree.
+     *
+     * <p>Spreadsheet frames yield every cell, decision-table frames yield every rule, other frames yield
+     * the executed sub-steps. Each carries {@code executed}, {@code current}, or {@code pending} so the
+     * tree can render the whole stack in one pass without cloning any values.
+     */
+    static List<StepValueView> outlineSteps(DebugFrame frame) {
+        return attachExecutedChildren(frame, withStepDurations(frame, baseSteps(frame)));
+    }
+
+    /** Attach each executed step's own measured total time, looked up by its ref. */
+    private static List<StepValueView> withStepDurations(DebugFrame frame, List<StepValueView> steps) {
+        Map<String, Long> durations = frame.getExecutedSteps().stream()
+                .collect(Collectors.toMap(DebugFrame.ExecutedStep::ref, DebugFrame.ExecutedStep::durationNanos,
+                        (first, second) -> second));
+        if (durations.isEmpty()) {
+            return steps;
+        }
+        return steps.stream()
+                .map(step -> {
+                    Long nanos = durations.get(step.ref());
+                    return nanos == null ? step : step.toBuilder().durationMillis(toMillis(nanos)).build();
+                })
+                .toList();
+    }
+
+    /** The frame's own sub-steps (cells or rules) with status, before any executed children are attached. */
+    private static List<StepValueView> baseSteps(DebugFrame frame) {
+        if (frame.getSource() instanceof Spreadsheet spreadsheet) {
+            Set<String> executedRefs = executedRefs(frame);
+            String currentRef = currentRef(frame);
+            List<StepValueView> steps = new ArrayList<>();
+            forEachCell(spreadsheet, cell -> {
+                String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+                steps.add(StepValueView.builder()
+                        .ref(ref)
+                        .label(SpreadsheetCellNames.of(spreadsheet, cell))
+                        .status(stepStatus(ref, executedRefs, currentRef))
+                        .build());
+            });
+            return steps;
+        }
+        if (frame.getSource() instanceof IDecisionTable decisionTable) {
+            return ruleOutline(decisionTable, firedRuleIndices(frame));
+        }
+        return frame.getExecutedSteps().stream()
+                .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status("executed").build())
+                .toList();
+    }
+
+    /**
+     * Attach each step's executed sub-calls (profiling mode) as children. Sub-calls whose calling step is
+     * not itself listed — for example a decision-table action — are appended as their own steps, so no
+     * executed branch is lost.
+     */
+    private static List<StepValueView> attachExecutedChildren(DebugFrame frame, List<StepValueView> steps) {
+        Map<String, List<CallNode>> children = frame.getExecutedChildren();
+        if (children.isEmpty()) {
+            return steps;
+        }
+        Set<String> covered = new HashSet<>();
+        List<StepValueView> result = new ArrayList<>(steps.size());
+        for (StepValueView step : steps) {
+            covered.add(step.ref());
+            List<CallNode> kids = children.get(step.ref());
+            result.add(kids == null || kids.isEmpty()
+                    ? step
+                    : step.toBuilder().children(toCallNodeViews(kids)).build());
+        }
+        children.forEach((ref, kids) -> {
+            if (!covered.contains(ref) && !kids.isEmpty()) {
+                result.add(StepValueView.builder().ref(ref).status("executed").children(toCallNodeViews(kids)).build());
+            }
+        });
+        return result;
+    }
+
+    /** Convert returned sub-calls to views, recursively — structure only, never values. */
+    private static List<CallNodeView> toCallNodeViews(List<CallNode> nodes) {
+        return nodes.stream().map(TraceDebugMapper::toCallNodeView).toList();
+    }
+
+    private static CallNodeView toCallNodeView(CallNode node) {
+        List<StepValueView> steps = node.steps().stream()
+                .map(step -> StepValueView.builder()
+                        .ref(step.ref())
+                        .label(step.label())
+                        .status("executed")
+                        .durationMillis(toMillis(step.durationNanos()))
+                        .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
+                        .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
+                        .build())
+                .toList();
+        // Self time is the node's own work: its total minus the time spent in the tables it called.
+        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        return CallNodeView.builder()
+                .uri(node.uri())
+                .name(node.name())
+                .kind(node.kind())
+                .durationMillis(toMillis(node.durationNanos()))
+                .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
+                .steps(steps)
+                .dispatch(node.dispatch())
+                .refStep(node.refStep())
+                .build();
+    }
+
+    /** Total time of a frame that has already returned (for example after a step out), otherwise {@code null}. */
+    private static @Nullable Double completedMillis(DebugFrame frame) {
+        return frame.isCompleted() ? toMillis(frame.getDurationNanos()) : null;
+    }
+
+    /** Own time of a returned frame: its total minus the time spent in the tables it called. */
+    private static @Nullable Double completedSelfMillis(DebugFrame frame) {
+        if (!frame.isCompleted()) {
+            return null;
+        }
+        long childrenNanos = sumDurations(frame.getExecutedChildren().values().stream().flatMap(List::stream));
+        return selfMillis(frame.getDurationNanos(), childrenNanos);
+    }
+
+    /** Sum of the durations of returned sub-calls. */
+    private static long sumDurations(Stream<CallNode> nodes) {
+        return nodes.mapToLong(CallNode::durationNanos).sum();
+    }
+
+    /** Nanoseconds as fractional milliseconds. */
+    private static double toMillis(long nanos) {
+        return nanos / 1_000_000.0;
+    }
+
+    /** Own time: a total minus the time spent in the tables it called, clamped at zero. */
+    private static double selfMillis(long totalNanos, long childrenNanos) {
+        return toMillis(Math.max(0, totalNanos - childrenNanos));
+    }
+
+    /**
+     * Every rule of a decision table as a step. A decision-table frame on the live stack is always
+     * mid-firing, so the rule whose action is running is the current one — and the called sub-table nests
+     * under it. The rest are still pending and can be armed for a run-to.
+     */
+    static List<StepValueView> ruleOutline(IDecisionTable decisionTable, int[] firedRuleIndices) {
+        Set<String> fired = Arrays.stream(firedRuleIndices)
+                .mapToObj(decisionTable::getRuleName)
+                .collect(Collectors.toSet());
+        return ruleNames(decisionTable).stream()
+                .map(name -> StepValueView.builder()
+                        .ref(name)
+                        .label(name)
+                        .status(fired.contains(name) ? "current" : "pending")
+                        .build())
+                .toList();
+    }
+
+    /** Apply an action to every real spreadsheet step cell, in grid order. */
+    private static void forEachCell(Spreadsheet spreadsheet, Consumer<SpreadsheetCell> action) {
         for (SpreadsheetCell[] row : spreadsheet.getCells()) {
             for (SpreadsheetCell cell : row) {
-                if (cell == null || cell.isEmpty()) {
-                    continue;
-                }
-                String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-                var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
-                if (executed.containsKey(ref)) {
-                    var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
-                    steps.add(builder.status("executed").value(buildParameterValue(param, true)).build());
-                } else if (ref.equals(currentRef)) {
-                    steps.add(builder.status("current").build());
-                } else {
-                    steps.add(builder.status("pending").build());
+                if (isStepCell(cell)) {
+                    action.accept(cell);
                 }
             }
         }
-        return steps;
+    }
+
+    /**
+     * A real spreadsheet step: a cell with a formula that is actually evaluated. Only these are invoked,
+     * timed, and recorded during a trace. Value cells (plain literals), constant cells, section-title
+     * dividers, and empty cells are static data or labels — they never execute, so they are not steps.
+     */
+    private static boolean isStepCell(@Nullable SpreadsheetCell cell) {
+        return cell != null && cell.isMethodCell();
+    }
+
+    /** Classify a step: already executed, currently executing, or still pending. */
+    private static String stepStatus(String ref, Set<String> executedRefs, @Nullable String currentRef) {
+        if (executedRefs.contains(ref)) {
+            return "executed";
+        }
+        return ref.equals(currentRef) ? "current" : "pending";
+    }
+
+    private static Set<String> executedRefs(DebugFrame frame) {
+        return frame.getExecutedSteps().stream().map(DebugFrame.ExecutedStep::ref).collect(Collectors.toSet());
+    }
+
+    private static @Nullable String currentRef(DebugFrame frame) {
+        CurrentLocation location = frame.getLocation();
+        return location == null ? null : location.ref();
     }
 
     /** Spreadsheet column or row names, so the UI can lay the steps out as a grid like the source table. */
@@ -262,6 +465,19 @@ public class TraceDebugMapper {
         }
         String[] names = columns ? spreadsheet.getColumnNames() : spreadsheet.getRowNames();
         return Arrays.stream(names).map(name -> name == null ? "" : name).toList();
+    }
+
+    /** Every distinct rule name of a decision-table frame, so any rule can be armed; {@code null} otherwise. */
+    private static @Nullable List<String> ruleNamesFor(DebugFrame frame) {
+        return frame.getSource() instanceof IDecisionTable decisionTable ? ruleNames(decisionTable) : null;
+    }
+
+    /** Every distinct rule name of a decision table, in rule order. */
+    static List<String> ruleNames(IDecisionTable decisionTable) {
+        return IntStream.range(0, decisionTable.getNumberOfRules())
+                .mapToObj(decisionTable::getRuleName)
+                .distinct()
+                .toList();
     }
 
     private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones) {

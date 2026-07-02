@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -103,6 +104,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "testRanges", required = false) @Parameter(description = "trace.param.test-ranges.desc") String testRanges,
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "trace.param.from-module.desc") String fromModule,
             @RequestParam(value = "stopAtEntry", defaultValue = "true") @Parameter(description = "trace.param.stop-at-entry.desc") boolean stopAtEntry,
+            @RequestParam(value = "profiling", defaultValue = "false") @Parameter(description = "trace.param.profiling.desc") boolean profiling,
             @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
 
         parameterRegistry.clear();
@@ -126,13 +128,25 @@ public class ProjectsTraceDebugController {
 
         DebugListener listener = listenerFactory.create(user, projectId, tableId);
         var objectMapper = configureObjectMapper();
+        // The launcher sends the input server-side once; a restart (profiling toggle, replay) re-runs the trace
+        // without resending it. Reuse the remembered input when this call carries neither input nor test ranges;
+        // otherwise it is a fresh launch, so remember its input for the next restart.
+        String effectiveInputJson = inputJson;
+        if (inputJson == null && testRanges == null) {
+            effectiveInputJson = sessionRegistry.lastInputJson();
+        } else {
+            sessionRegistry.rememberInputJson(inputJson);
+        }
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
-                currentOpenedModule, inputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
-                listener);
+                currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
+                profiling, listener);
 
         DebugSession session = sessionRegistry.start(traceDebugService.startSession(request));
+        // Build the inspection mapper now, while the traced module is the current module, so the session
+        // cache is not later pinned to a different module by a concurrent open (e.g. GET /breakpoint-tables).
+        createMapper(session);
         session.getDebugger().awaitInitialHalt(STEP_TIMEOUT_MILLIS);
-        return stackView(session);
+        return inspectStack(session);
     }
 
     @Operation(summary = "trace.status.summary", description = "trace.status.desc")
@@ -146,7 +160,7 @@ public class ProjectsTraceDebugController {
     @ApiResponse(responseCode = "200", description = "trace.stack.200.desc")
     @GetMapping("/stack")
     public DebugStackView stack(@ProjectId @PathVariable("projectId") RulesProject project) {
-        return stackView(requireSession(project));
+        return inspectStack(requireSession(project));
     }
 
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")
@@ -155,9 +169,12 @@ public class ProjectsTraceDebugController {
     public DebugStackView step(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam("type") @Parameter(description = "trace.param.step-type.desc") StepType type) {
-        DebugSession session = requireSuspended(project);
-        session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
-        return stackView(session);
+        DebugSession session = requireSession(project);
+        return session.inLock(() -> {
+            requireSuspendedState(session);
+            session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
+            return stackView(session);
+        });
     }
 
     @Operation(summary = "trace.resume.summary", description = "trace.resume.desc")
@@ -165,7 +182,11 @@ public class ProjectsTraceDebugController {
     @PostMapping("/resume")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void resume(@ProjectId @PathVariable("projectId") RulesProject project) {
-        requireSuspended(project).getDebugger().resume();
+        DebugSession session = requireSession(project);
+        session.inLock(() -> {
+            requireSuspendedState(session);
+            session.getDebugger().resume();
+        });
     }
 
     @Operation(summary = "trace.pause.summary", description = "trace.pause.desc")
@@ -182,12 +203,9 @@ public class ProjectsTraceDebugController {
     public DebugFrameVariables variables(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
-        DebugSession session = requireSuspended(project);
-        DebugFrame frame = session.getDebugger().frameAt(index);
-        if (frame == null) {
-            throw new NotFoundException("trace.frame.not.found.message");
-        }
-        return createMapper().freezeVariables(frame, session.getClassLoader());
+        DebugSession session = requireSession(project);
+        TraceDebugMapper mapper = createMapper(session);
+        return withSuspendedFrame(session, index, frame -> mapper.freezeVariables(frame, session.getClassLoader()));
     }
 
     @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
@@ -196,12 +214,8 @@ public class ProjectsTraceDebugController {
     public List<CellHighlight> highlights(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
-        DebugSession session = requireSuspended(project);
-        DebugFrame frame = session.getDebugger().frameAt(index);
-        if (frame == null) {
-            throw new NotFoundException("trace.frame.not.found.message");
-        }
-        return traceHighlightService.computeHighlights(frame);
+        DebugSession session = requireSession(project);
+        return withSuspendedFrame(session, index, traceHighlightService::computeHighlights);
     }
 
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")
@@ -210,12 +224,12 @@ public class ProjectsTraceDebugController {
     public ParameterValue parameterValue(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId) {
-        requireSession(project);
+        DebugSession session = requireSession(project);
         var param = parameterRegistry.get(parameterId);
         if (param == null) {
             throw new NotFoundException("trace.parameter.not.found.message");
         }
-        return createMapper().buildParameterValue(param, false);
+        return createMapper(session).buildParameterValue(param, false);
     }
 
     @Operation(summary = "trace.get-breakpoints.summary", description = "trace.get-breakpoints.desc")
@@ -283,20 +297,49 @@ public class ProjectsTraceDebugController {
         return session;
     }
 
-    private DebugSession requireSuspended(RulesProject project) {
-        DebugSession session = requireSession(project);
+    private void requireSuspendedState(DebugSession session) {
         if (session.getDebugger().status() != DebugStatus.SUSPENDED) {
             throw new ConflictException("trace.execution.not.suspended.message");
         }
-        return session;
+    }
+
+    /** Run an inspection of frame {@code index} under the session lock, requiring a suspended worker. */
+    private <T> T withSuspendedFrame(DebugSession session, int index, Function<DebugFrame, T> inspection) {
+        return session.inLock(() -> {
+            requireSuspendedState(session);
+            DebugFrame frame = session.getDebugger().frameAt(index);
+            if (frame == null) {
+                throw new NotFoundException("trace.frame.not.found.message");
+            }
+            return inspection.apply(frame);
+        });
+    }
+
+    /**
+     * Map the live stack under the session lock, refusing while the worker is still RUNNING. The worker mutates
+     * its frames as it executes, so reading them is safe only once it has parked (suspended) or finished; the lock
+     * keeps a concurrent step or resume from waking it mid-read.
+     */
+    private DebugStackView inspectStack(DebugSession session) {
+        return session.inLock(() -> {
+            if (session.getDebugger().status() == DebugStatus.RUNNING) {
+                throw new ConflictException("trace.execution.not.suspended.message");
+            }
+            return stackView(session);
+        });
     }
 
     private DebugStackView stackView(DebugSession session) {
         var debugger = session.getDebugger();
-        return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error());
+        return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
+                debugger.completedTree());
     }
 
-    private TraceDebugMapper createMapper() {
+    private TraceDebugMapper createMapper(DebugSession session) {
+        return session.mapper(this::buildMapper);
+    }
+
+    private TraceDebugMapper buildMapper() {
         var objectMapper = configureObjectMapper();
         return new TraceDebugMapper(objectMapper, getSchemaGenerator(objectMapper), parameterRegistry);
     }

@@ -87,6 +87,39 @@ class TraceDebugMapperTest {
     }
 
     @Test
+    void carriesPerFrameStepOutlineWithoutValues() {
+        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        IOpenClass module = compiled.getOpenClass();
+        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        assertNotNull(myRule, "MyRule must compile");
+
+        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        debugger.start("outline-test", compiled.getClassLoader(), true, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            myRule.invoke(module.newInstance(env), new Object[0], env);
+        });
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(10_000));
+
+        try {
+            List<DebugFrame> stack = debugger.stack();
+            var stackView = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null);
+            var top = stackView.frames().get(stackView.frames().size() - 1);
+
+            assertNotNull(top.steps(), "every frame carries its step outline");
+            assertFalse(top.steps().isEmpty(), "a spreadsheet frame outlines its cells");
+            // The outline is structure only: a status for each cell and no frozen value (kept cheap, no clone).
+            assertTrue(top.steps().stream().allMatch(s -> List.of("executed", "current", "pending").contains(s.status())),
+                    "each step has a valid status");
+            assertTrue(top.steps().stream().allMatch(s -> s.value() == null),
+                    "the stack outline never carries values; they are fetched per frame on demand");
+            assertTrue(top.steps().stream().allMatch(s -> s.label() != null && s.label().startsWith("$")),
+                    "steps use the OpenL cell name");
+        } finally {
+            debugger.terminate(10_000);
+        }
+    }
+
+    @Test
     void buildsAFriendlyErrorWithTableAndTechnicalDetail() {
         CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         IOpenClass module = compiled.getOpenClass();
@@ -148,5 +181,38 @@ class TraceDebugMapperTest {
 
         // Suspended at entry: nothing evaluated and no rule fired → no explanation.
         assertNull(TraceDebugMapper.buildDecision(dt, List.of(), new int[0]));
+    }
+
+    @Test
+    void outlinesDecisionTableRulesMarkingTheFiredOneCurrent() {
+        IDecisionTable dt = mock(IDecisionTable.class);
+        when(dt.getNumberOfRules()).thenReturn(3);
+        when(dt.getRuleName(0)).thenReturn("R1");
+        when(dt.getRuleName(1)).thenReturn("R2");
+        when(dt.getRuleName(2)).thenReturn("R3");
+
+        var steps = TraceDebugMapper.ruleOutline(dt, new int[]{0});  // R1 fired and is mid-action
+
+        assertEquals(List.of("R1", "R2", "R3"), steps.stream().map(StepValueView::ref).toList());
+        // The fired rule is current so a sub-table called from its action nests under it, not the last rule.
+        assertEquals("current", steps.get(0).status(), "the firing rule is the current one");
+        assertEquals("pending", steps.get(1).status(), "rules that did not fire are pending");
+        assertEquals("pending", steps.get(2).status(), "rules that did not fire are pending");
+        assertTrue(steps.stream().allMatch(s -> s.value() == null), "the outline carries no values");
+
+        // Nothing fired yet (suspended at entry): every rule is pending and run-to-able.
+        assertTrue(TraceDebugMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> "pending".equals(s.status())));
+    }
+
+    @Test
+    void listsEveryDistinctRuleNameSoAnyRuleCanBeArmed() {
+        IDecisionTable dt = mock(IDecisionTable.class);
+        when(dt.getNumberOfRules()).thenReturn(4);
+        when(dt.getRuleName(0)).thenReturn("R1");
+        when(dt.getRuleName(1)).thenReturn("R2");
+        when(dt.getRuleName(2)).thenReturn("R3");
+        when(dt.getRuleName(3)).thenReturn("R2");  // a duplicate name collapses to one
+
+        assertEquals(List.of("R1", "R2", "R3"), TraceDebugMapper.ruleNames(dt));
     }
 }

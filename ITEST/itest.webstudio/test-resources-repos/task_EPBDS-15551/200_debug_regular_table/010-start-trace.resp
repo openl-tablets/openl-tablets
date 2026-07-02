@@ -1,4 +1,81 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{"status":"SUSPENDED","frames":[{"index":0,"depth":1,"uri":"EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D54:G68","name":"BalanceDynamicIndexCalculation","kind":"spreadsheet","active":true,"completed":false,"error":false,"tableId":"***"}]}
+{
+  "status": "SUSPENDED",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D54:G68",
+      "tableId": "ecbdd3752cd6916e883e10cd08eb57cf",
+      "name": "BalanceDynamicIndexCalculation",
+      "kind": "spreadsheet",
+      "active": true,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C1",
+          "label": "$Value$CapitalDynamic",
+          "status": "pending"
+        },
+        {
+          "ref": "R1C1",
+          "label": "$Value$CapitalDynamicScore",
+          "status": "pending"
+        },
+        {
+          "ref": "R2C1",
+          "label": "$Value$QuickLiquidityDynamic",
+          "status": "pending"
+        },
+        {
+          "ref": "R3C1",
+          "label": "$Value$QuickLiquidityDynamicScore",
+          "status": "pending"
+        },
+        {
+          "ref": "R4C1",
+          "label": "$Value$LiquidityDynamic",
+          "status": "pending"
+        },
+        {
+          "ref": "R5C1",
+          "label": "$Value$LiquidityDynamicScore",
+          "status": "pending"
+        },
+        {
+          "ref": "R6C1",
+          "label": "$Value$ProfitDynamic",
+          "status": "pending"
+        },
+        {
+          "ref": "R7C1",
+          "label": "$Value$ProfitDynamicScore",
+          "status": "pending"
+        },
+        {
+          "ref": "R8C1",
+          "label": "$Value$LiabilitiesToCustomersDynamic",
+          "status": "pending"
+        },
+        {
+          "ref": "R9C1",
+          "label": "$Value$LiabilitiesToCustomersDynamicScore",
+          "status": "pending"
+        },
+        {
+          "ref": "R10C1",
+          "label": "$Value$BalanceDynamicIndex",
+          "status": "pending"
+        },
+        {
+          "ref": "R11C1",
+          "label": "$Value$RETURN",
+          "status": "pending"
+        }
+      ]
+    }
+  ]
+}

@@ -26,5 +26,9 @@ public enum FrameKind {
     TBASIC,
 
     @JsonProperty("tbasicMethod")
-    TBASIC_METHOD
+    TBASIC_METHOD,
+
+    /** Not a table: a reference to a step that already executed elsewhere in the same frame. */
+    @JsonProperty("stepRef")
+    STEP_REF
 }

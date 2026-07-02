@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.trace.debug;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -40,10 +41,19 @@ class TraceDebuggerIntegrationTest {
         }
 
         FakeTable cell(int row, int col) {
-            body.add(env -> Tracer.invoke(new FakeCell(row, col), null, NO_PARAMS, env, new FakeCell(row, col)));
+            body.add(env -> Tracer.invoke(new FakeCell(row, col, null), null, NO_PARAMS, env,
+                    new FakeCell(row, col, null)));
             return this;
         }
 
+        /** A cell whose formula calls another table — the call happens inside the cell, as in a spreadsheet. */
+        FakeTable cellCalling(int row, int col, FakeTable child) {
+            body.add(env -> Tracer.invoke(new FakeCell(row, col, child), null, NO_PARAMS, env,
+                    new FakeCell(row, col, child)));
+            return this;
+        }
+
+        /** A direct table-to-table call with no step in between, as in a method table body. */
         FakeTable call(FakeTable child) {
             body.add(env -> Tracer.invoke(child, null, NO_PARAMS, env, child));
             return this;
@@ -56,6 +66,11 @@ class TraceDebuggerIntegrationTest {
             return this;
         }
 
+        FakeTable rule(String name) {
+            body.add(env -> Tracer.invoke(new FakeRule(name), null, NO_PARAMS, env, new FakeRule(name)));
+            return this;
+        }
+
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             body.forEach(step -> step.accept(env));
@@ -63,11 +78,22 @@ class TraceDebuggerIntegrationTest {
         }
     }
 
-    /** A synthetic sub-step: a spreadsheet-like cell. */
-    private record FakeCell(int row, int col) implements Invokable<Object, IRuntimeEnv> {
+    /** A synthetic sub-step: a spreadsheet-like cell, optionally calling a table from its formula. */
+    private record FakeCell(int row, int col, FakeTable calls) implements Invokable<Object, IRuntimeEnv> {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            if (calls != null) {
+                Tracer.invoke(calls, null, NO_PARAMS, env, calls);
+            }
             return "R" + row + "C" + col;
+        }
+    }
+
+    /** A synthetic sub-step: a fired decision-table rule. */
+    private record FakeRule(String name) implements Invokable<Object, IRuntimeEnv> {
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return name + ":fired";
         }
     }
 
@@ -79,13 +105,17 @@ class TraceDebuggerIntegrationTest {
 
         @Override
         public CurrentLocation describeSubStep(Object executor, IRuntimeEnv env, Object frameSource) {
-            return executor instanceof FakeCell c ? CurrentLocation.cell(c.row(), c.col()) : null;
+            return switch (executor) {
+                case FakeCell c -> CurrentLocation.cell(c.row(), c.col());
+                case FakeRule r -> CurrentLocation.dtRule(List.of(r.name()));
+                case null, default -> null;
+            };
         }
     };
 
     private static DebugBody program() {
         FakeTable t1 = new FakeTable("T1").cell(1, 0);
-        FakeTable t0 = new FakeTable("T0").cell(0, 0).call(t1).cell(0, 1);
+        FakeTable t0 = new FakeTable("T0").cellCalling(0, 0, t1).cell(0, 1);
         return () -> Tracer.invoke(t0, null, NO_PARAMS, new SimpleRuntimeEnv(), t0);
     }
 
@@ -157,6 +187,71 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
     }
 
+    /** Walk T0 → T1 → out, leaving T0 live after T1 returned; used by both profiling cases below. */
+    private static void runUntilSubCallReturned(TraceDebugger debugger) {
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT)); // T0:R0C0
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT)); // enter T1
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));  // T1 completes
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT)); // back in T0, T1 popped
+        assertEquals(List.of("T0"), uris(debugger));
+    }
+
+    @Test
+    void profilingRetainsAReturnedSubCallUnderTheCallingCell() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("profiling-worker", null, true, true, program());
+        try {
+            runUntilSubCallReturned(debugger);
+            DebugFrame t0 = debugger.stack().get(0);
+            assertTrue(t0.getExecutedChildren().containsKey("R0C0"),
+                    "the returned sub-call is retained under the cell that called it");
+            CallNode t1 = t0.getExecutedChildren().get("R0C0").get(0);
+            assertEquals("T1", t1.name());
+            assertEquals(FrameKind.METHOD, t1.kind());
+            assertEquals(List.of("R1C0"), t1.steps().stream().map(CallNode.Step::ref).toList());
+        } finally {
+            debugger.terminate(TIMEOUT);
+        }
+    }
+
+    @Test
+    void withoutProfilingReturnedSubCallsAreNotRetained() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("plain-worker", null, true, program());
+        try {
+            runUntilSubCallReturned(debugger);
+            assertTrue(debugger.stack().get(0).getExecutedChildren().isEmpty(),
+                    "off by default: a returned sub-call leaves no structure behind");
+        } finally {
+            debugger.terminate(TIMEOUT);
+        }
+    }
+
+    @Test
+    void profilingKeepsTheWholeTreeWithTimingsAfterCompletion() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        // No stop-at-entry, profiling on: it runs straight to completion, keeping the executed tree.
+        debugger.start("completed-tree-worker", null, false, true, program());
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+
+        CallNode tree = debugger.completedTree();
+        assertNotNull(tree, "the whole executed tree outlives the empty stack on completion");
+        assertEquals("T0", tree.name());
+        CallNode.Step caller = tree.steps().stream()
+                .filter(step -> step.ref().equals("R0C0")).findFirst().orElseThrow();
+        assertEquals(List.of("T1"), caller.children().stream().map(CallNode::name).toList());
+        assertTrue(tree.durationNanos() >= 0, "the root carries its measured execution time");
+    }
+
+    @Test
+    void withoutProfilingNoTreeIsKeptAfterCompletion() {
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("plain-completion-worker", null, false, program());
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+        assertNull(debugger.completedTree(), "off by default: nothing is kept after completion");
+    }
+
     @Test
     void breakOnExceptionSuspendsAtThrowingFrame() {
         FakeTable t1 = new FakeTable("T1").boom();
@@ -173,6 +268,55 @@ class TraceDebuggerIntegrationTest {
 
         // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
         assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void ruleFiredBreakpointSuspendsWhenARuleFires() {
+        FakeTable dt = new FakeTable("DT").rule("R3");
+        DebugBody program = () -> Tracer.invoke(dt, null, NO_PARAMS, new SimpleRuntimeEnv(), dt);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setBreakpoints(Set.of("DT#" + CurrentLocation.RULE_FIRED_REF));
+        // No stop-at-entry: only the rule-fired breakpoint should suspend it.
+        debugger.start("test-worker", null, false, program);
+
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(List.of("DT"), uris(debugger));
+        CurrentLocation location = debugger.stack().get(0).getLocation();
+        assertNotNull(location, "expected a current location");
+        assertEquals("R3", location.label(), "suspended at the fired rule");
+
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void ruleFiringDoesNotSuspendWithoutARuleFiredBreakpoint() {
+        FakeTable dt = new FakeTable("DT").rule("R3");
+        DebugBody program = () -> Tracer.invoke(dt, null, NO_PARAMS, new SimpleRuntimeEnv(), dt);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("test-worker", null, false, program);
+
+        // With no breakpoint and no stop-at-entry, a fired rule is an ordinary safepoint and runs through.
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+    }
+
+    @Test
+    void ruleBreakpointSuspendsOnlyOnTheNamedRule() {
+        FakeTable dt = new FakeTable("DT").rule("R1").rule("R2");
+        DebugBody program = () -> Tracer.invoke(dt, null, NO_PARAMS, new SimpleRuntimeEnv(), dt);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setBreakpoints(Set.of("DT#R2"));
+        debugger.start("test-worker", null, false, program);
+
+        // R1 fires first but is not the named rule, so execution runs on to R2.
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        CurrentLocation location = debugger.stack().get(0).getLocation();
+        assertNotNull(location, "expected a current location");
+        assertEquals("R2", location.label(), "stopped at R2, not R1");
+
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
     }
 
     @Test
@@ -220,7 +364,13 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
         assertTrue(debugger.stack().get(0).getExecutedSteps().isEmpty());
 
-        // Next step computes the first cell and records its value, then stops at the nested call.
+        // The first cell's formula calls a table: at that call's entry the cell is still executing.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
+        assertTrue(debugger.stack().get(0).getExecutedSteps().isEmpty(),
+                "a cell still running its formula is not executed yet");
+
+        // Once the call returns and the cell completes, its value is recorded — visible at the next cell.
+        assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
         DebugFrame root = debugger.stack().get(0);
         assertFalse(root.getExecutedSteps().isEmpty(), "the executed cell must be recorded");
