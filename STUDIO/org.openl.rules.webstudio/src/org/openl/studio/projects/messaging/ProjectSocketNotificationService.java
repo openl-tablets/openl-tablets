@@ -89,31 +89,20 @@ public class ProjectSocketNotificationService {
     }
 
     /**
-     * Notifies user about trace execution status change for a specific table.
+     * Notifies user about an interactive debug session status change for a specific table.
+     *
+     * <p>The payload is the status name (for example {@code SUSPENDED}); the client then reads the
+     * current stack from the REST API.
      *
      * @param user      user to notify
      * @param projectId project id
      * @param tableId   table id
-     * @param status    new trace execution status
+     * @param status    new debug session status
      */
-    public void notifyTraceExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
+    public void notifyTraceDebugStatus(CommonUser user, ProjectIdModel projectId, String tableId, String status) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                status.name());
-    }
-
-    /**
-     * Notifies user about trace execution error for a specific table.
-     *
-     * @param user         user to notify
-     * @param projectId    project id
-     * @param tableId      table id
-     * @param errorMessage error message
-     */
-    public void notifyTraceExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
-        messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                java.util.Map.of("status", "ERROR", "message", errorMessage));
+                status);
     }
 
     /**

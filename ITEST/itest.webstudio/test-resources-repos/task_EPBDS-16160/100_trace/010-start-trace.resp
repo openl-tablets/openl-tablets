@@ -1,2 +1,4 @@
-HTTP/1.1 202 Accepted
+HTTP/1.1 200
+Content-Type: application/json
 
+{"status":"SUSPENDED","frames":[{"index":0,"depth":1,"uri":"EPBDS-16160/generalProject.xlsx?sheet=Sheet1&range=C19:D21","name":"MyRule","kind":"spreadsheet","active":true,"completed":false,"error":false}]}

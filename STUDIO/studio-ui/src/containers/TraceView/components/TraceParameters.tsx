@@ -120,7 +120,7 @@ interface ParameterTreeProps {
 /**
  * Single parameter as an Ant Design Tree with lazy loading support.
  */
-const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
+export const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
     const { t } = useTranslation('trace')
     const { styles } = useStyles()
     const { fetchLazyParameter } = useTraceStore()

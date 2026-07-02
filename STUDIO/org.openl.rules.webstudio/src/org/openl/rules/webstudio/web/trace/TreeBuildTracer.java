@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openl.domain.IIntSelector;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.webstudio.web.trace.debug.DebugHook;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.LazyTracerNodeObject;
@@ -32,12 +33,34 @@ public final class TreeBuildTracer extends Tracer {
     private static final ThreadLocal<Map<TracerKeyNode, SimpleTracerObject>> map = new ThreadLocal<>();
     private static final ThreadLocal<Boolean> lazyNodesHolder = ThreadLocal.withInitial(() -> false);
 
+    /**
+     * When set on a thread, that thread runs an interactive debug session: invocations are routed to
+     * the hook instead of building a trace tree. See {@link DebugHook} and the {@code web.trace.debug}
+     * package.
+     */
+    private static final ThreadLocal<DebugHook> debugHook = new ThreadLocal<>();
+
     static {
         Tracer.instance = new TreeBuildTracer();
     }
 
+    /** Route this thread's traced invocations to the given debug hook. */
+    public static void enableDebug(DebugHook hook) {
+        debugHook.set(hook);
+    }
+
+    /** Stop routing this thread's invocations to a debug hook. */
+    public static void disableDebug() {
+        debugHook.remove();
+    }
+
     @Override
     protected void doPut(Object source, String id, Object... args) {
+        DebugHook hook = debugHook.get();
+        if (hook != null) {
+            hook.onPut(source, id, args);
+            return;
+        }
         if (!isOn() || isLazy()) {
             return;
         }
@@ -79,6 +102,10 @@ public final class TreeBuildTracer extends Tracer {
                                                        Object[] params,
                                                        E env,
                                                        Object source) {
+        DebugHook hook = debugHook.get();
+        if (hook != null) {
+            return hook.bracketInvoke(executor, target, params, env, source);
+        }
         if (!isOn() || isLazy()) {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
@@ -127,9 +154,9 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected <T> T doWrap(Object source, T target, Object[] args) {
-        if (!isOn()) {
-            return target;
-        } else if (target instanceof IIntSelector selector) {
+        // In both legacy trace and debug mode, wrap int selectors so a decision table's per-rule
+        // condition checks (success/failure) are recorded via Tracer.put.
+        if ((debugHook.get() != null || isOn()) && target instanceof IIntSelector selector) {
             return (T) new IntSelectorTracer(selector, (ICondition) args[0]);
         }
         return target;
@@ -137,7 +164,7 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     public boolean isOn() {
-        return tree.get() != null;
+        return tree.get() != null || debugHook.get() != null;
     }
 
     private boolean isLazy() {
@@ -204,6 +231,9 @@ public final class TreeBuildTracer extends Tracer {
                                                                  Object[] params,
                                                                  E env,
                                                                  Object source) {
+        if (debugHook.get() != null) {
+            return false;
+        }
         if (!isOn()) {
             return false;
         }
