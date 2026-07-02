@@ -82,19 +82,22 @@ public class TraceDebugMapper {
     /** Map the live stack to a stack view, plus the completed executed tree once the trace has finished. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
                                              @Nullable CallNode completedTree) {
-        return toStackView(status, frames, error, completedTree, true, DEFAULT_PROFILE_TOP);
+        return toStackView(status, frames, error, completedTree, StackRenderOptions.FULL);
     }
 
     /**
-     * Map the live stack to a stack view. Once the trace has finished in profiling mode the completed tree
-     * is available; {@code includeTree} embeds it in full, and a bounded profile overview (the slowest
-     * {@code profileTop} tables) is always attached so a large run can be understood without it.
+     * Map the live stack to a stack view, shaped by {@code options}. Once the trace has finished in
+     * profiling mode the completed tree is available; {@code includeTree} embeds it in full, and a bounded
+     * profile overview (the slowest tables) is always attached so a large run can be understood without it.
+     * In {@code compact} mode only the active frame carries its sub-steps, so a step no longer re-sends
+     * every frame's steps.
      */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
-                                             @Nullable CallNode completedTree, boolean includeTree, int profileTop) {
+                                             @Nullable CallNode completedTree, StackRenderOptions options) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
+            boolean active = i == frames.size() - 1;
             views.add(DebugFrameView.builder()
                     .index(i)
                     .depth(frame.getDepth())
@@ -103,10 +106,10 @@ public class TraceDebugMapper {
                     .name(frame.getName())
                     .kind(frame.getKind())
                     .location(toLocationView(frame.getLocation()))
-                    .active(i == frames.size() - 1)
+                    .active(active)
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
-                    .steps(outlineSteps(frame))
+                    .steps(options.compact() && !active ? null : outlineSteps(frame))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))
                     .dispatch(frame.getDispatch())
@@ -116,8 +119,8 @@ public class TraceDebugMapper {
                 .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
-                .tree(completedTree == null || !includeTree ? null : toCallNodeView(completedTree))
-                .profile(completedTree == null ? null : buildProfileSummary(completedTree, profileTop))
+                .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
+                .profile(completedTree == null ? null : buildProfileSummary(completedTree, options.profileTop()))
                 .build();
     }
 

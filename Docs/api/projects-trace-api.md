@@ -138,6 +138,9 @@ via `PUT /breakpoints`) apply immediately.
   to keep only the bounded `profile` overview when the whole tree would be too large.
 - `profileTop` (integer, default `20`, min `1`) — how many hotspots (slowest tables) the `profile`
   overview returns.
+- `view` (`full` \| `compact`, default `full`) — per-frame detail. `compact` keeps sub-steps only on the
+  **active** frame, so stepping does not re-send every frame's `steps`; read another frame's steps with
+  `GET /stack?view=full` or its variables endpoint.
 
 **Request body** (optional, `application/json`): raw input for a regular method. Supports the structured
 form (`{ "runtimeContext": {...}, "params": {...} }`), a raw named-parameter object, or a positional
@@ -167,6 +170,9 @@ Lightweight poll. **Response**: `200 OK` — [`DebugStatusView`](#debugstatusvie
 
 **Endpoint**: `GET /projects/{projectId}/trace/stack`
 
+**Query parameters**: `view` (`full` \| `compact`), `includeTree` (boolean), `profileTop` (integer) —
+same response-shaping params as start (see [Start a debug session](#1-start-a-debug-session)).
+
 **Response**: `200 OK` — [`DebugStackView`](#debugstackview), frames ordered root → current. Readable
 while suspended or in a terminal state.
 
@@ -184,6 +190,9 @@ Steps once and returns the new stack once the worker re-suspends (bounded wait, 
 
 **Query parameters**:
 - `type` (string, required) — one of `into`, `over`, `out`.
+- `view` (`full` \| `compact`), `includeTree` (boolean), `profileTop` (integer) — same response-shaping
+  params as start. `view=compact` is the useful one here: it drops the non-active frames' `steps` so a
+  step returns only the frame that changed.
 
 A step that finishes the current frame suspends at that frame's **own exit** first — the completed frame
 stays on the stack with its result — and the next step continues in the caller.
@@ -389,7 +398,7 @@ interface DebugFrameView {
   active: boolean;              // true for the top (current) frame
   completed: boolean;           // frame has returned (its result is inspectable)
   error: boolean;               // frame failed
-  steps?: StepValueView[];      // the frame's sub-steps with status (and executed sub-calls in profiling)
+  steps?: StepValueView[];      // sub-steps with status (executed sub-calls in profiling); absent on non-active frames when view=compact
   durationMillis?: number;      // total execution time of a returned frame, excluding parked time
   selfMillis?: number;          // own time of a returned frame (total minus called tables)
   dispatch?: DispatchInfo;      // set when this table was chosen from overloaded versions
@@ -751,6 +760,8 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
 - **Bounded profile overview** (`DebugStackView.profile`): the slowest tables aggregated across the run,
   constant-sized regardless of run size. `includeTree=false` returns only this (not the full tree);
   `profileTop` sets how many hotspots.
+- **Compact stack** (`view=compact` on start/step/stack): keeps sub-steps only on the active frame, so a
+  step returns the frame that changed instead of re-sending every frame's `steps`.
 - **Step references**: a formula that computes or re-reads another step records a `stepRef` node pointing
   at the original step (`CallNodeView.refStep`) — shared steps are never duplicated; calls are attributed
   to the step whose formula makes them.

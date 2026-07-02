@@ -242,6 +242,7 @@ stateDiagram-v2
   "profiling": false,         // ? true — сохранять выполненный колл-три (структура+тайминги, без значений)
   "includeTree": true,        // ? false — вернуть только ограниченный profile, без полного tree (>1MB)
   "profileTop": 20,           // ? число хотспотов в profile (по умолчанию 20)
+  "view": "full",             // ? "compact" — steps только у активного кадра (для step/stack полезнее)
   "breakpoints": ["MyDT#rule"]// ? начальный набор (иначе ставить через trace_breakpoints до старта)
 }
 ```
@@ -261,7 +262,8 @@ stateDiagram-v2
 ### 2. `trace_step`
 
 **Вход:** `{ "projectId": "string", "type": "into" | "over" | "out" }`
-**API:** `POST {base}/step?type={type}` (синхронно, до следующего safepoint, бандл-таймаут ~30с).
+**API:** `POST {base}/step?type={type}&view=compact` (синхронно, до следующего safepoint, бандл-таймаут ~30с;
+`view=compact` — только шаги активного кадра).
 
 - `into` — внутрь следующего вызова / на следующий под-шаг;
 - `over` — следующий под-шаг текущего кадра (вложенные вызовы пробегаются);
@@ -290,7 +292,7 @@ stateDiagram-v2
 
 1. `POST {base}/resume` → `202`.
 2. Поллинг `GET {base}/status` каждые 100–300 мс до `suspended | completed | error | terminated`.
-3. `GET {base}/stack` → отдать наружу.
+3. `GET {base}/stack?view=compact` → отдать наружу.
 
 **Выход:** `DebugStackView` (со `status` остановки; при `error` — заполнен `error`).
 **Ошибки:** `404` нет сессии; `409` не `suspended`; таймаут → вернуть текущий статус.
@@ -416,14 +418,12 @@ stateDiagram-v2
 - ✅ **Профиль-обзор** (`DebugStackView.profile` + `includeTree=false` + `profileTop`) — снимает падение
   профилировщика на >1MB. Флоу в §7. Тул `trace_start`/профиль-тул обязан ходить с `includeTree=false`
   и не тащить `tree` по умолчанию.
+- ✅ **Компактный стек** (`view=compact` на start/step/stack) — `steps` остаются только у активного кадра,
+  так что шаг не пересылает `steps` всех кадров. `trace_step`/`trace_resume`/`trace_stack` обязаны ходить
+  с `view=compact` по умолчанию; полные шаги другого кадра — `trace_stack(view=full)` или `trace_inspect`.
 
 **Делать в MCP-сервере (тул-слой):**
 
-- **Компактный стек на `trace_step`/`trace_resume`.** Сервер строит `steps` для КАЖДОГО кадра всегда →
-  каждый шаг возвращает мега-простыню (при N покрытиях — N почти одинаковых дампов). Тул должен отдавать
-  только активный кадр (или компактный `status`+локация), а детали — отдельным `trace_inspect`.
-  `?fields=` снимает грубо; «только шаги активного кадра» — пост-обработкой в туле (или ждать API
-  `?view=compact`).
 - **Бандл `trace_step(out)` → `trace_inspect`.** Типовой цикл «доисполнить кадр и посмотреть значения» —
   всегда два вызова. Слить в один: после `/step` тул сам дёргает `/frames/{active}/variables` и
   возвращает стек + значения активного кадра.

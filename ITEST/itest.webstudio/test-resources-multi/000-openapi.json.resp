@@ -10571,6 +10571,19 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11509,6 +11522,19 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11742,6 +11768,19 @@ Content-Type: application/json
               "format": "int32",
               "default": 20,
               "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
             }
           },
           {

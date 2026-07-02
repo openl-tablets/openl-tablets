@@ -50,6 +50,8 @@ import org.openl.studio.projects.model.trace.CellHighlight;
 import org.openl.studio.projects.model.trace.DebugFrameVariables;
 import org.openl.studio.projects.model.trace.DebugStackView;
 import org.openl.studio.projects.model.trace.DebugStatusView;
+import org.openl.studio.projects.model.trace.StackRenderOptions;
+import org.openl.studio.projects.model.trace.StackViewMode;
 import org.openl.studio.projects.model.trace.StepType;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -108,6 +110,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "profiling", defaultValue = "false") @Parameter(description = "trace.param.profiling.desc") boolean profiling,
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
+            @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view,
             @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
 
         parameterRegistry.clear();
@@ -149,7 +152,7 @@ public class ProjectsTraceDebugController {
         // cache is not later pinned to a different module by a concurrent open (e.g. GET /breakpoint-tables).
         createMapper(session);
         session.getDebugger().awaitInitialHalt(STEP_TIMEOUT_MILLIS);
-        return inspectStack(session, includeTree, profileTop);
+        return inspectStack(session, renderOptions(includeTree, profileTop, view));
     }
 
     @Operation(summary = "trace.status.summary", description = "trace.status.desc")
@@ -165,8 +168,9 @@ public class ProjectsTraceDebugController {
     public DebugStackView stack(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
-            @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop) {
-        return inspectStack(requireSession(project), includeTree, profileTop);
+            @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
+            @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view) {
+        return inspectStack(requireSession(project), renderOptions(includeTree, profileTop, view));
     }
 
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")
@@ -176,12 +180,13 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam("type") @Parameter(description = "trace.param.step-type.desc") StepType type,
             @RequestParam(value = "includeTree", defaultValue = "true") @Parameter(description = "trace.param.include-tree.desc") boolean includeTree,
-            @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop) {
+            @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
+            @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view) {
         DebugSession session = requireSession(project);
         return session.inLock(() -> {
             requireSuspendedState(session);
             session.getDebugger().command(type.toCommand(), STEP_TIMEOUT_MILLIS);
-            return stackView(session, includeTree, profileTop);
+            return stackView(session, renderOptions(includeTree, profileTop, view));
         });
     }
 
@@ -328,19 +333,23 @@ public class ProjectsTraceDebugController {
      * its frames as it executes, so reading them is safe only once it has parked (suspended) or finished; the lock
      * keeps a concurrent step or resume from waking it mid-read.
      */
-    private DebugStackView inspectStack(DebugSession session, boolean includeTree, int profileTop) {
+    private static StackRenderOptions renderOptions(boolean includeTree, int profileTop, StackViewMode view) {
+        return new StackRenderOptions(includeTree, profileTop, view == StackViewMode.COMPACT);
+    }
+
+    private DebugStackView inspectStack(DebugSession session, StackRenderOptions options) {
         return session.inLock(() -> {
             if (session.getDebugger().status() == DebugStatus.RUNNING) {
                 throw new ConflictException("trace.execution.not.suspended.message");
             }
-            return stackView(session, includeTree, profileTop);
+            return stackView(session, options);
         });
     }
 
-    private DebugStackView stackView(DebugSession session, boolean includeTree, int profileTop) {
+    private DebugStackView stackView(DebugSession session, StackRenderOptions options) {
         var debugger = session.getDebugger();
         return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
-                debugger.completedTree(), includeTree, profileTop);
+                debugger.completedTree(), options);
     }
 
     private TraceDebugMapper createMapper(DebugSession session) {

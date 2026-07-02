@@ -25,6 +25,7 @@ import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
 import org.openl.rules.webstudio.web.trace.debug.FrameKind;
+import org.openl.rules.webstudio.web.trace.debug.SourceClassifier;
 import org.openl.rules.webstudio.web.trace.debug.TraceDebugger;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
@@ -257,6 +258,28 @@ class TraceDebugMapperTest {
         assertEquals(2, summary.hotspots().size(), "only the two slowest are returned");
         assertTrue(summary.truncated(), "a third table ran but did not make the cut");
         assertEquals(List.of("uB", "uC"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
+    }
+
+    @Test
+    void compactViewKeepsStepsOnlyOnTheActiveFrame() {
+        List<DebugFrame> stack = List.of(
+                debugFrame(FrameKind.METHOD, "uRoot", "Root", 1),
+                debugFrame(FrameKind.SPREADSHEET, "uChild", "Child", 2));
+
+        var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, StackRenderOptions.FULL);
+        assertNotNull(full.frames().get(0).steps(), "full view keeps every frame's steps");
+        assertNotNull(full.frames().get(1).steps());
+
+        var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null,
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true));
+        assertNull(compact.frames().get(0).steps(), "compact drops the non-active frame's steps");
+        assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
+        assertNotNull(compact.frames().get(1).steps(), "the active frame keeps its steps");
+    }
+
+    private static DebugFrame debugFrame(FrameKind kind, String uri, String name, int depth) {
+        return new DebugFrame(new SourceClassifier.FrameDescriptor(kind, uri, name),
+                new Object(), null, new Object[0], null, depth);
     }
 
     private static CallNode leaf(String uri, String name, long millis) {
