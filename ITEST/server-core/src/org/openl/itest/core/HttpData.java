@@ -158,11 +158,21 @@ class HttpData {
         return result.toString();
     }
 
+    /**
+     * Localized text and generated identifiers (descriptions, summaries, operation ids, the application version) are
+     * volatile: they change on every wording, ordering or version bump without changing the API shape. The golden
+     * keeps them as {@code ***} wildcards to avoid churn, so the body is masked here before it is written.
+     */
+    private static final Pattern VOLATILE_FIELDS = Pattern
+            .compile("(\"(?:description|summary|operationId|version)\"\\s*:\\s*)\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\"");
+
     void writeBodyTo(String responseFile) throws IOException {
         try (var rf = new RandomAccessFile(responseFile, "rw")) {
             while (!rf.readLine().isEmpty()) ; // find the first empty string
             rf.setLength(rf.getFilePointer()); // truncate
-            rf.write(body); // append new body
+            var masked = VOLATILE_FIELDS.matcher(new String(body, StandardCharsets.UTF_8)).replaceAll("$1\"***\"")
+                    .replace("\r\n", "\n").replace("\n", "\r\n"); // keep the golden in CRLF like the rest of the file
+            rf.write(masked.getBytes(StandardCharsets.UTF_8)); // append new body with volatile fields wildcarded
         }
     }
 

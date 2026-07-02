@@ -743,13 +743,42 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
+        return getTableRaw(project, tableId, null, null, false);
+    }
+
+    /**
+     * Get a window of a table in raw format: the {@code maxRows} rows starting at {@code startRow} and,
+     * optionally, each cell's Excel style.
+     * <p>
+     * The window lets a caller page through a large table in slices. Cell addresses stay absolute, and
+     * {@code totalRows} is set whenever the window omits rows.
+     *
+     * @param project    project
+     * @param tableId    table id
+     * @param startRow   zero-based index of the first row to return, or {@code null} for the top
+     * @param maxRows    maximum number of rows to return from {@code startRow}, or {@code null} for every
+     *                   remaining row
+     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @return raw table data, with {@code totalRows} set when the window omits rows
+     */
+    public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
+            @Nullable Integer maxRows, boolean withStyles) {
         var context = getOpenLTable(project, tableId);
-        var tableView = rawTableReader.read(context.table());
+        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles);
         tableView.messages = mapMessages(context);
         return tableView;
     }
 
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
+        return getOpenLTable(project, tableId, false);
+    }
+
+    /**
+     * Resolve a table by id. When {@code editable} is set, a table that belongs to a dependency project is
+     * rejected: it can be rendered read-only, but writing it here would mutate another project's source while
+     * only the current project is locked and ACL-checked.
+     */
+    private OpenLTableContext getOpenLTable(RulesProject project, String tableId, boolean editable) {
         var moduleModel = openProject(project).awaitCompiled();
         var table = moduleModel.getTableById(tableId);
         if (table == null) {
@@ -758,14 +787,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var tableUri = table.getUri();
         var module = moduleModel.getModuleInfo();
         if (!module.containsTable(tableUri)) {
-            // if table is not in the current module, then need to find it and inititialize module.
-            // otherwise, all required listeners and hooks will not function properly
             var pd = getProjectDescriptor(project);
-            module = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
-            // initialize module
-            moduleModel = openProject(pd, project, module).awaitCompiled();
-            table = moduleModel.getTableById(tableId);
-            if (table == null) {
+            var owningModule = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
+            // A table in another module of this project needs that module opened so its listeners and hooks
+            // function. A table from a dependency project belongs to no module of this project; it was already
+            // resolved across dependencies and carries its grid, so it is rendered as-is (read-only view) — but it
+            // cannot be edited here, where the lock and the ACL check apply to the current project, not its owner.
+            if (owningModule != null) {
+                moduleModel = openProject(pd, project, owningModule).awaitCompiled();
+                table = moduleModel.getTableById(tableId);
+                if (table == null) {
+                    throw new NotFoundException("table.message");
+                }
+            } else if (editable) {
                 throw new NotFoundException("table.message");
             }
         }
@@ -785,7 +819,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var context = getOpenLTable(project, tableId);
+        var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeWrite(writer, tableView);
@@ -806,7 +840,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var context = getOpenLTable(project, tableId);
+        var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeAppend(writer, tableView);
@@ -830,7 +864,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var context = getOpenLTable(project, tableId);
+        var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeSourceAction(writer, action);
@@ -850,7 +884,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var context = getOpenLTable(project, tableId);
+        var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
         writer.delete();

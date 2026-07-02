@@ -5,14 +5,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableCellBorder;
+import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
+import org.openl.studio.projects.model.tables.RawTableCellStyle;
+import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
+import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
 
 /**
@@ -46,33 +58,75 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         super(RawTableView::builder);
     }
 
-    /**
-     * Initialize RawTableView by reading the table as a raw 2D matrix with merge information.
-     * <p>
-     * Creates a TableModel from the IGridTable to properly handle:
-     * <ul>
-     *   <li>Cell merging with colspan/rowspan extraction
-     *   <li>Cell content retrieval (formulas are evaluated to values)
-     *   <li>Correct table dimensions
-     * </ul>
-     *
-     * @param builder    The RawTableView builder to populate
-     * @param openLTable The table to read in raw format
-     */
+    /** The value that tells {@link TableModel} not to cap rows; used when {@code maxRows} is unspecified. */
+    private static final int NO_ROW_CAP = -1;
+
     @Override
     protected void initialize(RawTableView.Builder builder, IOpenLTable openLTable) {
+        initialize(builder, openLTable, null, null, false);
+    }
+
+    /**
+     * Read a window of a table in raw format, optionally including each cell's Excel style.
+     * <p>
+     * The window is the {@code maxRows} rows starting at {@code startRow}, so a caller can page through a
+     * large table in slices — read a chunk, edit it through the table actions API, then read the next chunk.
+     * Rows outside the window are cropped while building the grid model, so they are never materialised.
+     * <p>
+     * Cell addresses stay absolute, so a sliced cell keeps the same address it has in the whole table.
+     * {@link RawTableView#totalRows} reports the full row count whenever the window omits rows. The matrix is
+     * empty when {@code startRow} is past the last row.
+     *
+     * @param openLTable the table to read
+     * @param startRow   the zero-based index of the first row to return; {@code null} starts at the top
+     * @param maxRows    the maximum number of rows to return from {@code startRow}; {@code null} returns every
+     *                   remaining row
+     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @return the raw table view
+     */
+    public RawTableView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows,
+            boolean withStyles) {
+        RawTableView.Builder builder = RawTableView.builder();
+        initialize(builder, openLTable, startRow, maxRows, withStyles);
+        return builder.build();
+    }
+
+    private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, @Nullable Integer startRow,
+            @Nullable Integer maxRows, boolean withStyles) {
         super.initialize(builder, openLTable);
         builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = openLTable.getSyntaxNode().getMetaInfoReader();
-        // Use TableModel to properly handle cell merging and content
-        var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), -1, metaInfoReader);
+        int fullHeight = openLTable.getGridTable().getHeight();
+        // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
+        // region, so rows outside the window are never materialised and cell addresses stay absolute.
+        var gridTable = sliceFrom(openLTable.getGridTable(), startRow);
+        int cap = maxRows == null ? NO_ROW_CAP : maxRows;
+        var tableModel = gridTable == null ? null
+                : TableModel.initializeTableModel(gridTable, cap, metaInfoReader);
 
-        if (tableModel != null) {
-            // Convert TableModel to raw source
-            var cellValueReader = new CellValueReader(metaInfoReader);
-            List<List<RawTableCell>> source = convertTableModelToMatrix(tableModel, cellValueReader);
-            builder.source(source);
+        List<List<RawTableCell>> source = tableModel == null ? List.of()
+                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles);
+        // The grid model keeps one extra row rather than hiding a single row; trim to exactly maxRows so the
+        // window size is predictable for paging.
+        if (maxRows != null && source.size() > maxRows) {
+            source = source.subList(0, maxRows);
         }
+        builder.source(source);
+        // Report the full height whenever the window omits rows (a non-zero offset or a top cap).
+        if ((startRow != null && startRow > 0) || source.size() < fullHeight) {
+            builder.totalRows(fullHeight);
+        }
+    }
+
+    /** Crop the table to the rows at and below {@code startRow}, or {@code null} when the offset is past the end. */
+    private static @Nullable IGridTable sliceFrom(IGridTable table, @Nullable Integer startRow) {
+        if (startRow == null || startRow <= 0) {
+            return table;
+        }
+        if (startRow >= table.getHeight()) {
+            return null;
+        }
+        return table.getRows(startRow);
     }
 
     /**
@@ -94,7 +148,8 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * @param cellValueReader Function to extract cell values from ICell instances
      * @return 2D list of RawTableCell objects representing the table matrix
      */
-    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel, Function<ICell, Object> cellValueReader) {
+    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel,
+            Function<ICell, Object> cellValueReader, boolean withStyles) {
         List<List<RawTableCell>> matrix = new ArrayList<>();
 
         var cells = tableModel.getCells();
@@ -130,6 +185,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                         .value(value)
                         .colspan(colspan)
                         .rowspan(rowspan)
+                        .style(withStyles ? styleOf(cm) : null)
                         .build();
 
                 if (colspan > 1 || rowspan > 1) {
@@ -149,6 +205,103 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         }
 
         return matrix;
+    }
+
+    /** The cell's Excel style, or {@code null} when every attribute is at its default. */
+    private static @Nullable RawTableCellStyle styleOf(CellModel cm) {
+        ICellFont font = cm.getFont();
+
+        RawTableCellStyle style = RawTableCellStyle.builder()
+                .background(nonDefault(cm.getRgbBackground(), "#ffffff"))
+                .color(font == null ? null : nonDefault(font.getFontColor(), "#000000"))
+                .align(horizontalAlign(cm.getHalign()))
+                .valign(verticalAlign(cm.getValign()))
+                .bold(flag(font, ICellFont::isBold))
+                .italic(flag(font, ICellFont::isItalic))
+                .underline(flag(font, ICellFont::isUnderlined))
+                .indent(positive(cm.getIndent()))
+                .border(borderOf(cm))
+                .build();
+
+        return style.isEmpty() ? null : style;
+    }
+
+    /** The font flag as {@link Boolean#TRUE}, or {@code null} when the font is absent or the flag is off. */
+    private static @Nullable Boolean flag(@Nullable ICellFont font, Predicate<ICellFont> predicate) {
+        return font != null && predicate.test(font) ? Boolean.TRUE : null;
+    }
+
+    /** The value when positive, or {@code null} otherwise. */
+    private static @Nullable Integer positive(int value) {
+        return value > 0 ? value : null;
+    }
+
+    /** The horizontal alignment mapped to the API enum, or {@code null} for the default (left). */
+    private static @Nullable RawTableHorizontalAlign horizontalAlign(@Nullable String halign) {
+        if (halign == null) {
+            return null;
+        }
+        return switch (halign) {
+            case "right" -> RawTableHorizontalAlign.RIGHT;
+            case "center" -> RawTableHorizontalAlign.CENTER;
+            case "justify" -> RawTableHorizontalAlign.JUSTIFY;
+            default -> null;
+        };
+    }
+
+    /** The vertical alignment mapped to the API enum, or {@code null} for the default (bottom). */
+    private static @Nullable RawTableVerticalAlign verticalAlign(@Nullable String valign) {
+        if (valign == null) {
+            return null;
+        }
+        return switch (valign) {
+            case "center" -> RawTableVerticalAlign.CENTER;
+            case "top" -> RawTableVerticalAlign.TOP;
+            default -> null;
+        };
+    }
+
+    /** The cell's borders per side, or {@code null} when the cell has no border on any side. */
+    private static @Nullable RawTableCellBorder borderOf(CellModel cm) {
+        BorderStyle[] sides = cm.getBorderStyle();
+        if (sides == null) {
+            return null;
+        }
+        RawTableCellBorder border = RawTableCellBorder.builder()
+                .top(borderSide(sides, ICellStyle.TOP))
+                .right(borderSide(sides, ICellStyle.RIGHT))
+                .bottom(borderSide(sides, ICellStyle.BOTTOM))
+                .left(borderSide(sides, ICellStyle.LEFT))
+                .build();
+        return border.isEmpty() ? null : border;
+    }
+
+    /** One border side, or {@code null} when that side has no border. */
+    private static @Nullable RawTableCellBorderSide borderSide(BorderStyle[] sides, int side) {
+        if (side >= sides.length) {
+            return null;
+        }
+        BorderStyle bs = sides[side];
+        if (bs == null || bs == BorderStyle.NONE || bs.getWidth() == 0) {
+            return null;
+        }
+        RawTableBorderLineStyle style = switch (bs.getStyle() == null ? "solid" : bs.getStyle()) {
+            case "dashed" -> RawTableBorderLineStyle.DASHED;
+            case "dotted" -> RawTableBorderLineStyle.DOTTED;
+            case "double" -> RawTableBorderLineStyle.DOUBLE;
+            default -> RawTableBorderLineStyle.SOLID;
+        };
+        return RawTableCellBorderSide.builder().style(style).width(bs.getWidth()).build();
+    }
+
+    /** Hex form of an RGB triple, or {@code null} when it is missing or equals the given default colour. */
+    private static @Nullable String nonDefault(short @Nullable [] rgb, String defaultHex) {
+        if (rgb == null || rgb.length < 3) {
+            return null;
+        }
+        // Mask each component to an unsigned byte so a negative short never sign-extends to 8 hex digits.
+        String hex = String.format("#%02x%02x%02x", rgb[0] & 0xff, rgb[1] & 0xff, rgb[2] & 0xff);
+        return hex.equals(defaultHex) ? null : hex;
     }
 
     private record CellRef(int row, int col) {

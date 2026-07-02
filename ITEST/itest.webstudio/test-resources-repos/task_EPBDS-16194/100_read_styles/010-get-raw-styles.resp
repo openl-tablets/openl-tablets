@@ -1,0 +1,205 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5f19c559b438962ed5206edb9b063f8e",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "StyledData",
+  "pos": "B2:C6",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype StyledData",
+        "colspan": 2,
+        "style": {
+          "background": "#ffff00",
+          "color": "#0000ff",
+          "align": "center",
+          "bold": true,
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "String",
+        "style": {
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C3",
+        "value": "name",
+        "style": {
+          "italic": true,
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Integer",
+        "style": {
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C4",
+        "value": "count",
+        "style": {
+          "background": "#00ff00",
+          "underline": true,
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Double",
+        "style": {
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C5",
+        "value": "rate",
+        "style": {
+          "align": "right",
+          "indent": 2,
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "Boolean",
+        "style": {
+          "italic": true,
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C6",
+        "value": "active",
+        "style": {
+          "color": "#ff0000",
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ]
+}

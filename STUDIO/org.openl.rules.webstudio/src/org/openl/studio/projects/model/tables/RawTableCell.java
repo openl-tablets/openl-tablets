@@ -63,7 +63,10 @@ public record RawTableCell(
         Integer rowspan,
 
         @Schema(description = "Whether this cell is covered by another cell's span (true for masked cells, null otherwise)")
-        Boolean covered
+        Boolean covered,
+
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        RawTableCellStyle style
 ) {
 
     public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
@@ -74,6 +77,7 @@ public record RawTableCell(
             value = null;
             colspan = null;
             rowspan = null;
+            style = null;
         } else {
             colspan = (colspan != null && colspan > 1) ? colspan : null;
             rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;

@@ -7419,14 +7419,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -7436,6 +7428,14 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -9296,6 +9296,35 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "raw",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "startRow",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "styles",
             "schema": {
               "type": "boolean",
               "default": false
@@ -13178,14 +13207,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "branch",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "conflictPolicy",
             "schema": {
               "type": "string",
@@ -13195,6 +13216,14 @@ Content-Type: application/json
                 "OVERWRITE",
                 "SKIP"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -18273,9 +18302,102 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "style": {
+            "$ref": "#/components/schemas/RawTableCellStyle"
+          },
           "value": {
             "type": "object",
             "description": "***"
+          }
+        }
+      },
+      "RawTableCellBorder": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "bottom": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "left": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "right": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "top": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          }
+        }
+      },
+      "RawTableCellBorderSide": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "style": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "solid",
+              "dashed",
+              "dotted",
+              "double"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RawTableCellStyle": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "align": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "right",
+              "center",
+              "justify"
+            ]
+          },
+          "background": {
+            "type": "string",
+            "description": "***"
+          },
+          "bold": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "border": {
+            "$ref": "#/components/schemas/RawTableCellBorder"
+          },
+          "color": {
+            "type": "string",
+            "description": "***"
+          },
+          "indent": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "minimum": 1
+          },
+          "italic": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "underline": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "valign": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "center",
+              "top"
+            ]
           }
         }
       },
@@ -18383,8 +18505,13 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawTableCell"
                   }
-                },
-                "minItems": 1
+                }
+              },
+              "totalRows": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "readOnly": true
               }
             }
           }

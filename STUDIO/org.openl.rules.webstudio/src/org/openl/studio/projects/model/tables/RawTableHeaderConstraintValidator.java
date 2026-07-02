@@ -15,8 +15,11 @@ public class RawTableHeaderConstraintValidator implements ConstraintValidator<Ra
 
     @Override
     public boolean isValid(RawTableView view, ConstraintValidatorContext context) {
-        if (view == null || view.source == null || view.source.isEmpty()) {
-            return true; // an empty source is already reported by @NotEmpty
+        if (view == null || view.source == null) {
+            return true; // a missing source is already reported by @NotNull
+        }
+        if (view.source.isEmpty()) {
+            return false; // a table with no cells has no header (an empty matrix is only a valid read result)
         }
         List<RawTableCell> firstRow = view.source.get(0);
         if (firstRow == null || firstRow.isEmpty()) {

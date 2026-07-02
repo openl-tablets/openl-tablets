@@ -312,9 +312,12 @@ public class ProjectsController {
     @Operation(summary = "Get project table (BETA)")
     public EditableTableView getTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw) {
+                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw,
+                                      @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "Zero-based index of the first row of the raw view; omit to start at the top. Combine with maxRows to read a large table in slices.") Integer startRow,
+                                      @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "Maximum number of rows for the raw view, counted from startRow; omit to read to the end. When the window omits rows, the response carries totalRows.") Integer maxRows,
+                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "Whether the raw view should carry each cell's Excel style (background, font, alignment)") boolean styles) {
         if (raw) {
-            return projectService.getTableRaw(project, tableId);
+            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles);
         }
         return (EditableTableView) projectService.getTable(project, tableId);
     }
