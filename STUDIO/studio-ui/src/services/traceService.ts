@@ -10,6 +10,7 @@ import type {
     RawTableView,
     StepType,
     TraceParameterValue,
+    WatchView,
 } from 'types/trace'
 
 /**
@@ -127,6 +128,7 @@ export const traceService = {
             fromModule?: string
             stopAtEntry?: boolean
             profiling?: boolean
+            includeTree?: boolean
             inputJson?: string
         }
     ): Promise<DebugStackView> => {
@@ -136,6 +138,7 @@ export const traceService = {
         if (options.fromModule) params.set('fromModule', options.fromModule)
         params.set('stopAtEntry', String(options.stopAtEntry ?? true))
         if (options.profiling) params.set('profiling', 'true')
+        if (options.includeTree === false) params.set('includeTree', 'false')
 
         return await retryApiCall<DebugStackView>(
             `${base(projectId)}?${params.toString()}`,
@@ -232,6 +235,22 @@ export const traceService = {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uris }),
+            },
+            TRACE_API_OPTIONS
+        ),
+
+    /** The watched cells' values across the run, one series per cell. Complete once the run has finished. */
+    getWatch: async (projectId: string): Promise<WatchView> =>
+        retryApiCall<WatchView>(`${base(projectId)}/watch`, undefined, TRACE_API_OPTIONS),
+
+    /** Replace the watch set. Applied on the next start, since a watch captures from the run's beginning. */
+    setWatches: async (projectId: string, cells: string[]): Promise<void> =>
+        retryApiCall<void>(
+            `${base(projectId)}/watches`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cells }),
             },
             TRACE_API_OPTIONS
         ),

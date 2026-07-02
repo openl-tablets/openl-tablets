@@ -9,6 +9,7 @@ import type {
     DebugStatus,
     RawTableView,
     TraceParameterValue,
+    WatchView,
 } from 'types/trace'
 import traceService from 'services/traceService'
 import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
@@ -41,6 +42,10 @@ interface DebugState {
     transientBreakpoint: string | null
     /** Profiling mode: retain the executed call tree so returned branches stay browsable. Toggling restarts. */
     profiling: boolean
+    /** Cells watched across the run, by name or ref. Applied on the next run, since a watch captures from the start. */
+    watches: string[]
+    /** The watched cells' values across the run, or null before they are fetched. */
+    watch: WatchView | null
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
@@ -72,6 +77,12 @@ interface DebugState {
     setProfiling: (value: boolean) => Promise<void>
     /** Replay a returned branch: restart from the top and run to that table so it is live again, with values. */
     replayNode: (uri: string, label?: string) => Promise<void>
+    /** Replace the watch set. Applied on the next collect/run, since a watch captures from the start. */
+    setWatchCells: (cells: string[]) => Promise<void>
+    /** Run the whole trace to completion collecting the watched cells, then fetch the series. */
+    collectWatch: () => Promise<void>
+    /** Fetch the watched cells' values gathered so far. */
+    fetchWatch: () => Promise<void>
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
@@ -99,12 +110,14 @@ const initialState = {
     breakpointLabels: {},
     transientBreakpoint: null,
     profiling: false,
+    watches: [],
+    watch: null,
     rawTableCache: {},
     loading: false,
     error: null,
 }
 
-const isSuspended = (status: DebugStatus | null): boolean => status === 'SUSPENDED'
+const isSuspended = (status: DebugStatus | null): boolean => status === 'suspended'
 
 export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
@@ -131,6 +144,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
         }
         if (isSuspended(stack.status) && topIndex !== null) {
             void get().selectFrame(topIndex)
+        }
+        // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
+        // not only on Collect — the panel then tracks the value as the user steps through.
+        if (get().watches.length > 0) {
+            void get().fetchWatch()
         }
     }
 
@@ -163,7 +181,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         start: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null, status: 'PENDING' })
+            set({ loading: true, error: null, status: 'pending' })
             try {
                 // Attach to a session already created by the launcher; otherwise start a new one.
                 let stack: DebugStackView
@@ -181,7 +199,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 }
                 applyStack(stack)
             } catch (error: any) {
-                set({ status: 'ERROR', error: error?.message || 'Failed to start trace' })
+                set({ status: 'error', error: error?.message || 'Failed to start trace' })
             } finally {
                 set({ loading: false })
             }
@@ -237,11 +255,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
         resume: async () => {
             const { projectId } = get()
             if (!projectId) return
-            set({ status: 'RUNNING', variables: null, variablesLoading: false })
+            set({ status: 'running', variables: null, variablesLoading: false })
             try {
                 await traceService.resume(projectId)
             } catch (error: any) {
-                set({ status: 'SUSPENDED', error: error?.message || 'Resume failed' })
+                set({ status: 'suspended', error: error?.message || 'Resume failed' })
             }
         },
 
@@ -259,7 +277,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             // Run to a node (its breakpoint key) without leaving a permanent breakpoint: add a one-shot
             // breakpoint unless the user already pinned one here, then resume. applyStack drops it on the
             // next suspension. Only meaningful while paused.
-            if (get().status !== 'SUSPENDED') return
+            if (get().status !== 'suspended') return
             if (!get().breakpoints.includes(key)) {
                 await get().toggleBreakpoint(key, label)
                 set({ transientBreakpoint: key })
@@ -293,12 +311,59 @@ export const useTraceStore = create<DebugState>((set, get) => {
             await get().runTo(uri, label)
         },
 
+        setWatchCells: async (cells) => {
+            const { projectId, watch } = get()
+            // Drop any already-collected series for cells that are no longer watched, so removing a watch
+            // clears its values instead of leaving stale rows on screen.
+            const series = watch ? watch.series.filter(s => cells.includes(s.name)) : []
+            set({ watches: cells, watch: watch ? { ...watch, series } : null })
+            if (!projectId) return
+            // Applies to the running session immediately (like breakpoints), so a cell added mid-debug is
+            // captured as stepping reaches it; on the next start it captures from the beginning of the run.
+            await traceService.setWatches(projectId, cells)
+            if (cells.length > 0) await get().fetchWatch()
+        },
+
+        collectWatch: async () => {
+            const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+            if (!projectId || !tableId) return
+            set({ loading: true, error: null })
+            try {
+                // Run the whole trace to completion (not the full tree) so every execution is captured.
+                await get().terminate()
+                const stack = await traceService.startTrace(projectId, {
+                    tableId,
+                    ...(fromModule ? { fromModule } : {}),
+                    ...(testRanges ? { testRanges } : {}),
+                    ...(inputJson ? { inputJson } : {}),
+                    stopAtEntry: false,
+                    includeTree: false,
+                })
+                applyStack(stack)
+                await get().fetchWatch()
+            } catch (error: any) {
+                set({ error: error?.message || 'Failed to collect watches' })
+            } finally {
+                set({ loading: false })
+            }
+        },
+
+        fetchWatch: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                set({ watch: await traceService.getWatch(projectId) })
+            } catch {
+                // Best effort: the panel keeps whatever it last showed.
+            }
+        },
+
         terminate: async () => {
             const { projectId } = get()
             if (!projectId) return
             try {
                 await traceService.cancelTrace(projectId)
-                set({ status: 'TERMINATED', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
+                set({ status: 'terminated', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
             } catch (error: any) {
                 notification.error({ title: error?.message || 'Failed to terminate' })
             }
@@ -340,13 +405,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         onSocketStatus: (status, message) => {
-            if (status === 'SUSPENDED') {
+            if (status === 'suspended') {
                 // A synchronous step applies the authoritative stack from its own response; the WS
                 // notification for that same suspension would only trigger a duplicate stack+variables fetch.
                 if (get().loading) return
                 void get().refreshStack()
-            } else if (status === 'RUNNING') {
-                set({ status: 'RUNNING' })
+            } else if (status === 'running') {
+                set({ status: 'running' })
             } else if (isTraceExecutionTerminal(status)) {
                 // Show an immediate summary from the socket (if any); the full error is fetched below.
                 set({
@@ -355,9 +420,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     selectedFrameIndex: null,
                     variables: null,
                     variablesLoading: false,
-                    debugError: status === 'ERROR' && message ? { summary: message } : null,
+                    debugError: status === 'error' && message ? { summary: message } : null,
                 })
-                if (status === 'ERROR') {
+                if (status === 'error') {
                     void get().fetchTerminalError()
                 }
             }

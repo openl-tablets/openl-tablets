@@ -8,31 +8,31 @@ import {
 
 describe('traceExecutionStatus utils', () => {
     it('defines in-progress and terminal groups correctly', () => {
-        expect(IN_PROGRESS_TRACE_EXECUTION_STATUSES).toEqual(['PENDING', 'RUNNING'])
-        expect(TERMINAL_TRACE_EXECUTION_STATUSES).toEqual(['COMPLETED', 'ERROR', 'TERMINATED'])
+        expect(IN_PROGRESS_TRACE_EXECUTION_STATUSES).toEqual(['pending', 'running'])
+        expect(TERMINAL_TRACE_EXECUTION_STATUSES).toEqual(['completed', 'error', 'terminated'])
     })
 
     it('detects in-progress statuses', () => {
-        expect(isTraceExecutionInProgress('PENDING')).toBe(true)
-        expect(isTraceExecutionInProgress('RUNNING')).toBe(true)
-        expect(isTraceExecutionInProgress('SUSPENDED')).toBe(false)
+        expect(isTraceExecutionInProgress('pending')).toBe(true)
+        expect(isTraceExecutionInProgress('running')).toBe(true)
+        expect(isTraceExecutionInProgress('suspended')).toBe(false)
         expect(isTraceExecutionInProgress(undefined)).toBe(false)
         expect(isTraceExecutionInProgress(null)).toBe(false)
     })
 
     it('detects terminal statuses', () => {
-        expect(isTraceExecutionTerminal('COMPLETED')).toBe(true)
-        expect(isTraceExecutionTerminal('ERROR')).toBe(true)
-        expect(isTraceExecutionTerminal('TERMINATED')).toBe(true)
-        expect(isTraceExecutionTerminal('SUSPENDED')).toBe(false)
+        expect(isTraceExecutionTerminal('completed')).toBe(true)
+        expect(isTraceExecutionTerminal('error')).toBe(true)
+        expect(isTraceExecutionTerminal('terminated')).toBe(true)
+        expect(isTraceExecutionTerminal('suspended')).toBe(false)
         expect(isTraceExecutionTerminal(undefined)).toBe(false)
         expect(isTraceExecutionTerminal(null)).toBe(false)
     })
 
     it('detects error status precisely', () => {
-        expect(isTraceExecutionError('ERROR')).toBe(true)
-        expect(isTraceExecutionError('TERMINATED')).toBe(false)
-        expect(isTraceExecutionError('RUNNING')).toBe(false)
+        expect(isTraceExecutionError('error')).toBe(true)
+        expect(isTraceExecutionError('terminated')).toBe(false)
+        expect(isTraceExecutionError('running')).toBe(false)
         expect(isTraceExecutionError(undefined)).toBe(false)
     })
 })

@@ -1,14 +1,14 @@
 /**
  * Interactive debug session status.
  *
- * - PENDING: created, worker not started yet
- * - RUNNING: executing, not suspended
- * - SUSPENDED: paused at a breakpoint or step point; the stack can be inspected
- * - COMPLETED: finished normally
- * - ERROR: failed with an error
- * - TERMINATED: cancelled before finishing
+ * - pending: created, worker not started yet
+ * - running: executing, not suspended
+ * - suspended: paused at a breakpoint or step point; the stack can be inspected
+ * - completed: finished normally
+ * - error: failed with an error
+ * - terminated: cancelled before finishing
  */
-export type DebugStatus = 'PENDING' | 'RUNNING' | 'SUSPENDED' | 'COMPLETED' | 'ERROR' | 'TERMINATED'
+export type DebugStatus = 'pending' | 'running' | 'suspended' | 'completed' | 'error' | 'terminated'
 
 /** Step command issued to a suspended session. */
 export type StepType = 'into' | 'over' | 'out'
@@ -66,6 +66,8 @@ export interface DebugFrameView {
     index: number
     /** Frame depth, 1 for the root call */
     depth: number
+    /** Zero-based execution number of this table; the number a `uri#ref@N` breakpoint or a watch series uses */
+    instance: number
     /** Source URI of the frame's table, used for breakpoints and table rendering */
     uri: string
     /** Stable id of the frame's table, used to fetch its raw grid from the Tables API */
@@ -167,8 +169,46 @@ export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
     error?: DebugError | null
-    /** The whole executed call tree once the trace has finished (profiling mode); absent while it runs. */
+    /**
+     * The whole executed call tree once the trace has finished (profiling mode); absent while it runs, or
+     * when the caller asked to omit it (`includeTree=false`).
+     */
     tree?: CallNodeView | null
+    /**
+     * A bounded overview of the finished profiled run (the slowest tables), so a large run can be
+     * understood without pulling the full `tree`; absent outside profiling mode and while it runs.
+     */
+    profile?: ProfileSummaryView | null
+}
+
+/**
+ * A bounded overview of a profiled run: the slowest tables, aggregated across the whole run. Constant-sized
+ * regardless of run size, unlike the full `tree`.
+ */
+export interface ProfileSummaryView {
+    /** The slowest tables by own time, most expensive first, capped to the requested size. */
+    hotspots: ProfileHotspotView[]
+    /** Number of distinct tables that ran; may exceed the number of hotspots returned. */
+    distinctTables: number
+    /** Total number of table invocations in the run (the size of the full tree). */
+    nodeCount: number
+    /** Wall-clock execution time of the whole run in milliseconds, excluding parked time. */
+    totalMillis: number
+    /** Whether more distinct tables ran than the returned hotspots. */
+    truncated: boolean
+}
+
+/** One table in the profiling hotspots, with its execution time aggregated across the whole run. */
+export interface ProfileHotspotView {
+    uri: string
+    name: string
+    kind: FrameKind
+    /** Total own execution time across all invocations (ms), excluding the tables it called. */
+    selfMillis: number
+    /** Total inclusive execution time across all invocations (ms): own work plus called tables. */
+    totalMillis: number
+    /** Number of times the table was invoked in the run. */
+    count: number
 }
 
 /**
@@ -277,4 +317,40 @@ export interface MessageDescription {
 export interface TraceProgressMessage {
     status: DebugStatus
     message?: string
+}
+
+/**
+ * The collected values of the watched cells — a factor read across the whole run. One series per cell;
+ * the UI can pivot series that share a table into a matrix (rows = executions, columns = cells).
+ */
+export interface WatchView {
+    series: WatchSeriesView[]
+    /** True when the capture cap was reached, so some late executions are missing. */
+    truncated: boolean
+}
+
+/** The values of one watched cell across the run, one point per execution of its table. */
+export interface WatchSeriesView {
+    /** The watched cell name (its `$...` step label). */
+    name: string
+    /** Display name of the table the cell belongs to. */
+    table: string
+    /** Source URI of that table. */
+    tableUri: string
+    /** The captured values, one per execution of the table, in execution order. */
+    points: WatchPointView[]
+}
+
+/** One value of a watched cell, from one execution of its table. */
+export interface WatchPointView {
+    /** Zero-based execution number of the owning table (its 1st, 2nd, … invocation). */
+    instance: number
+    /** Human-readable axis label for the execution, e.g. `CoveragePremium #3`. */
+    label: string
+    /** Call path from the root frame to the owning frame, as table display names. */
+    path: string[]
+    /** Breakpoint key `uri#cellRef` that reaches this cell, to replay and inspect this execution live. */
+    ref: string
+    /** The captured value, serialized like any traced value (dates, arrays, spreadsheet results); lazy when large. */
+    value: TraceParameterValue | null
 }

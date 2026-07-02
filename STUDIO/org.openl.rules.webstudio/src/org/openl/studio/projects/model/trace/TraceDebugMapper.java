@@ -3,9 +3,11 @@ package org.openl.studio.projects.model.trace;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +46,9 @@ import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.CurrentLocation;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
+import org.openl.rules.webstudio.web.trace.debug.FrameKind;
 import org.openl.rules.webstudio.web.trace.debug.SpreadsheetCellNames;
+import org.openl.rules.webstudio.web.trace.debug.WatchCapture;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
@@ -69,6 +73,9 @@ public class TraceDebugMapper {
     /** Upper bound on the technical stack-trace detail, so a deep failure cannot bloat the response. */
     private static final int MAX_DETAIL = 8_000;
 
+    /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
+    public static final int DEFAULT_PROFILE_TOP = 20;
+
     /** Map the live stack (root to current frame) to a stack view. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
         return toStackView(status, frames, error, null);
@@ -77,32 +84,163 @@ public class TraceDebugMapper {
     /** Map the live stack to a stack view, plus the completed executed tree once the trace has finished. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
                                              @Nullable CallNode completedTree) {
+        return toStackView(status, frames, error, completedTree, StackRenderOptions.FULL);
+    }
+
+    /**
+     * Map the live stack to a stack view, shaped by {@code options}. Once the trace has finished in
+     * profiling mode the completed tree is available; {@code includeTree} embeds it in full, and a bounded
+     * profile overview (the slowest tables) is always attached so a large run can be understood without it.
+     * In {@code compact} mode only the active frame carries its sub-steps, so a step no longer re-sends
+     * every frame's steps.
+     */
+    public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
+                                             @Nullable CallNode completedTree, StackRenderOptions options) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
+            boolean active = i == frames.size() - 1;
             views.add(DebugFrameView.builder()
                     .index(i)
                     .depth(frame.getDepth())
+                    .instance(frame.getInvocationIndex())
                     .uri(frame.getUri())
                     .tableId(TableUtils.makeTableId(frame.getUri()))
                     .name(frame.getName())
                     .kind(frame.getKind())
                     .location(toLocationView(frame.getLocation()))
-                    .active(i == frames.size() - 1)
+                    .active(active)
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
-                    .steps(outlineSteps(frame))
+                    .steps(options.compact() && !active ? null : outlineSteps(frame))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))
                     .dispatch(frame.getDispatch())
                     .build());
         }
         return DebugStackView.builder()
-                .status(status.name())
+                .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
-                .tree(completedTree == null ? null : toCallNodeView(completedTree))
+                .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
+                .profile(completedTree == null ? null : buildProfileSummary(completedTree, options.profileTop()))
                 .build();
+    }
+
+    /**
+     * Group watched-cell captures into series: one per cell (scoped to its table), points in execution
+     * order. Captures already arrive in execution order, so the points need no re-sorting. Each value is
+     * deep-cloned and serialized to the rich parameter view (like frame variables), so dates, arrays, and
+     * spreadsheet results render properly and large values load lazily.
+     */
+    public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader) {
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        if (classLoader != null) {
+            Thread.currentThread().setContextClassLoader(classLoader);
+        }
+        try {
+            Map<Object, Object> clones = new IdentityHashMap<>();
+            Map<String, List<WatchPointView>> pointsByKey = new LinkedHashMap<>();
+            Map<String, WatchCapture> firstByKey = new LinkedHashMap<>();
+            for (WatchCapture capture : captures) {
+                String key = capture.name() + ' ' + capture.tableUri();
+                pointsByKey.computeIfAbsent(key, k -> new ArrayList<>()).add(toWatchPoint(capture, clones));
+                firstByKey.putIfAbsent(key, capture);
+            }
+            List<WatchSeriesView> series = new ArrayList<>(pointsByKey.size());
+            pointsByKey.forEach((key, points) -> {
+                WatchCapture first = firstByKey.get(key);
+                series.add(WatchSeriesView.builder()
+                        .name(first.name())
+                        .table(first.table())
+                        .tableUri(first.tableUri())
+                        .points(points)
+                        .build());
+            });
+            return WatchView.builder().series(series).truncated(truncated).build();
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
+        }
+    }
+
+    private WatchPointView toWatchPoint(WatchCapture capture, Map<Object, Object> clones) {
+        var param = new ParameterWithValueDeclaration(capture.name(), safeClone(capture.value(), clones));
+        return WatchPointView.builder()
+                .instance(capture.instance())
+                .label(capture.table() + " #" + (capture.instance() + 1))
+                .path(capture.path())
+                .ref(capture.ref())
+                .value(buildParameterValue(param, true))
+                .build();
+    }
+
+    /**
+     * Fold the executed call tree into a bounded hotspots overview: every invocation of the same table
+     * aggregated, keeping only the slowest {@code top} by own time. Constant-sized regardless of run size.
+     */
+    static ProfileSummaryView buildProfileSummary(CallNode root, int top) {
+        Map<String, Hotspot> byUri = new HashMap<>();
+        int nodeCount = accumulateHotspots(root, byUri, 0);
+        List<ProfileHotspotView> hotspots = byUri.values().stream()
+                .sorted(Comparator.comparingLong(Hotspot::selfNanos).reversed())
+                .limit(Math.max(1, top))
+                .map(Hotspot::toView)
+                .toList();
+        return ProfileSummaryView.builder()
+                .hotspots(hotspots)
+                .distinctTables(byUri.size())
+                .nodeCount(nodeCount)
+                .totalMillis(toMillis(root.durationNanos()))
+                .truncated(byUri.size() > hotspots.size())
+                .build();
+    }
+
+    /** Add a node's own time to its table's hotspot and recurse into the tables its steps called. */
+    private static int accumulateHotspots(CallNode node, Map<String, Hotspot> byUri, int nodeCount) {
+        if (node.refStep() != null) {
+            // A reference to a step that ran elsewhere: no time of its own, so it is not an invocation.
+            return nodeCount;
+        }
+        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        byUri.computeIfAbsent(node.uri(), uri -> new Hotspot(uri, node.name(), node.kind()))
+                .add(node.durationNanos(), Math.max(0, node.durationNanos() - childrenNanos));
+        int count = nodeCount + 1;
+        for (CallNode.Step step : node.steps()) {
+            for (CallNode child : step.children()) {
+                count = accumulateHotspots(child, byUri, count);
+            }
+        }
+        return count;
+    }
+
+    /** Mutable accumulator for one table's aggregated profiling time across all its invocations. */
+    private static final class Hotspot {
+        private final String uri;
+        private final String name;
+        private final FrameKind kind;
+        private long totalNanos;
+        private long selfNanos;
+        private int count;
+
+        private Hotspot(String uri, String name, FrameKind kind) {
+            this.uri = uri;
+            this.name = name;
+            this.kind = kind;
+        }
+
+        private void add(long totalNanos, long selfNanos) {
+            this.totalNanos += totalNanos;
+            this.selfNanos += selfNanos;
+            this.count++;
+        }
+
+        private long selfNanos() {
+            return selfNanos;
+        }
+
+        private ProfileHotspotView toView() {
+            return new ProfileHotspotView(uri, name, kind, toMillis(selfNanos), toMillis(totalNanos), count);
+        }
     }
 
     /** Build a non-technical error view: cleaned message, the table that failed, and a technical drill-down. */
@@ -238,7 +376,7 @@ public class TraceDebugMapper {
             result.add(StepValueView.builder()
                     .ref(step.ref())
                     .label(step.label())
-                    .status("executed")
+                    .status(StepStatus.EXECUTED)
                     .value(buildParameterValue(param, true))
                     .build());
         }
@@ -258,7 +396,7 @@ public class TraceDebugMapper {
             var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
             if (executed.containsKey(ref)) {
                 var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
-                steps.add(builder.status("executed").value(buildParameterValue(param, true)).build());
+                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true)).build());
             } else {
                 steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
             }
@@ -313,7 +451,7 @@ public class TraceDebugMapper {
             return ruleOutline(decisionTable, firedRuleIndices(frame));
         }
         return frame.getExecutedSteps().stream()
-                .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status("executed").build())
+                .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status(StepStatus.EXECUTED).build())
                 .toList();
     }
 
@@ -338,7 +476,11 @@ public class TraceDebugMapper {
         }
         children.forEach((ref, kids) -> {
             if (!covered.contains(ref) && !kids.isEmpty()) {
-                result.add(StepValueView.builder().ref(ref).status("executed").children(toCallNodeViews(kids)).build());
+                result.add(StepValueView.builder()
+                        .ref(ref)
+                        .status(StepStatus.EXECUTED)
+                        .children(toCallNodeViews(kids))
+                        .build());
             }
         });
         return result;
@@ -354,7 +496,7 @@ public class TraceDebugMapper {
                 .map(step -> StepValueView.builder()
                         .ref(step.ref())
                         .label(step.label())
-                        .status("executed")
+                        .status(StepStatus.EXECUTED)
                         .durationMillis(toMillis(step.durationNanos()))
                         .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
                         .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
@@ -416,7 +558,7 @@ public class TraceDebugMapper {
                 .map(name -> StepValueView.builder()
                         .ref(name)
                         .label(name)
-                        .status(fired.contains(name) ? "current" : "pending")
+                        .status(fired.contains(name) ? StepStatus.CURRENT : StepStatus.PENDING)
                         .build())
                 .toList();
     }
@@ -442,11 +584,11 @@ public class TraceDebugMapper {
     }
 
     /** Classify a step: already executed, currently executing, or still pending. */
-    private static String stepStatus(String ref, Set<String> executedRefs, @Nullable String currentRef) {
+    private static StepStatus stepStatus(String ref, Set<String> executedRefs, @Nullable String currentRef) {
         if (executedRefs.contains(ref)) {
-            return "executed";
+            return StepStatus.EXECUTED;
         }
-        return ref.equals(currentRef) ? "current" : "pending";
+        return ref.equals(currentRef) ? StepStatus.CURRENT : StepStatus.PENDING;
     }
 
     private static Set<String> executedRefs(DebugFrame frame) {

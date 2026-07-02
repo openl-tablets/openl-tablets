@@ -45,7 +45,9 @@ frame's variables — all against a real, suspended execution rather than a pre-
   cell, on any fired decision-table rule, or on a specific rule. See [Breakpoint Keys](#breakpoint-keys).
 - **Profiling (executed call tree)** — with `profiling=true` the session retains the structure of returned
   calls: which steps ran, what each step called, execution times (total and self), dispatcher choices, and
-  references to re-used steps. Structure only — no values are retained.
+  references to re-used steps. Structure only — no values are retained. The response also carries a bounded
+  `profile` overview (the slowest tables); pass `includeTree=false` to get only that when the whole tree
+  would be too large.
 - **Lazy variable freezing** — a frame's parameters/context/result are deep-cloned only when inspected,
   while suspended, and discarded when the frame returns. Large values load on demand.
 - **One session per user** — starting a new session terminates the previous one. Idle suspended sessions
@@ -97,16 +99,17 @@ A session moves through these statuses (also returned in every stack/status resp
 
 | Status | Meaning | Accepts commands |
 | --- | --- | --- |
-| `PENDING` | Created; worker not started yet | — |
-| `RUNNING` | Executing, not suspended | `pause` |
-| `SUSPENDED` | Paused at a breakpoint or step point; stack is inspectable | `step`, `resume`, inspect |
-| `COMPLETED` | Finished normally | terminal |
-| `ERROR` | Failed with an error | terminal |
-| `TERMINATED` | Cancelled before finishing | terminal |
+| `pending` | Created; worker not started yet | — |
+| `running` | Executing, not suspended | `pause` |
+| `suspended` | Paused at a breakpoint or step point; stack is inspectable | `step`, `resume`, inspect |
+| `completed` | Finished normally | terminal |
+| `error` | Failed with an error | terminal |
+| `terminated` | Cancelled before finishing | terminal |
 
-The normal flow is `PENDING → RUNNING ⇄ SUSPENDED → COMPLETED`; `ERROR` and `TERMINATED` are the other
-terminal states. Status transitions are pushed over WebSocket (see below). After `COMPLETED` the stack is
-empty, but a profiling session still exposes the whole executed tree in `DebugStackView.tree`.
+The normal flow is `pending → running ⇄ suspended → completed`; `error` and `terminated` are the other
+terminal states. Status transitions are pushed over WebSocket (see below). After `completed` the stack is
+empty, but a profiling session still exposes the whole executed tree in `DebugStackView.tree` and a
+bounded overview of it in `DebugStackView.profile`.
 
 ---
 
@@ -131,6 +134,13 @@ via `PUT /breakpoints`) apply immediately.
   the first breakpoint.
 - `profiling` (boolean, default `false`) — retain the executed call tree (structure and timings, no
   values). Uses more memory and runs slower.
+- `includeTree` (boolean, default `true`) — embed the full executed `tree` in the response. Set to `false`
+  to keep only the bounded `profile` overview when the whole tree would be too large.
+- `profileTop` (integer, default `20`, min `1`) — how many hotspots (slowest tables) the `profile`
+  overview returns.
+- `view` (`full` \| `compact`, default `full`) — per-frame detail. `compact` keeps sub-steps only on the
+  **active** frame, so stepping does not re-send every frame's `steps`; read another frame's steps with
+  `GET /stack?view=full` or its variables endpoint.
 
 **Request body** (optional, `application/json`): raw input for a regular method. Supports the structured
 form (`{ "runtimeContext": {...}, "params": {...} }`), a raw named-parameter object, or a positional
@@ -160,11 +170,14 @@ Lightweight poll. **Response**: `200 OK` — [`DebugStatusView`](#debugstatusvie
 
 **Endpoint**: `GET /projects/{projectId}/trace/stack`
 
+**Query parameters**: `view` (`full` \| `compact`), `includeTree` (boolean), `profileTop` (integer) —
+same response-shaping params as start (see [Start a debug session](#1-start-a-debug-session)).
+
 **Response**: `200 OK` — [`DebugStackView`](#debugstackview), frames ordered root → current. Readable
 while suspended or in a terminal state.
 
 **Errors**: `404 Not Found` when there is no session; `409 Conflict`
-(`trace.execution.not.suspended.message`) while the worker is still `RUNNING` (the worker mutates its
+(`trace.execution.not.suspended.message`) while the worker is still `running` (the worker mutates its
 frames as it executes, so the stack is readable only once it has parked or finished).
 
 ---
@@ -177,6 +190,9 @@ Steps once and returns the new stack once the worker re-suspends (bounded wait, 
 
 **Query parameters**:
 - `type` (string, required) — one of `into`, `over`, `out`.
+- `view` (`full` \| `compact`), `includeTree` (boolean), `profileTop` (integer) — same response-shaping
+  params as start. `view=compact` is the useful one here: it drops the non-active frames' `steps` so a
+  step returns only the frame that changed.
 
 A step that finishes the current frame suspends at that frame's **own exit** first — the completed frame
 stays on the stack with its result — and the next step continues in the caller.
@@ -195,7 +211,7 @@ stays on the stack with its result — and the next step continues in the caller
 **Endpoint**: `POST /projects/{projectId}/trace/resume`
 
 Runs to the next breakpoint or to completion. **Response**: `202 Accepted` (no body); the outcome arrives
-via WebSocket. Read `/stack` on the next `SUSPENDED`/terminal status.
+via WebSocket. Read `/stack` on the next `suspended`/terminal status.
 
 **Errors**: `404 Not Found` (no session); `409 Conflict` (not suspended).
 
@@ -301,7 +317,28 @@ Fetches the full value of a parameter that was returned lazily (`lazy: true`) in
 
 ---
 
-### 13. Terminate the session
+### 13. Watch cells across the run
+
+Watch a factor across the whole run: retain the value of named cells on **every** execution of their
+table, so a factor can be read across all coverages or iterations without dumping every frame. Watches
+retain values only for the named cells — the one opt-in exception to the values-only-while-suspended rule.
+
+**Set the watch set** — `PUT /projects/{projectId}/trace/watches`, body
+[`WatchesRequest`](#watchesrequest). The set persists across runs and applies on the **next start**, since
+a watch captures from the beginning of a run. `204 No Content`.
+
+**Get the watch set** — `GET /projects/{projectId}/trace/watches` → `string[]`.
+
+**Get the collected values** — `GET /projects/{projectId}/trace/watch` → [`WatchView`](#watchview). Complete
+once the run has finished; carries the executions seen so far while it is still suspended. `409 Conflict`
+while the worker is still `running`.
+
+Typical flow: `PUT /watches` → `POST /` with `stopAtEntry=false` (run through, `includeTree=false` to keep
+the response small) → `GET /watch`.
+
+---
+
+### 14. Terminate the session
 
 **Endpoint**: `DELETE /projects/{projectId}/trace`
 
@@ -323,9 +360,15 @@ or at a **current-line change**:
 | `<uri>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
 | `<uri>#rule` | **Any** rule of that decision table firing (all conditions matched) | `file:/...#rule` |
 | `<uri>#{ruleName}` | A **specific** rule of that decision table firing | `file:/...#SeniorDriver` |
+| `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `file:/...#R48C0@3` |
 
 Rule-fired breakpoints suspend **before the rule's action runs**, with the evaluated conditions already
 captured — the decision panel shows which rule fired and which conditions matched.
+
+The `@N` suffix targets one iteration of a table that runs many times (for example one coverage of a
+per-coverage spreadsheet). `N` is the same zero-based number as `DebugFrameView.instance` and a watch
+series' `instance` — so an outlier found on `instance: 3` in a watch is reached with `<uri>#<ref>@3`.
+Without a suffix a cell breakpoint fires on **every** execution, from the first.
 
 ---
 
@@ -335,10 +378,36 @@ captured — the decision panel shows which rule fired and which conditions matc
 
 ```typescript
 interface DebugStackView {
-  status: DebugStatus;          // PENDING | RUNNING | SUSPENDED | COMPLETED | ERROR | TERMINATED
+  status: DebugStatus;          // pending | running | suspended | completed | error | terminated
   frames: DebugFrameView[];     // root (index 0) → current; empty after completion
-  error?: DebugError;           // present only when status = ERROR
-  tree?: CallNodeView;          // whole executed tree after completion (profiling only)
+  error?: DebugError;           // present only when status = error
+  tree?: CallNodeView;          // whole executed tree after completion (profiling; omitted if includeTree=false)
+  profile?: ProfileSummaryView; // bounded hotspots overview after completion (profiling only)
+}
+```
+
+### ProfileSummaryView
+
+A bounded overview of a finished profiled run — the slowest tables, aggregated across the whole run. It is
+**constant-sized** regardless of run size (unlike `tree`, which grows with every invocation), so it is the
+safe way to understand a large run. Fetch the full `tree` only to drill into a specific branch.
+
+```typescript
+interface ProfileSummaryView {
+  hotspots: ProfileHotspotView[]; // slowest tables by own time, most expensive first, capped to profileTop
+  distinctTables: number;         // distinct tables that ran (may exceed hotspots.length)
+  nodeCount: number;              // total table invocations in the run (the size of the full tree)
+  totalMillis: number;            // wall-clock time of the whole run, excluding parked time
+  truncated: boolean;             // true when more distinct tables ran than were returned
+}
+
+interface ProfileHotspotView {
+  uri: string;
+  name: string;
+  kind: FrameKind;
+  selfMillis: number;   // own time across all invocations (excludes called tables); sums to wall-clock
+  totalMillis: number;  // inclusive time across all invocations (own work + called tables)
+  count: number;        // number of invocations folded into this hotspot
 }
 ```
 
@@ -348,6 +417,7 @@ interface DebugStackView {
 interface DebugFrameView {
   index: number;                // position in the stack, 0 = root
   depth: number;                // frame depth, 1 = root
+  instance: number;             // 0-based execution number of this table (for uri#ref@N breakpoints / watch)
   uri: string;                  // table source URI (breakpoint + raw-table key)
   tableId: string;              // table id for the shared Tables API (?raw=true)
   name: string;                 // table display name (breakpoint-by-name key)
@@ -356,7 +426,7 @@ interface DebugFrameView {
   active: boolean;              // true for the top (current) frame
   completed: boolean;           // frame has returned (its result is inspectable)
   error: boolean;               // frame failed
-  steps?: StepValueView[];      // the frame's sub-steps with status (and executed sub-calls in profiling)
+  steps?: StepValueView[];      // sub-steps with status (executed sub-calls in profiling); absent on non-active frames when view=compact
   durationMillis?: number;      // total execution time of a returned frame, excluding parked time
   selfMillis?: number;          // own time of a returned frame (total minus called tables)
   dispatch?: DispatchInfo;      // set when this table was chosen from overloaded versions
@@ -367,7 +437,7 @@ interface DebugFrameView {
 
 ```typescript
 interface DebugLocationView {
-  kind: string;     // cell | dtrule | operation
+  kind: LocationKind;  // cell | dtrule | operation
   row?: number;     // cell row index
   column?: number;  // cell column index
   ref?: string;     // short cell reference, e.g. "R2C3" (breakpoint sub-step key)
@@ -397,7 +467,7 @@ interface DebugFrameVariables {
 interface StepValueView {
   ref: string;                 // sub-step reference, e.g. "R2C3" (breakpoint key suffix uri#ref)
   label?: string;              // human-readable step name, e.g. "$Formula$HouseTotal"
-  status: string;              // executed | current | pending
+  status: StepStatus;          // executed | current | pending
   value?: ParameterValue;      // frozen computed value for an executed step (variables endpoint only)
   children?: CallNodeView[];   // what this step called or referenced, in execution order (profiling)
   durationMillis?: number;     // total time of an executed step: its own work plus the tables it called
@@ -490,6 +560,42 @@ interface BreakpointsRequest {
 }
 ```
 
+### WatchesRequest
+
+```typescript
+interface WatchesRequest {
+  cells?: string[];  // cell names ($... step label) or refs (R2C3) to watch; null/omitted clears all
+}
+```
+
+### WatchView
+
+The collected values of the watched cells — a factor read across the whole run. One series per cell; the
+UI can pivot series that share a table into a matrix (rows = executions, columns = cells), while an agent
+reads a single series as a value sequence to spot the outlier.
+
+```typescript
+interface WatchView {
+  series: WatchSeriesView[];
+  truncated: boolean;          // the capture cap was reached, so some late executions are missing
+}
+
+interface WatchSeriesView {
+  name: string;                // the watched cell name (its $... step label)
+  table: string;               // display name of the owning table
+  tableUri: string;            // owning table URI (replay target)
+  points: WatchPointView[];    // one per execution of the table, in execution order
+}
+
+interface WatchPointView {
+  instance: number;            // 0-based execution number of the owning table (its 1st, 2nd, … invocation)
+  label: string;               // human axis label, e.g. "CoveragePremium #3"
+  path: string[];              // call path root → owning frame, as table names
+  ref: string;                 // breakpoint key uri#cellRef to reach this cell (replay + breakpoint)
+  value: ParameterValue;       // serialized like any traced value (dates, arrays, results); lazy when large
+}
+```
+
 ### BreakpointTableView
 
 ```typescript
@@ -516,7 +622,7 @@ interface ParameterValue {
 
 ```typescript
 interface MessageDescription {
-  severity: "ERROR" | "WARNING" | "INFO";
+  severity: "error" | "WARNING" | "INFO";
   summary: string;
   detail?: string;
   sourceLocation?: string;
@@ -533,9 +639,9 @@ Status transitions are pushed to the per-user destination:
 /user/topic/projects/{projectId}/tables/{tableId}/trace/status
 ```
 
-The payload is the **status name** as a plain string (for example `SUSPENDED`). On `SUSPENDED` the client
-reads the new stack from `GET /stack`; on `COMPLETED`/`ERROR`/`TERMINATED` it shows the terminal state
-(on `ERROR`, `GET /stack` still returns the structured `error`). Synchronous endpoints (`POST /` and
+The payload is the **status code** as a plain string (for example `suspended`). On `suspended` the client
+reads the new stack from `GET /stack`; on `completed`/`error`/`terminated` it shows the terminal state
+(on `error`, `GET /stack` still returns the structured `error`). Synchronous endpoints (`POST /` and
 `POST /step`) also return the stack directly, so the WebSocket is mainly needed for the asynchronous
 `resume`/`pause` outcomes.
 
@@ -546,16 +652,16 @@ sequenceDiagram
     participant WS as WebSocket
 
     UI->>API: POST /trace?tableId=... (stopAtEntry=true)
-    API-->>UI: 200 DebugStackView (SUSPENDED at entry)
+    API-->>UI: 200 DebugStackView (suspended at entry)
     UI->>API: POST /trace/step?type=into
     API-->>UI: 200 DebugStackView (next line)
     UI->>API: GET /trace/frames/0/variables
     API-->>UI: 200 DebugFrameVariables
     UI->>API: POST /trace/resume
     API-->>UI: 202 Accepted
-    WS-->>UI: "COMPLETED"
+    WS-->>UI: "completed"
     UI->>API: GET /trace/stack
-    API-->>UI: 200 DebugStackView (COMPLETED, + tree when profiling)
+    API-->>UI: 200 DebugStackView (completed, + tree when profiling)
 ```
 
 ---
@@ -570,7 +676,7 @@ sequenceDiagram
 
 2. Start, suspended at entry
    POST /projects/MyProject/trace?tableId=DT_RiskAssessment
-   → 200 DebugStackView { status: SUSPENDED, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
+   → 200 DebugStackView { status: suspended, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
 
 3. Step into the calculation
    POST /projects/MyProject/trace/step?type=into
@@ -583,7 +689,7 @@ sequenceDiagram
 
 5. Run to the next breakpoint / completion
    POST /projects/MyProject/trace/resume   → 202
-   (WebSocket: SUSPENDED or COMPLETED) → GET /stack
+   (WebSocket: suspended or completed) → GET /stack
 
 6. Finish
    DELETE /projects/MyProject/trace   → 204
@@ -602,10 +708,11 @@ sequenceDiagram
 ### Workflow 3: Profile a calculation (executed call tree)
 
 ```
-1. POST /projects/MyProject/trace?tableId=...&stopAtEntry=false&profiling=true
-   → runs to completion; the response carries tree: CallNodeView
-2. Walk tree.steps[]: each executed step has durationMillis/selfMillis and children —
-   the tables it called, dispatch badges, and stepRef references to steps it re-used.
+1. POST /projects/MyProject/trace?tableId=...&stopAtEntry=false&profiling=true&includeTree=false
+   → runs to completion; the response carries profile: ProfileSummaryView (bounded hotspots),
+     not the full tree — safe on a large run
+2. Read profile.hotspots[]: the slowest tables by selfMillis, with count and totalMillis.
+   (Omit includeTree=false, or GET /stack, to also get the full tree: CallNodeView.)
 3. To inspect a slow branch live: restart with a breakpoint on that table and step from there
    (the UI's "replay" does exactly this — the remembered input is reused automatically).
 ```
@@ -618,10 +725,21 @@ sequenceDiagram
 2. Step / inspect as above. Cases run sequentially; the worker stops at each case entry.
 ```
 
+### Workflow 5: Watch a factor across coverages
+
+```
+1. PUT /projects/MyProject/trace/watches   { "cells": ["$VehiclePriceFactor"] }
+2. POST /projects/MyProject/trace?tableId=...&stopAtEntry=false&includeTree=false
+   → runs to completion, capturing the cell on every execution of its table
+3. GET /projects/MyProject/trace/watch
+   → series[0].points: the factor's value per coverage — the outlier (e.g. 83.372 among 1.0) stands out
+4. To inspect an outlier live: replay to its table (points[i].ref / series.tableUri) with a breakpoint.
+```
+
 ### Workflow 5: Inspect an already-executed spreadsheet step
 
 ```
-1. Suspend inside a Spreadsheet frame (step until status=SUSPENDED on a cell).
+1. Suspend inside a Spreadsheet frame (step until status=suspended on a cell).
 2. GET /projects/MyProject/trace/frames/{i}/variables
    → steps: [ { ref:"R0C1", label:"$Value$Base", status:"executed", value:{...}, durationMillis: 1.2 },
               { ref:"R1C1", label:"$Formula$Total", status:"current" }, ... ]
@@ -714,6 +832,14 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
 
 - **Profiling** (`profiling=true`): the executed call tree (`DebugStackView.tree`, `StepValueView.children`)
   with per-frame and per-step timings (`durationMillis`/`selfMillis`) — structure only, no values.
+- **Bounded profile overview** (`DebugStackView.profile`): the slowest tables aggregated across the run,
+  constant-sized regardless of run size. `includeTree=false` returns only this (not the full tree);
+  `profileTop` sets how many hotspots.
+- **Compact stack** (`view=compact` on start/step/stack): keeps sub-steps only on the active frame, so a
+  step returns the frame that changed instead of re-sending every frame's `steps`.
+- **Watch** (`PUT /watches`, `GET /watch`): retain a named cell's value on every execution of its table,
+  so a factor can be read across all coverages or iterations without dumping every frame. The one opt-in
+  exception to structure-only profiling; bounded by the number of watched cells.
 - **Step references**: a formula that computes or re-reads another step records a `stepRef` node pointing
   at the original step (`CallNodeView.refStep`) — shared steps are never duplicated; calls are attributed
   to the step whose formula makes them.

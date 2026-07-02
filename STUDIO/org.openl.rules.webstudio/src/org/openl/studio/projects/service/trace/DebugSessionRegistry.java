@@ -32,6 +32,7 @@ public class DebugSessionRegistry {
 
     private final AtomicReference<DebugSession> ref = new AtomicReference<>();
     private final Set<String> breakpoints = ConcurrentHashMap.newKeySet();
+    private final Set<String> watches = ConcurrentHashMap.newKeySet();
     private final DebugSessionReaper reaper;
     /** Input JSON of the last launch, kept so a restart (profiling toggle, replay) can re-run with the same input. */
     private volatile @Nullable String lastInputJson;
@@ -87,6 +88,24 @@ public class DebugSessionRegistry {
         DebugSession session = ref.get();
         if (session != null) {
             session.getDebugger().setBreakpoints(breakpoints());
+        }
+    }
+
+    public Set<String> watches() {
+        return Set.copyOf(watches);
+    }
+
+    /**
+     * Replace the watch set and apply it to the running session, if any, so a cell added mid-debug is
+     * captured as stepping reaches it. It cannot recover executions that already happened; a fresh start
+     * captures from the beginning of the run.
+     */
+    public void setWatches(Collection<String> cells) {
+        watches.clear();
+        watches.addAll(cells);
+        DebugSession session = ref.get();
+        if (session != null) {
+            session.getDebugger().setWatches(watches());
         }
     }
 

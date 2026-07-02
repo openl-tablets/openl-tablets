@@ -43,7 +43,7 @@ describe('traceStore race hardening', () => {
             index === 0 ? slowFrame0.promise : Promise.resolve(vars1)
         )
 
-        useTraceStore.setState({ status: 'SUSPENDED', stackVersion: 1 })
+        useTraceStore.setState({ status: 'suspended', stackVersion: 1 })
         const store = useTraceStore.getState()
 
         const pending = store.selectFrame(0) // parks on the slow response
@@ -60,11 +60,11 @@ describe('traceStore race hardening', () => {
         const slowFrame = deferred<any>()
         getVariables.mockReturnValue(slowFrame.promise)
 
-        useTraceStore.setState({ status: 'SUSPENDED', stackVersion: 1, selectedFrameIndex: 0 })
+        useTraceStore.setState({ status: 'suspended', stackVersion: 1, selectedFrameIndex: 0 })
         const pending = useTraceStore.getState().selectFrame(0) // parks with variablesLoading=true
 
         // The worker finishes (or errors/terminates) while the variables fetch is still in flight.
-        useTraceStore.getState().onSocketStatus('COMPLETED')
+        useTraceStore.getState().onSocketStatus('completed')
         slowFrame.resolve({ parameters: [], steps: [], errors: []} as any)
         await pending
 
@@ -78,7 +78,7 @@ describe('traceStore race hardening', () => {
         const slowFrame0 = deferred<any>()
         getVariables.mockReturnValue(slowFrame0.promise)
 
-        useTraceStore.setState({ status: 'SUSPENDED', stackVersion: 1 })
+        useTraceStore.setState({ status: 'suspended', stackVersion: 1 })
         const pending = useTraceStore.getState().selectFrame(0)
 
         // A new suspension advances the stack while the fetch is in flight.
@@ -90,32 +90,32 @@ describe('traceStore race hardening', () => {
     })
 
     it('skips the duplicate stack refresh while a synchronous step is in flight', () => {
-        getStack.mockResolvedValue({ status: 'SUSPENDED', frames: []} as any)
+        getStack.mockResolvedValue({ status: 'suspended', frames: []} as any)
         const store = useTraceStore.getState()
 
         useTraceStore.setState({ loading: true })
-        store.onSocketStatus('SUSPENDED')
+        store.onSocketStatus('suspended')
         expect(getStack).not.toHaveBeenCalled()
 
         useTraceStore.setState({ loading: false })
-        store.onSocketStatus('SUSPENDED')
+        store.onSocketStatus('suspended')
         expect(getStack).toHaveBeenCalledTimes(1)
     })
 
     it('surfaces an immediate error summary from the socket message', () => {
-        getStack.mockResolvedValue({ status: 'ERROR', frames: []} as any)
+        getStack.mockResolvedValue({ status: 'error', frames: []} as any)
 
-        useTraceStore.getState().onSocketStatus('ERROR', 'Something failed')
+        useTraceStore.getState().onSocketStatus('error', 'Something failed')
 
         const state = useTraceStore.getState()
-        expect(state.status).toBe('ERROR')
+        expect(state.status).toBe('error')
         expect(state.debugError).toEqual({ summary: 'Something failed' })
         expect(state.frames).toEqual([])
     })
 
     it('loads the cleaned, located error from the stack after a failure', async () => {
         const debugError = { summary: 'Division by zero', table: 'CalcRate', type: 'ArithmeticException' }
-        getStack.mockResolvedValue({ status: 'ERROR', frames: [], error: debugError } as any)
+        getStack.mockResolvedValue({ status: 'error', frames: [], error: debugError } as any)
 
         await useTraceStore.getState().fetchTerminalError()
 

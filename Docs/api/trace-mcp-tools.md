@@ -4,7 +4,7 @@
 Цель — дать AI-агенту полноценно дебажить правила: репро → брейкпоинт → добежать → понять «почему» →
 шагнуть → завершить.
 
-**Итог: 7 тулов** покрывают полный трейс (можно ужать до 5). Каждый тул композитный — 1–3 вызова
+**Итог: 8 тулов** покрывают полный трейс (можно ужать до 5). Каждый тул композитный — 1–3 вызова
 REST + `?fields=` для обрезки ответа. Сам MCP-сервер живёт в отдельном репозитории.
 
 ## Содержание
@@ -16,6 +16,7 @@ REST + `?fields=` для обрезки ответа. Сам MCP-сервер ж
 - [Тулы (спецификации)](#5-тулы-спецификации)
 - [Обработка ошибок](#6-обработка-ошибок)
 - [Заметки по имплементации](#7-заметки-по-имплементации)
+- [Эргономика объёма ответов (бэклог)](#8-эргономика-объёма-ответов-бэклог-из-ревью)
 
 ## 1. Транспорт, аутентификация, сессия
 
@@ -34,26 +35,26 @@ REST + `?fields=` для обрезки ответа. Сам MCP-сервер ж
 ## 2. Жизненный цикл и статусы
 
 `DebugStatusView.status` / `DebugStackView.status` ∈
-`PENDING | RUNNING | SUSPENDED | COMPLETED | ERROR | TERMINATED`.
+`pending | running | suspended | completed | error | terminated`.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> RUNNING: trace_start
-    RUNNING --> SUSPENDED: достигнут вход / брейкпоинт / шаг
-    SUSPENDED --> RUNNING: trace_step / trace_resume
-    SUSPENDED --> SUSPENDED: trace_inspect / trace_breakpoints (read)
-    RUNNING --> COMPLETED: правило вернуло результат
-    RUNNING --> ERROR: исключение в правиле
-    SUSPENDED --> TERMINATED: trace_stop
-    COMPLETED --> [*]
-    ERROR --> [*]
-    TERMINATED --> [*]
+    [*] --> running: trace_start
+    running --> suspended: достигнут вход / брейкпоинт / шаг
+    suspended --> running: trace_step / trace_resume
+    suspended --> suspended: trace_inspect / trace_breakpoints (read)
+    running --> completed: правило вернуло результат
+    running --> error: исключение в правиле
+    suspended --> terminated: trace_stop
+    completed --> [*]
+    error --> [*]
+    terminated --> [*]
 ```
 
-- Инспекция кадров и шаги валидны **только при `SUSPENDED`** (иначе `409`); чтение стека — при любом
-  статусе, кроме `RUNNING`.
-- `COMPLETED`/`ERROR`/`TERMINATED` — терминальные: дальше только чтение стека (`GET /stack` — на
-  `ERROR` в нём `error: DebugError`, при `profiling` — весь `tree`) и `trace_stop`; `trace_inspect`
+- Инспекция кадров и шаги валидны **только при `suspended`** (иначе `409`); чтение стека — при любом
+  статусе, кроме `running`.
+- `completed`/`error`/`terminated` — терминальные: дальше только чтение стека (`GET /stack` — на
+  `error` в нём `error: DebugError`, при `profiling` — весь `tree`) и `trace_stop`; `trace_inspect`
   на терминале вернёт `409`.
 
 ## 3. Грамматика ключей брейкпоинтов
@@ -67,10 +68,15 @@ stateDiagram-v2
 | `<uri>#R{row}C{col}` | ячейку spreadsheet (напр. `…#R0C1`) |
 | `<uri>#rule` | срабатывание **любого** правила decision-таблицы |
 | `<uri>#<ruleName>` | срабатывание **конкретного** правила (напр. `…#R10`) |
+| `<key>@N` | любую из форм выше, но только на **N-м исполнении** таблицы (0-based) |
 
 - `name` берётся из `trace_breakpoints` (список целей) или из `frames[].name`.
 - `uri` — из `frames[].uri`.
 - `ruleName` — из `trace_inspect → ruleNames[]` или `decision.firedRules[]`/`conditions[].rule`.
+- **`@N`** адресует один проход таблицы, вызываемой много раз (напр. одно покрытие per-coverage
+  спредшита). `N` — та же 0-based нумерация, что `frames[].instance` и `instance` в watch-серии: выброс,
+  найденный watch'ем на `instance:3`, достигается ключом `<uri>#<ref>@3`. Без суффикса cell-брейк ловит
+  **каждый** проход, начиная с первого — целься `@N`, чтобы не делать `resume` ×N.
 - Зарезервировано: суффикс `rule` («любое правило») может конфликтовать с правилом, буквально
   названным `rule` — крайний кейс, на практике игнорируем.
 
@@ -82,10 +88,28 @@ stateDiagram-v2
 ```jsonc
 // DebugStackView — возвращают trace_start / trace_step / trace_resume / trace_stack
 {
-  "status": "SUSPENDED",
+  "status": "suspended",
   "frames": [ /* DebugFrameView, root → current; пуст после завершения */ ],
-  "error": null,           // DebugError, присутствует только при status=ERROR
-  "tree": null             // ? CallNodeView — ВЕСЬ выполненный колл-три после завершения (только profiling)
+  "error": null,           // DebugError, присутствует только при status=error
+  "tree": null,            // ? CallNodeView — ВЕСЬ выполненный колл-три после завершения (profiling; может быть >1MB; нет при includeTree=false)
+  "profile": null          // ? ProfileSummaryView — ограниченный обзор (топ-N долгих таблиц) после завершения (profiling); бери ЕГО, не tree
+}
+
+// ProfileSummaryView — константный по размеру обзор профиля (в отличие от tree)
+{
+  "hotspots": [ /* ProfileHotspotView — топ-N самых долгих таблиц, по selfMillis, most-expensive-first */ ],
+  "distinctTables": 42,    // сколько разных таблиц исполнилось (может быть > hotspots.length)
+  "nodeCount": 3571,       // всего вызовов таблиц в прогоне (размер полного tree)
+  "totalMillis": 128.4,    // wall-clock всего прогона
+  "truncated": true        // исполнилось больше таблиц, чем вернули хотспотов
+}
+
+// ProfileHotspotView — одна таблица в хотспотах, время агрегировано по всем её вызовам
+{
+  "uri": "…", "name": "VehiclePriceFactor", "kind": "spreadsheet",
+  "selfMillis": 83.4,      // своё время по всем вызовам (без вызванных таблиц); сумма по всем = wall-clock
+  "totalMillis": 120.1,    // инклюзивное время (своё + вызванные)
+  "count": 6               // сколько раз таблица вызывалась
 }
 
 // DebugFrameView — один кадр стека
@@ -121,7 +145,7 @@ stateDiagram-v2
   "label": "$Value$Total"  // человекочитаемое (имя ячейки / имена правил)
 }
 
-// DebugError — на терминальном ERROR
+// DebugError — на терминальном error
 { "summary": "…", "table": "MyRule", "location": "R3C1", "type": "IllegalStateException", "detail": "<стектрейс, до 8000 симв.>" }
 
 // DebugFrameVariables — возвращает trace_inspect
@@ -193,12 +217,13 @@ stateDiagram-v2
 | # | Тул | Композит API | Валиден при | Выход |
 |---|---|---|---|---|
 | 1 | `trace_start` | `POST /trace` | нет сессии | `DebugStackView` |
-| 2 | `trace_step` | `POST /step?type=` | `SUSPENDED` | `DebugStackView` |
-| 3 | `trace_resume` | `POST /resume` + поллинг `GET /status` → `GET /stack` | `SUSPENDED` | `DebugStackView` |
-| 4 | `trace_inspect` | `GET …/variables` (+ опц. `…/highlights`, raw-сетка) | `SUSPENDED` | `DebugFrameVariables` (+ highlights) |
+| 2 | `trace_step` | `POST /step?type=` | `suspended` | `DebugStackView` |
+| 3 | `trace_resume` | `POST /resume` + поллинг `GET /status` → `GET /stack` | `suspended` | `DebugStackView` |
+| 4 | `trace_inspect` | `GET …/variables` (+ опц. `…/highlights`, raw-сетка) | `suspended` | `DebugFrameVariables` (+ highlights) |
 | 5 | `trace_breakpoints` | `GET /breakpoint-tables`, `GET`/`PUT /breakpoints` | любой | `{ breakpoints, targets }` |
 | 6 | `trace_get_value` | `GET /parameters/{id}` | сессия жива | `ParameterValue` |
 | 7 | `trace_stop` | `DELETE /trace` | любой | `{ ok: true }` |
+| 8 | `trace_watch` | `PUT /watches` + `POST /trace?stopAtEntry=false&includeTree=false` + `GET /watch` | нет сессии | `WatchView` |
 
 На терминальном статусе финальное состояние (структурированная ошибка, выполненный `tree`) читается
 из стека — его уже вернул `trace_start`/`trace_step`/`trace_resume`; `trace_inspect` там даст `409`.
@@ -221,13 +246,17 @@ stateDiagram-v2
   "fromModule": "string",     // ? трассировать в контексте конкретного открытого модуля
   "stopAtEntry": true,        // по умолчанию true — остановиться на входе
   "profiling": false,         // ? true — сохранять выполненный колл-три (структура+тайминги, без значений)
+  "includeTree": true,        // ? false — вернуть только ограниченный profile, без полного tree (>1MB)
+  "profileTop": 20,           // ? число хотспотов в profile (по умолчанию 20)
+  "view": "full",             // ? "compact" — steps только у активного кадра (для step/stack полезнее)
   "breakpoints": ["MyDT#rule"]// ? начальный набор (иначе ставить через trace_breakpoints до старта)
 }
 ```
 
-**API:** `POST {base}?tableId=…&testRanges=…&stopAtEntry=…&profiling=…` (тело = `inputJson`).
-**Выход:** `DebugStackView` (обычно `status=SUSPENDED`, один кадр на входе; при
-`stopAtEntry=false` без брейкпоинтов — сразу терминальный, с `tree` при `profiling=true`).
+**API:** `POST {base}?tableId=…&testRanges=…&stopAtEntry=…&profiling=…&includeTree=…&profileTop=…` (тело = `inputJson`).
+**Выход:** `DebugStackView` (обычно `status=suspended`, один кадр на входе; при
+`stopAtEntry=false` без брейкпоинтов — сразу терминальный; при `profiling=true` — с `profile`
+всегда и `tree`, если `includeTree` не выключен).
 **Ошибки:** `404` таблица/метод не найдены; `409` ошибка конфигурации mapper.
 
 > [!Note]
@@ -239,7 +268,8 @@ stateDiagram-v2
 ### 2. `trace_step`
 
 **Вход:** `{ "projectId": "string", "type": "into" | "over" | "out" }`
-**API:** `POST {base}/step?type={type}` (синхронно, до следующего safepoint, бандл-таймаут ~30с).
+**API:** `POST {base}/step?type={type}&view=compact` (синхронно, до следующего safepoint, бандл-таймаут ~30с;
+`view=compact` — только шаги активного кадра).
 
 - `into` — внутрь следующего вызова / на следующий под-шаг;
 - `over` — следующий под-шаг текущего кадра (вложенные вызовы пробегаются);
@@ -247,9 +277,15 @@ stateDiagram-v2
 
 Шаг, завершающий кадр (любой из трёх), сперва останавливается на **выходе этого кадра**: он ещё в
 стеке, `completed=true`, `result` доступен через `trace_inspect`. Исключение в правиле само
-останавливает на падающем кадре до раскрутки (дальше `trace_resume` → терминальный `ERROR`).
+останавливает на падающем кадре до раскрутки (дальше `trace_resume` → терминальный `error`).
 
-**Выход:** `DebugStackView`. **Ошибки:** `404` нет сессии; `409` не `SUSPENDED`.
+> [!Note]
+> **Для декларативных правил (рейтинг, DT, спредшиты) веди `out` + брейкпоинтами.** Интересно «какая
+> таблица что вернула», а не пошаговый разбор выражения — `out` + брейкпоинты покрывают ~90% сценариев.
+> `into`/`over` нужны для императивных TBasic/циклов; в описании тула подай их как advanced, чтобы агент
+> не сваливался в пошаговую трассировку выражений там, где доминируют прыжки между таблицами.
+
+**Выход:** `DebugStackView`. **Ошибки:** `404` нет сессии; `409` не `suspended`.
 
 ---
 
@@ -261,11 +297,16 @@ stateDiagram-v2
 **API (внутри MCP):**
 
 1. `POST {base}/resume` → `202`.
-2. Поллинг `GET {base}/status` каждые 100–300 мс до `SUSPENDED | COMPLETED | ERROR | TERMINATED`.
-3. `GET {base}/stack` → отдать наружу.
+2. Поллинг `GET {base}/status` каждые 100–300 мс до `suspended | completed | error | terminated`.
+3. `GET {base}/stack?view=compact` → отдать наружу.
 
-**Выход:** `DebugStackView` (со `status` остановки; при `ERROR` — заполнен `error`).
-**Ошибки:** `404` нет сессии; `409` не `SUSPENDED`; таймаут → вернуть текущий статус.
+**Выход:** `DebugStackView` (со `status` остановки; при `error` — заполнен `error`).
+**Ошибки:** `404` нет сессии; `409` не `suspended`; таймаут → вернуть текущий статус.
+
+> [!Note]
+> `trace_resume` (до следующего брейкпоинта) и `trace_step(out)` из верхнего кадра иногда приводят в одну
+> точку. Это не баг; в описаниях тулов разведи их явно: `resume` — «до следующего брейкпоинта/конца»,
+> `step(out)` — «доисполнить текущий кадр и вернуться в вызывающий».
 
 ---
 
@@ -292,7 +333,7 @@ stateDiagram-v2
 
 **Выход:** `DebugFrameVariables` (+ опц. `highlights`, `grid`). Для decision-таблицы ключевое —
 `decision` (что сработало и как сошлись условия) и `ruleNames` (для постановки per-rule брейкпоинтов).
-**Ошибки:** `404` нет сессии/кадра; `409` не `SUSPENDED`.
+**Ошибки:** `404` нет сессии/кадра; `409` не `suspended`.
 
 ---
 
@@ -333,12 +374,32 @@ stateDiagram-v2
 **API:** `DELETE {base}` → `204`.
 **Выход:** `{ "ok": true }`. Идемпотентен (нет сессии — тоже ок).
 
+---
+
+### 8. `trace_watch`
+
+«Покажи фактор по всем покрытиям». Держит значение названных ячеек на КАЖДОМ исполнении их таблицы —
+без выгрузки кадров.
+
+**Вход:** `{ "projectId": "string", "cells": ["$VehiclePriceFactor"], "testRanges": "1", "inputJson": {} }`
+**API (внутри MCP):**
+
+1. `PUT {base}/watches` `{ "cells": [...] }` → `204` (набор применяется на следующем старте).
+2. `POST {base}?stopAtEntry=false&includeTree=false` (тело = `inputJson`, вход помнится) — прогон до конца,
+   захват идёт по ходу.
+3. `GET {base}/watch` → `WatchView`.
+
+**Выход:** `WatchView` — `series[]`, по одной на ячейку; `points[]` = значение на каждом исполнении
+(`instance`, `label`, `value`, `ref`, `path`). Агент читает ряд, находит выброс (83.372 среди 1.0), берёт
+`ref`/`tableUri` → реплей с брейкпоинтом → `trace_inspect` вживую. **Ошибки:** `409` `GET /watch` при
+`running`; иначе как у `trace_start`.
+
 ## 6. Обработка ошибок
 
 | HTTP | Когда | Что делать агенту/MCP |
 |---|---|---|
 | `404` | нет активной сессии / нет кадра/параметра | стартовать заново (`trace_start`) или поправить индекс |
-| `409` | действие не в статусе `SUSPENDED` | сначала `trace_resume`/дождаться остановки; не шагать на завершённой сессии |
+| `409` | действие не в статусе `suspended` | сначала `trace_resume`/дождаться остановки; не шагать на завершённой сессии |
 | `400` | плохой вход (неизвестный `type`, кривой `inputJson`) | поправить параметры |
 | `403` | нет прав READ на проект | проверить токен/доступ |
 | таймаут шага/резюма | правило долго считает или зациклилось | вернуть статус; предложить `trace_stop` |
@@ -355,17 +416,59 @@ stateDiagram-v2
   `/step` уже синхронный.
 - **Токен-бюджет.** Не тащить `schema` и полные графы в `trace_inspect` без `full`; крупные значения —
   по требованию через `trace_get_value`.
-- **Профилирование = самый дешёвый «понять весь прогон».** `trace_start(profiling=true,
-  stopAtEntry=false)` без брейкпоинтов добегает до конца за ОДИН вызов и возвращает `tree` — полную
-  структуру исполнения: какие шаги выполнились, что каждый вызвал (`children`), тайминги
-  total/self, бейджи версий и `stepRef`-ссылки. Значений в дереве нет — чтобы заглянуть внутрь
-  ветки, реплей: рестарт с брейкпоинтом на нужной таблице (вход запоминается) и `trace_inspect`
-  вживую. Паттерн для агента: сперва дерево (дёшево, целиком), потом точечный дебаг подозрительной
-  ветки.
+- **Профилирование = самый дешёвый «понять весь прогон» — но бери `profile`, не `tree`.**
+  `trace_start(profiling=true, stopAtEntry=false, includeTree=false)` без брейкпоинтов добегает до конца
+  за ОДИН вызов и возвращает `profile: ProfileSummaryView` — **ограниченный** обзор: топ-N самых долгих
+  таблиц (`hotspots` с `selfMillis`/`totalMillis`/`count`), плюс `nodeCount`/`distinctTables`/`totalMillis`.
+  Он **константного размера** независимо от масштаба прогона. Полное дерево (`tree: CallNodeView`) на
+  нетривиальном проекте — это сотни тысяч узлов и легко >1MB: НЕ тащи его в контекст по умолчанию.
+  `profileTop` задаёт число хотспотов (по умолчанию 20). Нашёл подозрительную таблицу в `hotspots` →
+  реплей: рестарт с брейкпоинтом на ней (вход запоминается) и `trace_inspect` вживую — там уже значения.
+  Полное дерево бери точечно (`includeTree=true` или `trace_stack`) только чтобы разобрать конкретную
+  ветку. Паттерн для агента: сперва `profile` (дёшево, ограниченно) → точечный дебаг → дерево ветки лишь
+  при необходимости.
 - **Highlights.** Ключи — A1-адреса (`B3`); смысл ячейки берётся из raw-сетки (`?raw=true`). Для
   decision-таблиц `decision` обычно информативнее, чем подсветка.
 - **Безопасность.** Трассировка = READ-операция (проверяется грант READ на проект, как у run/test).
 
+## 8. Эргономика объёма ответов (бэклог из ревью)
+
+Из практического ревью MCP-интеграции. Ядро (брейкпоинты + `trace_inspect` со значениями + ленивые
+значения) — сильное; боль — **объём ответов**. Правило разделения: лимит ответа тула бьёт по тому, что
+уходит в модель, а не по REST-хопу сервер→MCP, поэтому **простое урезание/проекция/фильтрация уже
+ограниченного ответа делается в MCP-сервере**, а неограниченные артефакты и отсутствующие данные —
+на API.
+
+**Готово на API (использовать в тулах):**
+
+- ✅ **Профиль-обзор** (`DebugStackView.profile` + `includeTree=false` + `profileTop`) — снимает падение
+  профилировщика на >1MB. Флоу в §7. Тул `trace_start`/профиль-тул обязан ходить с `includeTree=false`
+  и не тащить `tree` по умолчанию.
+- ✅ **Компактный стек** (`view=compact` на start/step/stack) — `steps` остаются только у активного кадра,
+  так что шаг не пересылает `steps` всех кадров. `trace_step`/`trace_resume`/`trace_stack` обязаны ходить
+  с `view=compact` по умолчанию; полные шаги другого кадра — `trace_stack(view=full)` или `trace_inspect`.
+- ✅ **Скалярный watch по всему прогону** (`PUT /watches` + `GET /watch` → `WatchView`) — значение
+  названных ячеек на каждом исполнении их таблицы, ряд по покрытиям. Тул `trace_watch` (§5).
+
+**Делать в MCP-сервере (тул-слой):**
+
+- **Бандл `trace_step(out)` → `trace_inspect`.** Типовой цикл «доисполнить кадр и посмотреть значения» —
+  всегда два вызова. Слить в один: после `/step` тул сам дёргает `/frames/{active}/variables` и
+  возвращает стек + значения активного кадра.
+- **Фильтр шагов в `trace_inspect`.** Аномалия — выброс среди нейтральных факторов. Пост-фильтр `steps[]`
+  по предикату «значение не дефолт / не `null`». НЕ хардкодить `1.0` (это доменное для рейтинга) — дать
+  генерик-предикат/параметр тула.
+- **Diff покрытий.** «Сравни кадр CoveragePremium для покрытия A и B». Оркестровка в туле: прогнать до A,
+  inspect, до B, inspect, сравнить карты шагов, вернуть только расходящиеся факторы. Мульти-кейс уже есть
+  (`testRanges`).
+- **Тексты тулов:** `out`+брейкпоинты — основной цикл для декларативных правил; `into`/`over` — advanced
+  (см. `trace_step`). Развести `resume` и `step(out)` в описаниях (см. `trace_resume`).
+
+**Ждём на API (потреблять, когда появится):**
+
+- **Диапазон/ключевой фильтр `get_table`.** Сейчас только `maxRows` (обрезка сверху) — ни offset, ни
+  фильтра по ключу. Для lookup-таблиц нужен диапазон по ключевой колонке (напр. строка `[99000..100000]`
+  из ~600). Когда API добавит `startRow`/фильтр — тул прокидывает параметры.
 ## Пример: один цикл дебага
 
 ```mermaid
@@ -377,14 +480,14 @@ sequenceDiagram
     M->>S: PUT /breakpoints
     A->>M: trace_start(table, testCase)
     M->>S: POST /trace
-    S-->>M: SUSPENDED (вход)
+    S-->>M: suspended (вход)
     A->>M: trace_resume()
     M->>S: POST /resume (202)
     loop poll
         M->>S: GET /status
     end
     M->>S: GET /stack
-    S-->>M: SUSPENDED (на сработавшем правиле)
+    S-->>M: suspended (на сработавшем правиле)
     A->>M: trace_inspect(top)
     M->>S: GET /frames/0/variables?fields=…
     S-->>A: decision: R10, условия ✓/✗

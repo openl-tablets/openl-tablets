@@ -20,6 +20,7 @@ const getFrameHighlights = traceService.getFrameHighlights as ReturnType<typeof 
 const frame = (tableId: string): DebugFrameView => ({
     index: 0,
     depth: 1,
+    instance: 0,
     uri: 'u',
     tableId,
     name: 'T',

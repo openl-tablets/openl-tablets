@@ -9304,10 +9304,21 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "startRow",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "maxRows",
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "format": "int32",
+              "minimum": 1
             }
           },
           {
@@ -10362,6 +10373,39 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11280,6 +11324,39 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11498,6 +11575,39 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11514,6 +11624,298 @@ Content-Type: application/json
                 }
               }
             },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/watch": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/watches": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      },
+      "put": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
             "description": "***"
           },
           "400": {
@@ -16135,7 +16537,7 @@ Content-Type: application/json
           "target"
         ]
       },
-      "AppendColumn": {
+      "AppendColumns": {
         "type": "object",
         "allOf": [
           {
@@ -16148,7 +16550,10 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
                 },
                 "minItems": 1
               }
@@ -16160,7 +16565,7 @@ Content-Type: application/json
           "cells"
         ]
       },
-      "AppendRow": {
+      "AppendRows": {
         "type": "object",
         "allOf": [
           {
@@ -16173,7 +16578,10 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
                 },
                 "minItems": 1
               }
@@ -16246,17 +16654,17 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "column": "#/components/schemas/AppendColumn",
-            "row": "#/components/schemas/AppendRow"
+            "columns": "#/components/schemas/AppendColumns",
+            "rows": "#/components/schemas/AppendRows"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
-            "$ref": "#/components/schemas/AppendRow"
+            "$ref": "#/components/schemas/AppendRows"
           },
           {
-            "$ref": "#/components/schemas/AppendColumn"
+            "$ref": "#/components/schemas/AppendColumns"
           }
         ],
         "properties": {
@@ -17201,6 +17609,11 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "instance": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
           "kind": {
             "type": "string",
             "description": "***",
@@ -17254,7 +17667,12 @@ Content-Type: application/json
           },
           "kind": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "cell",
+              "dtrule",
+              "operation"
+            ]
           },
           "label": {
             "type": "string",
@@ -17285,9 +17703,20 @@ Content-Type: application/json
               "$ref": "#/components/schemas/DebugFrameView"
             }
           },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileSummaryView"
+          },
           "status": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "pending",
+              "running",
+              "suspended",
+              "completed",
+              "error",
+              "terminated"
+            ]
           },
           "tree": {
             "$ref": "#/components/schemas/CallNodeView"
@@ -17300,7 +17729,15 @@ Content-Type: application/json
         "properties": {
           "status": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "pending",
+              "running",
+              "suspended",
+              "completed",
+              "error",
+              "terminated"
+            ]
           }
         }
       },
@@ -17363,7 +17800,7 @@ Content-Type: application/json
           "target"
         ]
       },
-      "DeleteColumn": {
+      "DeleteColumns": {
         "type": "object",
         "allOf": [
           {
@@ -17372,6 +17809,12 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "count": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
               "position": {
                 "type": "integer",
                 "format": "int32",
@@ -17383,10 +17826,11 @@ Content-Type: application/json
         ],
         "description": "***",
         "required": [
+          "count",
           "position"
         ]
       },
-      "DeleteRow": {
+      "DeleteRows": {
         "type": "object",
         "allOf": [
           {
@@ -17395,6 +17839,12 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "count": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
               "position": {
                 "type": "integer",
                 "format": "int32",
@@ -17406,6 +17856,7 @@ Content-Type: application/json
         ],
         "description": "***",
         "required": [
+          "count",
           "position"
         ]
       },
@@ -17413,17 +17864,17 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "column": "#/components/schemas/DeleteColumn",
-            "row": "#/components/schemas/DeleteRow"
+            "columns": "#/components/schemas/DeleteColumns",
+            "rows": "#/components/schemas/DeleteRows"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
-            "$ref": "#/components/schemas/DeleteRow"
+            "$ref": "#/components/schemas/DeleteRows"
           },
           {
-            "$ref": "#/components/schemas/DeleteColumn"
+            "$ref": "#/components/schemas/DeleteColumns"
           }
         ],
         "properties": {
@@ -17885,7 +18336,7 @@ Content-Type: application/json
           "target"
         ]
       },
-      "InsertColumn": {
+      "InsertColumns": {
         "type": "object",
         "allOf": [
           {
@@ -17898,7 +18349,10 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
                 },
                 "minItems": 1
               },
@@ -17917,7 +18371,7 @@ Content-Type: application/json
           "position"
         ]
       },
-      "InsertRow": {
+      "InsertRows": {
         "type": "object",
         "allOf": [
           {
@@ -17930,7 +18384,10 @@ Content-Type: application/json
                 "type": "array",
                 "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/RawCellInput"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
                 },
                 "minItems": 1
               },
@@ -17953,17 +18410,17 @@ Content-Type: application/json
         "type": "object",
         "discriminator": {
           "mapping": {
-            "column": "#/components/schemas/InsertColumn",
-            "row": "#/components/schemas/InsertRow"
+            "columns": "#/components/schemas/InsertColumns",
+            "rows": "#/components/schemas/InsertRows"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
-            "$ref": "#/components/schemas/InsertRow"
+            "$ref": "#/components/schemas/InsertRows"
           },
           {
-            "$ref": "#/components/schemas/InsertColumn"
+            "$ref": "#/components/schemas/InsertColumns"
           }
         ],
         "properties": {
@@ -18784,6 +19241,80 @@ Content-Type: application/json
           }
         }
       },
+      "ProfileHotspotView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "totalMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "uri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProfileSummaryView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "distinctTables": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "hotspots": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProfileHotspotView"
+            }
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "totalMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "ProjectBranchInfo": {
         "type": "object",
         "properties": {
@@ -19109,7 +19640,18 @@ Content-Type: application/json
           },
           "value": {
             "type": "object",
-            "description": "***"
+            "description": "***",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
           }
         }
       },
@@ -19131,10 +19673,14 @@ Content-Type: application/json
                   "items": {
                     "$ref": "#/components/schemas/RawTableCell"
                   }
-                }
+                },
+                "minItems": 1
               }
             }
           }
+        ],
+        "required": [
+          "rows"
         ]
       },
       "RawTableCell": {
@@ -19169,34 +19715,93 @@ Content-Type: application/json
           }
         }
       },
+      "RawTableCellBorder": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "bottom": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "left": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "right": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          },
+          "top": {
+            "$ref": "#/components/schemas/RawTableCellBorderSide"
+          }
+        }
+      },
+      "RawTableCellBorderSide": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "style": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "solid",
+              "dashed",
+              "dotted",
+              "double"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "RawTableCellStyle": {
         "type": "object",
         "description": "***",
         "properties": {
           "align": {
-            "type": "string"
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "right",
+              "center",
+              "justify"
+            ]
           },
           "background": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "bold": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
+          },
+          "border": {
+            "$ref": "#/components/schemas/RawTableCellBorder"
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "indent": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "***",
+            "minimum": 1
           },
           "italic": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "underline": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "valign": {
-            "type": "string"
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "center",
+              "top"
+            ]
           }
         }
       },
@@ -19314,6 +19919,9 @@ Content-Type: application/json
               }
             }
           }
+        ],
+        "required": [
+          "source"
         ]
       },
       "RedeployProjectModel": {
@@ -20298,7 +20906,12 @@ Content-Type: application/json
           },
           "status": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "executed",
+              "current",
+              "pending"
+            ]
           },
           "value": {
             "$ref": "#/components/schemas/ParameterValue"
@@ -21029,7 +21642,18 @@ Content-Type: application/json
               },
               "value": {
                 "type": "object",
-                "description": "***"
+                "description": "***",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
               }
             }
           }
@@ -21072,6 +21696,48 @@ Content-Type: application/json
           "position"
         ]
       },
+      "UpdateRange": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UpdateTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cells": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RawCellInput"
+                  }
+                },
+                "minItems": 1
+              },
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 0
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 0
+              }
+            }
+          }
+        ],
+        "description": "***",
+        "required": [
+          "cells",
+          "column",
+          "row"
+        ]
+      },
       "UpdateRow": {
         "type": "object",
         "allOf": [
@@ -21110,6 +21776,7 @@ Content-Type: application/json
           "mapping": {
             "cell": "#/components/schemas/UpdateCell",
             "column": "#/components/schemas/UpdateColumn",
+            "range": "#/components/schemas/UpdateRange",
             "row": "#/components/schemas/UpdateRow"
           },
           "propertyName": "type"
@@ -21123,6 +21790,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/UpdateCell"
+          },
+          {
+            "$ref": "#/components/schemas/UpdateRange"
           }
         ],
         "properties": {
@@ -21715,6 +22385,92 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "WatchPointView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "instance": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "label": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "ref": {
+            "type": "string",
+            "description": "***"
+          },
+          "value": {
+            "$ref": "#/components/schemas/ParameterValue"
+          }
+        }
+      },
+      "WatchSeriesView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "points": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/WatchPointView"
+            }
+          },
+          "table": {
+            "type": "string",
+            "description": "***"
+          },
+          "tableUri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "WatchView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "series": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/WatchSeriesView"
+            }
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "WatchesRequest": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          }
+        }
       }
     }
   }

@@ -18,13 +18,16 @@ import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
+import org.openl.rules.webstudio.web.trace.debug.CallNode;
 import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugListener;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
 import org.openl.rules.webstudio.web.trace.debug.FrameKind;
+import org.openl.rules.webstudio.web.trace.debug.SourceClassifier;
 import org.openl.rules.webstudio.web.trace.debug.TraceDebugger;
+import org.openl.rules.webstudio.web.trace.debug.WatchCapture;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
@@ -63,7 +66,7 @@ class TraceDebugMapperTest {
             List<DebugFrame> stack = debugger.stack();
 
             var stackView = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null);
-            assertEquals("SUSPENDED", stackView.status());
+            assertEquals(DebugStatus.SUSPENDED, stackView.status());
             assertFalse(stackView.frames().isEmpty(), "a suspended session has a stack");
             var top = stackView.frames().get(stackView.frames().size() - 1);
             assertEquals(FrameKind.SPREADSHEET, top.kind());
@@ -108,7 +111,7 @@ class TraceDebugMapperTest {
             assertNotNull(top.steps(), "every frame carries its step outline");
             assertFalse(top.steps().isEmpty(), "a spreadsheet frame outlines its cells");
             // The outline is structure only: a status for each cell and no frozen value (kept cheap, no clone).
-            assertTrue(top.steps().stream().allMatch(s -> List.of("executed", "current", "pending").contains(s.status())),
+            assertTrue(top.steps().stream().allMatch(s -> s.status() != null),
                     "each step has a valid status");
             assertTrue(top.steps().stream().allMatch(s -> s.value() == null),
                     "the stack outline never carries values; they are fetched per frame on demand");
@@ -195,13 +198,13 @@ class TraceDebugMapperTest {
 
         assertEquals(List.of("R1", "R2", "R3"), steps.stream().map(StepValueView::ref).toList());
         // The fired rule is current so a sub-table called from its action nests under it, not the last rule.
-        assertEquals("current", steps.get(0).status(), "the firing rule is the current one");
-        assertEquals("pending", steps.get(1).status(), "rules that did not fire are pending");
-        assertEquals("pending", steps.get(2).status(), "rules that did not fire are pending");
+        assertEquals(StepStatus.CURRENT, steps.get(0).status(), "the firing rule is the current one");
+        assertEquals(StepStatus.PENDING, steps.get(1).status(), "rules that did not fire are pending");
+        assertEquals(StepStatus.PENDING, steps.get(2).status(), "rules that did not fire are pending");
         assertTrue(steps.stream().allMatch(s -> s.value() == null), "the outline carries no values");
 
         // Nothing fired yet (suspended at entry): every rule is pending and run-to-able.
-        assertTrue(TraceDebugMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> "pending".equals(s.status())));
+        assertTrue(TraceDebugMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> s.status() == StepStatus.PENDING));
     }
 
     @Test
@@ -214,5 +217,115 @@ class TraceDebugMapperTest {
         when(dt.getRuleName(3)).thenReturn("R2");  // a duplicate name collapses to one
 
         assertEquals(List.of("R1", "R2", "R3"), TraceDebugMapper.ruleNames(dt));
+    }
+
+    @Test
+    void foldsExecutedTreeIntoSelfTimeHotspots() {
+        // A(100) calls B(30) and C(50); C calls B(20) again; A also references B (no time).
+        CallNode b1 = leaf("uB", "B", 30);
+        CallNode b2 = leaf("uB", "B", 20);
+        CallNode c = node("uC", "C", 50, b2);
+        CallNode ref = new CallNode("uA", "$Ref", FrameKind.STEP_REF, 0, List.of(), null, "R9C9");
+        CallNode root = new CallNode("uA", "A", FrameKind.SPREADSHEET, ms(100),
+                List.of(new CallNode.Step("R0C0", "$s", ms(100), List.of(b1, c, ref))), null, null);
+
+        var summary = TraceDebugMapper.buildProfileSummary(root, 10);
+
+        assertEquals(3, summary.distinctTables(), "A, B, C — the reference is not a table");
+        assertEquals(4, summary.nodeCount(), "A + B + C + B again; the reference does not count");
+        assertEquals(100.0, summary.totalMillis(), "wall-clock is the root's own duration");
+        assertFalse(summary.truncated(), "all three tables fit within top=10");
+
+        // Sorted by own time: B has the most (30 + 20), then C (50 − 20), then A (100 − 30 − 50).
+        var b = summary.hotspots().get(0);
+        assertEquals("uB", b.uri());
+        assertEquals(2, b.count(), "both B invocations fold into one hotspot");
+        assertEquals(50.0, b.selfMillis());
+        assertEquals(50.0, b.totalMillis(), "B calls nothing, so total equals self");
+        assertEquals(List.of("uB", "uC", "uA"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
+        assertEquals(30.0, summary.hotspots().get(1).selfMillis(), "C's own time excludes the B it called");
+        assertEquals(20.0, summary.hotspots().get(2).selfMillis(), "A's own time excludes B and C");
+    }
+
+    @Test
+    void capsHotspotsToTopAndFlagsTruncation() {
+        CallNode root = new CallNode("uA", "A", FrameKind.SPREADSHEET, ms(60),
+                List.of(new CallNode.Step("R0C0", "$s", ms(60),
+                        List.of(leaf("uB", "B", 30), leaf("uC", "C", 20)))), null, null);
+
+        var summary = TraceDebugMapper.buildProfileSummary(root, 2);
+
+        assertEquals(3, summary.distinctTables());
+        assertEquals(2, summary.hotspots().size(), "only the two slowest are returned");
+        assertTrue(summary.truncated(), "a third table ran but did not make the cut");
+        assertEquals(List.of("uB", "uC"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
+    }
+
+    @Test
+    void compactViewKeepsStepsOnlyOnTheActiveFrame() {
+        List<DebugFrame> stack = List.of(
+                debugFrame(FrameKind.METHOD, "uRoot", "Root", 1),
+                debugFrame(FrameKind.SPREADSHEET, "uChild", "Child", 2));
+
+        var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, StackRenderOptions.FULL);
+        assertNotNull(full.frames().get(0).steps(), "full view keeps every frame's steps");
+        assertNotNull(full.frames().get(1).steps());
+
+        var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null,
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true));
+        assertNull(compact.frames().get(0).steps(), "compact drops the non-active frame's steps");
+        assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
+        assertNotNull(compact.frames().get(1).steps(), "the active frame keeps its steps");
+    }
+
+    @Test
+    void groupsWatchCapturesIntoPerCellSeriesInExecutionOrder() {
+        List<WatchCapture> captures = List.of(
+                new WatchCapture("$Factor", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R2C0", 1.0),
+                new WatchCapture("$Factor", "Cov", "uCov", 1, List.of("Root", "Cov"), "uCov#R2C0", 83.372),
+                new WatchCapture("$Other", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R3C0", 2.0));
+
+        var view = mapper().toWatchView(captures, false, null);
+
+        assertEquals(2, view.series().size(), "two distinct cells → two series");
+        var factor = view.series().get(0);
+        assertEquals("$Factor", factor.name());
+        assertEquals("uCov", factor.tableUri());
+        assertEquals(List.of(1.0, 83.372),
+                factor.points().stream().map(p -> p.value().value().asDouble()).toList(),
+                "the factor's values across both executions, in order");
+        assertEquals("Cov #2", factor.points().get(1).label(), "instance 1 reads as the 2nd execution");
+        assertEquals("uCov#R2C0", factor.points().get(0).ref());
+        assertFalse(view.truncated());
+    }
+
+    @Test
+    void splitsTheSameCellNameInDifferentTablesIntoSeparateSeries() {
+        List<WatchCapture> captures = List.of(
+                new WatchCapture("$X", "A", "uA", 0, List.of("A"), "uA#R0C0", 1),
+                new WatchCapture("$X", "B", "uB", 0, List.of("B"), "uB#R0C0", 2));
+
+        var view = mapper().toWatchView(captures, true, null);
+
+        assertEquals(2, view.series().size(), "the same name in two tables stays two series");
+        assertTrue(view.truncated(), "the cap flag is carried through");
+    }
+
+    private static DebugFrame debugFrame(FrameKind kind, String uri, String name, int depth) {
+        return new DebugFrame(new SourceClassifier.FrameDescriptor(kind, uri, name),
+                new Object(), null, new Object[0], null, depth);
+    }
+
+    private static CallNode leaf(String uri, String name, long millis) {
+        return new CallNode(uri, name, FrameKind.SPREADSHEET, ms(millis), List.of(), null, null);
+    }
+
+    private static CallNode node(String uri, String name, long millis, CallNode child) {
+        return new CallNode(uri, name, FrameKind.SPREADSHEET, ms(millis),
+                List.of(new CallNode.Step("R0C0", "$s", ms(millis), List.of(child))), null, null);
+    }
+
+    private static long ms(long millis) {
+        return millis * 1_000_000L;
     }
 }

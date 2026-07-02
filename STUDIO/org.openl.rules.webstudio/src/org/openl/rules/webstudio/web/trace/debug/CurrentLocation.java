@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
  * <p>For a spreadsheet this is a cell with its row and column; for a decision table a condition or a
  * fired rule; for a TBasic algorithm an operation. Coordinates that do not apply are {@code -1}.
  *
- * @param kind           short location type ({@code cell}, {@code dtrule}, {@code operation})
+ * @param kind           location type
  * @param row            cell row index, or {@code -1}
  * @param column         cell column index, or {@code -1}
  * @param ref            short cell reference such as {@code R2C3}, or {@code null}
@@ -19,12 +19,8 @@ import org.jspecify.annotations.Nullable;
  * @param breakpointRefs breakpoint key suffixes this location can match (a cell reference, or the
  *                       rule-fired marker plus each fired rule name); empty when it cannot carry one
  */
-public record CurrentLocation(String kind, int row, int column, @Nullable String ref, @Nullable String label,
+public record CurrentLocation(LocationKind kind, int row, int column, @Nullable String ref, @Nullable String label,
                               List<String> breakpointRefs) {
-
-    private static final String CELL = "cell";
-    private static final String DT_RULE = "dtrule";
-    private static final String OPERATION = "operation";
 
     /** Breakpoint key suffix that suspends when any decision-table rule fires (all of its conditions matched). */
     public static final String RULE_FIRED_REF = "rule";
@@ -41,7 +37,7 @@ public record CurrentLocation(String kind, int row, int column, @Nullable String
     /** A spreadsheet cell location with a step name. */
     public static CurrentLocation cell(int row, int column, @Nullable String label) {
         String ref = cellRef(row, column);
-        return new CurrentLocation(CELL, row, column, ref, label, List.of(ref));
+        return new CurrentLocation(LocationKind.CELL, row, column, ref, label, List.of(ref));
     }
 
     /** The short reference of a spreadsheet cell, such as {@code R2C3}. This is the breakpoint key suffix. */
@@ -66,7 +62,7 @@ public record CurrentLocation(String kind, int row, int column, @Nullable String
         String ref = ruleNames.isEmpty() ? null
                 : ruleNames.size() == 1 ? ruleNames.get(0)
                 : RULE_FIRED_REF;
-        return new CurrentLocation(DT_RULE, -1, -1, ref, ruleLabel(ruleNames), refs);
+        return new CurrentLocation(LocationKind.DT_RULE, -1, -1, ref, ruleLabel(ruleNames), refs);
     }
 
     /** Compact label for the fired rules: the names, or the first few with a {@code +N more} for a big collect. */
@@ -82,6 +78,6 @@ public record CurrentLocation(String kind, int row, int column, @Nullable String
 
     /** A TBasic operation location. */
     public static CurrentLocation operation(@Nullable String label) {
-        return new CurrentLocation(OPERATION, -1, -1, null, label, List.of());
+        return new CurrentLocation(LocationKind.OPERATION, -1, -1, null, label, List.of());
     }
 }

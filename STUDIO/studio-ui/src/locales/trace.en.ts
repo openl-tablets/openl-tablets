@@ -3,6 +3,17 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'trace', {
     title: 'Execution trace',
 
+    watch: {
+        title: 'Watch',
+        add: 'Add',
+        addPlaceholder: 'Cell name ($Factor) or ref (R2C3)',
+        collect: 'Collect',
+        empty: 'No values captured — run a table that computes these cells.',
+        truncated: 'Too many values — the series is capped and may miss late executions.',
+        noValue: '—',
+        replayHint: 'Replay: restart and run to this table to inspect it live',
+    },
+
     tree: {
         title: 'Call tree',
         modeSimple: 'Tree',
@@ -40,12 +51,12 @@ i18next.addResourceBundle('en', 'trace', {
         executing: 'executing…',
         pending: 'pending',
         status: {
-            PENDING: 'Starting…',
-            RUNNING: 'Running',
-            SUSPENDED: 'Suspended',
-            COMPLETED: 'Completed',
-            ERROR: 'Error',
-            TERMINATED: 'Terminated',
+            pending: 'Starting…',
+            running: 'Running',
+            suspended: 'Suspended',
+            completed: 'Completed',
+            error: 'Error',
+            terminated: 'Terminated',
         },
     },
 

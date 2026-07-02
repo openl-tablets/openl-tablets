@@ -338,7 +338,7 @@ POST /projects/MyProject/trace?tableId=DT_RiskRating
   "params": {"age": 35, "income": 75000},
   "runtimeContext": {"lob": "Auto"}
 }
-# Response: 200 DebugStackView { status: "SUSPENDED", frames: [ ... ] }
+# Response: 200 DebugStackView { status: "suspended", frames: [ ... ] }
 
 # Step into the calculation
 POST /projects/MyProject/trace/step?type=into
@@ -607,7 +607,7 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Cancel Session | ✅ Complete | Idempotent termination |
 | Lazy Parameters | ✅ Complete | On-demand loading for large values |
 | Test Range Support | ✅ Complete | Parse ranges like "1-3,5" |
-| WebSocket Status | ✅ Complete | SUSPENDED/RUNNING/COMPLETED/ERROR/TERMINATED |
+| WebSocket Status | ✅ Complete | suspended/running/completed/error/terminated |
 | Session Management | ✅ Complete | One session per user; idle sessions reaped |
 
 ---

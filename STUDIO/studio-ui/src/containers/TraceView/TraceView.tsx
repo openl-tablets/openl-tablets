@@ -9,6 +9,7 @@ import DebugToolbar from './components/DebugToolbar'
 import DebugCallStack from './components/DebugCallStack'
 import TraceTree from './components/TraceTree'
 import BreakpointsPanel from './components/BreakpointsPanel'
+import WatchPanel from './components/WatchPanel'
 import TraceDetails from './components/TraceDetails'
 import useTraceProgress from './hooks/useTraceProgress'
 import { isTraceExecutionError, isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
@@ -18,15 +19,15 @@ interface TraceViewParams {
     projectId: string
 }
 
-// Distinct semantics per state: SUSPENDED (paused — your turn) reads as a calm amber, while RUNNING
+// Distinct semantics per state: suspended (paused — your turn) reads as a calm amber, while running
 // (busy — please wait) is the only animated, blue "processing" dot. No two states share a colour.
 const STATUS_BADGE: Record<string, BadgeProps['status']> = {
-    PENDING: 'default',
-    RUNNING: 'processing',
-    SUSPENDED: 'warning',
-    COMPLETED: 'success',
-    ERROR: 'error',
-    TERMINATED: 'default',
+    pending: 'default',
+    running: 'processing',
+    suspended: 'warning',
+    completed: 'success',
+    error: 'error',
+    terminated: 'default',
 }
 
 /**
@@ -167,7 +168,7 @@ const TraceView: React.FC = () => {
                     className={styles.errorBanner}
                     message={(isTraceExecutionError(status) && debugError?.summary) || t(`debug.status.${status}`)}
                     onClose={() => setBannerDismissed(true)}
-                    type={isTraceExecutionError(status) ? 'error' : status === 'COMPLETED' ? 'success' : 'warning'}
+                    type={isTraceExecutionError(status) ? 'error' : status === 'completed' ? 'success' : 'warning'}
                     description={
                         isTraceExecutionError(status) && debugError
                             ? <TerminalErrorDescription error={debugError} />
@@ -199,6 +200,7 @@ const TraceView: React.FC = () => {
                         ]}
                     />
                     <BreakpointsPanel />
+                    <WatchPanel />
                     <div className={styles.viewContent}>
                         {viewMode === 'tree' ? <TraceTree /> : <DebugCallStack />}
                     </div>

@@ -3,8 +3,11 @@ package org.openl.rules.webstudio.web.trace.debug;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
@@ -29,11 +32,22 @@ final class DebugHookImpl implements DebugHook {
     private final DebugChannel channel;
     private final DebugListener listener;
 
+    /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
+    private static final int MAX_WATCH_CAPTURES = 50_000;
+
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     private boolean profiling;
+    /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
+    private volatile Set<String> watches = Set.of();
+    /** Captured watched values, appended on the worker thread as cells compute. */
+    private final List<WatchCapture> captures = new ArrayList<>();
+    /** Per-table invocation counter, so each execution of a table gets a stable instance number. */
+    private final Map<String, Integer> invocationCounts = new HashMap<>();
+    /** Set when the capture cap was hit, so the response can say the watch series is incomplete. */
+    private boolean watchTruncated;
     /** Total time the worker spent parked at suspend points, subtracted from frame durations so think time is excluded. */
     private long parkedNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
@@ -53,6 +67,24 @@ final class DebugHookImpl implements DebugHook {
 
     void setProfiling(boolean profiling) {
         this.profiling = profiling;
+    }
+
+    /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
+    void setWatches(Set<String> watches) {
+        this.watches = Set.copyOf(watches);
+    }
+
+    Set<String> getWatches() {
+        return watches;
+    }
+
+    /** All watched-cell captures gathered so far. Read while the worker is parked or finished. */
+    List<WatchCapture> watchCaptures() {
+        return List.copyOf(captures);
+    }
+
+    boolean isWatchTruncated() {
+        return watchTruncated;
     }
 
     @Override
@@ -94,7 +126,8 @@ final class DebugHookImpl implements DebugHook {
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
         top.setLocation(location);
-        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location, top.getName());
+        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location, top.getName(),
+                top.getInvocationIndex());
         // Time the step around its own execution, excluding parked time, so an inefficient step that makes no
         // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
         long stepEnter = System.nanoTime();
@@ -103,6 +136,9 @@ final class DebugHookImpl implements DebugHook {
         R result = executor.invoke(target, params, env);
         top.recordExecutedStep(executor, stepRef(location), location.label(), result,
                 elapsed(stepEnter, parkedAtStepEnter));
+        if (!watches.isEmpty()) {
+            captureWatch(top, location, result);
+        }
         if (profiling && enclosing != null) {
             // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
             top.recordExecutedChild(stepRef(enclosing),
@@ -137,7 +173,35 @@ final class DebugHookImpl implements DebugHook {
         if (location.ref() != null) {
             return location.ref();
         }
-        return location.label() != null ? location.label() : location.kind();
+        return location.label() != null ? location.label() : location.kind().getCode();
+    }
+
+    /** Record a watched cell's value if this step is watched (by its name or ref), unless the cap is hit. */
+    private void captureWatch(DebugFrame frame, CurrentLocation location, @Nullable Object value) {
+        String ref = stepRef(location);
+        String label = location.label();
+        if (!watches.contains(ref) && (label == null || !watches.contains(label))) {
+            return;
+        }
+        if (captures.size() >= MAX_WATCH_CAPTURES) {
+            watchTruncated = true;
+            return;
+        }
+        String name = label != null ? label : ref;
+        // Keep the live value; it is deep-cloned and serialized to the rich parameter view on read, so it
+        // renders like any other traced value (dates, arrays, spreadsheet results) instead of a raw toString.
+        captures.add(new WatchCapture(name, frame.getName(), frame.getUri(), frame.getInvocationIndex(),
+                framePath(), frame.getUri() + "#" + ref, value));
+    }
+
+    /** The call path from the root frame to the current frame, as display names, for a capture. */
+    private List<String> framePath() {
+        List<String> path = new ArrayList<>(stack.size());
+        Iterator<DebugFrame> it = stack.descendingIterator();
+        while (it.hasNext()) {
+            path.add(it.next().getName());
+        }
+        return path;
     }
 
     /** Wall time since the frame entered, minus the time spent parked at suspend points: real execution time. */
@@ -160,6 +224,9 @@ final class DebugHookImpl implements DebugHook {
         int depth = stack.size() + 1;
         DebugFrame frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
+        // Number each execution of the table so a watched cell's captures form a per-instance series. Counted
+        // always (not only while watching), so instances stay correct even for a watch added mid-run.
+        frame.setInvocationIndex(invocationCounts.merge(descriptor.uri(), 1, Integer::sum) - 1);
         if (pendingDispatch != null) {
             // This frame is the version the pending dispatcher chose; badge it and consume the dispatch so only
             // the immediate child carries it.
@@ -169,13 +236,15 @@ final class DebugHookImpl implements DebugHook {
         }
         stack.push(frame);
         try {
-            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name());
+            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name(),
+                    frame.getInvocationIndex());
             R result = executor.invoke(target, params, env);
             frame.completeWith(result);
             // Time the frame the moment it finishes, before Step Out can suspend at its exit, so a completed
             // frame already on the stack carries its timing.
             frame.setDurationNanos(elapsed(enterNanos, parkedAtEnter));
-            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null, descriptor.name());
+            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null, descriptor.name(),
+                    frame.getInvocationIndex());
             return result;
         } catch (DebugTerminationError e) {
             throw e;
@@ -219,11 +288,11 @@ final class DebugHookImpl implements DebugHook {
     }
 
     private void handleEvent(DebugEvent event, int depth, String uri, @Nullable CurrentLocation location,
-                             @Nullable String name) {
+                             @Nullable String name, int instance) {
         if (channel.isTerminateRequested()) {
             throw new DebugTerminationError();
         }
-        if (stepController.shouldSuspend(event, depth, uri, location, name)) {
+        if (stepController.shouldSuspend(event, depth, uri, location, name, instance)) {
             suspendAndAwait(depth);
         }
     }

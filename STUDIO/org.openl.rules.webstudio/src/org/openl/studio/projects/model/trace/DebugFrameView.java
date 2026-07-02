@@ -15,6 +15,8 @@ import org.openl.rules.webstudio.web.trace.debug.FrameKind;
  *
  * @param index     position in the stack, 0 for the root call
  * @param depth     frame depth, 1 for the root call
+ * @param instance  zero-based execution number of this table (0 for a table that runs once, 1 for its
+ *                  second execution, ...); the number a {@code uri#ref@N} breakpoint or a watch series uses
  * @param uri       source URI of the table, used for breakpoints and table rendering
  * @param tableId   stable id of the table, used to fetch its raw grid from the Tables API
  * @param name      display name of the table
@@ -38,6 +40,9 @@ public record DebugFrameView(
 
         @Schema(description = "trace.field.frame.depth.desc")
         int depth,
+
+        @Schema(description = "trace.field.frame.instance.desc")
+        int instance,
 
         @Schema(description = "trace.field.frame.uri.desc")
         String uri,

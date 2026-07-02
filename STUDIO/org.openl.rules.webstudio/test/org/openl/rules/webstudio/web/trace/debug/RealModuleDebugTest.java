@@ -53,7 +53,7 @@ class RealModuleDebugTest {
         DebugFrame current = debugger.stack().get(debugger.stack().size() - 1);
         assertEquals("MyRule", current.getName());
         assertNotNull(current.getLocation(), "stepping into a spreadsheet exposes a current cell");
-        assertEquals("cell", current.getLocation().kind());
+        assertEquals(LocationKind.CELL, current.getLocation().kind());
 
         // Resume runs the rest of the spreadsheet to completion.
         assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, 10_000));
