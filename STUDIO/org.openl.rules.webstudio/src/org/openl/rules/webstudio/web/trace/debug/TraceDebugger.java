@@ -49,6 +49,20 @@ public final class TraceDebugger {
         return stepController.getBreakpoints();
     }
 
+    /** Watch cells by name or ref, capturing their value on every execution. Set before {@link #start}. */
+    public void setWatches(Set<String> watches) {
+        hook.setWatches(watches);
+    }
+
+    /** All watched-cell captures gathered so far, most useful once the run has finished. */
+    public List<WatchCapture> watchCaptures() {
+        return hook.watchCaptures();
+    }
+
+    public boolean isWatchTruncated() {
+        return hook.isWatchTruncated();
+    }
+
     /**
      * Start execution on a fresh virtual thread.
      *

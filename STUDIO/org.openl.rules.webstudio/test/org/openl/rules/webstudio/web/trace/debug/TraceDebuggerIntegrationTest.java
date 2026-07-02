@@ -159,6 +159,30 @@ class TraceDebuggerIntegrationTest {
     }
 
     @Test
+    void capturesAWatchedCellOnEveryExecutionOfItsTable() {
+        // T0 calls T1 twice; each T1 execution computes the watched cell R0C0.
+        FakeTable t1 = new FakeTable("T1").cell(0, 0);
+        FakeTable t0 = new FakeTable("T0").call(t1).call(t1);
+        DebugBody body = () -> Tracer.invoke(t0, null, NO_PARAMS, new SimpleRuntimeEnv(), t0);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setWatches(Set.of("R0C0"));
+        debugger.start("watch-test", null, true, body);
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+
+        List<WatchCapture> captures = debugger.watchCaptures();
+        assertEquals(2, captures.size(), "the watched cell computed once per T1 execution");
+        assertEquals(List.of(0, 1), captures.stream().map(WatchCapture::instance).toList(),
+                "the two executions are numbered 0 and 1");
+        assertEquals("T1", captures.get(0).table());
+        assertEquals("T1#R0C0", captures.get(0).ref());
+        assertEquals("R0C0", captures.get(0).value(), "the fake cell returns its own ref as the value");
+        assertEquals(List.of("T0", "T1"), captures.get(0).path(), "the path runs from the root to the owning frame");
+        assertFalse(debugger.isWatchTruncated());
+    }
+
+    @Test
     void stepOverToFrameEndSuspendsAtItsExitWithTheResult() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program());

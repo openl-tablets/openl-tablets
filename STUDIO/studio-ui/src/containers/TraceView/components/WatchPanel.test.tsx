@@ -1,0 +1,77 @@
+import React from 'react'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { useTraceStore } from 'store/traceStore'
+import type { WatchView } from 'types/trace'
+import WatchPanel from 'containers/TraceView/components/WatchPanel'
+
+vi.mock('services/traceService', () => ({
+    __esModule: true,
+    default: {
+        setWatches: vi.fn().mockResolvedValue(undefined),
+        getWatch: vi.fn(),
+        startTrace: vi.fn().mockResolvedValue({ status: 'completed', frames: []}),
+        cancelTrace: vi.fn().mockResolvedValue(undefined),
+        getStack: vi.fn().mockResolvedValue({ status: 'completed', frames: []}),
+    },
+}))
+
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    return { useTranslation: () => ({ t }) }
+})
+
+import traceService from 'services/traceService'
+
+const setWatches = traceService.setWatches as ReturnType<typeof vi.fn>
+const getWatch = traceService.getWatch as ReturnType<typeof vi.fn>
+
+const series: WatchView = {
+    truncated: false,
+    series: [{
+        name: '$VehiclePriceFactor',
+        table: 'CoveragePremium',
+        tableUri: 'uCov',
+        points: [
+            { instance: 0, label: 'CoveragePremium #1', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: 1.0 },
+            { instance: 1, label: 'CoveragePremium #2', path: ['Root', 'CoveragePremium'], ref: 'uCov#R2C0', value: 83.372 },
+        ],
+    }],
+}
+
+describe('WatchPanel', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        useTraceStore.getState().reset()
+        useTraceStore.setState({ projectId: 'p1', tableId: 't1' })
+    })
+
+    it('adds a watch cell and shows a factor series across executions', async () => {
+        render(<WatchPanel />)
+
+        await userEvent.type(screen.getByTestId('watch-add'), '$VehiclePriceFactor')
+        await userEvent.click(screen.getByTestId('watch-add-button'))
+        await waitFor(() => expect(setWatches).toHaveBeenCalledWith('p1', ['$VehiclePriceFactor']))
+        expect(useTraceStore.getState().watches).toEqual(['$VehiclePriceFactor'])
+
+        // Once a series is in the store, the panel shows the value on every execution — the outlier stands out.
+        act(() => { useTraceStore.setState({ watch: series }) })
+        expect(await screen.findByText('83.372')).toBeInTheDocument()
+        expect(screen.getAllByTestId('watch-point')).toHaveLength(2)
+        expect(screen.getByTestId('watch-series')).toHaveTextContent('$VehiclePriceFactor')
+    })
+
+    it('collects the series by running the trace to completion', async () => {
+        getWatch.mockResolvedValue(series)
+        useTraceStore.setState({ watches: ['$VehiclePriceFactor']})
+        render(<WatchPanel />)
+
+        await userEvent.click(screen.getByTestId('watch-collect'))
+
+        // Collect runs to completion (stopAtEntry=false, no full tree), then fetches and renders the series.
+        await waitFor(() => expect(traceService.startTrace).toHaveBeenCalledWith('p1',
+            expect.objectContaining({ stopAtEntry: false, includeTree: false })))
+        expect(await screen.findByText('83.372')).toBeInTheDocument()
+        expect(getWatch).toHaveBeenCalledWith('p1')
+    })
+})

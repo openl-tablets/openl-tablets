@@ -9,6 +9,7 @@ import DebugToolbar from './components/DebugToolbar'
 import DebugCallStack from './components/DebugCallStack'
 import TraceTree from './components/TraceTree'
 import BreakpointsPanel from './components/BreakpointsPanel'
+import WatchPanel from './components/WatchPanel'
 import TraceDetails from './components/TraceDetails'
 import useTraceProgress from './hooks/useTraceProgress'
 import { isTraceExecutionError, isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
@@ -199,6 +200,7 @@ const TraceView: React.FC = () => {
                         ]}
                     />
                     <BreakpointsPanel />
+                    <WatchPanel />
                     <div className={styles.viewContent}>
                         {viewMode === 'tree' ? <TraceTree /> : <DebugCallStack />}
                     </div>

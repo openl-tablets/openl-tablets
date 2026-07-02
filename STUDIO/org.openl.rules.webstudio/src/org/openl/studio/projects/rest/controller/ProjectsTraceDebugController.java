@@ -54,6 +54,8 @@ import org.openl.studio.projects.model.trace.StackRenderOptions;
 import org.openl.studio.projects.model.trace.StackViewMode;
 import org.openl.studio.projects.model.trace.StepType;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
+import org.openl.studio.projects.model.trace.WatchView;
+import org.openl.studio.projects.model.trace.WatchesRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
@@ -144,8 +146,8 @@ public class ProjectsTraceDebugController {
             sessionRegistry.rememberInputJson(inputJson);
         }
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
-                currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(), stopAtEntry,
-                profiling, listener);
+                currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(),
+                sessionRegistry.watches(), stopAtEntry, profiling, listener);
 
         DebugSession session = sessionRegistry.start(traceDebugService.startSession(request));
         // Build the inspection mapper now, while the traced module is the current module, so the session
@@ -260,6 +262,37 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestBody BreakpointsRequest request) {
         sessionRegistry.setBreakpoints(request.safeUris());
+    }
+
+    @Operation(summary = "trace.watch.summary", description = "trace.watch.desc")
+    @ApiResponse(responseCode = "200", description = "trace.watch.200.desc")
+    @GetMapping("/watch")
+    public WatchView watch(@ProjectId @PathVariable("projectId") RulesProject project) {
+        DebugSession session = requireSession(project);
+        return session.inLock(() -> {
+            if (session.getDebugger().status() == DebugStatus.RUNNING) {
+                throw new ConflictException("trace.execution.not.suspended.message");
+            }
+            var debugger = session.getDebugger();
+            return TraceDebugMapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated());
+        });
+    }
+
+    @Operation(summary = "trace.get-watches.summary", description = "trace.get-watches.desc")
+    @ApiResponse(responseCode = "200", description = "trace.get-watches.200.desc")
+    @GetMapping("/watches")
+    public List<String> getWatches(@ProjectId @PathVariable("projectId") RulesProject project) {
+        return List.copyOf(sessionRegistry.watches());
+    }
+
+    @Operation(summary = "trace.set-watches.summary", description = "trace.set-watches.desc")
+    @ApiResponse(responseCode = "204", description = "trace.set-watches.204.desc")
+    @PutMapping("/watches")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setWatches(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestBody WatchesRequest request) {
+        sessionRegistry.setWatches(request.safeCells());
     }
 
     @Operation(summary = "trace.breakpoint-tables.summary", description = "trace.breakpoint-tables.desc")

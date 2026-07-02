@@ -317,7 +317,28 @@ Fetches the full value of a parameter that was returned lazily (`lazy: true`) in
 
 ---
 
-### 13. Terminate the session
+### 13. Watch cells across the run
+
+Watch a factor across the whole run: retain the value of named cells on **every** execution of their
+table, so a factor can be read across all coverages or iterations without dumping every frame. Watches
+retain values only for the named cells — the one opt-in exception to the values-only-while-suspended rule.
+
+**Set the watch set** — `PUT /projects/{projectId}/trace/watches`, body
+[`WatchesRequest`](#watchesrequest). The set persists across runs and applies on the **next start**, since
+a watch captures from the beginning of a run. `204 No Content`.
+
+**Get the watch set** — `GET /projects/{projectId}/trace/watches` → `string[]`.
+
+**Get the collected values** — `GET /projects/{projectId}/trace/watch` → [`WatchView`](#watchview). Complete
+once the run has finished; carries the executions seen so far while it is still suspended. `409 Conflict`
+while the worker is still `running`.
+
+Typical flow: `PUT /watches` → `POST /` with `stopAtEntry=false` (run through, `includeTree=false` to keep
+the response small) → `GET /watch`.
+
+---
+
+### 14. Terminate the session
 
 **Endpoint**: `DELETE /projects/{projectId}/trace`
 
@@ -532,6 +553,42 @@ interface BreakpointsRequest {
 }
 ```
 
+### WatchesRequest
+
+```typescript
+interface WatchesRequest {
+  cells?: string[];  // cell names ($... step label) or refs (R2C3) to watch; null/omitted clears all
+}
+```
+
+### WatchView
+
+The collected values of the watched cells — a factor read across the whole run. One series per cell; the
+UI can pivot series that share a table into a matrix (rows = executions, columns = cells), while an agent
+reads a single series as a value sequence to spot the outlier.
+
+```typescript
+interface WatchView {
+  series: WatchSeriesView[];
+  truncated: boolean;          // the capture cap was reached, so some late executions are missing
+}
+
+interface WatchSeriesView {
+  name: string;                // the watched cell name (its $... step label)
+  table: string;               // display name of the owning table
+  tableUri: string;            // owning table URI (replay target)
+  points: WatchPointView[];    // one per execution of the table, in execution order
+}
+
+interface WatchPointView {
+  instance: number;            // 0-based execution number of the owning table (its 1st, 2nd, … invocation)
+  label: string;               // human axis label, e.g. "CoveragePremium #3"
+  path: string[];              // call path root → owning frame, as table names
+  ref: string;                 // breakpoint key uri#cellRef to reach this cell (replay + breakpoint)
+  value: number | string | boolean | null;  // scalar, or a short summary of a non-scalar
+}
+```
+
 ### BreakpointTableView
 
 ```typescript
@@ -661,6 +718,17 @@ sequenceDiagram
 2. Step / inspect as above. Cases run sequentially; the worker stops at each case entry.
 ```
 
+### Workflow 5: Watch a factor across coverages
+
+```
+1. PUT /projects/MyProject/trace/watches   { "cells": ["$VehiclePriceFactor"] }
+2. POST /projects/MyProject/trace?tableId=...&stopAtEntry=false&includeTree=false
+   → runs to completion, capturing the cell on every execution of its table
+3. GET /projects/MyProject/trace/watch
+   → series[0].points: the factor's value per coverage — the outlier (e.g. 83.372 among 1.0) stands out
+4. To inspect an outlier live: replay to its table (points[i].ref / series.tableUri) with a breakpoint.
+```
+
 ### Workflow 5: Inspect an already-executed spreadsheet step
 
 ```
@@ -762,6 +830,9 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
   `profileTop` sets how many hotspots.
 - **Compact stack** (`view=compact` on start/step/stack): keeps sub-steps only on the active frame, so a
   step returns the frame that changed instead of re-sending every frame's `steps`.
+- **Watch** (`PUT /watches`, `GET /watch`): retain a named cell's value on every execution of its table,
+  so a factor can be read across all coverages or iterations without dumping every frame. The one opt-in
+  exception to structure-only profiling; bounded by the number of watched cells.
 - **Step references**: a formula that computes or re-reads another step records a `stepRef` node pointing
   at the original step (`CallNodeView.refStep`) — shared steps are never duplicated; calls are attributed
   to the step whose formula makes them.

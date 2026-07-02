@@ -316,3 +316,39 @@ export interface TraceProgressMessage {
     status: DebugStatus
     message?: string
 }
+
+/**
+ * The collected values of the watched cells — a factor read across the whole run. One series per cell;
+ * the UI can pivot series that share a table into a matrix (rows = executions, columns = cells).
+ */
+export interface WatchView {
+    series: WatchSeriesView[]
+    /** True when the capture cap was reached, so some late executions are missing. */
+    truncated: boolean
+}
+
+/** The values of one watched cell across the run, one point per execution of its table. */
+export interface WatchSeriesView {
+    /** The watched cell name (its `$...` step label). */
+    name: string
+    /** Display name of the table the cell belongs to. */
+    table: string
+    /** Source URI of that table. */
+    tableUri: string
+    /** The captured values, one per execution of the table, in execution order. */
+    points: WatchPointView[]
+}
+
+/** One value of a watched cell, from one execution of its table. */
+export interface WatchPointView {
+    /** Zero-based execution number of the owning table (its 1st, 2nd, … invocation). */
+    instance: number
+    /** Human-readable axis label for the execution, e.g. `CoveragePremium #3`. */
+    label: string
+    /** Call path from the root frame to the owning frame, as table display names. */
+    path: string[]
+    /** Breakpoint key `uri#cellRef` that reaches this cell, to replay and inspect this execution live. */
+    ref: string
+    /** The captured value: a scalar, or a short summary of a non-scalar. */
+    value: number | string | boolean | null
+}

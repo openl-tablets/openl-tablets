@@ -24,6 +24,7 @@ import org.openl.types.IOpenMethod;
  * @param inputJson           input parameters for a regular method, or {@code null}
  * @param objectMapper        project-configured mapper for parsing inputs
  * @param breakpoints         initial breakpoints by table URI
+ * @param watches             cells to watch by name or ref, captured on every execution
  * @param stopAtEntry         suspend at the first frame instead of running to the first breakpoint
  * @param profiling           retain the executed call tree's structure so it can be browsed after it returns
  * @param listener            status sink for WebSocket notifications
@@ -39,6 +40,7 @@ public record TraceDebugStartRequest(
         @Nullable String inputJson,
         ObjectMapper objectMapper,
         Set<String> breakpoints,
+        Set<String> watches,
         boolean stopAtEntry,
         boolean profiling,
         DebugListener listener

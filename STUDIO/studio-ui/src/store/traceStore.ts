@@ -9,6 +9,7 @@ import type {
     DebugStatus,
     RawTableView,
     TraceParameterValue,
+    WatchView,
 } from 'types/trace'
 import traceService from 'services/traceService'
 import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
@@ -41,6 +42,10 @@ interface DebugState {
     transientBreakpoint: string | null
     /** Profiling mode: retain the executed call tree so returned branches stay browsable. Toggling restarts. */
     profiling: boolean
+    /** Cells watched across the run, by name or ref. Applied on the next run, since a watch captures from the start. */
+    watches: string[]
+    /** The watched cells' values across the run, or null before they are fetched. */
+    watch: WatchView | null
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
@@ -72,6 +77,12 @@ interface DebugState {
     setProfiling: (value: boolean) => Promise<void>
     /** Replay a returned branch: restart from the top and run to that table so it is live again, with values. */
     replayNode: (uri: string, label?: string) => Promise<void>
+    /** Replace the watch set. Applied on the next collect/run, since a watch captures from the start. */
+    setWatchCells: (cells: string[]) => Promise<void>
+    /** Run the whole trace to completion collecting the watched cells, then fetch the series. */
+    collectWatch: () => Promise<void>
+    /** Fetch the watched cells' values gathered so far. */
+    fetchWatch: () => Promise<void>
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
@@ -99,6 +110,8 @@ const initialState = {
     breakpointLabels: {},
     transientBreakpoint: null,
     profiling: false,
+    watches: [],
+    watch: null,
     rawTableCache: {},
     loading: false,
     error: null,
@@ -291,6 +304,48 @@ export const useTraceStore = create<DebugState>((set, get) => {
             await get().terminate()
             await get().start()
             await get().runTo(uri, label)
+        },
+
+        setWatchCells: async (cells) => {
+            const { projectId } = get()
+            set({ watches: cells })
+            if (!projectId) return
+            // The set takes effect on the next collect/run — a watch captures from the beginning of a run.
+            await traceService.setWatches(projectId, cells)
+        },
+
+        collectWatch: async () => {
+            const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+            if (!projectId || !tableId) return
+            set({ loading: true, error: null })
+            try {
+                // Run the whole trace to completion (not the full tree) so every execution is captured.
+                await get().terminate()
+                const stack = await traceService.startTrace(projectId, {
+                    tableId,
+                    ...(fromModule ? { fromModule } : {}),
+                    ...(testRanges ? { testRanges } : {}),
+                    ...(inputJson ? { inputJson } : {}),
+                    stopAtEntry: false,
+                    includeTree: false,
+                })
+                applyStack(stack)
+                await get().fetchWatch()
+            } catch (error: any) {
+                set({ error: error?.message || 'Failed to collect watches' })
+            } finally {
+                set({ loading: false })
+            }
+        },
+
+        fetchWatch: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                set({ watch: await traceService.getWatch(projectId) })
+            } catch {
+                // Best effort: the panel keeps whatever it last showed.
+            }
         },
 
         terminate: async () => {

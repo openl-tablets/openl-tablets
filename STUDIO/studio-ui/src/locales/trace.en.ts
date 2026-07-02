@@ -3,6 +3,16 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'trace', {
     title: 'Execution trace',
 
+    watch: {
+        title: 'Watch',
+        add: 'Add',
+        addPlaceholder: 'Cell name ($Factor) or ref (R2C3)',
+        collect: 'Collect',
+        empty: 'No values captured — run a table that computes these cells.',
+        truncated: 'Too many values — the series is capped and may miss late executions.',
+        noValue: '—',
+    },
+
     tree: {
         title: 'Call tree',
         modeSimple: 'Tree',

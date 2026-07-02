@@ -3,8 +3,11 @@ package org.openl.rules.webstudio.web.trace.debug;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
@@ -29,11 +32,24 @@ final class DebugHookImpl implements DebugHook {
     private final DebugChannel channel;
     private final DebugListener listener;
 
+    /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
+    private static final int MAX_WATCH_CAPTURES = 50_000;
+    /** Upper bound on a captured non-scalar value's summary, so one big object cannot bloat the response. */
+    private static final int MAX_WATCH_VALUE = 2_000;
+
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     private boolean profiling;
+    /** Cell names or refs whose value is captured on every execution of their table. Set before the worker runs. */
+    private Set<String> watches = Set.of();
+    /** Captured watched values, appended on the worker thread as cells compute. */
+    private final List<WatchCapture> captures = new ArrayList<>();
+    /** Per-table invocation counter, so each execution of a table gets a stable instance number. */
+    private final Map<String, Integer> invocationCounts = new HashMap<>();
+    /** Set when the capture cap was hit, so the response can say the watch series is incomplete. */
+    private boolean watchTruncated;
     /** Total time the worker spent parked at suspend points, subtracted from frame durations so think time is excluded. */
     private long parkedNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
@@ -53,6 +69,20 @@ final class DebugHookImpl implements DebugHook {
 
     void setProfiling(boolean profiling) {
         this.profiling = profiling;
+    }
+
+    /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
+    void setWatches(Set<String> watches) {
+        this.watches = Set.copyOf(watches);
+    }
+
+    /** All watched-cell captures gathered so far. Read while the worker is parked or finished. */
+    List<WatchCapture> watchCaptures() {
+        return List.copyOf(captures);
+    }
+
+    boolean isWatchTruncated() {
+        return watchTruncated;
     }
 
     @Override
@@ -103,6 +133,9 @@ final class DebugHookImpl implements DebugHook {
         R result = executor.invoke(target, params, env);
         top.recordExecutedStep(executor, stepRef(location), location.label(), result,
                 elapsed(stepEnter, parkedAtStepEnter));
+        if (!watches.isEmpty()) {
+            captureWatch(top, location, result);
+        }
         if (profiling && enclosing != null) {
             // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
             top.recordExecutedChild(stepRef(enclosing),
@@ -140,6 +173,41 @@ final class DebugHookImpl implements DebugHook {
         return location.label() != null ? location.label() : location.kind().getCode();
     }
 
+    /** Record a watched cell's value if this step is watched (by its name or ref), unless the cap is hit. */
+    private void captureWatch(DebugFrame frame, CurrentLocation location, @Nullable Object value) {
+        String ref = stepRef(location);
+        String label = location.label();
+        if (!watches.contains(ref) && (label == null || !watches.contains(label))) {
+            return;
+        }
+        if (captures.size() >= MAX_WATCH_CAPTURES) {
+            watchTruncated = true;
+            return;
+        }
+        String name = label != null ? label : ref;
+        captures.add(new WatchCapture(name, frame.getName(), frame.getUri(), frame.getInvocationIndex(),
+                framePath(), frame.getUri() + "#" + ref, watchValue(value)));
+    }
+
+    /** The call path from the root frame to the current frame, as display names, for a capture. */
+    private List<String> framePath() {
+        List<String> path = new ArrayList<>(stack.size());
+        Iterator<DebugFrame> it = stack.descendingIterator();
+        while (it.hasNext()) {
+            path.add(it.next().getName());
+        }
+        return path;
+    }
+
+    /** Capture a scalar value as-is; summarize anything else to a bounded string so the response stays small. */
+    private static @Nullable Object watchValue(@Nullable Object value) {
+        if (value == null || value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+        String text = String.valueOf(value);
+        return text.length() > MAX_WATCH_VALUE ? text.substring(0, MAX_WATCH_VALUE) + "…" : text;
+    }
+
     /** Wall time since the frame entered, minus the time spent parked at suspend points: real execution time. */
     private long elapsed(long enterNanos, long parkedAtEnter) {
         return Math.max(0, System.nanoTime() - enterNanos - (parkedNanos - parkedAtEnter));
@@ -160,6 +228,10 @@ final class DebugHookImpl implements DebugHook {
         int depth = stack.size() + 1;
         DebugFrame frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
+        if (!watches.isEmpty()) {
+            // Number each execution of the table, so a watched cell's captures form a per-instance series.
+            frame.setInvocationIndex(invocationCounts.merge(descriptor.uri(), 1, Integer::sum) - 1);
+        }
         if (pendingDispatch != null) {
             // This frame is the version the pending dispatcher chose; badge it and consume the dispatch so only
             // the immediate child carries it.

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,6 +48,7 @@ import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
 import org.openl.rules.webstudio.web.trace.debug.FrameKind;
 import org.openl.rules.webstudio.web.trace.debug.SpreadsheetCellNames;
+import org.openl.rules.webstudio.web.trace.debug.WatchCapture;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
@@ -121,6 +123,41 @@ public class TraceDebugMapper {
                 .error(buildStackError(frames, error))
                 .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
                 .profile(completedTree == null ? null : buildProfileSummary(completedTree, options.profileTop()))
+                .build();
+    }
+
+    /**
+     * Group watched-cell captures into series: one per cell (scoped to its table), points in execution
+     * order. Captures already arrive in execution order, so the points need no re-sorting.
+     */
+    public static WatchView toWatchView(List<WatchCapture> captures, boolean truncated) {
+        Map<String, List<WatchPointView>> pointsByKey = new LinkedHashMap<>();
+        Map<String, WatchCapture> firstByKey = new LinkedHashMap<>();
+        for (WatchCapture capture : captures) {
+            String key = capture.name() + ' ' + capture.tableUri();
+            pointsByKey.computeIfAbsent(key, k -> new ArrayList<>()).add(toWatchPoint(capture));
+            firstByKey.putIfAbsent(key, capture);
+        }
+        List<WatchSeriesView> series = new ArrayList<>(pointsByKey.size());
+        pointsByKey.forEach((key, points) -> {
+            WatchCapture first = firstByKey.get(key);
+            series.add(WatchSeriesView.builder()
+                    .name(first.name())
+                    .table(first.table())
+                    .tableUri(first.tableUri())
+                    .points(points)
+                    .build());
+        });
+        return WatchView.builder().series(series).truncated(truncated).build();
+    }
+
+    private static WatchPointView toWatchPoint(WatchCapture capture) {
+        return WatchPointView.builder()
+                .instance(capture.instance())
+                .label(capture.table() + " #" + (capture.instance() + 1))
+                .path(capture.path())
+                .ref(capture.ref())
+                .value(capture.value())
                 .build();
     }
 

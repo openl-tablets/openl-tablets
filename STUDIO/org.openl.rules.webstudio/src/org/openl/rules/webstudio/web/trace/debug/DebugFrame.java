@@ -64,6 +64,8 @@ public final class DebugFrame {
     private @Nullable Object result;
     private @Nullable Throwable error;
     private boolean completed;
+    /** Zero-based execution number of this table (its 1st, 2nd, ... invocation in the run), for watch series. */
+    private int invocationIndex;
     /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
     private long durationNanos;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
@@ -87,6 +89,10 @@ public final class DebugFrame {
 
     void setLocation(@Nullable CurrentLocation location) {
         this.location = location;
+    }
+
+    void setInvocationIndex(int invocationIndex) {
+        this.invocationIndex = invocationIndex;
     }
 
     void setCurrentStep(@Nullable Object currentStep) {
