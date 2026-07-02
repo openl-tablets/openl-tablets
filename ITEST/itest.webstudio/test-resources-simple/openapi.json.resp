@@ -10362,6 +10362,26 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11280,6 +11300,26 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11493,6 +11533,26 @@ Content-Type: application/json
                 "over",
                 "out"
               ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
             }
           },
           {
@@ -17296,6 +17356,9 @@ Content-Type: application/json
               "$ref": "#/components/schemas/DebugFrameView"
             }
           },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileSummaryView"
+          },
           "status": {
             "type": "string",
             "description": "***",
@@ -18827,6 +18890,80 @@ Content-Type: application/json
           "total": {
             "type": "integer",
             "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "ProfileHotspotView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "totalMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "uri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProfileSummaryView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "distinctTables": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "hotspots": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProfileHotspotView"
+            }
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "totalMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "truncated": {
+            "type": "boolean",
             "description": "***"
           }
         }

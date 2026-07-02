@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.trace;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -44,6 +45,7 @@ import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.CurrentLocation;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
 import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
+import org.openl.rules.webstudio.web.trace.debug.FrameKind;
 import org.openl.rules.webstudio.web.trace.debug.SpreadsheetCellNames;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
@@ -69,6 +71,9 @@ public class TraceDebugMapper {
     /** Upper bound on the technical stack-trace detail, so a deep failure cannot bloat the response. */
     private static final int MAX_DETAIL = 8_000;
 
+    /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
+    public static final int DEFAULT_PROFILE_TOP = 20;
+
     /** Map the live stack (root to current frame) to a stack view. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
         return toStackView(status, frames, error, null);
@@ -77,6 +82,16 @@ public class TraceDebugMapper {
     /** Map the live stack to a stack view, plus the completed executed tree once the trace has finished. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
                                              @Nullable CallNode completedTree) {
+        return toStackView(status, frames, error, completedTree, true, DEFAULT_PROFILE_TOP);
+    }
+
+    /**
+     * Map the live stack to a stack view. Once the trace has finished in profiling mode the completed tree
+     * is available; {@code includeTree} embeds it in full, and a bounded profile overview (the slowest
+     * {@code profileTop} tables) is always attached so a large run can be understood without it.
+     */
+    public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
+                                             @Nullable CallNode completedTree, boolean includeTree, int profileTop) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -101,8 +116,78 @@ public class TraceDebugMapper {
                 .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
-                .tree(completedTree == null ? null : toCallNodeView(completedTree))
+                .tree(completedTree == null || !includeTree ? null : toCallNodeView(completedTree))
+                .profile(completedTree == null ? null : buildProfileSummary(completedTree, profileTop))
                 .build();
+    }
+
+    /**
+     * Fold the executed call tree into a bounded hotspots overview: every invocation of the same table
+     * aggregated, keeping only the slowest {@code top} by own time. Constant-sized regardless of run size.
+     */
+    static ProfileSummaryView buildProfileSummary(CallNode root, int top) {
+        Map<String, Hotspot> byUri = new HashMap<>();
+        int nodeCount = accumulateHotspots(root, byUri, 0);
+        List<ProfileHotspotView> hotspots = byUri.values().stream()
+                .sorted(Comparator.comparingLong(Hotspot::selfNanos).reversed())
+                .limit(Math.max(1, top))
+                .map(Hotspot::toView)
+                .toList();
+        return ProfileSummaryView.builder()
+                .hotspots(hotspots)
+                .distinctTables(byUri.size())
+                .nodeCount(nodeCount)
+                .totalMillis(toMillis(root.durationNanos()))
+                .truncated(byUri.size() > hotspots.size())
+                .build();
+    }
+
+    /** Add a node's own time to its table's hotspot and recurse into the tables its steps called. */
+    private static int accumulateHotspots(CallNode node, Map<String, Hotspot> byUri, int nodeCount) {
+        if (node.refStep() != null) {
+            // A reference to a step that ran elsewhere: no time of its own, so it is not an invocation.
+            return nodeCount;
+        }
+        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        byUri.computeIfAbsent(node.uri(), uri -> new Hotspot(uri, node.name(), node.kind()))
+                .add(node.durationNanos(), Math.max(0, node.durationNanos() - childrenNanos));
+        int count = nodeCount + 1;
+        for (CallNode.Step step : node.steps()) {
+            for (CallNode child : step.children()) {
+                count = accumulateHotspots(child, byUri, count);
+            }
+        }
+        return count;
+    }
+
+    /** Mutable accumulator for one table's aggregated profiling time across all its invocations. */
+    private static final class Hotspot {
+        private final String uri;
+        private final String name;
+        private final FrameKind kind;
+        private long totalNanos;
+        private long selfNanos;
+        private int count;
+
+        private Hotspot(String uri, String name, FrameKind kind) {
+            this.uri = uri;
+            this.name = name;
+            this.kind = kind;
+        }
+
+        private void add(long totalNanos, long selfNanos) {
+            this.totalNanos += totalNanos;
+            this.selfNanos += selfNanos;
+            this.count++;
+        }
+
+        private long selfNanos() {
+            return selfNanos;
+        }
+
+        private ProfileHotspotView toView() {
+            return new ProfileHotspotView(uri, name, kind, toMillis(selfNanos), toMillis(totalNanos), count);
+        }
     }
 
     /** Build a non-technical error view: cleaned message, the table that failed, and a technical drill-down. */

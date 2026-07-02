@@ -18,6 +18,7 @@ import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
+import org.openl.rules.webstudio.web.trace.debug.CallNode;
 import org.openl.rules.webstudio.web.trace.debug.ConditionCheck;
 import org.openl.rules.webstudio.web.trace.debug.DebugCommand;
 import org.openl.rules.webstudio.web.trace.debug.DebugFrame;
@@ -214,5 +215,60 @@ class TraceDebugMapperTest {
         when(dt.getRuleName(3)).thenReturn("R2");  // a duplicate name collapses to one
 
         assertEquals(List.of("R1", "R2", "R3"), TraceDebugMapper.ruleNames(dt));
+    }
+
+    @Test
+    void foldsExecutedTreeIntoSelfTimeHotspots() {
+        // A(100) calls B(30) and C(50); C calls B(20) again; A also references B (no time).
+        CallNode b1 = leaf("uB", "B", 30);
+        CallNode b2 = leaf("uB", "B", 20);
+        CallNode c = node("uC", "C", 50, b2);
+        CallNode ref = new CallNode("uA", "$Ref", FrameKind.STEP_REF, 0, List.of(), null, "R9C9");
+        CallNode root = new CallNode("uA", "A", FrameKind.SPREADSHEET, ms(100),
+                List.of(new CallNode.Step("R0C0", "$s", ms(100), List.of(b1, c, ref))), null, null);
+
+        var summary = TraceDebugMapper.buildProfileSummary(root, 10);
+
+        assertEquals(3, summary.distinctTables(), "A, B, C — the reference is not a table");
+        assertEquals(4, summary.nodeCount(), "A + B + C + B again; the reference does not count");
+        assertEquals(100.0, summary.totalMillis(), "wall-clock is the root's own duration");
+        assertFalse(summary.truncated(), "all three tables fit within top=10");
+
+        // Sorted by own time: B has the most (30 + 20), then C (50 − 20), then A (100 − 30 − 50).
+        var b = summary.hotspots().get(0);
+        assertEquals("uB", b.uri());
+        assertEquals(2, b.count(), "both B invocations fold into one hotspot");
+        assertEquals(50.0, b.selfMillis());
+        assertEquals(50.0, b.totalMillis(), "B calls nothing, so total equals self");
+        assertEquals(List.of("uB", "uC", "uA"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
+        assertEquals(30.0, summary.hotspots().get(1).selfMillis(), "C's own time excludes the B it called");
+        assertEquals(20.0, summary.hotspots().get(2).selfMillis(), "A's own time excludes B and C");
+    }
+
+    @Test
+    void capsHotspotsToTopAndFlagsTruncation() {
+        CallNode root = new CallNode("uA", "A", FrameKind.SPREADSHEET, ms(60),
+                List.of(new CallNode.Step("R0C0", "$s", ms(60),
+                        List.of(leaf("uB", "B", 30), leaf("uC", "C", 20)))), null, null);
+
+        var summary = TraceDebugMapper.buildProfileSummary(root, 2);
+
+        assertEquals(3, summary.distinctTables());
+        assertEquals(2, summary.hotspots().size(), "only the two slowest are returned");
+        assertTrue(summary.truncated(), "a third table ran but did not make the cut");
+        assertEquals(List.of("uB", "uC"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
+    }
+
+    private static CallNode leaf(String uri, String name, long millis) {
+        return new CallNode(uri, name, FrameKind.SPREADSHEET, ms(millis), List.of(), null, null);
+    }
+
+    private static CallNode node(String uri, String name, long millis, CallNode child) {
+        return new CallNode(uri, name, FrameKind.SPREADSHEET, ms(millis),
+                List.of(new CallNode.Step("R0C0", "$s", ms(millis), List.of(child))), null, null);
+    }
+
+    private static long ms(long millis) {
+        return millis * 1_000_000L;
     }
 }

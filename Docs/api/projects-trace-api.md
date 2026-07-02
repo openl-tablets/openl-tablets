@@ -45,7 +45,9 @@ frame's variables — all against a real, suspended execution rather than a pre-
   cell, on any fired decision-table rule, or on a specific rule. See [Breakpoint Keys](#breakpoint-keys).
 - **Profiling (executed call tree)** — with `profiling=true` the session retains the structure of returned
   calls: which steps ran, what each step called, execution times (total and self), dispatcher choices, and
-  references to re-used steps. Structure only — no values are retained.
+  references to re-used steps. Structure only — no values are retained. The response also carries a bounded
+  `profile` overview (the slowest tables); pass `includeTree=false` to get only that when the whole tree
+  would be too large.
 - **Lazy variable freezing** — a frame's parameters/context/result are deep-cloned only when inspected,
   while suspended, and discarded when the frame returns. Large values load on demand.
 - **One session per user** — starting a new session terminates the previous one. Idle suspended sessions
@@ -106,7 +108,8 @@ A session moves through these statuses (also returned in every stack/status resp
 
 The normal flow is `pending → running ⇄ suspended → completed`; `error` and `terminated` are the other
 terminal states. Status transitions are pushed over WebSocket (see below). After `completed` the stack is
-empty, but a profiling session still exposes the whole executed tree in `DebugStackView.tree`.
+empty, but a profiling session still exposes the whole executed tree in `DebugStackView.tree` and a
+bounded overview of it in `DebugStackView.profile`.
 
 ---
 
@@ -131,6 +134,10 @@ via `PUT /breakpoints`) apply immediately.
   the first breakpoint.
 - `profiling` (boolean, default `false`) — retain the executed call tree (structure and timings, no
   values). Uses more memory and runs slower.
+- `includeTree` (boolean, default `true`) — embed the full executed `tree` in the response. Set to `false`
+  to keep only the bounded `profile` overview when the whole tree would be too large.
+- `profileTop` (integer, default `20`, min `1`) — how many hotspots (slowest tables) the `profile`
+  overview returns.
 
 **Request body** (optional, `application/json`): raw input for a regular method. Supports the structured
 form (`{ "runtimeContext": {...}, "params": {...} }`), a raw named-parameter object, or a positional
@@ -338,7 +345,33 @@ interface DebugStackView {
   status: DebugStatus;          // pending | running | suspended | completed | error | terminated
   frames: DebugFrameView[];     // root (index 0) → current; empty after completion
   error?: DebugError;           // present only when status = error
-  tree?: CallNodeView;          // whole executed tree after completion (profiling only)
+  tree?: CallNodeView;          // whole executed tree after completion (profiling; omitted if includeTree=false)
+  profile?: ProfileSummaryView; // bounded hotspots overview after completion (profiling only)
+}
+```
+
+### ProfileSummaryView
+
+A bounded overview of a finished profiled run — the slowest tables, aggregated across the whole run. It is
+**constant-sized** regardless of run size (unlike `tree`, which grows with every invocation), so it is the
+safe way to understand a large run. Fetch the full `tree` only to drill into a specific branch.
+
+```typescript
+interface ProfileSummaryView {
+  hotspots: ProfileHotspotView[]; // slowest tables by own time, most expensive first, capped to profileTop
+  distinctTables: number;         // distinct tables that ran (may exceed hotspots.length)
+  nodeCount: number;              // total table invocations in the run (the size of the full tree)
+  totalMillis: number;            // wall-clock time of the whole run, excluding parked time
+  truncated: boolean;             // true when more distinct tables ran than were returned
+}
+
+interface ProfileHotspotView {
+  uri: string;
+  name: string;
+  kind: FrameKind;
+  selfMillis: number;   // own time across all invocations (excludes called tables); sums to wall-clock
+  totalMillis: number;  // inclusive time across all invocations (own work + called tables)
+  count: number;        // number of invocations folded into this hotspot
 }
 ```
 
@@ -602,10 +635,11 @@ sequenceDiagram
 ### Workflow 3: Profile a calculation (executed call tree)
 
 ```
-1. POST /projects/MyProject/trace?tableId=...&stopAtEntry=false&profiling=true
-   → runs to completion; the response carries tree: CallNodeView
-2. Walk tree.steps[]: each executed step has durationMillis/selfMillis and children —
-   the tables it called, dispatch badges, and stepRef references to steps it re-used.
+1. POST /projects/MyProject/trace?tableId=...&stopAtEntry=false&profiling=true&includeTree=false
+   → runs to completion; the response carries profile: ProfileSummaryView (bounded hotspots),
+     not the full tree — safe on a large run
+2. Read profile.hotspots[]: the slowest tables by selfMillis, with count and totalMillis.
+   (Omit includeTree=false, or GET /stack, to also get the full tree: CallNodeView.)
 3. To inspect a slow branch live: restart with a breakpoint on that table and step from there
    (the UI's "replay" does exactly this — the remembered input is reused automatically).
 ```
@@ -714,6 +748,9 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
 
 - **Profiling** (`profiling=true`): the executed call tree (`DebugStackView.tree`, `StepValueView.children`)
   with per-frame and per-step timings (`durationMillis`/`selfMillis`) — structure only, no values.
+- **Bounded profile overview** (`DebugStackView.profile`): the slowest tables aggregated across the run,
+  constant-sized regardless of run size. `includeTree=false` returns only this (not the full tree);
+  `profileTop` sets how many hotspots.
 - **Step references**: a formula that computes or re-reads another step records a `stepRef` node pointing
   at the original step (`CallNodeView.refStep`) — shared steps are never duplicated; calls are attributed
   to the step whose formula makes them.

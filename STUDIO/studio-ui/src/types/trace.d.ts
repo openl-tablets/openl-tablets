@@ -167,8 +167,46 @@ export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
     error?: DebugError | null
-    /** The whole executed call tree once the trace has finished (profiling mode); absent while it runs. */
+    /**
+     * The whole executed call tree once the trace has finished (profiling mode); absent while it runs, or
+     * when the caller asked to omit it (`includeTree=false`).
+     */
     tree?: CallNodeView | null
+    /**
+     * A bounded overview of the finished profiled run (the slowest tables), so a large run can be
+     * understood without pulling the full `tree`; absent outside profiling mode and while it runs.
+     */
+    profile?: ProfileSummaryView | null
+}
+
+/**
+ * A bounded overview of a profiled run: the slowest tables, aggregated across the whole run. Constant-sized
+ * regardless of run size, unlike the full `tree`.
+ */
+export interface ProfileSummaryView {
+    /** The slowest tables by own time, most expensive first, capped to the requested size. */
+    hotspots: ProfileHotspotView[]
+    /** Number of distinct tables that ran; may exceed the number of hotspots returned. */
+    distinctTables: number
+    /** Total number of table invocations in the run (the size of the full tree). */
+    nodeCount: number
+    /** Wall-clock execution time of the whole run in milliseconds, excluding parked time. */
+    totalMillis: number
+    /** Whether more distinct tables ran than the returned hotspots. */
+    truncated: boolean
+}
+
+/** One table in the profiling hotspots, with its execution time aggregated across the whole run. */
+export interface ProfileHotspotView {
+    uri: string
+    name: string
+    kind: FrameKind
+    /** Total own execution time across all invocations (ms), excluding the tables it called. */
+    selfMillis: number
+    /** Total inclusive execution time across all invocations (ms): own work plus called tables. */
+    totalMillis: number
+    /** Number of times the table was invoked in the run. */
+    count: number
 }
 
 /**
