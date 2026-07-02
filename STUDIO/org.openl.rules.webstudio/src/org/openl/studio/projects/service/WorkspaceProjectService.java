@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,19 +36,27 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.LockEngineImpl;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
+import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
@@ -113,6 +122,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
+    private final LocalWorkspaceManager localWorkspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
+    private final AclProjectsHelper aclProjectsHelper;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -129,7 +141,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ApplicationEventPublisher eventPublisher,
             ProtectedBranchBypassService bypassService,
             ProjectIdentifierMapper projectIdentifierMapper,
-            DetailedMessageDescriptionMapper detailedMessageDescriptionMapper) {
+            DetailedMessageDescriptionMapper detailedMessageDescriptionMapper,
+            LocalWorkspaceManager localWorkspaceManager,
+            MultiUserWorkspaceManager workspaceManager,
+            AclProjectsHelper aclProjectsHelper) {
         super(designRepositoryAclService, projectIdentifierMapper);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -144,6 +159,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
         this.detailedMessageDescriptionMapper = detailedMessageDescriptionMapper;
+        this.localWorkspaceManager = localWorkspaceManager;
+        this.workspaceManager = workspaceManager;
+        this.aclProjectsHelper = aclProjectsHelper;
     }
 
     @Lookup
@@ -215,8 +233,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (query.status() != null) {
             filter = filter.and(project -> {
                 var workspaceProject = (UserWorkspaceProject) project;
-                return workspaceProject.getStatus() == query.status();
+                return workspaceProject.getStatus() == query.status() && !workspaceProject.isDeleted();
             });
+        } else {
+            filter = filter.and(project -> !project.isDeleted());
         }
 
         if (query.dependsOn() != null) {
@@ -327,6 +347,95 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // a dependency of other. That's why we must always clear moduleInfo when closing a project.
         webStudio.getModel().clearModuleInfo();
         project.close();
+    }
+
+    public void delete(RulesProject project, @Nullable String comment) {
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
+            throw new ForbiddenException("default.message");
+        }
+        if (!projectStateValidator.canDelete(project)) {
+            if (!project.isLocalOnly()
+                    && project.getDesignRepository().supports().branches()
+                    && project.getVersion() == null) {
+                throw new ConflictException("project.delete.branch.message");
+            }
+            if (project.isLocked()) {
+                throw new ConflictException("project.delete.locked.message");
+            }
+            throw new ConflictException("project.delete.message");
+        }
+
+        var normalizedComment = StringUtils.trimToNull(comment);
+        try {
+            CommentValidator.forRepo(project.getRepository().getId()).validate(normalizedComment);
+        } catch (Exception e) {
+            throw new BadRequestException("repo.invalid.comment.message", new Object[]{e.getMessage()});
+        }
+
+        getWebStudio().getModel().clearModuleInfo();
+        closeProjectForAllUsers(project);
+        try {
+            project.delete(normalizedComment);
+        } catch (ProjectException e) {
+            log.warn("Failed to delete project '{}'", project.getBusinessName(), e);
+            throw new ConflictException("project.delete.message");
+        }
+        if (!project.isLocalOnly()) {
+            designRepositoryAclService.deleteAcl(project);
+        }
+        workspaceManager.refreshWorkspaces();
+        getWebStudio().reset();
+        eventPublisher.publishEvent(new ProjectDeletedEvent(project));
+    }
+
+    /**
+     * Closes a project in every user workspace before it is removed from the design repository.
+     */
+    private void closeProjectForAllUsers(RulesProject project) {
+        var businessName = project.getBusinessName();
+        var branch = project.getBranch();
+        var repoId = project.getRepository().getId();
+
+        try {
+            ProjectHistoryService.deleteHistory(businessName);
+            if (project.isOpened()) {
+                project.close();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to close project '{}' before deletion", businessName, e);
+        }
+
+        File workspacesRoot = getUserWorkspace().getLocalWorkspace().getLocation().getParentFile();
+        File[] files = workspacesRoot.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            closeProjectInWorkspace(file, repoId, businessName, branch);
+        }
+    }
+
+    private void closeProjectInWorkspace(File file, String repoId, String businessName, @Nullable String branch) {
+        if (!file.isDirectory() || LockEngineImpl.LOCKS_FOLDER_NAME.equals(file.getName())) {
+            return;
+        }
+        try {
+            LocalRepository repository = localWorkspaceManager.getWorkspace(file.getName()).getRepository(repoId);
+            repository.initialize();
+
+            ProjectState projectState = repository.getProjectState(businessName);
+            var savedRepoId = projectState.getRepositoryId();
+            FileData savedData = projectState.getFileData();
+            var savedBranch = savedData == null ? null : savedData.getBranch();
+
+            if (Objects.equals(savedRepoId, repoId) && Objects.equals(savedBranch, branch)) {
+                FileData fileData = new FileData();
+                fileData.setName(businessName);
+                repository.delete(fileData);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to close project '{}' in workspace '{}'", businessName, file.getName(), e);
+        }
     }
 
     /**

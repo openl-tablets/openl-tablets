@@ -1,5 +1,3 @@
-DELETE /rest/user-workspace/design-non-flat/projects/{PROJECT_1_TECH_ENC}/delete HTTP/1.1
+DELETE /rest/projects/{DESIGN_NON_FLAT_PROJECT_1_TECH_ENC_ID}?comment=EPBDS-16012%20Cleanup HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
-Content-Type: application/x-www-form-urlencoded
 
-comment=EPBDS-16012 Cleanup

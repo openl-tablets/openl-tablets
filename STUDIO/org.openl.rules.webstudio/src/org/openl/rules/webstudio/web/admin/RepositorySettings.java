@@ -40,9 +40,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
     private static final String DEFAULT_COMMENT_SAVE_SUFFIX = ".comment-template.user-message.default.save";
     private static final String DEFAULT_COMMENT_CREATE_SUFFIX = ".comment-template.user-message.default.create";
-    private static final String DEFAULT_COMMENT_ARCHIVE_SUFFIX = ".comment-template.user-message.default.archive";
-    private static final String DEFAULT_COMMENT_RESTORE_SUFFIX = ".comment-template.user-message.default.restore";
-    private static final String DEFAULT_COMMENT_ERASE_SUFFIX = ".comment-template.user-message.default.erase";
     private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
     private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
     public static final String BASE_PATH_SUFFIX = ".base.path";
@@ -56,9 +53,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private final String COMMENT_TEMPLATE_OLD;
     private final String DEFAULT_COMMENT_SAVE;
     private final String DEFAULT_COMMENT_CREATE;
-    private final String DEFAULT_COMMENT_ARCHIVE;
-    private final String DEFAULT_COMMENT_RESTORE;
-    private final String DEFAULT_COMMENT_ERASE;
     private final String DEFAULT_COMMENT_COPIED_FROM;
     private final String DEFAULT_COMMENT_RESTORED_FROM;
     private final String BASE_PATH;
@@ -103,21 +97,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     @JsonView(Views.Design.class)
     private String defaultCommentCreate;
 
-    @Parameter(description = "Default message for 'Archive project'.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_ARCHIVE_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentArchive;
-
-    @Parameter(description = "Default message for 'Restore project'.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_RESTORE_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentRestore;
-
-    @Parameter(description = "Default message for 'Erase project'.")
-    @SettingPropertyName(suffix = DEFAULT_COMMENT_ERASE_SUFFIX)
-    @JsonView(Views.Design.class)
-    private String defaultCommentErase;
-
     @Parameter(description = "Default message for 'Copy project'.")
     @SettingPropertyName(suffix = DEFAULT_COMMENT_COPIED_FROM_SUFFIX)
     @JsonView(Views.Design.class)
@@ -155,9 +134,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         COMMENT_TEMPLATE_OLD = configPrefix + COMMENT_TEMPLATE_OLD_SUFFIX;
         DEFAULT_COMMENT_SAVE = configPrefix + DEFAULT_COMMENT_SAVE_SUFFIX;
         DEFAULT_COMMENT_CREATE = configPrefix + DEFAULT_COMMENT_CREATE_SUFFIX;
-        DEFAULT_COMMENT_ARCHIVE = configPrefix + DEFAULT_COMMENT_ARCHIVE_SUFFIX;
-        DEFAULT_COMMENT_RESTORE = configPrefix + DEFAULT_COMMENT_RESTORE_SUFFIX;
-        DEFAULT_COMMENT_ERASE = configPrefix + DEFAULT_COMMENT_ERASE_SUFFIX;
         DEFAULT_COMMENT_COPIED_FROM = configPrefix + DEFAULT_COMMENT_COPIED_FROM_SUFFIX;
         DEFAULT_COMMENT_RESTORED_FROM = configPrefix + DEFAULT_COMMENT_RESTORED_FROM_SUFFIX;
         BASE_PATH = configPrefix + BASE_PATH_SUFFIX;
@@ -223,30 +199,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         this.defaultCommentCreate = defaultCommentCreate;
     }
 
-    public String getDefaultCommentArchive() {
-        return defaultCommentArchive;
-    }
-
-    public void setDefaultCommentArchive(String defaultCommentArchive) {
-        this.defaultCommentArchive = defaultCommentArchive;
-    }
-
-    public String getDefaultCommentRestore() {
-        return defaultCommentRestore;
-    }
-
-    public void setDefaultCommentRestore(String defaultCommentRestore) {
-        this.defaultCommentRestore = defaultCommentRestore;
-    }
-
-    public String getDefaultCommentErase() {
-        return defaultCommentErase;
-    }
-
-    public void setDefaultCommentErase(String defaultCommentErase) {
-        this.defaultCommentErase = defaultCommentErase;
-    }
-
     public String getDefaultCommentCopiedFrom() {
         return defaultCommentCopiedFrom;
     }
@@ -287,9 +239,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         commentTemplateOld = properties.getProperty(COMMENT_TEMPLATE_OLD);
         defaultCommentSave = properties.getProperty(DEFAULT_COMMENT_SAVE);
         defaultCommentCreate = properties.getProperty(DEFAULT_COMMENT_CREATE);
-        defaultCommentArchive = properties.getProperty(DEFAULT_COMMENT_ARCHIVE);
-        defaultCommentRestore = properties.getProperty(DEFAULT_COMMENT_RESTORE);
-        defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
 
@@ -313,9 +262,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         propertiesHolder.setProperty(COMMENT_TEMPLATE_OLD, commentTemplateOld);
         propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
         propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
         propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
         propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
 
@@ -330,9 +276,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
                 COMMENT_TEMPLATE_OLD,
                 DEFAULT_COMMENT_SAVE,
                 DEFAULT_COMMENT_CREATE,
-                DEFAULT_COMMENT_ARCHIVE,
-                DEFAULT_COMMENT_RESTORE,
-                DEFAULT_COMMENT_ERASE,
                 DEFAULT_COMMENT_COPIED_FROM,
                 DEFAULT_COMMENT_RESTORED_FROM,
                 BASE_PATH,

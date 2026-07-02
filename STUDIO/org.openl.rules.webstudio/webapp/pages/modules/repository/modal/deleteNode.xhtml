@@ -1,7 +1,6 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
@@ -22,9 +21,6 @@
                     value="#{repositoryTreeController.selectedNode}" />
 
                 <h:outputText
-                    rendered="#{node.type eq 'project'}"
-                    value="Are you sure you want to delete the '#{node.name}' project?" />
-                <h:outputText
                         rendered="#{node.type eq 'deployment'}"
                         value="Are you sure you want to delete the '#{node.name}' deploy configuration?" />
                 <h:outputText rendered="#{node.type eq 'folder'}"
@@ -32,57 +28,15 @@
                 <h:outputText rendered="#{node.type eq 'file'}"
                     value="Are you sure you want to delete the file '#{node.name}'?" />
 
-                <h:panelGroup
-                    rendered="#{node.type == 'project' and repositoryTreeController.hasDependingProjects}">
-                    <div>
-                        <h:outputText value="NOTE: Project "
-                            rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}" />
-                        <h:outputText value="NOTE: Projects "
-                            rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}" />
-                        <ui:repeat
-                            value="#{repositoryTreeController.dependingProjects}"
-                            var="project" varStatus="i">
-                            <h:outputText
-                                value="'#{project}'#{i.last ? '' : ', '}" />
-                        </ui:repeat>
-                        <h:outputText
-                            value=" which has dependency on this project is still opened."
-                            rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}" />
-                        <h:outputText
-                            value=" which have dependency on this project are still opened."
-                            rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}" />
-                    </div>
-                </h:panelGroup>
-                <h:panelGroup
-                    rendered="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}">
-                    <p>
-                        <h:panelGrid columns="2" styleClass="formfields"
-                            cellspacing="1" columnClasses="label,">
-                            <h:outputText value="Comment:" />
-                            <h:inputTextarea id="comment"
-                                value="#{repositoryTreeController.archiveProjectComment}"
-                                type="text" size="35" readonly="false"
-                                title="#{repositoryTreeController.archiveProjectComment}" />
-                        </h:panelGrid>
-                    </p>
-                </h:panelGroup>
             </h:panelGroup>
 
             <footer>
-                <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
-                 Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
-                 It encodes all \\, \', \", which makes unparseable JS in the result.
-                 But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
-                 --></ui:remove>
-                <a4j:commandButton value="Delete" styleClass="button-primary"
-                                   onclick="modalDeleteNodeDeleteAction(); return false;"/>
-                <a4j:commandButton action="#{repositoryTreeController.deleteNode}" id="deleteNodeButton"
-                                   styleClass="hidden" render="projectTree nodeView @form"
+                <a4j:commandButton value="Delete" styleClass="button-warning"
+                                   action="#{repositoryTreeController.deleteNode}"
+                                   render="projectTree nodeView @form"
                                    oncomplete="if(#{!facesContext.validationFailed}) RichFaces.$('modalDeleteNode').hide()"/>
                 <input type="button" value="Cancel" onclick="closeDeleteNodeDialog();" />
             </footer>
-
-            <a4j:jsFunction name="resetActiveProjectNode" action="#{repositoryTreeController.resetActiveProjectNode}"/>
         </h:form>
 
     </rich:popupPanel>
@@ -90,19 +44,7 @@
     <script>
         //<![CDATA[
 
-        function modalDeleteNodeDeleteAction() {
-            withCommitInfoRequired('#{studio.currentUsername}', () => deleteNodeRepositoryType === 'repo-git', () => $j('#deleteNodeForm\\:deleteNodeButton').click());
-        }
-
-        let deleteNodeRepositoryType = undefined;
-
-        function onShowModalDeleteNode(repositoryType) {
-            deleteNodeRepositoryType = repositoryType;
-            RichFaces.$('modalDeleteNode').show();
-        }
-
         function closeDeleteNodeDialog() {
-            resetActiveProjectNode();
             RichFaces.$('modalDeleteNode').hide();
         }
         //]]>

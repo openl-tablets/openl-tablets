@@ -26,7 +26,7 @@ public abstract class AProjectViewModel {
     public final ProjectIdModel id;
 
     @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",
-            "ARCHIVED",
+            "DELETED",
             "OPENED",
             "VIEWING_VERSION",
             "EDITING",

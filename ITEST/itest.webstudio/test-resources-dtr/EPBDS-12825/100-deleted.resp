@@ -1,7 +1,7 @@
-HTTP/1.1 409
+HTTP/1.1 404
 Content-Type: application/json
 
 {
-  "code": "openl.error.409.project.open.deleted.message",
-  "message": "Cannot open a deleted project."
+  "code": "openl.error.404.project.message",
+  "message": "The project 'EPBDS-12825:df7715ffd0598873c83ce5ce97af946d4bff56770fb75119af818b77eb1e04de' is not found."
 }

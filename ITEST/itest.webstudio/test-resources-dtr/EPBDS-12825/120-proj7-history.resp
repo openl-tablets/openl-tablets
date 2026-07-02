@@ -1,22 +1,7 @@
-HTTP/1.1 200
+HTTP/1.1 404
 Content-Type: application/json
 
 {
-  "content": [
-    {
-      "revisionNo": "*",
-      "shortRevisionNo": "*",
-      "createdAt": "*",
-      "fullComment": "Project EPBDS-12825 is created.",
-      "author": {
-        "email": "default@example.com",
-        "displayName": "DEFAULT"
-      },
-      "deleted": true,
-      "technicalRevision": false
-    }
-  ],
-  "pageNumber": 0,
-  "pageSize": 50,
-  "numberOfElements": 1
+  "code": "openl.error.404.project.message",
+  "message": "The project 'EPBDS-12825:df7715ffd0598873c83ce5ce97af946d4bff56770fb75119af818b77eb1e04de' is not found."
 }

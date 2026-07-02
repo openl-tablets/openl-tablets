@@ -6,7 +6,7 @@ package org.openl.rules.project.abstraction;
 public enum ProjectStatus {
 
     LOCAL("Local"),
-    ARCHIVED("Archived"),
+    DELETED("Deleted"),
     VIEWING("No Changes"),
     VIEWING_VERSION("Viewing Revision"),
     EDITING("In Editing"),

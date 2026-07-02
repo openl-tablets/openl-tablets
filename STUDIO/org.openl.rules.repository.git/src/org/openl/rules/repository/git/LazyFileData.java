@@ -182,7 +182,7 @@ class LazyFileData extends FileData {
             String userDisplayName = committerIdent.getName();
             if (commitMessage != null) {
                 CommitType commitType = commitMessage.getCommitType();
-                if (!isTechnicalRevision() && (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE)) {
+                if (!isTechnicalRevision() && commitType == CommitType.DELETE) {
                     super.setDeleted(true);
                     deleteStatusLoaded = true;
                 }
@@ -245,7 +245,7 @@ class LazyFileData extends FileData {
                 // Deleted status for folder is got from main branch.
                 if (!gitRepo.getBranch().equals(gitRepo.getBaseBranch())) {
                     FileData data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(fullPath);
-                    super.setDeleted(data.isDeleted());
+                    super.setDeleted(data == null || data.isDeleted());
                 }
             }
             deleteStatusLoaded = true;

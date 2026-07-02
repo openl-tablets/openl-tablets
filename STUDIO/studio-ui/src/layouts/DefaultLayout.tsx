@@ -4,6 +4,7 @@ import { Header } from 'containers/Header'
 import { DeployModal } from 'containers/DeployModal'
 import { MergeModal } from 'containers/MergeModal'
 import { DeleteBranchModal } from 'containers/DeleteBranchModal'
+import { DeleteProjectModal } from 'containers/DeleteProjectModal'
 import { TraceExecutionModal } from 'containers/TraceExecutionModal'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -53,6 +54,7 @@ export const DefaultLayout = () => {
             <DeployModal />
             <MergeModal />
             <DeleteBranchModal />
+            <DeleteProjectModal />
             <TraceExecutionModal />
             <TableGraphModal />
         </Layout>

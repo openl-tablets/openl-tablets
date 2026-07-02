@@ -23,26 +23,17 @@ class CommentsTest {
         String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
         String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
-        String archiveProjectTemplate = "Project {username} {{project-name} is archived. {foo}";
-        String restoreProjectTemplate = "Project {username} '{'{project-name} is restored. {foo}";
-        String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
         String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
         String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
         String newBranchNameTemplate = "{project-name}/{username}/{current-date} {foo}";
         comments = new Comments(dateTimeFormat,
                 saveProjectTemplate,
                 createProjectTemplate,
-                archiveProjectTemplate,
-                restoreProjectTemplate,
-                eraseProjectTemplate,
                 copiedFromTemplate,
                 restoredFromTemplate,
                 newBranchNameTemplate);
 
         comments2 = new Comments(dateTimeFormat,
-                TEMPLATE,
-                TEMPLATE,
-                TEMPLATE,
                 TEMPLATE,
                 TEMPLATE,
                 TEMPLATE,
@@ -72,42 +63,6 @@ class CommentsTest {
     void testCreateProjectWithDollarSign() {
         String actualWithSymbol = comments.createProject("$$$myProj$ectName$$");
         assertEquals("Project {username} $$$myProj$ectName$$ is created. {foo}", actualWithSymbol);
-    }
-
-    @Test
-    void testArchiveProject() {
-        String actual = comments.archiveProject("myProjectName");
-        assertEquals("Project {username} {myProjectName is archived. {foo}", actual);
-    }
-
-    @Test
-    void testArchiveProjectWithDollarSign() {
-        String actualWithSymbol = comments.archiveProject("$$$myProj$ectName$$");
-        assertEquals("Project {username} {$$$myProj$ectName$$ is archived. {foo}", actualWithSymbol);
-    }
-
-    @Test
-    void testRestoreProject() {
-        String actual = comments.restoreProject("myProjectName");
-        assertEquals("Project {username} '{'myProjectName is restored. {foo}", actual);
-    }
-
-    @Test
-    void testRestoreProjectWithDollarSign() {
-        String actualWithSymbol = comments.restoreProject("$$$myProj$ectName$$");
-        assertEquals("Project {username} '{'$$$myProj$ectName$$ is restored. {foo}", actualWithSymbol);
-    }
-
-    @Test
-    void testEraseProject() {
-        String actual = comments.eraseProject("myProjectName");
-        assertEquals("Project {username} myProjectName is erased. {foo}", actual);
-    }
-
-    @Test
-    void testEraseProjectWithDollarSign() {
-        String actualWithSymbol = comments.eraseProject("$$$myProj$ectName$$");
-        assertEquals("Project {username} $$$myProj$ectName$$ is erased. {foo}", actualWithSymbol);
     }
 
     @Test
@@ -177,9 +132,6 @@ class CommentsTest {
     void testSimpleComments() {
         assertEquals(TEMPLATE, comments2.saveProject("foo"));
         assertEquals(TEMPLATE, comments2.createProject("foo"));
-        assertEquals(TEMPLATE, comments2.archiveProject("foo"));
-        assertEquals(TEMPLATE, comments2.restoreProject("foo"));
-        assertEquals(TEMPLATE, comments2.eraseProject("foo"));
         assertEquals(TEMPLATE, comments2.copiedFrom("foo"));
         assertEquals(TEMPLATE, comments2.restoredFrom("foo", "bar", new Date()));
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}",

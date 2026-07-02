@@ -1,0 +1,23 @@
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <script>
+        //<![CDATA[
+
+        // Opens the React delete-project modal (mounted by studio-ui in #appRoot).
+        // The projectId is the REST id computed by the backend: for repositories with
+        // mapped folders it is derived from the design repository folder name, so it
+        // cannot be synthesized on the client from the repository id and project name.
+        function openDeleteProjectDialog(projectId, projectName) {
+            globalThis.dispatchEvent(new CustomEvent('openDeleteProjectModal', {
+                detail: {
+                    projectId: projectId,
+                    projectName: projectName,
+                    onSuccess: designRepoRefresh
+                }
+            }));
+        }
+
+        //]]>
+    </script>
+</ui:composition>

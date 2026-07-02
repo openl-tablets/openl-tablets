@@ -1,5 +1,3 @@
-DELETE /rest/user-workspace/design/projects/{PROJECT_NAME}/delete HTTP/1.1
+DELETE /rest/projects/{PROJECT_ID}?comment=Viewer%20tries%20to%20delete HTTP/1.1
 Authorization: Bearer ${EPBDS14584_VIEWER_TOKEN}
-Content-Type: application/x-www-form-urlencoded
 
-comment=Viewer tries to delete

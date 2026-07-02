@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -131,7 +132,7 @@ public class ProjectsController {
     @Parameters({
             @Parameter(name = "status", description = "Project status", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {
                     "LOCAL",
-                    "ARCHIVED",
+                    "DELETED",
                     "OPENED",
                     "VIEWING_VERSION",
                     "EDITING",
@@ -170,6 +171,14 @@ public class ProjectsController {
     @Operation(summary = "Get project (BETA)")
     public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project) {
         return projectService.getProject(project);
+    }
+
+    @DeleteMapping("/{projectId}")
+    @Operation(summary = "Delete project (BETA)")
+    public void deleteProject(@ProjectId @PathVariable("projectId") RulesProject project,
+                              @Parameter(description = "projects.delete.param.comment.desc")
+                              @RequestParam(value = "comment", required = false) @Nullable String comment) {
+        projectService.delete(project, comment);
     }
 
     @PatchMapping("/{projectId}")

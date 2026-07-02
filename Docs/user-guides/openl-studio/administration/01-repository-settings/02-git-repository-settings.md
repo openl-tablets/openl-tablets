@@ -72,8 +72,6 @@ For the **Restore from old version** template, the following additional placehol
 |------------------------------|-------------------------------------------------|
 | **Save project**             | Committing changes to an existing project.      |
 | **Create project**           | Creating a new project.                         |
-| **Archive project**          | Archiving a project.                            |
-| **Restore project**          | Restoring an archived project.                  |
-| **Erase project**            | Permanently deleting a project.                 |
+| **Delete project**           | Deleting a project.                             |
 | **Copy project**             | Copying a project.                              |
 | **Restore from old version** | Restoring a project to a previous revision.     |

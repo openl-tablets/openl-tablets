@@ -250,7 +250,7 @@ public class LocalUploadController {
         return null;
     }
 
-    @EventListener
+    @EventListener(condition = "T(jakarta.faces.context.FacesContext).getCurrentInstance() != null")
     public void projectDeletedEventListener(ProjectDeletedEvent event) {
         var deletedProject = event.getProject();
         if (deletedProject instanceof UserWorkspaceProject project && project.isLocalOnly()) {

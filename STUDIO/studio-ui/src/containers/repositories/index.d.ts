@@ -7,11 +7,8 @@ export interface DefaultSettings {
     commentTemplate: string
     commentTemplateOld?: string
     commentValidationPattern?: string
-    defaultCommentArchive?: string
     defaultCommentCopiedFrom?: string
     defaultCommentCreate?: string
-    defaultCommentErase?: string
-    defaultCommentRestore?: string
     defaultCommentRestoredFrom?: string
     defaultCommentSave?: string
     invalidCommentMessage: string

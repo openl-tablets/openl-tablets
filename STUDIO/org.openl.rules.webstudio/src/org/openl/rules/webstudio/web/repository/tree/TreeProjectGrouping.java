@@ -35,7 +35,6 @@ public class TreeProjectGrouping extends AbstractTreeNode {
     private final int level;
     private final Collection<RulesProject> projects;
     private final ProjectGrouping projectGrouping;
-    private final boolean hideDeleted;
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
     private final List<Repository> repositories;
 
@@ -44,14 +43,12 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                                Collection<RulesProject> projects,
                                ProjectGrouping projectGrouping,
                                int level,
-                               boolean hideDeleted,
                                ProjectDescriptorArtefactResolver projectDescriptorResolver,
                                List<Repository> repositories) {
         super("grp_" + id, name);
         this.projects = projects;
         this.projectGrouping = projectGrouping;
         this.level = level;
-        this.hideDeleted = hideDeleted;
         this.projectDescriptorResolver = projectDescriptorResolver;
         this.repositories = repositories;
     }
@@ -109,7 +106,6 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                                         subProjects,
                                         projectGrouping,
                                         level + 1,
-                                        hideDeleted,
                                         projectDescriptorResolver,
                                         repositories));
                             }
@@ -135,7 +131,6 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                                         subProjects,
                                         projectGrouping,
                                         level + 1,
-                                        hideDeleted,
                                         projectDescriptorResolver,
                                         repositories));
                             }
@@ -147,7 +142,7 @@ public class TreeProjectGrouping extends AbstractTreeNode {
             projectsAtCurrentLevel.forEach(project -> {
                 String name = project.getMainBusinessName();
                 String id = RepositoryUtils.getTreeNodeId(project);
-                if (!project.isDeleted() || !hideDeleted) {
+                if (!project.isDeleted()) {
                     TreeProject prj = new TreeProject(id, name, ALL_FILTER, projectDescriptorResolver);
                     prj.setData(project);
                     add(prj);

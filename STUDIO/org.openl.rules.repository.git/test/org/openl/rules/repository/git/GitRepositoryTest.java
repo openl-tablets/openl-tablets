@@ -352,7 +352,7 @@ class GitRepositoryTest {
         String projectPath = "rules/project1";
         assertEquals(3, repo.listHistory(projectPath).size());
 
-        // Archive the project
+        // Delete the project
         FileData projectData = new FileData();
         projectData.setName(projectPath);
         projectData.setComment("Delete project1");
@@ -360,52 +360,31 @@ class GitRepositoryTest {
         assertTrue(repo.delete(projectData), "'project1' has not been deleted");
 
         FileData deletedProject = repo.check(projectPath);
-        assertTrue(deletedProject.isDeleted(), "'project1' is not deleted");
-
-        // Restore the project
-        FileData toDelete = new FileData();
-        toDelete.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
-        toDelete.setName(projectPath);
-        toDelete.setVersion(deletedProject.getVersion());
-        toDelete.setComment("Delete project1.");
-        assertTrue(repo.deleteHistory(toDelete));
-        deletedProject = repo.check(projectPath);
-        assertFalse(deletedProject.isDeleted(), "'project1' is not restored");
-        assertEquals("Delete project1.", deletedProject.getComment());
+        assertNull(deletedProject, "'project1' still exists");
 
         // Count actual changes in history
-        assertEquals(5, repo.listHistory(projectPath).size(), "Actual project changes must be 5.");
-        assertEquals(5, repo.listHistory(projectPath, null, false, Page.unpaged()).size(), "Actual project changes must be 5.");
+        List<FileData> versionsAfterDelete = repo.listHistory(projectPath);
+        assertEquals(4, versionsAfterDelete.size(), "Actual project changes must be 4.");
+        FileData deletedData = versionsAfterDelete.getLast();
+        assertTrue(deletedData.isDeleted());
+        assertEquals(0, repo.listFiles(projectPath, deletedData.getVersion()).size());
+        assertEquals(4, repo.listHistory(projectPath, null, false, Page.unpaged()).size(), "Actual project changes must be 4.");
         Page page = Page.ofSize(2);
         assertEquals(2, repo.listHistory(projectPath, null, false, page).size(), "Actual project changes must be 2.");
         assertEquals(2, repo.listHistory(projectPath, null, false, page.withPage(1)).size(), "Actual project changes must be 2.");
-        assertEquals(1, repo.listHistory(projectPath, null, false, page.withPage(2)).size(), "Actual project changes must be 1.");
+        assertEquals(0, repo.listHistory(projectPath, null, false, page.withPage(2)).size(), "Actual project changes must be 0.");
         assertEquals(0, repo.listHistory(projectPath, null, false, page.withPage(3)).size(), "Actual project changes must be 0.");
 
-        // Erase the project
-        toDelete.setName(projectPath);
-        toDelete.setVersion(null);
-        toDelete.setComment("Erase project1");
-        assertTrue(repo.deleteHistory(toDelete));
-        deletedProject = repo.check(projectPath);
-        assertNull(deletedProject, "'project1' is not erased");
-
-        // Life after erase
-        List<FileData> versionsAfterErase = repo.listHistory(projectPath);
-        assertEquals(6, versionsAfterErase.size());
-        FileData erasedData = versionsAfterErase.getLast();
-        assertTrue(erasedData.isDeleted());
-        assertEquals(0, repo.listFiles(projectPath, erasedData.getVersion()).size());
-
-        // Create new version
+        // Create new version after deletion
         String text = "Reincarnation";
         repo.save(createFileData(projectPath + "/folder/reincarnate", text), IOUtils.toInputStream(text));
-        assertEquals(7, repo.listHistory(projectPath).size());
+        assertEquals(5, repo.listHistory(projectPath).size());
 
-        // manually add the file with name ".archived". It shouldn't prevent to delete the project
-        repo.save(createFileData(projectPath + "/" + GitRepository.DELETED_MARKER_FILE, ""), IOUtils.toInputStream(""));
+        // Manually add the file with name ".archived". It is regular project content now.
+        repo.save(createFileData(projectPath + "/.archived", ""), IOUtils.toInputStream(""));
+        assertFalse(repo.check(projectPath).isDeleted());
         assertTrue(repo.delete(projectData), "'project1' has not been deleted");
-        assertTrue(repo.check(projectPath).isDeleted(), "'project1' is not deleted");
+        assertNull(repo.check(projectPath), "'project1' still exists");
     }
 
     @Test
@@ -416,7 +395,7 @@ class GitRepositoryTest {
 
         final String name = FOLDER_IN_REPOSITORY;
 
-        // Archive the project in main branch
+        // Delete the project in main branch
         FileData fileData = new FileData();
         fileData.setName(name);
         fileData.setComment("Delete project1");
@@ -424,28 +403,18 @@ class GitRepositoryTest {
         boolean deleted = repo.delete(fileData);
         assertTrue(deleted, "'file2' has not been deleted");
 
-        // Check that the project is archived in main branch
+        // Check that the project is deleted in main branch
         assertEquals(BRANCH, repo.getBranch());
-        final FileData archived = repo.check(name);
-        assertTrue(archived.isDeleted());
+        assertNull(repo.check(name));
+        FileData deletedOnBaseBranch = repo.listHistory(name).getLast();
+        assertTrue(deletedOnBaseBranch.isDeleted());
 
-        // Check that the project is archived in secondary branch too
+        // Check that the project is deleted in secondary branch too
         assertTrue(repo2.check(name).isDeleted(),
                 "In repository with flat folder structure deleted status should be gotten from main branch");
 
-        // Undelete the project
-        assertTrue(repo.deleteHistory(archived));
-        FileData undeleted = repo.check(name);
-
-        // Check that the project is undeleted in main branch
-        assertFalse(undeleted.isDeleted());
-
-        // Check that the project is undeleted in secondary branch too
-        assertFalse(repo2.check(name).isDeleted(),
-                "In repository with flat folder structure deleted status should be gotten from main branch");
-
-        // Check that old archived version is still deleted.
-        assertTrue(repo.checkHistory(name, archived.getVersion()).isDeleted());
+        // Check that the deleted version is available in history and has no files.
+        assertEquals(0, repo.listFiles(name, deletedOnBaseBranch.getVersion()).size());
 
         // Check that isDeleted() is not broken for files: their status shouldn't be get from main branch.
         String filePath = "rules/project1/folder/file-new";
@@ -459,11 +428,11 @@ class GitRepositoryTest {
         deleteProjectOutsideOfOpenL(repo2);
         // Recreate a project
         assertNotNull(repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text)));
-        // Check that the commit with project erasing can be read. There should be no deadlock.
+        // Check that the commit with project deletion can be read. There should be no deadlock.
         List<FileData> history = repo2.listHistory(name);
         assertTrue(history.size() > 2, "Not enough history records");
-        FileData erasedData = history.get(history.size() - 2);
-        assertTrue(erasedData.isDeleted());
+        FileData deletedData = history.get(history.size() - 2);
+        assertTrue(deletedData.isDeleted());
     }
 
     private void deleteProjectOutsideOfOpenL(GitRepository repo) throws IOException, GitAPIException {

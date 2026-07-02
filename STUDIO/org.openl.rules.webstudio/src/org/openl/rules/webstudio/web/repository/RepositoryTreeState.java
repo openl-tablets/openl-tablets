@@ -112,9 +112,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private UserWorkspace userWorkspace;
 
-    // We can use it for filter on server-side in the future. Currently it's not used.
     private final IFilter<AProjectArtefact> filter = ALL_FILTER;
-    private boolean hideDeleted = true;
 
     private final Object lock = new Object();
     /**
@@ -142,7 +140,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             rulesRepository.setData(null);
             root.add(rulesRepository);
 
-            Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
+            Collection<RulesProject> rulesProjects = userWorkspace.getProjects()
+                    .stream()
+                    .filter(project -> !project.isDeleted())
+                    .collect(Collectors.toList());
 
             IFilter<AProjectArtefact> filter = this.filter;
             final ProjectGrouping grouping = getProjectGrouping();
@@ -174,7 +175,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                     subProjects,
                                     grouping,
                                     1,
-                                    hideDeleted,
                                     projectDescriptorResolver,
                                     repositories));
 
@@ -212,7 +212,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                     subProjects,
                                     grouping,
                                     1,
-                                    hideDeleted,
                                     projectDescriptorResolver,
                                     repositories));
 
@@ -504,7 +503,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     void addRulesProjectToTree(RulesProject project) {
         String name = project.getMainBusinessName();
         String id = RepositoryUtils.getTreeNodeId(project);
-        if (!project.isDeleted() || !hideDeleted) {
+        if (!project.isDeleted()) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
             prj.setData(project);
             rulesRepository.add(prj);
@@ -581,19 +580,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         refreshNode(getSelectedNode());
     }
 
-    private void onFilterChanged() {
-        synchronized (lock) {
-            backupRoot();
-            root = null;
-            errorsContainer.clear();
-        }
-    }
-
-    public void filter() {
-        onFilterChanged();
-        setHideDeleted(hideDeleted);
-    }
-
     public void setSelectedNode(TreeNode selectedNode) {
         selectionHolder.setSelectedNode(selectedNode);
     }
@@ -658,17 +644,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 existing = existingProject;
             }
         }
-        if (existing == null || existing.isDeleted() && isHideDeleted()) {
+        if (existing == null || existing.isDeleted()) {
             invalidateSelection();
         }
-    }
-
-    public boolean isHideDeleted() {
-        return hideDeleted;
-    }
-
-    public void setHideDeleted(boolean hideDeleted) {
-        this.hideDeleted = hideDeleted;
     }
 
     public boolean getCanCreate() {
@@ -797,13 +775,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return false;
     }
 
-    public boolean getCanErase() {
-        UserWorkspaceProject project = getSelectedProject();
-        boolean branchProtected = isCurrentBranchProtected(project);
-        return project.isDeleted() && isMainBranch(project) && !branchProtected
-                && aclProjectsHelper.hasPermission(project, BasePermission.DELETE);
-    }
-
     public boolean getCanOpen() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
@@ -862,13 +833,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             log.error(e.getMessage(), e);
             return false;
         }
-    }
-
-    public boolean getCanUndelete() {
-        UserWorkspaceProject project = getSelectedProject();
-        boolean branchProtected = isCurrentBranchProtected(project);
-        return project.isDeleted() && isMainBranch(project) && !branchProtected
-                && aclProjectsHelper.hasPermission(project, BasePermission.DELETE);
     }
 
     // for any project artefact

@@ -340,6 +340,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
             for (FileData fileData : fileDatas) {
                 AProject project = new AProject(repository, fileData);
+                if (project.isDeleted()) {
+                    continue;
+                }
                 // FIXME: use project path, not name
                 projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase(Locale.ROOT)), project);
             }
@@ -355,14 +358,17 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             // Check full name for mapped repositories
-            if (projects.containsKey(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)))) {
+            AProject project = projects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
+            if (project != null && !project.isDeleted()) {
                 return true;
             }
 
             // Check business name
             return projects.values()
                     .stream()
-                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name));
+                    .anyMatch(p -> !p.isDeleted()
+                            && p.getRepository().getId().equals(repositoryId)
+                            && p.getBusinessName().equals(name));
         }
     }
 

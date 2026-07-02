@@ -93,7 +93,7 @@ public abstract class UserWorkspaceProject extends AProject {
         if (isLocalOnly()) {
             return ProjectStatus.LOCAL;
         } else if (isDeleted()) {
-            return ProjectStatus.ARCHIVED;
+            return ProjectStatus.DELETED;
         } else if (isModified()) {
             return ProjectStatus.EDITING;
         } else if (isOpenedOtherVersion()) {

@@ -4,10 +4,9 @@ import { Checkbox, Input } from '../../components'
 import { Form, Divider } from 'antd'
 import {
     InvalidUserMessageHintModal,
-    MessageArchiveProjectModal, MessageCopyProjectModal,
+    MessageCopyProjectModal,
     MessageCreateProjectModal,
-    MessageEraseProjectModal, MessageRestoreFromOldVersionModal,
-    MessageRestoreProjectModal,
+    MessageRestoreFromOldVersionModal,
     MessageSaveProjectModal,
     MessageTemplateModal,
     UserMessagePatternModal,
@@ -40,9 +39,6 @@ export const DesignRepositoryCommentsConfiguration = () => {
                     <Divider titlePlacement="start">{t('repository:user_message_templates')}</Divider>
                     <Input label={t('repository:save_project')} name={['settings', 'defaultCommentSave']} tooltip={{ icon: MessageSaveProjectModal }} />
                     <Input label={t('repository:create_project')} name={['settings', 'defaultCommentCreate']} tooltip={{ icon: MessageCreateProjectModal }} />
-                    <Input label={t('repository:archive_project')} name={['settings', 'defaultCommentArchive']} tooltip={{ icon: MessageArchiveProjectModal }} />
-                    <Input label={t('repository:restore_project')} name={['settings', 'defaultCommentRestore']} tooltip={{ icon: MessageRestoreProjectModal }} />
-                    <Input label={t('repository:erase_project')} name={['settings', 'defaultCommentErase']} tooltip={{ icon: MessageEraseProjectModal }} />
                     <Input label={t('repository:copy_project')} name={['settings', 'defaultCommentCopiedFrom']} tooltip={{ icon: MessageCopyProjectModal }} />
                     <Input label={t('repository:restore_from_old_version')} name={['settings', 'defaultCommentRestoredFrom']} tooltip={{ icon: MessageRestoreFromOldVersionModal }} />
                 </>

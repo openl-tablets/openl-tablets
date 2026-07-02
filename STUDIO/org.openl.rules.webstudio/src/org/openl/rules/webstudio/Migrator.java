@@ -61,6 +61,10 @@ public class Migrator {
     private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
     private static final String MIGRATION_USER_EMAIL_PROPERTY = "migration.user.email";
     private static final String REPOSITORY_PREFIX = "repository.";
+    private static final String DEFAULT_COMMENT_ARCHIVE_SUFFIX = ".comment-template.user-message.default.archive";
+    private static final String DEFAULT_COMMENT_DELETE_SUFFIX = ".comment-template.user-message.default.delete";
+    private static final String DEFAULT_COMMENT_RESTORE_SUFFIX = ".comment-template.user-message.default.restore";
+    private static final String DEFAULT_COMMENT_ERASE_SUFFIX = ".comment-template.user-message.default.erase";
     private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
 
     private Migrator() {
@@ -87,6 +91,9 @@ public class Migrator {
         if (stringFromVersion.compareTo("6.0.0") < 0) {
             migrateTo6_0_0(settings, props);
         }
+        if (stringFromVersion.compareTo("6.3.1") < 0) {
+            migrateTo6_4_0(settings, props);
+        }
 
         if ("saml".equals(Props.text("user.mode"))) {
             // Generating required a private key and its certificate if they are missed
@@ -108,6 +115,16 @@ public class Migrator {
         } catch (IOException e) {
             log.error("Migration of properties failed.", e);
         }
+    }
+
+    private static void migrateTo6_4_0(DynamicPropertySource settings, HashMap<String, String> props) {
+        Arrays.stream(settings.getPropertyNames())
+                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && (propertyName
+                        .endsWith(DEFAULT_COMMENT_ARCHIVE_SUFFIX) || propertyName
+                        .endsWith(DEFAULT_COMMENT_DELETE_SUFFIX) || propertyName
+                        .endsWith(DEFAULT_COMMENT_RESTORE_SUFFIX) || propertyName
+                        .endsWith(DEFAULT_COMMENT_ERASE_SUFFIX)))
+                .forEach(propertyName -> props.put(propertyName, null));
     }
 
     private static void migrateTo6_0_0(DynamicPropertySource settings, HashMap<String, String> props) {

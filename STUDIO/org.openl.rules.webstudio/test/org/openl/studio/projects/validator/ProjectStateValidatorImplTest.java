@@ -258,40 +258,28 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canDelete_opened_returnsFalse() {
+    void canDelete_opened_returnsTrue() {
+        // A freshly created project is opened in the creator's workspace; deletion closes it first.
         var project = projectWith().opened(true).build();
-        assertFalse(validator.canDelete(project));
+        assertTrue(validator.canDelete(project));
     }
 
     @Test
-    void canDelete_locked_returnsFalse() {
+    void canDelete_lockedByOther_returnsFalse() {
         var project = projectWith().locked(true).build();
         assertFalse(validator.canDelete(project));
     }
 
     @Test
-    void canDelete_lockedByMe_returnsFalse() {
-        var project = projectWith().lockedByMe(true).build();
+    void canDelete_openedAndLockedByOther_returnsFalse() {
+        var project = projectWith().opened(true).locked(true).build();
         assertFalse(validator.canDelete(project));
     }
 
-    // --- canErase ---
-
     @Test
-    void canErase_null_returnsFalse() {
-        assertFalse(validator.canErase(null));
-    }
-
-    @Test
-    void canErase_deleted_returnsTrue() {
-        var project = projectWith().deleted(true).build();
-        assertTrue(validator.canErase(project));
-    }
-
-    @Test
-    void canErase_notDeleted_returnsFalse() {
-        var project = projectWith().build();
-        assertFalse(validator.canErase(project));
+    void canDelete_lockedByMe_returnsTrue() {
+        var project = projectWith().locked(true).lockedByMe(true).build();
+        assertTrue(validator.canDelete(project));
     }
 
     // --- canMerge ---
