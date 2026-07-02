@@ -98,7 +98,7 @@ public class TraceDebugMapper {
                     .build());
         }
         return DebugStackView.builder()
-                .status(status.name())
+                .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
                 .tree(completedTree == null ? null : toCallNodeView(completedTree))
@@ -238,7 +238,7 @@ public class TraceDebugMapper {
             result.add(StepValueView.builder()
                     .ref(step.ref())
                     .label(step.label())
-                    .status("executed")
+                    .status(StepStatus.EXECUTED)
                     .value(buildParameterValue(param, true))
                     .build());
         }
@@ -258,7 +258,7 @@ public class TraceDebugMapper {
             var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
             if (executed.containsKey(ref)) {
                 var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
-                steps.add(builder.status("executed").value(buildParameterValue(param, true)).build());
+                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true)).build());
             } else {
                 steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
             }
@@ -313,7 +313,7 @@ public class TraceDebugMapper {
             return ruleOutline(decisionTable, firedRuleIndices(frame));
         }
         return frame.getExecutedSteps().stream()
-                .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status("executed").build())
+                .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status(StepStatus.EXECUTED).build())
                 .toList();
     }
 
@@ -338,7 +338,11 @@ public class TraceDebugMapper {
         }
         children.forEach((ref, kids) -> {
             if (!covered.contains(ref) && !kids.isEmpty()) {
-                result.add(StepValueView.builder().ref(ref).status("executed").children(toCallNodeViews(kids)).build());
+                result.add(StepValueView.builder()
+                        .ref(ref)
+                        .status(StepStatus.EXECUTED)
+                        .children(toCallNodeViews(kids))
+                        .build());
             }
         });
         return result;
@@ -354,7 +358,7 @@ public class TraceDebugMapper {
                 .map(step -> StepValueView.builder()
                         .ref(step.ref())
                         .label(step.label())
-                        .status("executed")
+                        .status(StepStatus.EXECUTED)
                         .durationMillis(toMillis(step.durationNanos()))
                         .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
                         .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
@@ -416,7 +420,7 @@ public class TraceDebugMapper {
                 .map(name -> StepValueView.builder()
                         .ref(name)
                         .label(name)
-                        .status(fired.contains(name) ? "current" : "pending")
+                        .status(fired.contains(name) ? StepStatus.CURRENT : StepStatus.PENDING)
                         .build())
                 .toList();
     }
@@ -442,11 +446,11 @@ public class TraceDebugMapper {
     }
 
     /** Classify a step: already executed, currently executing, or still pending. */
-    private static String stepStatus(String ref, Set<String> executedRefs, @Nullable String currentRef) {
+    private static StepStatus stepStatus(String ref, Set<String> executedRefs, @Nullable String currentRef) {
         if (executedRefs.contains(ref)) {
-            return "executed";
+            return StepStatus.EXECUTED;
         }
-        return ref.equals(currentRef) ? "current" : "pending";
+        return ref.equals(currentRef) ? StepStatus.CURRENT : StepStatus.PENDING;
     }
 
     private static Set<String> executedRefs(DebugFrame frame) {

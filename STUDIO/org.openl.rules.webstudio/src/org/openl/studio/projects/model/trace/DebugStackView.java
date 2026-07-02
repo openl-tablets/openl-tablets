@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.webstudio.web.trace.debug.DebugStatus;
+
 /**
  * The live execution stack at the current suspension.
  *
@@ -21,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 @Schema(description = "trace.type.debug-stack.desc")
 public record DebugStackView(
         @Schema(description = "trace.field.stack.status.desc")
-        String status,
+        DebugStatus status,
 
         @Schema(description = "trace.field.stack.frames.desc")
         List<DebugFrameView> frames,

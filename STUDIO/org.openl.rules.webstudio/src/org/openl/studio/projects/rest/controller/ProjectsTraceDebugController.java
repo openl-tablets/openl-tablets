@@ -153,7 +153,7 @@ public class ProjectsTraceDebugController {
     @ApiResponse(responseCode = "200", description = "trace.status.200.desc")
     @GetMapping("/status")
     public DebugStatusView status(@ProjectId @PathVariable("projectId") RulesProject project) {
-        return new DebugStatusView(requireSession(project).getDebugger().status().name());
+        return new DebugStatusView(requireSession(project).getDebugger().status());
     }
 
     @Operation(summary = "trace.stack.summary", description = "trace.stack.desc")

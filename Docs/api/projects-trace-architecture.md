@@ -335,8 +335,9 @@ for request/response details.
 | GET | `/parameters/{id}` | Lazy-load a large parameter value |
 | DELETE | `/` | Terminate the session |
 
-WebSocket: status changes (`SUSPENDED`, `RUNNING`, `COMPLETED`, `ERROR`, `TERMINATED`) are pushed to
-`/user/topic/projects/{projectId}/tables/{tableId}/trace/status`; the client then reads the new stack.
+WebSocket: status changes (the lowercase `DebugStatus` wire codes `suspended`, `running`, `completed`,
+`error`, `terminated`) are pushed to `/user/topic/projects/{projectId}/tables/{tableId}/trace/status`; the
+client then reads the new stack.
 
 ## Concurrency and isolation
 

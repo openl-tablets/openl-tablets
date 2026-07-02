@@ -63,7 +63,7 @@ class TraceDebugMapperTest {
             List<DebugFrame> stack = debugger.stack();
 
             var stackView = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null);
-            assertEquals("SUSPENDED", stackView.status());
+            assertEquals(DebugStatus.SUSPENDED, stackView.status());
             assertFalse(stackView.frames().isEmpty(), "a suspended session has a stack");
             var top = stackView.frames().get(stackView.frames().size() - 1);
             assertEquals(FrameKind.SPREADSHEET, top.kind());
@@ -108,7 +108,7 @@ class TraceDebugMapperTest {
             assertNotNull(top.steps(), "every frame carries its step outline");
             assertFalse(top.steps().isEmpty(), "a spreadsheet frame outlines its cells");
             // The outline is structure only: a status for each cell and no frozen value (kept cheap, no clone).
-            assertTrue(top.steps().stream().allMatch(s -> List.of("executed", "current", "pending").contains(s.status())),
+            assertTrue(top.steps().stream().allMatch(s -> s.status() != null),
                     "each step has a valid status");
             assertTrue(top.steps().stream().allMatch(s -> s.value() == null),
                     "the stack outline never carries values; they are fetched per frame on demand");
@@ -195,13 +195,13 @@ class TraceDebugMapperTest {
 
         assertEquals(List.of("R1", "R2", "R3"), steps.stream().map(StepValueView::ref).toList());
         // The fired rule is current so a sub-table called from its action nests under it, not the last rule.
-        assertEquals("current", steps.get(0).status(), "the firing rule is the current one");
-        assertEquals("pending", steps.get(1).status(), "rules that did not fire are pending");
-        assertEquals("pending", steps.get(2).status(), "rules that did not fire are pending");
+        assertEquals(StepStatus.CURRENT, steps.get(0).status(), "the firing rule is the current one");
+        assertEquals(StepStatus.PENDING, steps.get(1).status(), "rules that did not fire are pending");
+        assertEquals(StepStatus.PENDING, steps.get(2).status(), "rules that did not fire are pending");
         assertTrue(steps.stream().allMatch(s -> s.value() == null), "the outline carries no values");
 
         // Nothing fired yet (suspended at entry): every rule is pending and run-to-able.
-        assertTrue(TraceDebugMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> "pending".equals(s.status())));
+        assertTrue(TraceDebugMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> s.status() == StepStatus.PENDING));
     }
 
     @Test

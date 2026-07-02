@@ -137,7 +137,7 @@ final class DebugHookImpl implements DebugHook {
         if (location.ref() != null) {
             return location.ref();
         }
-        return location.label() != null ? location.label() : location.kind();
+        return location.label() != null ? location.label() : location.kind().getCode();
     }
 
     /** Wall time since the frame entered, minus the time spent parked at suspend points: real execution time. */

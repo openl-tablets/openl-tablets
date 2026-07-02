@@ -97,15 +97,15 @@ A session moves through these statuses (also returned in every stack/status resp
 
 | Status | Meaning | Accepts commands |
 | --- | --- | --- |
-| `PENDING` | Created; worker not started yet | — |
-| `RUNNING` | Executing, not suspended | `pause` |
-| `SUSPENDED` | Paused at a breakpoint or step point; stack is inspectable | `step`, `resume`, inspect |
-| `COMPLETED` | Finished normally | terminal |
-| `ERROR` | Failed with an error | terminal |
-| `TERMINATED` | Cancelled before finishing | terminal |
+| `pending` | Created; worker not started yet | — |
+| `running` | Executing, not suspended | `pause` |
+| `suspended` | Paused at a breakpoint or step point; stack is inspectable | `step`, `resume`, inspect |
+| `completed` | Finished normally | terminal |
+| `error` | Failed with an error | terminal |
+| `terminated` | Cancelled before finishing | terminal |
 
-The normal flow is `PENDING → RUNNING ⇄ SUSPENDED → COMPLETED`; `ERROR` and `TERMINATED` are the other
-terminal states. Status transitions are pushed over WebSocket (see below). After `COMPLETED` the stack is
+The normal flow is `pending → running ⇄ suspended → completed`; `error` and `terminated` are the other
+terminal states. Status transitions are pushed over WebSocket (see below). After `completed` the stack is
 empty, but a profiling session still exposes the whole executed tree in `DebugStackView.tree`.
 
 ---
@@ -164,7 +164,7 @@ Lightweight poll. **Response**: `200 OK` — [`DebugStatusView`](#debugstatusvie
 while suspended or in a terminal state.
 
 **Errors**: `404 Not Found` when there is no session; `409 Conflict`
-(`trace.execution.not.suspended.message`) while the worker is still `RUNNING` (the worker mutates its
+(`trace.execution.not.suspended.message`) while the worker is still `running` (the worker mutates its
 frames as it executes, so the stack is readable only once it has parked or finished).
 
 ---
@@ -195,7 +195,7 @@ stays on the stack with its result — and the next step continues in the caller
 **Endpoint**: `POST /projects/{projectId}/trace/resume`
 
 Runs to the next breakpoint or to completion. **Response**: `202 Accepted` (no body); the outcome arrives
-via WebSocket. Read `/stack` on the next `SUSPENDED`/terminal status.
+via WebSocket. Read `/stack` on the next `suspended`/terminal status.
 
 **Errors**: `404 Not Found` (no session); `409 Conflict` (not suspended).
 
@@ -335,9 +335,9 @@ captured — the decision panel shows which rule fired and which conditions matc
 
 ```typescript
 interface DebugStackView {
-  status: DebugStatus;          // PENDING | RUNNING | SUSPENDED | COMPLETED | ERROR | TERMINATED
+  status: DebugStatus;          // pending | running | suspended | completed | error | terminated
   frames: DebugFrameView[];     // root (index 0) → current; empty after completion
-  error?: DebugError;           // present only when status = ERROR
+  error?: DebugError;           // present only when status = error
   tree?: CallNodeView;          // whole executed tree after completion (profiling only)
 }
 ```
@@ -367,7 +367,7 @@ interface DebugFrameView {
 
 ```typescript
 interface DebugLocationView {
-  kind: string;     // cell | dtrule | operation
+  kind: LocationKind;  // cell | dtrule | operation
   row?: number;     // cell row index
   column?: number;  // cell column index
   ref?: string;     // short cell reference, e.g. "R2C3" (breakpoint sub-step key)
@@ -397,7 +397,7 @@ interface DebugFrameVariables {
 interface StepValueView {
   ref: string;                 // sub-step reference, e.g. "R2C3" (breakpoint key suffix uri#ref)
   label?: string;              // human-readable step name, e.g. "$Formula$HouseTotal"
-  status: string;              // executed | current | pending
+  status: StepStatus;          // executed | current | pending
   value?: ParameterValue;      // frozen computed value for an executed step (variables endpoint only)
   children?: CallNodeView[];   // what this step called or referenced, in execution order (profiling)
   durationMillis?: number;     // total time of an executed step: its own work plus the tables it called
@@ -516,7 +516,7 @@ interface ParameterValue {
 
 ```typescript
 interface MessageDescription {
-  severity: "ERROR" | "WARNING" | "INFO";
+  severity: "error" | "WARNING" | "INFO";
   summary: string;
   detail?: string;
   sourceLocation?: string;
@@ -533,9 +533,9 @@ Status transitions are pushed to the per-user destination:
 /user/topic/projects/{projectId}/tables/{tableId}/trace/status
 ```
 
-The payload is the **status name** as a plain string (for example `SUSPENDED`). On `SUSPENDED` the client
-reads the new stack from `GET /stack`; on `COMPLETED`/`ERROR`/`TERMINATED` it shows the terminal state
-(on `ERROR`, `GET /stack` still returns the structured `error`). Synchronous endpoints (`POST /` and
+The payload is the **status code** as a plain string (for example `suspended`). On `suspended` the client
+reads the new stack from `GET /stack`; on `completed`/`error`/`terminated` it shows the terminal state
+(on `error`, `GET /stack` still returns the structured `error`). Synchronous endpoints (`POST /` and
 `POST /step`) also return the stack directly, so the WebSocket is mainly needed for the asynchronous
 `resume`/`pause` outcomes.
 
@@ -546,16 +546,16 @@ sequenceDiagram
     participant WS as WebSocket
 
     UI->>API: POST /trace?tableId=... (stopAtEntry=true)
-    API-->>UI: 200 DebugStackView (SUSPENDED at entry)
+    API-->>UI: 200 DebugStackView (suspended at entry)
     UI->>API: POST /trace/step?type=into
     API-->>UI: 200 DebugStackView (next line)
     UI->>API: GET /trace/frames/0/variables
     API-->>UI: 200 DebugFrameVariables
     UI->>API: POST /trace/resume
     API-->>UI: 202 Accepted
-    WS-->>UI: "COMPLETED"
+    WS-->>UI: "completed"
     UI->>API: GET /trace/stack
-    API-->>UI: 200 DebugStackView (COMPLETED, + tree when profiling)
+    API-->>UI: 200 DebugStackView (completed, + tree when profiling)
 ```
 
 ---
@@ -570,7 +570,7 @@ sequenceDiagram
 
 2. Start, suspended at entry
    POST /projects/MyProject/trace?tableId=DT_RiskAssessment
-   → 200 DebugStackView { status: SUSPENDED, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
+   → 200 DebugStackView { status: suspended, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
 
 3. Step into the calculation
    POST /projects/MyProject/trace/step?type=into
@@ -583,7 +583,7 @@ sequenceDiagram
 
 5. Run to the next breakpoint / completion
    POST /projects/MyProject/trace/resume   → 202
-   (WebSocket: SUSPENDED or COMPLETED) → GET /stack
+   (WebSocket: suspended or completed) → GET /stack
 
 6. Finish
    DELETE /projects/MyProject/trace   → 204
@@ -621,7 +621,7 @@ sequenceDiagram
 ### Workflow 5: Inspect an already-executed spreadsheet step
 
 ```
-1. Suspend inside a Spreadsheet frame (step until status=SUSPENDED on a cell).
+1. Suspend inside a Spreadsheet frame (step until status=suspended on a cell).
 2. GET /projects/MyProject/trace/frames/{i}/variables
    → steps: [ { ref:"R0C1", label:"$Value$Base", status:"executed", value:{...}, durationMillis: 1.2 },
               { ref:"R1C1", label:"$Formula$Total", status:"current" }, ... ]

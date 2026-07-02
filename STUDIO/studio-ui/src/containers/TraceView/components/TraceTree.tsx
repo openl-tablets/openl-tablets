@@ -136,7 +136,7 @@ const TraceTree: React.FC = () => {
         return <Empty description={t('debug.notSuspended')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     }
 
-    const canRunTo = status === 'SUSPENDED'
+    const canRunTo = status === 'suspended'
     const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
     // Timing of a row that has one: an executed call-tree node, or a frame that has already returned
     // (for example the root after a step out). In-progress frames have no timing yet.

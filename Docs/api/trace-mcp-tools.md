@@ -34,26 +34,26 @@ REST + `?fields=` для обрезки ответа. Сам MCP-сервер ж
 ## 2. Жизненный цикл и статусы
 
 `DebugStatusView.status` / `DebugStackView.status` ∈
-`PENDING | RUNNING | SUSPENDED | COMPLETED | ERROR | TERMINATED`.
+`pending | running | suspended | completed | error | terminated`.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> RUNNING: trace_start
-    RUNNING --> SUSPENDED: достигнут вход / брейкпоинт / шаг
-    SUSPENDED --> RUNNING: trace_step / trace_resume
-    SUSPENDED --> SUSPENDED: trace_inspect / trace_breakpoints (read)
-    RUNNING --> COMPLETED: правило вернуло результат
-    RUNNING --> ERROR: исключение в правиле
-    SUSPENDED --> TERMINATED: trace_stop
-    COMPLETED --> [*]
-    ERROR --> [*]
-    TERMINATED --> [*]
+    [*] --> running: trace_start
+    running --> suspended: достигнут вход / брейкпоинт / шаг
+    suspended --> running: trace_step / trace_resume
+    suspended --> suspended: trace_inspect / trace_breakpoints (read)
+    running --> completed: правило вернуло результат
+    running --> error: исключение в правиле
+    suspended --> terminated: trace_stop
+    completed --> [*]
+    error --> [*]
+    terminated --> [*]
 ```
 
-- Инспекция кадров и шаги валидны **только при `SUSPENDED`** (иначе `409`); чтение стека — при любом
-  статусе, кроме `RUNNING`.
-- `COMPLETED`/`ERROR`/`TERMINATED` — терминальные: дальше только чтение стека (`GET /stack` — на
-  `ERROR` в нём `error: DebugError`, при `profiling` — весь `tree`) и `trace_stop`; `trace_inspect`
+- Инспекция кадров и шаги валидны **только при `suspended`** (иначе `409`); чтение стека — при любом
+  статусе, кроме `running`.
+- `completed`/`error`/`terminated` — терминальные: дальше только чтение стека (`GET /stack` — на
+  `error` в нём `error: DebugError`, при `profiling` — весь `tree`) и `trace_stop`; `trace_inspect`
   на терминале вернёт `409`.
 
 ## 3. Грамматика ключей брейкпоинтов
@@ -82,9 +82,9 @@ stateDiagram-v2
 ```jsonc
 // DebugStackView — возвращают trace_start / trace_step / trace_resume / trace_stack
 {
-  "status": "SUSPENDED",
+  "status": "suspended",
   "frames": [ /* DebugFrameView, root → current; пуст после завершения */ ],
-  "error": null,           // DebugError, присутствует только при status=ERROR
+  "error": null,           // DebugError, присутствует только при status=error
   "tree": null             // ? CallNodeView — ВЕСЬ выполненный колл-три после завершения (только profiling)
 }
 
@@ -121,7 +121,7 @@ stateDiagram-v2
   "label": "$Value$Total"  // человекочитаемое (имя ячейки / имена правил)
 }
 
-// DebugError — на терминальном ERROR
+// DebugError — на терминальном error
 { "summary": "…", "table": "MyRule", "location": "R3C1", "type": "IllegalStateException", "detail": "<стектрейс, до 8000 симв.>" }
 
 // DebugFrameVariables — возвращает trace_inspect
@@ -193,9 +193,9 @@ stateDiagram-v2
 | # | Тул | Композит API | Валиден при | Выход |
 |---|---|---|---|---|
 | 1 | `trace_start` | `POST /trace` | нет сессии | `DebugStackView` |
-| 2 | `trace_step` | `POST /step?type=` | `SUSPENDED` | `DebugStackView` |
-| 3 | `trace_resume` | `POST /resume` + поллинг `GET /status` → `GET /stack` | `SUSPENDED` | `DebugStackView` |
-| 4 | `trace_inspect` | `GET …/variables` (+ опц. `…/highlights`, raw-сетка) | `SUSPENDED` | `DebugFrameVariables` (+ highlights) |
+| 2 | `trace_step` | `POST /step?type=` | `suspended` | `DebugStackView` |
+| 3 | `trace_resume` | `POST /resume` + поллинг `GET /status` → `GET /stack` | `suspended` | `DebugStackView` |
+| 4 | `trace_inspect` | `GET …/variables` (+ опц. `…/highlights`, raw-сетка) | `suspended` | `DebugFrameVariables` (+ highlights) |
 | 5 | `trace_breakpoints` | `GET /breakpoint-tables`, `GET`/`PUT /breakpoints` | любой | `{ breakpoints, targets }` |
 | 6 | `trace_get_value` | `GET /parameters/{id}` | сессия жива | `ParameterValue` |
 | 7 | `trace_stop` | `DELETE /trace` | любой | `{ ok: true }` |
@@ -226,7 +226,7 @@ stateDiagram-v2
 ```
 
 **API:** `POST {base}?tableId=…&testRanges=…&stopAtEntry=…&profiling=…` (тело = `inputJson`).
-**Выход:** `DebugStackView` (обычно `status=SUSPENDED`, один кадр на входе; при
+**Выход:** `DebugStackView` (обычно `status=suspended`, один кадр на входе; при
 `stopAtEntry=false` без брейкпоинтов — сразу терминальный, с `tree` при `profiling=true`).
 **Ошибки:** `404` таблица/метод не найдены; `409` ошибка конфигурации mapper.
 
@@ -247,9 +247,9 @@ stateDiagram-v2
 
 Шаг, завершающий кадр (любой из трёх), сперва останавливается на **выходе этого кадра**: он ещё в
 стеке, `completed=true`, `result` доступен через `trace_inspect`. Исключение в правиле само
-останавливает на падающем кадре до раскрутки (дальше `trace_resume` → терминальный `ERROR`).
+останавливает на падающем кадре до раскрутки (дальше `trace_resume` → терминальный `error`).
 
-**Выход:** `DebugStackView`. **Ошибки:** `404` нет сессии; `409` не `SUSPENDED`.
+**Выход:** `DebugStackView`. **Ошибки:** `404` нет сессии; `409` не `suspended`.
 
 ---
 
@@ -261,11 +261,11 @@ stateDiagram-v2
 **API (внутри MCP):**
 
 1. `POST {base}/resume` → `202`.
-2. Поллинг `GET {base}/status` каждые 100–300 мс до `SUSPENDED | COMPLETED | ERROR | TERMINATED`.
+2. Поллинг `GET {base}/status` каждые 100–300 мс до `suspended | completed | error | terminated`.
 3. `GET {base}/stack` → отдать наружу.
 
-**Выход:** `DebugStackView` (со `status` остановки; при `ERROR` — заполнен `error`).
-**Ошибки:** `404` нет сессии; `409` не `SUSPENDED`; таймаут → вернуть текущий статус.
+**Выход:** `DebugStackView` (со `status` остановки; при `error` — заполнен `error`).
+**Ошибки:** `404` нет сессии; `409` не `suspended`; таймаут → вернуть текущий статус.
 
 ---
 
@@ -292,7 +292,7 @@ stateDiagram-v2
 
 **Выход:** `DebugFrameVariables` (+ опц. `highlights`, `grid`). Для decision-таблицы ключевое —
 `decision` (что сработало и как сошлись условия) и `ruleNames` (для постановки per-rule брейкпоинтов).
-**Ошибки:** `404` нет сессии/кадра; `409` не `SUSPENDED`.
+**Ошибки:** `404` нет сессии/кадра; `409` не `suspended`.
 
 ---
 
@@ -338,7 +338,7 @@ stateDiagram-v2
 | HTTP | Когда | Что делать агенту/MCP |
 |---|---|---|
 | `404` | нет активной сессии / нет кадра/параметра | стартовать заново (`trace_start`) или поправить индекс |
-| `409` | действие не в статусе `SUSPENDED` | сначала `trace_resume`/дождаться остановки; не шагать на завершённой сессии |
+| `409` | действие не в статусе `suspended` | сначала `trace_resume`/дождаться остановки; не шагать на завершённой сессии |
 | `400` | плохой вход (неизвестный `type`, кривой `inputJson`) | поправить параметры |
 | `403` | нет прав READ на проект | проверить токен/доступ |
 | таймаут шага/резюма | правило долго считает или зациклилось | вернуть статус; предложить `trace_stop` |
@@ -377,14 +377,14 @@ sequenceDiagram
     M->>S: PUT /breakpoints
     A->>M: trace_start(table, testCase)
     M->>S: POST /trace
-    S-->>M: SUSPENDED (вход)
+    S-->>M: suspended (вход)
     A->>M: trace_resume()
     M->>S: POST /resume (202)
     loop poll
         M->>S: GET /status
     end
     M->>S: GET /stack
-    S-->>M: SUSPENDED (на сработавшем правиле)
+    S-->>M: suspended (на сработавшем правиле)
     A->>M: trace_inspect(top)
     M->>S: GET /frames/0/variables?fields=…
     S-->>A: decision: R10, условия ✓/✗

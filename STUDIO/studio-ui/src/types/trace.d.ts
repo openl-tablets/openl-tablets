@@ -1,14 +1,14 @@
 /**
  * Interactive debug session status.
  *
- * - PENDING: created, worker not started yet
- * - RUNNING: executing, not suspended
- * - SUSPENDED: paused at a breakpoint or step point; the stack can be inspected
- * - COMPLETED: finished normally
- * - ERROR: failed with an error
- * - TERMINATED: cancelled before finishing
+ * - pending: created, worker not started yet
+ * - running: executing, not suspended
+ * - suspended: paused at a breakpoint or step point; the stack can be inspected
+ * - completed: finished normally
+ * - error: failed with an error
+ * - terminated: cancelled before finishing
  */
-export type DebugStatus = 'PENDING' | 'RUNNING' | 'SUSPENDED' | 'COMPLETED' | 'ERROR' | 'TERMINATED'
+export type DebugStatus = 'pending' | 'running' | 'suspended' | 'completed' | 'error' | 'terminated'
 
 /** Step command issued to a suspended session. */
 export type StepType = 'into' | 'over' | 'out'

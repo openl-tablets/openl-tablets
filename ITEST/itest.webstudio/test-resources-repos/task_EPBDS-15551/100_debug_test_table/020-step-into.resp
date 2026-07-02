@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "status": "SUSPENDED",
+  "status": "suspended",
   "frames": [
     {
       "index": 0,

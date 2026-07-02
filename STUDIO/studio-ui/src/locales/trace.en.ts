@@ -40,12 +40,12 @@ i18next.addResourceBundle('en', 'trace', {
         executing: 'executing…',
         pending: 'pending',
         status: {
-            PENDING: 'Starting…',
-            RUNNING: 'Running',
-            SUSPENDED: 'Suspended',
-            COMPLETED: 'Completed',
-            ERROR: 'Error',
-            TERMINATED: 'Terminated',
+            pending: 'Starting…',
+            running: 'Running',
+            suspended: 'Suspended',
+            completed: 'Completed',
+            error: 'Error',
+            terminated: 'Terminated',
         },
     },
 

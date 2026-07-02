@@ -1,8 +1,8 @@
 import type { DebugStatus } from 'types/trace'
 
-export const IN_PROGRESS_TRACE_EXECUTION_STATUSES: readonly DebugStatus[] = ['PENDING', 'RUNNING']
+export const IN_PROGRESS_TRACE_EXECUTION_STATUSES: readonly DebugStatus[] = ['pending', 'running']
 
-export const TERMINAL_TRACE_EXECUTION_STATUSES: readonly DebugStatus[] = ['COMPLETED', 'ERROR', 'TERMINATED']
+export const TERMINAL_TRACE_EXECUTION_STATUSES: readonly DebugStatus[] = ['completed', 'error', 'terminated']
 
 export const isTraceExecutionInProgress = (
     status: DebugStatus | null | undefined
@@ -14,4 +14,4 @@ export const isTraceExecutionTerminal = (
 
 export const isTraceExecutionError = (
     status: DebugStatus | null | undefined
-): boolean => status === 'ERROR'
+): boolean => status === 'error'

@@ -29,7 +29,7 @@ const DebugToolbar: React.FC = () => {
     const profiling = useTraceStore(s => s.profiling)
     const setProfiling = useTraceStore(s => s.setProfiling)
 
-    const suspended = status === 'SUSPENDED'
+    const suspended = status === 'suspended'
     const running = isTraceExecutionInProgress(status)
     const active = suspended || running
 

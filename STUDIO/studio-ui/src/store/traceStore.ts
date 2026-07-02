@@ -104,7 +104,7 @@ const initialState = {
     error: null,
 }
 
-const isSuspended = (status: DebugStatus | null): boolean => status === 'SUSPENDED'
+const isSuspended = (status: DebugStatus | null): boolean => status === 'suspended'
 
 export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
@@ -163,7 +163,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         start: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null, status: 'PENDING' })
+            set({ loading: true, error: null, status: 'pending' })
             try {
                 // Attach to a session already created by the launcher; otherwise start a new one.
                 let stack: DebugStackView
@@ -181,7 +181,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 }
                 applyStack(stack)
             } catch (error: any) {
-                set({ status: 'ERROR', error: error?.message || 'Failed to start trace' })
+                set({ status: 'error', error: error?.message || 'Failed to start trace' })
             } finally {
                 set({ loading: false })
             }
@@ -237,11 +237,11 @@ export const useTraceStore = create<DebugState>((set, get) => {
         resume: async () => {
             const { projectId } = get()
             if (!projectId) return
-            set({ status: 'RUNNING', variables: null, variablesLoading: false })
+            set({ status: 'running', variables: null, variablesLoading: false })
             try {
                 await traceService.resume(projectId)
             } catch (error: any) {
-                set({ status: 'SUSPENDED', error: error?.message || 'Resume failed' })
+                set({ status: 'suspended', error: error?.message || 'Resume failed' })
             }
         },
 
@@ -259,7 +259,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             // Run to a node (its breakpoint key) without leaving a permanent breakpoint: add a one-shot
             // breakpoint unless the user already pinned one here, then resume. applyStack drops it on the
             // next suspension. Only meaningful while paused.
-            if (get().status !== 'SUSPENDED') return
+            if (get().status !== 'suspended') return
             if (!get().breakpoints.includes(key)) {
                 await get().toggleBreakpoint(key, label)
                 set({ transientBreakpoint: key })
@@ -298,7 +298,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             if (!projectId) return
             try {
                 await traceService.cancelTrace(projectId)
-                set({ status: 'TERMINATED', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
+                set({ status: 'terminated', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
             } catch (error: any) {
                 notification.error({ title: error?.message || 'Failed to terminate' })
             }
@@ -340,13 +340,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         onSocketStatus: (status, message) => {
-            if (status === 'SUSPENDED') {
+            if (status === 'suspended') {
                 // A synchronous step applies the authoritative stack from its own response; the WS
                 // notification for that same suspension would only trigger a duplicate stack+variables fetch.
                 if (get().loading) return
                 void get().refreshStack()
-            } else if (status === 'RUNNING') {
-                set({ status: 'RUNNING' })
+            } else if (status === 'running') {
+                set({ status: 'running' })
             } else if (isTraceExecutionTerminal(status)) {
                 // Show an immediate summary from the socket (if any); the full error is fetched below.
                 set({
@@ -355,9 +355,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     selectedFrameIndex: null,
                     variables: null,
                     variablesLoading: false,
-                    debugError: status === 'ERROR' && message ? { summary: message } : null,
+                    debugError: status === 'error' && message ? { summary: message } : null,
                 })
-                if (status === 'ERROR') {
+                if (status === 'error') {
                     void get().fetchTerminalError()
                 }
             }

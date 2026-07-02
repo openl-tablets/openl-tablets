@@ -31,13 +31,13 @@ describe('traceService retry behavior', () => {
     it('retries transient ApiHttpError (503) and succeeds', async () => {
         mockApiCall
             .mockRejectedValueOnce(new ApiHttpError(503, 'Service unavailable'))
-            .mockResolvedValueOnce({ status: 'SUSPENDED', frames: []} as any)
+            .mockResolvedValueOnce({ status: 'suspended', frames: []} as any)
 
         const promise = traceService.getStack('project-1')
         await vi.advanceTimersByTimeAsync(600)
         const result = await promise
 
-        expect(result).toEqual({ status: 'SUSPENDED', frames: []})
+        expect(result).toEqual({ status: 'suspended', frames: []})
         expect(mockApiCall).toHaveBeenCalledTimes(2)
     })
 
@@ -56,7 +56,7 @@ describe('traceService endpoints', () => {
     beforeEach(() => vi.clearAllMocks())
 
     it('issues a step command with the step type', async () => {
-        mockApiCall.mockResolvedValue({ status: 'SUSPENDED', frames: []} as any)
+        mockApiCall.mockResolvedValue({ status: 'suspended', frames: []} as any)
         await traceService.step('p', 'into')
         expect(mockApiCall).toHaveBeenLastCalledWith(
             '/projects/p/trace/step?type=into',
@@ -76,7 +76,7 @@ describe('traceService endpoints', () => {
     })
 
     it('starts a session with stopAtEntry', async () => {
-        mockApiCall.mockResolvedValue({ status: 'SUSPENDED', frames: []} as any)
+        mockApiCall.mockResolvedValue({ status: 'suspended', frames: []} as any)
         await traceService.startTrace('p', { tableId: 't1', stopAtEntry: true })
         const lastCall = mockApiCall.mock.lastCall
         expect(lastCall).toBeDefined()

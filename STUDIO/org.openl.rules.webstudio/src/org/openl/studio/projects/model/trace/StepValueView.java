@@ -20,7 +20,7 @@ import org.openl.studio.projects.model.ParameterValue;
  *
  * @param ref      short reference of the step (for example {@code R2C3})
  * @param label    human-readable name, or {@code null}
- * @param status   one of {@code executed}, {@code current}, {@code pending}
+ * @param status   whether the step has executed, is executing, or is still pending
  * @param value    the frozen computed value for an executed step, otherwise {@code null}
  * @param children the tables this step called (profiling mode only), otherwise {@code null}
  * @param durationMillis total execution time of an executed step in ms (own work plus called tables), else {@code null}
@@ -37,7 +37,7 @@ public record StepValueView(
         @Nullable String label,
 
         @Schema(description = "trace.field.step.status.desc")
-        String status,
+        StepStatus status,
 
         @Schema(description = "trace.field.step.value.desc")
         @Nullable ParameterValue value,

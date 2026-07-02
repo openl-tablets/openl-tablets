@@ -12,7 +12,7 @@ vi.mock('services/traceService', () => ({
         resume: vi.fn().mockResolvedValue(undefined),
         getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
-        getStack: vi.fn().mockResolvedValue({ status: 'SUSPENDED', frames: []}),
+        getStack: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
     },
 }))
 
@@ -53,7 +53,7 @@ describe('TraceTree', () => {
     it('renders a frame with its steps and runs to a not-yet-reached step', async () => {
         useTraceStore.setState({
             projectId: 'p1',
-            status: 'SUSPENDED',
+            status: 'suspended',
             frames: [frame(0, {
                 name: 'ROOT',
                 active: true,
@@ -75,7 +75,7 @@ describe('TraceTree', () => {
 
     it('drills the current step into the child frame so every level shows at once', () => {
         useTraceStore.setState({
-            status: 'SUSPENDED',
+            status: 'suspended',
             frames: [
                 frame(0, { name: 'ROOT', steps: [
                     step('R0C0', 'executed', '$Step1'),
@@ -101,7 +101,7 @@ describe('TraceTree', () => {
     it('does not run to an executed step; it selects the frame to read the result', async () => {
         useTraceStore.setState({
             projectId: 'p1',
-            status: 'SUSPENDED',
+            status: 'suspended',
             frames: [frame(0, { name: 'ROOT', active: true, steps: [step('R0C0', 'executed', '$Step1')]})],
             selectedFrameIndex: null,
         })
@@ -115,7 +115,7 @@ describe('TraceTree', () => {
 
     it('keeps an executed sub-call collapsed and expands its retained structure on demand', async () => {
         useTraceStore.setState({
-            status: 'SUSPENDED',
+            status: 'suspended',
             frames: [frame(0, {
                 name: 'ROOT',
                 active: true,
@@ -147,7 +147,7 @@ describe('TraceTree', () => {
 
     it('renders the completed tree with a node timing and toggles Total/Self', async () => {
         useTraceStore.setState({
-            status: 'COMPLETED',
+            status: 'completed',
             frames: [],
             tree: { uri: 'uRoot', name: 'ROOT', kind: 'spreadsheet', durationMillis: 42, selfMillis: 12, steps: []},
         })
@@ -165,7 +165,7 @@ describe('TraceTree', () => {
         useTraceStore.setState({
             projectId: 'p1',
             tableId: 'tRoot',
-            status: 'COMPLETED',
+            status: 'completed',
             frames: [],
             tree: { uri: 'uRoot', name: 'ROOT', kind: 'spreadsheet', durationMillis: 42, selfMillis: 42, steps: []},
         })
@@ -181,7 +181,7 @@ describe('TraceTree', () => {
         Element.prototype.scrollIntoView = scrollIntoView
         try {
             useTraceStore.setState({
-                status: 'SUSPENDED',
+                status: 'suspended',
                 frames: [frame(0, {
                     name: 'ROOT',
                     active: true,
@@ -228,7 +228,7 @@ describe('TraceTree', () => {
 
     it('badges a version-dispatched frame with the number of versions', () => {
         useTraceStore.setState({
-            status: 'SUSPENDED',
+            status: 'suspended',
             frames: [frame(0, {
                 name: 'RateRule',
                 active: true,
@@ -245,7 +245,7 @@ describe('TraceTree', () => {
 
     it('shows execution time on an executed step', () => {
         useTraceStore.setState({
-            status: 'COMPLETED',
+            status: 'completed',
             frames: [],
             tree: {
                 uri: 'uRoot', name: 'ROOT', kind: 'spreadsheet', durationMillis: 20, selfMillis: 8,
@@ -260,7 +260,7 @@ describe('TraceTree', () => {
 
     it('does not lend a completed frame time to a step that has none', () => {
         useTraceStore.setState({
-            status: 'SUSPENDED',
+            status: 'suspended',
             frames: [frame(0, {
                 name: 'ROOT',
                 active: true,

@@ -19,12 +19,19 @@ class JacksonEnumConverterFactoryTest {
         var converter = factory.getConverter(StepType.class);
         assertEquals(StepType.INTO, converter.convert("into"));
         assertEquals(StepType.OUT, converter.convert("out"));
+        // A session status binds from its lowercase code, not the Java-style constant name.
+        assertEquals(DebugStatus.SUSPENDED, factory.getConverter(DebugStatus.class).convert("suspended"));
     }
 
     @Test
     void bindsAnEnumWithoutCodeByName() {
-        // DebugStatus has no @JsonProperty, so Jackson falls back to the constant name.
-        assertEquals(DebugStatus.SUSPENDED, factory.getConverter(DebugStatus.class).convert("SUSPENDED"));
+        // An enum with no @JsonProperty has no code, so Jackson falls back to the constant name.
+        assertEquals(Plain.FIRST, factory.getConverter(Plain.class).convert("FIRST"));
+    }
+
+    private enum Plain {
+        FIRST,
+        SECOND
     }
 
     @Test

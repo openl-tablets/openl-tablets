@@ -17260,7 +17260,12 @@ Content-Type: application/json
           },
           "kind": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "cell",
+              "dtrule",
+              "operation"
+            ]
           },
           "label": {
             "type": "string",
@@ -17293,7 +17298,15 @@ Content-Type: application/json
           },
           "status": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "pending",
+              "running",
+              "suspended",
+              "completed",
+              "error",
+              "terminated"
+            ]
           },
           "tree": {
             "$ref": "#/components/schemas/CallNodeView"
@@ -17306,7 +17319,15 @@ Content-Type: application/json
         "properties": {
           "status": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "pending",
+              "running",
+              "suspended",
+              "completed",
+              "error",
+              "terminated"
+            ]
           }
         }
       },
@@ -20343,7 +20364,12 @@ Content-Type: application/json
           },
           "status": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "enum": [
+              "executed",
+              "current",
+              "pending"
+            ]
           },
           "value": {
             "$ref": "#/components/schemas/ParameterValue"

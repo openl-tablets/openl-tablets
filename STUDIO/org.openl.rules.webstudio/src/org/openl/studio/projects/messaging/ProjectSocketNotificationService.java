@@ -91,7 +91,7 @@ public class ProjectSocketNotificationService {
     /**
      * Notifies user about an interactive debug session status change for a specific table.
      *
-     * <p>The payload is the status name (for example {@code SUSPENDED}); the client then reads the
+     * <p>The payload is the status code (for example {@code suspended}); the client then reads the
      * current stack from the REST API.
      *
      * @param user      user to notify
