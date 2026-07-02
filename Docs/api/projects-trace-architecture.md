@@ -264,6 +264,7 @@ All breakpoints ride one set of string keys, matched at a frame enter or a curre
 | `uri#R{r}C{c}` | spreadsheet cell | when the cell becomes the current line |
 | `uri#rule` | decision table | when **any** rule fires (all its conditions matched), before its action runs |
 | `uri#{ruleName}` | decision table | when that **specific** rule fires |
+| `<key>@N` | any of the above | only on the table's **N-th execution** (0-based); the number `DebugFrameView.instance` and a watch series carry, so a `uri#ref@N` key matched-and-built (never parsed) reaches one iteration of a table that runs many times |
 
 Breakpoints persist across runs in the session registry, so they can be set before a run and apply to the
 next one. `GET /breakpoint-tables` suggests targets by name: only tables **reachable** from the traced

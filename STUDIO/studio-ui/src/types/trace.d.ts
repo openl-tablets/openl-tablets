@@ -66,6 +66,8 @@ export interface DebugFrameView {
     index: number
     /** Frame depth, 1 for the root call */
     depth: number
+    /** Zero-based execution number of this table; the number a `uri#ref@N` breakpoint or a watch series uses */
+    instance: number
     /** Source URI of the frame's table, used for breakpoints and table rendering */
     uri: string
     /** Stable id of the frame's table, used to fetch its raw grid from the Tables API */

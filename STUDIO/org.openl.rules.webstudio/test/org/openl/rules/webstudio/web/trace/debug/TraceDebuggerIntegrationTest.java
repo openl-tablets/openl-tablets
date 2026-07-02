@@ -183,6 +183,24 @@ class TraceDebuggerIntegrationTest {
     }
 
     @Test
+    void anInstanceIndexedBreakpointStopsOnThatExecutionOfARepeatedTable() {
+        // T0 calls T1 twice; the breakpoint targets only T1's second execution (instance 1).
+        FakeTable t1 = new FakeTable("T1").cell(0, 0);
+        FakeTable t0 = new FakeTable("T0").call(t1).call(t1);
+        DebugBody body = () -> Tracer.invoke(t0, null, NO_PARAMS, new SimpleRuntimeEnv(), t0);
+
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        debugger.setBreakpoints(Set.of("T1#R0C0@1"));
+        debugger.start("instance-bp", null, false, body);
+
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        DebugFrame top = debugger.stack().get(debugger.stack().size() - 1);
+        assertEquals("T1", top.getName());
+        assertEquals(1, top.getInvocationIndex(), "stopped on T1's second execution, not the first");
+        assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
     void stepOverToFrameEndSuspendsAtItsExitWithTheResult() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program());

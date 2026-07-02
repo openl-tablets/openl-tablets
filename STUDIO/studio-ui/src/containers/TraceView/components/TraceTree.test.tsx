@@ -33,6 +33,7 @@ const step = (ref: string, status: StepValueView['status'], label?: string): Ste
 const frame = (index: number, over: Partial<DebugFrameView> = {}): DebugFrameView => ({
     index,
     depth: index + 1,
+    instance: 0,
     uri: `u${index}`,
     tableId: `t${index}`,
     name: `Frame${index}`,

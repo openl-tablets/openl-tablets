@@ -360,9 +360,15 @@ or at a **current-line change**:
 | `<uri>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
 | `<uri>#rule` | **Any** rule of that decision table firing (all conditions matched) | `file:/...#rule` |
 | `<uri>#{ruleName}` | A **specific** rule of that decision table firing | `file:/...#SeniorDriver` |
+| `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `file:/...#R48C0@3` |
 
 Rule-fired breakpoints suspend **before the rule's action runs**, with the evaluated conditions already
 captured — the decision panel shows which rule fired and which conditions matched.
+
+The `@N` suffix targets one iteration of a table that runs many times (for example one coverage of a
+per-coverage spreadsheet). `N` is the same zero-based number as `DebugFrameView.instance` and a watch
+series' `instance` — so an outlier found on `instance: 3` in a watch is reached with `<uri>#<ref>@3`.
+Without a suffix a cell breakpoint fires on **every** execution, from the first.
 
 ---
 
@@ -411,6 +417,7 @@ interface ProfileHotspotView {
 interface DebugFrameView {
   index: number;                // position in the stack, 0 = root
   depth: number;                // frame depth, 1 = root
+  instance: number;             // 0-based execution number of this table (for uri#ref@N breakpoints / watch)
   uri: string;                  // table source URI (breakpoint + raw-table key)
   tableId: string;              // table id for the shared Tables API (?raw=true)
   name: string;                 // table display name (breakpoint-by-name key)

@@ -126,7 +126,8 @@ final class DebugHookImpl implements DebugHook {
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
         top.setLocation(location);
-        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location, top.getName());
+        handleEvent(DebugEvent.LOCATION, top.getDepth(), top.getUri(), location, top.getName(),
+                top.getInvocationIndex());
         // Time the step around its own execution, excluding parked time, so an inefficient step that makes no
         // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
         long stepEnter = System.nanoTime();
@@ -235,13 +236,15 @@ final class DebugHookImpl implements DebugHook {
         }
         stack.push(frame);
         try {
-            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name());
+            handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name(),
+                    frame.getInvocationIndex());
             R result = executor.invoke(target, params, env);
             frame.completeWith(result);
             // Time the frame the moment it finishes, before Step Out can suspend at its exit, so a completed
             // frame already on the stack carries its timing.
             frame.setDurationNanos(elapsed(enterNanos, parkedAtEnter));
-            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null, descriptor.name());
+            handleEvent(DebugEvent.EXIT, depth, descriptor.uri(), null, descriptor.name(),
+                    frame.getInvocationIndex());
             return result;
         } catch (DebugTerminationError e) {
             throw e;
@@ -285,11 +288,11 @@ final class DebugHookImpl implements DebugHook {
     }
 
     private void handleEvent(DebugEvent event, int depth, String uri, @Nullable CurrentLocation location,
-                             @Nullable String name) {
+                             @Nullable String name, int instance) {
         if (channel.isTerminateRequested()) {
             throw new DebugTerminationError();
         }
-        if (stepController.shouldSuspend(event, depth, uri, location, name)) {
+        if (stepController.shouldSuspend(event, depth, uri, location, name, instance)) {
             suspendAndAwait(depth);
         }
     }

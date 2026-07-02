@@ -81,11 +81,11 @@ describe('WatchPanel', () => {
 
         await userEvent.click(screen.getByTestId('watch-replay'))
 
-        // Replay restarts and runs to the cell breakpoint key (uri#cellRef) — the same key a manual
-        // breakpoint on the step uses — not the owning table's URI (which, for the root, never re-fires).
+        // Replay restarts and runs to the cell on THIS exact instance (uri#cellRef@N) — so watching an
+        // outlier on pass N jumps straight to pass N, not the first pass, and not the whole table.
         await waitFor(() => expect(cancelTrace).toHaveBeenCalledWith('p1'))
         await waitFor(() =>
-            expect(setBreakpoints).toHaveBeenCalledWith('p1', expect.arrayContaining(['uCov#R2C0'])))
+            expect(setBreakpoints).toHaveBeenCalledWith('p1', expect.arrayContaining(['uCov#R2C0@0'])))
     })
 
     it('removing a watch also clears its already-collected series', async () => {

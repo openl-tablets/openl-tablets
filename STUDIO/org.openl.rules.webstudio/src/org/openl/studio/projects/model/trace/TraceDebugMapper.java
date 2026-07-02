@@ -103,6 +103,7 @@ public class TraceDebugMapper {
             views.add(DebugFrameView.builder()
                     .index(i)
                     .depth(frame.getDepth())
+                    .instance(frame.getInvocationIndex())
                     .uri(frame.getUri())
                     .tableId(TableUtils.makeTableId(frame.getUri()))
                     .name(frame.getName())

@@ -7,6 +7,7 @@ Content-Type: application/json
     {
       "index": 0,
       "depth": 1,
+      "instance": 0,
       "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D54:G68",
       "tableId": "ecbdd3752cd6916e883e10cd08eb57cf",
       "name": "BalanceDynamicIndexCalculation",

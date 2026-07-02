@@ -73,22 +73,29 @@ final class StepController {
      * {@code uri#R10}. A name breakpoint suspends on any same-named table, since every overloaded or
      * dimensional version shares the plain method name.
      *
+     * <p>Any table or sub-step key may be suffixed with {@code @N} to fire only on the table's
+     * {@code N}-th execution (zero-based, the same numbering as a watch series), so a breakpoint can
+     * target one iteration of a table that runs many times — for example {@code uri#R48C0@3}.
+     *
      * @param event    the kind of safepoint reached
      * @param depth    depth of the current frame (1 for the top-level call)
      * @param uri      table URI of the current frame
      * @param location current sub-step location on a location change, or {@code null}
      * @param name     table name of the current frame, for name breakpoints, or {@code null}
+     * @param instance zero-based execution number of the current frame's table, for {@code @N} breakpoints
      */
     synchronized boolean shouldSuspend(DebugEvent event, int depth, String uri, @Nullable CurrentLocation location,
-                                       @Nullable String name) {
+                                       @Nullable String name, int instance) {
         if (pauseRequested) {
             return true;
         }
         Set<String> active = breakpoints.get();
-        if (event == DebugEvent.ENTER && (active.contains(uri) || (name != null && active.contains(name)))) {
+        if (event == DebugEvent.ENTER && (matches(active, uri, instance)
+                || (name != null && active.contains(name)))) {
             return true;
         }
-        if (event == DebugEvent.LOCATION && location != null && matchesLocationBreakpoint(active, uri, location)) {
+        if (event == DebugEvent.LOCATION && location != null
+                && matchesLocationBreakpoint(active, uri, location, instance)) {
             return true;
         }
         if (event == DebugEvent.EXIT) {
@@ -97,16 +104,22 @@ final class StepController {
         return depth <= threshold;
     }
 
-    private static boolean matchesLocationBreakpoint(Set<String> active, String uri, CurrentLocation location) {
+    private static boolean matchesLocationBreakpoint(Set<String> active, String uri, CurrentLocation location,
+                                                     int instance) {
         if (active.isEmpty()) {
             // No breakpoints set: skip building "uri#ref" keys on every sub-step of a plain run.
             return false;
         }
         for (String ref : location.breakpointRefs()) {
-            if (active.contains(uri + "#" + ref)) {
+            if (matches(active, uri + "#" + ref, instance)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** A key matches when it is set for any instance ({@code key}) or for this one ({@code key@N}). */
+    private static boolean matches(Set<String> active, String key, int instance) {
+        return active.contains(key) || active.contains(key + "@" + instance);
     }
 }
