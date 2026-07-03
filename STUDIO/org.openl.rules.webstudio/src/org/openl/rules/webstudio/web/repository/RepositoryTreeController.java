@@ -82,7 +82,6 @@ import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
-import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -767,14 +766,6 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException, IOException {
-        TreeNode selectedNode = getSelectedNode();
-        String nodeType = selectedNode.getType();
-        if (UiConst.TYPE_FOLDER.equals(nodeType) || UiConst.TYPE_FILE.equals(nodeType)) {
-            unregisterArtifactInProjectDescriptor(selectedNode.getData());
-        }
-    }
-
     private void unregisterArtifactInProjectDescriptor(
             AProjectArtefact aProjectArtefact) throws ProjectException, IOException {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
@@ -906,51 +897,6 @@ public class RepositoryTreeController {
     private RepositoryConfiguration getRepositoryConfiguration(String repositoryId) {
         return repositoryConfigurations.computeIfAbsent(repositoryId,
                 k -> new RepositoryConfiguration(k, propertyResolver));
-    }
-
-    /**
-     * Deletes the selected file or folder node. Project deletion is handled by the React modal through the REST API.
-     */
-    public String deleteNode() {
-        TreeNode selectedNode = getSelectedNode();
-        AProjectArtefact projectArtefact = selectedNode.getData();
-        if (projectArtefact == null) {
-            WebStudioUtils.addErrorMessage("Element is already deleted.");
-            return null;
-        }
-        AProject p = projectArtefact.getProject();
-        boolean localOnly = p instanceof UserWorkspaceProject uwp && uwp.isLocalOnly();
-        String repositoryId = p.getRepository().getId();
-        if (isSupportsBranches(repositoryId) && projectArtefact.getVersion() == null && !localOnly) {
-            WebStudioUtils.addErrorMessage("Failed to delete the project. The project does not exist in the branch.");
-            return null;
-        }
-        if (!aclProjectsHelper.hasPermission(projectArtefact, BasePermission.DELETE)) {
-            throw new Message("There is no permission for deleting '%s' project.".formatted(
-                    ProjectArtifactUtils.extractResourceName(projectArtefact)));
-        }
-        try {
-            studio.getModel().clearModuleInfo(); // Release resources like jars
-            String nodeType = selectedNode.getType();
-            unregisterSelectedNodeInProjectDescriptor();
-            projectArtefact.delete();
-            aclServiceProvider.getDesignRepoAclService().deleteAcl(projectArtefact);
-            TreeNode parent = selectedNode.getParent();
-            if (parent != null && parent.getData() != null) {
-                parent.refresh();
-            }
-            repositoryTreeState.deleteSelectedNodeFromTree();
-            resetStudioModel();
-
-            String nodeTypeName = UiConst.TYPE_FOLDER.equals(nodeType) ? "Folder" : "File";
-            WebStudioUtils.addInfoMessage(nodeTypeName + " was deleted successfully.");
-            eventPublisher.publishEvent(new ProjectDeletedEvent(projectArtefact));
-        } catch (Exception e) {
-            log.error("Failed to delete node.", e);
-            WebStudioUtils.addErrorMessage("Failed to delete node.", e.getMessage());
-        }
-
-        return null;
     }
 
     public String unlockSelectedProject() {

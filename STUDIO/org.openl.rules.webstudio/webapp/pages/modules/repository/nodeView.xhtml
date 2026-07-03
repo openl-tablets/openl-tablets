@@ -57,7 +57,7 @@
                                  onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"
                                  title="Copy file"/>
                 <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canDeleteNode}" value="Delete"
-                                 onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
+                                 onclick="if (!canOverwriteRevision()) return false; openDeleteFileDialog('#{repositoryTreeController.getProjectId(artefact.project)}', '#{node.internalArtifactPath.stringValue}', '#{artefact.name}', false);return false;"
                                  title="Delete the file"/>
             </h:panelGroup>
 
@@ -69,7 +69,7 @@
                                  onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
                                  title="#{uploadFileMessage}"/>
                 <h:commandButton id="deleteFolderId" rendered="#{repositoryTreeState.canDeleteNode}" value="Delete"
-                                 onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
+                                 onclick="if (!canOverwriteRevision()) return false; openDeleteFileDialog('#{repositoryTreeController.getProjectId(artefact.project)}', '#{node.internalArtifactPath.stringValue}', '#{artefact.name}', true);return false;"
                                  title="Delete the folder"/>
             </h:panelGroup>
 

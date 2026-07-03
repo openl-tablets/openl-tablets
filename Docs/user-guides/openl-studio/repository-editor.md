@@ -465,7 +465,10 @@ To delete a folder or a file in the project structure, proceed as follows:
 
     *Deleting project elements from the* **Elements** *tab*
 
-1.  In the confirmation window, click **OK**.
+2.  In the confirmation window, click **Delete**.
+
+Deleting a folder or a file changes the opened project. Save the project to store the deletion in Design repository.
+
 
 #### Copying a File
 

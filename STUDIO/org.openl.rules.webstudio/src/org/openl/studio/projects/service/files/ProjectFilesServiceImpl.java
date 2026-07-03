@@ -58,6 +58,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final FileNodeMapper resourceMapper;
     private final FileSearchSupport searchSupport;
     private final FileArchiveSupport archiveSupport;
+    private final ProjectDescriptorCleaner descriptorCleaner;
 
     @Override
     public List<FsNode> getResources(@NotNull FileRoot root,
@@ -116,8 +117,11 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         }
         requirePermission(found, BasePermission.DELETE);
         try {
+            if (root instanceof ProjectFileRoot projectRoot) {
+                descriptorCleaner.unregisterModules(projectRoot.getProject(), found);
+            }
             found.delete();
-        } catch (ProjectException e) {
+        } catch (ProjectException | IOException e) {
             throw new ConflictException("file.delete.failed.message");
         }
     }
