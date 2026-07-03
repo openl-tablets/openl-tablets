@@ -88,7 +88,7 @@ class FileRootWriteBatchTest {
         AclProjectsHelper acl = mock(AclProjectsHelper.class);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
         var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl));
+                new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class));
 
         var emptyTree = new AProjectFolder(new HashMap<>(), null, null, "");
         FileRoot root = mock(FileRoot.class);
@@ -111,7 +111,7 @@ class FileRootWriteBatchTest {
         AclProjectsHelper acl = mock(AclProjectsHelper.class);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
         var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl));
+                new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class));
 
         var emptyTree = new AProjectFolder(new HashMap<>(), null, null, "");
         FileRoot root = mock(FileRoot.class);

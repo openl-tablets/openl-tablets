@@ -1,4 +1,4 @@
-import { deleteProject } from 'services/projects'
+import { deleteProject, deleteProjectFile } from 'services/projects'
 import apiCall from 'services/apiCall'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
@@ -66,6 +66,31 @@ describe('projects service', () => {
 
         expect(errorSpy).toHaveBeenCalledWith(
             expect.objectContaining({ description: 'Project is locked.' })
+        )
+        expect(successSpy).not.toHaveBeenCalled()
+    })
+
+    it('issues a DELETE to the project file resource with encoded path segments', async () => {
+        mockApiCall.mockResolvedValueOnce(true)
+
+        await expect(deleteProjectFile('proj-id', 'rules/UK 100%/Main.xlsx', 'Main.xlsx', false)).resolves.toBe(true)
+
+        expect(mockApiCall).toHaveBeenCalledWith(
+            '/projects/proj-id/files/rules/UK%20100%25/Main.xlsx',
+            { method: 'DELETE' },
+            { throwError: true, suppressErrorPages: true }
+        )
+        expect(successSpy).toHaveBeenCalledTimes(1)
+        expect(errorSpy).not.toHaveBeenCalled()
+    })
+
+    it('surfaces the backend error message when a folder deletion fails', async () => {
+        mockApiCall.mockRejectedValueOnce(new Error('File is not found.'))
+
+        await expect(deleteProjectFile('proj-id', 'rules/UK', 'UK', true)).resolves.toBe(false)
+
+        expect(errorSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ description: 'File is not found.' })
         )
         expect(successSpy).not.toHaveBeenCalled()
     })

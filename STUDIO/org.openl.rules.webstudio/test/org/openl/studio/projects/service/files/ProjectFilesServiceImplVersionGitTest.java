@@ -71,7 +71,7 @@ class ProjectFilesServiceImplVersionGitTest {
         root = new RepoFileRoot(repository, aclProjectsHelper,
                 new ProjectFileLookupServiceImpl(aclProjectsHelper, mock(RepositoryAclServiceProvider.class)));
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
-                mock(FileSearchSupport.class), mock(FileArchiveSupport.class));
+                mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class));
     }
 
     @AfterEach

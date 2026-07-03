@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -30,6 +32,7 @@ import org.openl.util.StringUtils;
 @RequiredArgsConstructor
 public class ProjectFileRoot implements FileRoot {
 
+    @Getter(AccessLevel.PACKAGE)
     private final RulesProject project;
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStateValidator projectStateValidator;
