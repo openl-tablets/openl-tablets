@@ -23,6 +23,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     private IOpenClass topClass;
     private IRulesMethodWrapper methodWrapper;
     private Queue<RecursiveAction> actionStack = null;
+    private Tracer tracer = Tracer.NONE;
 
     public SimpleRuntimeEnv() {
         this.runner = SimpleRunner.SIMPLE_RUNNER;
@@ -95,6 +96,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
         contextStack = new ArrayDeque<>(env.contextStack);
         pushThis(env.getThis());
         pushLocalFrame(env.getLocalFrame());
+        this.tracer = env.tracer;
     }
 
     /*
@@ -174,5 +176,15 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     @Override
     public SimpleRuntimeEnv copy() {
         return new SimpleRuntimeEnv(this);
+    }
+
+    @Override
+    public Tracer getTracer() {
+        return tracer;
+    }
+
+    @Override
+    public void setTracer(Tracer tracer) {
+        this.tracer = tracer == null ? Tracer.NONE : tracer;
     }
 }

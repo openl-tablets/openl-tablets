@@ -51,7 +51,6 @@ import org.openl.types.NullParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 /**
  * The basic algorithm for decision table (DT) evaluation is straightforward (let's consider table with conditions and
@@ -505,11 +504,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 if (condition.isOptimizedExpression()) {
                     staticResult = (Boolean) condition.getStaticMethod().invoke(null, params, env);
                 }
-                index = Tracer.wrap(this, index, condition);
+                index = env.getTracer().wrap(this, index, condition);
                 Object testValue = evaluateTestValue(condition, target, params, env);
 
                 node = index.findNode(testValue, staticResult, node);
-                Tracer.put(this, "index", condition, node, true);
+                env.getTracer().put(this, "index", condition, node, true);
 
                 if (!node.hasIndex()) {
                     iterator = node.getRulesIterator();
@@ -528,7 +527,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IConditionEvaluator evaluator = pair.getEvaluator();
 
             IIntSelector sel = evaluator.getSelector(condition, target, params, env);
-            sel = Tracer.wrap(this, sel, condition);
+            sel = env.getTracer().wrap(this, sel, condition);
 
             iterator = iterator.select(sel);
             conditionNumber++;

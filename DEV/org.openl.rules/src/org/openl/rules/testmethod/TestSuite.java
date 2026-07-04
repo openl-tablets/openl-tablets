@@ -8,6 +8,7 @@ import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 public class TestSuite implements INamedThing {
     public static final String VIRTUAL_TEST_SUITE = "Virtual test suite";
@@ -90,10 +91,14 @@ public class TestSuite implements INamedThing {
     }
 
     public TestUnitsResults invokeSequentially(final IOpenClass openClass, int ntimes) {
+        return invokeSequentially(openClass, ntimes, null);
+    }
 
+    /** Run the suite, attaching {@code tracer} to each test's environment so a debug session can observe it. */
+    public TestUnitsResults invokeSequentially(final IOpenClass openClass, int ntimes, Tracer tracer) {
         TestUnitsResults testUnitResults = new TestUnitsResults(this);
         for (int i = 0; i < getNumberOfTests(); i++) {
-            final ITestUnit testUnit = executeTest(openClass, i, ntimes);
+            final ITestUnit testUnit = executeTest(openClass, i, ntimes, tracer);
             testUnitResults.addTestUnit(testUnit);
         }
 
@@ -101,8 +106,13 @@ public class TestSuite implements INamedThing {
     }
 
     public ITestUnit executeTest(IOpenClass openClass, int test, int ntimes) {
+        return executeTest(openClass, test, ntimes, null);
+    }
+
+    public ITestUnit executeTest(IOpenClass openClass, int test, int ntimes, Tracer tracer) {
         TestDescription currentTest = getTest(test);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        env.setTracer(tracer);
         final Object target = openClass.newInstance(env);
         return testRunner.runTest(currentTest, target, env, ntimes);
     }

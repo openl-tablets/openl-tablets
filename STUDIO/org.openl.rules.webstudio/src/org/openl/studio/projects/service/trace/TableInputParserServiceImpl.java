@@ -126,9 +126,13 @@ public class TableInputParserServiceImpl implements TableInputParserService {
             return new ParseResult(params, null);
         }
 
-        // Special case: single parameter without runtime context expected
-        // Parse entire JSON as that parameter type
-        if (paramCount == 1 && !fieldMap.containsKey("runtimeContext")) {
+        // Single-parameter raw form: the whole JSON is the parameter's value. Skip this when the input
+        // is the name-wrapped form {paramName: value} (or carries a runtime context): those must be
+        // matched by name below, so the value fills the parameter instead of the wrapper being
+        // deserialized as the parameter type (which would yield an empty object).
+        if (paramCount == 1
+                && !fieldMap.containsKey(signature.getParameterName(0))
+                && !fieldMap.containsKey("runtimeContext")) {
             params[0] = JsonUtils.fromJSON(inputJson,
                     signature.getParameterType(0).getInstanceClass(), mapper);
             return new ParseResult(params, null);

@@ -1,11 +1,16 @@
 import apiCall from './apiCall'
 import { ApiHttpError } from './apiCall'
 import type { ApiCallOptions } from './apiCall'
-import CONFIG from './config'
 import { errorHandler } from 'utils/errorHandling'
 import type {
-    TraceNodeView,
+    BreakpointTableView,
+    CellHighlight,
+    DebugFrameVariables,
+    DebugStackView,
+    RawTableView,
+    StepType,
     TraceParameterValue,
+    WatchView,
 } from 'types/trace'
 
 /**
@@ -41,19 +46,6 @@ const isTransientError = (error: unknown): boolean => {
     if (error instanceof TypeError) {
         // Network errors like "Failed to fetch"
         return true
-    }
-
-    if (error instanceof Error) {
-        const message = error.message.toLowerCase()
-        // Check for transient HTTP status codes in error messages
-        // 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout
-        if (message.includes('502') || message.includes('503') || message.includes('504')) {
-            return true
-        }
-        // Network-related error messages
-        if (message.includes('network') || message.includes('timeout') || message.includes('econnreset')) {
-            return true
-        }
     }
 
     return false
@@ -117,99 +109,16 @@ const retryApiCall = async <T>(
 /** Standard API call options for trace endpoints */
 const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
+const base = (projectId: string): string => `/projects/${encodeURIComponent(projectId)}/trace`
+
 /**
- * API service for trace execution endpoints.
- * All endpoints require project-level READ access.
- * All methods use retry logic for transient network errors.
+ * API client for the interactive trace debugger.
+ * All endpoints require project-level READ access and retry on transient network errors.
  */
 export const traceService = {
     /**
-     * Get node children for lazy loading, or root nodes if nodeId is not provided.
-     * @param nodeId Parent node ID to get children for (omit for root nodes)
-     */
-    getNodeChildren: async (
-        projectId: string,
-        nodeId?: number,
-        showRealNumbers = false
-    ): Promise<TraceNodeView[]> => {
-        const params = new URLSearchParams()
-        if (nodeId !== undefined) {
-            params.set('id', String(nodeId))
-        }
-        params.set('showRealNumbers', String(showRealNumbers))
-
-        return await retryApiCall<TraceNodeView[]>(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes?${params.toString()}`,
-            undefined,
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Get full node details including parameters, context, result, errors.
-     * @param nodeId Node ID to get details for
-     */
-    getNodeDetails: async (
-        projectId: string,
-        nodeId: number,
-        showRealNumbers = false
-    ): Promise<TraceNodeView> => {
-        return await retryApiCall<TraceNodeView>(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}?showRealNumbers=${showRealNumbers}`,
-            undefined,
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Get lazy-loaded parameter value.
-     * @param parameterId Parameter ID from TraceParameterValue
-     */
-    getParameterValue: async (
-        projectId: string,
-        parameterId: number
-    ): Promise<TraceParameterValue> => {
-        return await retryApiCall<TraceParameterValue>(
-            `/projects/${encodeURIComponent(projectId)}/trace/parameters/${parameterId}`,
-            undefined,
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Get traced table HTML fragment with highlighted cells.
-     * @param nodeId Node ID to get table for
-     * @param showFormulas Show formulas instead of values
-     */
-    getTraceTableHtml: async (
-        projectId: string,
-        nodeId: number,
-        showFormulas = false
-    ): Promise<string> => {
-        return await retryApiCall<string>(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}/table?showFormulas=${showFormulas}`,
-            { headers: { Accept: 'text/html' } },
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Cancel ongoing trace execution.
-     * Returns 204 on success, 404 if no trace exists.
-     */
-    cancelTrace: async (projectId: string): Promise<void> => {
-        return await retryApiCall<void>(
-            `/projects/${encodeURIComponent(projectId)}/trace`,
-            { method: 'DELETE' },
-            TRACE_API_OPTIONS
-        )
-    },
-
-    /**
-     * Start trace execution.
-     * @param projectId Base64 encoded "repositoryId:projectName"
-     * @param options tableId, testRanges, fromModule, inputJson
-     * @returns Promise that resolves on 202 Accepted
+     * Start a debug session. Returns the initial execution stack (suspended at entry or after
+     * running to the first breakpoint).
      */
     startTrace: async (
         projectId: string,
@@ -217,39 +126,152 @@ export const traceService = {
             tableId: string
             testRanges?: string
             fromModule?: string
+            stopAtEntry?: boolean
+            profiling?: boolean
+            includeTree?: boolean
             inputJson?: string
         }
-    ): Promise<void> => {
+    ): Promise<DebugStackView> => {
         const params = new URLSearchParams()
         params.set('tableId', options.tableId)
         if (options.testRanges) params.set('testRanges', options.testRanges)
         if (options.fromModule) params.set('fromModule', options.fromModule)
+        params.set('stopAtEntry', String(options.stopAtEntry ?? true))
+        if (options.profiling) params.set('profiling', 'true')
+        if (options.includeTree === false) params.set('includeTree', 'false')
 
-        return await retryApiCall<void>(
-            `/projects/${encodeURIComponent(projectId)}/trace?${params.toString()}`,
+        // Not retried: starting a session is not idempotent, so replaying a lost-response POST would spawn
+        // and immediately discard a second worker. A transient failure surfaces to the caller instead.
+        return await apiCall(
+            `${base(projectId)}?${params.toString()}`,
             {
                 method: 'POST',
                 headers: options.inputJson ? { 'Content-Type': 'application/json' } : {},
-                ...(options.inputJson && { body: options.inputJson })
+                ...(options.inputJson && { body: options.inputJson }),
             },
             TRACE_API_OPTIONS
         )
     },
 
+    /** Get the current execution stack. */
+    getStack: async (projectId: string): Promise<DebugStackView> =>
+        retryApiCall<DebugStackView>(`${base(projectId)}/stack`, undefined, TRACE_API_OPTIONS),
+
     /**
-     * Export trace as text file download.
-     * @param projectId Project ID
-     * @param showRealNumbers Show real numbers instead of formatted values
-     * @param release Whether to clear trace from memory after download
+     * Step the suspended session and return the new stack. Not retried: stepping is not idempotent, so
+     * replaying a POST whose response was lost to a transient error would double-step the worker.
      */
-    exportTrace: (
-        projectId: string,
-        showRealNumbers: boolean,
-        release: boolean = false
-    ): void => {
-        const url = `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/trace/export?showRealNumbers=${showRealNumbers}&release=${release}`
-        window.location.href = url
+    step: async (projectId: string, type: StepType): Promise<DebugStackView> =>
+        apiCall(`${base(projectId)}/step?type=${type}`, { method: 'POST' }, TRACE_API_OPTIONS),
+
+    /** Resume to the next breakpoint (asynchronous; outcome arrives via WebSocket). Not retried (not idempotent). */
+    resume: async (projectId: string): Promise<void> =>
+        apiCall(`${base(projectId)}/resume`, { method: 'POST' }, TRACE_API_OPTIONS),
+
+    /** Request an asynchronous suspend at the next safepoint. Not retried (not idempotent). */
+    pause: async (projectId: string): Promise<void> =>
+        apiCall(`${base(projectId)}/pause`, { method: 'POST' }, TRACE_API_OPTIONS),
+
+    /**
+     * Export the full execution trace as plain text. Replays the run with a recording tracer and returns
+     * the indented `TRACE:` tree with each node's value. When release is true the session is dropped once
+     * the trace is produced.
+     */
+    exportTrace: async (projectId: string, smartNumbers: boolean, release = true): Promise<string> => {
+        const params = new URLSearchParams()
+        params.set('release', String(release))
+        params.set('smartNumbers', String(smartNumbers))
+        const text = await apiCall(`${base(projectId)}/export?${params.toString()}`, { method: 'GET' }, TRACE_API_OPTIONS)
+        return typeof text === 'string' ? text : ''
     },
+
+    /** Freeze and return a stack frame's variables (must be suspended). */
+    getVariables: async (projectId: string, frameIndex: number): Promise<DebugFrameVariables> =>
+        retryApiCall<DebugFrameVariables>(
+            `${base(projectId)}/frames/${frameIndex}/variables`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
+    /**
+     * Get the raw grid of a table (Tables API). The structure is immutable during a session, so the
+     * client fetches it once per table and overlays per-step highlights on top.
+     */
+    getRawTable: async (
+        projectId: string,
+        tableId: string,
+        maxRows?: number,
+        styles?: boolean
+    ): Promise<RawTableView> => {
+        const cap = maxRows != null ? `&maxRows=${maxRows}` : ''
+        const withStyles = styles ? '&styles=true' : ''
+        return retryApiCall<RawTableView>(
+            `/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true${cap}${withStyles}`,
+            undefined,
+            TRACE_API_OPTIONS
+        )
+    },
+
+    /** Get the cells to highlight on a stack frame's table, keyed by A1 address. */
+    getFrameHighlights: async (projectId: string, frameIndex: number): Promise<CellHighlight[]> =>
+        retryApiCall<CellHighlight[]>(
+            `${base(projectId)}/frames/${frameIndex}/highlights`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
+    /** Get a lazy-loaded parameter value. */
+    getParameterValue: async (projectId: string, parameterId: number): Promise<TraceParameterValue> =>
+        retryApiCall<TraceParameterValue>(
+            `${base(projectId)}/parameters/${parameterId}`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
+    /** Get the breakpoints (table URIs). */
+    getBreakpoints: async (projectId: string): Promise<string[]> =>
+        retryApiCall<string[]>(`${base(projectId)}/breakpoints`, undefined, TRACE_API_OPTIONS),
+
+    /** List rule tables that can be a breakpoint target, to set a breakpoint by name before it runs. */
+    getBreakpointTables: async (projectId: string): Promise<BreakpointTableView[]> =>
+        retryApiCall<BreakpointTableView[]>(
+            // Only the name is needed to set and label a breakpoint; trim the rest with field projection.
+            `${base(projectId)}/breakpoint-tables?fields=name`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
+    /** Replace the breakpoint set. */
+    setBreakpoints: async (projectId: string, uris: string[]): Promise<void> =>
+        retryApiCall<void>(
+            `${base(projectId)}/breakpoints`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uris }),
+            },
+            TRACE_API_OPTIONS
+        ),
+
+    /** The watched cells' values across the run, one series per cell. Complete once the run has finished. */
+    getWatch: async (projectId: string): Promise<WatchView> =>
+        retryApiCall<WatchView>(`${base(projectId)}/watch`, undefined, TRACE_API_OPTIONS),
+
+    /** Replace the watch set. Applied on the next start, since a watch captures from the run's beginning. */
+    setWatches: async (projectId: string, cells: string[]): Promise<void> =>
+        retryApiCall<void>(
+            `${base(projectId)}/watches`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cells }),
+            },
+            TRACE_API_OPTIONS
+        ),
+
+    /** Terminate the debug session. Returns 204 on success, 404 if none. */
+    cancelTrace: async (projectId: string): Promise<void> =>
+        retryApiCall<void>(base(projectId), { method: 'DELETE' }, TRACE_API_OPTIONS),
 }
 
 export default traceService

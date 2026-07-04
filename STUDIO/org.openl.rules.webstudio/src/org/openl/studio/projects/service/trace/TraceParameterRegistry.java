@@ -59,10 +59,12 @@ public class TraceParameterRegistry {
 
     /**
      * Clears all registered parameters.
+     *
+     * <p>The id counter is not reset: keeping it monotonic across traces means a stale id held by the client
+     * from a previous run is not found (404) rather than silently resolving to a different trace's parameter.
      */
     public synchronized void clear() {
         parameters.clear();
-        counter.set(0);
     }
 
     /**

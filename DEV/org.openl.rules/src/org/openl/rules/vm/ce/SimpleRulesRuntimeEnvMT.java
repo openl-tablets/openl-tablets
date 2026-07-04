@@ -13,6 +13,9 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRuntimeEnv {
         this.contextStack = delegate.cloneContextStack();
         pushContext(delegate.getContext());
         pushLocalFrame(delegate.getLocalFrame());
+        // Carry the tracer onto the forked env: without it a parallel-executed sub-tree would silently fall
+        // back to Tracer.NONE and vanish from an active trace/debug session.
+        setTracer(delegate.getTracer());
     }
 
     @Override

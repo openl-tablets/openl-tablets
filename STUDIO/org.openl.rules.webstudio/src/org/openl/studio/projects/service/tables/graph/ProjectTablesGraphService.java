@@ -89,7 +89,7 @@ public class ProjectTablesGraphService {
                                       GraphDirection direction,
                                       @Nullable String rootTableId,
                                       @Nullable Integer maxDepth) {
-        var nodes = collectNodes(model, currentModuleOnly);
+        var nodes = collectNodes(model, currentModuleOnly, true);
         if (nodes.isEmpty()) {
             return List.of();
         }
@@ -107,7 +107,7 @@ public class ProjectTablesGraphService {
                 .toList();
     }
 
-    private Map<String, RawNode> collectNodes(ProjectModel model, boolean currentModuleOnly) {
+    private Map<String, RawNode> collectNodes(ProjectModel model, boolean currentModuleOnly, boolean withDetails) {
         var compiledOpenClass = currentModuleOnly
                 ? model.getOpenedModuleCompiledOpenClass()
                 : model.getCompiledOpenClass();
@@ -136,7 +136,7 @@ public class ProjectTablesGraphService {
                 addDispatcherNode(nodes, candidateToDispatcher, dispatcher, projectByTable);
                 queue.addAll(dispatcher.getCandidates());
             } else if (method instanceof ExecutableMethod rulesMethod) {
-                addNode(nodes, rulesMethod, projectByTable, methodNodesDictionary, formats);
+                addNode(nodes, rulesMethod, projectByTable, methodNodesDictionary, formats, withDetails);
             }
         }
         rewireThroughDispatchers(nodes, candidateToDispatcher);
@@ -216,21 +216,59 @@ public class ProjectTablesGraphService {
                          ExecutableMethod rulesMethod,
                          Map<TableSyntaxNode, String> projectByTable,
                          OverloadedMethodsDictionary methodNodesDictionary,
-                         WebStudioFormats formats) {
+                         WebStudioFormats formats,
+                         boolean withDetails) {
         var tableSyntaxNode = (TableSyntaxNode) rulesMethod.getInfo().getSyntaxNode();
         var id = TableUtils.makeTableId(rulesMethod.getSourceUrl());
-        var node = nodes.computeIfAbsent(id, key -> {
-            var displayNames = TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, 0, methodNodesDictionary, formats);
-            var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
-            var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
-            return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, dimensionProperties(rulesMethod),
-                    projectByTable.get(tableSyntaxNode));
-        });
+        var node = nodes.computeIfAbsent(id, key -> withDetails
+                ? detailedNode(id, tableSyntaxNode, rulesMethod, projectByTable, methodNodesDictionary, formats)
+                : new RawNode(id, rulesMethod.getName(),
+                        OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType()),
+                        projectByTable.get(tableSyntaxNode)));
         var dependencies = rulesMethod.getDependencies();
         if (dependencies != null && dependencies.getRulesMethods() != null) {
             dependencies.getRulesMethods()
                     .forEach(dependency -> node.dependencies().add(TableUtils.makeTableId(dependency.getSourceUrl())));
         }
+    }
+
+    /** Builds a full node, reading the table's display name and summary — used for the graph views. */
+    private RawNode detailedNode(String id,
+                                 TableSyntaxNode tableSyntaxNode,
+                                 ExecutableMethod rulesMethod,
+                                 Map<TableSyntaxNode, String> projectByTable,
+                                 OverloadedMethodsDictionary methodNodesDictionary,
+                                 WebStudioFormats formats) {
+        var displayNames = TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, 0, methodNodesDictionary, formats);
+        var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
+        var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
+        return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, dimensionProperties(rulesMethod),
+                projectByTable.get(tableSyntaxNode));
+    }
+
+    /**
+     * Returns the ids of every table reachable from the root table in the given direction, including the root.
+     *
+     * <p>Lighter than {@link #buildTableGraph}: it builds only the dependency adjacency, not the per-table
+     * summaries, so callers can filter by reachability without reading every table's source. Returns an empty set
+     * when the root is not a table node (for example a test table, which is not part of the dependency graph).
+     *
+     * @param model       compiled project model
+     * @param rootTableId table to traverse from
+     * @param direction   which relations to follow
+     * @param maxDepth    maximum traversal depth from the root, or {@code null} for unlimited
+     * @return reachable table ids, including the root
+     */
+    public Set<String> reachableTableIds(ProjectModel model,
+                                         String rootTableId,
+                                         GraphDirection direction,
+                                         @Nullable Integer maxDepth) {
+        var nodes = collectNodes(model, false, false);
+        if (nodes.isEmpty()) {
+            return Set.of();
+        }
+        linkDependents(nodes);
+        return reachable(nodes, rootTableId, direction, maxDepth);
     }
 
     /**

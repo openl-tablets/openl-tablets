@@ -48,4 +48,19 @@ public interface IRuntimeEnv {
     void pushContext(IRuntimeContext context);
 
     IRuntimeEnv copy();
+
+    /**
+     * The tracer observing this execution — the no-op {@link Tracer#NONE} unless a tracing caller attached one.
+     *
+     * <p>Never {@code null}: callers invoke it directly (for example {@code getTracer().invoke(...)}) without a
+     * null check, and ordinary execution passes straight through the no-op tracer.
+     */
+    default Tracer getTracer() {
+        return Tracer.NONE;
+    }
+
+    /** Attach the tracer that observes this execution; {@code null} clears it back to the no-op tracer. */
+    default void setTracer(Tracer tracer) {
+        // Environments that do not support tracing ignore it and stay untraced.
+    }
 }

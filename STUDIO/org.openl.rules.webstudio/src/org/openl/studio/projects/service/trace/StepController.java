@@ -1,0 +1,125 @@
+package org.openl.studio.projects.service.trace;
+
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Decides whether execution should suspend at a given point.
+ *
+ * <p>Stepping is expressed as a depth threshold: execution suspends on a frame enter or a current-line
+ * change whose depth is at or above the threshold (that is, {@code depth <= threshold}). Step Into uses
+ * an unbounded threshold and Step Over uses the current depth. Step Out runs the current frame to
+ * completion and suspends at its own {@link DebugEvent#EXIT} (so its result is on the stack), then
+ * continues in the caller on the next step. Resume disables stepping and waits for a breakpoint.
+ * Breakpoints (matched by table URI or table name on frame entry, or by sub-step) and an asynchronous
+ * pause request always suspend, regardless of the threshold.
+ *
+ * <p>All mutators are synchronized so the controller thread can change breakpoints or request a pause
+ * while the worker thread evaluates suspend points.
+ */
+final class StepController {
+
+    /** Depth that never matches a real frame (frames are numbered from 1). */
+    private static final int NEVER = 0;
+
+    private final AtomicReference<Set<String>> breakpoints = new AtomicReference<>(Set.of());
+    private int threshold = NEVER;
+    private int exitDepth = NEVER;
+    private volatile boolean pauseRequested;
+
+    /** Arm the initial step before execution starts. */
+    synchronized void armInitial(boolean stopAtEntry) {
+        threshold = stopAtEntry ? Integer.MAX_VALUE : NEVER;
+        exitDepth = NEVER;
+        pauseRequested = false;
+    }
+
+    /** Arm the next step from a command issued at the given current depth. */
+    synchronized void arm(DebugCommand command, int currentDepth) {
+        // Into, Over and Out all suspend at the current frame's own exit, so a step that finishes the
+        // frame lands on its EXIT — with the returned result on the stack — before continuing in the
+        // caller. Resume runs straight to the next breakpoint.
+        exitDepth = command == DebugCommand.RESUME ? NEVER : currentDepth;
+        threshold = switch (command) {
+            case STEP_INTO -> Integer.MAX_VALUE;
+            case STEP_OVER -> currentDepth;
+            case STEP_OUT -> currentDepth - 1;
+            case RESUME -> NEVER;
+        };
+        pauseRequested = false;
+    }
+
+    void setBreakpoints(Set<String> uris) {
+        this.breakpoints.set(Set.copyOf(uris));
+    }
+
+    Set<String> getBreakpoints() {
+        return breakpoints.get();
+    }
+
+    /** Request an asynchronous suspend at the next safepoint. */
+    void requestPause() {
+        pauseRequested = true;
+    }
+
+    /**
+     * Whether execution should suspend at this event.
+     *
+     * <p>A breakpoint is matched at table entry by URI (key {@code uri}) or by table name (key
+     * {@code name}), or at a sub-step (key {@code uri#ref}): a spreadsheet cell such as {@code uri#R2C3},
+     * any fired decision-table rule ({@code uri#rule}), or a specific fired rule by name such as
+     * {@code uri#R10}. A name breakpoint suspends on any same-named table, since every overloaded or
+     * dimensional version shares the plain method name.
+     *
+     * <p>Any table or sub-step key may be suffixed with {@code @N} to fire only on the table's
+     * {@code N}-th execution (zero-based, the same numbering as a watch series), so a breakpoint can
+     * target one iteration of a table that runs many times — for example {@code uri#R48C0@3}.
+     *
+     * @param event    the kind of safepoint reached
+     * @param depth    depth of the current frame (1 for the top-level call)
+     * @param uri      table URI of the current frame
+     * @param location current sub-step location on a location change, or {@code null}
+     * @param name     table name of the current frame, for name breakpoints, or {@code null}
+     * @param instance zero-based execution number of the current frame's table, for {@code @N} breakpoints
+     */
+    synchronized boolean shouldSuspend(DebugEvent event, int depth, String uri, @Nullable CurrentLocation location,
+                                       @Nullable String name, int instance) {
+        if (pauseRequested) {
+            return true;
+        }
+        Set<String> active = breakpoints.get();
+        if (event == DebugEvent.ENTER && (matches(active, uri, instance)
+                || (name != null && active.contains(name)))) {
+            return true;
+        }
+        if (event == DebugEvent.LOCATION && location != null
+                && matchesLocationBreakpoint(active, uri, location, instance)) {
+            return true;
+        }
+        if (event == DebugEvent.EXIT) {
+            return depth <= exitDepth;
+        }
+        return depth <= threshold;
+    }
+
+    private static boolean matchesLocationBreakpoint(Set<String> active, String uri, CurrentLocation location,
+                                                     int instance) {
+        if (active.isEmpty()) {
+            // No breakpoints set: skip building "uri#ref" keys on every sub-step of a plain run.
+            return false;
+        }
+        for (String ref : location.breakpointRefs()) {
+            if (matches(active, uri + "#" + ref, instance)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** A key matches when it is set for any instance ({@code key}) or for this one ({@code key@N}). */
+    private static boolean matches(Set<String> active, String key, int instance) {
+        return active.contains(key) || active.contains(key + "@" + instance);
+    }
+}

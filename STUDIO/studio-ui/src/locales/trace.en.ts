@@ -1,11 +1,109 @@
 import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'trace', {
-    title: 'Execution Trace',
+    title: 'Execution trace',
 
-    actions: {
-        download: 'Download',
-        downloadTooltip: 'Download trace as text file',
+    watch: {
+        title: 'Watch',
+        add: 'Add',
+        addPlaceholder: 'Cell name ($Factor) or ref (R2C3)',
+        collect: 'Collect',
+        empty: 'No values captured — run a table that computes these cells.',
+        truncated: 'Too many values — the series is capped and may miss late executions.',
+        showing: 'Showing the first {{shown}} of {{total}} executions.',
+        noValue: '—',
+        replayHint: 'Replay: restart and run to this table to inspect it live',
+    },
+
+    tree: {
+        title: 'Call tree',
+        modeSimple: 'Tree',
+        modeCallStack: 'Call Stack',
+        runToHint: 'Run execution to here',
+        resultHint: 'View result',
+        replayHint: 'Replay — restart and run to this table to inspect it live',
+        replayStepHint: 'Replay — restart and run to this step to inspect it live',
+        timeTotal: 'Total',
+        timeSelf: 'Self',
+        dispatchTitle: 'Chosen from {{count}} versions by dimension properties:',
+        referenceTag: 'ref',
+        referenceHint: 'Uses a step that already executed — click to jump to it',
+        passHint: 'Execution #{{n}} of this table in the run',
+        more: '+{{count}} more executions',
+    },
+
+    hotspots: {
+        tab: 'Hot Spots',
+        title: 'Hot spots',
+        summary: '{{tables}} tables · {{invocations}} invocations · {{total}}',
+        colTable: 'Table',
+        colRuns: 'Runs',
+        colSelf: 'Self',
+        colTotal: 'Total',
+        replayHint: 'Replay — restart and run to this table to inspect it live',
+        truncated: 'Showing the slowest of {{count}} tables that ran.',
+        empty: 'Hot spots appear after a profiling run finishes. Turn on Profiling and run to the end.',
+    },
+
+    debug: {
+        resume: 'Resume — run to the next breakpoint or the end',
+        pause: 'Pause — stop at the next step',
+        stepInto: 'Step into — go inside the next called rule',
+        stepOver: 'Step over — run the next line without going inside',
+        stepOut: 'Step out — finish this rule and return to its caller',
+        stop: 'Stop debugging',
+        rerun: 'Rerun — restart the trace from the beginning',
+        profiling: 'Profiling',
+        profilingHint: 'Keep the executed call tree (timings + replay). It uses more memory and runs slower, and switching restarts the trace.',
+        profilingNotice: 'Profiling keeps the whole executed tree — it uses more memory and runs slower. Turn it off when you do not need the executed branches.',
+        callStack: 'Call stack',
+        notSuspended: 'Execution is not suspended',
+        breakpoints: 'Breakpoints',
+        noBreakpoints: 'No breakpoints. Add one from a table below.',
+        addBreakpoint: 'Add breakpoint',
+        addBreakpointPlaceholder: 'Find a table by name…',
+        removeBreakpoint: 'Remove breakpoint',
+        steps: 'Steps',
+        noSteps: 'No steps',
+        executing: 'executing…',
+        pending: 'pending',
+        status: {
+            pending: 'Starting…',
+            running: 'Running',
+            suspended: 'Suspended',
+            completed: 'Completed',
+            error: 'Error',
+            terminated: 'Terminated',
+        },
+    },
+
+    error: {
+        inTable: 'in {{table}}',
+        atLocation: 'at {{location}}',
+        technicalDetails: 'Show technical details',
+    },
+
+    decision: {
+        fired: 'Fired: {{rules}}',
+        firedCount: 'Fired {{count}} rules: {{rules}}, …',
+        showAllRules: 'Show all {{count}} rules',
+        showFewer: 'Show fewer',
+        noneFired: 'No rule fired',
+        notYetFired: 'No rule has fired yet.',
+        breakOnFire: 'Break when a rule fires',
+        breakOnFireHint: "Suspend whenever this table fires a rule — when all of a rule's conditions match.",
+        breakpointLabel: '{{table}} — on rule fired',
+        ruleBreakpointLabel: '{{table}} — when {{rule}} fires',
+        breakOnRule: 'Break on rule',
+        breakOnRulePlaceholder: 'Pick rules to break on…',
+    },
+
+    // Explains the cell/row colours shared by the traced table, the spreadsheet grid and the decision panel.
+    legend: {
+        current: 'Current step',
+        result: 'Result',
+        conditionMet: 'Condition met',
+        conditionNotMet: 'Condition not met',
     },
 
     copy: {
@@ -15,102 +113,46 @@ i18next.addResourceBundle('en', 'trace', {
         failed: 'Failed to copy to clipboard',
     },
 
-    tree: {
-        showDetails: 'Show detailed trace',
-        hideDetails: 'Hide failed conditions',
-        expandAll: 'Expand All',
-        collapseAll: 'Collapse All',
-        noNodes: 'No trace data available',
-    },
-
     details: {
-        title: 'Node Details',
         parameters: 'Parameters',
-        result: 'Returned Result',
+        result: 'Result',
         errors: 'Errors',
-        table: 'Traced Table',
-        noSelection: 'Select a node to view details',
+        table: 'Traced table',
+        decision: 'Decision',
+        noSelection: 'Select a stack frame to view its variables',
         noParameters: 'No parameters',
         noResult: 'No result',
-        noErrors: 'No errors',
-        noTable: 'No table view available',
+    },
+
+    table: {
+        truncated: 'Showing the first {{count}} of {{total}} rows. Open in Excel to see the full table.',
     },
 
     param: {
         loadValue: 'Load value',
-        loading: 'Loading...',
-        name: 'Name',
-        type: 'Type',
-        value: 'Value',
-        expand: 'Expand',
-        collapse: 'Collapse',
     },
 
-    progress: {
-        pending: 'Waiting to start...',
-        started: 'Executing trace...',
-        completed: 'Trace completed',
-        interrupted: 'Trace interrupted',
-        error: 'Trace failed',
-        cancel: 'Cancel',
-    },
-
-    loading: 'Loading trace...',
-    loadingDetails: 'Loading details...',
-    loadingTable: 'Loading table...',
-    loadingChildren: 'Loading...',
+    loadingDetails: 'Loading details…',
+    loadingTable: 'Loading table…',
 
     errors: {
         notFound: 'Trace not found. Please execute a trace first.',
         missingParams: 'Missing projectId or tableId in URL.',
-        notCompleted: 'Trace execution is still in progress.',
-        loadFailed: 'Failed to load trace data.',
-        detailsFailed: 'Failed to load node details.',
         tableFailed: 'Failed to load table view.',
         parameterFailed: 'Failed to load parameter value.',
-        cancelFailed: 'Failed to cancel trace.',
-    },
-
-    nodeTypes: {
-        decisiontable: 'Decision Table',
-        method: 'Method',
-        rule: 'Rule',
-        condition: 'Condition',
-        spreadsheet: 'Spreadsheet',
-        spreadsheetCell: 'Spreadsheet Cell',
-        tbasic: 'TBasic',
-        tbasicOperation: 'TBasic Operation',
-        cmatch: 'Column Match',
-        overloadedMethodChoice: 'Overloaded Method',
     },
 
     severity: {
         ERROR: 'Error',
-        WARNING: 'Warning',
-        INFO: 'Info',
     },
 
     modal: {
-        title: 'Trace Execution',
+        title: 'Trace execution',
         statuses: {
-            pending: 'Preparing trace...',
-            started: 'Executing trace...',
-            startedNoLiveProgress: 'Executing trace... (live progress unavailable)',
-            completed: 'Trace completed!',
-            interrupted: 'Trace was interrupted',
-            error: 'Trace failed',
-        },
-        actions: {
-            cancel: 'Cancel',
-            close: 'Close',
-        },
-        warnings: {
-            liveProgressUnavailable: 'Live progress is unavailable. Switching to completion polling.',
+            started: 'Executing trace…',
         },
         errors: {
             startFailed: 'Failed to start trace',
-            cancelFailed: 'Failed to cancel trace',
-            completionTimeout: 'Trace is still running. Please retry in a few moments.',
         },
     },
 })

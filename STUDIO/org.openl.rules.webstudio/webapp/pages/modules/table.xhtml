@@ -339,12 +339,12 @@
                                    rendered="#{tableBean.canRun}"
                                    value="Trace" title="Trace"
                                    styleClass="hidden on-errors-hide b-trace"
-                                   onclick="if (isAnyTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}'); } return false;"/>
+                                   onclick="if (isSingleTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}'); } return false;"/>
                 <h:commandButton id="traceIntoFileButton"
                                  rendered="#{tableBean.canRun}"
                                  value="Trace into File" title="Trace into File"
                                  styleClass="hidden on-errors-hide b-trace"
-                                 onclick="if (isAnyTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', true); } return false;"/>
+                                 onclick="if (isSingleTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', true); } return false;"/>
                 <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
@@ -1150,6 +1150,21 @@
                     .then(function (status) { callback(status.compileState !== 'compiling'); })
                     .catch(function () { callback(false); });
             });
+        }
+
+        function isSingleTestSelected() {
+            if (!isAnyTestSelected()) {
+                return false;
+            }
+            // The interactive trace runs one test case, so require a single selection - one checked case, or a
+            // single test ID in the range field (a manually entered range like "1-3" or "1,2" is rejected).
+            var single = $j("#useTestRanges").is(":checked")
+                ? /^\d+$/.test($j("#testRanges").val().trim())
+                : $j(".test-id:checked").length === 1;
+            if (!single) {
+                ws.ui.error("Trace runs a single test case. Select one test, or enter a single test ID.");
+            }
+            return single;
         }
 
         function isAnyTestSelected() {
