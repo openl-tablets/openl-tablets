@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # LOG4J_VER must match log4j.version in the root pom.xml.
-ARG LOG4J_VER=2.26.0
+ARG LOG4J_VER=2.26.1
 
 FROM alpine AS otel
 
