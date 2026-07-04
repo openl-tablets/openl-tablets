@@ -8,7 +8,6 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 public class SpreadsheetResultCalculator implements IDynamicObject {
     public static final Object METHOD_VALUE = new Object();
@@ -115,14 +114,14 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         if (result != METHOD_VALUE) {
             boolean resolved = false;
             if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
-                resolved = Tracer.resolveTraceNode(spreadsheetCell, this, params, env, this);
+                resolved = env.getTracer().resolveTraceNode(spreadsheetCell, this, params, env, this);
             }
             if (!resolved) {
-                Tracer.put(spreadsheetCell, "cell", result);
+                env.getTracer().put(spreadsheetCell, "cell", result);
             }
             return result;
         }
-        result = Tracer.invoke(spreadsheetCell, this, params, env, this);
+        result = env.getTracer().invoke(spreadsheetCell, this, params, env, this);
         results[row][column] = result;
         return result;
     }

@@ -1,0 +1,81 @@
+import { createStyles } from 'antd-style'
+
+export const useStyles = createStyles(({ css, token }) => ({
+    card: css`
+        margin-top: ${token.marginSM}px;
+
+        .ant-card-head {
+            min-height: 36px;
+            padding: 0 ${token.paddingSM}px;
+        }
+
+        .ant-card-head .ant-card-head-title {
+            padding: ${token.paddingXS}px 0;
+            font-size: ${token.fontSizeSM}px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: ${token.colorTextTertiary};
+        }
+
+        .ant-card-body {
+            padding: ${token.paddingSM}px;
+        }
+    `,
+    summary: css`
+        font-weight: 600;
+        margin-bottom: ${token.marginXS}px;
+    `,
+    showAll: css`
+        padding-inline: 0;
+    `,
+    rule: css`
+        display: flex;
+        align-items: baseline;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
+        border-radius: ${token.borderRadiusSM}px;
+    `,
+    firedRule: css`
+        background: ${token.colorSuccessBg};
+    `,
+    ruleName: css`
+        min-width: 90px;
+        font-weight: 600;
+    `,
+    conditions: css`
+        display: flex;
+        flex-wrap: wrap;
+        gap: ${token.marginXXS}px;
+    `,
+    gutter: css`
+        align-self: center;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1px solid ${token.colorBorder};
+        flex: 0 0 auto;
+        cursor: pointer;
+        &:hover {
+            border-color: ${token.colorError};
+        }
+    `,
+    gutterActive: css`
+        background: ${token.colorError};
+        border-color: ${token.colorError};
+    `,
+    rulePicker: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginXS}px;
+        margin-bottom: ${token.marginSM}px;
+    `,
+    rulePickerLabel: css`
+        color: ${token.colorTextTertiary};
+        white-space: nowrap;
+    `,
+    ruleSelect: css`
+        flex: 1;
+        min-width: 0;
+    `,
+}))

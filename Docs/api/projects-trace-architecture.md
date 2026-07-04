@@ -1,1615 +1,420 @@
 # Projects Trace API - Architecture Design
 
-**Version**: 6.0.0-SNAPSHOT
+**Version**: 6.2.1-SNAPSHOT
 **Status**: BETA
-**Last Updated**: 2026-01-29
+**Last Updated**: 2026-07-02
+
+> [!Note]
+> This describes the **interactive debugger** Trace. It replaces the previous tree-based Trace that ran a
+> rule to completion, built a full execution tree, and used "lazy nodes" that re-executed the calculation.
+> The legacy tree implementation has been removed.
 
 ---
 
 ## Table of Contents
 
-1. [Architecture Overview](#architecture-overview)
-2. [Component Design](#component-design)
-3. [Data Flow](#data-flow)
-4. [Session Management](#session-management)
-5. [Lazy Loading Strategy](#lazy-loading-strategy)
-6. [Trace Collection Architecture](#trace-collection-architecture)
-7. [Integration with Rules Engine](#integration-with-rules-engine)
-8. [WebSocket Progress Notifications](#websocket-progress-notifications)
-9. [Performance Considerations](#performance-considerations)
-10. [Security Architecture](#security-architecture)
-11. [Design Decisions](#design-decisions)
-12. [Future Enhancements](#future-enhancements)
+1. [Why this exists](#why-this-exists)
+2. [The core idea](#the-core-idea)
+3. [How suspension works](#how-suspension-works)
+4. [Session lifecycle](#session-lifecycle)
+5. [Architecture layers](#architecture-layers)
+6. [Frames and stepping](#frames-and-stepping)
+7. [Nested steps and references](#nested-steps-and-references)
+8. [Profiling: the executed call tree](#profiling-the-executed-call-tree)
+9. [Breakpoints](#breakpoints)
+10. [Freezing variables](#freezing-variables-live-stack-only)
+11. [Watch: a value across every execution](#watch-a-value-across-every-execution)
+12. [Avoiding the ProjectModel monitor](#avoiding-the-projectmodel-monitor)
+13. [Highlighting in the traced table](#highlighting-in-the-traced-table)
+14. [Memory: old vs new](#memory-old-vs-new)
+15. [REST API](#rest-api)
+16. [Concurrency and isolation](#concurrency-and-isolation)
+17. [Limitations and follow-ups](#limitations-and-follow-ups)
+18. [Key files](#key-files)
 
 ---
 
-## Architecture Overview
+## Why this exists
 
-### System Context
+The previous Trace ran a rule **to completion**, built a full in-memory tree of every executed step, and
+**cloned the arguments and result of every node**. A single trace could reach tens of gigabytes. The
+"lazy node" mitigation only *simulated* laziness: expanding a node **re-executed the whole calculation
+from that point to the end**, kept just the first level, discarded the rest, and re-cloned arguments —
+wasteful in both CPU and memory.
 
-The Projects Trace API is a debugging facility within OpenL Tablets Studio that enables step-by-step execution tracing of rules. It captures the complete execution tree, including method calls, decision table evaluations, and spreadsheet cell computations.
+The rework replaces this with a **real, Java-debugger-style** model: step into/over/out, breakpoints on
+tables and on individual steps, and **genuinely suspended execution** instead of re-execution. The UI
+shows the **live execution stack** (root to the current point) rather than a full tree, so memory is
+bounded by stack depth, not by the number of executed steps. An optional **profiling** mode retains the
+structure and timings of returned calls — but never their values.
 
-``` mermaid
-flowchart TB
-    subgraph CLIENTS["External Clients"]
-        UI["Web UI<br/>(React)"]
-        WS["WebSocket<br/>(Progress)"]
-    end
+## The core idea
 
-    subgraph REST["REST Controller Layer"]
-        C["ProjectsTraceController<br/>- 7 REST endpoints<br/>- Request validation<br/>- Response mapping"]
-    end
+OpenL evaluation is a **synchronous recursive Java call chain**, and every rule-table invocation funnels
+through one chokepoint:
 
-    subgraph SERVICE["Service Layer"]
-        TES["TraceExecutorService<br/>- Async execution<br/>- Test suite tracing"]
-        THS["TraceTableHtmlService<br/>- HTML rendering"]
-        TEXP["TraceExportService<br/>- Text export"]
-        TIPS["TableInputParserService<br/>- JSON input parsing"]
-        TM["TraceNodeViewMapper<br/>- DTO mapping<br/>- Schema generation"]
-    end
-
-    subgraph SESSION["Session-Scoped Components"]
-        ETRR["ExecutionTraceResultRegistry<br/>- Task tracking<br/>- CompletableFuture storage"]
-        TPR["TraceParameterRegistry<br/>- Lazy parameter storage"]
-    end
-
-    subgraph CORE["Core Tracing Engine"]
-        TBT["TreeBuildTracer<br/>- ThreadLocal trace tree<br/>- Lazy node support"]
-        TH["TraceHelper<br/>- BidiMap node cache"]
-        PM["ProjectModel<br/>- Rule execution"]
-    end
-
-    subgraph LISTENERS["Progress Listeners"]
-        SPL["SocketTraceExecutionProgressListenerFactory<br/>- WebSocket notifications"]
-    end
-
-    UI -->|HTTP| C
-    WS <-->|WebSocket| SPL
-    C --> TES
-    C --> THS
-    C --> TEXP
-    C --> TIPS
-    C --> ETRR
-    C --> TPR
-    TES --> TBT
-    TES --> PM
-    TES --> SPL
-    TBT --> TH
-    TM --> TPR
+```
+ExecutableRulesMethod.invoke → Tracer.invoke(executor, target, params, env, source) → instance.doInvoke(...)
 ```
 
-### Layered Architecture
-
-The API follows a strict layered architecture with clear separation of concerns:
-
-``` mermaid
-flowchart TB
-    subgraph PRESENTATION["Presentation Layer"]
-        P["ProjectsTraceController<br/>- REST endpoints<br/>- Input validation<br/>- JSON views"]
-    end
-
-    subgraph SERVICE["Service Layer"]
-        S["TraceExecutorService<br/>- Async orchestration<br/>- TraceNodeViewMapper"]
-    end
-
-    subgraph SESSION["Session Layer"]
-        SS["ExecutionTraceResultRegistry<br/>TraceParameterRegistry<br/>- Per-session state"]
-    end
-
-    subgraph CORE["Core Layer"]
-        CO["TreeBuildTracer<br/>TraceHelper<br/>- Trace collection"]
-    end
-
-    subgraph ENGINE["Rules Engine"]
-        E["ProjectModel<br/>TestSuite<br/>- Rule execution"]
-    end
-
-    P --> S
-    S --> SS
-    S --> CO
-    CO --> E
-```
-
-**Design Principle**: Each layer depends only on layers below it. No upward dependencies.
-
----
-
-## Component Design
-
-### 1. ProjectsTraceController
-
-**Location**: `org.openl.studio.projects.rest.controller.ProjectsTraceController`
-
-#### Responsibilities
-
-1. **Request Handling**
-   - Expose 7 REST endpoints for trace operations
-   - Validate incoming requests (tableId, testRanges, parameters)
-   - Map DTOs to service layer models
-
-2. **Session Coordination**
-   - Access ExecutionTraceResultRegistry for task management
-   - Access TraceParameterRegistry for lazy parameters
-   - Create TraceHelper for each trace session
-
-3. **Input Parsing**
-   - Parse JSON input parameters to Java objects
-   - Parse runtime context from JSON
-   - Parse test ranges (e.g., "1-3,5")
-
-4. **Response Mapping**
-   - Use `@JsonView` for conditional field serialization
-   - Map ITracerObject to TraceNodeView DTOs
-   - Generate JSON Schema for parameter types
-
-#### Key Design Patterns
-
-**Pattern 1: Dependency Injection**
-```java
-public ProjectsTraceController(
-    WorkspaceProjectService projectService,
-    TraceExecutorService traceExecutorService,
-    ExecutionTraceResultRegistry traceResultRegistry,
-    SocketTraceExecutionProgressListenerFactory listenerFactory,
-    TraceParameterRegistry parameterRegistry,
-    TraceTableHtmlService traceTableHtmlService,
-    TableInputParserService inputParserService,
-    TraceExportService traceExportService,
-    Environment environment
-) {
-    // All dependencies injected via constructor
-    // Enables testability and loose coupling
-}
-```
-
-**Pattern 2: Async Task Submission**
-```java
-@PostMapping
-@ResponseStatus(HttpStatus.ACCEPTED)
-public void startTrace(...) {
-    // Cancel previous trace
-    traceResultRegistry.cancelIfAny();
-    parameterRegistry.clear();
-
-    // Create new TraceHelper
-    var traceHelper = new TraceHelper();
-
-    // Submit async task
-    CompletableFuture<ITracerObject> traceTask = traceExecutorService.traceMethod(
-        listener, projectModel, table, params, runtimeContext, currentOpenedModule, traceHelper
-    );
-
-    // Register task for later retrieval
-    traceResultRegistry.setTask(projectId, tableId, traceTask, traceHelper);
-}
-```
-
-**Pattern 3: JsonView for Partial Responses**
-```java
-@GetMapping("/nodes")
-@JsonView(GenericView.Short.class)  // Only basic fields
-public List<TraceNodeView> getNodes(...) { }
-
-@GetMapping("/nodes/{nodeId}")
-@JsonView(GenericView.Full.class)   // All fields including parameters
-public TraceNodeView getNodeDetails(...) { }
-```
-
----
-
-### 2. TraceExecutorService
-
-**Location**: `org.openl.studio.projects.service.trace.TraceExecutorService`
-
-#### Interface
-
-```java
-public interface TraceExecutorService {
-    /**
-     * Traces a test suite with optional range selection.
-     */
-    CompletableFuture<ITracerObject> traceTestSuite(
-        TraceExecutionProgressListener listener,
-        ProjectModel projectModel,
-        IOpenLTable table,
-        String testRanges,
-        boolean currentOpenedModule,
-        TraceHelper traceHelper
-    );
-
-    /**
-     * Traces a regular method with provided parameters.
-     */
-    CompletableFuture<ITracerObject> traceMethod(
-        TraceExecutionProgressListener listener,
-        ProjectModel projectModel,
-        IOpenLTable table,
-        Object[] params,
-        IRulesRuntimeContext runtimeContext,
-        boolean currentOpenedModule,
-        TraceHelper traceHelper
-    );
-}
-```
-
-#### Implementation Details
-
-**Async Execution with Spring**:
-```java
-@Service
-public class TraceExecutorServiceImpl implements TraceExecutorService {
-
-    @Async("testSuiteExecutor")
-    @Override
-    public CompletableFuture<ITracerObject> traceMethod(...) {
-        try {
-            listener.onStatusChanged(TraceExecutionStatus.STARTED);
-
-            // Initialize thread-local tracer
-            TreeBuildTracer.initialize(true);  // Enable lazy nodes
-
-            try {
-                // Execute with tracing
-                ITracerObject traceRoot = projectModel.traceElement(testSuite, currentOpenedModule);
-
-                // Cache trace tree
-                traceHelper.cacheTraceTree(traceRoot);
-
-                listener.onStatusChanged(TraceExecutionStatus.COMPLETED);
-                return CompletableFuture.completedFuture(traceRoot);
-
-            } finally {
-                TreeBuildTracer.destroy();  // Clean up ThreadLocal
-            }
-
-        } catch (Exception e) {
-            listener.onError(e);
-            return CompletableFuture.failedFuture(e);
-        }
-    }
-}
-```
-
-**Test Range Parsing**:
-```java
-private int[] parseTestRanges(String testRanges, int maxTests) {
-    if (testRanges == null || testRanges.isEmpty()) {
-        return IntStream.range(0, maxTests).toArray();  // All tests
-    }
-
-    Set<Integer> indices = new TreeSet<>();
-    for (String part : testRanges.split(",")) {
-        if (part.contains("-")) {
-            String[] range = part.split("-");
-            int start = Integer.parseInt(range[0].trim()) - 1;
-            int end = Integer.parseInt(range[1].trim()) - 1;
-            for (int i = start; i <= end; i++) {
-                if (i >= 0 && i < maxTests) indices.add(i);
-            }
-        } else {
-            int index = Integer.parseInt(part.trim()) - 1;
-            if (index >= 0 && index < maxTests) indices.add(index);
-        }
-    }
-    return indices.stream().mapToInt(Integer::intValue).toArray();
-}
-```
-
----
-
-### 3. ExecutionTraceResultRegistry
-
-**Location**: `org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry`
-
-#### Design
-
-```java
-@Component
-@SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class ExecutionTraceResultRegistry {
-
-    private String currentProjectId;
-    private String currentTableId;
-    private CompletableFuture<ITracerObject> currentTask;
-    private TraceHelper currentTraceHelper;
-
-    /**
-     * Registers new task, cancelling previous if exists.
-     */
-    public void setTask(String projectId, String tableId,
-                        CompletableFuture<ITracerObject> task,
-                        TraceHelper traceHelper) {
-        cancelIfAny();  // Cancel previous
-
-        this.currentProjectId = projectId;
-        this.currentTableId = tableId;
-        this.currentTask = task;
-        this.currentTraceHelper = traceHelper;
-    }
-
-    /**
-     * Checks if task exists for project.
-     */
-    public boolean hasTask(String projectId) {
-        return projectId.equals(currentProjectId) && currentTask != null;
-    }
-
-    /**
-     * Checks if task is completed.
-     */
-    public boolean isDone(String projectId) {
-        return hasTask(projectId) && currentTask.isDone();
-    }
-
-    /**
-     * Gets TraceHelper if task completed.
-     */
-    public TraceHelper getTraceHelperIfDone(String projectId) {
-        if (!isDone(projectId)) return null;
-        return currentTraceHelper;
-    }
-
-    /**
-     * Cancels current task if running.
-     */
-    public void cancelIfAny() {
-        if (currentTask != null && !currentTask.isDone()) {
-            currentTask.cancel(true);
-        }
-        clear();
-    }
-}
-```
-
-**Why Session Scope?**
-- One trace per user session
-- Automatic cleanup on session expiration
-- Isolation between users
-- No cross-session interference
-
----
-
-### 4. TraceParameterRegistry
-
-**Location**: `org.openl.studio.projects.service.trace.TraceParameterRegistry`
-
-#### Design
-
-```java
-@Component
-@SessionScope
-public class TraceParameterRegistry {
-
-    private final AtomicInteger idGenerator = new AtomicInteger(0);
-    private final Map<Integer, ParameterWithValueDeclaration> parameters = new ConcurrentHashMap<>();
-
-    /**
-     * Registers parameter and returns unique ID.
-     */
-    public int register(ParameterWithValueDeclaration param) {
-        int id = idGenerator.incrementAndGet();
-        parameters.put(id, param);
-        return id;
-    }
-
-    /**
-     * Retrieves parameter by ID.
-     */
-    public ParameterWithValueDeclaration get(int id) {
-        return parameters.get(id);
-    }
-
-    /**
-     * Clears all registered parameters.
-     */
-    public void clear() {
-        idGenerator.set(0);
-        parameters.clear();
-    }
-}
-```
-
-**Purpose**: Store large parameter values for lazy loading
-- Prevents bloated initial responses
-- On-demand retrieval via parameter ID
-- Session-scoped to prevent memory leaks
-
----
-
-### 5. TraceNodeViewMapper
-
-**Location**: `org.openl.studio.projects.model.trace.TraceNodeViewMapper`
-
-#### Responsibilities
-
-1. Convert ITracerObject to TraceNodeView DTOs
-2. Serialize parameter values with JSON Schema generation
-3. Decide lazy loading based on type complexity
-4. Format display names via TraceFormatter
-
-#### Key Methods
-
-```java
-public class TraceNodeViewMapper {
-
-    private final ObjectMapper objectMapper;
-    private final TraceParameterRegistry parameterRegistry;
-
-    /**
-     * Creates simple node view (for list responses).
-     */
-    public TraceNodeView createSimpleNode(ITracerObject element,
-                                          TraceHelper traceHelper,
-                                          boolean showRealNumbers) {
-        Integer key = traceHelper.getNodeKey(element);
-        String title = TraceFormatter.getDisplayName(element, showRealNumbers);
-        String tooltip = element.getTooltip();
-        String type = getNodeType(element);
-        boolean lazy = hasChildren(element);
-        String extraClasses = getExtraClasses(element);
-
-        return new TraceNodeView.Builder()
-            .key(key)
-            .title(title)
-            .tooltip(tooltip)
-            .type(type)
-            .lazy(lazy)
-            .extraClasses(extraClasses)
-            .build();
-    }
-
-    /**
-     * Creates detailed node view with parameters/context/result.
-     */
-    public TraceNodeView createDetailedNode(ITracerObject element,
-                                            TraceHelper traceHelper,
-                                            boolean showRealNumbers) {
-        var builder = createSimpleNode(element, traceHelper, showRealNumbers).toBuilder();
-
-        if (element instanceof ATableTracerNode tableNode) {
-            // Extract parameters
-            List<TraceParameterValue> params = extractParameters(tableNode, true);
-            builder.parameters(params);
-
-            // Extract context
-            if (tableNode.getRuntimeContext() != null) {
-                builder.context(buildParameterValue("context",
-                    tableNode.getRuntimeContext(), false));
-            }
-        }
-
-        // Extract result
-        if (element.getResult() != null) {
-            builder.result(buildParameterValue("result",
-                element.getResult(), false));
-        }
-
-        // Extract errors
-        if (element instanceof SimpleTracerObject simpleTracer) {
-            builder.errors(simpleTracer.getErrors());
-        }
-
-        return builder.build();
-    }
-
-    /**
-     * Builds parameter value with optional lazy loading.
-     */
-    public TraceParameterValue buildParameterValue(ParameterWithValueDeclaration param,
-                                                    boolean preferLazy) {
-        Class<?> type = param.getType().getInstanceClass();
-        Object value = param.getValue();
-
-        // Decide if lazy loading needed
-        boolean shouldBeLazy = preferLazy && isComplexType(type, value);
-
-        if (shouldBeLazy) {
-            // Register for lazy loading
-            int parameterId = parameterRegistry.register(param);
-            return new TraceParameterValue(
-                param.getName(),
-                param.getType().getDisplayName(0),
-                true,   // lazy
-                parameterId,
-                null,   // value not included
-                generateSchema(type)
-            );
-        } else {
-            // Include value directly
-            return new TraceParameterValue(
-                param.getName(),
-                param.getType().getDisplayName(0),
-                false,  // not lazy
-                null,   // no parameter ID
-                objectMapper.valueToTree(value),
-                generateSchema(type)
-            );
-        }
-    }
-
-    private boolean isComplexType(Class<?> type, Object value) {
-        // Arrays and collections
-        if (type.isArray() || Collection.class.isAssignableFrom(type)) {
-            return true;
-        }
-        // Custom objects (not primitives/wrappers/strings)
-        if (!type.isPrimitive() && !isWrapperType(type) && type != String.class) {
-            return true;
-        }
-        return false;
-    }
-}
-```
-
----
-
-### 6. TraceTableHtmlService
-
-**Location**: `org.openl.studio.projects.service.trace.TraceTableHtmlService`
-
-#### Purpose
-
-Renders traced tables as HTML with execution path highlighting.
-
-#### Implementation
-
-```java
-@Service
-public class TraceTableHtmlService {
-
-    public String renderTraceTableHtml(TraceHelper traceHelper,
-                                        int nodeId,
-                                        ProjectModel projectModel,
-                                        boolean showFormulas) {
-        // Get trace object
-        ITracerObject traceObject = traceHelper.getTableTracer(nodeId);
-        if (traceObject == null) {
-            throw new NotFoundException("trace.node.not.found.message");
-        }
-
-        // Extract table syntax node
-        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(traceObject);
-        if (tableSyntaxNode == null) {
-            return "";  // No table to render
-        }
-
-        // Create grid filters for trace highlighting
-        List<IGridFilter> filters = createTraceFilters(traceObject);
-
-        // Build table model with filters
-        TableModel tableModel = TableModel.builder()
-            .tableSyntaxNode(tableSyntaxNode)
-            .filters(filters)
-            .showFormulas(showFormulas)
-            .build();
-
-        // Render to HTML
-        HTMLRenderer renderer = new HTMLRenderer(tableModel);
-        return renderer.render();
-    }
-
-    private List<IGridFilter> createTraceFilters(ITracerObject traceObject) {
-        List<IGridFilter> filters = new ArrayList<>();
-
-        // Highlight traced cells
-        for (ITracerObject child : traceObject.getChildren()) {
-            if (child instanceof DTRuleTraceObject ruleTrace) {
-                // Highlight matched/unmatched conditions
-                filters.add(new TracedCellFilter(ruleTrace.getCellRef(),
-                    ruleTrace.isSuccessful() ? "matched" : "unmatched"));
-            }
-            // ... other trace types
-        }
-
-        return filters;
-    }
-}
-```
-
----
-
-### 7. TraceExportService
-
-**Location**: `org.openl.studio.projects.service.trace.TraceExportService`
-
-#### Purpose
-
-Exports trace tree to plain text format for archiving and offline analysis.
-
-#### Implementation
-
-```java
-@Service
-public class TraceExportService {
-
-    private static final long EXPORT_TIMEOUT_MS = 30_000; // 30 seconds
-
-    /**
-     * Exports trace tree to writer with streaming (no RAM buffering).
-     *
-     * @param traceHelper Contains the trace tree to export
-     * @param writer Output destination (usually response writer)
-     * @param showRealNumbers Whether to show exact numbers
-     * @throws TimeoutException if export exceeds timeout
-     */
-    public void exportTrace(TraceHelper traceHelper, Writer writer,
-                            boolean showRealNumbers) throws TimeoutException, IOException {
-        long startTime = System.currentTimeMillis();
-
-        ITracerObject root = traceHelper.getTableTracer(0);
-        if (root == null) {
-            return;
-        }
-
-        // Export with tree formatting
-        exportNode(root, writer, "", true, showRealNumbers, startTime);
-    }
-
-    private void exportNode(ITracerObject node, Writer writer,
-                            String prefix, boolean isLast,
-                            boolean showRealNumbers, long startTime)
-                            throws TimeoutException, IOException {
-        // Check timeout
-        if (System.currentTimeMillis() - startTime > EXPORT_TIMEOUT_MS) {
-            throw new TimeoutException("Export timeout exceeded");
-        }
-
-        // Write current node
-        String title = TraceFormatter.getDisplayName(node, showRealNumbers);
-        writer.write(prefix);
-        writer.write(isLast ? "└── " : "├── ");
-        writer.write(title);
-        writer.write("\n");
-
-        // Recurse to children
-        List<ITracerObject> children = new ArrayList<>(node.getChildren());
-        for (int i = 0; i < children.size(); i++) {
-            boolean childIsLast = (i == children.size() - 1);
-            String childPrefix = prefix + (isLast ? "    " : "│   ");
-            exportNode(children.get(i), writer, childPrefix, childIsLast,
-                       showRealNumbers, startTime);
-        }
-    }
-}
-```
-
-**Features**:
-- **Streaming output**: Writes directly to response writer, no buffering
-- **Timeout protection**: Limits export time for very large traces
-- **Tree formatting**: Uses box-drawing characters for visual hierarchy
-- **Memory efficient**: Processes nodes one at a time
-
----
-
-### 8. TableInputParserService
-
-**Location**: `org.openl.studio.projects.service.trace.TableInputParserService`
-
-#### Purpose
-
-Parses JSON input for trace execution, supporting multiple input formats.
-
-#### Supported Formats
-
-**Format 1: Structured (with runtime context)**
-```json
-{
-  "runtimeContext": {
-    "lob": "Auto",
-    "usState": "CA"
-  },
-  "params": {
-    "age": 25,
-    "coverage": "Full"
-  }
-}
-```
-
-**Format 2: Raw parameters (no context)**
-```json
-{
-  "age": 25,
-  "coverage": "Full"
-}
-```
-
-**Format 3: Array of positional parameters**
-```json
-[25, "Full"]
-```
-
-#### Implementation
-
-```java
-@Service
-public class TableInputParserService {
-
-    /**
-     * Parses input JSON, auto-detecting format.
-     *
-     * @param inputJson Raw JSON string (may be null)
-     * @param method Method to match parameters against
-     * @param objectMapper Configured Jackson mapper
-     * @return ParseResult with params array and optional runtime context
-     */
-    public ParseResult parseInput(String inputJson, IOpenMethod method,
-                                   ObjectMapper objectMapper) {
-        if (inputJson == null || inputJson.isBlank()) {
-            return new ParseResult(new Object[0], null);
-        }
-
-        JsonNode root = objectMapper.readTree(inputJson);
-
-        // Check for structured format (has "params" or "runtimeContext")
-        if (root.has("params") || root.has("runtimeContext")) {
-            return parseStructured(root, method, objectMapper);
-        }
-
-        // Check for array format
-        if (root.isArray()) {
-            return parseArray(root, method, objectMapper);
-        }
-
-        // Default: raw object with named parameters
-        return parseRawObject(root, method, objectMapper);
-    }
-
-    public record ParseResult(Object[] params, IRulesRuntimeContext runtimeContext) {}
-}
-```
-
-**Features**:
-- **Format auto-detection**: Supports multiple JSON formats
-- **Type conversion**: Converts JSON to correct Java types using method signature
-- **Runtime context extraction**: Parses IRulesRuntimeContext properties
-- **Error handling**: Clear error messages for malformed input
-
----
-
-### 9. TreeBuildTracer (Core)
-
-**Location**: `org.openl.rules.webstudio.web.trace.TreeBuildTracer`
-
-#### Core Tracing Engine
-
-The central component that collects trace information during rule execution.
-
-``` mermaid
-classDiagram
-    class Tracer {
-        <<singleton>>
-        +static instance: Tracer
-        +put(TracerKey, Object)
-        +invoke(...)
-    }
-
-    class TreeBuildTracer {
-        -ThreadLocal~ITracerObject~ traceTreeHolder
-        -ThreadLocal~Boolean~ lazyNodesHolder
-        -ThreadLocal~Map~ cacheHolder
-        +initialize(boolean useLazy)
-        +destroy()
-        +doPut(TracerKey, Object)
-        +doBegin(...)
-        +doEnd(...)
-        +doInvoke(...)
-    }
-
-    class ITracerObject {
-        <<interface>>
-        +getParent()
-        +setParent(parent)
-        +addChild(child)
-        +getChildren()
-        +getResult()
-        +getParameters()
-    }
-
-    class LazyTracerNodeObject {
-        -IOpenMethodExecutor executor
-        -Object target
-        -Object[] params
-        +materialize()
-    }
-
-    Tracer <|-- TreeBuildTracer
-    TreeBuildTracer --> ITracerObject
-    ITracerObject <|-- LazyTracerNodeObject
-```
-
-#### ThreadLocal Design
-
-```java
-public class TreeBuildTracer extends Tracer {
-
-    // Per-thread trace tree root
-    private static final ThreadLocal<ITracerObject> traceTreeHolder = new ThreadLocal<>();
-
-    // Whether to create lazy nodes
-    private static final ThreadLocal<Boolean> lazyNodesHolder = new ThreadLocal<>();
-
-    // Cache for node deduplication
-    private static final ThreadLocal<Map<TracerKeyNode, SimpleTracerObject>> cacheHolder =
-        new ThreadLocal<>();
-
-    /**
-     * Initializes tracing for current thread.
-     */
-    public static void initialize(boolean useLazy) {
-        traceTreeHolder.set(new RootTracerObject());
-        lazyNodesHolder.set(useLazy);
-        cacheHolder.set(new HashMap<>());
-
-        // Replace global tracer instance
-        Tracer.instance = new TreeBuildTracer();
-    }
-
-    /**
-     * Cleans up after tracing.
-     */
-    public static void destroy() {
-        ITracerObject root = traceTreeHolder.get();
-
-        // Clean up ThreadLocal state
-        traceTreeHolder.remove();
-        lazyNodesHolder.remove();
-        cacheHolder.remove();
-
-        // Restore default tracer
-        Tracer.instance = Tracer.DEFAULT;
-    }
-
-    /**
-     * Called when entering a traced method.
-     */
-    @Override
-    protected void doBegin(IOpenMethodExecutor executor, Object target,
-                           Object[] params, IRuntimeEnv env) {
-        ITracerObject parent = getCurrentNode();
-
-        ITracerObject traceObject;
-        if (useLazyNodes() && canBeLazyNode(executor)) {
-            // Create lazy node (materializes on first access)
-            traceObject = new LazyTracerNodeObject(executor, target, params, env);
-        } else {
-            // Create immediate trace object
-            traceObject = TracedObjectFactory.getTracedObject(executor, target, params, env);
-        }
-
-        // Link to parent
-        traceObject.setParent(parent);
-        parent.addChild(traceObject);
-
-        // Push to stack
-        pushNode(traceObject);
-    }
-
-    /**
-     * Called when exiting a traced method.
-     */
-    @Override
-    protected void doEnd(IOpenMethodExecutor executor, Object result, Throwable error) {
-        ITracerObject current = popNode();
-
-        if (current instanceof SimpleTracerObject simpleTracer) {
-            simpleTracer.setResult(result);
-            if (error != null) {
-                simpleTracer.addError(error);
-            }
-        }
-    }
-}
-```
-
-**Why ThreadLocal?**
-- Thread safety for concurrent trace execution
-- Isolated trace trees per thread
-- No synchronization overhead
-- Automatic cleanup on thread completion
-
----
-
-### 10. TraceHelper
-
-**Location**: `org.openl.rules.ui.TraceHelper`
-
-#### Bidirectional Node Cache
-
-```java
-public class TraceHelper {
-
-    // BidiMap: Integer ID <-> ITracerObject
-    private final BidiMap<Integer, ITracerObject> traceTreeCache = new DualHashBidiMap<>();
-
-    /**
-     * Caches the entire trace tree with integer IDs.
-     */
-    public void cacheTraceTree(ITracerObject root) {
-        int id = 0;
-        Queue<ITracerObject> queue = new LinkedList<>();
-        queue.add(root);
-
-        while (!queue.isEmpty()) {
-            ITracerObject node = queue.poll();
-            traceTreeCache.put(id++, node);
-
-            // Initialize lazy children
-            if (node instanceof LazyTracerNodeObject lazyNode) {
-                lazyNode.materialize();
-            }
-
-            for (ITracerObject child : node.getChildren()) {
-                queue.add(child);
-            }
-        }
-    }
-
-    /**
-     * Gets node by ID (O(1) lookup).
-     */
-    public ITracerObject getTableTracer(int elementId) {
-        ITracerObject node = traceTreeCache.get(elementId);
-
-        // Initialize lazy children if needed
-        if (node != null && node instanceof LazyTracerNodeObject lazyNode) {
-            lazyNode.materialize();
-        }
-
-        return node;
-    }
-
-    /**
-     * Gets ID for node (O(1) reverse lookup).
-     */
-    public Integer getNodeKey(ITracerObject node) {
-        return traceTreeCache.getKey(node);
-    }
-}
-```
-
-**Why BidiMap?**
-- O(1) lookup by ID (for API requests)
-- O(1) reverse lookup by node (for key generation)
-- Memory efficient (single storage)
-
----
-
-## Data Flow
-
-### Flow 1: Start Trace Execution
-
-``` mermaid
+Therefore a **parked worker thread is a live continuation**: if the thread blocks inside a nested
+invocation, its JVM call stack — with every frame and all local state — stays alive, frozen in place. We
+can suspend and resume real execution **without rewriting the interpreter and without continuations** —
+the parked thread *is* the continuation.
+
+## How suspension works
+
+A debug session runs the selected rule on a **dedicated virtual thread** (Java 21). A debug-aware hook
+brackets each table-level invocation and decides whether to suspend (a breakpoint matched, or a step
+condition was satisfied). To suspend, the worker **blocks on a lock/condition**; to resume, the
+controller unblocks it and it continues **forward** from exactly where it stopped — never a re-run.
+
+```mermaid
 sequenceDiagram
-    participant Client
-    participant Controller
-    participant ExecutorService as Executor Service
-    participant TreeBuildTracer as TreeBuild Tracer
+    participant C as Controller (HTTP thread)
+    participant Ch as DebugChannel
+    participant W as Worker (virtual thread)
+    participant R as Rule execution
 
-    Client->>Controller: POST /trace
-    Controller->>Controller: cancelIfAny()
-    Controller->>ExecutorService: traceMethod()
-    ExecutorService->>TreeBuildTracer: initialize(lazy)
-    ExecutorService->>ExecutorService: projectModel.trace() (execution)
-    ExecutorService->>TreeBuildTracer: destroy()
-    Controller->>Controller: setTask(future)
-    Controller-->>Client: 202 Accepted
+    C->>W: start(stopAtEntry)
+    W->>R: invoke rule
+    R-->>W: Tracer.invoke (enter table)
+    W->>W: StepController.shouldSuspend? yes
+    W->>Ch: publish live stack, then park (block)
+    Note over W,R: JVM call stack frozen in place
+    C->>Ch: step / resume command
+    Ch-->>W: unpark + command
+    W->>R: continue forward (same execution)
+    R-->>W: next safepoint
+    W->>Ch: park again, publish new stack
+    C->>Ch: terminate
+    Ch-->>W: throw DebugTerminationError → unwind
 ```
 
----
+> [!Note]
+> The control methods (`step`, `resume`, `pause`, `terminate`) run on the HTTP thread and return promptly.
+> Only the worker thread ever blocks, and a parked virtual thread costs almost nothing.
 
-### Flow 2: Get Root Nodes
+## Session lifecycle
 
-``` mermaid
-sequenceDiagram
-    participant Client
-    participant Controller
-    participant Registry
-    participant Mapper
-
-    Client->>Controller: GET /trace/nodes
-    Controller->>Registry: hasTask(projectId)
-    Registry-->>Controller: true
-    Controller->>Registry: isDone(projectId)
-    Registry-->>Controller: true
-    Controller->>Registry: getTraceHelper()
-    Registry-->>Controller: TraceHelper
-    Controller->>Mapper: createSimpleNodes()
-    Mapper-->>Controller: List<TraceNodeView>
-    Controller-->>Client: List<TraceNodeView>
-```
-
----
-
-### Flow 3: Get Node Details with Lazy Parameter
-
-``` mermaid
-sequenceDiagram
-    participant Client
-    participant Controller
-    participant Mapper
-    participant ParamReg as Parameter Registry
-
-    Client->>Controller: GET /nodes/5
-    Controller->>Mapper: createDetailedNode()
-    Mapper->>Mapper: isComplexType() → true
-    Mapper->>ParamReg: register(param)
-    ParamReg-->>Mapper: parameterId=7
-    Mapper-->>Controller: TraceNodeView (lazy param)
-    Controller-->>Client: {parameters: [{lazy: true, parameterId: 7}]}
-
-    Note over Client,ParamReg: Later, client requests lazy parameter
-
-    Client->>Controller: GET /parameters/7
-    Controller->>ParamReg: get(7)
-    ParamReg-->>Controller: param value
-    Controller->>Mapper: buildParameterValue(preferLazy=false)
-    Mapper-->>Controller: TraceParameterValue (full value)
-    Controller-->>Client: {lazy: false, value: {...}}
-```
-
----
-
-### Flow 4: Export Trace
-
-``` mermaid
-sequenceDiagram
-    participant Client
-    participant Controller
-    participant ExportService as Export Service
-    participant TraceHelper as Trace Helper
-
-    Client->>Controller: GET /trace/export?release=true
-    Controller->>TraceHelper: getCompletedTraceHelper()
-    TraceHelper-->>Controller: traceHelper
-    Controller->>Controller: setContentDisposition(trace.txt)
-    Controller->>ExportService: exportTrace(writer)
-    ExportService->>TraceHelper: getTableTracer(0)
-    TraceHelper-->>ExportService: root node
-    ExportService->>ExportService: recursive export with tree format
-    ExportService-->>Controller: streams to response
-
-    alt release=true
-        Controller->>Controller: clear registries
-    end
-
-    Controller-->>Client: text/plain (trace.txt)
-```
-
----
-
-## Session Management
-
-### Session Lifecycle
-
-``` mermaid
+```mermaid
 stateDiagram-v2
-    [*] --> NO_TRACE
-
-    NO_TRACE --> TRACE_PENDING: POST /trace
-
-    TRACE_PENDING --> TRACE_PENDING: WebSocket STARTED
-    TRACE_PENDING --> TRACE_COMPLETE: WebSocket COMPLETED
-    TRACE_PENDING --> TRACE_COMPLETE: WebSocket ERROR
-    TRACE_PENDING --> NO_TRACE: DELETE /trace
-
-    TRACE_COMPLETE --> TRACE_COMPLETE: Query endpoints (nodes, parameters, table)
-    TRACE_COMPLETE --> NO_TRACE: DELETE /trace
-    TRACE_COMPLETE --> TRACE_PENDING: POST /trace (cancels previous)
-
-    NO_TRACE --> [*]
+    [*] --> PENDING: start
+    PENDING --> RUNNING: worker starts
+    RUNNING --> SUSPENDED: breakpoint / step point
+    SUSPENDED --> RUNNING: step / resume
+    RUNNING --> COMPLETED: rule finished
+    RUNNING --> ERROR: rule threw
+    SUSPENDED --> TERMINATED: cancel / idle reaper
+    RUNNING --> TERMINATED: cancel
+    COMPLETED --> [*]
+    ERROR --> [*]
+    TERMINATED --> [*]
 ```
 
-**Available endpoints in TRACE_COMPLETE state:**
-- `GET /trace/nodes` - Get root/child nodes
-- `GET /trace/nodes/{id}` - Get node details
-- `GET /trace/parameters/{id}` - Get lazy parameter
-- `GET /trace/nodes/{id}/table` - Get table HTML
-- `GET /trace/export` - Export trace
+Status changes are pushed over WebSocket; `RUNNING ⇄ SUSPENDED` may repeat any number of times before a
+terminal state. A terminal state accepts no further commands. A suspended session left idle (no API
+access) is terminated by a reaper after 10 minutes, so an abandoned browser tab cannot pin a parked
+worker forever. The reaper also caps the **total** number of live sessions: the one-per-user limit only
+holds within a single browser session, so one user opening several (multiple browsers, API clients) could
+otherwise pile up workers. When a new session pushes the count over the limit, the least-recently-accessed
+session is reclaimed first, so an active session survives while stale ones are dropped.
 
-### One Trace Per Session
+## Architecture layers
 
-**Design Decision**: Only one trace can be active per user session.
-
-**Implementation**:
-```java
-public void setTask(String projectId, String tableId,
-                    CompletableFuture<ITracerObject> task,
-                    TraceHelper traceHelper) {
-    // Cancel previous trace if exists
-    cancelIfAny();
-
-    // Register new trace
-    this.currentProjectId = projectId;
-    this.currentTableId = tableId;
-    this.currentTask = task;
-    this.currentTraceHelper = traceHelper;
-}
-```
-
-**Why?**
-- Prevents memory exhaustion from multiple concurrent traces
-- Simplifies session state management
-- Clear user expectation (one trace at a time)
-- Automatic cleanup of stale traces
-
----
-
-## Lazy Loading Strategy
-
-### Lazy Nodes (ITracerObject)
-
-**Problem**: Large execution traces can consume significant memory.
-
-**Solution**: Lazy nodes defer child creation until accessed.
-
-``` mermaid
-sequenceDiagram
-    participant E as Execution
-    participant T as TreeBuildTracer
-    participant L as LazyTracerNode
-
-    E->>T: doBegin(method)
-    T->>T: canBeLazyNode()?
-    alt Can be lazy
-        T->>L: new LazyTracerNodeObject(executor, params)
-        L-->>T: lazyNode (no children yet)
-    else Cannot be lazy
-        T->>T: TracedObjectFactory.create()
-    end
-    T-->>E: continue
-
-    Note over L: Children not created
-
-    E->>L: getChildren()
-    L->>L: materialize()
-    L->>L: Execute and capture children
-    L-->>E: children (now materialized)
-```
-
-**Implementation**:
-```java
-public class LazyTracerNodeObject implements ITracerObject {
-    private final IOpenMethodExecutor executor;
-    private final Object target;
-    private final Object[] params;
-    private final IRuntimeEnv env;
-
-    private volatile ITracerObject realNode;
-    private volatile boolean materialized = false;
-
-    @Override
-    public Iterable<ITracerObject> getChildren() {
-        materialize();
-        return realNode.getChildren();
-    }
-
-    private void materialize() {
-        if (!materialized) {
-            synchronized (this) {
-                if (!materialized) {
-                    // Preserve context classloader
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    try {
-                        // Execute with fresh trace context
-                        TreeBuildTracer.initialize(false);
-                        realNode = TracedObjectFactory.getTracedObject(
-                            executor, target, params, env);
-                        executor.invoke(target, params, env);
-                    } finally {
-                        TreeBuildTracer.destroy();
-                        Thread.currentThread().setContextClassLoader(cl);
-                    }
-                    materialized = true;
-                }
-            }
-        }
-    }
-}
-```
-
----
-
-### Lazy Parameters (TraceParameterValue)
-
-**Problem**: Complex parameter values (large objects, arrays) bloat API responses.
-
-**Solution**: Register complex parameters for on-demand retrieval.
-
-**Decision Logic**:
-```java
-private boolean isComplexType(Class<?> type, Object value) {
-    // Arrays are lazy
-    if (type.isArray()) {
-        return true;
-    }
-
-    // Collections are lazy
-    if (Collection.class.isAssignableFrom(type)) {
-        return true;
-    }
-
-    // Maps are lazy
-    if (Map.class.isAssignableFrom(type)) {
-        return true;
-    }
-
-    // Custom objects are lazy (not primitives/wrappers/strings)
-    if (!type.isPrimitive()
-        && !isWrapperType(type)
-        && type != String.class
-        && type != BigDecimal.class
-        && type != Date.class) {
-        return true;
-    }
-
-    return false;
-}
-```
-
-**Benefits**:
-- Initial response is fast and small
-- Client loads values on-demand
-- Memory efficient for large traces
-- Works well with tree UI (expand on click)
-
----
-
-## Integration with Rules Engine
-
-### Execution Flow with Tracing
-
-``` mermaid
+```mermaid
 flowchart TD
-    A["1. Client: POST /trace"] --> B["2. TraceExecutorService.traceMethod()"]
-    B --> B1["TreeBuildTracer.initialize(true)<br/>Sets ThreadLocal tracer state"]
-    B1 --> C["3. ProjectModel.traceElement(testSuite)"]
-    C --> C1["Creates TestSuite with TestDescription"]
-    C1 --> C2["TestSuiteMethod.invoke()"]
-
-    C2 --> LOOP["For each test case"]
-    LOOP --> TC1["Setup runtime context"]
-    TC1 --> TC2["Tracer.invoke()"]
-    TC2 --> TC3["TreeBuildTracer.doBegin()<br/>• Create ITracerObject<br/>• Push to trace stack"]
-    TC3 --> EXEC["Execute method"]
-
-    EXEC --> EXEC1["Decision table: evaluate conditions<br/>→ Tracer.put() for each condition"]
-    EXEC --> EXEC2["Spreadsheet: evaluate cells<br/>→ Tracer.put() for each cell"]
-    EXEC --> EXEC3["Nested method calls<br/>→ Recursive Tracer.invoke()"]
-
-    EXEC1 --> TC4["TreeBuildTracer.doEnd()<br/>• Pop from trace stack<br/>• Store result"]
-    EXEC2 --> TC4
-    EXEC3 --> TC4
-
-    TC4 --> TC5["Capture result"]
-    TC5 --> LOOP
-    LOOP --> ROOT["Return trace root"]
-
-    ROOT --> D["4. TraceHelper.cacheTraceTree(root)<br/>• BFS traversal<br/>• Assign integer IDs"]
-    D --> E["5. TreeBuildTracer.destroy()<br/>Clean up ThreadLocal state"]
-    E --> F["6. CompletableFuture.complete(root)<br/>→ WebSocket: COMPLETED"]
+    UI["React TraceView (studio-ui)"] -->|REST + WebSocket| Ctrl[ProjectsTraceDebugController]
+    Ctrl --> Reg["DebugSessionRegistry (@SessionScope)"]
+    Ctrl --> Svc[TraceDebugService]
+    Ctrl -->|freeze on inspect| Map[TraceDebugMapper]
+    Ctrl -->|A1 overlay| HL[TraceHighlightService]
+    Svc --> Dbg[TraceDebugger]
+    Dbg --> W[Virtual-thread worker]
+    W --> Hook[DebugHookImpl]
+    Hook -->|ThreadLocal dispatch| DDT[DebugDispatchTracer = Tracer.instance]
+    DDT --> Trc["Tracer.invoke chokepoint (DEV)"]
+    Hook --> Ch[DebugChannel park/unpark]
+    Hook --> Step[StepController]
+    Reaper[DebugSessionReaper] -. reap idle .-> Reg
+    Dbg -. status .-> WS[WebSocket /trace/status]
 ```
 
----
+- **Engine** (`org.openl.rules.webstudio.web.trace.debug`) — the debugger core: `TraceDebugger`
+  (orchestrates the worker), `DebugChannel` (the park/unpark handshake), `DebugHookImpl` (maintains the
+  live frame stack and suspends), `StepController` (pure stepping logic), `DebugFrame`, `CallNode` (the
+  executed tree in profiling mode), the `SourceClassifier` seam (`DefaultSourceClassifier`),
+  `ConditionCheck`, `DebugTerminationError`.
+- **Dispatch** — `DebugDispatchTracer` is the installed `Tracer.instance`. A `ThreadLocal<DebugHook>`
+  routes the worker thread's invocations to the hook; every other thread is a plain passthrough with no
+  tracing overhead. The DEV `Tracer` class is untouched. The legacy tree-building tracer and its node
+  classes were removed — this dispatcher is the only tracer.
+- **Service / session** (`org.openl.studio.projects.service.trace`) — `TraceDebugService` builds the test
+  suite and spawns the worker; `DebugSession` holds one running session (plus a per-session lock and the
+  cached inspection mapper); `DebugSessionRegistry` (`@SessionScope`, at most one session per user)
+  manages lifecycle, persistent breakpoints and watches, and the remembered input; `DebugSessionReaper`
+  terminates idle sessions.
+- **Model / mapper** (`org.openl.studio.projects.model.trace`) — `TraceDebugMapper` maps the live stack,
+  the executed tree, and the profile overview to view DTOs, freezes a frame's variables on demand, and
+  groups watch captures into per-cell series; `TraceHighlightService` computes the A1-keyed overlay.
+- **REST + WebSocket** — `ProjectsTraceDebugController` under `/projects/{projectId}/trace`; status events
+  reuse the trace topic via `ProjectSocketNotificationService`.
+- **UI** (`STUDIO/studio-ui`) — `TraceView` debugger layout: toolbar, call tree, variables, decision
+  panel, spreadsheet grid, watch panel, and the client-rendered traced table.
 
-## WebSocket Progress Notifications
+## Frames and stepping
 
-### Architecture
+A **stack frame is one rule-table invocation** (decision table, spreadsheet, method table, column match,
+TBasic). All of these extend `ExecutableRulesMethod`, so one `Tracer.invoke(…, this)` is one frame.
+Spreadsheet cells, fired decision-table rules, conditions, and TBasic operations are **sub-steps** (the
+current line) inside the active frame, not separate frames. Only **executable** cells are steps — a cell
+whose formula is actually evaluated; constants, plain values, and section dividers never execute.
 
-``` mermaid
-sequenceDiagram
-    participant TES as TraceExecutor Service
-    participant SLF as SocketListener Factory
-    participant WS as WebSocket Session
+A table **overloaded by dimension properties** is dispatched transparently: the dispatcher creates no
+frame of its own; the chosen version appears in place, badged with the candidate versions and the choice.
 
-    TES->>SLF: onStatusChanged(PENDING)
-    SLF->>WS: send({status: PENDING})
+Stepping is a single **depth threshold**: execution suspends on a frame enter or a current-line change
+when `depth <= threshold` (frames are numbered from 1).
 
-    TES->>SLF: onStatusChanged(STARTED)
-    SLF->>WS: send({status: STARTED})
+- **Step Into** — threshold = unbounded; stop at the next enter or sub-step at any depth.
+- **Step Over** — threshold = current depth; run callees through, stop at the next line in this frame or its caller.
+- **Step Out** — threshold = current depth − 1; run until this frame returns.
+- **Resume** — threshold = 0; run to the next breakpoint or to completion.
+- **Pause** — asynchronous request; suspend at the next safepoint.
 
-    Note over TES: ... execution ...
+Two refinements on top of the threshold:
 
-    TES->>SLF: onStatusChanged(COMPLETED)
-    SLF->>WS: send({status: COMPLETED})
+- **Frame exit is a safepoint.** A step that finishes the current frame (Into, Over, or Out) first
+  suspends at that frame's **own exit**: the completed frame is still on the stack with its result, so
+  the returned value can be inspected before execution continues in the caller.
+- **Break on exception.** An exception suspends at the **throwing frame** before it propagates, once per
+  exception instance; resuming lets it unwind and the session ends in `ERROR` with a structured,
+  user-readable error (message, failing table, failing step, technical detail).
+
+The hook evaluates this at every safepoint (a frame enter, a frame exit, or a current-line change):
+
+```mermaid
+flowchart TD
+    E["safepoint: ENTER / EXIT / LOCATION at depth d"] --> P{pause requested?}
+    P -- yes --> S[suspend and publish stack]
+    P -- no --> B{"breakpoint match?<br/>(uri or name on ENTER, uri#ref on LOCATION)"}
+    B -- yes --> S
+    B -- no --> T{"d ≤ step threshold?<br/>(or d ≤ exit depth on EXIT)"}
+    T -- yes --> S
+    T -- no --> C[continue forward]
+    S --> A["on resume: arm next threshold from the command, run forward"]
 ```
 
-### Message Format
+## Nested steps and references
 
-```json
-{
-  "type": "trace_progress",
-  "projectId": "MyProject",
-  "tableId": "TABLE_BankRating",
-  "status": "COMPLETED",
-  "timestamp": "2026-01-28T10:30:00Z"
-}
+Spreadsheet cells evaluate **lazily**: a formula that uses another cell computes it on demand, so one
+step can start while another step of the same frame is still running. The hook keeps the attribution
+honest:
+
+- When a nested step completes, the **enclosing step is restored** as the current line. A table called
+  later from the enclosing formula is therefore attributed to the step whose formula makes the call — not
+  to the cell that happened to be computed on the way. (On failure the location intentionally stays on
+  the failing step, so break-on-exception shows the exact cell.)
+- In profiling mode, the nested computation leaves a **reference node** (`stepRef`) under the enclosing
+  step, pointing at the original step.
+- A formula that **re-reads** an already-computed cell also records a `stepRef` (the engine reports the
+  re-read through the tracer's resolve channel; the hook looks the executor up among the frame's executed
+  steps). The reference carries no time and no children — the execution is accounted once, at the
+  original step — so a shared step is **never duplicated** in the tree; the UI renders it as a link that
+  jumps to the original.
+
+```
+DeterminePolicyPremium
+├── $GetContext
+│   ├── → $RatingDate            (stepRef: computed on demand by this formula)
+│   └── SetContext               (the call this formula makes)
+├── $Value_RiskItemPremiums
+│   ├── → $Term                  (stepRef: resolved as an argument)
+│   └── VehiclePremiumCalculation
+└── $Term                        (the step itself: value + own time, no adopted children)
 ```
 
-### Status Values
-
-| Status | Description | Next Actions |
-|--------|-------------|--------------|
-| `PENDING` | Task queued | Wait |
-| `STARTED` | Execution in progress | Wait |
-| `COMPLETED` | Success | Fetch results |
-| `INTERRUPTED` | Cancelled | Start new trace |
-| `ERROR` | Failed | View error, retry |
-
----
-
-## Performance Considerations
-
-### 1. Async Execution
-
-**Challenge**: Trace execution can be slow for complex rules.
-
-**Solution**: Spring `@Async` with dedicated thread pool.
-
-```java
-@Configuration
-public class AsyncConfig {
-
-    @Bean(name = "testSuiteExecutor")
-    public Executor testSuiteExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(8);
-        executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("trace-");
-        executor.initialize();
-        return executor;
-    }
-}
-```
-
-**Benefits**:
-- Non-blocking request handling
-- Dedicated thread pool for traces
-- Configurable pool size
-- Request returns immediately (202)
-
----
-
-### 2. Memory Optimization
-
-**Challenge**: Large trace trees consume memory.
-
-**Optimizations**:
-
-1. **Lazy Nodes**: Children created on-demand
-2. **Lazy Parameters**: Large values not serialized until requested
-3. **Session Scope**: One trace per session prevents accumulation
-4. **Automatic Cancellation**: Previous trace cancelled when new one starts
-
-**Memory Estimate** (typical trace):
-```
-Base trace: ~100 KB
-Per node: ~500 bytes
-100 nodes: ~50 KB
-1000 nodes: ~500 KB
-```
-
----
-
-### 3. BidiMap for O(1) Lookups
-
-**Challenge**: Need to look up nodes by ID and get IDs for nodes.
-
-**Solution**: Apache Commons BidiMap (DualHashBidiMap).
-
-```java
-private final BidiMap<Integer, ITracerObject> traceTreeCache = new DualHashBidiMap<>();
-
-// O(1) lookup by ID
-ITracerObject node = traceTreeCache.get(5);
-
-// O(1) reverse lookup
-Integer id = traceTreeCache.getKey(node);
-```
-
----
-
-### 4. JSON Schema Caching
-
-**Challenge**: JSON Schema generation is expensive.
-
-**Solution**: Cache schemas by type.
-
-```java
-private final Map<Class<?>, ObjectNode> schemaCache = new ConcurrentHashMap<>();
-
-private ObjectNode generateSchema(Class<?> type) {
-    return schemaCache.computeIfAbsent(type, this::doGenerateSchema);
-}
-```
-
----
-
-## Security Architecture
-
-### 1. Authentication
-
-All trace endpoints require authenticated user:
-- Session-based authentication
-- OAuth2/SAML integration supported
-- Personal Access Tokens supported
-
-### 2. Authorization
-
-Project-level permissions checked:
-```java
-@ProjectId @PathVariable("projectId") RulesProject project
-// @ProjectId annotation validates user access to project
-```
-
-### 3. Input Validation
-
-- `tableId` validated against project tables
-- `testRanges` parsed with bounds checking
-- JSON parameters validated before execution
-
-### 4. Resource Limits
-
-- Session scope prevents unbounded trace accumulation
-- Thread pool limits concurrent trace executions
-- Lazy loading prevents memory exhaustion
-
----
-
-## Design Decisions
-
-### Decision 1: Async with CompletableFuture
-
-**Problem**: Trace execution can be slow.
-
-**Options**:
-1. Synchronous (block until complete)
-2. Async with polling
-3. Async with WebSocket
-
-**Decision**: Async with CompletableFuture + WebSocket
-
-**Rationale**:
-- Non-blocking client experience
-- Real-time progress updates
-- Scalable under load
-- Standard Java async pattern
-
----
-
-### Decision 2: One Trace Per Session
-
-**Problem**: How many concurrent traces per user?
-
-**Options**:
-1. Unlimited
-2. One per project
-3. One per session
-
-**Decision**: One per session
-
-**Rationale**:
-- Simple memory management
-- Clear user expectation
-- Automatic cleanup
-- Sufficient for debugging use case
-
----
-
-### Decision 3: Lazy Loading for Parameters
-
-**Problem**: Complex parameters bloat responses.
-
-**Options**:
-1. Always include full values
-2. Always lazy load
-3. Smart lazy loading by type
-
-**Decision**: Smart lazy loading by type
-
-**Rationale**:
-- Simple types inline (fast)
-- Complex types lazy (memory efficient)
-- Good UX (expand on demand)
-- Configurable threshold
-
----
-
-### Decision 4: BidiMap for Node Cache
-
-**Problem**: Need efficient lookup by ID and reverse lookup.
-
-**Options**:
-1. Two separate maps
-2. Linear search for reverse
-3. BidiMap
-
-**Decision**: BidiMap (DualHashBidiMap)
-
-**Rationale**:
-- O(1) both directions
-- Single data structure
-- Standard Apache Commons library
-- Memory efficient
-
----
-
-## Future Enhancements
-
-### 1. Trace Comparison
-
-Compare traces from different runs:
-```json
-GET /trace/compare?traceId1=abc&traceId2=def
-```
-
-### 2. Additional Export Formats
-
-Extend export to support additional formats:
-```json
-GET /trace/export?format=json|xml|html
-```
-(Currently only text format is supported)
-
-### 3. Performance Profiling
-
-Add timing information to trace nodes:
-```json
-{
-  "key": 5,
-  "title": "Rule 1",
-  "duration": 12,
-  "durationUnit": "ms"
-}
-```
-
-### 4. Breakpoint Support
-
-Pause execution at specific rules:
-```json
-POST /trace?breakpoint=DT_RiskRating:Rule3
-```
-
-### 5. Variable Watches
-
-Monitor specific variables during execution:
-```json
-POST /trace
-{
-  "watches": ["age", "score", "result"]
-}
-```
-
----
-
-## Conclusion
-
-The Projects Trace API provides a comprehensive debugging facility for OpenL rules with:
-
-1. **7 REST Endpoints**: Complete trace lifecycle management
-2. **Async Execution**: Non-blocking trace with WebSocket progress
-3. **Hierarchical Tree**: Complete execution tree with lazy loading
-4. **Memory Efficiency**: Lazy nodes and parameters
-5. **Session Management**: One trace per session with auto-cleanup
-6. **Integration**: Deep integration with rules engine via TreeBuildTracer
-7. **Performance**: BidiMap cache, async execution, thread pool
-8. **Export**: Text export with streaming and memory release
-
-The API is currently in BETA and will evolve based on user feedback.
-
----
-
-## References
-
-- **API Documentation**: [projects-trace-api.md](projects-trace-api.md)
-- **Source Code**: `/STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/rest/controller/ProjectsTraceController.java`
-- **Tracer Core**: `/STUDIO/org.openl.rules.webstudio/src/org/openl/rules/webstudio/web/trace/TreeBuildTracer.java`
-- **Export Service**: `/STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/service/trace/TraceExportService.java`
-- **Input Parser**: `/STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/service/trace/TableInputParserService.java`
-- **Integration Tests**: `/ITEST/itest.studio/`
-
----
-
-**Last Updated**: 2026-01-29
-**Version**: 6.0.0-SNAPSHOT
-**Status**: BETA
+## Profiling: the executed call tree
+
+With `profiling=true` the session retains the structure of **returned** calls, which the live stack alone
+would drop:
+
+- Each frame records the sub-calls every step made (`CallNode`, grouped by the calling step) and each
+  executed step's own time.
+- Timings are real execution time, **excluding time parked at suspend points**, as a **total** (the node
+  and everything it called) and **self** (total minus called tables).
+- When the root frame returns, the whole tree survives as `DebugStackView.tree`, so a completed trace is
+  still explorable.
+- Structure only: no arguments or results are retained. Values are inspectable only on the live stack
+  while suspended — to look inside a returned branch, replay: restart the trace with a one-shot
+  breakpoint on that node (the UI does this in one click; the input is remembered across restarts).
+
+The full tree can be huge, so the response also carries a **bounded overview** (`DebugStackView.profile`):
+the slowest tables aggregated by own time, constant-sized regardless of run size. `includeTree=false`
+returns only that, and `view=compact` drops the non-active frames' step lists — both keep a large run's
+responses small (mainly for agents/MCP with bounded context).
+
+Off by default: a non-profiling session keeps only the live stack. The retained tree is capped at a fixed
+node count so one enormous run cannot balloon the heap; once the cap is hit, further nodes are dropped and
+`profile.truncated` is set, so the overview reports itself incomplete rather than exhausting memory.
+
+## Breakpoints
+
+All breakpoints ride one set of string keys, matched at a frame enter or a current-line change:
+
+| Key | Granularity | Suspends |
+| --- | --- | --- |
+| `uri` | table | on the table's frame enter |
+| `name` | table | on the enter of **any** table with that name — every overloaded or dimensional version |
+| `uri#R{r}C{c}` | spreadsheet cell | when the cell becomes the current line |
+| `uri#rule` | decision table | when **any** rule fires (all its conditions matched), before its action runs |
+| `uri#{ruleName}` | decision table | when that **specific** rule fires |
+| `<key>@N` | any of the above | only on the table's **N-th execution** (0-based); the number `DebugFrameView.instance` and a watch series carry, so a `uri#ref@N` key matched-and-built (never parsed) reaches one iteration of a table that runs many times |
+
+Breakpoints persist across runs in the session registry, so they can be set before a run and apply to the
+next one. `GET /breakpoint-tables` suggests targets by name: only tables **reachable** from the traced
+table through the dependency graph (falling back to all tables when there is no session), deduplicated by
+name so one key covers every version.
+
+## Freezing variables (live stack only)
+
+Variables are **frozen lazily, on inspection, while the worker is parked**. Because the worker runs no
+code while parked, its object graph is stable, so the controller thread safely **deep-clones** a frame's
+parameters, context, and result (a fresh `Cloner` identity map under the captured classloader) — the same
+cloning the original trace used, but only for the frame you actually open, and only its own values.
+**Nothing is retained between requests**: each inspection re-clones from the live graph, so no frozen
+snapshot outlives the call. Large cloned values go to the `TraceParameterRegistry` for lazy
+`GET /parameters/{id}` fetch. Memory is therefore bounded by **live stack depth**, never by total executed
+steps.
+
+For a spreadsheet, the frame's steps carry each executed cell's value as it runs, so an analyst can
+inspect already-computed steps while a later step executes; the grid row/column names let the UI lay the
+steps out like the source table. For a decision table, the frame carries the **decision outcome** — which
+rule fired and which conditions matched — derived from the same condition events that drive the table
+highlighting.
+
+## Watch: a value across every execution
+
+Freezing gives one frame's values while suspended; a **watch** gives one cell's value across the *whole
+run*. Cells are named by their `$...` label or ref; the hook then captures that cell's value on **every**
+execution of its table — each capture tagged with the table's invocation number, the call path to it, and
+the cell's breakpoint key — so a factor can be read across all coverages or iterations without opening
+every frame.
+
+This is the one **opt-in exception** to structure-only profiling: values are retained, but only for the
+named cells, so cost stays bounded (`#watched cells × #executions`, capped). The watch set lives in the
+session registry like breakpoints and is **applied live** to the running worker — a cell added mid-run is
+captured as stepping reaches it, while a fresh start captures it from the beginning of the run. Each frame
+enter bumps a per-table invocation counter, so instances stay numbered correctly regardless of when
+watching began.
+
+Captures hold the **raw** value during the run; on `GET /watch` each is deep-cloned and serialized through
+the **same `Cloner` and parameter machinery as frame variables**, so dates, arrays, and spreadsheet
+results render the same way and large values load lazily. The captures are grouped into one series per
+cell (points in execution order), readable while suspended or after completion.
+
+## Avoiding the ProjectModel monitor
+
+The service captures the compiled `IOpenClass` + classloader once, then runs the suspendable invocation
+**off the project monitor** via `testSuite.invokeSequentially(openClass, 1)` on the worker. Parking
+inside a `synchronized` ProjectModel method would hold the project monitor for the whole session and
+block compilation and other reads (the EPBDS-16092 deadlock class). A `WorkspaceResetEvent` terminates
+the session.
+
+## Highlighting in the traced table
+
+The traced table is **rendered by the client** from the shared Tables API raw view
+(`GET /projects/{id}/tables/{tableId}?raw=true&styles=true` — the frame carries its `tableId`), and the
+debugger supplies only a **highlight overlay** keyed by A1 cell address
+(`GET /trace/frames/{i}/highlights`):
+
+- **Spreadsheet** — the active cell (`current`). The cell is resolved from the frame's current location
+  reference, so the highlight survives intermediate trace events.
+- **Decision table** — every evaluated condition cell (`conditionTrue` / `conditionFalse`) and the fired
+  rule's returned result (`result`). This requires the debug `Tracer.doWrap` to wrap the `IIntSelector`
+  as `IntSelectorTracer`, so the algorithm's per-rule `Tracer.put("condition", condition, rule,
+  successful)` events fire and are captured as `ConditionCheck`s on the frame.
+
+The frontend caches the raw table per table id and refetches only the overlay on every suspension, so the
+highlight tracks the current line even when stepping within the same frame. There is no server-side HTML
+rendering.
+
+## Memory: old vs new
+
+| Aspect | Legacy tree trace | Interactive debugger |
+| --- | --- | --- |
+| Execution | Run to completion, eagerly | One forward run, paused in place |
+| Retained state | Full tree of every step | Live stack (+ value-free structure in profiling) |
+| Argument cloning | Per node, for the whole tree | Lazy, per inspected live frame, discarded on return |
+| "Deeper" inspection | Re-execute from a point to the end | Continue the same parked execution |
+| Memory bound | Total executed steps (tens of GB) | Live stack depth |
+
+## REST API
+
+Base path `/projects/{projectId}/trace`. See [Projects Trace API Documentation](projects-trace-api.md)
+for request/response details.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/` | Start a session (`profiling`/`includeTree`/`profileTop`/`view` optional); returns the initial stack |
+| GET | `/stack` | Current execution stack (root → current); the executed tree/profile after completion |
+| GET | `/status` | Lightweight status poll |
+| POST | `/step?type=into\|over\|out` | Step and return the new stack (`view=compact` trims to the active frame) |
+| POST | `/resume` | Run to the next breakpoint (async) |
+| POST | `/pause` | Request a suspend |
+| GET | `/frames/{i}/variables` | Freeze and return a frame's variables, steps, and decision outcome |
+| GET | `/frames/{i}/highlights` | A1-keyed highlight overlay for the client-rendered table |
+| GET / PUT | `/breakpoints` | List / replace breakpoint keys |
+| GET | `/breakpoint-tables` | Breakpoint targets: reachable tables, deduplicated by name |
+| GET / PUT | `/watches` | List / replace watched cell names or refs |
+| GET | `/watch` | The watched cells' values across the run, one series per cell |
+| GET | `/parameters/{id}` | Lazy-load a large parameter value |
+| DELETE | `/` | Terminate the session |
+
+WebSocket: status changes (the lowercase `DebugStatus` wire codes `suspended`, `running`, `completed`,
+`error`, `terminated`) are pushed to `/user/topic/projects/{projectId}/tables/{tableId}/trace/status`; the
+client then reads the new stack.
+
+## Concurrency and isolation
+
+- One dedicated **virtual thread** per session — never the bounded `testSuiteExecutor` pool, which a
+  parked worker would exhaust. Idle suspended sessions cost almost nothing and are reaped after 10
+  minutes anyway.
+- The tracer dispatch is **per-thread** (`ThreadLocal<DebugHook>`): non-debug executions and other users
+  run a plain passthrough with no tracing overhead, and concurrent debug sessions do not interfere.
+- Inspection is serialized against stepping by a **per-session lock**: `step`/`resume` and
+  `variables`/`highlights`/`stack` run under it, so a concurrent command cannot wake the worker while a
+  frame's mutable step lists are being cloned. Reading the stack while the worker is still `RUNNING` is
+  refused (`409`) — the frames are safe to read only once the worker has parked or finished. `pause` and
+  `terminate` stay outside the lock so they can always preempt.
+- The per-session inspection mapper (Jackson + schema generator for the traced module) is built once at
+  start — while the traced module is the current one — and cached, so a concurrent module switch cannot
+  repin it and per-request rebuilds are avoided.
+- Terminate throws a private `DebugTerminationError extends Error` (not `Exception`/`LinkageError`/
+  `StackOverflowError`) so user rule `catch` blocks and the test runner cannot swallow it; the controller
+  also interrupts and briefly joins the worker, then abandons a genuinely hung (cheap) virtual thread
+  rather than blocking the HTTP thread.
+
+## Limitations and follow-ups
+
+- Condition-by-condition stepping inside a decision table is not implemented; the decision panel lists
+  only the rules that were actually evaluated, so a specific-rule breakpoint is settable once a rule has
+  been seen (an any-rule breakpoint needs no list).
+- Multiple test cases in a suite are debugged sequentially; the worker stops at the entry of each case.
+- The executed call tree keeps structure only; inspecting values inside a returned branch requires a
+  replay (one click in the UI, with the remembered input).
+- A watch added mid-run captures only from that point forward — past executions are gone; a fresh start
+  (or the UI's Collect) captures the whole run. Watched values are held raw until read, then cloned; a
+  value mutated later in the same run would need a clone-at-capture to stay exact.
+
+## Key files
+
+- `DEV/.../org/openl/vm/Tracer.java` — the invocation chokepoint (unchanged).
+- `STUDIO/.../web/trace/DebugDispatchTracer.java` — installs `Tracer.instance`; per-thread dispatch to the debug hook.
+- `STUDIO/.../web/trace/debug/` — the engine (`TraceDebugger`, `DebugChannel`, `DebugHookImpl`,
+  `StepController`, `DebugFrame`, `CallNode`, `WatchCapture`, `DefaultSourceClassifier`, `ConditionCheck`).
+- `STUDIO/.../studio/projects/service/trace/` — `TraceDebugService(Impl)`, `DebugSession`,
+  `DebugSessionRegistry`, `DebugSessionReaper`, `TraceHighlightService(Impl)`.
+- `STUDIO/.../studio/projects/model/trace/TraceDebugMapper.java` — stack/tree mapping and variable freezing.
+- `STUDIO/.../studio/projects/rest/controller/ProjectsTraceDebugController.java` — the REST API.
+- `STUDIO/studio-ui/src/containers/TraceView/` + `store/traceStore.ts` + `services/traceService.ts` — the UI.

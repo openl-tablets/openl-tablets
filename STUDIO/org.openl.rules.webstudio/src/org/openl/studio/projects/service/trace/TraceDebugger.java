@@ -1,0 +1,208 @@
+package org.openl.studio.projects.service.trace;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
+
+import org.openl.studio.projects.model.trace.DebugStatus;
+import org.openl.vm.Tracer;
+
+/**
+ * Drives one debug session: runs the rule on a dedicated virtual thread and exposes debugger controls.
+ *
+ * <p>The worker thread parks at breakpoints and step points while its JVM stack holds the live
+ * computation. Control methods ({@link #command}, {@link #pause}, {@link #terminate}) are short and
+ * return promptly; they never block on rule execution beyond a bounded timeout.
+ */
+@Slf4j
+public final class TraceDebugger {
+
+    private final DebugChannel channel = new DebugChannel();
+    private final StepController stepController = new StepController();
+    private final DebugHookImpl hook;
+    private final DebugTracer tracer;
+    private final DebugListener listener;
+
+    private final AtomicReference<@Nullable Thread> worker = new AtomicReference<>();
+    private final AtomicReference<@Nullable Throwable> error = new AtomicReference<>();
+    private long startHaltCount;
+
+    public TraceDebugger(DebugListener listener) {
+        this(new DefaultSourceClassifier(), listener);
+    }
+
+    TraceDebugger(SourceClassifier classifier) {
+        this(classifier, DebugListener.NOOP);
+    }
+
+    TraceDebugger(SourceClassifier classifier, DebugListener listener) {
+        this.listener = listener;
+        this.hook = new DebugHookImpl(classifier, stepController, channel, listener);
+        this.tracer = new DebugTracer(hook);
+    }
+
+    /**
+     * The tracer for this session, to attach to the run's environment (for example
+     * {@code testSuite.invokeSequentially(openClass, 1, debugger.tracer())}) so its rules are observed.
+     */
+    public Tracer tracer() {
+        return tracer;
+    }
+
+    public void setBreakpoints(Set<String> uris) {
+        stepController.setBreakpoints(uris);
+    }
+
+    public Set<String> getBreakpoints() {
+        return stepController.getBreakpoints();
+    }
+
+    /** Watch cells by name or ref, capturing their value on every execution. May be updated mid-run. */
+    public void setWatches(Set<String> watches) {
+        hook.setWatches(watches);
+    }
+
+    public Set<String> getWatches() {
+        return hook.getWatches();
+    }
+
+    /** All watched-cell captures gathered so far, most useful once the run has finished. */
+    public List<WatchCapture> watchCaptures() {
+        return hook.watchCaptures();
+    }
+
+    public boolean isWatchTruncated() {
+        return hook.isWatchTruncated();
+    }
+
+    /** Whether the executed tree hit the node cap, so the profile overview is incomplete. */
+    public boolean isTreeTruncated() {
+        return hook.isTreeTruncated();
+    }
+
+    /**
+     * Start execution on a fresh virtual thread.
+     *
+     * @param threadName  worker thread name
+     * @param classLoader context classloader for the worker, or {@code null} to keep the current one
+     * @param stopAtEntry suspend at the first frame instead of running to the first breakpoint
+     * @param body        the rule execution to run
+     */
+    public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, DebugBody body) {
+        start(threadName, classLoader, stopAtEntry, false, body);
+    }
+
+    /**
+     * Start a debug session, optionally retaining the executed call tree.
+     *
+     * @param threadName  worker thread name
+     * @param classLoader context classloader for the worker, or {@code null} to keep the current one
+     * @param stopAtEntry suspend at the first frame instead of running to the first breakpoint
+     * @param profiling   retain the structure of returned sub-calls so the executed call tree can be shown
+     * @param body        the rule execution to run
+     */
+    public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, boolean profiling,
+                      DebugBody body) {
+        hook.setProfiling(profiling);
+        stepController.armInitial(stopAtEntry);
+        startHaltCount = channel.haltCount();
+        channel.markRunning();
+        Thread thread = Thread.ofVirtual().name(threadName).unstarted(() -> run(classLoader, body));
+        this.worker.set(thread);
+        thread.start();
+    }
+
+    private void run(@Nullable ClassLoader classLoader, DebugBody body) {
+        Thread current = Thread.currentThread();
+        ClassLoader previous = current.getContextClassLoader();
+        if (classLoader != null) {
+            current.setContextClassLoader(classLoader);
+        }
+        DebugStatus terminal;
+        try {
+            // The tracer is attached to the run's environment by the body (via invokeSequentially), so the
+            // worker needs no thread-local state — the environment carries it through the call chain.
+            body.execute();
+            channel.markCompleted();
+            terminal = DebugStatus.COMPLETED;
+        } catch (DebugTerminationError e) {
+            channel.markTerminated();
+            terminal = DebugStatus.TERMINATED;
+        } catch (Throwable t) {
+            error.set(t);
+            log.debug("Debug session failed", t);
+            channel.markError();
+            terminal = DebugStatus.ERROR;
+        } finally {
+            current.setContextClassLoader(previous);
+        }
+        listener.onStatusChanged(terminal);
+    }
+
+    public DebugStatus status() {
+        return channel.status();
+    }
+
+    public @Nullable Throwable error() {
+        return error.get();
+    }
+
+    /** Live execution stack from the most recent suspension, ordered root to current frame. */
+    public List<DebugFrame> stack() {
+        return hook.snapshot();
+    }
+
+    public @Nullable DebugFrame frameAt(int index) {
+        return hook.frameAt(index);
+    }
+
+    /** The whole executed tree once the trace has finished (profiling mode), or {@code null} while it runs. */
+    public @Nullable CallNode completedTree() {
+        return hook.completedTree();
+    }
+
+    /** Wait for the worker to reach its first suspend or a terminal state. */
+    public DebugStatus awaitInitialHalt(long timeoutMillis) {
+        return channel.awaitHalt(startHaltCount, timeoutMillis);
+    }
+
+    /** Resume with a command and wait, bounded by the timeout, for the next suspend or terminal state. */
+    public DebugStatus command(DebugCommand command, long timeoutMillis) {
+        long before = channel.haltCount();
+        channel.postCommand(command);
+        return channel.awaitHalt(before, timeoutMillis);
+    }
+
+    /** Resume to the next breakpoint without waiting. */
+    public void resume() {
+        channel.postCommand(DebugCommand.RESUME);
+    }
+
+    /** Request an asynchronous suspend at the next safepoint. */
+    public void pause() {
+        stepController.requestPause();
+    }
+
+    /** Cancel the session, interrupting and briefly joining the worker. */
+    public void terminate(long joinMillis) {
+        channel.requestTerminate();
+        Thread thread = worker.get();
+        if (thread == null) {
+            return;
+        }
+        thread.interrupt();
+        try {
+            thread.join(joinMillis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        if (thread.isAlive()) {
+            // A parked worker unwinds on the terminate request; reaching here means the worker is in
+            // uninterruptible rule code (e.g. a tight loop) and cannot be stopped. Surface the leak.
+            log.warn("Debug worker '{}' still alive {} ms after terminate; abandoned while running rule code",
+                    thread.getName(), joinMillis);
+        }
+    }
+}

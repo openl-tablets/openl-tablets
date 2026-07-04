@@ -1,0 +1,99 @@
+package org.openl.studio.projects.service.trace;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.ui.WorkspaceResetEvent;
+import org.openl.studio.projects.model.ProjectIdModel;
+
+class DebugSessionRegistryTest {
+
+    private static ProjectIdModel projectId(String name) {
+        return ProjectIdModel.builder().repository("repo").projectName(name).build();
+    }
+
+    private static DebugSession session(ProjectIdModel projectId) {
+        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null);
+    }
+
+    private static DebugSessionRegistry registry() {
+        return new DebugSessionRegistry(new DebugSessionReaper());
+    }
+
+    @Test
+    void startReplacesCurrentSession() {
+        var registry = registry();
+        var first = session(projectId("A"));
+        registry.start(first);
+        assertSame(first, registry.find(projectId("A")));
+
+        var second = session(projectId("A"));
+        registry.start(second);
+        assertSame(second, registry.find(projectId("A")));
+    }
+
+    @Test
+    void findMatchesOnlyTheOwningProject() {
+        var registry = registry();
+        registry.start(session(projectId("A")));
+        assertNotNull(registry.find(projectId("A")));
+        assertNull(registry.find(projectId("B")));
+    }
+
+    @Test
+    void clearDropsTheSession() {
+        var registry = registry();
+        registry.start(session(projectId("A")));
+        registry.clear();
+        assertNull(registry.find(projectId("A")));
+    }
+
+    @Test
+    void breakpointsPersistAndApplyToTheRunningSession() {
+        var registry = registry();
+        var session = session(projectId("A"));
+        registry.start(session);
+
+        registry.setBreakpoints(Set.of("uri/1", "uri/2"));
+        assertEquals(Set.of("uri/1", "uri/2"), registry.breakpoints());
+        assertEquals(Set.of("uri/1", "uri/2"), session.getDebugger().getBreakpoints());
+    }
+
+    @Test
+    void watchesPersistAndApplyToTheRunningSession() {
+        var registry = registry();
+        var session = session(projectId("A"));
+        registry.start(session);
+
+        registry.setWatches(Set.of("$A", "$B"));
+        assertEquals(Set.of("$A", "$B"), registry.watches());
+        assertEquals(Set.of("$A", "$B"), session.getDebugger().getWatches(),
+                "a watch added mid-debug applies to the running session");
+    }
+
+    @Test
+    void workspaceResetClearsTheSession() {
+        var registry = registry();
+        registry.start(session(projectId("A")));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        assertNull(registry.find(projectId("A")));
+    }
+
+    @Test
+    void remembersLaunchInputAcrossAClearSoARestartCanReuseIt() {
+        var registry = registry();
+        assertNull(registry.lastInputJson());
+
+        registry.rememberInputJson("{\"policy\":1}");
+        registry.clear();
+
+        // A restart (profiling toggle, replay) cancels then re-launches; the input must survive the cancel.
+        assertEquals("{\"policy\":1}", registry.lastInputJson());
+    }
+}

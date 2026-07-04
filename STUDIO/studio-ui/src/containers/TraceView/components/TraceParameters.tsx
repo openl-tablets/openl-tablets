@@ -5,6 +5,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { TraceParameterValue } from 'types/trace'
+import { onActivate } from './keyboardActivate'
 import { useStyles } from './TraceParameters.styles'
 
 const { Text } = Typography
@@ -120,7 +121,7 @@ interface ParameterTreeProps {
 /**
  * Single parameter as an Ant Design Tree with lazy loading support.
  */
-const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
+export const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
     const { t } = useTranslation('trace')
     const { styles } = useStyles()
     const { fetchLazyParameter } = useTraceStore()
@@ -155,14 +156,20 @@ const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
         }
     }
 
-    if (param.lazy && !loaded && (displayValue === undefined || displayValue === null) && !loading) {
+    if (param.lazy && !loaded && (displayValue === undefined || displayValue === null) && !loading && !error) {
         return (
             <div className={styles.item}>
                 <span className={styles.treeTitle}>
                     <span className={styles.valueName}>{param.name}</span>
                     <span className={styles.valueType}>{param.description}</span>
                     <span className={styles.valueEquals}>=</span>
-                    <span className={styles.valueLazy} onClick={handleLoadValue}>
+                    <span
+                        className={styles.valueLazy}
+                        onClick={handleLoadValue}
+                        onKeyDown={onActivate(handleLoadValue)}
+                        role="button"
+                        tabIndex={0}
+                    >
                         {t('param.loadValue')}
                     </span>
                 </span>

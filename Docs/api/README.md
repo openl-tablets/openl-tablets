@@ -312,55 +312,49 @@ Authorization: Token openl_pat_x1Y2z3A4b5C6d7E8.f9G0h1I2j3K4l5M6n7O8p9Q0r1S2t3U4
 
 ### 7. **Projects Trace API (BETA)** ([projects-trace-api.md](projects-trace-api.md))
 
-The Projects Trace API provides comprehensive debugging and execution tracing capabilities for OpenL rules. It enables step-by-step analysis of rule execution including decision table evaluations, spreadsheet cell computations, and method calls.
+The Projects Trace API is an **interactive debugger** for OpenL rules: it suspends a real execution on a worker thread and lets you step through it, set breakpoints, inspect the live call stack, and freeze a frame's variables. It replaces the previous tree-based Trace.
 
 **Key Features:**
-- Asynchronous trace execution with WebSocket progress notifications
-- Hierarchical trace tree with lazy loading for large traces
-- Lazy parameter loading for complex objects
-- Test suite support with range selection (e.g., "1-3,5")
-- Table HTML rendering with execution path highlighting
-- Session-based task management (one trace per session)
+- Real suspended execution (step into/over/out, resume, pause) — not a pre-built tree
+- Live call stack (root → current), so memory is bounded by stack depth
+- Breakpoints on tables (by URI or by name), spreadsheet cells, and fired decision-table rules
+- Profiling: the executed call tree with per-frame and per-step timings and step references
+- Lazy per-frame variable freezing; executed-step values; decision-table outcome explanation
+- Client-rendered traced table: A1-keyed highlight overlay on top of the shared raw Tables API
+- WebSocket status notifications; one session per user; idle sessions reaped
 
 **Use Cases:**
 - Rule debugging and analysis
-- Decision table execution visualization
+- Decision table execution visualization (matched/unmatched conditions, fired rule)
+- Performance profiling of a calculation
 - Test case failure investigation
-- Performance analysis of rule chains
-- Spreadsheet cell dependency tracing
+- Spreadsheet cell dependency and value inspection
 
 **Example:**
 ```bash
-# Start trace execution
+# Start a session (suspended at entry), returns the live stack
 POST /projects/MyProject/trace?tableId=DT_RiskRating
 {
   "params": {"age": 35, "income": 75000},
   "runtimeContext": {"lob": "Auto"}
 }
-# Response: 202 Accepted
+# Response: 200 DebugStackView { status: "suspended", frames: [ ... ] }
 
-# Get trace result (after completion)
-GET /projects/MyProject/trace
+# Step into the calculation
+POST /projects/MyProject/trace/step?type=into
 
-# Response
-{
-  "rootNodes": [
-    {"key": 1, "title": "DT_RiskRating", "type": "method", "lazy": true}
-  ],
-  "totalNodes": 42
-}
+# Inspect the top frame's variables
+GET /projects/MyProject/trace/frames/0/variables
 
-# Get node details
-GET /projects/MyProject/trace/nodes/1
-# Returns full details including parameters, context, result
+# Highlight overlay for the client-rendered table
+GET /projects/MyProject/trace/frames/0/highlights
 
-# Get traced table with highlighting
-GET /projects/MyProject/trace/nodes/1/table
-# Returns HTML with traced cells highlighted
+# Run to the next breakpoint / completion
+POST /projects/MyProject/trace/resume      # 202; outcome via WebSocket
 ```
 
 **Architecture Documentation:**
-- [Projects Trace Architecture](projects-trace-architecture.md) - Detailed architecture design, component interactions, lazy loading strategy, and implementation details
+- [Projects Trace Architecture](projects-trace-architecture.md) - Suspension mechanism, live stack, lazy variable freezing, and implementation details
 
 ---
 
@@ -601,17 +595,20 @@ Refer to the specific API documentation for detailed test cases and expected res
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Start Trace | ✅ Complete | Async execution with CompletableFuture |
-| Get Trace Result | ✅ Complete | Root nodes with total count |
-| Get Node Children | ✅ Complete | Lazy loading support |
-| Get Node Details | ✅ Complete | Parameters, context, result, errors |
-| Cancel Trace | ✅ Complete | Idempotent cancellation |
+| Start Session | ✅ Complete | Suspended execution on a worker thread; returns the live stack |
+| Stepping | ✅ Complete | Step into / over / out (with frame-exit stop), resume, pause |
+| Stack & Status | ✅ Complete | Live call stack (root → current) and status poll |
+| Frame Variables | ✅ Complete | Lazy per-frame freezing; executed-step values; DT decision outcome |
+| Breakpoints | ✅ Complete | Table `uri` or `name`, cell `uri#ref`, rule `uri#rule` / `uri#{ruleName}` |
+| Breakpoint Targets | ✅ Complete | Reachable tables, deduplicated by name |
+| Frame Highlights | ✅ Complete | A1-keyed overlay for the client-rendered table (cell; DT condition/result) |
+| Profiling | ✅ Complete | Executed call tree, total/self timings, dispatch badges, step references |
+| Break on Exception | ✅ Complete | Suspends at the throwing frame with a structured error |
+| Cancel Session | ✅ Complete | Idempotent termination |
 | Lazy Parameters | ✅ Complete | On-demand loading for large values |
-| Table HTML | ✅ Complete | Traced cells highlighting |
 | Test Range Support | ✅ Complete | Parse ranges like "1-3,5" |
-| WebSocket Progress | ✅ Complete | PENDING/STARTED/COMPLETED/ERROR |
-| Session Management | ✅ Complete | One trace per session |
-| JSON Schema | ✅ Complete | Schema generation for parameters |
+| WebSocket Status | ✅ Complete | suspended/running/completed/error/terminated |
+| Session Management | ✅ Complete | One session per user; idle sessions reaped |
 
 ---
 

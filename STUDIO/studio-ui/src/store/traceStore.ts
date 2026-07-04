@@ -1,254 +1,503 @@
 import { create } from 'zustand'
 import { notification } from 'antd'
 import type {
-    TraceNodeView,
+    CallNodeView,
+    DebugError,
+    DebugFrameVariables,
+    DebugFrameView,
+    DebugStackView,
+    DebugStatus,
+    ProfileSummaryView,
+    RawTableView,
     TraceParameterValue,
-    TraceExecutionStatus,
-    TraceTreeDataNode,
+    WatchView,
 } from 'types/trace'
 import traceService from 'services/traceService'
+import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
 
-interface TraceState {
+/** Cap on rows fetched per table; the backend slices and reports totalRows when more rows exist. */
+const MAX_TABLE_ROWS = 500
+
+/** The `startTrace` request shape, derived from the service so it stays in sync without duplication. */
+type LaunchOptions = Parameters<typeof traceService.startTrace>[1]
+
+/**
+ * Base launch options shared by every start: the table plus the current module / test-range / input scoping.
+ * Callers add the mode-specific flags (stopAtEntry, profiling, includeTree) as overrides.
+ */
+const launchOptions = (
+    scope: { tableId: string; fromModule: string | null; testRanges: string | null; inputJson: string | null },
+    overrides: Partial<LaunchOptions>
+): LaunchOptions => ({
+    tableId: scope.tableId,
+    ...(scope.fromModule ? { fromModule: scope.fromModule } : {}),
+    ...(scope.testRanges ? { testRanges: scope.testRanges } : {}),
+    ...(scope.inputJson ? { inputJson: scope.inputJson } : {}),
+    ...overrides,
+})
+
+interface DebugState {
     // Route params
     projectId: string | null
     tableId: string | null
+    fromModule: string | null
+    testRanges: string | null
+    inputJson: string | null
 
-    // Data
-    rootNodes: TraceNodeView[]
-    /** Selected tree key (path-based, e.g., "24-25") for tree highlighting */
-    selectedTreeKey: string | null
-    /** Selected node ID for API calls */
-    selectedNodeId: number | null
-    selectedNodeDetails: TraceNodeView | null
+    // Session state
+    status: DebugStatus | null
+    frames: DebugFrameView[]
+    /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
+    tree: CallNodeView | null
+    /** Bounded hot-spots overview of a finished profiling run (slowest tables by own time); null otherwise. */
+    profile: ProfileSummaryView | null
+    debugError: DebugError | null
+    selectedFrameIndex: number | null
+    variables: DebugFrameVariables | null
+    variablesLoading: boolean
+    /** Increments on every suspension so views that depend on the current line (table highlight) refresh. */
+    stackVersion: number
+    breakpoints: string[]
+    breakpointLabels: Record<string, string>
+    /** A one-shot breakpoint set by runTo; dropped on the next suspension so "run to here" leaves none behind. */
+    transientBreakpoint: string | null
+    /** Profiling mode: retain the executed call tree so returned branches stay browsable. Toggling restarts. */
+    profiling: boolean
+    /** Cells watched across the run, by name or ref. Applied on the next run, since a watch captures from the start. */
+    watches: string[]
+    /** The watched cells' values across the run, or null before they are fetched. */
+    watch: WatchView | null
+    /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
+    rawTableCache: Record<string, RawTableView>
 
-    // Tree data (transformed for Ant Design Tree)
-    treeData: TraceTreeDataNode[]
-
-    // UI State
+    // UI
     loading: boolean
-    detailsLoading: boolean
     error: string | null
-    showRealNumbers: boolean
-    hideFailedNodes: boolean
-
-    // Progress
-    executionStatus: TraceExecutionStatus | null
-    progressMessage: string | null
 
     // Actions
-    setRouteParams: (projectId: string, tableId: string, showRealNumbers: boolean) => void
-    fetchRootNodes: () => Promise<void>
-    /** Fetch children for a node. treeKey is the path-based key, nodeId is the backend node ID. */
-    fetchNodeChildren: (treeKey: string, nodeId: number) => Promise<TraceNodeView[]>
-    /** Select a node. treeKey is for tree highlighting, nodeId is for API calls. */
-    selectNode: (treeKey: string, nodeId: number) => Promise<void>
+    setRouteParams: (params: {
+        projectId: string
+        tableId: string
+        fromModule?: string | null
+        testRanges?: string | null
+        inputJson?: string | null
+    }) => void
+    start: () => Promise<void>
+    refreshStack: () => Promise<void>
+    selectFrame: (index: number) => Promise<void>
+    /** Load a table's raw grid, returning the cached copy when already fetched this session. */
+    loadRawTable: (tableId: string) => Promise<RawTableView>
+    stepInto: () => Promise<void>
+    stepOver: () => Promise<void>
+    stepOut: () => Promise<void>
+    resume: () => Promise<void>
+    pause: () => Promise<void>
+    /** Run execution to a node (table/cell/rule breakpoint key) without leaving a permanent breakpoint. */
+    runTo: (key: string, label?: string) => Promise<void>
+    /** Turn profiling on/off; restarts the trace since the executed tree can only be captured from the start. */
+    setProfiling: (value: boolean) => Promise<void>
+    /** Re-run the whole trace from the top with the current table, input, profiling, and watches. */
+    rerun: () => Promise<void>
+    /** Replay a returned branch: restart from the top and run to that table so it is live again, with values. */
+    replayNode: (uri: string, label?: string) => Promise<void>
+    /** Replace the watch set. Applied on the next collect/run, since a watch captures from the start. */
+    setWatchCells: (cells: string[]) => Promise<void>
+    /** Run the whole trace to completion collecting the watched cells, then fetch the series. */
+    collectWatch: () => Promise<void>
+    /** Fetch the watched cells' values gathered so far. */
+    fetchWatch: () => Promise<void>
+    terminate: () => Promise<void>
+    loadBreakpoints: () => Promise<void>
+    toggleBreakpoint: (uri: string, label?: string) => Promise<void>
+    onSocketStatus: (status: DebugStatus, message?: string) => void
+    fetchTerminalError: () => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
-    /** Update a parameter value in selectedNodeDetails after lazy loading */
-    updateParameterValue: (parameterId: number, value: unknown) => void
-    setExecutionStatus: (status: TraceExecutionStatus, message?: string) => void
-    toggleHideFailedNodes: () => void
-    toggleShowRealNumbers: () => Promise<void>
-    updateTreeData: (parentKey: string, children: TraceTreeDataNode[]) => void
     reset: () => void
-}
-
-/**
- * Transform TraceNodeView to TraceTreeDataNode for Ant Design Tree.
- * Uses path-based keys to ensure uniqueness when same node appears under multiple parents.
- *
- * This handles duplicate nodes correctly - the same nodeId can appear multiple times
- * in the tree (e.g., node 25 under parents 24, 33, and 45), and each occurrence
- * gets a unique tree key based on its full path:
- * - "24-25" (node 25 under parent 24)
- * - "33-25" (node 25 under parent 33)
- * - "45-25" (node 25 under parent 45)
- *
- * Deeply nested duplicates also work: "24-25-30" vs "33-25-30" vs "45-25-30"
- *
- * @param node The trace node from backend
- * @param parentKey The parent's tree key (empty string for root level)
- */
-const transformToTreeNode = (node: TraceNodeView, parentKey: string = ''): TraceTreeDataNode => ({
-    key: parentKey ? `${parentKey}-${node.key}` : String(node.key),
-    nodeId: node.key,
-    title: node.title,
-    tooltip: node.tooltip,
-    type: node.type,
-    extraClasses: node.extraClasses,
-    isLeaf: !node.lazy,
-    nodeData: node,
-})
-
-/**
- * Recursively update tree data with children for a specific node.
- * Uses path-based string keys for matching.
- */
-const updateTreeChildren = (
-    treeData: TraceTreeDataNode[],
-    parentKey: string,
-    children: TraceTreeDataNode[]
-): TraceTreeDataNode[] => {
-    return treeData.map((node) => {
-        if (node.key === parentKey) {
-            return { ...node, children }
-        }
-        if (node.children) {
-            return {
-                ...node,
-                children: updateTreeChildren(node.children, parentKey, children),
-            }
-        }
-        return node
-    })
 }
 
 const initialState = {
     projectId: null,
     tableId: null,
-    rootNodes: [],
-    selectedTreeKey: null,
-    selectedNodeId: null,
-    selectedNodeDetails: null,
-    treeData: [],
+    fromModule: null,
+    testRanges: null,
+    inputJson: null,
+    status: null,
+    frames: [],
+    tree: null,
+    profile: null,
+    debugError: null,
+    selectedFrameIndex: null,
+    variables: null,
+    variablesLoading: false,
+    stackVersion: 0,
+    breakpoints: [],
+    breakpointLabels: {},
+    transientBreakpoint: null,
+    profiling: false,
+    watches: [],
+    watch: null,
+    rawTableCache: {},
     loading: false,
-    detailsLoading: false,
     error: null,
-    showRealNumbers: false,
-    hideFailedNodes: false,
-    executionStatus: null,
-    progressMessage: null,
 }
 
-export const useTraceStore = create<TraceState>((set, get) => ({
-    ...initialState,
+const isSuspended = (status: DebugStatus | null): boolean => status === 'suspended'
 
-    setRouteParams: (projectId, tableId, showRealNumbers) => {
-        set({ projectId, tableId, showRealNumbers })
-    },
+export const useTraceStore = create<DebugState>((set, get) => {
+    /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
+    const applyStack = (stack: DebugStackView): void => {
+        const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
+        const transient = get().transientBreakpoint
+        set({
+            status: stack.status,
+            frames: stack.frames,
+            tree: stack.tree ?? null,
+            profile: stack.profile ?? null,
+            debugError: stack.error ?? null,
+            selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
+            variables: null,
+            variablesLoading: false,
+            stackVersion: get().stackVersion + 1,
+            transientBreakpoint: null,
+        })
+        // Drop the one-shot run-to breakpoint once execution settles — whether it stopped there, stopped
+        // at another breakpoint, or ran to the end without reaching it (a conditionally-skipped target).
+        // applyStack only runs on a settled (non-running) stack, so clearing it here leaves none behind.
+        // Remove it only if still present — a plain toggle would re-add a transient the user cleared meanwhile.
+        if (transient && get().breakpoints.includes(transient)) {
+            void get().toggleBreakpoint(transient)
+        }
+        if (isSuspended(stack.status) && topIndex !== null) {
+            void get().selectFrame(topIndex)
+        }
+        // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
+        // not only on Collect — the panel then tracks the value as the user steps through.
+        if (get().watches.length > 0) {
+            void get().fetchWatch()
+        }
+    }
 
-    fetchRootNodes: async () => {
-        const { projectId, showRealNumbers } = get()
+    const runStep = async (step: () => Promise<DebugStackView>): Promise<void> => {
+        const { projectId } = get()
         if (!projectId) return
-
         set({ loading: true, error: null })
         try {
-            // Get root nodes by calling getNodeChildren without nodeId
-            const rootNodes = await traceService.getNodeChildren(projectId, undefined, showRealNumbers)
-            const treeData = rootNodes.map(node => transformToTreeNode(node))
-            set({
-                rootNodes,
-                treeData,
-                loading: false,
-                executionStatus: 'COMPLETED',
-            })
+            applyStack(await step())
         } catch (error: any) {
-            const message = error?.message || 'Failed to load trace'
-            set({ error: message, loading: false, executionStatus: 'ERROR' })
+            set({ error: error?.message || 'Step failed' })
+        } finally {
+            set({ loading: false })
         }
-    },
+    }
 
-    fetchNodeChildren: async (treeKey, nodeId) => {
-        const { projectId, showRealNumbers } = get()
-        if (!projectId) return []
-
-        try {
-            const children = await traceService.getNodeChildren(projectId, nodeId, showRealNumbers)
-            // Transform children with parent's tree key to generate unique path-based keys
-            const childNodes = children.map(child => transformToTreeNode(child, treeKey))
-
-            // Update tree data with children using the path-based tree key
-            set((state) => ({
-                treeData: updateTreeChildren(state.treeData, treeKey, childNodes),
-            }))
-
-            return children
-        } catch (error: any) {
-            const title = error?.message || 'Failed to fetch node children'
-            notification.error({ title })
-            return []
-        }
-    },
-
-    selectNode: async (treeKey, nodeId) => {
-        const { projectId, showRealNumbers } = get()
+    /** Restart the session from the top with the current settings, re-applying the user's breakpoints. */
+    const restart = async (): Promise<void> => {
+        const { projectId, breakpoints } = get()
         if (!projectId) return
-
-        set({ selectedTreeKey: treeKey, selectedNodeId: nodeId, detailsLoading: true })
-        try {
-            const details = await traceService.getNodeDetails(projectId, nodeId, showRealNumbers)
-            set({ selectedNodeDetails: details, detailsLoading: false })
-        } catch (error: any) {
-            const title = error?.message || 'Failed to fetch node details'
-            notification.error({ title })
-            set({ selectedNodeDetails: null, detailsLoading: false })
-        }
-    },
-
-    fetchLazyParameter: async (parameterId) => {
-        const { projectId } = get()
-        if (!projectId) throw new Error('No project ID')
-
-        const result = await traceService.getParameterValue(projectId, parameterId)
-        // Update the parameter value in selectedNodeDetails
-        get().updateParameterValue(parameterId, result.value)
-        return result
-    },
-
-    updateParameterValue: (parameterId, value) => {
-        const { selectedNodeDetails } = get()
-        if (!selectedNodeDetails) return
-
-        // Helper to update parameter in array
-        const updateInArray = (params?: TraceParameterValue[]): TraceParameterValue[] | undefined => {
-            if (!params) return params
-            return params.map(p =>
-                p.parameterId === parameterId ? { ...p, value } : p
-            )
-        }
-
-        // Helper to update single parameter
-        const updateSingle = (param?: TraceParameterValue): TraceParameterValue | undefined => {
-            if (!param || param.parameterId !== parameterId) return param
-            return { ...param, value }
-        }
-
-        set({
-            selectedNodeDetails: {
-                ...selectedNodeDetails,
-                parameters: updateInArray(selectedNodeDetails.parameters),
-                context: updateSingle(selectedNodeDetails.context),
-                result: updateSingle(selectedNodeDetails.result),
+        await get().terminate()
+        await get().start()
+        // A fresh session has no breakpoints; re-apply the ones the user had set.
+        if (breakpoints.length > 0) {
+            try {
+                await traceService.setBreakpoints(projectId, breakpoints)
+            } catch {
+                // best-effort: the user can re-add them
             }
-        })
-    },
-
-    setExecutionStatus: (status, message) => {
-        set({ executionStatus: status, progressMessage: message || null })
-        // If completed, fetch the root nodes
-        if (status === 'COMPLETED') {
-            get().fetchRootNodes()
         }
-    },
+    }
 
-    toggleHideFailedNodes: () => {
-        set((state) => ({ hideFailedNodes: !state.hideFailedNodes }))
-    },
+    return {
+        ...initialState,
 
-    toggleShowRealNumbers: async () => {
-        // Compute new value first to avoid race condition with fetchRootNodes
-        const newShowRealNumbers = !get().showRealNumbers
-        set({ showRealNumbers: newShowRealNumbers })
-        // Refetch with new setting
-        await get().fetchRootNodes()
-    },
+        setRouteParams: ({ projectId, tableId, fromModule, testRanges, inputJson }) => {
+            set({
+                projectId,
+                tableId,
+                fromModule: fromModule ?? null,
+                testRanges: testRanges ?? null,
+                inputJson: inputJson ?? null,
+            })
+        },
 
-    updateTreeData: (parentKey: string, children: TraceTreeDataNode[]) => {
-        set((state) => ({
-            treeData: updateTreeChildren(state.treeData, parentKey, children),
-        }))
-    },
+        start: async () => {
+            const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+            if (!projectId || !tableId) return
+            set({ loading: true, error: null, status: 'pending' })
+            try {
+                // Attach to a session already created by the launcher; otherwise start a new one.
+                let stack: DebugStackView
+                try {
+                    stack = await traceService.getStack(projectId)
+                } catch {
+                    stack = await traceService.startTrace(projectId, launchOptions(
+                        { tableId, fromModule, testRanges, inputJson },
+                        { stopAtEntry: true, ...(get().profiling ? { profiling: true } : {}) }
+                    ))
+                }
+                applyStack(stack)
+            } catch (error: any) {
+                set({ status: 'error', error: error?.message || 'Failed to start trace' })
+            } finally {
+                set({ loading: false })
+            }
+        },
 
-    reset: () => {
-        set(initialState)
-    },
-}))
+        refreshStack: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                applyStack(await traceService.getStack(projectId))
+            } catch (error: any) {
+                set({ error: error?.message || 'Failed to load stack' })
+            }
+        },
+
+        loadRawTable: async (tableId) => {
+            const { projectId, rawTableCache } = get()
+            if (!projectId) throw new Error('No project ID')
+            const cached = rawTableCache[tableId]
+            if (cached) return cached
+            const raw = await traceService.getRawTable(projectId, tableId, MAX_TABLE_ROWS, true)
+            set(s => ({ rawTableCache: { ...s.rawTableCache, [tableId]: raw } }))
+            return raw
+        },
+
+        selectFrame: async (index) => {
+            const { projectId, status, stackVersion } = get()
+            if (!projectId) return
+            set({ selectedFrameIndex: index })
+            if (!isSuspended(status)) {
+                set({ variables: null, variablesLoading: false })
+                return
+            }
+            set({ variablesLoading: true, variables: null })
+            // A slow variables response is stale if the user picked another frame or execution advanced
+            // to a new suspension in the meantime; dropping it avoids showing one frame's data under another.
+            const isStale = () => get().selectedFrameIndex !== index || get().stackVersion !== stackVersion
+            try {
+                const variables = await traceService.getVariables(projectId, index)
+                if (isStale()) return
+                set({ variables, variablesLoading: false })
+            } catch (error: any) {
+                if (isStale()) return
+                notification.error({ title: error?.message || 'Failed to load variables' })
+                set({ variables: null, variablesLoading: false })
+            }
+        },
+
+        stepInto: () => runStep(() => traceService.step(get().projectId!, 'into')),
+        stepOver: () => runStep(() => traceService.step(get().projectId!, 'over')),
+        stepOut: () => runStep(() => traceService.step(get().projectId!, 'out')),
+
+        resume: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            set({ status: 'running', variables: null, variablesLoading: false })
+            try {
+                await traceService.resume(projectId)
+            } catch (error: any) {
+                set({ status: 'suspended', error: error?.message || 'Resume failed' })
+            }
+        },
+
+        pause: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                await traceService.pause(projectId)
+            } catch (error: any) {
+                set({ error: error?.message || 'Pause failed' })
+            }
+        },
+
+        runTo: async (key, label) => {
+            // Run to a node (its breakpoint key) without leaving a permanent breakpoint: add a one-shot
+            // breakpoint unless the user already pinned one here, then resume. applyStack drops it on the
+            // next suspension. Only meaningful while paused.
+            if (get().status !== 'suspended') return
+            if (!get().breakpoints.includes(key)) {
+                await get().toggleBreakpoint(key, label)
+                set({ transientBreakpoint: key })
+            }
+            await get().resume()
+        },
+
+        setProfiling: async (value) => {
+            if (!get().projectId || get().profiling === value) return
+            // The executed tree can only be captured from the start, so switching restarts the session.
+            set({ profiling: value })
+            await restart()
+        },
+
+        /** Re-run the whole trace from the top with the current table, input, profiling, and watches. */
+        rerun: async () => {
+            await restart()
+        },
+
+        replayNode: async (uri, label) => {
+            if (!get().projectId) return
+            // The executed tree has structure only, so to inspect a returned branch we re-run to it: restart
+            // from the top, then run to that table, where it becomes the live frame again with its values.
+            await get().terminate()
+            await get().start()
+            await get().runTo(uri, label)
+        },
+
+        setWatchCells: async (cells) => {
+            const { projectId, watch } = get()
+            // Drop any already-collected series for cells that are no longer watched, so removing a watch
+            // clears its values instead of leaving stale rows on screen.
+            const series = watch ? watch.series.filter(s => cells.includes(s.name)) : []
+            set({ watches: cells, watch: watch ? { ...watch, series } : null })
+            if (!projectId) return
+            // Applies to the running session immediately (like breakpoints), so a cell added mid-debug is
+            // captured as stepping reaches it; on the next start it captures from the beginning of the run.
+            await traceService.setWatches(projectId, cells)
+            if (cells.length > 0) await get().fetchWatch()
+        },
+
+        collectWatch: async () => {
+            const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+            if (!projectId || !tableId) return
+            set({ loading: true, error: null })
+            try {
+                // Run the whole trace to completion (not the full tree) so every execution is captured.
+                await get().terminate()
+                const stack = await traceService.startTrace(projectId, launchOptions(
+                    { tableId, fromModule, testRanges, inputJson },
+                    { stopAtEntry: false, includeTree: false }
+                ))
+                applyStack(stack)
+                await get().fetchWatch()
+            } catch (error: any) {
+                set({ error: error?.message || 'Failed to collect watches' })
+            } finally {
+                set({ loading: false })
+            }
+        },
+
+        fetchWatch: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                set({ watch: await traceService.getWatch(projectId) })
+            } catch {
+                // Best effort: the panel keeps whatever it last showed.
+            }
+        },
+
+        terminate: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                await traceService.cancelTrace(projectId)
+                set({ status: 'terminated', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
+            } catch (error: any) {
+                notification.error({ title: error?.message || 'Failed to terminate' })
+            }
+        },
+
+        loadBreakpoints: async () => {
+            const { projectId, breakpointLabels } = get()
+            if (!projectId) return
+            try {
+                const uris = await traceService.getBreakpoints(projectId)
+                const labels = { ...breakpointLabels }
+                uris.forEach(uri => {
+                    if (!labels[uri]) labels[uri] = uri.substring(uri.lastIndexOf('/') + 1) || uri
+                })
+                set({ breakpoints: uris, breakpointLabels: labels })
+            } catch {
+                // breakpoints are best-effort
+            }
+        },
+
+        toggleBreakpoint: async (uri, label) => {
+            const { projectId, breakpoints, breakpointLabels } = get()
+            if (!projectId) return
+            const has = breakpoints.includes(uri)
+            const next = has ? breakpoints.filter(b => b !== uri) : [...breakpoints, uri]
+            const labels = { ...breakpointLabels }
+            if (has) {
+                delete labels[uri]
+            } else {
+                labels[uri] = label || uri.substring(uri.lastIndexOf('/') + 1) || uri
+            }
+            set({ breakpoints: next, breakpointLabels: labels })
+            try {
+                await traceService.setBreakpoints(projectId, next)
+            } catch (error: any) {
+                notification.error({ title: error?.message || 'Failed to update breakpoints' })
+                set({ breakpoints, breakpointLabels })
+            }
+        },
+
+        onSocketStatus: (status, message) => {
+            if (status === 'suspended') {
+                // A synchronous step applies the authoritative stack from its own response; the WS
+                // notification for that same suspension would only trigger a duplicate stack+variables fetch.
+                if (get().loading) return
+                void get().refreshStack()
+            } else if (status === 'running') {
+                // Same guard as 'suspended': a synchronous step owns the status via its own response, so
+                // ignore the WS 'running' for that in-flight transition rather than clobbering the settled state.
+                if (get().loading) return
+                set({ status: 'running' })
+            } else if (isTraceExecutionTerminal(status)) {
+                // Show an immediate summary from the socket (if any); the full error is fetched below.
+                set({
+                    status,
+                    frames: [],
+                    selectedFrameIndex: null,
+                    variables: null,
+                    variablesLoading: false,
+                    debugError: status === 'error' && message ? { summary: message } : null,
+                })
+                if (status === 'error') {
+                    void get().fetchTerminalError()
+                } else if (status === 'completed' && get().profiling) {
+                    // A finished profiling run carries the executed tree and the hot-spots profile; the socket
+                    // only reports the status, so fetch the settled stack to load them. A terminated session is
+                    // gone (for example when toggling profiling restarts it), so it is never fetched.
+                    void get().refreshStack()
+                }
+            }
+        },
+
+        fetchTerminalError: async () => {
+            const { projectId } = get()
+            if (!projectId) return
+            try {
+                // The session is still readable after it errors; the stack carries the cleaned, located error.
+                const stack = await traceService.getStack(projectId)
+                if (stack.error) {
+                    set({ debugError: stack.error })
+                }
+            } catch {
+                // Best effort: keep the socket summary if the fetch fails.
+            }
+        },
+
+        fetchLazyParameter: async (parameterId) => {
+            const { projectId, variables } = get()
+            if (!projectId) throw new Error('No project ID')
+            const result = await traceService.getParameterValue(projectId, parameterId)
+            if (variables) {
+                const patch = (p?: TraceParameterValue | null): TraceParameterValue | null =>
+                    (p && p.parameterId === parameterId ? { ...p, value: result.value } : p) ?? null
+                set({
+                    variables: {
+                        ...variables,
+                        parameters: variables.parameters.map(p =>
+                            p.parameterId === parameterId ? { ...p, value: result.value } : p),
+                        context: patch(variables.context),
+                        result: patch(variables.result),
+                    },
+                })
+            }
+            return result
+        },
+
+        reset: () => set(initialState),
+    }
+})

@@ -1,3 +1,0 @@
-GET /rest/projects/{PROJECT_ID}/tables?name=doRuntimeError HTTP/1.1
-Authorization: ${ADMIN_AUTH_TOCKEN}
-

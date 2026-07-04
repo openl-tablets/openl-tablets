@@ -9,7 +9,6 @@ import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IOpenClass;
 import org.openl.util.OpenClassUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 /**
  * Invoker for {@link DecisionTable}.
@@ -53,7 +52,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         IBaseAction[] actions = getInvokableMethod().getActionRows();
 
-        Object returnValue = Tracer
+        Object returnValue = env.getTracer()
                 .invoke(new ActionInvoker(rulesIntIterator, actions, returnEmptyResult), target, params, env, this);
         if (!OpenClassUtils.isVoid(retType) && returnValue != null) {
             return returnValue;

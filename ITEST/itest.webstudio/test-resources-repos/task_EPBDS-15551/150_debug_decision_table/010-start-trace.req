@@ -1,0 +1,7 @@
+POST /rest/projects/{PROJECT_ID}/trace?tableId=4d8eb238ff687745c805f69724a3c60e HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "bankRating": 0.05
+}

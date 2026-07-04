@@ -9,7 +9,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleRuntimeEnv;
-import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
@@ -65,7 +64,7 @@ public final class ServiceMT {
     }
 
     public void execute(IRuntimeEnv env, Runnable runnable) {
-        if (Tracer.isEnabled()) { // Avoid parallelism for tracing
+        if (env.getTracer().isTracing()) { // Avoid parallelism for tracing
             runnable.run(env);
             return;
         }

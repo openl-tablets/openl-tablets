@@ -4,7 +4,6 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
@@ -13,7 +12,7 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
     @Override
     public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
-        Object sumScore = Tracer.invoke(scoreAlgorithmExecutor, target, params, env, this);
+        Object sumScore = env.getTracer().invoke(scoreAlgorithmExecutor, target, params, env, this);
 
         MatchNode totalScore = target.getTotalScore();
         IMatcher matcher = totalScore.getMatcher();
@@ -24,8 +23,8 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
             if (matcher.match(sumScore, checkValue)) {
                 Object result = returnValues[resultIndex];
 
-                Tracer.put(this, "match", target, totalScore, resultIndex, null);
-                Tracer.put(this, "result", target, resultIndex, result);
+                env.getTracer().put(this, "match", target, totalScore, resultIndex, null);
+                env.getTracer().put(this, "result", target, resultIndex, result);
                 return result;
             }
         }

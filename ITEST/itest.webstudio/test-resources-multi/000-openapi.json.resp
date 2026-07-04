@@ -10540,6 +10540,66 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "stopAtEntry",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profiling",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -10553,7 +10613,309 @@ Content-Type: application/json
           "description": "***"
         },
         "responses": {
-          "202": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DebugStackView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/breakpoint-tables": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BreakpointTableView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/breakpoints": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      },
+      "put": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BreakpointsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
             "description": "***"
           },
           "400": {
@@ -10640,7 +11002,7 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "showRealNumbers",
+            "name": "release",
             "schema": {
               "type": "boolean",
               "default": false
@@ -10649,10 +11011,10 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "release",
+            "name": "smartNumbers",
             "schema": {
               "type": "boolean",
-              "default": false
+              "default": true
             }
           }
         ],
@@ -10661,22 +11023,11 @@ Content-Type: application/json
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "byte"
                 }
               }
             },
-            "description": "***",
-            "headers": {
-              "Content-Disposition": {
-                "description": "***",
-                "schema": {
-                  "type": "string"
-                },
-                "style": "simple"
-              }
-            }
-          },
-          "204": {
             "description": "***"
           },
           "400": {
@@ -10746,7 +11097,7 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/trace/nodes": {
+    "/projects/{projectId}/trace/frames/{index}/highlights": {
       "get": {
         "description": "***",
         "operationId": "***",
@@ -10762,20 +11113,12 @@ Content-Type: application/json
           },
           {
             "description": "***",
-            "in": "query",
-            "name": "id",
+            "in": "path",
+            "name": "index",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "showRealNumbers",
-            "schema": {
-              "type": "boolean",
-              "default": false
             }
           },
           {
@@ -10795,7 +11138,7 @@ Content-Type: application/json
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TraceNodeView_Short"
+                    "$ref": "#/components/schemas/CellHighlight"
                   }
                 }
               }
@@ -10869,7 +11212,7 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/trace/nodes/{nodeId}": {
+    "/projects/{projectId}/trace/frames/{index}/variables": {
       "get": {
         "description": "***",
         "operationId": "***",
@@ -10886,20 +11229,11 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "path",
-            "name": "nodeId",
+            "name": "index",
             "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "showRealNumbers",
-            "schema": {
-              "type": "boolean",
-              "default": false
             }
           },
           {
@@ -10917,119 +11251,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TraceNodeView_Full"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects: Trace (BETA)"
-        ]
-      }
-    },
-    "/projects/{projectId}/trace/nodes/{nodeId}/table": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "path",
-            "name": "nodeId",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "showFormulas",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/DebugFrameVariables"
                 }
               }
             },
@@ -11141,10 +11363,860 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParameterValue_Full"
+                  "$ref": "#/components/schemas/ParameterValue"
                 }
               }
             },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/pause": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/resume": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/stack": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DebugStackView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/status": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DebugStatusView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/step": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "into",
+                "over",
+                "out"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "includeTree",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "profileTop",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "default": "full",
+              "enum": [
+                "full",
+                "compact"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DebugStackView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/watch": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/watches": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      },
+      "put": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
             "description": "***"
           },
           "400": {
@@ -16492,6 +17564,44 @@ Content-Type: application/json
           }
         }
       },
+      "BreakpointTableView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "BreakpointsRequest": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "uris": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***",
+              "minLength": 1
+            }
+          }
+        }
+      },
       "BulkAclOverwriteRequest": {
         "type": "object",
         "description": "***",
@@ -16542,6 +17652,96 @@ Content-Type: application/json
           "settings",
           "type"
         ]
+      },
+      "CallNodeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "dispatch": {
+            "$ref": "#/components/schemas/DispatchInfo"
+          },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "instance": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "refStep": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "steps": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/StepValueView"
+            }
+          },
+          "uri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "Candidate": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "chosen": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "label": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "CellHighlight": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cell": {
+            "type": "string",
+            "description": "***"
+          },
+          "state": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "current",
+              "result",
+              "conditionTrue",
+              "conditionFalse"
+            ]
+          }
+        }
       },
       "ChangePasswordModel": {
         "type": "object",
@@ -17140,6 +18340,297 @@ Content-Type: application/json
           }
         ]
       },
+      "DebugError": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "***"
+          },
+          "location": {
+            "type": "string",
+            "description": "***"
+          },
+          "summary": {
+            "type": "string",
+            "description": "***"
+          },
+          "table": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "DebugFrameVariables": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ParameterValue"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/DecisionView"
+          },
+          "errors": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/MessageDescription"
+            }
+          },
+          "gridColumns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "gridRows": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
+            }
+          },
+          "result": {
+            "$ref": "#/components/schemas/ParameterValue"
+          },
+          "ruleNames": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/StepValueView"
+            }
+          }
+        }
+      },
+      "DebugFrameView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "depth": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "dispatch": {
+            "$ref": "#/components/schemas/DispatchInfo"
+          },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "error": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "instance": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "location": {
+            "$ref": "#/components/schemas/DebugLocationView"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "steps": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/StepValueView"
+            }
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
+          },
+          "uri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "DebugLocationView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "cell",
+              "dtrule",
+              "operation"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "description": "***"
+          },
+          "ref": {
+            "type": "string",
+            "description": "***"
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "DebugStackView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/DebugError"
+          },
+          "frames": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/DebugFrameView"
+            }
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileSummaryView"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "pending",
+              "running",
+              "suspended",
+              "completed",
+              "error",
+              "terminated"
+            ]
+          },
+          "tree": {
+            "$ref": "#/components/schemas/CallNodeView"
+          }
+        }
+      },
+      "DebugStatusView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "pending",
+              "running",
+              "suspended",
+              "completed",
+              "error",
+              "terminated"
+            ]
+          }
+        }
+      },
+      "DecisionConditionView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "***"
+          },
+          "matched": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "rule": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "DecisionView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "conditions": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/DecisionConditionView"
+            }
+          },
+          "firedRules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          }
+        }
+      },
       "Delete": {
         "type": "object",
         "allOf": [
@@ -17320,6 +18811,19 @@ Content-Type: application/json
           },
           "summary": {
             "type": "string"
+          }
+        }
+      },
+      "DispatchInfo": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            }
           }
         }
       },
@@ -18137,27 +19641,6 @@ Content-Type: application/json
           }
         }
       },
-      "MessageDescription_Full": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "severity": {
-            "type": "string",
-            "enum": [
-              "INFO",
-              "WARN",
-              "ERROR"
-            ]
-          },
-          "summary": {
-            "type": "string"
-          }
-        }
-      },
       "MessageSource": {
         "type": "object",
         "description": "***",
@@ -18593,37 +20076,6 @@ Content-Type: application/json
           }
         }
       },
-      "ParameterValue_Full": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "description": {
-            "type": "string",
-            "description": "***"
-          },
-          "lazy": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "name": {
-            "type": "string",
-            "description": "***"
-          },
-          "parameterId": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "schema": {
-            "type": "object",
-            "description": "***"
-          },
-          "value": {
-            "type": "object",
-            "description": "***"
-          }
-        }
-      },
       "PendingChanges": {
         "type": "object",
         "properties": {
@@ -18668,6 +20120,80 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "example": "a1b2c3d4e5f6"
+          }
+        }
+      },
+      "ProfileHotspotView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "decisionTable",
+              "spreadsheet",
+              "method",
+              "cmatch",
+              "tbasic",
+              "tbasicMethod",
+              "stepRef"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "totalMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "uri": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProfileSummaryView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "distinctTables": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "hotspots": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProfileHotspotView"
+            }
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "totalMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },
@@ -20231,6 +21757,49 @@ Content-Type: application/json
           }
         ]
       },
+      "StepValueView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "children": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/CallNodeView"
+            }
+          },
+          "durationMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "label": {
+            "type": "string",
+            "description": "***"
+          },
+          "ref": {
+            "type": "string",
+            "description": "***"
+          },
+          "selfMillis": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "executed",
+              "current",
+              "pending"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/ParameterValue"
+          }
+        }
+      },
       "SummaryTableView": {
         "type": "object",
         "properties": {
@@ -20839,96 +22408,6 @@ Content-Type: application/json
           "pageNumber",
           "pageSize"
         ]
-      },
-      "TraceNodeView_Full": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "context": {
-            "$ref": "#/components/schemas/ParameterValue_Full"
-          },
-          "error": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "errors": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/MessageDescription_Full"
-            }
-          },
-          "extraClasses": {
-            "type": "string",
-            "description": "***"
-          },
-          "key": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "lazy": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "parameters": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ParameterValue_Full"
-            }
-          },
-          "result": {
-            "$ref": "#/components/schemas/ParameterValue_Full"
-          },
-          "title": {
-            "type": "string",
-            "description": "***"
-          },
-          "tooltip": {
-            "type": "string",
-            "description": "***"
-          },
-          "type": {
-            "type": "string",
-            "description": "***"
-          }
-        }
-      },
-      "TraceNodeView_Short": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "error": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "extraClasses": {
-            "type": "string",
-            "description": "***"
-          },
-          "key": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "lazy": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "title": {
-            "type": "string",
-            "description": "***"
-          },
-          "tooltip": {
-            "type": "string",
-            "description": "***"
-          },
-          "type": {
-            "type": "string",
-            "description": "***"
-          }
-        }
       },
       "Unmerge": {
         "type": "object",
@@ -21788,6 +23267,98 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "WatchPointView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "instance": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "label": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "ref": {
+            "type": "string",
+            "description": "***"
+          },
+          "value": {
+            "$ref": "#/components/schemas/ParameterValue"
+          }
+        }
+      },
+      "WatchSeriesView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "points": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/WatchPointView"
+            }
+          },
+          "table": {
+            "type": "string",
+            "description": "***"
+          },
+          "tableUri": {
+            "type": "string",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "WatchView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "series": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/WatchSeriesView"
+            }
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "WatchesRequest": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***",
+              "minLength": 1
+            }
+          }
+        }
       }
     },
     "securitySchemes": {

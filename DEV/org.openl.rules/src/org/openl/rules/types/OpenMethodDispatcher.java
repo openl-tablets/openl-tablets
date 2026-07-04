@@ -28,7 +28,6 @@ import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 /**
  * Class that decorates the <code>IOpenMehtod</code> interface for method overload support.
@@ -163,7 +162,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(this::invokeInner, target, params, env, this);
+        return env.getTracer().invoke(this::invokeInner, target, params, env, this);
     }
 
     /**
@@ -219,7 +218,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     private <R> R invokeInner(Object target, Object[] params, IRuntimeEnv env) {
         IOpenMethod method = findMatchingMethod(env);
-        Tracer.put(this, "rule", method);
+        env.getTracer().put(this, "rule", method);
         return (R) method.invoke(target, params, env);
     }
 

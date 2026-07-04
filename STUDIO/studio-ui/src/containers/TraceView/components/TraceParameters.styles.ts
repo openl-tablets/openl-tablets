@@ -1,28 +1,32 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     section: css`
-        background: #fafafa;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        padding: 8px 12px;
-        margin-bottom: 12px;
-        font-family: Consolas, Monaco, 'Courier New', monospace;
-        font-size: 12px;
+        background: ${token.colorFillQuaternary};
+        border: 1px solid ${token.colorBorderSecondary};
+        border-radius: ${token.borderRadiusSM}px;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        margin-bottom: ${token.marginSM}px;
+        font-family: ${token.fontFamilyCode};
+        font-size: ${token.fontSizeSM}px;
         line-height: 1.6;
     `,
     header: css`
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
+        gap: ${token.marginXS}px;
+        margin-bottom: ${token.marginXXS}px;
     `,
     title: css`
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: ${token.fontSizeSM}px;
         font-weight: 600;
-        color: #000;
+        color: ${token.colorTextTertiary};
     `,
     empty: css`
         font-style: italic;
+        color: ${token.colorTextTertiary};
     `,
     list: css`
         display: block;
@@ -30,14 +34,14 @@ export const useStyles = createStyles(({ css }) => ({
     item: css`
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
         padding: 2px 0;
         padding-left: 24px;
     `,
     paramTree: css`
         .ant-tree {
-            font-family: Consolas, Monaco, 'Courier New', monospace;
-            font-size: 12px;
+            font-family: ${token.fontFamilyCode};
+            font-size: ${token.fontSizeSM}px;
             background: transparent;
         }
 
@@ -67,12 +71,12 @@ export const useStyles = createStyles(({ css }) => ({
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #6e6e6e;
+            color: ${token.colorTextTertiary};
             flex-shrink: 0;
         }
 
         .ant-tree .ant-tree-switcher:hover {
-            color: #1890ff;
+            color: ${token.colorPrimary};
         }
 
         .ant-tree .ant-tree-switcher .ant-tree-switcher-line-icon {
@@ -92,7 +96,7 @@ export const useStyles = createStyles(({ css }) => ({
         }
 
         .ant-tree .ant-tree-node-content-wrapper:hover {
-            background-color: #f5f5f5;
+            background-color: ${token.colorFillTertiary};
         }
 
         .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
@@ -104,12 +108,14 @@ export const useStyles = createStyles(({ css }) => ({
         align-items: center;
         gap: 4px;
     `,
+    /* Syntax palette below mirrors a code editor (name / string / number / boolean); these hues have no
+       design-token equivalent and intentionally stay fixed. Neutral chrome uses tokens. */
     valueName: css`
         color: #871094;
         font-weight: 500;
     `,
     valueType: css`
-        color: #6e6e6e;
+        color: ${token.colorTextTertiary};
         font-style: italic;
         margin-left: 4px;
 
@@ -122,7 +128,7 @@ export const useStyles = createStyles(({ css }) => ({
         }
     `,
     valueEquals: css`
-        color: #000;
+        color: ${token.colorText};
         margin: 0 4px;
     `,
     valueString: css`
@@ -136,30 +142,30 @@ export const useStyles = createStyles(({ css }) => ({
         font-weight: 600;
     `,
     valueNull: css`
-        color: #6e6e6e;
+        color: ${token.colorTextTertiary};
         font-style: italic;
     `,
     valueDefault: css`
-        color: #000;
+        color: ${token.colorText};
     `,
     valueSummary: css`
-        color: #6e6e6e;
+        color: ${token.colorTextTertiary};
         font-style: italic;
     `,
     valueLazy: css`
-        color: #1890ff;
+        color: ${token.colorPrimary};
         cursor: pointer;
         text-decoration: underline;
 
         &:hover {
-            color: #40a9ff;
+            color: ${token.colorPrimaryHover};
         }
     `,
     valueError: css`
-        color: #cf1322;
+        color: ${token.colorError};
     `,
     valueEmpty: css`
-        color: #6e6e6e;
+        color: ${token.colorTextTertiary};
         font-style: italic;
     `,
 }))

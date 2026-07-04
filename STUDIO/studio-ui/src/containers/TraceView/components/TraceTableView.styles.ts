@@ -1,19 +1,23 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     card: css`
         .ant-card-head {
             min-height: 36px;
-            padding: 0 12px;
+            padding: 0 ${token.paddingSM}px;
         }
 
         .ant-card-head .ant-card-head-title {
-            padding: 8px 0;
-            font-size: 13px;
+            padding: ${token.paddingXS}px 0;
+            font-size: ${token.fontSizeSM}px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: ${token.colorTextTertiary};
         }
 
         .ant-card-body {
-            padding: 12px;
+            padding: ${token.paddingSM}px;
         }
     `,
     loading: css`
@@ -24,39 +28,37 @@ export const useStyles = createStyles(({ css }) => ({
     `,
     content: css`
         overflow: auto;
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        td,
-        th {
-            border: 1px solid #d9d9d9;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-
-        th {
-            background: #fafafa;
-            font-weight: 500;
-        }
-
-        .trace-highlighted {
-            background: #fffbe6;
-        }
-
-        .trace-result {
-            background: #f6ffed;
-            font-weight: 600;
-        }
-
-        .trace-condition-true {
-            background: #e6f7ff;
-        }
-
-        .trace-condition-false {
-            background: #fff1f0;
-        }
+        max-width: 100%;
+    `,
+    table: css`
+        border-collapse: collapse;
+        width: 100%;
+        font-size: ${token.fontSizeSM}px;
+    `,
+    cell: css`
+        border: 1px solid ${token.colorBorderSecondary};
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
+        text-align: left;
+        vertical-align: top;
+        white-space: pre-wrap;
+    `,
+    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend. */
+    current: css`
+        background: ${token.colorWarningBg};
+    `,
+    result: css`
+        background: ${token.colorSuccessBg};
+        font-weight: 600;
+    `,
+    conditionTrue: css`
+        background: ${token.colorInfoBg};
+    `,
+    conditionFalse: css`
+        background: ${token.colorErrorBg};
+    `,
+    truncated: css`
+        margin-top: ${token.marginXS}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
     `,
 }))

@@ -6,7 +6,6 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
@@ -41,9 +40,9 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (success) {
                     Object result = returnValues[resultIndex];
                     for (MatchNode node : line.getChildren()) {
-                        Tracer.put(this, "match", target, node, resultIndex, null);
+                        env.getTracer().put(this, "match", target, node, resultIndex, null);
                     }
-                    Tracer.put(this, "result", target, resultIndex, result);
+                    env.getTracer().put(this, "result", target, resultIndex, result);
                     return result;
                 }
             }

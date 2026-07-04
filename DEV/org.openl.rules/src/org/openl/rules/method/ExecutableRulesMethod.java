@@ -17,7 +17,6 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, IModuleInfo {
 
@@ -67,7 +66,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(invoke2, target, params, env, this);
+        return env.getTracer().invoke(invoke2, target, params, env, this);
     }
 
     private final Invokable invoke2 = (Invokable) this::invoke2;

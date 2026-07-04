@@ -8,6 +8,7 @@ import org.openl.rules.cloner.Cloner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 /**
  * The <code>TBasicContextHolderEnv</code> contains full context for execution of Algorithm: runtime environment, VM,
@@ -141,5 +142,15 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
                 copiedParams,
                 tbasicVm
         );
+    }
+
+    @Override
+    public Tracer getTracer() {
+        return env.getTracer();
+    }
+
+    @Override
+    public void setTracer(Tracer tracer) {
+        env.setTracer(tracer);
     }
 }
