@@ -48,7 +48,7 @@ export default [
             'semi-spacing': 'error',
             'comma-spacing': ['error', { 'before': false, 'after': true }],
             'semi': ['error', 'never'],
-            'no-console': ['warn', { 'allow': ['warn', 'error']}],
+            'no-console': ['error', { 'allow': ['warn']}],
             'comma-dangle': ['error', {
                 'arrays': 'only-multiline',
                 'objects': 'only-multiline',
@@ -89,6 +89,13 @@ export default [
                 'logical': 'ignore',
                 'prop': 'ignore'
             }],
+        },
+    },
+    {
+        // The central error logger is the only sanctioned console.error call site
+        files: ['./src/utils/errorHandling.ts'],
+        rules: {
+            'no-console': 'off',
         },
     },
 ]

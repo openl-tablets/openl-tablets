@@ -63,7 +63,7 @@ export const UserSettings: React.FC = () => {
             await fetchUserProfile()
             notification.success({ title: t('users:user_settings_updated_successfully') })
         } catch (error) {
-            console.error('error', error)
+            notification.error({ title: error instanceof Error ? error.message : t('common:error') })
         } finally {
             setSaving(false)
         }

@@ -52,7 +52,6 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
 
             setProjects(projectsWithDesignRepositoriesOptions)
         } catch (error) {
-            console.error('Failed to fetch projects:', error)
             const errorMessage = error instanceof Error ? error.message : t('users:failed_to_load_projects')
             notification.error({
                 title: t('common:error') || 'Error',

@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { Button, Result, Typography } from 'antd'
 import { ReloadOutlined, HomeOutlined, BugOutlined } from '@ant-design/icons'
+import { errorHandler } from 'utils/errorHandling'
 
 const { Text, Paragraph } = Typography
 
@@ -40,18 +41,12 @@ export class ErrorBoundary extends Component<Props, State> {
             errorInfo,
         })
 
-        // Log error to console in development
-        if (import.meta.env.DEV && import.meta.env.MODE !== 'test') {
-            console.error('Error caught by ErrorBoundary:', error, errorInfo)
-        }
+        errorHandler.logError(error, { componentStack: errorInfo.componentStack ?? undefined })
 
         // Call custom error handler if provided
         if (this.props.onError) {
             this.props.onError(error, errorInfo)
         }
-
-    // You can also log the error to an error reporting service here
-    // Example: logErrorToService(error, errorInfo);
     }
 
     handleReload = () => {

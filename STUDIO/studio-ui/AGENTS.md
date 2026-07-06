@@ -151,10 +151,16 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   selecting by structure (descendant chains, `nth-child`) couples tests to layout — both break on refactors. Playwright
   resolves it via `page.getByTestId('foo')`; React Testing Library uses `getByTestId('foo')`. Choose stable,
   semantic ids (`repositories-tabs`, not `tabs1`); never reuse CSS class names as test ids.
-- **Do not call `console.error` from components, hooks, or services.** Propagate errors via callbacks, thrown
-  exceptions, or explicit state so callers (error boundaries, `notification.error`, future global logger) decide how to
-  surface them. `console.warn` is allowed for transient recoverable signals (reconnect attempts, queued work,
-  disconnected sends) — `vitest-fail-on-console` silences every warn, so warns are harmless in CI but still visible in
+- **Do not call `console.*` directly from components, hooks, or services — route errors, never swallow them.**
+  ESLint enforces this (`no-console`); `utils/errorHandling.ts` is the only allowed `console.error` call site. Pick
+  the sink by audience:
+    - **User-actionable errors** — surface in the UI: `notification.error`, form field errors, error boundaries.
+    - **Background or diagnostic errors** (and details too technical for the UI) — `errorHandler.logError()` from
+      `utils/errorHandling.ts`. It attaches context (url, user agent, timestamp), keeps the last 100 errors in memory
+      for support, and prints to the browser console outside tests, so production failures stay diagnosable.
+
+  `console.warn` is the one direct call allowed — for transient recoverable signals (reconnect attempts, queued work,
+  disconnected sends). `vitest-fail-on-console` silences every warn, so warns are harmless in CI but still visible in
   the browser dev console.
 - Use the current Ant Design API — avoid deprecated props:
     - `Spin`: `description` instead of `tip`.

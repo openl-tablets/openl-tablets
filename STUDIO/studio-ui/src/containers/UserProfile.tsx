@@ -64,10 +64,7 @@ export const UserProfile: React.FC = () => {
                 })
             }
         } catch (error) {
-            console.error('error', error)
-            if (error instanceof Error) {
-                notification.error({ title: error.message })
-            }
+            notification.error({ title: error instanceof Error ? error.message : t('common:error') })
         } finally {
             setSaving(false)
         }
