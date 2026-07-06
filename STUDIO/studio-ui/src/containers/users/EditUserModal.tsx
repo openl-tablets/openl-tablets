@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Button, Row, Form, Typography } from 'antd'
+import { Button, Row, Form, notification, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from 'constants/'
 import { UserDetailsTab } from './UserDatailsTab'
@@ -107,10 +107,10 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
                     closeModal()
                 }
             } else {
-                throw new Error('Error updating user')
+                throw new Error(t('common:error'))
             }
         } catch (error) {
-            console.error('Error updating group:', error)
+            notification.error({ title: error instanceof Error ? error.message : t('common:error') })
         }
     }
 

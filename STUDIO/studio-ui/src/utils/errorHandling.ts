@@ -42,25 +42,10 @@ export class ErrorHandler {
             this.errorLog.shift()
         }
 
-        // Log to console in development
-        if (import.meta.env.DEV && import.meta.env.MODE !== 'test') {
+        // Log to console outside tests so production failures stay diagnosable
+        if (import.meta.env.MODE !== 'test') {
             console.error('Error logged:', errorInfo)
         }
-
-        // You can send to external error reporting service here
-        this.sendToErrorService(errorInfo)
-    }
-
-    // Send error to external service (implement as needed)
-    private sendToErrorService(_: ErrorInfo): void {
-    // Example: Send to Sentry, LogRocket, or your own error tracking service
-    // if (process.env.REACT_APP_ERROR_REPORTING_URL) {
-    //   fetch(process.env.REACT_APP_ERROR_REPORTING_URL, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(errorInfo),
-    //   }).catch(console.error);
-    // }
     }
 }
 

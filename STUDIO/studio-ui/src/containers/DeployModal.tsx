@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
 import { Select, TextArea } from 'components/form'
 import { apiCall, ForbiddenError } from 'services'
+import { errorHandler } from 'utils/errorHandling'
 import { Repository } from 'types/repositories'
 import { WIDTH_OF_FORM_LABEL_MODAL } from 'constants/ui'
 
@@ -174,7 +175,7 @@ export const DeployModal: React.FC = () => {
             if (info && typeof info === 'object' && Array.isArray((info as { errorFields?: unknown }).errorFields)) {
                 return
             }
-            console.error('Validate Failed:', info)
+            errorHandler.logError(info instanceof Error ? info : new Error(String(info)))
             if (info instanceof ForbiddenError) {
                 form.setFields([{
                     name: 'repository',
