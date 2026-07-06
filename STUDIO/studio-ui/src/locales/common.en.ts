@@ -82,4 +82,5 @@ i18next.addResourceBundle('en', 'common', {
     // Common error messages
     please_fix_errors_on_highlighted_tabs_before_saving: 'Please fix the errors before saving',
     error: 'Error',
+    copy_failed: 'Failed to copy to clipboard',
 })

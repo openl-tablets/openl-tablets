@@ -3,7 +3,7 @@ import { Button, Tooltip } from 'antd'
 import { CopyOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { TraceParameterValue } from 'types/trace'
-import { useCopyToClipboard } from '../hooks/useCopyToClipboard'
+import { useCopyToClipboard } from 'hooks'
 
 interface CopyJsonButtonProps {
     /** Single parameter (for result) or array of parameters */
@@ -39,26 +39,21 @@ export const CopyJsonButton: React.FC<CopyJsonButtonProps> = ({ data, tooltipKey
     const handleCopy = useCallback(async () => {
         if (!data || !allFetched) return
 
-        try {
-            let jsonValue: unknown
-
-            if (Array.isArray(data)) {
-                // Multiple parameters - build object { name: value, ... }
-                const result: Record<string, unknown> = {}
-                for (const param of data) {
-                    result[param.name] = param.value
-                }
-                jsonValue = result
-            } else {
-                // Single parameter (result) - just get the value
-                jsonValue = data.value
+        let jsonValue: unknown
+        if (Array.isArray(data)) {
+            // Multiple parameters - build object { name: value, ... }
+            const result: Record<string, unknown> = {}
+            for (const param of data) {
+                result[param.name] = param.value
             }
-
-            const jsonString = JSON.stringify(jsonValue, null, 2)
-            await copyToClipboard(jsonString)
-        } catch (error) {
-            console.error('Failed to copy:', error)
+            jsonValue = result
+        } else {
+            // Single parameter (result) - just get the value
+            jsonValue = data.value
         }
+
+        // Copy failures are handled inside the hook (notification + error log)
+        await copyToClipboard(JSON.stringify(jsonValue, null, 2))
     }, [data, allFetched, copyToClipboard])
 
     // Don't render if no data

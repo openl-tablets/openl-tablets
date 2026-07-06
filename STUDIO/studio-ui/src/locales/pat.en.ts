@@ -23,7 +23,6 @@ i18next.addResourceBundle('en', 'pat', {
     token_created_message: 'Your new personal access token has been created. Make sure to copy it now - you will not be able to see it again!',
     copy_token: 'Copy Token',
     token_copied: 'Token copied to clipboard',
-    copy_failed: 'Failed to copy to clipboard',
     token_prefix: 'Token',
     usage_hint: 'Use this token in your API requests:',
     usage_example: 'Authorization: Token {{token}}',

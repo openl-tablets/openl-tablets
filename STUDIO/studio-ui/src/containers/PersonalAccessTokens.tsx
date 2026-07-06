@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
     Alert,
     Button,
@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import dayjs, { Dayjs } from 'dayjs'
 import { apiCall } from '../services'
 import { SystemContext } from '../contexts'
+import { useCopyToClipboard } from '../hooks'
 import { useStyles } from './PersonalAccessTokens.styles'
 
 interface PersonalAccessToken {
@@ -58,8 +59,7 @@ export const PersonalAccessTokens: React.FC = () => {
     const [creating, setCreating] = useState(false)
     const [form] = Form.useForm<CreateTokenFormValues>()
     const [expirationOption, setExpirationOption] = useState<ExpirationOption>('7_days')
-    const [copyTooltipOpen, setCopyTooltipOpen] = useState(false)
-    const copyTooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const { copied, copyToClipboard } = useCopyToClipboard()
 
     const showError = useCallback((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : t('common:error')
@@ -83,14 +83,6 @@ export const PersonalAccessTokens: React.FC = () => {
     useEffect(() => {
         void fetchTokens()
     }, [fetchTokens])
-
-    useEffect(() => {
-        return () => {
-            if (copyTooltipTimeoutRef.current) {
-                clearTimeout(copyTooltipTimeoutRef.current)
-            }
-        }
-    }, [])
 
     const calculateExpirationDate = (option: ExpirationOption, customDate?: Dayjs): string | null => {
         const now = dayjs()
@@ -173,19 +165,6 @@ export const PersonalAccessTokens: React.FC = () => {
             okType: 'danger',
             onOk: () => handleDeleteToken(record.publicId),
         })
-    }
-
-    const copyToClipboard = async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text)
-            if (copyTooltipTimeoutRef.current) {
-                clearTimeout(copyTooltipTimeoutRef.current)
-            }
-            setCopyTooltipOpen(true)
-            copyTooltipTimeoutRef.current = setTimeout(() => setCopyTooltipOpen(false), 2000)
-        } catch {
-            notification.error({ title: t('pat:copy_failed') })
-        }
     }
 
     const isTokenExpired = (expiresAt: string | null): boolean => {
@@ -320,6 +299,7 @@ export const PersonalAccessTokens: React.FC = () => {
             <Tooltip open={showCopyTooltip} title={t('pat:token_copied')}>
                 <Button
                     className={styles.codeBlockCopy}
+                    data-testid="pat-copy-token"
                     icon={<CopyOutlined />}
                     onClick={onCopy}
                     size="small"
@@ -339,7 +319,7 @@ export const PersonalAccessTokens: React.FC = () => {
             {renderCodeBlock(
                 createdToken?.token ?? '',
                 () => { if (createdToken?.token) void copyToClipboard(createdToken.token) },
-                copyTooltipOpen
+                copied
             )}
             <Typography.Text type="secondary">
                 {t('pat:usage_hint')}

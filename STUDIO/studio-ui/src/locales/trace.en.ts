@@ -110,7 +110,6 @@ i18next.addResourceBundle('en', 'trace', {
         parameters: 'Copy parameters as JSON',
         result: 'Copy result as JSON',
         copied: 'Copied!',
-        failed: 'Failed to copy to clipboard',
     },
 
     details: {
