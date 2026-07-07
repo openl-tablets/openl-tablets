@@ -95,7 +95,7 @@
         <!-- Newer spring-ldap-core than spring-security-ldap pulls in by default.
              Stays on the Spring Framework 6 line; 4.x requires Spring 7. -->
         <spring.ldap.version>3.3.8</spring.ldap.version>
-        <opensaml.version>5.2.2</opensaml.version>
+        <opensaml.version>5.2.3</opensaml.version>
         <!-- Apache HttpComponents 5.x come transitively through OpenSAML. Pinned to a consistent
              up-to-date set and to realign the drifted core5 / core5-h2 versions. -->
         <httpcomponents.client5.version>5.6.2</httpcomponents.client5.version>
@@ -510,18 +510,10 @@
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-core</artifactId>
+                <artifactId>opensaml-bom</artifactId>
                 <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-saml-api</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-saml-impl</artifactId>
-                <version>${opensaml.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <!-- Apache HttpComponents 5.x reach the classpath only through OpenSAML's metadata fetcher.
                  Pin the whole stack to a consistent up-to-date set.
