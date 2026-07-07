@@ -2,10 +2,10 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "email": "jdoe@example.com",
-  "displayName": "John Doe",
-  "firstName": "John",
-  "lastName": "Doe",
+  "email": "joanna@example.com",
+  "displayName": "Joanna Smith",
+  "firstName": "Joanna",
+  "lastName": "Smith",
   "showHeader": true,
   "showFormulas": false,
   "testsPerPage": 5,

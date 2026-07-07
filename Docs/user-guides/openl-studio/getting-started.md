@@ -65,9 +65,14 @@ To manage profile details, proceed as follows:
 
     If user data is synchronized from an external system such as Active Directory, the first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
 
+    In single-user mode, all fields are editable. A field is locked only when its `security.single.*` property is defined by a more prioritized configuration source, such as a Java system property or an environment variable.
+
     The **Display Name** field includes a format selector to choose how the name is displayed, with a preview shown alongside.
 
 5.  To change the password, in the **Change Password** section, enter the **Current Password**, **New Password**, and **Confirm Password** values.
+
+    The **Change Password** section is shown only in multi-user mode, where user credentials are stored in OpenL Studio. Single-user mode has no login form, and in the external authentication modes, credentials are managed by the identity provider.
+
 6.  Click **Save**.
 
 #### Synchronizing with a Third Party Service

@@ -3,6 +3,7 @@ import { Button, Divider, Form, notification, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, WIDTH_OF_FORM_LABEL } from 'constants/'
+import { SystemUserMode } from '../constants/system'
 import { SystemContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
@@ -12,8 +13,11 @@ import { useIsFormChanged } from '../hooks/useIsFormChanged'
 
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
-    const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
+    const { systemSettings } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
+    // Passwords exist only for internal user management (multi mode): single mode has no login,
+    // external modes manage credentials on the identity provider side.
+    const canChangePassword = systemSettings?.userMode === SystemUserMode.INTERNAL
     const [saving, setSaving] = useState(false)
     const [form] = Form.useForm()
 
@@ -106,7 +110,7 @@ export const UserProfile: React.FC = () => {
             wrapperCol={{ flex: 1 }}
         >
             <UserDetailsTab displayPasswordField={false} externalFlags={userProfile?.externalFlags} isNewUser={false} showResendVerification={true} userProfile={userProfile} />
-            {!isExternalAuthSystem && (
+            {canChangePassword && (
                 <>
                     <Divider titlePlacement="start">{t('users:edit_modal.change_password')}</Divider>
                     <InputPassword label={t('users:edit_modal.current_password')} name={['changePassword', 'currentPassword']} />

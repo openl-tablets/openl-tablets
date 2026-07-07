@@ -12,11 +12,11 @@ import org.openl.studio.settings.converter.SettingPropertyName;
 
 public class NOPUserSettings implements SettingsHolder {
 
-    private static final String SINGLE_USERNAME = "security.single.username";
-    private static final String SINGLE_EMAIL = "security.single.email";
-    private static final String SINGLE_FIRST_NAME = "security.single.first-name";
-    private static final String SINGLE_LAST_NAME = "security.single.last-name";
-    private static final String SINGLE_DISPLAY_NAME = "security.single.display-name";
+    public static final String SINGLE_USERNAME = "security.single.username";
+    public static final String SINGLE_EMAIL = "security.single.email";
+    public static final String SINGLE_FIRST_NAME = "security.single.first-name";
+    public static final String SINGLE_LAST_NAME = "security.single.last-name";
+    public static final String SINGLE_DISPLAY_NAME = "security.single.display-name";
 
     @Parameter(description = "Username", example = "DEFAULT")
     @SettingPropertyName(SINGLE_USERNAME)

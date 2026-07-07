@@ -192,36 +192,18 @@ public class UsersController {
     @PutMapping("/info")
     public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
-        User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
-                .isEmailExternal();
-        userManagementService.updateUserData(currentUserInfo.getUserName(),
-                userModel.getFirstName(),
-                userModel.getLastName(),
-                null,
-                userModel.getEmail(),
-                userModel.getDisplayName(),
-                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
-
-        if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
-        }
+        updateCurrentUserData(request, userModel, null);
     }
 
     @Operation(description = "users.edit-user-profile.desc", summary = "users.edit-user-profile.summary")
     @PutMapping("/profile")
     public void editUserProfile(HttpServletRequest request, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
-        User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
-                .isEmailExternal();
-        userManagementService.updateUserData(dbUser.getUsername(),
-                userModel.getFirstName(),
-                userModel.getLastName(),
-                Optional.ofNullable(userModel.getChangePassword()).map(ChangePasswordModel::getNewPassword).orElse(null),
-                userModel.getEmail(),
-                userModel.getDisplayName(),
-                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
+        updateCurrentUserData(request,
+                userModel,
+                Optional.ofNullable(userModel.getChangePassword())
+                        .map(ChangePasswordModel::getNewPassword)
+                        .orElse(null));
 
         updateUserSettings(userModel.isShowFormulas(),
                 userModel.isShowHeader(),
@@ -231,6 +213,19 @@ public class UsersController {
                 userModel.getTestsPerPage(),
                 userModel.isTestsFailuresOnly(),
                 userModel.getTreeView());
+    }
+
+    private void updateCurrentUserData(HttpServletRequest request, UserInfoModel userModel, String newPassword) {
+        User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
+                .isEmailExternal();
+        userManagementService.updateUserData(dbUser.getUsername(),
+                userModel.getFirstName(),
+                userModel.getLastName(),
+                newPassword,
+                userModel.getEmail(),
+                userModel.getDisplayName(),
+                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);

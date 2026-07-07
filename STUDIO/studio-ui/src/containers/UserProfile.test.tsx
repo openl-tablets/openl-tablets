@@ -3,8 +3,11 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { UserProfile } from './UserProfile'
+import { SystemContext } from '../contexts'
+import { SystemUserMode } from '../constants/system'
 import * as services from '../services'
 import type { MockedFunction } from 'vitest'
+import type { SystemSettings } from '../types/system'
 
 vi.mock('../services', () => ({ apiCall: vi.fn() }))
 
@@ -71,5 +74,40 @@ describe('UserProfile', () => {
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
         await waitFor(() => expect(notification.error).toHaveBeenCalledWith({ title: 'save failed' }))
+    })
+
+    const renderWithUserMode = async (userMode?: SystemUserMode) => {
+        const contextValue = {
+            systemSettings: { userMode, supportedFeatures: {} } as SystemSettings,
+            isExternalAuthSystem: userMode === SystemUserMode.EXTERNAL,
+            isUserManagementEnabled: false,
+            isGroupsManagementEnabled: false,
+            isPersonalAccessTokenEnabled: false,
+        }
+        await act(async () => {
+            render(
+                <SystemContext.Provider value={contextValue}>
+                    <UserProfile />
+                </SystemContext.Provider>
+            )
+        })
+    }
+
+    it('shows the change password section for internal user management (multi mode)', async () => {
+        await renderWithUserMode(SystemUserMode.INTERNAL)
+
+        expect(screen.getByText('users:edit_modal.change_password')).toBeDefined()
+    })
+
+    it('hides the change password section in single user mode', async () => {
+        await renderWithUserMode(undefined)
+
+        expect(screen.queryByText('users:edit_modal.change_password')).toBeNull()
+    })
+
+    it('hides the change password section for external user management', async () => {
+        await renderWithUserMode(SystemUserMode.EXTERNAL)
+
+        expect(screen.queryByText('users:edit_modal.change_password')).toBeNull()
     })
 })

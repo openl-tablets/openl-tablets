@@ -1,0 +1,22 @@
+PUT /rest/users/profile HTTP/1.1
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "jdoe@example.com",
+  "displayName": "John Doe",
+  "showHeader": true,
+  "showFormulas": false,
+  "testsPerPage": 5,
+  "testsFailuresOnly": false,
+  "testsFailuresPerTest": 5,
+  "showComplexResult": false,
+  "showRealNumbers": false,
+  "treeView": "excelSheet",
+  "changePassword": {
+    "newPassword": "",
+    "currentPassword": "",
+    "confirmPassword": ""
+  }
+}

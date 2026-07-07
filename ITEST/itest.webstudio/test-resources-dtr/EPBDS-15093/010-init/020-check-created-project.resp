@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "name": "EPBDS-15093",
-  "modifiedBy": "DEFAULT",
+  "modifiedBy": "John Doe",
   "modifiedAt": "*",
   "branch": "master",
   "revision": "*",
