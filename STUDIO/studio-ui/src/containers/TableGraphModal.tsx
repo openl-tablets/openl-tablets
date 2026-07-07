@@ -13,7 +13,7 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import cytoscape, { type Core } from 'cytoscape'
-import dagre, { type DagreLayoutOptions } from 'cytoscape-dagre'
+import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import {
@@ -21,6 +21,7 @@ import {
     buildGraphModel,
     DISPATCHER_KIND,
     findCycles,
+    GRAPH_LAYOUT,
     type GraphCycle,
     type GraphNode,
     kindColor,
@@ -61,16 +62,6 @@ const candidateTooltip = (node: GraphNode): string => [node.kind, node.project, 
 // project name) cannot be opened. Dispatcher nodes are synthetic and have no editor table at all.
 const canOpenTable = (node: GraphNode | undefined, projectName?: string): boolean =>
     !!node && node.kind !== DISPATCHER_KIND && (!projectName || !node.project || node.project === projectName)
-
-// Dagre-specific options (rankDir, nodeSep, rankSep) live in @types/cytoscape-dagre's DagreLayoutOptions, not in the
-// base @types/cytoscape LayoutOptions union; typing the constant with it keeps these fields type-checked.
-const GRAPH_LAYOUT: DagreLayoutOptions = {
-    name: 'dagre',
-    rankDir: 'LR',
-    nodeSep: 18,
-    rankSep: 70,
-    animate: false,
-}
 
 // Schematic palette. One accent is reserved for selection and never names a table kind; red means "problem" only.
 const SELECT_ACCENT = '#fa8c16'

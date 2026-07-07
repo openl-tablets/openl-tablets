@@ -1,4 +1,15 @@
 import type { ElementDefinition } from 'cytoscape'
+import type { DagreLayoutOptions } from 'cytoscape-dagre'
+
+// Dagre-specific options (rankDir, nodeSep, rankSep) live in cytoscape-dagre's own DagreLayoutOptions, not in the
+// base @types/cytoscape LayoutOptions union; typing the constant with it keeps these fields type-checked.
+export const GRAPH_LAYOUT: DagreLayoutOptions = {
+    name: 'dagre',
+    rankDir: 'LR',
+    nodeSep: 18,
+    rankSep: 70,
+    animate: false,
+}
 
 /**
  * A single table of the dependency graph, as returned by the project/table graph endpoints.
