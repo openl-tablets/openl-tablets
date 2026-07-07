@@ -49,7 +49,6 @@
                           rendered="#{!repositoryTreeController.canCreateNewProject}"/>
         </h:panelGroup>
         
-        <ui:param name="tagsAreConfigured" value="#{repositoryTreeController.tagsAreConfigured}"/>
         <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')"
                        rendered="#{repositoryTreeController.canCreateNewProject}">
             <rich:tab id="template" header="Template">
@@ -583,51 +582,9 @@
             </rich:tab>
 
 
-            <rich:tab header="Repository" rendered="#{not empty repositoryTreeController.nonFlatRepositories}">
-                <h:form id="importFromRepoForm" style="padding-top: 6px">
-                    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputLabel for="repositoryImport" value="Repository:" styleClass="required"/>
-                        <h:selectOneMenu id="repositoryImport" value="#{repositoryTreeController.repositoryId}"
-                                         hideNoSelectionOption="true">
-                            <f:ajax event="change" execute="@form" render="@form" onevent="checkImportRepoPanel()"/>
-                            <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
-                                          itemDisabled="true" noSelectionOption="true"/>
-                            <f:selectItems value="#{repositoryTreeController.nonFlatRepositories}" var="repository"
-                                           itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
-                        </h:selectOneMenu>
-
-                        <h:outputLabel for="projectFolderImport" value="Path:"/>
-                        <h:panelGroup>
-                            <h:inputText id="projectFolderImport" size="35"
-                                         styleClass="with-button-select"
-                                         onchange="onProjectFolderImportChanged();"
-                                         value="#{repositoryTreeController.projectFolder}"/>
-
-                            <input type="button" value="..."
-                                   class="button-select #{'none' == repositoryTreeController.repositoryId ? 'hidden' : ''}"
-                                   onclick="openSelectFolderDialog('#{repositoryTreeController.repositoryId}', 'importFromRepoForm:projectFolderImport')"/>
-                        </h:panelGroup>
-
-                    </h:panelGrid>
-
-                    <footer>
-                        <h:commandButton id="sbtRepo#{tagsAreConfigured ? '' : 'Hidden'}" value="Import" styleClass="button-primary"
-                                         onclick="readTagsFromImportedProject(); return false;"
-                                         rendered="#{tagsAreConfigured}"/>
-                        <h:commandButton id="sbtRepo#{tagsAreConfigured ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
-                                         onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false; else showLoader();"
-                                         styleClass="button-primary #{tagsAreConfigured ? 'hidden' : ''}"/>
-                        <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
-                    </footer>
-                    <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo#{tagsAreConfigured ? 'Hidden' : ''}"/>
-                    <a4j:jsFunction name="readTagsFromImportedProject" 
-                        action="#{repositoryTreeController.readTagsFromImportedProject}" oncomplete="createProjectTagsIfNeeded('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}, true, false);"/>
-                </h:form>
-            </rich:tab>
-
             <h:form>
                 <a4j:jsFunction name="initNewProjectDialog" action="#{repositoryTreeController.openNewProjectDialog}"
-                                render="projectType modalNewProjectAccessDenied importFromRepoForm"
+                                render="projectType modalNewProjectAccessDenied"
                                 oncomplete="showNewProjectDialog()"/>
 
                 <a4j:jsFunction name="clearFiles">
@@ -788,7 +745,6 @@
             checkCreateOnOpenApiPanel();
             initOpenAPIPanel();
             checkCreateWorkspacePanel();
-            checkImportRepoPanel();
             clearFields();
         }
 
@@ -889,15 +845,6 @@
                 enableCreateButton(true, #{rich:element("sbtWorkspaceBtn")});
             } else {
                 enableCreateButton(false, #{rich:element("sbtWorkspaceBtn")});
-            }
-        }
-
-        function checkImportRepoPanel() {
-            var selectedRepo = $j("#importFromRepoForm\\:repositoryImport").val();
-            if (selectedRepo && selectedRepo !== "none") {
-                enableCreateButton(true, #{rich:element("importFromRepoForm:sbtRepo")});
-            } else {
-                enableCreateButton(false, #{rich:element("importFromRepoForm:sbtRepo")});
             }
         }
 

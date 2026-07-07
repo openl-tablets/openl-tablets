@@ -101,7 +101,6 @@ import org.openl.rules.webstudio.web.util.OpenAPIEditorService;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -146,9 +145,6 @@ public class RepositoryTreeController {
 
     @Autowired
     private ProjectTagsBean projectTagsBean;
-
-    @Autowired
-    private MultiUserWorkspaceManager workspaceManager;
 
     private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
@@ -714,40 +710,6 @@ public class RepositoryTreeController {
             return e.getMessage();
         }
     }
-
-    public boolean isOpenLProjectInFolder() {
-        if (StringUtils.isEmpty(repositoryId) || StringUtils.isEmpty(projectFolder)) {
-            return false;
-        }
-
-        Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
-        if (!repository.supports().mappedFolders()) {
-            return false;
-        }
-
-        try {
-            String projectPath = projectFolder;
-
-            List<FileData> files = ((FolderMapper) repository).getDelegate().list(projectPath);
-            if (files.isEmpty()) {
-                return false;
-            }
-            return files.stream().anyMatch(fileData -> {
-                String name = fileData.getName();
-                if (name.equals(projectPath + ProjectDescriptor.FILE_NAME)) {
-                    return true;
-                }
-                if (name.endsWith(".xls") || name.endsWith(".xlsx")) {
-                    return name.startsWith(projectPath) && !name.substring(projectPath.length()).contains("/");
-                }
-                return false;
-            });
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
 
     private void findModulePaths(AProjectArtefact projectArtefact, Collection<String> modulePaths) {
         if (projectArtefact.isFolder()) {
@@ -2179,14 +2141,6 @@ public class RepositoryTreeController {
         }
     }
 
-    public List<Repository> getNonFlatRepositories() {
-        return userWorkspace.getDesignTimeRepository()
-                .getRepositories()
-                .stream()
-                .filter(r -> r.supports().mappedFolders())
-                .collect(Collectors.toList());
-    }
-
     @Deprecated(forRemoval = true, since = "6.1.0")
     public boolean isSupportsMappedFolders() {
         return repositoryId != null && isSupportsMappedFolders(repositoryId);
@@ -2412,112 +2366,6 @@ public class RepositoryTreeController {
 
         projectName = null;
         projectFolder = "";
-    }
-
-    public void tryImportFromRepo() {
-        if (isOpenLProjectInFolder()) {
-            importFromRepo();
-        }
-    }
-
-    private FolderMapper findAndValidateMappedRepository() throws IOException {
-        Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
-        if (!mappedRepo.supports().mappedFolders()) {
-            throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
-        }
-        Repository repository = ((FolderMapper) mappedRepo).getDelegate();
-        FileData fileData = repository.check(projectFolder);
-        if (fileData == null) {
-            WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
-            clearForm();
-            return null;
-        }
-
-        return (FolderMapper) mappedRepo;
-    }
-
-    public void readTagsFromImportedProject() {
-        try {
-            var mappedRepo = findAndValidateMappedRepository();
-            if (mappedRepo == null) {
-                return;
-            }
-            Repository repository = mappedRepo.getDelegate();
-
-            var tagsFileNameBuilder = new StringBuilder(projectFolder);
-            if (!projectFolder.endsWith("/")) {
-                tagsFileNameBuilder.append("/");
-            }
-            tagsFileNameBuilder.append(RulesProjectTags.TAGS_FILE_NAME);
-
-            var tagsFile = repository.read(tagsFileNameBuilder.toString());
-            if (tagsFile != null) {
-                Map<String, String> existingTags = new HashMap<>();
-                try (InputStream projectTagsFileStream = tagsFile.getStream()) {
-                    PropertiesUtils.load(projectTagsFileStream, existingTags::put);
-                }
-                projectTagsBean.initTagsFromPreexisting(existingTags);
-            } else {
-                projectTagsBean.clearTags();
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            WebStudioUtils.addErrorMessage("Cannot read the project: " + e.getMessage());
-            clearForm();
-        }
-    }
-
-    public void importFromRepo() {
-        String msg = validateImportFromRepoParams();
-        if (msg != null) {
-            WebStudioUtils.addErrorMessage(msg);
-            clearForm();
-            return;
-        }
-
-        try {
-            var mappedRepo = findAndValidateMappedRepository();
-            if (mappedRepo == null) {
-                return;
-            }
-            mappedRepo.addMapping(projectFolder);
-
-            workspaceManager.refreshWorkspaces();
-            repositoryTreeState.invalidateTree();
-            Optional<RulesProject> importedProject = userWorkspace.getProjectByPath(repositoryId, projectFolder);
-            if (importedProject.isPresent()) {
-                var project = importedProject.get();
-                var tags = projectTagsBean.saveTagsTypesAndGetTags();
-                var existingTags = project.getLocalTags();
-                if (!existingTags.equals(tags)) {
-                    project.saveTags(tags);
-                }
-
-                selectProject(project.getName(), repositoryTreeState.getRulesRepository());
-            }
-
-            resetStudioModel();
-            WebStudioUtils.addInfoMessage("Project was imported successfully.");
-            clearForm();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            WebStudioUtils.addErrorMessage("Cannot import the project: " + e.getMessage());
-            clearForm();
-        }
-    }
-
-    public String validateImportFromRepoParams() {
-        String msg = validateRepositoryId();
-        if (msg != null) {
-            return msg;
-        }
-
-        if (StringUtils.isBlank(projectFolder)) {
-            WebStudioUtils.addErrorMessage("Path must not be empty.");
-        }
-
-        msg = validateProjectFolder();
-        return msg;
     }
 
     public void changeModelsFilePathInputState() {

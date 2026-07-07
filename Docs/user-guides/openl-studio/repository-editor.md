@@ -67,7 +67,6 @@ OpenL Studio allows users to create new rule projects in the Design repository i
 | Create a rule project from an OpenAPI file | [Creating a Project from OpenAPI file](#creating-a-project-from-openapi-file) |
 | Create a rule project from a zip archive   | [Creating a Project from ZIP Archive](#creating-a-project-from-zip-archive) |
 | Import a rule project from workspace       | [Importing a Project from Workspace](#importing-a-project-from-workspace)                   |
-| Create a rule project from repository      | [Creating a Project from a Repository](#creating-a-project-from-a-repository) |
 
 Whatever the way used, new projects are created in the **No Changes** status that means they are open and can be modified.
 
@@ -251,20 +250,6 @@ A new project can be created in Design repository by loading a project with the 
 
 1.  Select check boxes for projects to be uploaded.
 2.  To complete creation, click **Create**.
-
-If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
-
-#### Creating a Project from a Repository
-
-A project existing in the Git repository can be imported into OpenL Studio as follows:
-
-1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** dialog, click the **Repository** tab.
-3.  Select a repository and path and click **Import.**
-
-![](images/import-project-from-git-repository.jpeg)
-
-*Importing a project from a Git repository*
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
