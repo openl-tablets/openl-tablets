@@ -21,6 +21,8 @@ services:
       - openl-home:/opt/openl/shared
     environment:
       JAVA_OPTS: "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005"
+      LOGGING_FORMAT: "plain"
+      LOGGING_LEVEL_ROOT: "info"
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,6 +55,8 @@ services:
       RULESERVICE_DEPLOYER_ENABLED: "true"
       cors.allowed.origins: "*"
       JAVA_OPTS: "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005"
+      LOGGING_FORMAT: "plain"
+      LOGGING_LEVEL_ROOT: "info"
     depends_on:
       postgres:
         condition: service_healthy
