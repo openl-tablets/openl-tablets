@@ -210,6 +210,17 @@ describe('Users', () => {
         expect(screen.queryByText('admin')).not.toBeInTheDocument()
     })
 
+    it('shows the visible rows counter in the pagination', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('admin')).toBeInTheDocument()
+        })
+        expect(screen.getByText('common:table.showing_rows')).toBeInTheDocument()
+    })
+
     it('renders last login time and Never for users who have not signed in', async () => {
         await act(async () => {
             renderUsers()

@@ -10,6 +10,7 @@ import { UserDetails } from '../types/user'
 import { ColumnsType } from 'antd/es/table/interface'
 import { RenderGroupCell } from './users/RenderGroupCell'
 import { useGroups } from './groups/useGroups'
+import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 import { ExclamationCircleTwoTone } from '@ant-design/icons'
@@ -227,7 +228,7 @@ export const Users: React.FC = () => {
                 columns={columns}
                 dataSource={filteredUsers}
                 loading={isLoading}
-                pagination={{ hideOnSinglePage: true }}
+                pagination={tablePagination(t)}
                 rowKey={(record) => record.username}
                 onRow={(record) => ({
                     onDoubleClick: (event) => onEditUser(record, event),

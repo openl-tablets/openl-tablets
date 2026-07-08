@@ -119,6 +119,16 @@ describe('Groups', () => {
         })
     })
 
+    it('shows the pagination with a page size selector', async () => {
+        await act(async () => {
+            renderGroups()
+        })
+
+        expect(screen.getByText('common:table.showing_rows')).toBeInTheDocument()
+        // the page size selector is the only combobox on the page
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+    })
+
     it('clears the name filter', async () => {
         await act(async () => {
             renderGroups()

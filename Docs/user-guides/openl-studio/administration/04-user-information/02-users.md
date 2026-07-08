@@ -39,6 +39,10 @@ To view a list of users, proceed as follows:
    filtered as you type. The search is case-insensitive and matches any part of these values. To reset the filter,
    clear the search field.
 
+   By default, 10 users are displayed per page. To change the number of displayed rows, select **10**, **25**, **50**,
+   or **100** in the page size selector next to the pager. The pager displays the currently visible rows and the total
+   number of users.
+
    In environments integrated with an external user management system, the **Groups** column displays each user's group
    memberships as color-coded tags:
 
