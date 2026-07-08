@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +55,18 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var root = delete.from(User.class);
         delete.where(cb.equal(root.get("loginName"), name));
         session.createMutationQuery(delete).executeUpdate();
+    }
+
+    @Override
+    @Transactional
+    public void updateLastLoginTime(String loginName, Instant lastLoginTime) {
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var update = cb.createCriteriaUpdate(User.class);
+        var root = update.from(User.class);
+        update.set("lastLoginTime", lastLoginTime);
+        update.where(cb.equal(root.get("loginName"), loginName));
+        session.createMutationQuery(update).executeUpdate();
     }
 
     @Override

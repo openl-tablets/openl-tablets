@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 import jakarta.validation.ConstraintViolationException;
 
@@ -86,6 +88,25 @@ class UserManagementTest {
         assertEquals(2, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(3, queryCount.getTotal());
+    }
+
+    @Test
+    void testRecordLastLoginTime() {
+        userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
+        assertNull(userService.getUser("jdoe").getLastLoginTime());
+
+        Instant before = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        userService.recordLastLoginTime("jdoe");
+
+        Instant lastLoginTime = userService.getUser("jdoe").getLastLoginTime();
+        assertNotNull(lastLoginTime);
+        assertFalse(lastLoginTime.isBefore(before));
+    }
+
+    @Test
+    void testRecordLastLoginTimeForUnknownUser() {
+        userService.recordLastLoginTime("unknown");
+        assertNull(userService.getUser("unknown"));
     }
 
     @Test

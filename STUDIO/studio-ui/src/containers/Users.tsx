@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { Alert, Badge, Button, Modal, Row, Table, Typography, Tooltip } from 'antd'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
@@ -128,6 +129,14 @@ export const Users: React.FC = () => {
                         username={username}
                     />
                 ),
+            },
+            {
+                title: t('users:users_table.last_login'),
+                dataIndex: 'lastLoginTime',
+                key: 'lastLoginTime',
+                render: (lastLoginTime: string | undefined) => lastLoginTime
+                    ? dayjs(lastLoginTime).format('MMM D, YYYY HH:mm')
+                    : <Typography.Text type="secondary">{t('users:users_table.never_logged_in')}</Typography.Text>,
             },
             {
                 title: t('users:users_table.actions'),

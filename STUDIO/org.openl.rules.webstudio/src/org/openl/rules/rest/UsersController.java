@@ -355,6 +355,7 @@ public class UsersController {
                         user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))
                 .setDisplayName(user.getDisplayName())
                 .setOnline(userManagementService.isUserOnline(user.getUsername()))
+                .setLastLoginTime(user.getLastLoginTime())
                 .setExternalFlags(user.getExternalFlags());
 
         if (!groupsDisabled) {

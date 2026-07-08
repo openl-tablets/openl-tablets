@@ -29,6 +29,9 @@ To view a list of users, proceed as follows:
 
    *Users list in the* **Users** *tab*
 
+   The **Last Login** column displays the time of the last successful sign-in for every user. Users who have never
+   signed in are marked as **Never**.
+
    In environments integrated with an external user management system, the **Groups** column displays each user's group
    memberships as color-coded tags:
 

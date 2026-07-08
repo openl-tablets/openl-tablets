@@ -15,6 +15,7 @@
     "antd-style": "^4.1.0",
     "cytoscape": "^3.34.0",
     "cytoscape-dagre": "^4.0.0",
+    "dayjs": "^1.11.21",
     "i18next": "^26.3.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +24,14 @@ public interface UserDao extends Dao<User> {
     boolean existsByName(String name);
 
     void deleteUserByName(String name);
+
+    /**
+     * Store the time of the last successful sign-in of the user. Unknown users are ignored.
+     *
+     * @param loginName     login name of the user
+     * @param lastLoginTime time of the sign-in
+     */
+    void updateLastLoginTime(String loginName, Instant lastLoginTime);
 
     List<User> getAllUsers();
 

@@ -1,11 +1,15 @@
 package org.openl.rules.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -138,5 +142,24 @@ class UsersControllerTest {
         verify(userManagementService)
                 .updateUserData("jdoe", "John", "Doe", null, "old@example.com", "John Doe", true);
         verify(mailSender, never()).sendVerificationMail(any(), any());
+    }
+
+    @Test
+    void getAllUsers_returnsLastLoginTime() {
+        when(currentUserInfo.getUserName()).thenReturn("admin");
+        var lastLoginTime = Instant.parse("2026-07-08T10:15:30Z");
+        var user = SimpleUser.builder()
+                .setUsername("jdoe")
+                .setLastLoginTime(lastLoginTime)
+                .build();
+        when(userManagementService.getAllUsers()).thenReturn(List.of(user));
+        var controller = createController("multi");
+
+        var users = controller.getAllUsers();
+
+        assertEquals(1, users.size());
+        assertEquals("jdoe", users.getFirst().getUsername());
+        assertEquals(lastLoginTime, users.getFirst().getLastLoginTime());
+        assertNull(users.getFirst().getUserGroups());
     }
 }

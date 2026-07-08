@@ -2,6 +2,7 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -27,6 +28,7 @@ public class User implements Serializable {
     private String email;
     private String displayName;
     private int flags;
+    private Instant lastLoginTime;
 
     /**
      * First name.
@@ -87,6 +89,18 @@ public class User implements Serializable {
 
     public void setFlags(int flags) {
         this.flags = flags;
+    }
+
+    /**
+     * Time of the last successful sign-in. {@code null} when the user has never signed in.
+     */
+    @Column(name = "lastLogin")
+    public Instant getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Instant lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
     }
 
     @Transient

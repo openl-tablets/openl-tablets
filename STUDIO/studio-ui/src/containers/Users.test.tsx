@@ -2,6 +2,7 @@ import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Modal } from 'antd'
+import dayjs from 'dayjs'
 import * as services from 'services'
 import { SystemContext } from 'contexts/SystemContext'
 import { GroupsContext } from 'contexts/GroupsContext'
@@ -69,6 +70,7 @@ const mockUsers = [
         externalFlags: { emailVerified: true },
         userGroups: [{ name: 'Admins', type: UserGroupType.Admin }],
         notMatchedExternalGroupsCount: 0,
+        lastLoginTime: '2026-07-01T10:30:00Z',
     },
     {
         username: 'viewer',
@@ -143,7 +145,21 @@ describe('Users', () => {
         expect(screen.getByText('users:users_table.full_name')).toBeInTheDocument()
         expect(screen.getByText('users:users_table.email')).toBeInTheDocument()
         expect(screen.getByText('users:users_table.groups')).toBeInTheDocument()
+        expect(screen.getByText('users:users_table.last_login')).toBeInTheDocument()
         expect(screen.getByText('users:users_table.actions')).toBeInTheDocument()
+    })
+
+    it('renders last login time and Never for users who have not signed in', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('admin')).toBeInTheDocument()
+        })
+        // admin has lastLoginTime, viewer has none
+        expect(screen.getByText(dayjs('2026-07-01T10:30:00Z').format('MMM D, YYYY HH:mm'))).toBeInTheDocument()
+        expect(screen.getByText('users:users_table.never_logged_in')).toBeInTheDocument()
     })
 
     it('hides groups column when groups management is disabled', async () => {
