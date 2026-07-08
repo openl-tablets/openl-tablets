@@ -71,6 +71,8 @@ export const Users: React.FC = () => {
             {
                 title: t('users:users_table.username'),
                 key: 'username',
+                defaultSortOrder: 'ascend',
+                sorter: (a, b) => a.username.localeCompare(b.username),
                 render: ({ username, online, userGroups, unsafePassword }) => {
                     const userNameComponent = Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)
                         ? [<Typography.Text key="name" strong>{username}</Typography.Text>]
@@ -95,11 +97,13 @@ export const Users: React.FC = () => {
                 title: t('users:users_table.full_name'),
                 dataIndex: 'displayName',
                 key: 'displayName',
+                sorter: (a, b) => (a.displayName ?? '').localeCompare(b.displayName ?? ''),
             },
             {
                 title: t('users:users_table.email'),
                 dataIndex: 'email',
                 key: 'email',
+                sorter: (a, b) => (a.email ?? '').localeCompare(b.email ?? ''),
                 render: (email, record) => {
                     if (record.externalFlags && !record.externalFlags.emailVerified && systemSettings?.supportedFeatures?.emailVerification) {
                         return (
@@ -134,6 +138,8 @@ export const Users: React.FC = () => {
                 title: t('users:users_table.last_login'),
                 dataIndex: 'lastLoginTime',
                 key: 'lastLoginTime',
+                sorter: (a, b) => (a.lastLoginTime ? dayjs(a.lastLoginTime).valueOf() : 0)
+                    - (b.lastLoginTime ? dayjs(b.lastLoginTime).valueOf() : 0),
                 render: (lastLoginTime: string | undefined) => lastLoginTime
                     ? dayjs(lastLoginTime).format('MMM D, YYYY HH:mm')
                     : <Typography.Text type="secondary">{t('users:users_table.never_logged_in')}</Typography.Text>,

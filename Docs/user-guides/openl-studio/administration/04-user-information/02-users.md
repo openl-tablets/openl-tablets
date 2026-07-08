@@ -32,6 +32,9 @@ To view a list of users, proceed as follows:
    The **Last Login** column displays the time of the last successful sign-in for every user. Users who have never
    signed in are marked as **Never**.
 
+   The list is sorted by username. To sort the list by another column, click the column header. Clicking the header
+   again reverses the sort order.
+
    In environments integrated with an external user management system, the **Groups** column displays each user's group
    memberships as color-coded tags:
 

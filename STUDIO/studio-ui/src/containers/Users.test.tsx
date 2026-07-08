@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Modal } from 'antd'
 import dayjs from 'dayjs'
@@ -147,6 +147,52 @@ describe('Users', () => {
         expect(screen.getByText('users:users_table.groups')).toBeInTheDocument()
         expect(screen.getByText('users:users_table.last_login')).toBeInTheDocument()
         expect(screen.getByText('users:users_table.actions')).toBeInTheDocument()
+    })
+
+    it('marks the username column as sorted ascending by default', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('admin')).toBeInTheDocument()
+        })
+        expect(screen.getByText('users:users_table.username').closest('th')).toHaveAttribute('aria-sort', 'ascending')
+    })
+
+    it('sorts users by the last login time on column header click', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('viewer')).toBeInTheDocument()
+        })
+
+        // viewer has never signed in and sorts as the oldest
+        await userEvent.click(screen.getByText('users:users_table.last_login'))
+        expect(within(screen.getAllByRole('row')[1]!).getByText('viewer')).toBeInTheDocument()
+
+        // the second click reverses the order, so the most recent sign-in comes first
+        await userEvent.click(screen.getByText('users:users_table.last_login'))
+        expect(within(screen.getAllByRole('row')[1]!).getByText('admin')).toBeInTheDocument()
+    })
+
+    it('sorts users by full name on column header click', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('viewer')).toBeInTheDocument()
+        })
+
+        // The second click sorts descending, so Viewer User comes first
+        await userEvent.click(screen.getByText('users:users_table.full_name'))
+        await userEvent.click(screen.getByText('users:users_table.full_name'))
+
+        const rows = screen.getAllByRole('row')
+        expect(within(rows[1]!).getByText('Viewer User')).toBeInTheDocument()
     })
 
     it('renders last login time and Never for users who have not signed in', async () => {
