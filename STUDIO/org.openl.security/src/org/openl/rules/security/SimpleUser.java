@@ -1,6 +1,7 @@
 package org.openl.rules.security;
 
 import java.io.Serial;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class SimpleUser implements User {
     private String email;
     private String displayName;
     private UserExternalFlags externalFlags;
+    private Instant lastLoginTime;
 
     public SimpleUser() {
     }
@@ -33,6 +35,7 @@ public class SimpleUser implements User {
         this.email = other.email;
         this.displayName = other.displayName;
         this.externalFlags = Objects.requireNonNull(other.externalFlags);
+        this.lastLoginTime = other.lastLoginTime;
     }
 
     @Override
@@ -127,6 +130,15 @@ public class SimpleUser implements User {
     }
 
     @Override
+    public Instant getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Instant lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    @Override
     public boolean hasPrivilege(String privilege) {
         for (var auth : privileges) {
             if (auth.getAuthority().equals(privilege)) {
@@ -160,6 +172,7 @@ public class SimpleUser implements User {
         builder.setEmail(user.email);
         builder.setDisplayName(user.displayName);
         builder.setExternalFlags(user.externalFlags);
+        builder.setLastLoginTime(user.lastLoginTime);
         return builder;
     }
 
@@ -210,6 +223,11 @@ public class SimpleUser implements User {
 
         public Builder setExternalFlags(UserExternalFlags externalFlags) {
             this.target.externalFlags = Objects.requireNonNull(externalFlags);
+            return this;
+        }
+
+        public Builder setLastLoginTime(Instant lastLoginTime) {
+            this.target.lastLoginTime = lastLoginTime;
             return this;
         }
 

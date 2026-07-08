@@ -30,6 +30,7 @@ export interface UserDetails {
     externalFlags: UserExternalFlags
     notMatchedExternalGroupsCount: number
     online: boolean
+    lastLoginTime?: string
     userGroups: UserDetailsGroup[]
 }
 

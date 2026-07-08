@@ -1,5 +1,6 @@
 package org.openl.rules.rest.model;
 
+import java.time.Instant;
 import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,6 +24,9 @@ public class UserModel extends UserCreateModel {
 
     @Parameter(description = "User online marker")
     private boolean online;
+
+    @Parameter(description = "Time of the last successful sign-in")
+    private Instant lastLoginTime;
 
     private Set<GroupModel> userGroups;
 
@@ -166,6 +170,15 @@ public class UserModel extends UserCreateModel {
 
     public UserModel setOnline(boolean online) {
         this.online = online;
+        return this;
+    }
+
+    public Instant getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public UserModel setLastLoginTime(Instant lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
         return this;
     }
 }

@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -212,6 +213,18 @@ public class UserManagementService {
     }
 
     /**
+     * Remembers the current time as the last successful sign-in time of the user.
+     *
+     * <p>Does nothing when the user is unknown. Only the sign-in time is written, so a sign-in
+     * cannot overwrite user data edited concurrently.
+     *
+     * @param username login name of the signed-in user
+     */
+    public void recordLastLoginTime(String username) {
+        userDao.updateLastLoginTime(username, Instant.now());
+    }
+
+    /**
      * Check is user has any active session
      *
      * @param username username
@@ -252,6 +265,7 @@ public class UserManagementService {
                 .setEmail(user.getEmail())
                 .setDisplayName(user.getDisplayName())
                 .setExternalFlags(user.getUserExternalFlags())
+                .setLastLoginTime(user.getLastLoginTime())
                 .build();
     }
 

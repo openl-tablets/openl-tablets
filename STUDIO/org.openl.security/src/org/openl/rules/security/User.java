@@ -1,5 +1,7 @@
 package org.openl.rules.security;
 
+import java.time.Instant;
+
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -21,4 +23,11 @@ public interface User extends UserDetails {
     boolean hasPrivilege(String privilege);
 
     UserExternalFlags getExternalFlags();
+
+    /**
+     * Time of the last successful sign-in. {@code null} when the user has never signed in.
+     */
+    default Instant getLastLoginTime() {
+        return null;
+    }
 }

@@ -10,6 +10,8 @@ i18next.addResourceBundle('en', 'users', {
         email: 'Email',
         full_name: 'Full Name',
         groups: 'Groups',
+        last_login: 'Last Login',
+        never_logged_in: 'Never',
         actions: 'Actions',
         email_not_verified: 'Email not verified',
     },

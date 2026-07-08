@@ -22998,6 +22998,11 @@ Content-Type: application/json
           "internalPassword": {
             "$ref": "#/components/schemas/InternalPasswordModel"
           },
+          "lastLoginTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
           "lastName": {
             "type": "string",
             "description": "***",
