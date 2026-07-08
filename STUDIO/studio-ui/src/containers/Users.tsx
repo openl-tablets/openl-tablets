@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Alert, Badge, Button, Modal, Row, Table, Typography, Tooltip } from 'antd'
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { Alert, Badge, Button, Col, Input, Modal, Row, Table, Typography, Tooltip } from 'antd'
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SearchOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
@@ -22,6 +22,13 @@ export const Users: React.FC = () => {
     const { groups, error: groupsError, reloadGroups } = useGroups()
     const [isLoading, setIsLoading] = useState(false)
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
+    const [searchText, setSearchText] = useState('')
+
+    const filteredUsers = useMemo(() => {
+        const needle = searchText.trim().toLowerCase()
+        return users.filter((user) => !needle || [user.username, user.displayName, user.email]
+            .some((value) => value?.toLowerCase().includes(needle)))
+    }, [users, searchText])
 
     const showEditUserDrawer = () => {
         setIsEditDrawerOpen(true)
@@ -184,7 +191,24 @@ export const Users: React.FC = () => {
 
     return (
         <>
-            {isGroupsManagementEnabled && <DefaultGroupInfo />}
+            <Row align="middle" gutter={16}>
+                {isGroupsManagementEnabled && (
+                    <Col span={12}>
+                        <DefaultGroupInfo />
+                    </Col>
+                )}
+                <Col span={12}>
+                    <Input
+                        allowClear
+                        data-testid="users-search-input"
+                        onChange={(event) => setSearchText(event.target.value)}
+                        placeholder={t('users:search_placeholder')}
+                        prefix={<SearchOutlined />}
+                        style={{ marginBottom: 16, width: '100%' }}
+                        value={searchText}
+                    />
+                </Col>
+            </Row>
             {isGroupsManagementEnabled && groupsError && (
                 <Alert
                     closable
@@ -201,7 +225,7 @@ export const Users: React.FC = () => {
             )}
             <Table
                 columns={columns}
-                dataSource={users}
+                dataSource={filteredUsers}
                 loading={isLoading}
                 pagination={{ hideOnSinglePage: true }}
                 rowKey={(record) => record.username}
