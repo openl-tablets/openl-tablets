@@ -21,3 +21,8 @@ export interface Group {
 export interface GroupList {
     [key: string]: Group
 }
+
+export interface GroupMember {
+    username: string
+    displayName?: string
+}

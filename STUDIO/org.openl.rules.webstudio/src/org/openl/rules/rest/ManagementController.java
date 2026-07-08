@@ -1,6 +1,7 @@
 package org.openl.rules.rest;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,10 +27,12 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
@@ -49,6 +52,7 @@ public class ManagementController {
     private final GroupDao groupDao;
     private final GroupManagementService groupManagementService;
     private final ExternalGroupService extGroupService;
+    private final UserManagementService userManagementService;
     private final JdbcMutableAclService aclService;
     private final RepositoryAclServiceProvider aclServiceProvider;
 
@@ -56,11 +60,13 @@ public class ManagementController {
     public ManagementController(GroupDao groupDao,
                                 GroupManagementService groupManagementService,
                                 ExternalGroupService extGroupService,
+                                UserManagementService userManagementService,
                                 @Autowired(required = false) JdbcMutableAclService aclService,
                                 RepositoryAclServiceProvider aclServiceProvider) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.extGroupService = extGroupService;
+        this.userManagementService = userManagementService;
         this.aclService = aclService;
         this.aclServiceProvider = aclServiceProvider;
     }
@@ -79,7 +85,24 @@ public class ManagementController {
     private void buildnumberOfMembers(Group group, UIGroup uiGroup) {
         long internal = groupManagementService.countUsersInGroup(group.getName());
         long external = extGroupService.countUsersInGroup(group.getName());
-        uiGroup.numberOfMembers = new NumberOfMembers(internal, external);
+        // A user can be a member both directly and through the matched external group,
+        // so the total is counted separately instead of summing the two categories.
+        long total = userManagementService.countUsersInGroup(group.getName());
+        uiGroup.numberOfMembers = new NumberOfMembers(internal, external, total);
+    }
+
+    @Operation(description = "mgmt.get-group-users.desc", summary = "mgmt.get-group-users.summary")
+    @GetMapping("/groups/{id}/users")
+    public List<UIGroupUser> getGroupUsers(
+            @Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
+        Group group = groupDao.getGroupById(id);
+        if (group == null) {
+            throw new NotFoundException("group.message");
+        }
+        return userManagementService.getUsersInGroup(group.getName())
+                .stream()
+                .map(user -> new UIGroupUser(user.getUsername(), user.getDisplayName()))
+                .toList();
     }
 
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
@@ -174,6 +197,11 @@ public class ManagementController {
         public NumberOfMembers numberOfMembers;
     }
 
+    public record UIGroupUser(
+            @Parameter(description = "mgmt.schema.group.user.username") String username,
+            @Parameter(description = "mgmt.schema.group.user.display-name") String displayName) {
+    }
+
     public static class NumberOfMembers {
 
         @Parameter(description = "mgmt.schema.group.internal-number-of-users")
@@ -185,10 +213,10 @@ public class ManagementController {
         @Parameter(description = "mgmt.schema.group.total-number-of-users")
         public final long total;
 
-        public NumberOfMembers(long internal, long external) {
+        public NumberOfMembers(long internal, long external, long total) {
             this.internal = internal;
             this.external = external;
-            this.total = internal + external;
+            this.total = total;
         }
     }
 }

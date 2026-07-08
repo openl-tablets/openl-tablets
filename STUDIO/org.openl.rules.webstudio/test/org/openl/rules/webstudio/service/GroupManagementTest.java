@@ -481,6 +481,31 @@ class GroupManagementTest {
         }
     }
 
+    @Test
+    void testGetUsersInGroup() {
+        initOneUser();
+        initSecondUser();
+        userService.addUser("jbond", "James", "Bond", "qwerty", "jbond@test", "James Bond");
+
+        groupService.addGroup("FooGroup", "Foo group");
+        userManagementService.updateAuthorities("jdoe", Set.of("FooGroup"));
+        externalGroupService.mergeAllForUser("jsmith", Set.of(new SimpleGrantedAuthority("FooGroup")));
+
+        List<User> users = userManagementService.getUsersInGroup("FooGroup");
+        assertEquals(List.of("jdoe", "jsmith"), users.stream().map(User::getUsername).toList());
+        assertEquals("Joe Doe", users.getFirst().getDisplayName());
+        assertEquals(2, userManagementService.countUsersInGroup("FooGroup"));
+
+        // A user assigned both directly and through the external group is returned and counted once
+        userManagementService.updateAuthorities("jsmith", Set.of("FooGroup"));
+        users = userManagementService.getUsersInGroup("FooGroup");
+        assertEquals(List.of("jdoe", "jsmith"), users.stream().map(User::getUsername).toList());
+        assertEquals(2, userManagementService.countUsersInGroup("FooGroup"));
+
+        assertTrue(userManagementService.getUsersInGroup("UnknownGroup").isEmpty());
+        assertEquals(0, userManagementService.countUsersInGroup("UnknownGroup"));
+    }
+
     private Set<GrantedAuthority> generatePrivilege(int count, String... defaultGroups) {
         Set<GrantedAuthority> res = new HashSet<>();
         Stream.of(defaultGroups).map(SimpleGrantedAuthority::new).forEach(res::add);

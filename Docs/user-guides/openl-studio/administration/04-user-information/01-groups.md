@@ -106,6 +106,10 @@ To view the list of groups, proceed as follows:
    To find a group, start typing its name in the search field above the list. The list is filtered as you type. The
    search is case-insensitive and matches any part of the name. To reset the filter, clear the search field.
 
+   To see the users belonging to a group, click the expand arrow next to the group name. Both directly assigned users
+   and users coming from the matched external group are displayed. Hovering over a username displays the user's full
+   name.
+
 2. To invite a new group, proceed as described in [Inviting a Group](#inviting-a-group).
 3. To edit a group, proceed as described in [Editing a Group](#editing-a-group).
 4. To delete a group, proceed as described in [Deleting a Group](#deleting-a-group).

@@ -5,6 +5,7 @@ import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { GroupItem } from '../types/group'
 import { useGroups } from './groups/useGroups'
+import { GroupMembers } from './groups/GroupMembers'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 
@@ -124,6 +125,10 @@ export const Groups: React.FC = () => {
                 loading={loading}
                 pagination={{ hideOnSinglePage: true }}
                 rowKey="id"
+                expandable={{
+                    expandedRowRender: (record: GroupItem) => <GroupMembers groupId={record.id} />,
+                    rowExpandable: (record: GroupItem) => record.numberOfMembers > 0,
+                }}
                 onRow={(record) => ({
                     onDoubleClick: () => onEditGroup(record),
                 })}
