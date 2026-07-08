@@ -10,6 +10,7 @@ import { UserDetails } from '../types/user'
 import { ColumnsType } from 'antd/es/table/interface'
 import { RenderGroupCell } from './users/RenderGroupCell'
 import { useGroups } from './groups/useGroups'
+import { formatDateTime } from '../utils/dateFormat'
 import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
@@ -149,7 +150,7 @@ export const Users: React.FC = () => {
                 sorter: (a, b) => (a.lastLoginTime ? dayjs(a.lastLoginTime).valueOf() : 0)
                     - (b.lastLoginTime ? dayjs(b.lastLoginTime).valueOf() : 0),
                 render: (lastLoginTime: string | undefined) => lastLoginTime
-                    ? dayjs(lastLoginTime).format('MMM D, YYYY HH:mm')
+                    ? formatDateTime(lastLoginTime)
                     : <Typography.Text type="secondary">{t('users:users_table.never_logged_in')}</Typography.Text>,
             },
             {

@@ -23,6 +23,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { apiCall } from '../services'
 import { SystemContext } from '../contexts'
 import { useCopyToClipboard } from '../hooks'
+import { formatDate } from '../utils/dateFormat'
 import { useStyles } from './PersonalAccessTokens.styles'
 
 interface PersonalAccessToken {
@@ -172,9 +173,9 @@ export const PersonalAccessTokens: React.FC = () => {
         return dayjs(expiresAt).isBefore(dayjs())
     }
 
-    const formatDate = (dateString: string | null): string => {
+    const formatTokenDate = (dateString: string | null): string => {
         if (!dateString) return t('pat:never')
-        return dayjs(dateString).format('MMM D, YYYY')
+        return formatDate(dateString)
     }
 
     const columns: TableColumnsType<PersonalAccessToken> = [
@@ -195,13 +196,13 @@ export const PersonalAccessTokens: React.FC = () => {
             title: t('pat:created_at'),
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (date: string) => formatDate(date),
+            render: (date: string) => formatTokenDate(date),
         },
         {
             title: t('pat:expires_at'),
             dataIndex: 'expiresAt',
             key: 'expiresAt',
-            render: (date) => formatDate(date),
+            render: (date) => formatTokenDate(date),
         },
         {
             title: t('pat:actions'),
