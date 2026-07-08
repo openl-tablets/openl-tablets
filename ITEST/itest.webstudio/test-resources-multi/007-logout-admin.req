@@ -1,0 +1,2 @@
+POST /logout HTTP/1.1
+

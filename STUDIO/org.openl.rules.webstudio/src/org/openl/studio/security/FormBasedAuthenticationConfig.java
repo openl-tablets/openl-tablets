@@ -7,6 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -49,11 +50,14 @@ public class FormBasedAuthenticationConfig {
     @Bean
     @Order(3)
     public SecurityFilterChain defaultFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http, SessionRegistry sessionRegistry) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(form -> form.loginPage("/login").permitAll())
                 .logout(logout -> logout.logoutUrl("/logout").permitAll())
+                // The sign-in session must be tracked in the SessionRegistry: the online user marker is
+                // calculated from it. -1 keeps the number of concurrent sessions unlimited.
+                .sessionManagement(session -> session.maximumSessions(-1).sessionRegistry(sessionRegistry))
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .build();
     }

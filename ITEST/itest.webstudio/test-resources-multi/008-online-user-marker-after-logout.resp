@@ -1,0 +1,20 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "username": "admin",
+    "currentUser": true,
+    "superUser": true,
+    "unsafePassword": true,
+    "externalFlags": {
+      "emailExternal": false,
+      "emailVerified": false,
+      "displayNameExternal": false,
+      "firstNameExternal": false,
+      "lastNameExternal": false
+    },
+    "online": false,
+    "lastLoginTime": "*"
+  }
+]
