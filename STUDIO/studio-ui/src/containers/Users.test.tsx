@@ -2,11 +2,11 @@ import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Modal } from 'antd'
-import dayjs from 'dayjs'
 import * as services from 'services'
 import { SystemContext } from 'contexts/SystemContext'
 import { GroupsContext } from 'contexts/GroupsContext'
 import { UserGroupType } from 'constants/users'
+import { formatDateTime } from 'utils/dateFormat'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services', async () => ({
@@ -230,7 +230,7 @@ describe('Users', () => {
             expect(screen.getByText('admin')).toBeInTheDocument()
         })
         // admin has lastLoginTime, viewer has none
-        expect(screen.getByText(dayjs('2026-07-01T10:30:00Z').format('MMM D, YYYY HH:mm'))).toBeInTheDocument()
+        expect(screen.getByText(formatDateTime('2026-07-01T10:30:00Z'))).toBeInTheDocument()
         expect(screen.getByText('users:users_table.never_logged_in')).toBeInTheDocument()
     })
 
