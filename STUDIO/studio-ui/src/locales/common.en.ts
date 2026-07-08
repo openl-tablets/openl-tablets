@@ -20,6 +20,9 @@ i18next.addResourceBundle('en', 'common', {
     login: 'Login',
     password: 'Password',
     access_rights: 'Access Rights',
+    table: {
+        showing_rows: '{{from}}-{{to}} of {{total}}',
+    },
     help: {
         openl_tablets_help_title: 'Welcome to OpenL Tablets Help Center',
         openl_tablets_help_description: 'Here you can find documentation, guides, and resources to help you use OpenL Tablets effectively.',

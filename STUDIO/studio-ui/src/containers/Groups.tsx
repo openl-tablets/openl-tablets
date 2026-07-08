@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { GroupItem } from '../types/group'
 import { useGroups } from './groups/useGroups'
 import { GroupMembers } from './groups/GroupMembers'
+import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 
@@ -123,7 +124,7 @@ export const Groups: React.FC = () => {
                 columns={columns}
                 dataSource={filteredGroups}
                 loading={loading}
-                pagination={{ hideOnSinglePage: true }}
+                pagination={tablePagination(t)}
                 rowKey="id"
                 expandable={{
                     expandedRowRender: (record: GroupItem) => <GroupMembers groupId={record.id} />,

@@ -110,6 +110,10 @@ To view the list of groups, proceed as follows:
    and users coming from the matched external group are displayed. Hovering over a username displays the user's full
    name.
 
+   By default, 10 groups are displayed per page. To change the number of displayed rows, select **10**, **25**, **50**,
+   or **100** in the page size selector next to the pager. The pager displays the currently visible rows and the total
+   number of groups.
+
 2. To invite a new group, proceed as described in [Inviting a Group](#inviting-a-group).
 3. To edit a group, proceed as described in [Editing a Group](#editing-a-group).
 4. To delete a group, proceed as described in [Deleting a Group](#deleting-a-group).
