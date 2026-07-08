@@ -1711,6 +1711,10 @@
                                 <!-- Flyway migration scripts are immutable: reformatting them
                                      changes Flyway's content checksum and breaks upgrades. -->
                                 <exclude>**/db/flyway/**</exclude>
+                                <!-- Runtime unpacked by the DEMO assembly: JRE files are read-only
+                                     and the Jetty distribution must stay intact. -->
+                                <exclude>DEMO/jre/**</exclude>
+                                <exclude>DEMO/jetty-home/**</exclude>
                             </excludes>
                             <trimTrailingWhitespace />
                             <endWithNewline />
