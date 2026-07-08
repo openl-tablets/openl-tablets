@@ -5,78 +5,62 @@ generation.
 
 ## Strict Rules (**MUST**. No exceptions.)
 
-- Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length)
-- Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**
-- Use Java 21 modern syntax (`var`, `record`, `sealed`, `switch` expressions, record pattern matching, text blocks and
-  etc.)
-  and features (Virtual Threads, Sequenced Collections, new String, Collections & IO/NIO methods and etc.)
-- Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection, `@Getter`/
-  `@Setter` for accessors, `@Slf4j` for loggers, etc.
+- Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder.
+- **Every change of functionality ships in one commit together with its tests and its documentation update** — never
+  as separate follow-up commits.
+- Run tests after changes. New or changed Java code keeps ≥80% line coverage on the diff (see Build and Verify).
+- Execute `mvn validate -N` after changes and before committing to ensure all files are formatted correctly.
+- Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length).
+- Use correct casing: **OpenL**, **OpenL Studio**, **OpenL Rule Services**, **OpenL Tablets**.
+- Use modern Java 21 syntax (`var`, `record`, `sealed`, `switch` expressions, record patterns, text blocks) and
+  features (Virtual Threads, Sequenced Collections, new String, Collections and IO/NIO methods).
+- Use Lombok wherever it removes hand-written code: `@RequiredArgsConstructor` for constructor injection,
+  `@Getter`/`@Setter` for accessors, `@Slf4j` for loggers, etc.
 - When constructor injection needs `@Qualifier` or `@Value`, put the annotation on the **field** — the root
-  `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter
-  automatically
-- Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types)
-- Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) — extract
-  per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s
-- Use the narrowest visibility for all code — prefer `private`, widen only when something outside genuinely needs it.
-  OpenL rule interfaces and data beans referenced by generated proxies stay `public`.
-- Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder
-- Never use deprecated APIs — migrate to alternatives
-- Run tests after changes
+  `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter.
+- Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types).
+- Never use deprecated APIs — migrate to alternatives.
+- Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) —
+  extract per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s.
+- Use the narrowest visibility — prefer `private`, widen only when something outside genuinely needs it. OpenL rule
+  interfaces and data beans referenced by generated proxies stay `public`.
 - Follow JUnit 5 best practices: test classes and their `@Test`/lifecycle methods are package-private, never `public`
   (Sonar `java:S5786`); a cross-package abstract base or fixture stays `public` with `protected` lifecycle methods.
-- No HTML in Markdown when equivalents exist (see Markdown Rules below)
-- All new file names must be only in ASCII alphanumeric without spaces and any special characters, except for `-_.`
-- Existed file names contains spaces and `,+%$#` symbols for tests purposes and must not be renamed during refactoring.
-- Execute `mvn validate -N` after changes and before committing to ensure all files are formatted correctly.
+- New file names: ASCII alphanumeric plus `-_.` only, no spaces. Existing file names with spaces and `,+%$#` symbols
+  exist for test purposes — never rename them during refactoring.
+- No HTML in Markdown when an equivalent exists (see Markdown Rules).
 
 ## Repository Layout
 
-Multi-module Maven project. Version: inherits from root `pom.xml`.
+Multi-module Maven project. The version inherits from the root `pom.xml`.
 
 - **DEV/** — Core rules engine (type system, parser, binding, bytecode gen, project model)
 - **STUDIO/** — Web IDE (Spring Boot backend + React/TypeScript frontend + legacy JSF)
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
 - **Util/** — CLI tools and utilities
-- **Docs/** — Jekyll-based documentation site (GitHub Pages)
+- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides live under `Docs/user-guides/`
 
-## Dependency Versions
+Dependency versions are managed in the root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend).
+Read those files for current versions, prefer the latest ones, and do not hardcode versions in documentation or
+`AGENTS.md` files.
 
-- Managed in root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend). Read those files for current
-  versions — do not hardcode versions in documentation or AGENTS.md files.
-- Always check the latest versions. Do not use outdated.
-
-## Build
+## Build and Verify
 
 ```bash
 mvn clean install -Dquick -DnoPerf -T1C   # Fast dev build
 mvn clean install -DskipTests              # Skip all tests
 mvn test -pl <module-path>                 # Test specific module
+mvn validate -N                            # Format check — run before committing
+mvn verify -Dsonar                         # Coverage: JaCoCo runs ONLY with -Dsonar
+docker compose up --build                  # Studio :8080, Rule Services :8081 (compose.yaml, NOT docker-compose.yaml)
 ```
 
 - **`-Dquick`** — skip heavy tests
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
-
-## Code Coverage
-
-New or changed Java code **MUST** keep ≥80% line coverage, measured on the diff (not the whole project).
-Add tests until new lines reach ≥80%.
-
-```bash
-mvn verify -Dsonar   # JaCoCo runs ONLY with -Dsonar; the default build collects nothing
-```
-
-Report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`. A line is uncovered when `ci="0"`.
-
-## Docker
-
-```bash
-docker compose up --build   # From project root, uses compose.yaml (NOT docker-compose.yaml)
-# Studio: http://localhost:8080
-# Rule Services: http://localhost:8081
-```
+- Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.
+  Coverage is measured on the diff, not the whole project — add tests until new lines reach ≥80%.
 
 ## Commit Convention
 
@@ -86,7 +70,16 @@ EPBDS-NNNNN <subject>
 <optional body>
 ```
 
-- **One logical change per commit.** Amend related follow-up code into the latest commit instead of adding a new one.
+- **One logical change per commit.** Each commit is a logically complete implementation of one small piece of
+  functionality or one refactoring step: the code together with its tests and documentation, buildable and green on
+  its own.
+- **Fix issues in the commit that introduced them.** On a branch that is not pushed yet, fold fixes for bugs, failing
+  tests, documentation, and code review findings into the originating commit instead of stacking follow-up commits:
+    - for the latest commit, use `git commit --amend`;
+    - for an earlier commit, use `git commit --fixup=<sha>` and squash with
+      `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash --autostash <base>`;
+    - when a fix interacts with code changed by later commits (for example, an import they removed), adjust those
+      commits in the same rebase so that every commit in the history stays buildable.
 - **Prefix with the Jira ticket** (`EPBDS-NNNNN`), usually equal to the branch name.
 - **The subject explains _why_ the change is needed or _what_ it achieves** — not the mechanical move, which is already
   visible in the diff and history. Start it with an imperative verb.
@@ -95,10 +88,28 @@ EPBDS-NNNNN <subject>
 - **For bug fixes, name the cause and its observable effect**, not the symptom:
     - `EPBDS-15981 Fix NPE when ProjectDescriptor.name is null` — not `Fix 'something went wrong' message`
     - `Fix date parsing which breaks UI rendering` — not `Fix missed input`
-- **Subject line only.** Add a body only when a single line cannot explain the change.
+- **Subject line only.** Add a body only when a single line cannot explain the change with fewer words.
 - **No `Co-Authored-By:` or other co-author trailers.**
 - **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a
   misconfiguration, or a dependency bump.
+
+## Jira Workflow
+
+- **Search Jira before creating a ticket.** When a bug or an improvement is implemented, look for existing issues
+  first, trying different wordings — do not duplicate tickets.
+- **Keep the ticket description up to date.** When the scope or behavior changes during development, update the
+  description so it matches the real implementation.
+- **Create the ticket when it is absent** and fill it in completely:
+    - the actual sprint;
+    - the component;
+    - the fix version;
+    - additionally the affected version for a bug;
+    - Story Points and the original estimate (1 Story Point ≈ 8 hours).
+- **Link the tickets** when the relation is known: related to, depends on, and caused by.
+- **Show ticket IDs as links** (`https://jira.eisgroup.com/browse/EPBDS-NNNNN`) in replies and reports for easy
+  navigation.
+- **Ticket creation can be skipped** when the change does not affect the code functionality (build configuration,
+  process documentation, developer tooling) and no relevant ticket exists in Jira.
 
 ## Markdown Rules
 
