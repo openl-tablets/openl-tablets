@@ -35,6 +35,10 @@ To view a list of users, proceed as follows:
    The list is sorted by username. To sort the list by another column, click the column header. Clicking the header
    again reverses the sort order.
 
+   To find a user, start typing a username, full name, or email in the search field above the list. The list is
+   filtered as you type. The search is case-insensitive and matches any part of these values. To reset the filter,
+   clear the search field.
+
    In environments integrated with an external user management system, the **Groups** column displays each user's group
    memberships as color-coded tags:
 

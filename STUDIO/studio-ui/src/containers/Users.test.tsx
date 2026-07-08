@@ -195,6 +195,21 @@ describe('Users', () => {
         expect(within(rows[1]!).getByText('Viewer User')).toBeInTheDocument()
     })
 
+    it('filters users by search text', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText('admin')).toBeInTheDocument()
+        })
+
+        await userEvent.type(screen.getByTestId('users-search-input'), 'viewer@test')
+
+        expect(screen.getByText('viewer')).toBeInTheDocument()
+        expect(screen.queryByText('admin')).not.toBeInTheDocument()
+    })
+
     it('renders last login time and Never for users who have not signed in', async () => {
         await act(async () => {
             renderUsers()
@@ -248,6 +263,18 @@ describe('Users', () => {
         await waitFor(() => {
             expect(screen.getByTestId('default-group-info')).toBeInTheDocument()
         })
+    })
+
+    it('lays out the Default Group info and the search field in equal halves', async () => {
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByTestId('default-group-info')).toBeInTheDocument()
+        })
+        expect(screen.getByTestId('default-group-info').closest('.ant-col')).toHaveClass('ant-col-12')
+        expect(screen.getByTestId('users-search-input').closest('.ant-col')).toHaveClass('ant-col-12')
     })
 
     it('does not render DefaultGroupInfo when groups management is disabled', async () => {

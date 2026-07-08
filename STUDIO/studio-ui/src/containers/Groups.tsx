@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { Alert, Button, Table, Modal, Row } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import React, { useMemo, useState } from 'react'
+import { Alert, Button, Col, Input, Table, Modal, Row } from 'antd'
+import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { GroupItem } from '../types/group'
@@ -13,6 +13,12 @@ export const Groups: React.FC = () => {
     const [selectedGroup, setSelectedGroup] = useState<GroupItem | undefined>()
     const { groups, loading, error, reloadGroups } = useGroups()
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
+    const [searchText, setSearchText] = useState('')
+
+    const filteredGroups = useMemo(() => {
+        const needle = searchText.trim().toLowerCase()
+        return groups.filter((group) => !needle || group.name.toLowerCase().includes(needle))
+    }, [groups, searchText])
 
     const showEditGroupDrawer = () => {
         setIsEditDrawerOpen(true)
@@ -82,7 +88,22 @@ export const Groups: React.FC = () => {
 
     return (
         <>
-            <DefaultGroupInfo />
+            <Row align="middle" gutter={16}>
+                <Col span={12}>
+                    <DefaultGroupInfo />
+                </Col>
+                <Col span={12}>
+                    <Input
+                        allowClear
+                        data-testid="groups-search-input"
+                        onChange={(event) => setSearchText(event.target.value)}
+                        placeholder={t('groups:search_placeholder')}
+                        prefix={<SearchOutlined />}
+                        style={{ marginBottom: 16, width: '100%' }}
+                        value={searchText}
+                    />
+                </Col>
+            </Row>
             {error && (
                 <Alert
                     closable
@@ -99,9 +120,10 @@ export const Groups: React.FC = () => {
             )}
             <Table
                 columns={columns}
-                dataSource={groups}
+                dataSource={filteredGroups}
                 loading={loading}
                 pagination={{ hideOnSinglePage: true }}
+                rowKey="id"
                 onRow={(record) => ({
                     onDoubleClick: () => onEditGroup(record),
                 })}
