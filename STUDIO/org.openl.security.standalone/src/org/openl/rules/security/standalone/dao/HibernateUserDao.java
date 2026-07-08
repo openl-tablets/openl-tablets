@@ -5,12 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import jakarta.persistence.criteria.AbstractQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import org.openl.rules.security.standalone.persistence.ExternalGroup;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.security.standalone.persistence.UserGroup;
@@ -77,6 +80,53 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         Root<User> root = criteria.from(User.class);
         criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
         return getSession().createQuery(criteria).getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getUsersInGroup(String groupName) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(User.class);
+        var root = criteria.from(User.class);
+        criteria.select(root)
+                .where(belongsToGroup(builder, criteria, root, groupName))
+                .orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        return getSession().createQuery(criteria).getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countUsersInGroup(String groupName) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Long.class);
+        var root = criteria.from(User.class);
+        criteria.select(builder.count(root)).where(belongsToGroup(builder, criteria, root, groupName));
+        return getSession().createQuery(criteria).getSingleResult();
+    }
+
+    /**
+     * Matches the users belonging to the group either by the direct assignment or by a matched
+     * external group with the same name.
+     */
+    private static Predicate belongsToGroup(CriteriaBuilder builder,
+                                            AbstractQuery<?> query,
+                                            Root<User> root,
+                                            String groupName) {
+        // Subquery: users directly assigned to the group
+        var internal = query.subquery(String.class);
+        var ugRoot = internal.from(UserGroup.class);
+        var groupSubquery = internal.subquery(Long.class);
+        var groupRoot = groupSubquery.from(Group.class);
+        groupSubquery.select(groupRoot.get("id")).where(builder.equal(groupRoot.get("name"), groupName));
+        internal.select(ugRoot.get("id").get("loginName"))
+                .where(ugRoot.get("id").get("groupId").in(groupSubquery));
+
+        // Subquery: users having a matched external group with the same name
+        var external = query.subquery(String.class);
+        var egRoot = external.from(ExternalGroup.class);
+        external.select(egRoot.get("loginName")).where(builder.equal(egRoot.get("groupName"), groupName));
+
+        return builder.or(root.get("loginName").in(internal), root.get("loginName").in(external));
     }
 
     @Override

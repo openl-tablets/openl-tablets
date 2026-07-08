@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GroupsContext } from 'contexts/GroupsContext'
 
@@ -40,6 +40,10 @@ vi.mock('containers/EditUserGroupDetailsWithAccessRights', async () => ({
 
 vi.mock('components/DefaultGroupInfo', async () => ({
     DefaultGroupInfo: () => <div data-testid="default-group-info" />,
+}))
+
+vi.mock('containers/groups/GroupMembers', async () => ({
+    GroupMembers: ({ groupId }: any) => <div data-group-id={groupId} data-testid="group-members-mock" />,
 }))
 
 import { Groups } from 'containers/Groups'
@@ -100,6 +104,19 @@ describe('Groups', () => {
 
         expect(screen.getByText('Viewers')).toBeInTheDocument()
         expect(screen.queryByText('Administrators')).not.toBeInTheDocument()
+    })
+
+    it('shows the group members when a row is expanded', async () => {
+        await act(async () => {
+            renderGroups()
+        })
+
+        const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+        await userEvent.click(expandButtons[0]!)
+
+        await waitFor(() => {
+            expect(screen.getByTestId('group-members-mock')).toHaveAttribute('data-group-id', '1')
+        })
     })
 
     it('clears the name filter', async () => {

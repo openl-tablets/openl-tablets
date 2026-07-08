@@ -61,6 +61,35 @@ public class UserManagementService {
         return Optional.ofNullable(userDao.getUserByName(username)).map(this::createSecurityUser).orElse(null);
     }
 
+    /**
+     * Returns the users belonging to the group. Both directly assigned users and users having
+     * a matched external group with the same name are included.
+     *
+     * <p>The group privileges are not resolved for the returned users.
+     *
+     * @param groupName group name
+     * @return users of the group ordered by login name
+     */
+    @Transactional(readOnly = true)
+    public List<org.openl.rules.security.User> getUsersInGroup(String groupName) {
+        return userDao.getUsersInGroup(groupName)
+                .stream()
+                .map(user -> createSecurityUser(user, Collections.emptySet()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Counts the users belonging to the group. A user assigned both directly and through a matched
+     * external group is counted once.
+     *
+     * @param groupName group name
+     * @return number of distinct users of the group
+     */
+    @Transactional(readOnly = true)
+    public long countUsersInGroup(String groupName) {
+        return userDao.countUsersInGroup(groupName);
+    }
+
     @Transactional(readOnly = true)
     public org.openl.rules.security.User getUserWithoutGroups(String username) {
         return Optional.ofNullable(userDao.getUserByName(username))
