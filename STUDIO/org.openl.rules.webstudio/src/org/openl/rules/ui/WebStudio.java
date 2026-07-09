@@ -42,7 +42,6 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -808,11 +807,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public ProjectDescriptor getProjectByName(String repositoryId, final String name) {
         return CollectionUtils.findFirst(getProjects().get(repositoryId), project -> project.getName().equals(name));
-    }
-
-    public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
-        List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
-        return CollectionUtils.findFirst(dependencies, dependency -> dependency.getName().equals(dependencyName));
     }
 
     /**

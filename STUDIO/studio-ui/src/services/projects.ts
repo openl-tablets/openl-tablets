@@ -1,8 +1,26 @@
 import { notification } from 'antd'
 import apiCall, { type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
+import type { Project } from '../types/projects'
 
 const PROJECT_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
+
+/**
+ * Reads the read-only project summary (state): status, branch, repository, revision,
+ * modified-by/at, path, lock and comment. The editable descriptor comes separately from
+ * {@link fetchProjectDescriptor}.
+ */
+export function fetchProject(projectId: string): Promise<Project> {
+    return apiCall(
+        `/projects/${encodeURIComponent(projectId)}`,
+        {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+        },
+        PROJECT_API_OPTIONS
+    ) as Promise<Project>
+}
 
 /**
  * Normalizes a project id to the URL-safe Base64 alphabet so it fits a URL path segment.

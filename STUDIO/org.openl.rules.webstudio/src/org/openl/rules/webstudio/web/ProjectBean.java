@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -11,25 +10,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UIInput;
 import jakarta.faces.context.FacesContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -55,7 +48,6 @@ import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WebstudioConfiguration;
@@ -66,11 +58,9 @@ import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -84,7 +74,6 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 import org.openl.validation.ValidatedCompiledOpenClass;
@@ -102,17 +91,10 @@ public class ProjectBean {
 
     private final WebStudio studio = WebStudioUtils.getWebStudio();
 
-
-    private List<ListItem<ProjectDependencyDescriptor>> dependencies;
-    private String sources;
-    private String exposedMethodIncludes;
-    private String exposedMethodExcludes;
     private String[] propertiesFileNamePatterns;
 
     private final Formats formats = WebStudioFormats.getInstance();
     private List<ModuleInfoDTO> modulesInfoList = new ArrayList<>();
-
-    private UIInput propertiesFileNameProcessorInput;
 
     private String currentModuleName;
 
@@ -132,81 +114,6 @@ public class ProjectBean {
 
     public static String getModulePath(Module module) {
         return module == null ? null : module.getRulesRootPath();
-    }
-
-    public List<ListItem<ProjectDependencyDescriptor>> getDependencies() {
-        dependencies = new ArrayList<>();
-
-        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-
-        List<ProjectDescriptor> projects = studio.getAllProjects();
-        for (ProjectDescriptor project : projects) {
-            String name = project.getName();
-            if (!name.equals(currentProject.getName())) {
-                ProjectDependencyDescriptor dependency = new ProjectDependencyDescriptor();
-                ProjectDependencyDescriptor projectDependency = studio.getProjectDependency(name);
-                dependency.setName(name);
-                dependency.setAutoIncluded(projectDependency != null && projectDependency.isAutoIncluded());
-                dependencies.add(new ListItem<>(projectDependency != null, dependency));
-            }
-        }
-        return dependencies;
-    }
-
-    public String getSources() {
-        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        List<String> sourceList = currentProject.getClasspath();
-        if (sourceList != null) {
-            StringBuilder sb = new StringBuilder();
-            for (String source : sourceList) {
-                sb.append(source).append(StringTool.NEW_LINE);
-            }
-            sources = sb.toString();
-        }
-
-        return sources;
-    }
-
-    public void setSources(String sources) {
-        this.sources = sources;
-    }
-
-    public String getExposedMethodIncludes() {
-        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        ExposedMethods filter = currentProject.getExposedMethods();
-        if (filter != null && filter.getIncludes() != null) {
-            var sb = new StringBuilder();
-            for (String include : filter.getIncludes()) {
-                sb.append(include).append(StringTool.NEW_LINE);
-            }
-            exposedMethodIncludes = sb.toString();
-        } else {
-            exposedMethodIncludes = "";
-        }
-        return exposedMethodIncludes;
-    }
-
-    public void setExposedMethodIncludes(String exposedMethodIncludes) {
-        this.exposedMethodIncludes = exposedMethodIncludes;
-    }
-
-    public String getExposedMethodExcludes() {
-        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        ExposedMethods filter = currentProject.getExposedMethods();
-        if (filter != null && filter.getExcludes() != null) {
-            var sb = new StringBuilder();
-            for (String exclude : filter.getExcludes()) {
-                sb.append(exclude).append(StringTool.NEW_LINE);
-            }
-            exposedMethodExcludes = sb.toString();
-        } else {
-            exposedMethodExcludes = "";
-        }
-        return exposedMethodExcludes;
-    }
-
-    public void setExposedMethodExcludes(String exposedMethodExcludes) {
-        this.exposedMethodExcludes = exposedMethodExcludes;
     }
 
     public String getOpenAPIPath() {
@@ -268,61 +175,6 @@ public class ProjectBean {
 
     public void setPropertiesFileNamePatterns(String propertiesFileNamePatterns) {
         this.propertiesFileNamePatterns = StringUtils.toLines(propertiesFileNamePatterns);
-    }
-
-    // TODO Move messages to ValidationMessages.properties
-    public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
-        String name = (String) value;
-
-        WebStudioUtils.validate(StringUtils.isNotBlank(name), "Cannot be empty");
-
-        if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
-            WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
-            WebStudioUtils.validate(!NameChecker.isReservedName(name), "'%s' is a reserved word.".formatted(name));
-            WebStudioUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
-        }
-    }
-
-    public void validatePropertiesFileNameProcessor(FacesContext context, UIComponent toValidate, Object value) {
-        String className = (String) value;
-
-        if (!StringUtils.isBlank(className)) {
-            WebStudioUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
-
-            ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
-            projectDescriptor.setPropertiesFileNameProcessor(className);
-            PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
-            try {
-                propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (InvalidFileNameProcessorException e) {
-                WebStudioUtils.throwValidationError(e.getMessage());
-            } catch (InvalidFileNamePatternException ignore) {
-                // Ignore
-            } finally {
-                propertiesFileNameProcessorBuilder.destroy();
-            }
-        }
-    }
-
-    // TODO Move messages to ValidationMessages.properties
-    public void validatePropertiesFileNamePattern(FacesContext context, UIComponent toValidate, Object value) {
-        String[] patterns = StringUtils.toLines((String) value);
-
-        if (patterns != null) {
-            PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
-            try {
-                ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
-                projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
-                projectDescriptor.setPropertiesFileNamePatterns(patterns);
-                propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (InvalidFileNamePatternException e) {
-                WebStudioUtils.throwValidationError(e.getMessage());
-            } catch (InvalidFileNameProcessorException ignored) {
-                // Processed in other validator
-            } finally {
-                propertiesFileNameProcessorBuilder.destroy();
-            }
-        }
     }
 
     /**
@@ -528,35 +380,6 @@ public class ProjectBean {
         return mode.equals(RECONCILIATION);
     }
 
-    public void editName() {
-        tryLockProject();
-        RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, true);
-
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
-        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
-
-        Repository designRepository = currentProject.getDesignRepository();
-        boolean supportsMappedFolders = designRepository != null && designRepository.supports().mappedFolders();
-        if (!supportsMappedFolders && studio.isRenamed(currentProject)) {
-            // Restore physical project name
-            newProjectDescriptor.setName(currentProject.getName());
-        }
-
-        clean(newProjectDescriptor);
-        save(newProjectDescriptor);
-
-        try {
-            String repositoryId = currentProject.getRepository().getId();
-            String branch = currentProject.getBranch();
-            studio.init(repositoryId, branch, newProjectDescriptor.getName(), null);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new Message("Error while project renaming");
-        }
-    }
-
     private void validatePermissionsForDescriptorFile(RulesProject currentProject, boolean append) {
         if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             try {
@@ -724,90 +547,6 @@ public class ProjectBean {
     }
 
     /**
-     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
-     */
-    @Deprecated(since = "6.0.0", forRemoval = true)
-    public void removeModule() {
-        tryLockProject();
-        RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, false);
-
-        ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
-
-        String toRemove = WebStudioUtils.getRequestParameter("moduleToRemove");
-        String leaveExcelFile = WebStudioUtils.getRequestParameter("leaveExcelFile");
-
-        List<Module> modules = newProjectDescriptor.getModules();
-        Module removed = modules.remove(Integer.parseInt(toRemove));
-
-        if (StringUtils.isEmpty(leaveExcelFile)) {
-            ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
-            List<Module> modulesForRemoving = new ArrayList<>();
-            if (removed.isModuleWithWildcard()) {
-                for (Module module : currentProjectDescriptor.getModules()) {
-                    if (module.getWildcardRulesRootPath() == null) {
-                        // Module not included in wildcard
-                        continue;
-                    }
-                    if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath())) {
-                        checkPermissionsForDeletingModule(currentProject, module);
-                        modulesForRemoving.add(module);
-                    }
-                }
-            } else {
-                checkPermissionsForDeletingModule(currentProject, removed);
-                modulesForRemoving.add(removed);
-            }
-            modulesForRemoving.forEach(e -> deleteModule(currentProject, e));
-            File projectFolder = currentProjectDescriptor.getProjectFolder().toFile();
-            File rulesXmlFile = new File(projectFolder, ProjectDescriptor.FILE_NAME);
-            if (rulesXmlFile.exists()) {
-                String removedModuleName = removed.getName();
-                clean(newProjectDescriptor);
-                OpenAPI openAPI = newProjectDescriptor.getOpenapi();
-                if (openAPI != null) {
-                    String definedAlgoModuleName = openAPI.getAlgorithmModuleName();
-                    String definedModelsName = openAPI.getModelModuleName();
-                    if (definedAlgoModuleName != null && definedAlgoModuleName.equalsIgnoreCase(removedModuleName)) {
-                        openAPI.setAlgorithmModuleName(null);
-                    } else if (definedModelsName != null && definedModelsName.equalsIgnoreCase(removedModuleName)) {
-                        openAPI.setModelModuleName(null);
-                    }
-                }
-                save(newProjectDescriptor);
-            } else {
-                currentProject.setModified();
-                refreshProject(currentProject.getRepository().getId(), currentProject.getName());
-            }
-        } else {
-            clean(newProjectDescriptor);
-            save(newProjectDescriptor);
-        }
-        studio.resetProjects();
-    }
-
-    private void checkPermissionsForDeletingModule(RulesProject currentProject, Module module) {
-        try {
-            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath());
-            if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
-                throw new Message("There is no permission for deleting '%s' file.".formatted(
-                        ProjectArtifactUtils.extractResourceName(projectArtefact)));
-            }
-        } catch (ProjectException ignored) {
-        }
-    }
-
-    private void deleteModule(RulesProject currentProject, Module module) {
-        try {
-            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath());
-            projectArtefact.delete();
-        } catch (ProjectException e) {
-            throw new Message("Cannot delete '%s' module.".formatted(module.getName()), e);
-        }
-    }
-
-    /**
      * @deprecated Use {@code ProjectModulesService} and REST API permission checks instead.
      */
     @Deprecated(since = "6.0.0", forRemoval = true)
@@ -835,334 +574,6 @@ public class ProjectBean {
             }
         }
         return false;
-    }
-
-    /**
-     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
-     */
-    @Deprecated(since = "6.0.0", forRemoval = true)
-    public boolean canDeleteModule(Module module) {
-        if (studio.getModel().isEditableProject()) {
-            RulesProject currentProject = studio.getCurrentProject();
-            if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
-                try {
-                    return designRepositoryAclService.isGranted(
-                            currentProject.getArtefact(ProjectDescriptor.FILE_NAME),
-                            List.of(BasePermission.WRITE));
-                } catch (ProjectException ignored) {
-                    return false;
-                }
-            } else {
-                return designRepositoryAclService.isGranted(currentProject, List.of(BasePermission.CREATE));
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
-     */
-    @Deprecated(since = "6.0.0", forRemoval = true)
-    public boolean isOnlySafeModuleRemove(Module module) {
-        if (module == null) {
-            return true;
-        }
-        RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject != null) {
-            try {
-                if (isModuleWithWildcard(module)) {
-                    for (Module m : getModulesMatchingPathPattern(module)) {
-                        AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath());
-                        if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                } else {
-                    AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath());
-                    return !designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE);
-                }
-            } catch (ProjectException e) {
-                return true;
-            }
-        }
-        return true;
-    }
-
-    public void removeDependency(String name) {
-        tryLockProject();
-
-        RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, false);
-
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
-
-        clean(newProjectDescriptor);
-
-        List<ProjectDependencyDescriptor> resultDependencies = newProjectDescriptor.getDependencies();
-
-        resultDependencies.removeIf(dependency -> dependency.getName().equals(name));
-
-        newProjectDescriptor.setDependencies(!resultDependencies.isEmpty() ? resultDependencies : null);
-
-        save(newProjectDescriptor);
-    }
-
-    public void editDependencies() {
-        tryLockProject();
-
-        RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, true);
-
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
-
-        clean(newProjectDescriptor);
-
-        List<ProjectDependencyDescriptor> resultDependencies = new ArrayList<>();
-
-        for (ListItem<ProjectDependencyDescriptor> dependency : dependencies) {
-            if (dependency.isSelected()) {
-                resultDependencies.add(dependency.getItem());
-            }
-        }
-
-        newProjectDescriptor.setDependencies(!resultDependencies.isEmpty() ? resultDependencies : null);
-
-        save(newProjectDescriptor);
-    }
-
-    public void editSources() {
-        tryLockProject();
-
-        RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, true);
-
-        List<String> sourceList = new ArrayList<>();
-        String[] sourceArray = StringUtils.toLines(sources);
-
-        if (CollectionUtils.isNotEmpty(sourceArray)) {
-            Collections.addAll(sourceList, sourceArray);
-        }
-
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
-
-        clean(newProjectDescriptor);
-
-        newProjectDescriptor.setClasspath(!sourceList.isEmpty() ? sourceList : null);
-
-        save(newProjectDescriptor);
-    }
-
-    public void editExposedMethods() {
-        tryLockProject();
-
-        RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, true);
-
-        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
-        clean(newProjectDescriptor);
-
-        String[] includeArray = StringUtils.toLines(exposedMethodIncludes);
-        String[] excludeArray = StringUtils.toLines(exposedMethodExcludes);
-
-        boolean hasIncludes = CollectionUtils.isNotEmpty(includeArray);
-        boolean hasExcludes = CollectionUtils.isNotEmpty(excludeArray);
-
-        if (hasIncludes || hasExcludes) {
-            ExposedMethods filter = new ExposedMethods();
-            if (hasIncludes) {
-                filter.setIncludes(new LinkedHashSet<>(Arrays.asList(includeArray)));
-            }
-            if (hasExcludes) {
-                filter.setExcludes(new LinkedHashSet<>(Arrays.asList(excludeArray)));
-            }
-            newProjectDescriptor.setExposedMethods(filter);
-        } else {
-            newProjectDescriptor.setExposedMethods(null);
-        }
-
-        save(newProjectDescriptor);
-    }
-
-    public boolean isEmptyExposedMethods() {
-        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        ExposedMethods filter = currentProject.getExposedMethods();
-        if (filter == null) {
-            return true;
-        }
-        if (filter.getIncludes() != null && !filter.getIncludes().isEmpty()) {
-            return false;
-        }
-        return filter.getExcludes() == null || filter.getExcludes().isEmpty();
-    }
-
-    public boolean isHasMethodFiltersToMigrate() {
-        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
-        for (Module module : currentProject.getModules()) {
-            if (!isEmptyMethodFilter(module)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void migrateMethodFilters() {
-        tryLockProject();
-
-        var currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, true);
-
-        var projectDescriptor = studio.getCurrentProjectDescriptor();
-        var newProjectDescriptor = _migrateMethodFilters(projectDescriptor);
-
-        save(newProjectDescriptor);
-    }
-
-    /**
-     * Migrates module-level method-filter regex patterns to project-level exposed-methods glob patterns.
-     * <p>
-     * For each module, converts its method-filter includes/excludes from regex to glob syntax,
-     * merges them with any existing exposed-methods, clears the module-level filters,
-     * and sets the result on the project descriptor.
-     * <p>
-     * Invalid patterns that cannot match any method signature are silently ignored.
-     *
-     * @param projectDescriptor the project descriptor to migrate
-     * @return a new project descriptor with migrated filters (the original is not modified)
-     */
-    // package-private static for testing
-    static @NonNull ProjectDescriptor _migrateMethodFilters(@NonNull ProjectDescriptor projectDescriptor) {
-        var newProjectDescriptor = Cloner.clone(projectDescriptor);
-
-        clean(newProjectDescriptor);
-
-        // Collect all method-filter patterns from all modules
-        var allIncludes = new LinkedHashSet<String>();
-        var allExcludes = new LinkedHashSet<String>();
-        for (var module : newProjectDescriptor.getModules()) {
-            var mf = module.getMethodFilter();
-            if (mf != null) {
-                if (mf.getIncludes() != null) {
-                    for (var pattern : mf.getIncludes()) {
-                        var converted = convertRegexToGlob(pattern);
-                        if (StringUtils.isNotBlank(converted)) {
-                            allIncludes.add(converted);
-                        }
-                    }
-                }
-                if (mf.getExcludes() != null) {
-                    for (var pattern : mf.getExcludes()) {
-                        var converted = convertRegexToGlob(pattern);
-                        if (StringUtils.isNotBlank(converted)) {
-                            allExcludes.add(converted);
-                        }
-                    }
-                }
-                // Clear module-level method-filter
-                mf.setIncludes(null);
-                mf.setExcludes(null);
-            }
-        }
-
-        // Merge with existing exposed-methods if present
-        ExposedMethods existing = newProjectDescriptor.getExposedMethods();
-        if (existing != null) {
-            if (existing.getIncludes() != null) {
-                allIncludes.addAll(existing.getIncludes());
-            }
-            if (existing.getExcludes() != null) {
-                allExcludes.addAll(existing.getExcludes());
-            }
-        }
-
-        if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-            ExposedMethods filter = new ExposedMethods();
-            if (!allIncludes.isEmpty()) {
-                filter.setIncludes(new HashSet<>(allIncludes));
-            }
-            if (!allExcludes.isEmpty()) {
-                filter.setExcludes(new HashSet<>(allExcludes));
-            }
-            newProjectDescriptor.setExposedMethods(filter);
-        }
-        return newProjectDescriptor;
-    }
-
-    /**
-     * Converts a method-filter regex pattern (matched against full method signature) to an
-     * exposed-methods glob pattern (matched against method name only).
-     * <p>
-     * Method-filter patterns are regexps matched against method signatures in the format:
-     * {@code returnType methodName(ArgType1, ArgType2, ArgTypeN)}.
-     * If the pattern is not a valid regexp or cannot match any method signature, it is ignored.
-     * <p>
-     * Common regex patterns and their conversions:
-     * <ul>
-     *     <li>{@code .+ methodName\(.+\)} → {@code methodName}</li>
-     *     <li>{@code .* methodName\(.*\)} → {@code methodName}</li>
-     *     <li>{@code .+ methodName\(\)} → {@code methodName}</li>
-     *     <li>{@code .*methodName.*} → {@code methodName}</li>
-     *     <li>{@code .*} or {@code *} → {@code *}</li>
-     * </ul>
-     *
-     * @return the converted glob pattern, or {@code null} if the pattern should be ignored
-     */
-    static String convertRegexToGlob(String regex) {
-        if (regex == null || regex.isBlank()) {
-            return null;
-        }
-        regex = regex.trim();
-
-        // Validate that the pattern is a valid regexp and can match a method signature
-        try {
-            Pattern.compile(regex);
-        } catch (PatternSyntaxException e) {
-            // Not a valid regex
-            return null;
-        }
-
-        var prefix = Pattern.compile("^[^ (]+ ");
-        var matcher = prefix.matcher(regex);
-        if (matcher.find()) {
-            // remove return type definition
-            regex = matcher.replaceFirst("");
-        } else if (!regex.matches("^[.][*+].*")) {
-            // does not match to return type definition of the method signature
-            return null;
-        }
-
-        // Pattern: <returnType> <methodName>(<params>)
-        // e.g., ".+ methodName\(.+\)" or ".* methodName\(.*\)" or ".+ methodName\(\)"
-        var signaturePattern = Pattern.compile("\\\\\\(.*\\\\\\)$");
-        var signatureMatcher = signaturePattern.matcher(regex);
-        if (signatureMatcher.find()) {
-            regex = signatureMatcher.replaceFirst("");
-        }
-
-        // Try to convert simple regex patterns in the name part to glob
-        // Replace .* and .+ with glob *, and . with ?
-        regex = regex.replace("(.*)", "*");
-        regex = regex.replace("(.+)", "*");
-        regex = regex.replace(".*", "*");
-        regex = regex.replace(".+", "*");
-        regex = regex.replace("?", "^"); // replace on the illegal symbol due conflict with Glob
-        regex = regex.replace(".", "?");
-
-        // check on the illegal symbols in the method name glob
-        for (int i = 0; i < regex.length(); i++) {
-            char c = regex.charAt(i);
-            if (c == '\\' || c == '[' || c == ']' || c == '(' || c == ')'
-                    || c == '{' || c == '}' || c == '|' || c == '^'
-                    || c == '+' || c == '.' || c == ' ') {
-                return null;
-            }
-        }
-        // If the result looks clean (no remaining regex metacharacters), return it
-        return regex;
     }
 
     public void reconcileOpenAPI() {
@@ -1809,14 +1220,6 @@ public class ProjectBean {
         return Cloner.clone(projectDescriptor);
     }
 
-    public UIInput getPropertiesFileNameProcessorInput() {
-        return propertiesFileNameProcessorInput;
-    }
-
-    public void setPropertiesFileNameProcessorInput(UIInput propertiesFileNameProcessorInput) {
-        this.propertiesFileNameProcessorInput = propertiesFileNameProcessorInput;
-    }
-
     public String getCurrentModuleName() {
         return currentModuleName;
     }
@@ -1994,28 +1397,6 @@ public class ProjectBean {
             }
             return Collections.emptyList();
         }
-    }
-
-    public boolean isEmptyMethodFilter(Module module) {
-        MethodFilter methodFilter = module.getMethodFilter();
-        if (methodFilter == null) {
-            return true;
-        }
-
-        if (methodFilter.getIncludes() != null) {
-            ArrayList<String> includes = new ArrayList<>(methodFilter.getIncludes());
-            includes.removeAll(Arrays.asList("", null));
-            if (!includes.isEmpty()) {
-                return false;
-            }
-        }
-        if (methodFilter.getExcludes() != null) {
-            ArrayList<String> excludes = new ArrayList<>(methodFilter.getExcludes());
-            excludes.removeAll(Arrays.asList("", null));
-            return excludes.isEmpty();
-        }
-
-        return true;
     }
 
     public String getCurrentPropertiesFileNameProcessor() {

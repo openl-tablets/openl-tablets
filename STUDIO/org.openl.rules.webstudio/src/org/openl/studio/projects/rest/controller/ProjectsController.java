@@ -59,7 +59,9 @@ import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.OpenApiTablesRequest;
 import org.openl.studio.projects.model.ProjectBranchInfo;
+import org.openl.studio.projects.model.ProjectDescriptorView;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -77,7 +79,9 @@ import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
+import org.openl.studio.projects.service.ProjectDescriptorService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectOpenApiService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -108,6 +112,8 @@ public class ProjectsController {
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     private final WorkspaceProjectService projectService;
+    private final ProjectDescriptorService projectDescriptorService;
+    private final ProjectOpenApiService projectOpenApiService;
     private final TestsExecutorService testsExecutorService;
     private final ExecutionTestsResultRegistry executionTestsResultRegistry;
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
@@ -171,6 +177,33 @@ public class ProjectsController {
     @Operation(summary = "Get project (BETA)")
     public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project) {
         return projectService.getProject(project);
+    }
+
+    @GetMapping("/{projectId}/descriptor")
+    @Operation(summary = "projects.descriptor.get.summary", description = "projects.descriptor.get.desc")
+    public ProjectDescriptorView getDescriptor(@ProjectId @PathVariable("projectId") RulesProject project) {
+        return projectDescriptorService.getDescriptor(project);
+    }
+
+    @PutMapping(value = "/{projectId}/descriptor", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "projects.descriptor.update.summary", description = "projects.descriptor.update.desc")
+    public ProjectDescriptorView updateDescriptor(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                  @RequestBody ProjectDescriptorView descriptor,
+                                                  @RequestParam(value = "force", defaultValue = "false") boolean force) {
+        var updated = projectDescriptorService.updateDescriptor(project, descriptor, force);
+        getWebStudio().reset();
+        return updated;
+    }
+
+    @PostMapping("/{projectId}/openapi")
+    @Operation(summary = "projects.openapi.generate.summary", description = "projects.openapi.generate.desc")
+    public ProjectDescriptorView generateOpenApi(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                 @RequestBody(required = false) OpenApiTablesRequest request) {
+        var updated = request == null
+                ? projectOpenApiService.generateSchema(project)
+                : projectOpenApiService.generateTables(project, request);
+        getWebStudio().reset();
+        return updated;
     }
 
     @DeleteMapping("/{projectId}")

@@ -3,6 +3,7 @@ export type { ApiCallOptions } from './apiCall'
 export { default as CONFIG } from './config'
 export { default as webSocketService } from './websocket'
 export { fetchProjectStatus, subscribeProjectStatus } from './projectStatus'
+export { fetchProjectDescriptor, updateProjectDescriptor, generateProjectOpenApiSchema } from './projectDescriptor'
 export type {
     ProjectStatusUpdate,
     ProjectStatusSubscription,
