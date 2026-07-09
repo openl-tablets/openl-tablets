@@ -75,6 +75,20 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<String> findGroupNames(String searchTerm, int limit) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(Group.class);
+        criteria.select(root.get("name"))
+                .where(builder.like(builder.lower(root.get("name")),
+                        "%" + escape(searchTerm) + "%",
+                        builder.literal(ESCAPE_CHAR)))
+                .orderBy(builder.asc(builder.upper(root.get("name"))));
+        return getSession().createQuery(criteria).setMaxResults(limit).getResultList();
+    }
+
+    @Override
     public long countUsersInGroup(String groupName) {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(Long.class);
@@ -109,4 +123,5 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
         criteria.where(builder.equal(root.get("name"), name));
         getSession().createMutationQuery(criteria).executeUpdate();
     }
+
 }

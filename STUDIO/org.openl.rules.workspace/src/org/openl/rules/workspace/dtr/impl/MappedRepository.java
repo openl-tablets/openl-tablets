@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
@@ -26,6 +28,7 @@ import org.openl.rules.project.abstraction.ArtefactProperties;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -327,6 +330,16 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Override
     public String getBaseBranch() {
         return delegate.supports().branches() ? ((BranchRepository) delegate).getBaseBranch() : null;
+    }
+
+    @Override
+    public BranchStatus getBranchStatus(String branch, String comparedTo) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatus(branch, comparedTo);
+    }
+
+    @Override
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches, String comparedTo) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatuses(branches, comparedTo);
     }
 
     @Override

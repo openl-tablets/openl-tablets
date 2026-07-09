@@ -1,6 +1,7 @@
 package org.openl.studio.deployment.rest.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IProject;
+import org.openl.rules.repository.api.FileData;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
+import org.openl.studio.common.utils.AuditFields;
 import org.openl.studio.deployment.model.DeployProjectModel;
+import org.openl.studio.deployment.model.DeploymentItemViewModel;
 import org.openl.studio.deployment.model.DeploymentViewModel;
 import org.openl.studio.deployment.model.RedeployProjectModel;
 import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
@@ -29,29 +37,68 @@ import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.security.CommitInfoRequired;
+import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping(value = "/deployments", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Deployments", description = "Deployment management APIs")
 @RequiredArgsConstructor
+@Slf4j
 public class DeploymentsController {
 
     private final DeploymentService deploymentService;
     private final ProjectIdentityConverter projectConverter;
 
-    @Operation(summary = "Get Deployments", description = "Returns a list of deployments. Optionally, filter by provided criterias.")
+    @Operation(
+            summary = "Get Deployments",
+            description = "Returns a list of deployments. Optionally, filter by provided criterias."
+    )
     @Parameters({
-            @Parameter(name = "repository", description = "Production repository id to filter deployments", in = ParameterIn.QUERY)
+            @Parameter(
+                    name = "repository",
+                    description = "Production repository id to filter deployments",
+                    in = ParameterIn.QUERY
+            ),
+            @Parameter(
+                    name = "project",
+                    description = "Deployed project name to filter deployments",
+                    in = ParameterIn.QUERY
+            )
     })
     @GetMapping
     @JsonView(GenericView.Short.class)
-    public List<DeploymentViewModel> getDeployments(@RequestParam(value = "repository", required = false) String repository) {
+    public List<DeploymentViewModel> getDeployments(
+            @RequestParam(value = "repository", required = false) String repository,
+            @RequestParam(value = "project", required = false) String project) {
         var query = DeploymentCriteriaQuery.builder()
                 .repository(repository)
                 .build();
-        return deploymentService.getDeployments(query).stream()
-                .map(this::mapToViewModel)
+        var deployments = deploymentService.getDeployments(query);
+        if (StringUtils.isBlank(project)) {
+            return deployments.stream()
+                    .map(this::mapToViewModel)
+                    .toList();
+        }
+        return deployments.stream()
+                .map(deployment -> mapToProjectDeployment(deployment, project))
+                .flatMap(Optional::stream)
                 .toList();
+    }
+
+    @Operation(summary = "Get Deployment", description = "Returns a single deployment with its deployed projects.")
+    @GetMapping("/{id}")
+    @JsonView(GenericView.Full.class)
+    public DeploymentViewModel getDeployment(
+            @Parameter(description = "Deployment identifier") @PathVariable("id") String id) {
+        var deploymentId = ProjectIdModel.decode(id);
+        var query = DeploymentCriteriaQuery.builder()
+                .repository(deploymentId.getRepository())
+                .build();
+        return deploymentService.getDeployments(query).stream()
+                .filter(deployment -> deployment.getDeploymentName().equals(deploymentId.getProjectName()))
+                .findFirst()
+                .map(this::mapToFullViewModel)
+                .orElseThrow(() -> new NotFoundException("deployment.not-found.message"));
     }
 
     @Operation(summary = "Deploy Project", description = "Deploys a project to the specified deployment.")
@@ -69,21 +116,67 @@ public class DeploymentsController {
     @Operation(summary = "Redeploy Project", description = "Redeploys a project to an existing deployment.")
     @PostMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @CommitInfoRequired
-    public void redeploy(@PathVariable("id") String id, @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
+    public void redeploy(@PathVariable("id") String id,
+                         @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.decode(id);
         var projectToDeploy = projectConverter.convert(redeployProject.projectId.encode());
         deploymentService.deploy(deploymentId, projectToDeploy, redeployProject.comment);
     }
 
     private DeploymentViewModel mapToViewModel(Deployment deployment) {
+        return builder(deployment)
+                .build();
+    }
+
+    private Optional<DeploymentViewModel> mapToProjectDeployment(Deployment deployment, String projectName) {
+        var items = deployment.getProjects().stream()
+                .filter(project -> project.getName().equals(projectName))
+                .map(DeploymentsController::mapToItem)
+                .toList();
+        if (items.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(builder(deployment)
+                .items(items)
+                .build());
+    }
+
+    private DeploymentViewModel.Builder builder(Deployment deployment) {
         return DeploymentViewModel.builder()
                 .id(ProjectIdModel.builder()
                         .repository(deployment.getRepository().getId())
                         .projectName(deployment.getDeploymentName())
                         .build())
                 .name(deployment.getName())
-                .repository(deployment.getRepository().getId())
+                .repository(deployment.getRepository().getId());
+    }
+
+    private DeploymentViewModel mapToFullViewModel(Deployment deployment) {
+        return builder(deployment)
+                .items(deployment.getProjects().stream().map(DeploymentsController::mapToItem).toList())
                 .build();
+    }
+
+    private static DeploymentItemViewModel mapToItem(IProject project) {
+        var projectName = project.getName();
+        var builder = DeploymentItemViewModel.builder().name(projectName);
+        fileDataOf(project, projectName).ifPresent(fileData -> {
+            AuditFields.apply(fileData, builder::modifiedBy, builder::modifiedAt, builder::revision);
+        });
+        return builder.build();
+    }
+
+    private static Optional<FileData> fileDataOf(IProject project, String projectName) {
+        if (!(project instanceof AProject aProject)) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.ofNullable(aProject.getFileData());
+        } catch (IllegalStateException e) {
+            log.warn("Failed to read deployed project metadata for '{}'. Omitting audit fields.",
+                    projectName, e);
+            return Optional.empty();
+        }
     }
 
 }

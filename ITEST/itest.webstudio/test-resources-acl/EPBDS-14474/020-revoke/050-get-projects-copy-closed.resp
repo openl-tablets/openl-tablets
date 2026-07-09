@@ -11,7 +11,13 @@ Content-Type: application/json
       "id": "ZGVzaWduOkVQQkRTXzE0NDc0X1Byb2plY3Q=",
       "status": "CLOSED",
       "comment": "*",
-      "repository": "design"
+      "repository": "design",
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

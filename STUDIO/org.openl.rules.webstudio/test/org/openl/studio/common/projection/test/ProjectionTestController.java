@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.projection.NoFieldProjection;
 
 @RestController
 @RequestMapping("/projection-test")
@@ -44,6 +45,42 @@ public class ProjectionTestController {
     @GetMapping("/page")
     public PageResponse<ProjectTestView> page() {
         return new PageResponse<>(List.of(project("1"), project("2")), 0, 10, 2L);
+    }
+
+    @GetMapping("/page-subclass")
+    public SubPage pageSubclass() {
+        return new SubPage(List.of(project("1"), project("2")), 0, 10, 2L);
+    }
+
+    /** A concrete {@link PageResponse} subclass, mirroring production wrappers such as ProjectsPageResponse. */
+    static class SubPage extends PageResponse<ProjectTestView> {
+        SubPage(java.util.Collection<ProjectTestView> content, int pageNumber, int pageSize, Long total) {
+            super(content, pageNumber, pageSize, total);
+        }
+    }
+
+    @GetMapping("/page-with-summary")
+    public SummaryPage pageWithSummary() {
+        return new SummaryPage(List.of(project("1"), project("2")), 0, 10, 2L, new TestSummary(3, 4));
+    }
+
+    /** A page carrying a {@link NoFieldProjection} summary alongside its projectable content. */
+    static class SummaryPage extends PageResponse<ProjectTestView> {
+        private final TestSummary summary;
+
+        SummaryPage(java.util.Collection<ProjectTestView> content, int pageNumber, int pageSize, Long total,
+                    TestSummary summary) {
+            super(content, pageNumber, pageSize, total);
+            this.summary = summary;
+        }
+
+        public TestSummary getSummary() {
+            return summary;
+        }
+    }
+
+    @NoFieldProjection
+    record TestSummary(long alpha, long beta) {
     }
 
     @GetMapping(value = "/text", produces = MediaType.TEXT_PLAIN_VALUE)

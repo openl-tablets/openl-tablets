@@ -2,6 +2,8 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,6 +21,7 @@ import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,6 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +57,7 @@ import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
@@ -61,8 +66,10 @@ import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgres
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
+import org.openl.studio.projects.model.ProjectsPageResponse;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
@@ -140,37 +147,61 @@ public class ProjectsController {
             @Parameter(name = "repository", description = "Repository ID", in = ParameterIn.QUERY),
             @Parameter(name = "dependsOn", description = "Identifier of the project that the returned projects depend on.", in = ParameterIn.QUERY),
             @Parameter(name = "name", description = "Project name to filter by (partial match, case-insensitive)", in = ParameterIn.QUERY),
+            @Parameter(name = "sort", description = "Field to sort the returned page by.", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {"name", "status", "updated"})),
+            @Parameter(
+                    name = "include",
+                    description = "Optional response expansions and listing behavior.",
+                    in = ParameterIn.QUERY,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE,
+                    array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class))),
             @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
-    public PageResponse<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
-                                                      @RequestParam(value = "status", required = false) ProjectStatus status,
-                                                      @RequestParam(value = "repository", required = false) String repository,
+    public ProjectsPageResponse getProjects(@Parameter(hidden = true) @RequestParam MultiValueMap<String, String> params,
+                                                      @RequestParam(value = "status", required = false) List<ProjectStatus> statuses,
+                                                      @RequestParam(value = "repository", required = false) List<String> repositories,
                                                       @RequestParam(value = "dependsOn", required = false) String dependsOn,
                                                       @RequestParam(value = "name", required = false) String name,
+                                                      @RequestParam(value = "sort", required = false) @Nullable String sort,
+                                                      @RequestParam(value = "include", required = false) List<ProjectInclude> includes,
                                                       @PaginationDefault Pageable page) {
         var queryBuilder = ProjectCriteriaQuery.builder()
-                .repositoryId(repository)
-                .status(status)
-                .name(name);
+                .repositoryIds(repositories)
+                .statuses(statuses)
+                .name(name)
+                .sort(sort)
+                .includes(ProjectInclude.normalize(includes));
 
         if (StringUtils.isNotEmpty(dependsOn)) {
             queryBuilder.dependsOn(ProjectIdModel.decode(dependsOn));
         }
 
+        var tagValues = new LinkedHashMap<String, Set<String>>();
         params.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(TAGS_PREFIX))
-                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
                 .forEach(entry -> {
                     var tag = entry.getKey().substring(TAGS_PREFIX.length());
-                    queryBuilder.tag(tag, entry.getValue());
+                    var values = new LinkedHashSet<String>();
+                    entry.getValue().stream()
+                            .filter(StringUtils::isNotBlank)
+                            .forEach(values::add);
+                    if (!values.isEmpty()) {
+                        tagValues.put(tag, values);
+                    }
                 });
+        queryBuilder.tagValues(tagValues);
         return projectService.getProjects(queryBuilder.build(), page);
     }
 
     @GetMapping("/{projectId}")
     @Operation(summary = "Get project (BETA)")
-    public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project) {
-        return projectService.getProject(project);
+    public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project,
+                                       @Parameter(description = "Optional response expansions.",
+                                               style = ParameterStyle.FORM,
+                                               explode = Explode.TRUE,
+                                               array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class)))
+                                       @RequestParam(value = "include", required = false) List<ProjectInclude> includes) {
+        return projectService.getProject(project, includes);
     }
 
     @DeleteMapping("/{projectId}")
@@ -194,6 +225,7 @@ public class ProjectsController {
             projectService.updateProjectStatus(project, normalized);
             if (normalized.status() != null
                     || normalized.branch() != null
+                    || Boolean.TRUE.equals(normalized.save())
                     || normalized.comment() != null
                     || normalized.revision() != null) {
                 getWebStudio().reset();
@@ -203,8 +235,38 @@ public class ProjectsController {
         }
     }
 
+    @FunctionalInterface
+    private interface ProjectAction {
+        void run() throws ProjectException;
+    }
+
+    /** Run a project mutation, reset the studio on success, and raise a {@link ConflictException} on failure. */
+    private void withReset(String failureKey, ProjectAction action) {
+        try {
+            action.run();
+            getWebStudio().reset();
+        } catch (ProjectException e) {
+            throw new ConflictException(failureKey);
+        }
+    }
+
+    @DeleteMapping("/{projectId}/lock")
+    @Operation(summary = "Force-unlock a project (BETA)")
+    public void unlockProject(@ProjectId @PathVariable("projectId") RulesProject project) {
+        projectService.unlockProject(project);
+        getWebStudio().reset();
+    }
+
+    @PutMapping("/{projectId}/tags")
+    @Operation(summary = "Update project tags (BETA)")
+    public void updateTags(@ProjectId @PathVariable("projectId") RulesProject project,
+                           @RequestBody Map<String, String> tags) {
+        withReset("project.tags.update.failed.message", () -> projectService.updateTags(project, tags));
+    }
+
     @GetMapping("/{projectId}/status")
     @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
+    @Deprecated(forRemoval = false)
     public ProjectStatusViewModel getStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                             @Parameter(description = "projects.status.param.branch.desc")
                                             @RequestParam(value = "branch", required = false) String branch) {
@@ -249,6 +311,9 @@ public class ProjectsController {
         // Branch names may contain '/' (e.g. "project/user/date"), so the branch is captured as a trailing path
         // segment via {*branch}, which Spring exposes with a leading slash that must be removed.
         var branchName = branch.startsWith("/") ? branch.substring(1) : branch;
+        if (StringUtils.isBlank(branchName)) {
+            throw new BadRequestException("project.branch.name.empty.message");
+        }
         projectService.deleteBranch(project, branchName, force);
         getWebStudio().reset();
     }
@@ -558,7 +623,10 @@ public class ProjectsController {
                 .branch(StringUtils.trimToNull(raw.branch()))
                 .revision(StringUtils.trimToNull(raw.revision()))
                 .comment(StringUtils.trimToNull(raw.comment()))
+                .save(raw.save())
+                .discardChanges(raw.discardChanges())
                 .selectedBranches(raw.selectedBranches())
+                .openDependencies(raw.openDependencies())
                 .build();
     }
 

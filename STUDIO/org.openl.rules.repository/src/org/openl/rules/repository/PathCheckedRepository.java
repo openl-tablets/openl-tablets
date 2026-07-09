@@ -4,9 +4,12 @@ import static org.openl.rules.repository.api.Repository.validatePath;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -198,6 +201,16 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     public List<String> getBranches(String projectPath) throws IOException {
         validatePath(projectPath);
         return ((BranchRepository) delegate).getBranches(projectPath);
+    }
+
+    @Override
+    public BranchStatus getBranchStatus(String branch, String comparedTo) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatus(branch, comparedTo);
+    }
+
+    @Override
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches, String comparedTo) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatuses(branches, comparedTo);
     }
 
     @Override

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,7 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.ConflictPolicy;
@@ -74,6 +77,13 @@ public class ProjectFilesController extends AbstractFilesController {
     @Override
     protected void postWrite() {
         getWebStudio().reset();
+    }
+
+    @Override
+    protected void postCreateFolder() {
+        // Creating a folder already updates the working project tree and persists the empty
+        // directory through the repository. Legacy JSF keeps this tree as-is after addFolder(), so
+        // avoid an extra WebStudio.reset() that is only needed for file content writes.
     }
 
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -151,8 +161,26 @@ public class ProjectFilesController extends AbstractFilesController {
             HttpServletResponse response
     ) throws ProjectException, IOException {
         BranchGuard.requireBranch(project, branch);
+        var rootArchiveName = isRootDownload(path, download) ? getProjectArchiveName(project) : null;
         return handleGetFile(fileRootFactory.of(project), path, view, download, extensions, namePattern,
-                foldersOnly, recursive, viewMode, version, response);
+                foldersOnly, recursive, viewMode, version, response, rootArchiveName);
+    }
+
+    private static boolean isRootDownload(String path, String download) {
+        return download != null && (path == null || path.isEmpty() || "/".equals(path));
+    }
+
+    static String getProjectArchiveName(RulesProject project) throws ProjectException {
+        project.refresh();
+        return getProjectArchiveName(project.getBusinessName(), project.getFileData());
+    }
+
+    static String getProjectArchiveName(String businessName, @Nullable FileData fileData) {
+        var projectVersion = RepositoryUtils.buildProjectVersion(fileData);
+        if (projectVersion == null || projectVersion.isBlank()) {
+            return businessName + ".zip";
+        }
+        return "%s-%s.zip".formatted(businessName, projectVersion);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

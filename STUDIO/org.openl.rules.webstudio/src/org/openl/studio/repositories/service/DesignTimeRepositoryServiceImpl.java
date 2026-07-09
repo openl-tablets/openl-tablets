@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.model.AclRepositoryId;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -23,11 +25,17 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
 
     private final DesignTimeRepository designTimeRepository;
     private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAccessService repositoryAccessService;
+    private final PropertyResolver propertyResolver;
 
     public DesignTimeRepositoryServiceImpl(DesignTimeRepository designTimeRepository,
-                                           RepositoryAclService designRepositoryAclService) {
+                                           RepositoryAclService designRepositoryAclService,
+                                           RepositoryAccessService repositoryAccessService,
+                                           PropertyResolver propertyResolver) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAccessService = repositoryAccessService;
+        this.propertyResolver = propertyResolver;
     }
 
     @Override
@@ -36,12 +44,15 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
                 .stream()
                 .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(BasePermission.READ)))
                 .map(repo -> RepositoryViewModel.builder()
-                        .id(repo.getId())
-                        .name(repo.getName())
                         .aclId(AclRepositoryId.builder()
                                 .id(repo.getId())
                                 .type(AclRepositoryType.DESIGN)
                                 .build())
+                        .id(repo.getId())
+                        .name(repo.getName())
+                        .type(new RepositoryConfiguration(repo.getId(), propertyResolver).getType())
+                        .capabilities(repositoryAccessService.computeCapabilities(repo, AclRepositoryType.DESIGN))
+                        .features(new RepositoryFeatures(repo.supports()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -81,7 +92,6 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
 
     @Override
     public RepositoryFeatures getFeatures(Repository repository) {
-        var supports = repository.supports();
-        return new RepositoryFeatures(supports.branches(), supports.searchable());
+        return new RepositoryFeatures(repository.supports());
     }
 }

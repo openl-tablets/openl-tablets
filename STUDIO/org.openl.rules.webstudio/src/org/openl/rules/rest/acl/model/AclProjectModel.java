@@ -24,6 +24,10 @@ public class AclProjectModel {
     @Parameter(description = "SID")
     private final AclSubject sid;
 
+    @JsonView(AclView.Sid.class)
+    @Parameter(description = "ACL rule source. REPOSITORY entries are inherited from repository ACL and are read-only on the project.")
+    private final AclProjectSource source;
+
     @NotNull
     @JsonView({AclView.Project.class, AclView.Sid.class})
     @Parameter(description = "Role")
@@ -34,6 +38,7 @@ public class AclProjectModel {
         this.name = builder.name;
         this.role = builder.role;
         this.sid = builder.sid;
+        this.source = builder.source;
     }
 
     public ProjectIdModel getId() {
@@ -48,6 +53,10 @@ public class AclProjectModel {
         return sid;
     }
 
+    public AclProjectSource getSource() {
+        return source;
+    }
+
     public AclRole getRole() {
         return role;
     }
@@ -60,6 +69,7 @@ public class AclProjectModel {
         private ProjectIdModel id;
         private String name;
         private AclSubject sid;
+        private AclProjectSource source;
         private AclRole role;
 
         private Builder() {
@@ -80,6 +90,11 @@ public class AclProjectModel {
             return this;
         }
 
+        public Builder source(AclProjectSource source) {
+            this.source = source;
+            return this;
+        }
+
         public Builder role(AclRole role) {
             this.role = role;
             return this;
@@ -88,6 +103,11 @@ public class AclProjectModel {
         public AclProjectModel build() {
             return new AclProjectModel(this);
         }
+    }
+
+    public enum AclProjectSource {
+        PROJECT,
+        REPOSITORY
     }
 
 }

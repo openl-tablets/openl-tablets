@@ -18,6 +18,7 @@ import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.env.Environment;
 
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -32,6 +33,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -96,7 +98,10 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
                 mock(MultiUserWorkspaceManager.class),
-                mock(AclProjectsHelper.class)) {
+                mock(AclProjectsHelper.class),
+                mock(ProjectAccessService.class),
+                mock(ProjectStatusMapper.class),
+                mock(Environment.class)) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return userWorkspace;

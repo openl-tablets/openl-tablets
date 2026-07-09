@@ -53,6 +53,8 @@ public interface UserDao extends Dao<User> {
      */
     long countUsersInGroup(String groupName);
 
+    List<String> findUserNames(String searchTerm, int limit);
+
     Set<String> getUserNames();
 
     Set<Group> getGroupsForUser(String loginName);

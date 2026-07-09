@@ -327,9 +327,30 @@ public class UserWorkspaceImpl implements UserWorkspace {
         rulesProjectKeysByName.clear();
     }
 
+    private static void putClosedProjectBranch(Map<ProjectKey, String> branches,
+                                               ProjectKey projectKey,
+                                               RulesProject project) {
+        var branch = project.getBranch();
+        branches.put(projectKey, branch);
+        branches.put(projectKey(projectKey.repositoryId(), project.getBusinessName()), branch);
+
+        var designFolderName = project.getDesignFolderName();
+        if (designFolderName != null) {
+            branches.put(projectKey(projectKey.repositoryId(), fileName(designFolderName)), branch);
+        }
+    }
+
+    private static ProjectKey projectKey(String repositoryId, String projectName) {
+        return new ProjectKey(repositoryId, projectName.toLowerCase(Locale.ROOT));
+    }
+
+    private static String fileName(String path) {
+        return path.substring(path.lastIndexOf('/') + 1);
+    }
+
     private void putRulesProject(RulesProject project) {
         var repoId = project.getRepository().getId();
-        var key = new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT));
+        var key = projectKey(repoId, project.getName());
         userRulesProjects.put(key, project);
         var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
         rulesProjectKeysByName.computeIfAbsent(businessNameKey, k -> new ArrayList<>()).add(key);
@@ -360,7 +381,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         RulesProject project = entry.getValue();
                         // Deleted projects should be switched to default branch
                         if (!project.isOpened() && !project.isDeleted()) {
-                            closedProjectBranches.put(projectKey, project.getBranch());
+                            putClosedProjectBranch(closedProjectBranches, projectKey, project);
                         }
                     }
                 }
@@ -394,7 +415,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         local.getName());
                             }
                         } else {
-                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)));
+                            branch = closedProjectBranches.get(projectKey(repoId, name));
                         }
 
                         // If branch is null then keep default branch.

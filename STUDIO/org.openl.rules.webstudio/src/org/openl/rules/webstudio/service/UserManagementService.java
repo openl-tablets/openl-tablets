@@ -57,6 +57,11 @@ public class UserManagementService {
     }
 
     @Transactional(readOnly = true)
+    public List<String> findUserNames(String searchTerm, int limit) {
+        return userDao.findUserNames(searchTerm, limit);
+    }
+
+    @Transactional(readOnly = true)
     public org.openl.rules.security.User getUser(String username) {
         return Optional.ofNullable(userDao.getUserByName(username)).map(this::createSecurityUser).orElse(null);
     }

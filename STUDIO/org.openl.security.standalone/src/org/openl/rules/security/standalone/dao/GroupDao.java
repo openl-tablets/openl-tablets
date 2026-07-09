@@ -24,6 +24,8 @@ public interface GroupDao extends Dao<Group> {
 
     List<Group> getAllGroups();
 
+    List<String> findGroupNames(String searchTerm, int limit);
+
     long countUsersInGroup(String groupName);
 
     Set<String> getGroupNames();

@@ -212,6 +212,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         String[] segments = path.split("/");
         try {
             AProjectFolder current = root.writeFolder();
+            var created = false;
             for (int i = 0; i < segments.length; i++) {
                 String segment = segments[i];
                 if (current.hasArtefact(segment)) {
@@ -226,9 +227,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                     }
                     requirePermission(current, BasePermission.CREATE);
                     current = current.addFolder(segment);
+                    created = true;
                 }
             }
-        } catch (ProjectException e) {
+            if (created) {
+                persistFolder(current);
+            }
+        } catch (IOException | ProjectException e) {
             throw new ConflictException("file.create.failed.message");
         } finally {
             unlockIfClosed(root);
@@ -236,10 +241,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void writeFolderAsZip(@NotNull FileRoot root, @NotBlank String path, @NotNull OutputStream out,
+    public void writeFolderAsZip(@NotNull FileRoot root, String path, @NotNull OutputStream out,
                                  String version) throws IOException {
         root.requireReadable();
-        AProjectArtefact artefact = findExistingArtefact(root.readFolder(version), path);
+        AProjectFolder folder = root.readFolder(version);
+        // A blank path zips the whole project (the root folder), e.g. project export.
+        AProjectArtefact artefact = StringUtils.isBlank(path) ? folder : findExistingArtefact(folder, path);
         if (!artefact.isFolder()) {
             throw new BadRequestException("file.base-path.not-folder.message", new Object[]{path});
         }
@@ -286,6 +293,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             validateResourcePath(path);
             requirePermission(root.writeFolder(), BasePermission.CREATE);
         }
+    }
+
+    private static void persistFolder(AProjectFolder folder) throws IOException {
+        var data = new FileData();
+        data.setName(folder.getFolderPath());
+        folder.setFileData(folder.getRepository().save(data, List.of(), ChangesetType.DIFF));
     }
 
     /**

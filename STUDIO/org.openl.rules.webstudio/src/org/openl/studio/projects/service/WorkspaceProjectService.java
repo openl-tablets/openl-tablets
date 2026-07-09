@@ -2,12 +2,14 @@ package org.openl.studio.projects.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,7 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
 import org.openl.message.OpenLMessage;
@@ -33,6 +37,7 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
@@ -41,11 +46,14 @@ import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.IOpenLTable;
@@ -64,14 +72,19 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ExposedMethodsViewModel;
+import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
+import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
@@ -83,6 +96,7 @@ import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
+import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -94,6 +108,8 @@ import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 
@@ -108,6 +124,8 @@ import org.openl.util.StringUtils;
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+    private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -125,6 +143,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final LocalWorkspaceManager localWorkspaceManager;
     private final MultiUserWorkspaceManager workspaceManager;
     private final AclProjectsHelper aclProjectsHelper;
+    private final ProjectStatusMapper projectStatusMapper;
+    private final Environment environment;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -144,8 +164,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             DetailedMessageDescriptionMapper detailedMessageDescriptionMapper,
             LocalWorkspaceManager localWorkspaceManager,
             MultiUserWorkspaceManager workspaceManager,
-            AclProjectsHelper aclProjectsHelper) {
-        super(designRepositoryAclService, projectIdentifierMapper);
+            AclProjectsHelper aclProjectsHelper,
+            ProjectAccessService projectAccessService,
+            ProjectStatusMapper projectStatusMapper,
+            Environment environment) {
+        super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
@@ -162,6 +185,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.localWorkspaceManager = localWorkspaceManager;
         this.workspaceManager = workspaceManager;
         this.aclProjectsHelper = aclProjectsHelper;
+        this.projectStatusMapper = projectStatusMapper;
+        this.environment = environment;
     }
 
     @Lookup
@@ -180,12 +205,285 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public ProjectViewModel getProject(RulesProject project) {
-        return mapProjectResponse(project).build();
+        return getProject(project, List.of());
+    }
+
+    public ProjectViewModel getProject(RulesProject project, Collection<ProjectInclude> includes) {
+        var normalizedIncludes = ProjectInclude.normalize(includes);
+        var builder = mapWorkspaceProjectResponse(project, Map.of(), normalizedIncludes.contains(ProjectInclude.MODULES));
+        try {
+            projectDependencyResolver.getDependsOnProject(project).stream()
+                    .sorted(PROJECT_BUSINESS_NAME_ORDER)
+                    .map(this::mapProjectDependency)
+                    .map(ProjectDependencyViewModel.Builder::build)
+                    .forEach(builder::addUsedBy);
+        } catch (Exception e) {
+            // used-by is best-effort: resolving it reads every other project's rules.xml, any of which may
+            // be malformed and throw unchecked. A broken neighbour must not fail this project's detail view.
+            log.warn("Failed to resolve dependent projects for '{}'", project.getName(), e);
+        }
+        if (normalizedIncludes.contains(ProjectInclude.STATUS)) {
+            builder.compileStatus(projectStatusMapper.map(project));
+        }
+        return builder.build();
+    }
+
+    private Optional<ProjectDescriptor> resolveProjectDescriptor(RulesProject project) {
+        var localDescriptor = resolveLocalProjectDescriptor(project);
+        var repositoryDescriptor = resolveRepositoryProjectDescriptor(project);
+
+        if (localDescriptor.isEmpty()) {
+            return repositoryDescriptor;
+        }
+        if (repositoryDescriptor.isPresent()) {
+            fillMissingDescriptorData(localDescriptor.get(), repositoryDescriptor.get());
+        }
+        return localDescriptor;
+    }
+
+    /**
+     * Resolves the project descriptor from the local workspace without opening the project.
+     *
+     * <p>The resolver matches the legacy Editor behavior: a project may have modules even when they are
+     * generated from Excel files instead of being declared directly in {@code rules.xml}.
+     */
+    private Optional<ProjectDescriptor> resolveLocalProjectDescriptor(RulesProject project) {
+        try {
+            var localWorkspace = getUserWorkspace().getLocalWorkspace();
+            var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+            var folder = repoRoot.resolve(project.getFolderPath());
+            var descriptor = ProjectResolver.getInstance().resolve(folder);
+            if (descriptor != null) {
+                descriptor.getModules().sort(MODULES_COMPARATOR);
+            }
+            return Optional.ofNullable(descriptor);
+        } catch (Exception e) {
+            log.debug("Failed to resolve local project descriptor for '{}'", project.getName(), e);
+            return Optional.empty();
+        }
+    }
+
+    private Optional<ProjectDescriptor> resolveRepositoryProjectDescriptor(RulesProject project) {
+        try {
+            var repositoryDescriptor = readRepositoryProjectDescriptor(project);
+            var descriptor = repositoryDescriptor.orElseGet(() -> createSimpleRepositoryDescriptor(project));
+            var files = listRepositoryProjectFiles(project);
+            descriptor.setModules(expandRepositoryModules(descriptor,
+                    project.getFolderPath(),
+                    files,
+                    repositoryDescriptor.isPresent()));
+            descriptor.getModules().sort(MODULES_COMPARATOR);
+            return Optional.ofNullable(descriptor);
+        } catch (IOException e) {
+            log.warn("Failed to resolve repository project descriptor for '{}'", project.getName(), e);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ProjectDescriptor> readRepositoryProjectDescriptor(RulesProject project) throws IOException {
+        var descriptorPath = projectRepositoryPath(project.getFolderPath(), ProjectDescriptor.FILE_NAME);
+        var repository = project.getRepository();
+        var fileData = project.isHistoric()
+                ? repository.checkHistory(descriptorPath, project.getHistoryVersion())
+                : repository.check(descriptorPath);
+        if (fileData == null) {
+            return Optional.empty();
+        }
+        var item = project.isHistoric()
+                ? repository.readHistory(descriptorPath, project.getHistoryVersion())
+                : repository.read(descriptorPath);
+        if (item == null) {
+            return Optional.empty();
+        }
+        try (var content = item.getStream()) {
+            var descriptor = ProjectDescriptor.read(content);
+            if (descriptor != null && StringUtils.isBlank(descriptor.getName())) {
+                descriptor.setName(project.getBusinessName());
+            }
+            return Optional.ofNullable(descriptor);
+        }
+    }
+
+    private static ProjectDescriptor createSimpleRepositoryDescriptor(RulesProject project) {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName(project.getBusinessName());
+        return descriptor;
+    }
+
+    private static List<FileData> listRepositoryProjectFiles(RulesProject project) throws IOException {
+        var path = projectRepositoryPath(project.getFolderPath(), "");
+        var repository = project.getRepository();
+        return project.isHistoric()
+                ? repository.listFiles(path, project.getHistoryVersion())
+                : repository.list(path);
+    }
+
+    private static List<Module> expandRepositoryModules(ProjectDescriptor descriptor,
+                                                        String projectPath,
+                                                        List<FileData> files,
+                                                        boolean hasProjectDescriptor) {
+        var readModules = descriptor.getModules();
+        if (hasProjectDescriptor && readModules.isEmpty()) {
+            readModules = defaultRepositoryModules();
+        }
+
+        var modules = new ArrayList<Module>(readModules.size());
+        for (var module : readModules) {
+            if (!module.isModuleWithWildcard()) {
+                normalizeRepositoryModule(descriptor, module);
+                modules.add(module);
+            }
+        }
+
+        for (var module : readModules) {
+            if (module.isModuleWithWildcard()) {
+                for (var file : files) {
+                    var relativePath = relativeProjectFilePath(projectPath, file);
+                    if (isNotTemporaryFile(relativePath)
+                            && FileUtils.pathMatches(module.getRulesRootPath(), relativePath)
+                            && modules.stream()
+                                    .noneMatch(existing -> Objects.equals(existing.getRulesRootPath(), relativePath))) {
+                        modules.add(createRepositoryModule(descriptor, module, relativePath));
+                    }
+                }
+            }
+        }
+
+        if (!hasProjectDescriptor) {
+            addSimpleRepositoryModules(descriptor, projectPath, files, modules);
+        }
+        return modules;
+    }
+
+    private static List<Module> defaultRepositoryModules() {
+        var rules = new Module();
+        rules.setRulesRootPath("rules/**/*.xlsx");
+        var tests = new Module();
+        tests.setRulesRootPath("tests/**/*.xlsx");
+        return List.of(rules, tests);
+    }
+
+    private static void normalizeRepositoryModule(ProjectDescriptor descriptor, Module module) {
+        module.setProject(descriptor);
+        if (StringUtils.isBlank(module.getName()) && StringUtils.isNotBlank(module.getRulesRootPath())) {
+            module.setName(FileUtils.getBaseName(module.getRulesRootPath()));
+        }
+    }
+
+    private static Module createRepositoryModule(ProjectDescriptor descriptor, Module source, String relativePath) {
+        var module = new Module();
+        module.setProject(descriptor);
+        module.setRulesRootPath(relativePath);
+        module.setName(FileUtils.getBaseName(relativePath));
+        module.setMethodFilter(source.getMethodFilter());
+        module.setWildcardName(source.getName());
+        module.setWildcardRulesRootPath(source.getRulesRootPath());
+        if (source.getWebstudioConfiguration() != null) {
+            var webstudioConfiguration = new WebstudioConfiguration();
+            webstudioConfiguration
+                    .setCompileThisModuleOnly(source.getWebstudioConfiguration().isCompileThisModuleOnly());
+            module.setWebstudioConfiguration(webstudioConfiguration);
+        }
+        return module;
+    }
+
+    private static void addSimpleRepositoryModules(ProjectDescriptor descriptor,
+                                                   String projectPath,
+                                                   List<FileData> files,
+                                                   List<Module> modules) {
+        for (var file : files) {
+            var relativePath = relativeProjectFilePath(projectPath, file);
+            if (isDirectProjectExcelFile(relativePath)) {
+                var module = new Module();
+                module.setProject(descriptor);
+                module.setRulesRootPath(relativePath);
+                module.setName(FileUtils.getBaseName(relativePath));
+                modules.add(module);
+            }
+        }
+    }
+
+    private static boolean isDirectProjectExcelFile(String relativePath) {
+        return !relativePath.contains("/")
+                && isNotTemporaryFile(relativePath)
+                && FileTypeHelper.isExcelFile(relativePath);
+    }
+
+    private static boolean isNotTemporaryFile(String path) {
+        return !FileUtils.getName(path).startsWith("~$");
+    }
+
+    private static String relativeProjectFilePath(String projectPath, FileData file) {
+        var prefix = projectRepositoryPath(projectPath, "");
+        var filePath = file.getName().replace('\\', '/');
+        return filePath.startsWith(prefix) ? filePath.substring(prefix.length()) : filePath;
+    }
+
+    private static String projectRepositoryPath(@Nullable String projectPath, String relativePath) {
+        var normalizedProjectPath = projectPath == null ? "" : projectPath.replace('\\', '/');
+        if (relativePath.isBlank()) {
+            return normalizedProjectPath.isEmpty() || normalizedProjectPath.endsWith("/")
+                    ? normalizedProjectPath
+                    : normalizedProjectPath + "/";
+        }
+        if (normalizedProjectPath.isEmpty()) {
+            return relativePath;
+        }
+        return normalizedProjectPath.endsWith("/")
+                ? normalizedProjectPath + relativePath
+                : normalizedProjectPath + "/" + relativePath;
+    }
+
+    private void fillMissingDescriptorData(ProjectDescriptor target, ProjectDescriptor fallback) {
+        if (target.getComment() == null) {
+            target.setComment(fallback.getComment());
+        }
+        if (target.getModules().isEmpty()) {
+            target.getModules().addAll(fallback.getModules());
+        }
+        if (target.getPropertiesFileNamePatterns() == null || target.getPropertiesFileNamePatterns().length == 0) {
+            target.setPropertiesFileNamePatterns(fallback.getPropertiesFileNamePatterns());
+        }
+        if (target.getExposedMethods() == null) {
+            target.setExposedMethods(fallback.getExposedMethods());
+        }
+    }
+
+    private void applyDescriptor(ProjectViewModel.Builder builder, ProjectDescriptor descriptor) {
+        builder.description(descriptor.getComment());
+        for (Module module : descriptor.getModules()) {
+            builder.addModule(new ModuleViewModel(module.getName(), module.getRulesRootPath()));
+        }
+        var patterns = descriptor.getPropertiesFileNamePatterns();
+        if (patterns != null && patterns.length > 0) {
+            builder.versionPatterns(List.of(patterns));
+        }
+        var exposed = descriptor.getExposedMethods();
+        if (exposed != null) {
+            var includes = exposed.getIncludes();
+            var excludes = exposed.getExcludes();
+            var hasIncludes = includes != null && !includes.isEmpty();
+            var hasExcludes = excludes != null && !excludes.isEmpty();
+            if (hasIncludes || hasExcludes) {
+                builder.exposedMethods(new ExposedMethodsViewModel(
+                        hasIncludes ? List.copyOf(includes) : List.of(),
+                        hasExcludes ? List.copyOf(excludes) : List.of()));
+            }
+        }
     }
 
     @Override
-    protected ProjectViewModel.Builder mapProjectResponse(RulesProject src) {
-        var builder = super.mapProjectResponse(src);
+    protected ProjectViewModel.Builder mapProjectResponse(RulesProject src,
+                                                          ProjectCriteriaQuery query,
+                                                          Map<AProject, ProjectStatus> statuses) {
+        return mapWorkspaceProjectResponse(src, statuses, query.includeModules());
+    }
+
+    private ProjectViewModel.Builder mapWorkspaceProjectResponse(RulesProject src,
+                                                                 Map<AProject, ProjectStatus> statuses,
+                                                                 boolean includeModules) {
+        var builder = super.mapProjectResponse(src, statuses);
+        builder.branchProtected(src.isBranchProtected());
         if (src.isSupportsBranches()) {
             try {
                 var selectedBranches = src.getSelectedBranches();
@@ -200,6 +498,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .map(this::mapProjectDependency)
                 .map(ProjectDependencyViewModel.Builder::build)
                 .forEach(builder::addDependency);
+        if (includeModules) {
+            resolveProjectDescriptor(src).ifPresent(descriptor -> applyDescriptor(builder, descriptor));
+        }
         return builder;
     }
 
@@ -216,9 +517,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     protected Stream<RulesProject> getProjects0(ProjectCriteriaQuery query) {
         var workspace = getUserWorkspace();
         Collection<RulesProject> projects;
-        if (query.repositoryId() != null) {
-            var repositoryId = query.repositoryId();
-            projects = workspace.getProjects(repositoryId);
+        if (query.hasRepositoryFilter() && !query.localRepositorySelected()) {
+            return query.designRepositoryIds().stream()
+                    .map(workspace::getProjects)
+                    .flatMap(Collection::stream);
         } else {
             projects = workspace.getProjects();
         }
@@ -226,17 +528,40 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     @Override
+    protected Optional<ProjectStatus> statusOf(AProject project) {
+        return project instanceof UserWorkspaceProject workspaceProject
+                ? Optional.ofNullable(workspaceProject.getStatus())
+                : Optional.empty();
+    }
+
+    @Override
+    protected List<ProjectStatusViewModel> projectStatuses(List<? extends AProject> pageProjects) {
+        return pageProjects.stream()
+                .map(RulesProject.class::cast)
+                .map(projectStatusMapper::map)
+                .toList();
+    }
+
+    @Override
+    @Nonnull
+    protected Predicate<AProject> buildStatusFilterCriteria(ProjectCriteriaQuery query,
+                                                            Map<AProject, ProjectStatus> statuses) {
+        if (query.hasStatusFilter()) {
+            // Reuse the status already resolved into the map rather than calling uncached getStatus() again.
+            return project -> query.statuses().contains(statuses.get(project));
+        }
+        return super.buildStatusFilterCriteria(query, statuses);
+    }
+
+    @Override
     @Nonnull
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = super.buildFilterCriteria(query);
 
-        if (query.status() != null) {
-            filter = filter.and(project -> {
-                var workspaceProject = (UserWorkspaceProject) project;
-                return workspaceProject.getStatus() == query.status() && !workspaceProject.isDeleted();
-            });
-        } else {
-            filter = filter.and(project -> !project.isDeleted());
+        if (query.hasRepositoryFilter()) {
+            var repositoryIds = Set.copyOf(query.designRepositoryIds());
+            filter = filter.and(project -> repositoryIds.contains(project.getRepository().getId())
+                    || query.localRepositorySelected() && statusOf(project).orElse(null) == ProjectStatus.LOCAL);
         }
 
         if (query.dependsOn() != null) {
@@ -257,24 +582,58 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (model.status() != null && !ALLOWED_STATUSES.contains(model.status())) {
             throw new BadRequestException("invalid.project.status.message");
         }
-        if (project.isModified() && model.comment() != null) {
+        if (project.isModified() && shouldSave(model)) {
             save(project, model);
         }
         if (model.status() == ProjectStatus.VIEWING) {
             if (!project.isOpened() || StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision())) {
-                open(project, false, model);
+                open(project, Boolean.TRUE.equals(model.openDependencies()), model);
             }
         } else {
-            if (model.status() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED) {
-                close(project);
+            var closeRequested = model.status() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED;
+            if (closeRequested && StringUtils.isNotBlank(model.branch())) {
+                switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
             }
-            if (StringUtils.isNotBlank(model.branch())) {
-                switchToBranch(project, model.branch());
+            if (closeRequested) {
+                close(project, Boolean.TRUE.equals(model.discardChanges()));
+            }
+            if (!closeRequested && StringUtils.isNotBlank(model.branch())) {
+                switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
             }
         }
         if (CollectionUtils.isNotEmpty(model.selectedBranches())) {
             project.setSelectedBranches(model.selectedBranches());
         }
+    }
+
+    private static boolean shouldSave(ProjectStatusUpdateModel model) {
+        return Boolean.TRUE.equals(model.save()) || model.comment() != null;
+    }
+
+    /**
+     * Forcibly release the lock held on a project.
+     *
+     * @param project locked project to unlock
+     */
+    public void unlockProject(RulesProject project) {
+        requireGranted(project, BasePermission.ADMINISTRATION);
+        project.forceUnlock();
+    }
+
+    /**
+     * Update the tags assigned to a project.
+     *
+     * @param project project to tag
+     * @param tags    tag type to value assignments
+     * @throws ProjectException if the tags cannot be saved
+     */
+    public void updateTags(RulesProject project, @Nullable Map<String, String> tags) throws ProjectException {
+        requireGranted(project, BasePermission.WRITE);
+        // Tags are editable only on an opened project (legacy getCanModifyTags = isOpened && WRITE).
+        if (!project.isOpened()) {
+            throw new ConflictException("project.not.opened.message");
+        }
+        project.saveTags(tags != null ? tags : Map.of());
     }
 
     /**
@@ -291,16 +650,41 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!projectStateValidator.canSave(project) || project.isLocalOnly()) {
             throw new ConflictException("project.save.conflict.message");
         }
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+        requireGranted(project, BasePermission.WRITE);
+        var comment = resolveSaveComment(project, StringUtils.trimToNull(model.comment()));
+        validateComment(project, comment);
+        project.getFileData().setComment(comment);
+        commit(project);
+    }
+
+    private String resolveSaveComment(RulesProject project, @Nullable String comment) {
+        if (comment != null) {
+            return comment;
+        }
+        var comments = new Comments(environment, project.getRepository().getId());
+        if (project.isOpenedOtherVersion()) {
+            var fileData = project.getFileData();
+            var authorName = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+            return comments.restoredFrom(fileData.getVersion(), authorName, fileData.getModifiedAt());
+        }
+        return comments.saveProject(project.getBusinessName());
+    }
+
+    private void requireGranted(AProjectArtefact project, Permission permission) {
+        if (!designRepositoryAclService.isGranted(project, List.of(permission))) {
             throw new ForbiddenException("default.message");
         }
-        var comment = StringUtils.trimToNull(model.comment());
+    }
+
+    private void validateComment(RulesProject project, @Nullable String comment) {
         try {
             CommentValidator.forRepo(project.getRepository().getId()).validate(comment);
         } catch (Exception e) {
             throw new BadRequestException("repo.invalid.comment.message", new Object[]{e.getMessage()});
         }
-        project.getFileData().setComment(comment);
+    }
+
+    private void commit(RulesProject project) throws ProjectException {
         try {
             getWebStudio().saveProject(project);
         } catch (ProjectException e) {
@@ -323,14 +707,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if failed to close project
      */
     public void close(RulesProject project) throws ProjectException {
+        close(project, false);
+    }
+
+    private void close(RulesProject project, boolean discardChanges) throws ProjectException {
         var webStudio = getWebStudio();
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.READ);
         if (project.isDeleted()) {
             throw new ConflictException("project.close.deleted.message", project.getBusinessName());
         } else if (!projectStateValidator.canClose(project)) {
             throw new ConflictException("project.close.conflict.message");
+        }
+        if (project.isModified() && !discardChanges) {
+            throw new ConflictException("project.close.modified.message");
         }
         try {
             ProjectHistoryService.deleteHistory(project.getBusinessName());
@@ -346,7 +735,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // because project could be changed or cleared before (See studio.reset() usages). Also that project can be
         // a dependency of other. That's why we must always clear moduleInfo when closing a project.
         webStudio.getModel().clearModuleInfo();
+        var branch = project.getBranch();
+        var supportsBranches = project.isSupportsBranches();
         project.close();
+        if (supportsBranches && branch != null && !Objects.equals(branch, project.getBranch())) {
+            project.setBranch(branch);
+        }
     }
 
     public void delete(RulesProject project, @Nullable String comment) {
@@ -452,13 +846,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private void open(RulesProject project,
                       boolean openDependencies,
                       ProjectStatusUpdateModel model) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.READ);
         var workspace = getUserWorkspace();
+        var wasOpened = project.isOpened();
+        var changeView = StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision());
         if (project.isDeleted()) {
             throw new ConflictException("project.open.deleted.message", project.getBusinessName());
-        } else if (!projectStateValidator.canOpen(project)) {
+        } else if (project.isLocalOnly() || (!wasOpened || !changeView) && !projectStateValidator.canOpen(project)) {
             throw new ConflictException("project.open.conflict.message");
         }
 
@@ -476,9 +870,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("open.duplicated.project");
         }
 
-        var wasOpened = project.isOpened();
         var webStudio = getWebStudio();
-        if (wasOpened && (StringUtils.isNotBlank(model.branch()) || StringUtils.isNotBlank(model.revision()))) {
+        if (wasOpened && changeView) {
+            requireDiscardForModifiedProject(project, Boolean.TRUE.equals(model.discardChanges()));
             // We must clear module info and release project lock
             // because project was already opened and we are going to open it in another branch or revision
             webStudio.getModel().clearModuleInfo();
@@ -486,7 +880,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         if (StringUtils.isNotBlank(model.branch())) {
-            switchToBranch(project, model.branch());
+            switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
         }
 
         if (StringUtils.isNotBlank(model.revision())) {
@@ -504,7 +898,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    private void switchToBranch(RulesProject project, String branchName) throws ProjectException {
+    private void switchToBranch(RulesProject project, String branchName, boolean discardChanges) throws ProjectException {
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
         }
@@ -518,6 +912,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         var wasOpened = project.isOpened();
         if (wasOpened) {
+            requireDiscardForModifiedProject(project, discardChanges);
             var webStudio = getWebStudio();
             // We must clear module info and release project lock
             // because project was already opened and we are going to open it in another branch or revision
@@ -551,6 +946,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                     project.open();
                 }
             }
+        }
+    }
+
+    private static void requireDiscardForModifiedProject(RulesProject project, boolean discardChanges) {
+        if (project.isModified() && !discardChanges) {
+            throw new ConflictException("project.close.modified.message");
         }
     }
 
@@ -588,27 +989,51 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
         }
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.READ);
         var repository = (BranchRepository) project.getDesignRepository();
         boolean bypassEligible = bypassService.isBypassEligible(project);
+        var baseBranch = repository.getBaseBranch();
         try {
+            var currentBranch = project.getBranch();
             // projectPath parameter is not required because we need all branches for repository, not only selected project branches
-            return repository.getBranches(null).stream()
-                    .map(branch -> {
-                        boolean isProtected = repository.isBranchProtected(branch);
-                        return ProjectBranchInfo.builder()
-                                .name(branch)
-                                .protectedFlag(isProtected)
-                                .bypassEligible(isProtected && bypassEligible)
-                                .build();
-                    })
+            var branches = repository.getBranches(null);
+            var statuses = repository.getBranchStatuses(branches, currentBranch);
+            return branches.stream()
+                    .map(branch -> toBranchInfo(repository, branch, baseBranch, currentBranch, bypassEligible, statuses))
                     .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
                     .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to retrieve branches", e);
         }
+    }
+
+    private ProjectBranchInfo toBranchInfo(BranchRepository repository, String branch, String baseBranch,
+                                           String currentBranch, boolean bypassEligible,
+                                           Map<String, BranchStatus> statuses) {
+        boolean isProtected = repository.isBranchProtected(branch);
+        var builder = ProjectBranchInfo.builder()
+                .name(branch)
+                .protectedFlag(isProtected)
+                .base(branch.equals(baseBranch))
+                .bypassEligible(isProtected && bypassEligible);
+        try {
+            // Ahead/behind is measured against the project's current branch; a per-branch failure only
+            // drops that branch's stats, never the whole list.
+            var status = statuses.get(branch);
+            if (status != null) {
+                builder.commitsAhead(status.commitsAhead())
+                        .commitsBehind(status.commitsBehind())
+                        .lastCommit(ProjectBranchInfo.LastCommit.builder()
+                                .author(status.lastCommitAuthor() == null ? null : status.lastCommitAuthor().getName())
+                                .modifiedAt(DateTimes.atSystemZone(status.lastCommitAt()))
+                                .message(status.lastCommitMessage())
+                                .revision(status.lastCommitRevision())
+                                .build());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to read status for branch '{}'", branch, e);
+        }
+        return builder.build();
     }
 
     /**
@@ -636,19 +1061,38 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (Objects.equals(repository.getBaseBranch(), branchName)) {
             throw new ConflictException("project.branch.delete.base.message");
         }
+        var repositoryId = repository.getId();
+        var projectName = project.getBusinessName();
         try {
             if (!repository.branchExists(branchName)) {
                 throw new NotFoundException("repository.branch.message");
             }
             requireNotLockedByAnotherUser(project, repository, branchName);
             bypassService.requireBypassOrThrow(repository, branchName, project, force);
-            releaseProjectOnBranch(project, branchName);
+            var restoreOpenedState = releaseProjectOnBranch(project, branchName);
             repository.deleteBranch(null, branchName);
+            var workspace = getUserWorkspace();
+            workspace.refresh();
+            if (restoreOpenedState) {
+                open(findWorkspaceProject(workspace, repositoryId, projectName), false);
+            }
         } catch (IOException | ProjectException e) {
             log.warn("Failed to delete branch '{}' from project '{}'", branchName, project.getBusinessName(), e);
             throw new ConflictException("project.branch.delete.failed.message");
         }
-        getUserWorkspace().refresh();
+    }
+
+    private RulesProject findWorkspaceProject(UserWorkspace workspace,
+                                              String repositoryId,
+                                              String projectName) throws ProjectException {
+        return workspace.getProjectsByName(projectName, false)
+                .stream()
+                .filter(project -> repositoryId.equals(project.getDesignRepository().getId()))
+                .findFirst()
+                .orElseThrow(() -> new ProjectException(
+                        "Cannot find project ''{0}'' or access to the project is not permitted.",
+                        null,
+                        projectName));
     }
 
     /**
@@ -682,15 +1126,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws IOException      if the project history cannot be cleared
      * @throws ProjectException if the project cannot be closed
      */
-    private void releaseProjectOnBranch(RulesProject project, String branchName) throws IOException, ProjectException {
+    private boolean releaseProjectOnBranch(RulesProject project, String branchName) throws IOException, ProjectException {
         if (!Objects.equals(project.getBranch(), branchName)) {
-            return;
+            return false;
         }
         ProjectHistoryService.deleteHistory(project.getBusinessName());
         getWebStudio().getModel().clearModuleInfo();
-        if (project.isOpened()) {
+        var wasOpened = project.isOpened();
+        if (wasOpened) {
             project.close();
         }
+        return wasOpened;
     }
 
     private boolean hasManageBranchPermissions(RulesProject project) {
@@ -733,10 +1179,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .limit(page.getPageSize())
                 .toList();
 
-        if (page.isUnpaged()) {
-            return new PageResponse<>(content, -1, content.size(), total);
-        }
-        return new PageResponse<>(content, page.getPageNumber(), page.getPageSize(), total);
+        return PageResponse.of(content, page, total);
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
@@ -951,9 +1394,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public String updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.WRITE);
         var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
@@ -972,9 +1413,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public String appendTableLines(RulesProject project,
                                    String tableId,
                                    AppendTableView tableView) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.WRITE);
         var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
@@ -996,9 +1435,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   RawTableSourceAction action) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.WRITE);
         var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
@@ -1016,9 +1453,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public void deleteTable(RulesProject project, String tableId) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.WRITE);
         var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
@@ -1026,9 +1461,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
-            throw new ForbiddenException("default.message");
-        }
+        requireGranted(project, BasePermission.WRITE);
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableCreatorService.createTable(createTableRequest, projectModel);

@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,6 +86,7 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.revwalk.filter.AuthorRevFilter;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 import org.eclipse.jgit.revwalk.filter.OrRevFilter;
@@ -113,6 +115,7 @@ import org.eclipse.jgit.util.io.NullOutputStream;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -340,8 +343,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 .setMessage(formatComment(CommitType.SAVE, data))
                 .setOnly(fileInRepository)
                 .setNoVerify(noVerify)
-                .setCommitter(data.getAuthor().getName(),
-                        Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
+                .setCommitter(committerName(data.getAuthor()), committerEmail(data.getAuthor()))
                 .call();
     }
 
@@ -378,8 +380,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     .setMessage(formatComment(CommitType.DELETE, data))
                     .setOnly(name)
                     .setNoVerify(noVerify)
-                    .setCommitter(data.getAuthor().getName(),
-                            Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
+                    .setCommitter(committerName(data.getAuthor()), committerEmail(data.getAuthor()))
                     .call();
             commitId = commit.getId().getName();
 
@@ -438,8 +439,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             RevCommit commit = git.commit()
                     .setMessage(formatComment(CommitType.SAVE, destData))
                     .setNoVerify(noVerify)
-                    .setCommitter(destData.getAuthor().getName(),
-                            Optional.ofNullable(destData.getAuthor().getEmail()).orElse(""))
+                    .setCommitter(committerName(destData.getAuthor()), committerEmail(destData.getAuthor()))
                     .call();
             commitId = commit.getId().getName();
 
@@ -927,6 +927,17 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         this.protectedBranchFilter = WildcardBranchNameFilter.create(patterns);
     }
 
+    private static String committerName(UserInfo author) {
+        if (author == null || StringUtils.isBlank(author.getName())) {
+            throw new IllegalArgumentException("Commit author name is blank.");
+        }
+        return author.getName();
+    }
+
+    private static String committerEmail(UserInfo author) {
+        return Optional.ofNullable(author.getEmail()).orElse("");
+    }
+
     @Override
     public boolean isBranchProtected(String branch) {
         return protectedBranchFilter.accept(branch);
@@ -1279,7 +1290,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             git.commit()
                     .setMessage(mergeMessage)
                     .setNoVerify(noVerify)
-                    .setCommitter(mergeAuthor.getName(), Optional.ofNullable(mergeAuthor.getEmail()).orElse(""))
+                    .setCommitter(committerName(mergeAuthor), committerEmail(mergeAuthor))
                     .call();
         }
     }
@@ -2311,8 +2322,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         CommitCommand commitCommand = git.commit()
                 .setNoVerify(noVerify)
                 .setMessage(formatComment(CommitType.SAVE, folderData))
-                .setCommitter(folderData.getAuthor().getName(),
-                        Optional.ofNullable(folderData.getAuthor().getEmail()).orElse(""));
+                .setCommitter(committerName(folderData.getAuthor()), committerEmail(folderData.getAuthor()));
 
         return commitChangedFiles(commitCommand);
     }
@@ -2403,7 +2413,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         CommitCommand conflictResolveCommit = git.commit()
                 .setNoVerify(noVerify)
                 .setMessage(mergeMessage)
-                .setCommitter(author.getName(), Optional.ofNullable(author.getEmail()).orElse(""));
+                .setCommitter(committerName(author), committerEmail(author));
 
         Status status = git.status().call();
 
@@ -2627,6 +2637,83 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             readLock.unlock();
             log.debug("getBranches(): unlock");
         }
+    }
+
+    @Override
+    public BranchStatus getBranchStatus(String branchName, String comparedTo) throws IOException {
+        BranchStatus status = getBranchStatuses(List.of(branchName), comparedTo).get(branchName);
+        if (status == null) {
+            throw new IOException("Branch not found: " + branchName);
+        }
+        return status;
+    }
+
+    @Override
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branchNames, String comparedTo) throws IOException {
+        if (branchNames.isEmpty()) {
+            return Map.of();
+        }
+        initializeGit(true);
+
+        Lock readLock = repositoryLock.readLock();
+        try {
+            readLock.lock();
+            Repository repository = git.getRepository();
+            ObjectId referenceId = repository.resolve(comparedTo);
+            var result = new HashMap<String, BranchStatus>();
+            try (RevWalk walk = new RevWalk(repository)) {
+                RevCommit referenceCommit = referenceId == null ? null : walk.parseCommit(referenceId);
+                for (String branchName : branchNames) {
+                    try {
+                        getBranchStatus(repository, walk, branchName, comparedTo, referenceCommit)
+                                .ifPresent(status -> result.put(branchName, status));
+                    } catch (IOException | RuntimeException e) {
+                        log.warn("Failed to read status for branch '{}'", branchName, e);
+                    }
+                }
+            }
+            return result;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private static Optional<BranchStatus> getBranchStatus(Repository repository,
+                                                          RevWalk walk,
+                                                          String branchName,
+                                                          String comparedTo,
+                                                          RevCommit referenceCommit) throws IOException {
+        ObjectId branchId = repository.resolve(branchName);
+        if (branchId == null) {
+            return Optional.empty();
+        }
+        walk.reset();
+        walk.setRevFilter(RevFilter.ALL);
+        RevCommit tip = walk.parseCommit(branchId);
+        walk.parseBody(tip);
+        var ident = tip.getAuthorIdent();
+        var author = new UserInfo(ident.getName(), ident.getEmailAddress(), ident.getName());
+        Instant lastAt = ident.getWhenAsInstant();
+        // Read the tip body now: the merge-base walk below can free it, and getShortMessage()
+        // would then throw an NPE on the released buffer.
+        String message = tip.getShortMessage();
+        String revision = tip.getName();
+
+        int ahead = 0;
+        int behind = 0;
+        // Ahead/behind is relative to the current branch, not the base.
+        if (!branchName.equals(comparedTo) && referenceCommit != null) {
+            walk.reset();
+            walk.setRevFilter(RevFilter.MERGE_BASE);
+            walk.markStart(tip);
+            walk.markStart(referenceCommit);
+            RevCommit mergeBase = walk.next();
+            walk.reset();
+            walk.setRevFilter(RevFilter.ALL);
+            ahead = RevWalkUtils.count(walk, tip, mergeBase);
+            behind = RevWalkUtils.count(walk, referenceCommit, mergeBase);
+        }
+        return Optional.of(new BranchStatus(ahead, behind, author, lastAt, message, revision));
     }
 
     @Override

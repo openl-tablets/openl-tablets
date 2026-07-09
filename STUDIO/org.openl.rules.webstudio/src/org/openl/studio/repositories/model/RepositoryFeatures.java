@@ -2,23 +2,17 @@ package org.openl.studio.repositories.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
-public class RepositoryFeatures {
+import org.openl.rules.repository.api.Features;
 
-    @Parameter(description = "Determines if the target repository supports branching")
-    private final boolean branches;
-    @Parameter(description = "Determines if the target repository supports searching and pagination")
-    private final boolean searchable;
+public record RepositoryFeatures(
+        @Parameter(description = "Determines if the target repository supports branching")
+        boolean branches,
+        @Parameter(description = "Determines if the target repository supports searching and pagination")
+        boolean searchable,
+        @Parameter(description = "Determines if the target repository supports mapped project folders")
+        boolean mappedFolders) {
 
-    public RepositoryFeatures(boolean branches, boolean searchable) {
-        this.branches = branches;
-        this.searchable = searchable;
-    }
-
-    public boolean isBranches() {
-        return branches;
-    }
-
-    public boolean isSearchable() {
-        return searchable;
+    public RepositoryFeatures(Features features) {
+        this(features.branches(), features.searchable(), features.mappedFolders());
     }
 }

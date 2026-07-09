@@ -130,6 +130,20 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<String> findUserNames(String searchTerm, int limit) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(User.class);
+        criteria.select(root.get("loginName"))
+                .where(builder.like(builder.lower(root.get("loginName")),
+                        "%" + escape(searchTerm) + "%",
+                        builder.literal(ESCAPE_CHAR)))
+                .orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        return getSession().createQuery(criteria).setMaxResults(limit).getResultList();
+    }
+
+    @Override
     public Set<String> getUserNames() {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(String.class);
@@ -176,4 +190,5 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
             }
         }
     }
+
 }
