@@ -89,6 +89,7 @@ export interface MergeModalDetail {
     repositoryId: string
     repositoryType: string
     currentBranch: string
+    targetBranch?: string
     branches: BranchInfo[]
     initialStep?: MergeStep
     onSuccess?: () => void

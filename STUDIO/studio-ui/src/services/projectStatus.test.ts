@@ -97,6 +97,33 @@ describe('projectStatus service', () => {
             expect(second).toEqual(payload)
         })
 
+        it('fetches different projectIds individually', async () => {
+            const firstPayload = { projectId: 'abc', compileState: 'ok' }
+            const secondPayload = { projectId: 'def=', compileState: 'errors' }
+            fetchMock
+                .mockResolvedValueOnce(jsonResponse(firstPayload))
+                .mockResolvedValueOnce(jsonResponse(secondPayload))
+
+            const [first, second] = await Promise.all([
+                fetchProjectStatus('abc'),
+                fetchProjectStatus('def='),
+            ])
+
+            expect(fetchMock).toHaveBeenCalledTimes(2)
+            expect(fetchMock).toHaveBeenNthCalledWith(
+                1,
+                '/ctx/web/projects/abc/status?branch=',
+                expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
+            )
+            expect(fetchMock).toHaveBeenNthCalledWith(
+                2,
+                '/ctx/web/projects/def%3D/status?branch=',
+                expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
+            )
+            expect(first).toEqual(firstPayload)
+            expect(second).toEqual(secondPayload)
+        })
+
         it('issues a fresh request once the in-flight one settles', async () => {
             fetchMock.mockResolvedValue(jsonResponse({ projectId: 'abc' }))
 

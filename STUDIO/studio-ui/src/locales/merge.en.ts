@@ -106,6 +106,7 @@ i18next.addResourceBundle('en', 'merge', {
         resolve_failed: 'Failed to resolve conflicts.',
         check_failed: 'Failed to check merge status.',
         download_failed: 'Failed to download file.',
+        compare_failed: 'Failed to open file comparison.',
         upload_required: 'Please upload a file for custom resolution.',
         all_conflicts_required: 'Please resolve all conflicts before saving.',
         commit_info_failed: 'Failed to save commit information.',

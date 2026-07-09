@@ -49,7 +49,7 @@ const appStore = useAppStore.getState()
 const extractErrorMessage = async (response: Response, defaultMessage: string): Promise<string> => {
     try {
         const contentType = response.headers.get('Content-Type')
-        if (contentType && contentType.indexOf('application/json') !== -1) {
+        if (contentType && contentType.includes('application/json')) {
             const data = await response.json()
             return data.message || defaultMessage
         }
@@ -62,11 +62,13 @@ const extractErrorMessage = async (response: Response, defaultMessage: string): 
 export interface ApiCallOptions {
     throwError?: boolean
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
+    preserveEmptyText?: boolean // If true, return '' for empty text responses instead of the legacy true sentinel
+    responseType?: 'auto' | 'blob' | 'response'
 }
 
 const isJsonResponse = (response: Response): boolean => {
     const contentType = response.headers.get('Content-Type')
-    return Boolean(contentType && contentType.indexOf('application/json') !== -1)
+    return Boolean(contentType && contentType.includes('application/json'))
 }
 
 const tryParseJsonBody = async (response: Response): Promise<unknown> => {
@@ -112,9 +114,15 @@ const apiCall = async (
         .then(async response => {
             const { status } = response
             if (status >= 200 && status < 300) {
+                if (opts.responseType === 'response') {
+                    return response
+                }
+                if (opts.responseType === 'blob') {
+                    return response.blob()
+                }
                 const { headers } = response
                 const contentType = headers.get('Content-Type')
-                if (contentType && contentType.indexOf('application/json') !== -1) {
+                if (contentType && contentType.includes('application/json')) {
                     return response.json()
                 }
                 // For 204 No Content or responses without body
@@ -122,7 +130,7 @@ const apiCall = async (
                     return true
                 }
                 const text = await response.text()
-                return text || true
+                return text || (opts.preserveEmptyText ? '' : true)
             }
             else if (status === 401) {
                 if (!opts.suppressErrorPages) {
@@ -184,6 +192,9 @@ const apiCall = async (
             return result
         })
 }
+
+/** Coerce an unknown API response to an array, defaulting to empty when it is not one. */
+export const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? value : [])
 
 export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }
 export default apiCall

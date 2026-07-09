@@ -177,6 +177,32 @@ describe('MergeBranchesStep', () => {
             )
         })
 
+        it('checks merge status immediately when a target branch is provided', async () => {
+            mockApiCall
+                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'feature'))
+
+            render(<MergeBranchesStep {...defaultProps()} targetBranch="feature" />)
+
+            await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(2))
+
+            expect(mockApiCall).toHaveBeenCalledWith(
+                '/projects/proj-1/merge/check',
+                expect.objectContaining({
+                    body: JSON.stringify({ mode: 'receive', otherBranch: 'feature' }),
+                }),
+                expect.objectContaining({ throwError: true, suppressErrorPages: true })
+            )
+            expect(mockApiCall).toHaveBeenCalledWith(
+                '/projects/proj-1/merge/check',
+                expect.objectContaining({
+                    body: JSON.stringify({ mode: 'send', otherBranch: 'feature' }),
+                }),
+                expect.objectContaining({ throwError: true, suppressErrorPages: true })
+            )
+            await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
+        })
+
         it('enables receive button when receive is mergeable', async () => {
             mockApiCall
                 .mockResolvedValueOnce(mergeableResult('feature', 'main'))

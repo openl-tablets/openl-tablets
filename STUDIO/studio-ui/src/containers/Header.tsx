@@ -40,6 +40,14 @@ export const Header = () => {
         {
             key: `${CONFIG.CONTEXT}/faces/pages/modules/repository/index.xhtml`,
             label: t('common:menu.repository'),
+        },
+        {
+            key: `${CONFIG.CONTEXT}/projects`,
+            label: t('common:menu.projects'),
+        },
+        {
+            key: `${CONFIG.CONTEXT}/deployments`,
+            label: t('common:menu.deployments'),
         }
     ]
 
@@ -70,6 +78,13 @@ export const Header = () => {
     }, [notification, lastWsMessage])
 
     const activeKeyFromPath = useMemo(() => {
+        // Project pages (/projects/<id>) still belong to the Projects tab.
+        if (window.location.pathname.startsWith(`${CONFIG.CONTEXT}/projects`)) {
+            return `${CONFIG.CONTEXT}/projects`
+        }
+        if (window.location.pathname.startsWith(`${CONFIG.CONTEXT}/deployments`)) {
+            return `${CONFIG.CONTEXT}/deployments`
+        }
         return window.location.pathname
     }, [])
 

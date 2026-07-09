@@ -3,6 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import { MergeModal } from 'containers/MergeModal/MergeModal'
 import * as services from 'services'
 import { MergeModalDetail } from 'containers/MergeModal/types'
+import { openMergeConflictCompare } from './mergeConflictCompare'
 import type { MockedFunction, Mock } from 'vitest'
 
 // --- Mocks ---
@@ -102,8 +103,13 @@ vi.mock('containers/MergeModal/CommitInfoModal', () => ({
     ),
 }))
 
+vi.mock('./mergeConflictCompare', () => ({
+    openMergeConflictCompare: vi.fn(),
+}))
+
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const MockNotFoundError = (services as any).NotFoundError
+const mockOpenMergeConflictCompare = vi.mocked(openMergeConflictCompare)
 
 // --- Helpers ---
 
@@ -155,7 +161,7 @@ describe('MergeModal', () => {
     })
 
     it('passes correct props to MergeBranchesStep', async () => {
-        const detail = createDetail()
+        const detail = createDetail({ targetBranch: 'feature' })
         render(<MergeModal />)
         await dispatchOpenModal(detail)
 
@@ -167,6 +173,7 @@ describe('MergeModal', () => {
         expect(props.projectId).toBe('proj-1')
         expect(props.projectName).toBe('MyProject')
         expect(props.currentBranch).toBe('main')
+        expect(props.targetBranch).toBe('feature')
         expect(props.branches).toEqual(detail.branches)
         expect(props.repositoryType).toBe('repo-git')
     })
@@ -416,21 +423,29 @@ describe('MergeModal', () => {
 
     describe('CommitInfoModal integration', () => {
         it('passes username to CommitInfoModal', async () => {
+            mockApiCall
+                .mockRejectedValueOnce(new MockNotFoundError()) // conflict check
+                .mockResolvedValueOnce({ displayName: '', email: 'test@example.com' }) // user info
             render(<MergeModal />)
             await dispatchOpenModal(createDetail())
 
             await waitFor(() => {
-                expect(screen.getByTestId('commit-info-modal')).toHaveAttribute('data-username', 'testuser')
+                expect(mergeBranchesStepProps).toHaveBeenCalled()
             })
+            const { onCheckCommitInfo } = getLatestProps(mergeBranchesStepProps)
+            await act(async () => {
+                await onCheckCommitInfo(vi.fn())
+            })
+
+            expect(screen.getByTestId('commit-info-modal')).toHaveAttribute('data-username', 'testuser')
         })
     })
 
     describe('conflict resolution callbacks', () => {
-        const openWithConflicts = async () => {
+        const openWithConflicts = async (detail = createDetail()) => {
             mockApiCall.mockResolvedValue({
                 conflictGroups: [{ projectName: 'P', projectPath: 'p', files: ['f']}],
             })
-            const detail = createDetail()
             render(<MergeModal />)
             await dispatchOpenModal(detail)
 
@@ -475,6 +490,21 @@ describe('MergeModal', () => {
             })
 
             expect(detail.onCompare).toHaveBeenCalledWith('Main.xlsx')
+            expect(mockOpenMergeConflictCompare).not.toHaveBeenCalled()
+        })
+
+        it('onCompare falls back to React compare opener without legacy callback', async () => {
+            mockOpenMergeConflictCompare.mockResolvedValue(undefined)
+            const detail = createDetail()
+            delete detail.onCompare
+            await openWithConflicts(detail)
+
+            const { onCompare } = getLatestProps(conflictResolutionStepProps)
+            act(() => {
+                onCompare('Main.xlsx')
+            })
+
+            expect(mockOpenMergeConflictCompare).toHaveBeenCalledWith('proj-1', 'Main.xlsx')
         })
     })
 
