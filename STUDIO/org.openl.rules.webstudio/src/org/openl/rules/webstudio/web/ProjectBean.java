@@ -30,6 +30,7 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -536,6 +537,7 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         Repository designRepository = currentProject.getDesignRepository();
         boolean supportsMappedFolders = designRepository != null && designRepository.supports().mappedFolders();
@@ -897,6 +899,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -917,6 +920,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -948,6 +952,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -964,6 +969,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
         clean(newProjectDescriptor);
 
         String[] includeArray = StringUtils.toLines(exposedMethodIncludes);
@@ -1173,6 +1179,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
         clean(newProjectDescriptor);
 
         String openAPIPathParam = FileNameFormatter
@@ -1542,6 +1549,7 @@ public class ProjectBean {
         validatePermissionsForDescriptorFile(currentProject, true);
 
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
         clean(newProjectDescriptor);
         if (openAPIInfoChanged) {
             newProjectDescriptor.setOpenapi(openAPI);
@@ -1809,6 +1817,35 @@ public class ProjectBean {
         return Cloner.clone(projectDescriptor);
     }
 
+    /**
+     * Restores the modules declared in rules.xml on a descriptor that is about to be saved.
+     *
+     * <p>The resolved descriptor expands wildcard and auto-discovered modules into concrete files. When
+     * project information other than modules is edited, saving that descriptor would rewrite the modules
+     * block with those concrete files. Reading rules.xml as written keeps the block untouched. When
+     * rules.xml declares no modules, the block stays empty and is dropped on save.
+     */
+    private void keepDeclaredModules(ProjectDescriptor target) {
+        ProjectDescriptor declared;
+        try {
+            declared = ProjectDescriptor.read(studio.getCurrentProjectDescriptor().getProjectFolder());
+        } catch (Exception e) {
+            declared = null;
+        }
+        applyDeclaredModules(target, declared);
+    }
+
+    /**
+     * Copies the modules declared in rules.xml onto the descriptor about to be saved.
+     *
+     * <p>Leaves the target modules unchanged when rules.xml cannot be read.
+     */
+    static void applyDeclaredModules(ProjectDescriptor target, @Nullable ProjectDescriptor declared) {
+        if (declared != null) {
+            target.setModules(declared.getModules());
+        }
+    }
+
     public UIInput getPropertiesFileNameProcessorInput() {
         return propertiesFileNameProcessorInput;
     }
@@ -2034,10 +2071,22 @@ public class ProjectBean {
         var descriptor = studio.getCurrentProjectDescriptor();
         try {
             var originalDescriptor = ProjectDescriptor.read(descriptor.getProjectFolder());
-            return originalDescriptor != null ? originalDescriptor : descriptor;
+            return chooseModulesSource(originalDescriptor, descriptor);
         } catch (Exception e) {
             return descriptor;
         }
+    }
+
+    /**
+     * Chooses which descriptor supplies the modules shown on the Project Info screen.
+     *
+     * <p>Uses the modules declared in rules.xml when it declares any. When rules.xml declares no modules,
+     * or cannot be read, falls back to the resolved descriptor so the modules auto-discovered from the
+     * rules directory are still displayed.
+     */
+    static ProjectDescriptor chooseModulesSource(@Nullable ProjectDescriptor declared,
+                                                 ProjectDescriptor resolved) {
+        return declared != null && !declared.getModules().isEmpty() ? declared : resolved;
     }
 
     public void setCurrentModuleIndex(Integer currentModuleIndex) {
