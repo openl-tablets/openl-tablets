@@ -1,4 +1,7 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{"name":"Project","modified":false,"opened":true,"localOnly":false,"openedForEditing":true,"deleted":false}
+{
+  "name": "Project",
+  "status": "OPENED"
+}

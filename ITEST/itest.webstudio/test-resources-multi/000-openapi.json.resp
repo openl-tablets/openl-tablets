@@ -6933,97 +6933,6 @@ Content-Type: application/json
           "Projects (BETA)"
         ]
       },
-      "delete": {
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "comment",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      },
       "patch": {
         "operationId": "***",
         "parameters": [
@@ -14459,109 +14368,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/repos/{repo-name}/features": {
-      "get": {
-        "deprecated": true,
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "repo-name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RepositoryFeatures"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Design Repository"
-        ]
-      }
-    },
     "/repos/{repo-name}/file-copy": {
       "post": {
         "description": "***",
@@ -15521,112 +15327,6 @@ Content-Type: application/json
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/RepositoryFolder"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Design Repository"
-        ]
-      }
-    },
-    "/repos/{repo-name}/projects": {
-      "get": {
-        "deprecated": true,
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "repo-name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProjectViewModel"
                   }
                 }
               }
@@ -18980,23 +18680,6 @@ Content-Type: application/json
           "type"
         ]
       },
-      "Capabilities": {
-        "type": "object",
-        "properties": {
-          "canDelete": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "canRead": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "canWrite": {
-            "type": "boolean",
-            "description": "***"
-          }
-        }
-      },
       "CallNodeView": {
         "type": "object",
         "description": "***",
@@ -19063,6 +18746,19 @@ Content-Type: application/json
           },
           "label": {
             "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "properties": {
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
+            "type": "boolean",
             "description": "***"
           }
         }
@@ -21742,16 +21438,6 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "commitsAhead": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "commitsBehind": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
           "lastCommit": {
             "$ref": "#/components/schemas/LastCommit"
           },
@@ -21768,10 +21454,6 @@ Content-Type: application/json
       "ProjectCapabilities": {
         "type": "object",
         "properties": {
-          "canDeleteProject": {
-            "type": "boolean",
-            "description": "***"
-          },
           "canClose": {
             "type": "boolean",
             "description": "***"
@@ -21805,10 +21487,6 @@ Content-Type: application/json
             "description": "***"
           },
           "canOpen": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "canRead": {
             "type": "boolean",
             "description": "***"
           },
@@ -21950,11 +21628,11 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
-          "deleted": {
+          "closed": {
             "type": "integer",
             "format": "int64"
           },
-          "closed": {
+          "deleted": {
             "type": "integer",
             "format": "int64"
           },
@@ -21987,6 +21665,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "discardChanges": {
+            "type": "boolean",
+            "description": "Discard local project modifications while closing, switching branches, or opening a revision."
+          },
           "openDependencies": {
             "type": "boolean",
             "description": "***"
@@ -21994,6 +21676,10 @@ Content-Type: application/json
           "revision": {
             "type": "string",
             "description": "***"
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Optional. Set to true only when comment is null and local modifications must be saved using the repository's default comment generation rules."
           },
           "selectedBranches": {
             "type": "array",
@@ -22622,10 +22308,6 @@ Content-Type: application/json
       "RepositoryCapabilities": {
         "type": "object",
         "properties": {
-          "canCreateDeployment": {
-            "type": "boolean",
-            "description": "***"
-          },
           "canCreateProject": {
             "type": "boolean",
             "description": "***"

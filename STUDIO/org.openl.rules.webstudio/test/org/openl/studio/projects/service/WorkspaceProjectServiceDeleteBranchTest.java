@@ -41,6 +41,7 @@ import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.studio.tags.service.TagAssignmentValidator;
 
 /**
  * A branch on which the project is locked by another user must not be deleted: the lock means the
@@ -101,7 +102,8 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(AclProjectsHelper.class),
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
-                mock(Environment.class)) {
+                mock(Environment.class),
+                mock(TagAssignmentValidator.class)) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return userWorkspace;

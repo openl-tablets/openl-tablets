@@ -5,10 +5,8 @@
         //<![CDATA[
 
         function openMergeBranchesDialog(repositoryId, repositoryType, projectName) {
-            // Dispatch to React MergeModal
             const projectId = btoa(repositoryId + ":" + projectName);
             $j.get("#{contextPath}/web/projects/" + projectId).then(function(project) {
-                // Convert selectedBranches to BranchInfo objects
                 const branches = (project.selectedBranches || []).map(function(name) {
                     return { name: name, protected: false };
                 });
@@ -20,7 +18,7 @@
                         repositoryType: repositoryType,
                         currentBranch: project.branch,
                         branches: branches,
-                        onSuccess: #{menu == 'rules' ? 'forceReload' : 'designRepoRefresh'},
+                        onSuccess: forceReload,
                         onCompare: function(filePath) { openMergeCompareDialog(project.id, filePath); }
                     }
                 }));
@@ -29,9 +27,7 @@
             });
         }
 
-        // Compare dialog wrapper for React MergeModal
         function openMergeCompareDialog(projectId, filePath) {
-            // Check if file is Excel by extension
             const isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
             if (isExcel) {
                 openCompareRevisionsDialog(projectId, filePath);

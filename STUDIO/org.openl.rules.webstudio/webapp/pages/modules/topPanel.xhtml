@@ -26,16 +26,8 @@
     </h:panelGroup>
     <ui:include src="/pages/modules/compareRevisions.xhtml" />
 
-    <h:panelGroup rendered="#{!empty rProject and copyBean.getCanCopy(rProject)}">
-        <ui:include src="/pages/modules/copyProject.xhtml"/>
-        <ui:include src="/pages/modules/tags/createProjectTags.xhtml"/>
-        <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml"/>
-    </h:panelGroup>
-
     <h:panelGroup rendered="#{studio.canMerge}">
-        <ui:include src="/pages/modules/repository/modal/mergeBranches.xhtml">
-            <ui:param name="menu" value="rules" />
-        </ui:include>
+        <ui:include src="/pages/modules/mergeBranches.xhtml"/>
     </h:panelGroup>
 
     <ui:include src="/pages/modules/configureCommitInfo.xhtml" />
@@ -131,11 +123,6 @@
                                title="Deploy the project"
                                rendered="#{studio.canRedeploy}">
                 </h:commandLink>
-                <h:commandLink styleClass="changes-listener"
-                               onclick="openCopyProjectDialog('#{rProject.repository.id}', '#{studio.currentRepositoryType}', '#{rProject.name}'); return false;"
-                               id="copyProjectButton"
-                               value="Copy" title="Copy project"
-                               rendered="#{!empty rProject and copyBean.getCanCopy(rProject)}"/>
                 <h:commandLink
                         onclick="if (!canOverwriteRevision()) return false; openUpdateProjectDialog();return false;"
                         id="updateProjectButton"

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -56,8 +55,6 @@ import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.ProjectViewModel;
-import org.openl.studio.projects.service.ProjectCriteriaQuery;
-import org.openl.studio.projects.service.RepositoryProjectService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateFromRepositoryModel;
@@ -65,7 +62,6 @@ import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
-import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryFolder;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 import org.openl.studio.repositories.rest.resolver.DesignRepository;
@@ -94,7 +90,6 @@ public class DesignTimeRepositoryController {
     private final ZipProjectSaveStrategy zipProjectSaveStrategy;
     private final LockManager lockManager;
     private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryProjectService projectService;
     private final AclProjectsHelper aclProjectsHelper;
     private final DesignTimeRepositoryService designTimeRepositoryService;
     private final ProjectRevisionService projectRevisionService;
@@ -109,7 +104,7 @@ public class DesignTimeRepositoryController {
                                           ZipArchiveValidator zipArchiveValidator,
                                           ZipProjectSaveStrategy zipProjectSaveStrategy,
                                           @Value("${openl.home.shared}") String homeDirectory,
-                                          RepositoryProjectService projectService, AclProjectsHelper aclProjectsHelper,
+                                          AclProjectsHelper aclProjectsHelper,
                                           DesignTimeRepositoryService designTimeRepositoryService,
                                           ProjectRevisionService projectRevisionService,
                                           ProtectedBranchBypassService bypassService,
@@ -121,7 +116,6 @@ public class DesignTimeRepositoryController {
         this.zipArchiveValidator = zipArchiveValidator;
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
         this.lockManager = new LockManager(Path.of(homeDirectory).resolve("locks/api"));
-        this.projectService = projectService;
         this.aclProjectsHelper = aclProjectsHelper;
         this.designTimeRepositoryService = designTimeRepositoryService;
         this.projectRevisionService = projectRevisionService;
@@ -139,30 +133,11 @@ public class DesignTimeRepositoryController {
         return null;
     }
 
-    @GetMapping("/{repo-name}/features")
-    @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
-    @Deprecated(forRemoval = true)
-    public RepositoryFeatures getFeatures(@DesignRepository("repo-name") Repository repository) {
-        return designTimeRepositoryService.getFeatures(repository);
-    }
-
     @GetMapping
     @Operation(summary = "repos.get-repository-list.summary", description = "repos.get-repository-list.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-repository-list.200.desc")
     public List<RepositoryViewModel> getRepositoryList() {
         return designTimeRepositoryService.getRepositoryList();
-    }
-
-    @GetMapping("/{repo-name}/projects")
-    @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
-    @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
-    @Deprecated(forRemoval = true)
-    public Collection<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
-            throw new ForbiddenException();
-        }
-        var query = ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build();
-        return projectService.getProjects(query, Pageable.unpaged()).getContent();
     }
 
     @Operation(summary = "repos.list-branches.summary", description = "repos.list-branches.desc")
@@ -261,7 +236,7 @@ public class DesignTimeRepositoryController {
             FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
             var project = designTimeRepository.getProject(repository.getId(), projectName);
             ProjectCreationService.grantContributorAclIfAbsent(designRepositoryAclService, project);
-            projectCreationService.registerExtensibleTags(repository.getId(), projectName);
+            projectCreationService.registerExtensibleTagsAfterDesignChange(project);
             return mapFileDataResponse(data, repository.supports());
         } finally {
             FileUtils.deleteQuietly(archiveTmp);
@@ -303,7 +278,7 @@ public class DesignTimeRepositoryController {
             throw new BadRequestException("repos.create-project.no-source.message");
         }
         allowedToPush(repository, false);
-        // Reject a duplicate name or an invalid comment before publishing (legacy LocalUploadController guard).
+        // Reject a duplicate name or an invalid comment before publishing.
         for (String name : request.names()) {
             validatedCreateModel(repository, name, request.path(), request.comment());
         }
@@ -316,7 +291,7 @@ public class DesignTimeRepositoryController {
                                                      @Parameter(description = "New project name") @PathVariable("project-name") String projectName,
                                                      @Valid @RequestBody CreateFromProjectModel request) {
         allowedToPush(repository, false);
-        // Validate the target name, comment and path exactly like the legacy Copy dialog (CopyBean).
+        // Validate the target name, comment and path before copying.
         var model = validatedCreateModel(repository, projectName, request.path(), request.comment());
         var data = projectCreationService.copyProject(repository.getId(), model.getProjectName(),
                 request.path(), request.sourceRepositoryId(), request.sourceProjectName(), model.getComment());

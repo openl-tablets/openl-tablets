@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.FileData;
@@ -120,23 +121,6 @@ public class ProjectCreationService {
     }
 
     /**
-     * Register the {@code tags.properties} tags of a freshly created project in the tag catalog. The
-     * project is resolved from the current workspace. Used by create paths that build the project outside
-     * this service, such as an archive upload.
-     */
-    public void registerExtensibleTags(String repositoryId, String projectName) {
-        try {
-            // The project was just created/published in the design repo. A plain getProject(refreshBefore)
-            // only rebuilds from the cached project list; a full workspace refresh re-reads the design
-            // repository (designTimeRepository.refresh()) so the new project resolves before its tags are read.
-            getUserWorkspace().refresh();
-            registerExtensibleTags(getUserWorkspace().getProject(repositoryId, projectName, true));
-        } catch (ProjectException e) {
-            log.warn("Cannot register tags for project '{}' in repository '{}'", projectName, repositoryId, e);
-        }
-    }
-
-    /**
      * Register the project's {@code tags.properties} tags in the tag catalog: for an extensible tag type,
      * a value not yet known is created. Values of fixed-value types and unknown tag types are left as-is
      * (they require an administrator). Mirrors the legacy tab so imported/created projects keep their tags.
@@ -146,7 +130,37 @@ public class ProjectCreationService {
      * exposes them through the design copy.
      */
     void registerExtensibleTags(RulesProject project) {
-        collectProjectTags(project).forEach((typeName, value) -> {
+        registerExtensibleTags(collectProjectTags(project));
+    }
+
+    /**
+     * Register tags from a design project without requiring it to be opened in the user's workspace.
+     * Archive upload keeps projects closed, so the tag catalog must read the repository artefact directly.
+     */
+    public void registerExtensibleTags(AProject project) {
+        registerExtensibleTags(new ProjectTags(project).getTags());
+    }
+
+    /**
+     * Register tags from a freshly written design project and resync the user workspace with the design
+     * repository. Tags are read from the repository artefact; workspace refresh keeps project list metadata
+     * aligned for later open, branch, and save operations.
+     */
+    public void registerExtensibleTagsAfterDesignChange(AProject project) {
+        registerExtensibleTags(project);
+        getUserWorkspace().refresh();
+    }
+
+    /**
+     * Register tags from a workspace project and resync the user workspace after a design-repository write.
+     */
+    public void registerExtensibleTagsAfterDesignChange(RulesProject project) {
+        registerExtensibleTags(project);
+        getUserWorkspace().refresh();
+    }
+
+    private void registerExtensibleTags(Map<String, String> tags) {
+        tags.forEach((typeName, value) -> {
             TagType type = tagTypeService.getByName(typeName);
             if (type != null && type.isExtensible() && tagService.getByName(type.getId(), value) == null) {
                 var tag = new Tag();
@@ -252,9 +266,7 @@ public class ProjectCreationService {
                 RulesProject project = workspace.uploadLocalProject(repositoryId, name, StringUtils.trimToEmpty(path), resolvedComment);
                 uploaded.add(project);
                 grantContributorAclIfAbsent(designRepoAclService, project);
-                // Re-read the published project (its design tags were captured before the publish) via the
-                // refreshing lookup, so extensible tags register the same way as the archive create path.
-                registerExtensibleTags(repositoryId, project.getName());
+                registerExtensibleTagsAfterDesignChange(project);
             }
         } catch (ProjectException e) {
             rollbackUploadedProjects(workspace, designRepoAclService, uploaded);
@@ -425,9 +437,7 @@ public class ProjectCreationService {
             var copied = new RulesProject(user, workspace.getLocalWorkspace().getRepository(targetRepositoryId),
                     null, targetRepository, targetProject.getFileData(), workspace.getProjectsLockEngine());
             grantContributorAclIfAbsent(designRepoAclService, copied);
-            // registerExtensibleTags refreshes the workspace itself, so the copy is materialised and its
-            // tags.properties is readable through the re-resolved project.
-            registerExtensibleTags(targetRepositoryId, newName);
+            registerExtensibleTagsAfterDesignChange(copied);
             return copied.getFileData();
         } catch (ProjectException e) {
             throw new ConflictException("project.copy.failed.message");

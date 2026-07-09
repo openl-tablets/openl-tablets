@@ -7,10 +7,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +24,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -29,6 +35,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -77,15 +84,16 @@ class ProjectCreationServiceTest {
 
     @Test
     void create_from_files_is_denied_without_create_permission() {
+        List<ProjectFile> files = List.of();
         assertThrows(ForbiddenException.class, () -> service.createFromFiles("design", "Project", null,
-                java.util.List.of(), "comment", "rules/Models.xlsx", "rules/Algorithms.xlsx", "Models", "Algorithms",
-                null));
+                files, "comment", "rules/Models.xlsx", "rules/Algorithms.xlsx", "Models", "Algorithms", null));
     }
 
     @Test
     void upload_local_projects_is_denied_without_create_permission() {
+        var names = List.of("Local");
         assertThrows(ForbiddenException.class,
-                () -> service.uploadLocalProjects("design", java.util.List.of("Local"), null, "comment"));
+                () -> service.uploadLocalProjects("design", names, null, "comment"));
     }
 
     @Test
@@ -101,17 +109,18 @@ class ProjectCreationServiceTest {
 
         var first = publishedProject("First");
         when(workspace.uploadLocalProject("design", "First", "target/", "Create First")).thenReturn(first);
-        when(workspace.getProject("design", "First", true)).thenReturn(first);
         when(workspace.uploadLocalProject("design", "Second", "target/", "Create Second"))
                 .thenThrow(new ProjectException("failed"));
 
         service = serviceWithWorkspace(workspace);
 
+        var names = List.of("First", "Second");
         assertThrows(ConflictException.class,
-                () -> service.uploadLocalProjects("design", java.util.List.of("First", "Second"), "target/", null));
+                () -> service.uploadLocalProjects("design", names, "target/", null));
 
         verify(first).delete(user, "Rollback project upload.");
         verify(acl).deleteAcl(first);
+        verify(workspace).refresh();
     }
 
     @Test
@@ -286,6 +295,47 @@ class ProjectCreationServiceTest {
         var saved = ArgumentCaptor.forClass(Tag.class);
         verify(tagService).save(saved.capture());
         assertEquals("prod", saved.getValue().getName());
+    }
+
+    @Test
+    void registerExtensibleTagsAfterDesignChange_refreshes_workspace() {
+        var workspace = mock(UserWorkspace.class);
+        service = serviceWithWorkspace(workspace);
+
+        service.registerExtensibleTagsAfterDesignChange(mock(AProject.class));
+
+        verify(workspace).refresh();
+        verifyNoInteractions(tagTypeService, tagService);
+    }
+
+    @Test
+    void registers_extensible_values_from_design_project_tags() throws ProjectException {
+        var extensible = new TagType();
+        extensible.setId(1L);
+        extensible.setName("Environment");
+        extensible.setExtensible(true);
+        when(tagTypeService.getByName("Environment")).thenReturn(extensible);
+
+        var project = mock(AProject.class);
+        var tags = mock(AProjectResource.class);
+        when(project.hasArtefact(ProjectTags.TAGS_FILE_NAME)).thenReturn(true);
+        when(project.getArtefact(ProjectTags.TAGS_FILE_NAME)).thenReturn(tags);
+        when(tags.getContent()).thenReturn(new ByteArrayInputStream(
+                "Environment=prod\n".getBytes(StandardCharsets.UTF_8)));
+
+        service.registerExtensibleTags(project);
+
+        var saved = ArgumentCaptor.forClass(Tag.class);
+        verify(tagService).save(saved.capture());
+        assertEquals("prod", saved.getValue().getName());
+        assertEquals("Environment", saved.getValue().getType().getName());
+    }
+
+    @Test
+    void skips_design_project_tags_when_tags_file_is_absent() {
+        service.registerExtensibleTags(mock(AProject.class));
+
+        verifyNoInteractions(tagTypeService, tagService);
     }
 
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {

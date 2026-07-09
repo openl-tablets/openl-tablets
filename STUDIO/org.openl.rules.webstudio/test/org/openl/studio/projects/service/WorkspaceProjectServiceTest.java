@@ -63,6 +63,7 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.studio.tags.service.TagAssignmentValidator;
 
 class WorkspaceProjectServiceTest {
 
@@ -70,7 +71,7 @@ class WorkspaceProjectServiceTest {
     private Path tempDir;
 
     @Test
-    void get_branches_reads_statuses_in_batch() throws Exception {
+    void get_branches_reads_last_commits_in_batch() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var bypassService = mock(ProtectedBranchBypassService.class);
         var service = newService(acl, bypassService);
@@ -92,8 +93,8 @@ class WorkspaceProjectServiceTest {
         List<ProjectBranchInfo> result = service.getBranches(project);
 
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
-        assertEquals(2, result.getFirst().commitsAhead());
-        assertEquals(1, result.getFirst().commitsBehind());
+        assertEquals("user", result.getFirst().lastCommit().author());
+        assertEquals("message", result.getFirst().lastCommit().message());
         verify(repository).getBranchStatuses(branchNames, "main");
         verify(repository, never()).getBranchStatus(any(), any());
     }
@@ -254,11 +255,52 @@ class WorkspaceProjectServiceTest {
         when(project.getFileData()).thenReturn(fileData);
         Props.setEnvironment(commentValidationEnvironment());
 
-        var exception = assertThrows(BadRequestException.class,
-                () -> service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build()));
+        var model = ProjectStatusUpdateModel.builder().save(true).build();
+        var exception = assertThrows(BadRequestException.class, () -> service.updateProjectStatus(project, model));
 
         assertEquals("openl.error.400.repo.invalid.comment.message", exception.getErrorCode());
         verify(webStudio, never()).saveProject(project);
+    }
+
+    @Test
+    void delete_project_does_not_generate_comment_when_missing() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
+                webStudio, aclProjectsHelper);
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+
+        service.delete(project, " ");
+
+        verify(project).delete(null);
+    }
+
+    @Test
+    void delete_project_rejects_invalid_comment() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        var webStudio = mock(WebStudio.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
+                webStudio, aclProjectsHelper);
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        Props.setEnvironment(commentValidationEnvironment());
+
+        var exception = assertThrows(BadRequestException.class, () -> service.delete(project, null));
+
+        assertEquals("openl.error.400.repo.invalid.comment.message", exception.getErrorCode());
+        verify(project, never()).delete(any());
     }
 
     @Test
@@ -274,8 +316,8 @@ class WorkspaceProjectServiceTest {
         when(projectStateValidator.canClose(project)).thenReturn(true);
         when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
 
-        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project,
-                ProjectStatusUpdateModel.builder().status(ProjectStatus.CLOSED).build()));
+        var model = ProjectStatusUpdateModel.builder().status(ProjectStatus.CLOSED).build();
+        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
 
         assertEquals("openl.error.409.project.close.modified.message", exception.getErrorCode());
         verify(project, never()).close();
@@ -312,6 +354,35 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void update_project_status_keeps_open_project_open_after_branch_switch() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var userWorkspace = mock(UserWorkspace.class);
+        var webStudio = mock(WebStudio.class);
+        var projectModel = mock(ProjectModel.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace,
+                mock(ProjectStateValidator.class), webStudio);
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getBranch()).thenReturn("main");
+        when(project.isOpened()).thenReturn(true);
+        when(project.getLastHistoryVersion()).thenReturn("revision");
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+        when(webStudio.getModel()).thenReturn(projectModel);
+        when(userWorkspace.isOpenedOtherProject(project)).thenReturn(false);
+
+        try (var ignored = mockStatic(ProjectHistoryService.class)) {
+            service.updateProjectStatus(project, ProjectStatusUpdateModel.builder()
+                    .branch("feature")
+                    .build());
+        }
+
+        verify(project).releaseMyLock();
+        verify(project).setBranch("feature");
+        verify(project).open();
+    }
+
+    @Test
     void update_project_status_rejects_opening_revision_for_modified_project_without_force() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var projectStateValidator = mock(ProjectStateValidator.class);
@@ -325,11 +396,11 @@ class WorkspaceProjectServiceTest {
         when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
         when(userWorkspace.isOpenedOtherProject(any())).thenReturn(false);
 
-        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project,
-                ProjectStatusUpdateModel.builder()
-                        .status(ProjectStatus.VIEWING)
-                        .revision("rev-1")
-                        .build()));
+        var model = ProjectStatusUpdateModel.builder()
+                .status(ProjectStatus.VIEWING)
+                .revision("rev-1")
+                .build();
+        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
 
         assertEquals("openl.error.409.project.close.modified.message", exception.getErrorCode());
         verify(projectStateValidator, never()).canOpen(project);
@@ -374,8 +445,8 @@ class WorkspaceProjectServiceTest {
         when(project.isOpened()).thenReturn(true);
         when(project.isModified()).thenReturn(true);
 
-        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project,
-                ProjectStatusUpdateModel.builder().branch("feature").build()));
+        var model = ProjectStatusUpdateModel.builder().branch("feature").build();
+        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
 
         assertEquals("openl.error.409.project.close.modified.message", exception.getErrorCode());
         verify(project, never()).setBranch("feature");
@@ -397,6 +468,16 @@ class WorkspaceProjectServiceTest {
                                                       UserWorkspace userWorkspace,
                                                       ProjectStateValidator projectStateValidator,
                                                       WebStudio webStudio) throws ProjectException {
+        return newService(acl, bypassService, userWorkspace, projectStateValidator, webStudio,
+                mock(AclProjectsHelper.class));
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper) throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
         doReturn(List.of()).when(dependencyResolver).getDependsOnProject(any(RulesProject.class));
@@ -419,10 +500,11 @@ class WorkspaceProjectServiceTest {
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
                 mock(MultiUserWorkspaceManager.class),
-                mock(AclProjectsHelper.class),
+                aclProjectsHelper,
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
-                environment()) {
+                environment(),
+                mock(TagAssignmentValidator.class)) {
 
             @Override
             public UserWorkspace getUserWorkspace() {
@@ -530,6 +612,17 @@ class WorkspaceProjectServiceTest {
         var userWorkspace = mock(UserWorkspace.class);
         when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
         when(userWorkspace.getProjects()).thenReturn(List.of(projects));
+        return userWorkspace;
+    }
+
+    private UserWorkspace userWorkspaceWithNonDirectoryParent() throws Exception {
+        var workspacesRoot = tempDir.resolve("workspaces-parent-file");
+        Files.writeString(workspacesRoot, "not a directory");
+        var localWorkspace = mock(LocalWorkspace.class);
+        when(localWorkspace.getLocation()).thenReturn(workspacesRoot.resolve("user").toFile());
+
+        var userWorkspace = mock(UserWorkspace.class);
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
         return userWorkspace;
     }
 

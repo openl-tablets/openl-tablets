@@ -3,27 +3,15 @@ Content-Type: application/json
 
 {
   "name": "EPBDS-13550 Main Project",
-  "modified": false,
-  "opened": true,
-  "localOnly": false,
-  "openedForEditing": true,
-  "deleted": false,
+  "status": "OPENED",
   "dependencies": [
     {
       "name": "EPBDS-13550 Dependency Project1",
-      "modified": false,
-      "opened": true,
-      "localOnly": false,
-      "openedForEditing": true,
-      "deleted": false
+      "status": "OPENED"
     },
     {
       "name": "EPBDS-13550 Dependency Project2",
-      "modified": false,
-      "opened": true,
-      "localOnly": false,
-      "openedForEditing": true,
-      "deleted": false
+      "status": "OPENED"
     }
   ]
 }

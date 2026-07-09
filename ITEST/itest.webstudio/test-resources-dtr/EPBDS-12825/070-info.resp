@@ -3,9 +3,5 @@ Content-Type: application/json
 
 {
   "name": "EPBDS-12825",
-  "modified": false,
-  "opened": false,
-  "localOnly": false,
-  "openedForEditing": false,
-  "deleted": false
+  "status": "CLOSED"
 }

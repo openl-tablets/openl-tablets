@@ -22,12 +22,6 @@ public record ProjectBranchInfo(
         @Schema(description = "Whether the current user is eligible to bypass protection (Manager role + global setting enabled)")
         boolean bypassEligible,
 
-        @Schema(description = "Commits this branch is ahead of the project's current branch")
-        int commitsAhead,
-
-        @Schema(description = "Commits this branch is behind the project's current branch")
-        int commitsBehind,
-
         @Schema(description = "The branch's last (tip) commit")
         @JsonInclude(JsonInclude.Include.NON_NULL)
         LastCommit lastCommit
