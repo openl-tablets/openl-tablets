@@ -160,6 +160,7 @@ public class ProjectsMergeController {
                         // Project can be renamed after merge, so we close it before opening to ensure that
                         // project folder name in editor is up to date.
                         project.close();
+                        workspace.refresh();
 
                         Optional<RulesProject> refreshedProject = workspace.getProjectByPath(repoId, realPath);
                         if (refreshedProject.isPresent()) {
@@ -170,7 +171,6 @@ public class ProjectsMergeController {
                         }
                     }
                 }
-                workspace.refresh();
                 studio.reset();
                 model.clearModuleInfo();
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {

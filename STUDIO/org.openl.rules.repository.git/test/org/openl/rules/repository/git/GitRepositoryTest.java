@@ -550,7 +550,7 @@ class GitRepositoryTest {
             repo.save(data, IOUtils.toInputStream("error"));
             fail("Exception should be thrown");
         } catch (IOException e) {
-            assertEquals("Name of PersonIdent must not be null.", e.getCause().getMessage());
+            assertEquals("Commit author name is blank.", e.getCause().getMessage());
         }
 
         // Check that there are no uncommitted changes after error
@@ -558,6 +558,19 @@ class GitRepositoryTest {
             Status status = git.status().call();
             assertTrue(status.getUncommittedChanges().isEmpty());
         }
+    }
+
+    @Test
+    void saveWithUsernameOnlyAuthorUsesUsernameAsCommitter() throws IOException {
+        FileData data = new FileData();
+        data.setName("rules/project1/username-only");
+        data.setAuthor(new UserInfo("admin"));
+        data.setComment("Username-only author");
+
+        FileData saved = repo.save(data, IOUtils.toInputStream("content"));
+
+        FileData history = repo.checkHistory(saved.getName(), saved.getVersion());
+        assertEquals("admin", history.getAuthor().getName());
     }
 
     @Test

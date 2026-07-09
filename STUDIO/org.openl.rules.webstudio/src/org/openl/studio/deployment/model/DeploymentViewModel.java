@@ -24,7 +24,7 @@ public class DeploymentViewModel {
     @Parameter(description = "Production repository id", required = true)
     public final String repository;
 
-    @JsonView(GenericView.Full.class)
+    @JsonView({GenericView.Full.class, GenericView.Short.class})
     @Parameter(description = "List of deployment items")
     public final List<DeploymentItemViewModel> items;
 

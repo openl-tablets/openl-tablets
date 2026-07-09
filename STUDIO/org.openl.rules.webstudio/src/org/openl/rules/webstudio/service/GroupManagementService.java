@@ -36,6 +36,11 @@ public class GroupManagementService {
         return resultGroups;
     }
 
+    @Transactional(readOnly = true)
+    public List<String> findGroupNames(String searchTerm, int limit) {
+        return groupDao.findGroupNames(searchTerm, limit);
+    }
+
     public org.openl.rules.security.Group getGroupByName(String name) {
         Group group = groupDao.getGroupByName(name);
         if (group != null) {

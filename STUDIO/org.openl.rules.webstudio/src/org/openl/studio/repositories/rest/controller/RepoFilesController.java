@@ -138,7 +138,7 @@ public class RepoFilesController extends AbstractFilesController {
             HttpServletResponse response
     ) throws ProjectException, IOException {
         return handleGetFile(fileRootFactory.of(repository, branch), path, view, download, extensions, namePattern,
-                foldersOnly, recursive, viewMode, version, response);
+                foldersOnly, recursive, viewMode, version, response, null);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

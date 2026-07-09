@@ -14,6 +14,7 @@ import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.repositories.model.ProjectRevision;
 
 /**
@@ -68,7 +69,10 @@ public class HistoryRepositoryMapper {
         userInfo.setEmail(author != null ? author.getEmail() : null);
         userInfo.setDisplayName(author != null ? author.getName() : null);
         dest.setAuthor(userInfo);
-        dest.setCreatedAt(src.getModifiedAt());
+        var modifiedAt = src.getModifiedAt();
+        if (modifiedAt != null) {
+            dest.setCreatedAt(DateTimes.atSystemZone(modifiedAt));
+        }
         String revision = src.getVersion();
         if (revision == null || revision.isBlank()) {
             revision = "0";

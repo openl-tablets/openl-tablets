@@ -2,13 +2,16 @@ package org.openl.security.acl.repository;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -70,6 +73,16 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
             return branchRepository.getBranches(projectPath);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public BranchStatus getBranchStatus(String branch, String comparedTo) throws IOException {
+        return branchRepository.getBranchStatus(branch, comparedTo);
+    }
+
+    @Override
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches, String comparedTo) throws IOException {
+        return branchRepository.getBranchStatuses(branches, comparedTo);
     }
 
     @Override

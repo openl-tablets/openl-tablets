@@ -1,9 +1,6 @@
 package org.openl.studio.projects.service.project.status;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,6 +16,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.projects.model.project.status.CompilationDetails;
 import org.openl.studio.projects.model.project.status.CompilationMessages;
 import org.openl.studio.projects.model.project.status.CompilationModules;
@@ -81,8 +79,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .map(UserInfo::getName)
                 .ifPresent(authorBuilder::author);
         Optional.ofNullable(fileData.getModifiedAt())
-                .map(Date::toInstant)
-                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
+                .map(DateTimes::atSystemZone)
                 .ifPresent(authorBuilder::date);
         return authorBuilder.build();
     }

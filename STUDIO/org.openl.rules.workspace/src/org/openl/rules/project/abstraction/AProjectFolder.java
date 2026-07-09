@@ -348,6 +348,9 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             } else {
                 fileDatas = getRepository().list(path);
             }
+            if (!isHistoric() && getRepository().supports().folders()) {
+                addEmptyFolders(internalArtefacts, fileDatas, path);
+            }
             for (FileData fileData : fileDatas) {
                 if (!fileData.getName().equals(path) && !fileData.isDeleted()) {
                     String artefactName = fileData.getName().substring(path.length());
@@ -358,6 +361,35 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             log.error(ex.getMessage(), ex);
         }
         return internalArtefacts;
+    }
+
+    private void addEmptyFolders(Map<String, AProjectArtefact> internalArtefacts,
+                                 Collection<FileData> fileDatas,
+                                 String path) throws IOException {
+        for (FileData folderData : getRepository().listFolders(path)) {
+            if (isEmptyFolder(folderData, fileDatas, path)) {
+                var folderPath = folderData.getName();
+                String artefactName = folderPath.substring(path.length());
+                var folder = new AProjectFolder(getProject(), getRepository(), folderPath, null);
+                folder.setFileData(folderData);
+                internalArtefacts.putIfAbsent(artefactName, folder);
+            }
+        }
+    }
+
+    private static boolean isEmptyFolder(FileData folderData, Collection<FileData> fileDatas, String path) {
+        var folderPath = folderData.getName();
+        return !folderPath.equals(path) && !folderData.isDeleted() && !hasFilesInFolder(fileDatas, folderPath);
+    }
+
+    private static boolean hasFilesInFolder(Collection<FileData> fileDatas, String folderPath) {
+        var prefix = folderPath.endsWith("/") ? folderPath : folderPath + "/";
+        for (FileData fileData : fileDatas) {
+            if (!fileData.isDeleted() && fileData.getName().startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

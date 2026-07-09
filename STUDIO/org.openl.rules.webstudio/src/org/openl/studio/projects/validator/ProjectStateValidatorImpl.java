@@ -1,6 +1,7 @@
 package org.openl.studio.projects.validator;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -81,11 +82,23 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
             // any user can delete own local project
             return true;
         }
-        if (project.getDesignRepository().supports().branches() && project.getVersion() == null) {
+        if (!canDeleteFromBranch(project)) {
             return false;
         }
         // An opened project is closed for all users during deletion, so only a lock held by another user blocks it.
         return !project.isLocked() || project.isLockedByMe();
+    }
+
+    private boolean canDeleteFromBranch(UserWorkspaceProject project) {
+        var repo = project.getDesignRepository();
+        if (!repo.supports().branches()) {
+            return true;
+        }
+        if (isCurrentBranchProtectionEnforced(project)) {
+            return false;
+        }
+        var branchRepository = (BranchRepository) repo;
+        return Objects.equals(branchRepository.getBaseBranch(), project.getBranch()) && project.getVersion() != null;
     }
 
     @Override

@@ -49,12 +49,16 @@ public abstract class WebStudioUtils {
         if (rulesUserSession == null && create) {
             ApplicationContext appContext = SpringInitializer.getApplicationContext(session.getServletContext());
             rulesUserSession = appContext.getBean(RulesUserSession.class);
-            session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
-            // immediately add OpenL Studio to the session to be able to use it in RichFaces UI
-            // it can be removed after removing RichFaces
-            session.setAttribute(STUDIO_ATTR, rulesUserSession.getWebStudio());
+            registerRulesUserSession(session, rulesUserSession);
         }
         return rulesUserSession;
+    }
+
+    public static void registerRulesUserSession(HttpSession session, RulesUserSession rulesUserSession) {
+        session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
+        // Immediately add OpenL Studio to the session to be able to use it in RichFaces UI.
+        // It can be removed after removing RichFaces.
+        session.setAttribute(STUDIO_ATTR, rulesUserSession.getWebStudio());
     }
 
     public static WebStudio getWebStudio() {

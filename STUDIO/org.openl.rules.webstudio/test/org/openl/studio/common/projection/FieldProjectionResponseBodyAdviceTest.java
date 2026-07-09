@@ -182,6 +182,31 @@ class FieldProjectionResponseBodyAdviceTest {
     }
 
     @Test
+    void noFieldProjectionSummaryIsKeptWhileContentIsProjected() throws Exception {
+        var body = json(get("/projection-test/page-with-summary").param("fields", "id,name"));
+        // content is still projected to the selection
+        var first = body.get("content").get(0);
+        assertEquals("1", first.get("id").asText());
+        assertFalse(first.has("status"));
+        // the @NoFieldProjection summary keeps all of its own fields
+        var summary = body.get("summary");
+        assertEquals(3, summary.get("alpha").asInt());
+        assertEquals(4, summary.get("beta").asInt());
+    }
+
+    @Test
+    void concretePageResponseSubclassProjectsContent() throws Exception {
+        // A concrete subclass (e.g. ProjectsPageResponse) is declared as a raw class, so the element type
+        // must be resolved through its generic superclass rather than treating the wrapper as the element.
+        var body = json(get("/projection-test/page-subclass").param("fields", "id,name"));
+        assertEquals(2, body.get("numberOfElements").asInt());
+        var first = body.get("content").get(0);
+        assertEquals("1", first.get("id").asText());
+        assertEquals("name-1", first.get("name").asText());
+        assertFalse(first.has("status"));
+    }
+
+    @Test
     void plainTextResponseIsUnaffected() throws Exception {
         var response = mockMvc.perform(get("/projection-test/text").param("fields", "id")).andReturn().getResponse();
         assertEquals(200, response.getStatus());

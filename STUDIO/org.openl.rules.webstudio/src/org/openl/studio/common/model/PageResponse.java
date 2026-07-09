@@ -5,6 +5,8 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 
+import org.openl.rules.repository.api.Pageable;
+
 public class PageResponse<T> {
 
     @Parameter(description = "Current page content")
@@ -34,6 +36,19 @@ public class PageResponse<T> {
 
     public PageResponse(Collection<T> content, int pageNumber, int pageSize) {
         this(content, pageNumber, pageSize, null);
+    }
+
+    /** Build a page from already-sliced content, deriving the page number and size from the request. */
+    protected PageResponse(Collection<T> content, Pageable page, Long total) {
+        this(content,
+                page.isUnpaged() ? -1 : page.getPageNumber(),
+                page.isUnpaged() ? content.size() : page.getPageSize(),
+                total);
+    }
+
+    /** Build a page from already-sliced content, deriving the page number and size from the request. */
+    public static <T> PageResponse<T> of(Collection<T> content, Pageable page, Long total) {
+        return new PageResponse<>(content, page, total);
     }
 
     public Collection<T> getContent() {

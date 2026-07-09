@@ -1,7 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-import java.util.Locale;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -22,8 +21,6 @@ import org.openl.rules.security.standalone.persistence.Group;
  */
 @Component("externalGroupDao")
 public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implements ExternalGroupDao {
-
-    public static final char ESCAPE_CHAR = '\\';
 
     @Override
     public void deleteAll() {
@@ -148,13 +145,6 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         return session.createQuery(query).setMaxResults(limit).getResultList();
     }
 
-    private static String escape(String searchTerm) {
-        searchTerm = searchTerm.toLowerCase(Locale.ROOT);
-        searchTerm = searchTerm.replace("\\", ESCAPE_CHAR + "\\");
-        searchTerm = searchTerm.replace("[", ESCAPE_CHAR + "[");
-        searchTerm = searchTerm.replace("_", ESCAPE_CHAR + "_");
-        return searchTerm.replace("%", ESCAPE_CHAR + "%");
-    }
 
     @Override
     public long countUsersInGroup(String groupName) {
