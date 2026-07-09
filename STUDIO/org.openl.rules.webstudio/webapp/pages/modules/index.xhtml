@@ -19,7 +19,7 @@
 
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <link href="css/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/common.css?10" rel="stylesheet" />
+    <link href="css/common.css?11" rel="stylesheet" />
     <link href="css/layout/main.css" rel="stylesheet" />
     <link href="css/jquery.popup.css" rel="stylesheet" />
     <link href="css/jquery.multiselect.css" rel="stylesheet" />
@@ -29,7 +29,7 @@
 
     <h:outputText value="#{viteAssets.html}" escape="false" />
 
-    <script src="javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+    <script src="javascript/common.js?13"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
     <script src="javascript/vendor/jquery-3.7.1.min.js"></script>
     <script src="javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
     <script src="javascript/vendor/jquery-back-compat.js"></script>
@@ -487,13 +487,13 @@
                         }
                     },
                     success: function(content) {
-                        message(content, 4000, true, "success");
+                        notifyUser("success", content);
                     },
                     error: function(content) {
-                        message(content, -1, true, "error");
+                        notifyUser("error", content);
                     },
                     info: function(content) {
-                        message(content, 8000, true);
+                        notifyUser("info", content);
                     },
 
                     problems: {

@@ -767,37 +767,6 @@ table.properties-form.wide .error {
     color: brown;
 }
 
-.message {
-    position: absolute;
-    width: 210px;
-    left: 43%;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 17px 11px;
-    opacity: 0.8;
-    text-align: center;
-    transition: all .4s ease-out;
-    word-wrap: break-word;
-}
-.message.success {
-    background-color: #380;
-}
-.message.error {
-    background-color: #c33;
-}
-.message.closable {
-    cursor: pointer;
-}
-.message.closable:after {
-    content: "×";
-    font-size: 1.5em;
-    font-weight: bold;
-    position: absolute;
-    right: 1px;
-    top: -2px;
-}
-
 .noEntries {
     display: inline-block;
     color: #002276;
