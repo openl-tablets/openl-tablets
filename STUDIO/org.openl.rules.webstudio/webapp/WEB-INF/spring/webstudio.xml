@@ -9,8 +9,6 @@
     <!-- Enable auto-wiring -->
     <context:annotation-config/>
 
-    <bean id="versionProperties" class="org.openl.info.OpenLVersion"/>
-
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">
             <map>
