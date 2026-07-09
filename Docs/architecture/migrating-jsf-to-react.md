@@ -133,6 +133,10 @@ function whenReady(cb) {
 }
 ```
 
+Worked examples: `projectStatusBridge` (`openl.projectStatus`), `notificationBridge` (`openl.notification`,
+behind `notifyUser` in `common.js`), `loaderBridge` (`openl.loader`, behind `notifyLoader` — drives the
+full-screen `LoadingOverlay` that replaced the jQuery `#loadingPanel` spinner).
+
 ## Backend data
 
 The React component talks to the server through REST (`services/apiCall.ts`), **never** by reading JSF beans.

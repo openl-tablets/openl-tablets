@@ -9,6 +9,7 @@ declare global {
     var openl: {
         projectStatus?: import('./services/projectStatus').ProjectStatusBridge
         notification?: import('./legacy/notificationBridge').NotificationBridge
+        loader?: import('./legacy/loaderBridge').LoaderBridge
     } | undefined
 }
 
