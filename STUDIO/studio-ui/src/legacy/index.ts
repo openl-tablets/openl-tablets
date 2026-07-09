@@ -9,6 +9,7 @@
  *     document.addEventListener('openl:ready', cb, { once: true });
  * </pre>
  */
+import './loaderBridge'
 import './notificationBridge'
 import './projectStatusBridge'
 

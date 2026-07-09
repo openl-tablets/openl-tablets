@@ -49,6 +49,26 @@ function notifyUser(type, content) {
 }
 
 /**
+ * Toggles the full-screen loading overlay through the Ant Design bridge published by
+ * the React application as globalThis.openl.loader. The React entry point is a deferred
+ * ESM module, so a call made before it loads is postponed until the bridge announces
+ * the "openl:ready" event; queued calls keep their order, so show/hide pairs stay balanced.
+ *
+ * Calls may overlap: the overlay stays open until every "show" is paired with a "hide".
+ *
+ * @param action "show" or "hide"
+ */
+function notifyLoader(action) {
+    if (globalThis.openl && globalThis.openl.loader) {
+        globalThis.openl.loader[action]();
+    } else {
+        document.addEventListener("openl:ready", function () {
+            globalThis.openl.loader[action]();
+        }, { once: true });
+    }
+}
+
+/**
  * EPBDS-4825 rich:popupPanel has an issue: https://issues.jboss.org/browse/RF-10980
  * This function fixes rich:popupPanel's processTabindexes() function to correctly handle TABs in dialog boxes
  */

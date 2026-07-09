@@ -14,16 +14,17 @@ describe('legacy bridges entry', () => {
     })
 
     it('announces openl:ready only after every bridge is installed', async () => {
-        const installed: Array<{ notification: boolean, projectStatus: boolean }> = []
+        const installed: Array<{ notification: boolean, projectStatus: boolean, loader: boolean }> = []
         document.addEventListener('openl:ready', () => {
             installed.push({
                 notification: globalThis.openl?.notification != null,
                 projectStatus: globalThis.openl?.projectStatus != null,
+                loader: globalThis.openl?.loader != null,
             })
         }, { once: true })
 
         await import('./index')
 
-        expect(installed).toEqual([{ notification: true, projectStatus: true }])
+        expect(installed).toEqual([{ notification: true, projectStatus: true, loader: true }])
     })
 })

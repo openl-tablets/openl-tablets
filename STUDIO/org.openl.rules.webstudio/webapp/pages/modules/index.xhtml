@@ -29,7 +29,7 @@
 
     <h:outputText value="#{viteAssets.html}" escape="false" />
 
-    <script src="javascript/common.js?13"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+    <script src="javascript/common.js?14"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
     <script src="javascript/vendor/jquery-3.7.1.min.js"></script>
     <script src="javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
     <script src="javascript/vendor/jquery-back-compat.js"></script>
@@ -59,7 +59,6 @@
 
             // Init
 
-            var reqs = 0;
             var lastSavedHash = $location.getHash();
             var fullreload = false;
             var moduleLoading = false;
@@ -87,7 +86,6 @@
                 branch: 0
             };
 
-            var loadingPanel;
             var mainLayout;
             var centerLayout;
 
@@ -461,18 +459,10 @@
                         }));
                     },
                     showLoader: function () {
-                        if (reqs++ == 0) {
-                            showAnimatedPanel(loadingPanel);
-                        }
+                        notifyLoader("show");
                     },
                     hideLoader: function () {
-                        if (reqs-- == 1) {
-                            loadingPanel.hide();
-                        }
-                        if (reqs < 0) {
-                            reqs = 0;
-                            console.warn('hideLoader() without showLoader() is called.');
-                        }
+                        notifyLoader("hide");
                     },
                     success: function(content) {
                         notifyUser("success", content);
@@ -535,8 +525,6 @@
                         onclose: changePanelState
                     });
                     centerLayout.addCloseBtn("#south-closer", "south");
-
-                    loadingPanel = $("#loadingPanel");
 
                     var panelState = ws.storage.get(WS_PANEL_STATE_VAR);
                     if (!panelState) {
@@ -1160,10 +1148,6 @@
             <span id="east-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
             <div id="rightContent"></div>
         </div>
-    </div>
-
-    <div id="loadingPanel" style="display: none">
-        <img src="#{contextPath}/webresource/images/ajax-loader.gif" />
     </div>
 
     <div style="display: none">

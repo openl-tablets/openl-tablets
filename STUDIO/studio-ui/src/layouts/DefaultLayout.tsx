@@ -10,6 +10,7 @@ import { ConfirmModal } from 'containers/ConfirmModal'
 import { TraceExecutionModal } from 'containers/TraceExecutionModal'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import { JsfIslandHost } from 'components/JsfIslandHost'
+import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
 import Forbidden from 'pages/403'
@@ -62,6 +63,7 @@ export const DefaultLayout = () => {
             <TraceExecutionModal />
             <TableGraphModal />
             <ConfirmModal />
+            <LoadingOverlay />
             <JsfIslandHost />
         </Layout>
     )
