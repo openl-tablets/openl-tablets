@@ -1,10 +1,19 @@
 import React from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { Notification } from 'containers/Notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'
 import { Tags } from 'containers/Tags'
 import { Repositories } from '../containers/Repositories'
+import { Skeleton } from 'antd'
+import { ProjectsHome } from '../containers/ProjectsHome'
+import { DeploymentsHome } from '../containers/DeploymentsHome'
+import { ProjectsThemeProvider } from '../containers/projects/ProjectsThemeProvider'
+
+// The single-project workspace (detail tabs, editor, CodeMirror) is code-split and loaded on demand,
+// so opening the Projects list stays light.
+const ProjectWorkspace = React.lazy(() =>
+    import('../containers/ProjectWorkspace').then(module => ({ default: module.ProjectWorkspace })))
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
@@ -41,6 +50,29 @@ const router = createBrowserRouter([
             {
                 path: 'help',
                 element: <Help />,
+            },
+            {
+                path: 'projects',
+                element: <ProjectsThemeProvider><ProjectsHome /></ProjectsThemeProvider>,
+            },
+            {
+                path: 'deployments',
+                element: <ProjectsThemeProvider><DeploymentsHome /></ProjectsThemeProvider>,
+            },
+            {
+                path: 'projects/:projectId',
+                element: (
+                    <ProjectsThemeProvider>
+                        <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                            <ProjectWorkspace />
+                        </React.Suspense>
+                    </ProjectsThemeProvider>
+                ),
+            },
+            {
+                // The tab used to live here; keep old bookmarks working.
+                path: 'repository',
+                element: <Navigate replace to="/projects" />,
             },
             {
                 path: 'forbidden',

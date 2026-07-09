@@ -230,7 +230,7 @@ describe('Users', () => {
             expect(screen.getByText('admin')).toBeInTheDocument()
         })
         // admin has lastLoginTime, viewer has none
-        expect(screen.getByText(formatDateTime('2026-07-01T10:30:00Z'))).toBeInTheDocument()
+        expect(screen.getByText(formatDateTime('2026-07-01T10:30:00Z')!)).toBeInTheDocument()
         expect(screen.getByText('users:users_table.never_logged_in')).toBeInTheDocument()
     })
 

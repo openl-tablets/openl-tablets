@@ -24,5 +24,14 @@ export const formatDate = (value: string): string => dayjs(value).format('ll')
 
 /**
  * Formats a date with time, such as "Aug 16, 2018 8:02 PM", using the date format of the current language.
+ *
+ * Returns null for a missing value and the raw string when it cannot be parsed, so callers can apply
+ * their own fallback.
  */
-export const formatDateTime = (value: string): string => dayjs(value).format('lll')
+export const formatDateTime = (value?: string): string | null => {
+    if (!value) {
+        return null
+    }
+    const date = dayjs(value)
+    return date.isValid() ? date.format('lll') : value
+}

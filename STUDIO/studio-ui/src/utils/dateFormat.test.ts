@@ -12,6 +12,15 @@ describe('dateFormat', () => {
         expect(formatted).not.toContain('lll')
     })
 
+    it('returns null for a missing date-time value', () => {
+        expect(formatDateTime(undefined)).toBeNull()
+        expect(formatDateTime('')).toBeNull()
+    })
+
+    it('returns the raw string when the date-time cannot be parsed', () => {
+        expect(formatDateTime('not-a-date')).toBe('not-a-date')
+    })
+
     it('expands the localized date pattern', () => {
         const formatted = formatDate('2026-07-15T12:00:00Z')
 

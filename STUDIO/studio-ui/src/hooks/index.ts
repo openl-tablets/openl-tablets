@@ -1,3 +1,5 @@
 export { useCopyToClipboard } from './useCopyToClipboard'
+export { useCommitInfoGuard } from './useCommitInfoGuard'
 export { useGlobalEvents } from './useGlobalEvents'
+export { useGuardedReload } from './useGuardedReload'
 export { useScript } from './useScript'

@@ -76,13 +76,25 @@ export interface ProjectStatusCompilation {
     tests?: ProjectStatusCompilationTests
 }
 
+export type ProjectFileChangeType = 'added' | 'modified' | 'deleted'
+
+export interface ProjectFileChange {
+    path: string
+    type: ProjectFileChangeType
+}
+
+export interface ProjectPendingChanges {
+    total: number
+    files: ProjectFileChange[]
+}
+
 export interface ProjectStatusUpdate {
     projectId: string
     branch?: string | null
     revision?: string
     compileState: ProjectCompileState
     compilation?: ProjectStatusCompilation
-    // pendingChanges / lastModifiedBy are part of the payload but unused by the legacy UI.
+    pendingChanges?: ProjectPendingChanges
 }
 
 export interface ProjectStatusSubscription {
@@ -120,10 +132,8 @@ function buildDestination(projectId: string, branch: string | null | undefined):
 }
 
 /**
- * Concurrent fetches for the same project share one network round trip — several
- * legacy panels (testPanel, problems panel, …) bootstrap in the same load tick and
- * would otherwise hammer the backend with identical requests. The entry is cleared
- * as soon as the request settles so subsequent fetches still hit the network.
+ * Concurrent fetches for the same project share a network round trip. The entry is
+ * cleared as soon as the request settles so subsequent fetches still hit the network.
  */
 const inflightFetches = new Map<string, Promise<ProjectStatusUpdate>>()
 
@@ -139,10 +149,18 @@ export function fetchProjectStatus(projectId: string): Promise<ProjectStatusUpda
     if (existing) {
         return existing
     }
+    const promise = fetchSingleProjectStatus(projectId).finally(() => {
+        inflightFetches.delete(projectId)
+    })
+    inflightFetches.set(projectId, promise)
+    return promise
+}
+
+function fetchSingleProjectStatus(projectId: string): Promise<ProjectStatusUpdate> {
     // Background poll: throw on error so callers can decide how to render, and suppress
     // the global "show login / forbidden / not-found / server error" page redirects —
     // a stale status fetch shouldn't take over the whole UI.
-    const promise = (apiCall(
+    return apiCall(
         `/projects/${encodeURIComponent(projectId)}/status?branch=`,
         {
             method: 'GET',
@@ -150,11 +168,7 @@ export function fetchProjectStatus(projectId: string): Promise<ProjectStatusUpda
             headers: { Accept: 'application/json' },
         },
         { throwError: true, suppressErrorPages: true }
-    ) as Promise<ProjectStatusUpdate>).finally(() => {
-        inflightFetches.delete(projectId)
-    })
-    inflightFetches.set(projectId, promise)
-    return promise
+    ) as Promise<ProjectStatusUpdate>
 }
 
 interface MultiplexedSubscription {

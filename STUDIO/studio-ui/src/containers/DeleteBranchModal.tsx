@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Modal, Space, Spin, Typography } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useGlobalEvents } from '../hooks'
+import { useCommitInfoGuard, useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { deleteBranch } from '../services/branches'
 import { ProjectStatus } from '../constants/project'
@@ -42,6 +42,7 @@ export interface DeleteBranchModalDetail {
 export const DeleteBranchModal: React.FC = () => {
     const { t } = useTranslation()
     const { detail } = useGlobalEvents<DeleteBranchModalDetail>('openDeleteBranchModal')
+    const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
 
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -117,68 +118,73 @@ export const DeleteBranchModal: React.FC = () => {
         if (!detail) {
             return
         }
-        setDeleting(true)
-        try {
-            // Protected branches reach this modal only for bypass-eligible users (see canDeleteBranch);
-            // the modal is the explicit confirmation, so request the protected-branch bypass. The flag is
-            // a no-op for non-protected branches and still yields 403 for non-eligible users.
-            const deleted = await deleteBranch(projectId, detail.branch, true)
-            if (deleted) {
-                handleClose()
-                detail.onSuccess?.()
+        await runWithCommitInfo(async () => {
+            setDeleting(true)
+            try {
+                // Protected branches reach this modal only for bypass-eligible users (see canDeleteBranch);
+                // the modal is the explicit confirmation, so request the protected-branch bypass. The flag is
+                // a no-op for non-protected branches and still yields 403 for non-eligible users.
+                const deleted = await deleteBranch(projectId, detail.branch, true)
+                if (deleted) {
+                    handleClose()
+                    detail.onSuccess?.()
+                }
+            } finally {
+                setDeleting(false)
             }
-        } finally {
-            setDeleting(false)
-        }
-    }, [detail, projectId, handleClose])
+        })
+    }, [detail, projectId, handleClose, runWithCommitInfo])
 
     const unsafe = modified || !mergedIntoMain
 
     return (
-        <Modal
-            destroyOnHidden
-            onCancel={handleClose}
-            open={visible}
-            footer={[
-                <Button key="cancel" disabled={deleting} onClick={handleClose}>
-                    {t('common:btn.cancel')}
-                </Button>,
-                <Button key="delete" danger disabled={loading} loading={deleting} onClick={handleDelete} type="primary">
-                    {unsafe
-                        ? t('repository:delete_branch.confirm_button_unsafe')
-                        : t('repository:delete_branch.confirm_button')}
-                </Button>,
-            ]}
-            title={
-                <Space>
-                    <BranchesOutlined />
-                    {t('repository:delete_branch.title')}
-                </Space>
-            }
-        >
-            <Spin spinning={loading}>
-                <Typography.Paragraph>
-                    {t('repository:delete_branch.confirm', { branch: detail?.branch })}
-                </Typography.Paragraph>
-                {modified && (
-                    <Alert
-                        showIcon
-                        style={{ marginBottom: 8 }}
-                        title={t('repository:delete_branch.modified_warning')}
-                        type="warning"
-                    />
-                )}
-                {!mergedIntoMain && (
-                    <Alert
-                        showIcon
-                        type="warning"
-                        title={t('repository:delete_branch.not_merged_warning', {
-                            branch: detail?.branch,
-                            mainBranch: detail?.mainBranch,
-                        })}
-                    />
-                )}
-            </Spin>
-        </Modal>
+        <>
+            <Modal
+                destroyOnHidden
+                onCancel={handleClose}
+                open={visible}
+                footer={[
+                    <Button key="cancel" disabled={deleting} onClick={handleClose}>
+                        {t('common:btn.cancel')}
+                    </Button>,
+                    <Button key="delete" danger disabled={loading} loading={deleting} onClick={handleDelete} type="primary">
+                        {unsafe
+                            ? t('repository:delete_branch.confirm_button_unsafe')
+                            : t('repository:delete_branch.confirm_button')}
+                    </Button>,
+                ]}
+                title={
+                    <Space>
+                        <BranchesOutlined />
+                        {t('repository:delete_branch.title')}
+                    </Space>
+                }
+            >
+                <Spin spinning={loading}>
+                    <Typography.Paragraph>
+                        {t('repository:delete_branch.confirm', { branch: detail?.branch })}
+                    </Typography.Paragraph>
+                    {modified && (
+                        <Alert
+                            showIcon
+                            style={{ marginBottom: 8 }}
+                            title={t('repository:delete_branch.modified_warning')}
+                            type="warning"
+                        />
+                    )}
+                    {!mergedIntoMain && (
+                        <Alert
+                            showIcon
+                            type="warning"
+                            title={t('repository:delete_branch.not_merged_warning', {
+                                branch: detail?.branch,
+                                mainBranch: detail?.mainBranch,
+                            })}
+                        />
+                    )}
+                </Spin>
+            </Modal>
+            {commitInfoModal}
+        </>
     )
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Form, Modal, Space, Spin, Tooltip, Typography } from 'antd'
 import { BranchesOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +25,7 @@ interface MergeBranchesStepProps {
     projectName: string
     repositoryType: string
     currentBranch: string
+    targetBranch?: string
     branches: BranchInfo[]
     onMergeSuccess: () => void
     onMergeConflicts: (result: MergeResultResponse) => void
@@ -36,6 +37,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     projectName: _projectName,
     repositoryType,
     currentBranch,
+    targetBranch,
     branches,
     onMergeSuccess,
     onMergeConflicts,
@@ -44,6 +46,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     const { t } = useTranslation()
     const [form] = Form.useForm()
     const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined)
+    const autoCheckedBranch = useRef<string | null>(null)
 
     const [isChecking, setIsChecking] = useState(false)
     const [isMerging, setIsMerging] = useState(false)
@@ -66,6 +69,9 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 label: b.protected ? `${b.name} (protected)` : b.name,
             }))
     }, [branches, currentBranch])
+
+    const canSelectBranch = useCallback((branch: string): boolean =>
+        branch !== currentBranch && branches.some(item => item.name === branch), [branches, currentBranch])
 
     const runCheck = useCallback(async (mode: MergeMode, branch: string): Promise<{ result: CheckMergeResult | null, bypassRequired: boolean, error: string | null }> => {
         const callCheck = async (force: boolean) => {
@@ -130,6 +136,16 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
 
         setIsChecking(false)
     }, [runCheck])
+
+    useEffect(() => {
+        if (!targetBranch || !canSelectBranch(targetBranch) || autoCheckedBranch.current === targetBranch) {
+            return
+        }
+        autoCheckedBranch.current = targetBranch
+        form.setFieldValue('targetBranch', targetBranch)
+        setSelectedBranch(targetBranch)
+        void checkMergeStatus(targetBranch)
+    }, [canSelectBranch, checkMergeStatus, form, targetBranch])
 
     const handleMerge = async (mode: MergeMode) => {
         if (!selectedBranch) return

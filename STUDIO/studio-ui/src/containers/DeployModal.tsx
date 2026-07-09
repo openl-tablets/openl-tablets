@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Modal, Form, Button, Space, notification, Spin } from 'antd'
 import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useGlobalEvents } from 'hooks'
+import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
 import { Select, TextArea } from 'components/form'
 import { apiCall, ForbiddenError } from 'services'
 import { errorHandler } from 'utils/errorHandling'
@@ -22,6 +22,10 @@ interface DeployModalDetail {
     status: string
 }
 
+interface ProjectDeployedDetail {
+    projectId?: string
+}
+
 /**
  * DeployModal component
  * @example to call this modal, dispatch a custom event 'openDeployModal' with details:
@@ -32,6 +36,7 @@ export const DeployModal: React.FC = () => {
     const [form] = Form.useForm()
     const selectedRepository = Form.useWatch('repository', form)
     const { detail } = useGlobalEvents<DeployModalDetail>('openDeployModal')
+    const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
     const [visible, setVisible] = useState(false)
     const [searchString, setSearchString] = useState('')
     const [deploymentRepositories, setDeploymentRepositories] = useState<Repository[]>([])
@@ -107,10 +112,8 @@ export const DeployModal: React.FC = () => {
         window.dispatchEvent(new CustomEvent('openDeployModal', { detail: null }))
     }
 
-    const handleDeploy = async () => {
+    const doDeploy = async (values: { repository: string; deploymentName: string; comment: string }) => {
         try {
-            const values = await form.validateFields()
-
             const { repository, deploymentName, comment } = values
             const projectId = detail?.id
 
@@ -168,6 +171,11 @@ export const DeployModal: React.FC = () => {
             }
 
             if (didDeploy) {
+                if (projectId) {
+                    window.dispatchEvent(new CustomEvent<ProjectDeployedDetail>('projectDeployed', {
+                        detail: { projectId },
+                    }))
+                }
                 handleClose()
             }
         } catch (info) {
@@ -195,6 +203,19 @@ export const DeployModal: React.FC = () => {
             }
         } finally {
             setIsDeploying(false)
+        }
+    }
+
+    const handleDeploy = async () => {
+        try {
+            const values = await form.validateFields()
+            await runWithCommitInfo(() => doDeploy(values))
+        } catch (info) {
+            // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
+            if (info && typeof info === 'object' && Array.isArray((info as { errorFields?: unknown }).errorFields)) {
+                return
+            }
+            errorHandler.logError(info instanceof Error ? info : new Error(String(info)))
         }
     }
 
@@ -236,78 +257,81 @@ export const DeployModal: React.FC = () => {
     }, [deploymentRepositories])
 
     return (
-        <Modal
-            onCancel={handleClose}
-            open={visible}
-            width={800}
-            footer={[
-                <Button key="cancel" disabled={isDeploying} onClick={handleClose}>
-                    {t('deploy:buttons.cancel')}
-                </Button>,
-                <Button
-                    key="deploy"
-                    icon={isDeploying ? <LoadingOutlined /> : <RocketOutlined />}
-                    loading={isDeploying}
-                    onClick={handleDeploy}
-                    type="primary"
-                >
-                    {isDeploying ? t('deploy:messages.deploying') : t('deploy:buttons.deploy')}
-                </Button>,
-            ]}
-            title={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <RocketOutlined style={{ marginRight: 8 }} />
-                    {t('deploy:title', { projectName: detail?.name })}
-                </div>
-            }
-        >
-            <Spin description={t('deploy:messages.deploying_configuration')} spinning={isDeploying}>
-                <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
-                    <Form
-                        labelWrap
-                        form={form}
-                        labelAlign="right"
-                        labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
-                        name="deploy_form"
-                        style={{ minWidth: 0 }}
-                        wrapperCol={{ flex: 1 }}
+        <>
+            <Modal
+                onCancel={handleClose}
+                open={visible}
+                width={800}
+                footer={[
+                    <Button key="cancel" disabled={isDeploying} onClick={handleClose}>
+                        {t('deploy:buttons.cancel')}
+                    </Button>,
+                    <Button
+                        key="deploy"
+                        icon={isDeploying ? <LoadingOutlined /> : <RocketOutlined />}
+                        loading={isDeploying}
+                        onClick={handleDeploy}
+                        type="primary"
                     >
-                        <Select
-                            required
-                            formItemStyle={{ minWidth: 0 }}
-                            label={t('deploy:repository.label')}
-                            name="repository"
-                            options={deploymentRepositoriesOptions}
-                            placeholder={t('deploy:repository.placeholder')}
-                            style={{ width: '100%' }}
-                            suffixIcon={<BranchesOutlined />}
-                        />
-                        <Select
-                            required
-                            showSearch
-                            defaultActiveFirstOption={false}
-                            disabled={!selectedRepository}
-                            filterOption={false}
-                            label={t('deploy:deployment_name.label')}
-                            name="deploymentName"
-                            notFoundContent={null}
-                            onBlur={onBlurDeploymentName}
-                            onChange={handleChangeDeploymentName}
-                            onSearch={handleSearchDeploymentName}
-                            options={deploymentNames.map(dep => ({ value: dep.id, label: dep.name }))}
-                            placeholder={t('deploy:deployment_name.placeholder')}
-                            style={{ width: '100%' }}
-                            suffixIcon={null}
-                        />
-                        <TextArea
-                            required
-                            label={t('deploy:comment.label')}
-                            name="comment"
-                            placeholder={t('deploy:comment.placeholder')}
-                        />
-                    </Form>
-                </Space>
-            </Spin>
-        </Modal>
+                        {isDeploying ? t('deploy:messages.deploying') : t('deploy:buttons.deploy')}
+                    </Button>,
+                ]}
+                title={
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <RocketOutlined style={{ marginRight: 8 }} />
+                        {t('deploy:title', { projectName: detail?.name })}
+                    </div>
+                }
+            >
+                <Spin description={t('deploy:messages.deploying_configuration')} spinning={isDeploying}>
+                    <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
+                        <Form
+                            labelWrap
+                            form={form}
+                            labelAlign="right"
+                            labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
+                            name="deploy_form"
+                            style={{ minWidth: 0 }}
+                            wrapperCol={{ flex: 1 }}
+                        >
+                            <Select
+                                required
+                                formItemStyle={{ minWidth: 0 }}
+                                label={t('deploy:repository.label')}
+                                name="repository"
+                                options={deploymentRepositoriesOptions}
+                                placeholder={t('deploy:repository.placeholder')}
+                                style={{ width: '100%' }}
+                                suffixIcon={<BranchesOutlined />}
+                            />
+                            <Select
+                                required
+                                showSearch
+                                defaultActiveFirstOption={false}
+                                disabled={!selectedRepository}
+                                filterOption={false}
+                                label={t('deploy:deployment_name.label')}
+                                name="deploymentName"
+                                notFoundContent={null}
+                                onBlur={onBlurDeploymentName}
+                                onChange={handleChangeDeploymentName}
+                                onSearch={handleSearchDeploymentName}
+                                options={deploymentNames.map(dep => ({ value: dep.id, label: dep.name }))}
+                                placeholder={t('deploy:deployment_name.placeholder')}
+                                style={{ width: '100%' }}
+                                suffixIcon={null}
+                            />
+                            <TextArea
+                                required
+                                label={t('deploy:comment.label')}
+                                name="comment"
+                                placeholder={t('deploy:comment.placeholder')}
+                            />
+                        </Form>
+                    </Space>
+                </Spin>
+            </Modal>
+            {commitInfoModal}
+        </>
     )
 }

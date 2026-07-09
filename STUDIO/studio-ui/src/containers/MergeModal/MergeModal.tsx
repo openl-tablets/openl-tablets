@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Modal, notification, Typography } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useGlobalEvents } from '../../hooks'
+import { useCommitInfoGuard, useGlobalEvents } from '../../hooks'
 import { apiCall, NotFoundError } from '../../services'
-import { useUserStore } from 'store'
+import { errorMessage } from '../../utils/errorMessage'
 import { MergeBranchesStep } from './MergeBranchesStep'
 import { ConflictResolutionStep } from './ConflictResolutionStep'
-import { CommitInfoModal } from './CommitInfoModal'
 import { ConflictDetails, ConflictGroup, MergeModalDetail, MergeResultResponse, MergeStep } from './types'
+import { openMergeConflictCompare } from './mergeConflictCompare'
 
 /**
  * MergeModal component
@@ -18,7 +18,7 @@ import { ConflictDetails, ConflictGroup, MergeModalDetail, MergeResultResponse, 
 export const MergeModal: React.FC = () => {
     const { t } = useTranslation()
     const { detail } = useGlobalEvents<MergeModalDetail>('openMergeModal')
-    const { userProfile } = useUserStore()
+    const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
 
     // Modal state
     const [visible, setVisible] = useState(false)
@@ -26,10 +26,6 @@ export const MergeModal: React.FC = () => {
 
     // Conflict state
     const [conflictGroups, setConflictGroups] = useState<ConflictGroup[]>([])
-
-    // Sub-modal states
-    const [commitInfoModalVisible, setCommitInfoModalVisible] = useState(false)
-    const [pendingMergeCallback, setPendingMergeCallback] = useState<(() => void) | null>(null)
 
     // Check for existing conflicts when modal opens
     // 404 means no conflicts - this is expected, so we suppress error pages
@@ -115,54 +111,25 @@ export const MergeModal: React.FC = () => {
     }, [handleClose])
 
     const handleCompare = useCallback((filePath: string) => {
-        // Use external compare dialog (RichFaces integration)
-        detail?.onCompare?.(filePath)
-    }, [detail])
-
-    // Check commit info before merge (for Git repositories)
-    const handleCheckCommitInfo = useCallback(async (callback: () => void) => {
-        const username = userProfile?.username
-        if (!username) {
-            callback()
+        // Prefer the legacy RichFaces bridge when the modal is opened from JSF.
+        if (detail?.onCompare) {
+            detail.onCompare(filePath)
             return
         }
-
-        try {
-            // Check if user has commit info configured
-            const userInfo = await apiCall(
-                `/users/${encodeURIComponent(username)}`,
-                { method: 'GET' },
-                true
-            )
-
-            // If user has both displayName and email, proceed with merge
-            if (userInfo?.displayName && userInfo?.email) {
-                callback()
-            } else {
-                // Show commit info modal
-                setPendingMergeCallback(() => callback)
-                setCommitInfoModalVisible(true)
-            }
-        } catch (_err) {
-            // User info doesn't exist, show modal
-            setPendingMergeCallback(() => callback)
-            setCommitInfoModalVisible(true)
+        if (!detail) {
+            return
         }
-    }, [userProfile?.username])
+        void openMergeConflictCompare(detail.projectId, filePath).catch(error => {
+            notification.error({
+                title: t('merge:errors.compare_failed'),
+                description: errorMessage(error),
+            })
+        })
+    }, [detail, t])
 
-    const handleCommitInfoSave = useCallback(() => {
-        setCommitInfoModalVisible(false)
-        // Execute pending merge callback
-        if (pendingMergeCallback) {
-            pendingMergeCallback()
-            setPendingMergeCallback(null)
-        }
-    }, [pendingMergeCallback])
-
-    const handleCommitInfoCancel = useCallback(() => {
-        setCommitInfoModalVisible(false)
-        setPendingMergeCallback(null)
-    }, [])
+    const handleCheckCommitInfo = useCallback((callback: () => void) => {
+        void runWithCommitInfo(callback)
+    }, [runWithCommitInfo])
 
     // Determine modal title based on step
     const modalTitle = currentStep === 'branches'
@@ -200,6 +167,7 @@ export const MergeModal: React.FC = () => {
                         projectId={detail.projectId}
                         projectName={detail.projectName}
                         repositoryType={detail.repositoryType}
+                        {...(detail.targetBranch ? { targetBranch: detail.targetBranch } : {})}
                     />
                 )}
                 {detail && currentStep === 'conflicts' && (
@@ -212,13 +180,7 @@ export const MergeModal: React.FC = () => {
                     />
                 )}
             </Modal>
-            {/* Commit Info Modal */}
-            <CommitInfoModal
-                onCancel={handleCommitInfoCancel}
-                onSave={handleCommitInfoSave}
-                username={userProfile?.username || ''}
-                visible={commitInfoModalVisible}
-            />
+            {commitInfoModal}
         </>
     )
 }

@@ -1,0 +1,106 @@
+import { act, render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ProjectStatus } from '../../constants/project'
+import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
+import { RowCompileDot } from './CompileIndicator'
+
+vi.mock('../../services/projectStatus', () => ({
+    subscribeProjectStatus: vi.fn(),
+}))
+
+vi.mock('react-i18next', () => ({
+    useTranslation: () => ({
+        t: (key: string, opts?: { count?: number }) => (opts?.count !== undefined ? `${key}:${opts.count}` : key),
+    }),
+}))
+
+vi.mock('antd-style', () => ({
+    createStyles: () => () => ({
+        styles: new Proxy({}, { get: () => '' }),
+    }),
+    useTheme: () => new Proxy({}, { get: () => '#000' }),
+}))
+
+const initialStatus = (state: ProjectStatusUpdate['compileState']): ProjectStatusUpdate => ({
+    projectId: 'p1',
+    branch: 'main',
+    compileState: state,
+})
+
+describe('RowCompileDot', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe: vi.fn() } as never)
+    })
+
+    it('subscribes open rows to the project status channel', async () => {
+        await act(async () => {
+            render(
+                <RowCompileDot
+                    branch="main"
+                    initialStatus={initialStatus('ok')}
+                    projectId="p1"
+                    status={ProjectStatus.Opened}
+                />
+            )
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
+        expect(screen.getByTitle('browser.compile.ok')).toBeInTheDocument()
+    })
+
+    it('does not subscribe closed rows', async () => {
+        await act(async () => {
+            render(
+                <RowCompileDot
+                    branch="main"
+                    initialStatus={initialStatus('ok')}
+                    projectId="p1"
+                    status={ProjectStatus.Closed}
+                />
+            )
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(subscribeProjectStatus).not.toHaveBeenCalled()
+        expect(screen.getByTitle('browser.compile.idle')).toBeInTheDocument()
+    })
+
+    it('updates the tooltip from live warning and error counts', async () => {
+        let onUpdate!: (status: ProjectStatusUpdate) => void
+        vi.mocked(subscribeProjectStatus).mockImplementation((projectId, branch, listener) => {
+            onUpdate = listener
+            return { unsubscribe: vi.fn() } as never
+        })
+        await act(async () => {
+            render(
+                <RowCompileDot
+                    branch="main"
+                    initialStatus={initialStatus('ok')}
+                    projectId="p1"
+                    status={ProjectStatus.Editing}
+                />
+            )
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        act(() => onUpdate({
+            projectId: 'p1',
+            branch: 'main',
+            compileState: 'errors',
+            compilation: {
+                messages: {
+                    items: [],
+                    total: 3,
+                    errors: 2,
+                    warnings: 1,
+                },
+            },
+        }))
+
+        await waitFor(() => {
+            expect(screen.getByTitle('browser.compile.error_count:2, browser.compile.warning_count:1')).toBeInTheDocument()
+        })
+    })
+})

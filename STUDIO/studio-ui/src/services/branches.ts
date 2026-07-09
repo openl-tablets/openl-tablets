@@ -1,4 +1,5 @@
 import { notification } from 'antd'
+import { errorMessage } from '../utils/errorMessage'
 import apiCall, { type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
 
@@ -40,7 +41,7 @@ export async function deleteBranch(projectId: string, branch: string, force = fa
     } catch (error) {
         notification.error({
             title: i18n.t('repository:notifications.branch_delete_failed'),
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }
