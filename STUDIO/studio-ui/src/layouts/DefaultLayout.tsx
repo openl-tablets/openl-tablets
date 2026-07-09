@@ -8,6 +8,7 @@ import { DeleteFileModal } from 'containers/DeleteFileModal'
 import { DeleteProjectModal } from 'containers/DeleteProjectModal'
 import { TraceExecutionModal } from 'containers/TraceExecutionModal'
 import { TableGraphModal } from 'containers/TableGraphModal'
+import { JsfIslandHost } from 'components/JsfIslandHost'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
 import Forbidden from 'pages/403'
@@ -59,6 +60,7 @@ export const DefaultLayout = () => {
             <DeleteProjectModal />
             <TraceExecutionModal />
             <TableGraphModal />
+            <JsfIslandHost />
         </Layout>
     )
 }

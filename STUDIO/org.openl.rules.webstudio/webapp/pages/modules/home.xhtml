@@ -1,61 +1,9 @@
 <ui:composition
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <style >
-        .links a {
-            font-style: italic;
-            text-decoration: none;
-        }
-        .links a:hover {
-            text-decoration: none;
-            background: #f8f8f8;
-            border-bottom: 1px dotted;
-        }
-    </style>
-
-    <div class="page">
-        <h1 class="page-header">#{msg['ws.home.total_projects']}: #{studio.allProjects.size()}</h1>
-
-        <div class="block-column">
-            <div class="block">
-                <h3>#{msg['ws.home.doc']}</h3>
-                <div class="block-content">
-                    <ul class="enum links">
-                        <c:set var="guidesPath" value="#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}" />
-                        <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-                        <li><a href="#{guidesPath}/OpenL Tablets - Installation Guide.pdf" target="_blank">#{msg['ws.home.doc.install_guide']}</a></li>
-                        <li><a href="#{guidesPath}/OpenL Tablets - Reference Guide.pdf" target="_blank">#{msg['ws.home.doc.ref_guide']}</a></li>
-                        <li><a href="#{guidesPath}/OpenL Tablets - Developer Guide.pdf" target="_blank">#{msg['ws.home.doc.dev_guide']}</a></li>
-                        <li><a href="#{guidesPath}/OpenL Tablets - OpenL Studio User Guide.pdf" target="_blank">#{msg['ws.home.doc.ws_guide']}</a></li>
-                        <li><a href="#{guidesPath}/OpenL Tablets - Rule Services Usage and Customization Guide.pdf" target="_blank">#{msg['ws.home.doc.service_guide']}</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="block">
-                <h3>#{msg['ws.home.net']}</h3>
-                <div class="block-content">
-                    <ul class="enum links">
-                        <li><a href="#{versionProperties.getUrl()}/" target="_blank">#{msg['ws.home.net.site']}</a></li>
-                        <li><a href="#{versionProperties.getUrl()}/news" target="_blank">#{msg['ws.home.net.news']}</a></li>
-                        <li><a href="https://github.com/openl-tablets/openl-tablets/discussions" target="_blank">#{msg['ws.home.net.github']}</a></li>
-                        <li><a href="https://twitter.com/openltablets" target="_blank">#{msg['ws.home.net.twitter']}</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="block">
-                <h3>#{msg['ws.home.dev']}</h3>
-                <div class="block-content">
-                    <ul class="enum links">
-                        <li><a href="#{contextPath}/application.properties" target="_blank">#{msg['ws.home.dev.properties']}</a></li>
-                        <li><a href="#{contextPath}/rest/api-docs" target="_blank" title="For internal usage only. It can be changed without prior notification or deprecation warning.">#{msg['ws.home.dev.api-docs']}</a></li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-    </div>
+    <!-- The Home page is rendered by the studio-ui React app (Help). The persistent React app
+         portals the Help component into this placeholder (see JsfIslandHost / islandRegistry);
+         it reads the OpenL version and site from the system info shared with the React app. -->
+    <div data-island="help"></div>
 
 </ui:composition>
