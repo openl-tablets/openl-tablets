@@ -20,6 +20,8 @@ generation.
   `lombok.config` lists both as `copyableAnnotations`, so Lombok copies them onto the generated constructor parameter.
 - Use JSpecify annotations (`@NullMarked` on packages; `@Nullable`/`@NonNull` on all reference types).
 - Never use deprecated APIs — migrate to alternatives.
+- Follow **KISS**, **YAGNI**, and **DRY** — choose the simplest solution that works, build only what a current
+  requirement needs, and factor out duplication rather than copy it.
 - Keep methods compact and single-purpose; use **at most one** `break`/`continue` per loop (Sonar `java:S135`) —
   extract per-iteration filtering into a helper that returns a value or flag instead of stacking guard `continue`s.
 - Use the narrowest visibility — prefer `private`, widen only when something outside genuinely needs it. OpenL rule
