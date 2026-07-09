@@ -4,34 +4,61 @@ Content-Type: application/json
 {
   "content": [
     {
-      "name": "EPBDS-14095",
-      "modifiedBy": "admin",
-      "modifiedAt": "*",
-      "revision": "*",
       "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
+      "name": "EPBDS-14095",
       "status": "EDITING",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
       "comment": "Project EPBDS-14095 is created.",
-      "repository": "design"
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canSave": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
-      "name": "Project",
-      "modifiedBy": "admin",
-      "modifiedAt": "*",
-      "revision": "*",
       "id": "ZGVzaWduOlByb2plY3Q=",
+      "name": "Project",
       "status": "CLOSED",
-      "comment": "Project is created.",
-      "repository": "design"
-    },
-    {
-      "name": "Project2",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "id": "ZGVzaWduOlByb2plY3Qy",
-      "status": "CLOSED",
       "comment": "Project is created.",
-      "repository": "design"
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduOlByb2plY3Qy",
+      "name": "Project2",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

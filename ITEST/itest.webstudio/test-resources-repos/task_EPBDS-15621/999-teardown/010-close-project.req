@@ -4,5 +4,6 @@ Content-Type: application/json
 Cookie: NO_JSESSIONID=noAuth
 
 {
-  "status": "CLOSED"
+  "status": "CLOSED",
+  "discardChanges": true
 }

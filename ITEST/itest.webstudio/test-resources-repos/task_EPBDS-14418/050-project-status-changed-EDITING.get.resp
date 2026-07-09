@@ -2,12 +2,24 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
   "name": "EPBDS-14418",
+  "status": "EDITING",
+  "repository": "design",
   "modifiedBy": "admin",
   "modifiedAt": "*",
   "revision": "*",
-  "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
-  "status": "EDITING",
   "comment": "Project EPBDS-14418 is created.",
-  "repository": "design"
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canSave": true,
+    "canDelete": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canEditTags": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

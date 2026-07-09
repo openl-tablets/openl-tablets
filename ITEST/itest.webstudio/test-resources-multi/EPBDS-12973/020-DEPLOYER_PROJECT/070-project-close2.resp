@@ -1,7 +1,2 @@
-HTTP/1.1 409
-Content-Type: application/json
+HTTP/1.1 204 No Content
 
-{
-  "code": "openl.error.409.project.close.conflict.message",
-  "message": "Cannot close a local or closed project."
-}

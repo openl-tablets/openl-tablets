@@ -3,5 +3,6 @@ Content-Type: application/json
 
 {
   "branches": true,
-  "searchable": true
+  "searchable": true,
+  "mappedFolders": true
 }

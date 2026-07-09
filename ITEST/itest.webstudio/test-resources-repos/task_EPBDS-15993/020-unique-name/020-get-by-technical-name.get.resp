@@ -12,5 +12,17 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15993-unique",
   "comment": "EPBDS-15993 Create unique project",
-  "selectedBranches": ["master"]
+  "selectedBranches": [
+    "master"
+  ],
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

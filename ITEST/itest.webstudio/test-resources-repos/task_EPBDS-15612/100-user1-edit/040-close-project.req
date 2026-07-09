@@ -3,5 +3,6 @@ Authorization: ${USER1_AUTH}
 Content-Type: application/json
 
 {
-  "status": "CLOSED"
+  "status": "CLOSED",
+  "discardChanges": true
 }

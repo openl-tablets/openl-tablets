@@ -25,7 +25,17 @@ Content-Type: application/json
           "status": "CLOSED",
           "repository": "design-flat"
         }
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

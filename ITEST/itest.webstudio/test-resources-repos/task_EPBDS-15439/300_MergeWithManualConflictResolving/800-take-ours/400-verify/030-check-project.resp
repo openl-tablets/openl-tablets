@@ -24,5 +24,16 @@ Content-Type: application/json
     "EPBDS-15439_MergeWithoutConflicts_one",
     "EPBDS-15439_MergeWithoutConflicts_two",
     "master"
-  ]
+  ],
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canEditTags": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

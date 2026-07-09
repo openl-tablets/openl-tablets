@@ -1,0 +1,5 @@
+POST /rest/repos/design-non-flat/projects/from-repository HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"path":"zzz-import-parent/ImportMe"}

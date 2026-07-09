@@ -1,0 +1,14 @@
+PUT /rest/users HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "displayName": "Repository Subject",
+  "username": "zzz_repo_subject",
+  "internalPassword": {
+    "password": "zzz_repo_subject"
+  },
+  "firstName": "Repository",
+  "lastName": "Subject",
+  "email": "zzz_repo_subject@email"
+}

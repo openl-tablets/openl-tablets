@@ -2,15 +2,23 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MDA6MjBlYTk0ZTViOGI1Y2ZkZjRkM2I3YjIzYTE1ZTEzNTQwMDg3MjQxMzMxOGMxMThkOTRiZDQ5ZTJiMjBkNTVmNQ==",
   "name": "EPBDS_15600",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
   "modifiedBy": "Admin",
   "modifiedAt": "*",
-  "branch": "master",
   "revision": "*",
   "path": "EPBDS_15600",
-  "id": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MDA6MjBlYTk0ZTViOGI1Y2ZkZjRkM2I3YjIzYTE1ZTEzNTQwMDg3MjQxMzMxOGMxMThkOTRiZDQ5ZTJiMjBkNTVmNQ==",
-  "status": "CLOSED",
   "comment": "Project EPBDS_15600 is created.",
-  "repository": "design-flat",
-  "selectedBranches": ["master"]
+  "selectedBranches": [
+    "master"
+  ],
+  "capabilities": {
+    "canOpen": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canExport": true
+  }
 }

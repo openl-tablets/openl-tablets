@@ -2,12 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
   "name": "EPBDS-14418",
+  "status": "CLOSED",
+  "repository": "design",
   "modifiedBy": "admin",
   "modifiedAt": "*",
   "revision": "*",
-  "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
-  "status": "CLOSED",
   "comment": "Project EPBDS-14418 is created.",
-  "repository": "design"
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

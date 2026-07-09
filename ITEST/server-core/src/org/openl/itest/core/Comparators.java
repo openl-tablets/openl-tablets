@@ -8,9 +8,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -159,6 +161,88 @@ final class Comparators {
     }
 
     static void zip(byte[] expectedBytes, byte[] actualBytes) throws IOException {
+        if (isZipArchive(expectedBytes)) {
+            zipByBytes(expectedBytes, actualBytes);
+        } else {
+            zipBySpec(new String(expectedBytes, StandardCharsets.UTF_8), actualBytes);
+        }
+    }
+
+    private static boolean isZipArchive(byte[] src) {
+        if (src.length < 4) {
+            return false;
+        }
+        int sign = ((src[0] << 24) + (src[1] << 16) + (src[2] << 8) + src[3]);
+        return sign == REGULAR_ARCHIVE_FILE_SIGN || sign == EMPTY_ARCHIVE_FILE_SIGN;
+    }
+
+    /**
+     * Validate a zip archive against a line-based entry spec, used when the expected body is not a full
+     * archive. Each non-blank line is {@code name} or {@code name = content}; both the name and the content
+     * may use {@code *} wildcards (also {@code #} for digits and {@code @} for word characters). An omitted
+     * content, or a content of {@code *}, skips the content check. A lone {@code *} line allows any
+     * additional unlisted entries; otherwise every actual entry must be listed.
+     */
+    private static void zipBySpec(String spec, byte[] actualBytes) throws IOException {
+        Map<String, byte[]> actualEntries = getZipEntries(actualBytes);
+        boolean allowExtra = false;
+        List<String> missed = new ArrayList<>();
+        for (String raw : spec.split("\n")) {
+            String line = raw.trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+            if (line.equals("*")) {
+                allowExtra = true;
+                continue;
+            }
+            int eq = line.indexOf('=');
+            String nameGlob = (eq < 0 ? line : line.substring(0, eq)).trim();
+            String contentGlob = eq < 0 ? null : line.substring(eq + 1).trim();
+            String nameRegExp = patternToRegexp(nameGlob);
+            String matchedKey = actualEntries.keySet().stream()
+                    .filter(key -> key.matches(nameRegExp))
+                    .findFirst()
+                    .orElse(null);
+            if (matchedKey == null) {
+                missed.add(nameGlob);
+                continue;
+            }
+            assertZipEntryContent(matchedKey, actualEntries.remove(matchedKey), contentGlob);
+        }
+        reportZipSpecMismatch(missed, allowExtra ? Map.of() : actualEntries);
+    }
+
+    private static void assertZipEntryContent(String name, byte[] content, String contentGlob) {
+        if (contentGlob == null || contentGlob.equals("*")) {
+            return;
+        }
+        String actualText = new String(content, StandardCharsets.UTF_8).trim();
+        if (!Pattern.compile(patternToRegexp(contentGlob), Pattern.DOTALL).matcher(actualText).matches()) {
+            fail("Zip entry [%s] content:%sexpected: <%s>%s but was: <%s>".formatted(name, CRLF, contentGlob, CRLF, actualText));
+        }
+    }
+
+    private static void reportZipSpecMismatch(List<String> missed, Map<String, byte[]> unexpected) {
+        Function<String, String> tab = s -> "    " + s;
+        StringBuilder err = new StringBuilder();
+        if (!missed.isEmpty()) {
+            err.append("MISSED entries:").append(CRLF)
+                    .append(missed.stream().map(tab).collect(Collectors.joining(CRLF)));
+        }
+        if (!unexpected.isEmpty()) {
+            if (!err.isEmpty()) {
+                err.append(CRLF);
+            }
+            err.append("UNEXPECTED entries:").append(CRLF)
+                    .append(unexpected.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
+        }
+        if (!err.isEmpty()) {
+            fail(err.toString());
+        }
+    }
+
+    private static void zipByBytes(byte[] expectedBytes, byte[] actualBytes) throws IOException {
         final Map<String, byte[]> expectedZipEntries = getZipEntries(expectedBytes);
         final Map<String, byte[]> actualZipEntries = getZipEntries(actualBytes);
 

@@ -3,21 +3,27 @@ Content-Type: application/json
 
 [
   {
+    "id": "ZGVzaWduOlByb2plY3Q=",
     "name": "Project",
+    "repository": "design",
     "modifiedBy": "admin",
     "modifiedAt": "*",
     "revision": "*",
-    "id": "ZGVzaWduOlByb2plY3Q=",
     "comment": "Project is created.",
-    "repository": "design"
+    "capabilities": {
+      "canRead": true
+    }
   },
   {
+    "id": "ZGVzaWduOlByb2plY3Qy",
     "name": "Project2",
+    "repository": "design",
     "modifiedBy": "admin",
     "modifiedAt": "*",
     "revision": "*",
-    "id": "ZGVzaWduOlByb2plY3Qy",
     "comment": "Project is created.",
-    "repository": "design"
+    "capabilities": {
+      "canRead": true
+    }
   }
 ]

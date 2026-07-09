@@ -16,7 +16,17 @@ Content-Type: application/json
       "repository": "design-flat",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

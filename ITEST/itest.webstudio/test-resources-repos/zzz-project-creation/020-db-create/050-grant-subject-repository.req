@@ -1,0 +1,7 @@
+PUT /rest/acls/repositories/REVTSUdOOmRlc2lnbg==?sid=zzz_repo_subject&principal=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "role": "VIEWER"
+}

@@ -188,6 +188,10 @@ class HttpData {
             if (expected.body == null) {
                 return; // No body expected
             }
+            var expectedBody = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
+            if (expectedBody.equals("***")) {
+                return; // Whole-body wildcard skips content comparison for any content type (json, zip, xml, ...)
+            }
             String contentEncoding = headers.get("Content-Encoding");
             Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
@@ -222,20 +226,17 @@ class HttpData {
                 }
                 case "application/zip" -> Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
                 default -> {
-                    var expectedBody = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
-                    if (!expectedBody.trim().equals("***")) {
-                        if (isFileRef(expectedBody)) {
-                            String fileRes = resolveFileRef(Path.of(expected.pathToResource).getParent(), expectedBody);
-                            try (InputStream fileStream = getStream(fileRes)) {
-                                if (fileStream == null) {
-                                    throw new FileNotFoundException(fileRes);
-                                }
-                                byte[] expectedBytes = fileStream.readAllBytes();
-                                assertArrayEquals(decoder.apply(expectedBytes), decoder.apply(this.body), "Body: ");
+                    if (isFileRef(expectedBody)) {
+                        String fileRes = resolveFileRef(Path.of(expected.pathToResource).getParent(), expectedBody);
+                        try (InputStream fileStream = getStream(fileRes)) {
+                            if (fileStream == null) {
+                                throw new FileNotFoundException(fileRes);
                             }
-                        } else {
-                            assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
+                            byte[] expectedBytes = fileStream.readAllBytes();
+                            assertArrayEquals(decoder.apply(expectedBytes), decoder.apply(this.body), "Body: ");
                         }
+                    } else {
+                        assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
                     }
                 }
             }
@@ -351,11 +352,16 @@ class HttpData {
                     }
                     body = fileStream.readAllBytes();
                 }
+                if (input.available() != 0) {
+                    throw new IllegalStateException("Unexpected content");
+                }
             } else {
-                body = line.getBytes(StandardCharsets.UTF_8);
-            }
-            if (input.available() != 0) {
-                throw new IllegalStateException("Unexpected content");
+                // Inline text: a *** wildcard or a multi-line zip entry spec.
+                StringBuilder sb = new StringBuilder(line);
+                while (input.available() != 0) {
+                    sb.append('\n').append(readLine(input));
+                }
+                body = sb.toString().getBytes(StandardCharsets.UTF_8);
             }
         } else if (cl != null) {
             body = readBody(input, cl);

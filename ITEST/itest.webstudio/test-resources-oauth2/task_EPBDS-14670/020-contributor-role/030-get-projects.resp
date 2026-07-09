@@ -11,7 +11,13 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project EPBDS-12973 is created."
+      "comment": "Project EPBDS-12973 is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=",
@@ -21,23 +27,35 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project EPBDS_14670_Project is created."
+      "comment": "Project EPBDS_14670_Project is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
       "name": "Project",
-      "branch": "master",
-      "status": "CLOSED",
+      "branch": "admin/feature-1",
+      "status": "OPENED",
       "repository": "design-flat",
       "modifiedBy": "OpenL Admin",
       "modifiedAt": "*",
       "revision": "*",
       "path": "Project",
-      "comment": "Project Project is created.",
+      "comment": "Admin saved the project",
       "selectedBranches": [
         "admin/feature-1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canClose": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
@@ -53,7 +71,13 @@ Content-Type: application/json
       "selectedBranches": [
         "master",
         "user1/feature-1"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

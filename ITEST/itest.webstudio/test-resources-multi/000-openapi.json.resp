@@ -14,7 +14,7 @@ Content-Type: application/json
   ],
   "security": [
     {
-      "basicAuth": [ ]
+      "basicAuth": []
     }
   ],
   "tags": [
@@ -523,6 +523,14 @@ Content-Type: application/json
             }
           },
           {
+            "in": "query",
+            "name": "inherited",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -652,6 +660,126 @@ Content-Type: application/json
         },
         "responses": {
           "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "ACL Management: Projects"
+        ]
+      }
+    },
+    "/acls/projects/{project-id}/subjects": {
+      "get": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "project-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "principal",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "description": "***"
           },
           "400": {
@@ -5016,6 +5144,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -5188,6 +5324,106 @@ Content-Type: application/json
       }
     },
     "/deployments/{id}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentViewModel_Full"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Deployments"
+        ]
+      },
       "post": {
         "description": "***",
         "operationId": "***",
@@ -6317,6 +6553,38 @@ Content-Type: application/json
           },
           {
             "description": "***",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "status",
+                "updated"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "explode": true,
+            "in": "query",
+            "name": "include",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "SUMMARY",
+                  "STATUS",
+                  "DELETED",
+                  "MODULES"
+                ]
+              }
+            },
+            "style": "form"
+          },
+          {
+            "description": "***",
             "explode": true,
             "in": "query",
             "name": "tags",
@@ -6382,7 +6650,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PageResponseProjectViewModel"
+                  "$ref": "#/components/schemas/ProjectsPageResponse"
                 }
               }
             },
@@ -6456,6 +6724,97 @@ Content-Type: application/json
       }
     },
     "/projects/{projectId}": {
+      "delete": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "comment",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      },
       "get": {
         "operationId": "***",
         "parameters": [
@@ -6467,6 +6826,25 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "explode": true,
+            "in": "query",
+            "name": "include",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "SUMMARY",
+                  "STATUS",
+                  "DELETED",
+                  "MODULES"
+                ]
+              }
+            },
+            "style": "form"
           },
           {
             "description": "***",
@@ -7961,6 +8339,91 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/lock": {
+      "delete": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/merge": {
       "post": {
         "description": "***",
@@ -8941,6 +9404,7 @@ Content-Type: application/json
     },
     "/projects/{projectId}/status": {
       "get": {
+        "deprecated": true,
         "description": "***",
         "operationId": "***",
         "parameters": [
@@ -10165,6 +10629,104 @@ Content-Type: application/json
               }
             }
           },
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tags": {
+      "put": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
           "204": {
             "description": "***"
           },
@@ -13526,6 +14088,102 @@ Content-Type: application/json
         ]
       }
     },
+    "/repos/project-templates": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectTemplateGroup"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Design Repository"
+        ]
+      }
+    },
     "/repos/{repo-name}/branches": {
       "get": {
         "description": "***",
@@ -13803,6 +14461,7 @@ Content-Type: application/json
     },
     "/repos/{repo-name}/features": {
       "get": {
+        "deprecated": true,
         "description": "***",
         "operationId": "***",
         "parameters": [
@@ -14823,6 +15482,118 @@ Content-Type: application/json
         ]
       }
     },
+    "/repos/{repo-name}/folders": {
+      "get": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "repo-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositoryFolder"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Design Repository"
+        ]
+      }
+    },
     "/repos/{repo-name}/projects": {
       "get": {
         "deprecated": true,
@@ -14860,6 +15631,212 @@ Content-Type: application/json
                 }
               }
             },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Design Repository"
+        ]
+      }
+    },
+    "/repos/{repo-name}/projects/from-repository": {
+      "post": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "repo-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFromRepositoryModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectViewModel"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Design Repository"
+        ]
+      }
+    },
+    "/repos/{repo-name}/projects/from-workspace": {
+      "post": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "repo-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFromWorkspaceModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
             "description": "***"
           },
           "400": {
@@ -14967,18 +15944,34 @@ Content-Type: application/json
             "multipart/form-data": {
               "encoding": {
                 "template": {
-                  "contentType": "application/zip"
+                  "contentType": "application/octet-stream"
                 }
               },
               "schema": {
                 "type": "object",
                 "properties": {
+                  "algorithmsModuleName": {
+                    "type": "string",
+                    "description": "***"
+                  },
+                  "algorithmsPath": {
+                    "type": "string",
+                    "description": "***"
+                  },
                   "comment": {
                     "type": "string",
                     "description": "***"
                   },
                   "force": {
                     "type": "boolean",
+                    "description": "***"
+                  },
+                  "modelsModuleName": {
+                    "type": "string",
+                    "description": "***"
+                  },
+                  "modelsPath": {
+                    "type": "string",
                     "description": "***"
                   },
                   "overwrite": {
@@ -14990,8 +15983,23 @@ Content-Type: application/json
                     "description": "***"
                   },
                   "template": {
+                    "type": "array",
+                    "description": "***",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "templateCategory": {
                     "type": "string",
-                    "format": "binary",
+                    "description": "***"
+                  },
+                  "templateName": {
+                    "type": "string",
+                    "description": "***"
+                  },
+                  "templateType": {
+                    "type": "string",
                     "description": "***"
                   }
                 }
@@ -15005,6 +16013,126 @@ Content-Type: application/json
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectViewModel_CreateOrUpdate"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Design Repository"
+        ]
+      }
+    },
+    "/repos/{repo-name}/projects/{project-name}/from-project": {
+      "post": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "repo-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "project-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFromProjectModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectViewModel"
                 }
               }
             },
@@ -15337,6 +16465,102 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings"
+        ]
+      }
+    },
+    "/tags/types": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TagTypeView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Tags"
         ]
       }
     },
@@ -17140,6 +18364,14 @@ Content-Type: application/json
           },
           "sid": {
             "$ref": "#/components/schemas/AclSubject_Sid"
+          },
+          "source": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "PROJECT",
+              "REPOSITORY"
+            ]
           }
         },
         "required": [
@@ -17748,6 +18980,23 @@ Content-Type: application/json
           "type"
         ]
       },
+      "Capabilities": {
+        "type": "object",
+        "properties": {
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canRead": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "CallNodeView": {
         "type": "object",
         "description": "***",
@@ -18065,6 +19314,71 @@ Content-Type: application/json
         "required": [
           "branch"
         ]
+      },
+      "CreateFromProjectModel": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "sourceProjectName": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "sourceRepositoryId": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "sourceProjectName",
+          "sourceRepositoryId"
+        ]
+      },
+      "CreateFromRepositoryModel": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "***"
+          }
+        }
+      },
+      "CreateFromWorkspaceModel": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "***"
+          },
+          "names": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "CreateNewTableRequest": {
         "type": "object",
@@ -18859,6 +20173,94 @@ Content-Type: application/json
           "projectId"
         ]
       },
+      "DeploymentItemViewModel_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "modifiedAt",
+          "modifiedBy",
+          "name",
+          "revision"
+        ]
+      },
+      "DeploymentItemViewModel_Short": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "modifiedAt",
+          "modifiedBy",
+          "name",
+          "revision"
+        ]
+      },
+      "DeploymentViewModel_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "items": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentItemViewModel_Full"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "repository": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "repository"
+        ]
+      },
       "DeploymentViewModel_Short": {
         "type": "object",
         "description": "***",
@@ -18866,6 +20268,13 @@ Content-Type: application/json
           "id": {
             "type": "string",
             "description": "***"
+          },
+          "items": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentItemViewModel_Short"
+            }
           },
           "name": {
             "type": "string",
@@ -18976,6 +20385,39 @@ Content-Type: application/json
           "tableType": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "ExposedMethodsViewModel": {
+        "type": "object",
+        "properties": {
+          "excludes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "includes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "FacetCount": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -19390,6 +20832,29 @@ Content-Type: application/json
       "JsonNode": {
         "type": "object"
       },
+      "LastCommit": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "***"
+          },
+          "message": {
+            "type": "string",
+            "description": "***"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
       "LocalRepositorySettings": {
         "type": "object",
         "allOf": [
@@ -19794,6 +21259,17 @@ Content-Type: application/json
           }
         ]
       },
+      "ModuleViewModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
       "NOPAuthenticationSettings": {
         "type": "object",
         "allOf": [
@@ -20049,43 +21525,6 @@ Content-Type: application/json
           "pageSize"
         ]
       },
-      "PageResponseProjectViewModel": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ProjectViewModel"
-            }
-          },
-          "numberOfElements": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "total": {
-            "type": "integer",
-            "format": "int64",
-            "description": "***"
-          }
-        },
-        "required": [
-          "numberOfElements",
-          "pageNumber",
-          "pageSize"
-        ]
-      },
       "PageResponseSummaryTableView": {
         "type": "object",
         "properties": {
@@ -20295,15 +21734,97 @@ Content-Type: application/json
       "ProjectBranchInfo": {
         "type": "object",
         "properties": {
+          "base": {
+            "type": "boolean",
+            "description": "***"
+          },
           "bypassEligible": {
             "type": "boolean",
             "description": "***"
+          },
+          "commitsAhead": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "commitsBehind": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "lastCommit": {
+            "$ref": "#/components/schemas/LastCommit"
           },
           "name": {
             "type": "string",
             "description": "***"
           },
           "protected": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectCapabilities": {
+        "type": "object",
+        "properties": {
+          "canDeleteProject": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canClose": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCompare": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCopy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDeploy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canEditTags": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canExport": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManage": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canOpen": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canRead": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canSave": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canUnlock": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canViewHistory": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
             "type": "boolean",
             "description": "***"
           }
@@ -20425,6 +21946,36 @@ Content-Type: application/json
           "technicalRevision"
         ]
       },
+      "ProjectStatusSummary": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "deleted": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "closed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "editing": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "local": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "opened": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "viewingVersion": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "ProjectStatusUpdateModel": {
         "type": "object",
         "properties": {
@@ -20434,6 +21985,10 @@ Content-Type: application/json
           },
           "comment": {
             "type": "string",
+            "description": "***"
+          },
+          "openDependencies": {
+            "type": "boolean",
             "description": "***"
           },
           "revision": {
@@ -20495,6 +22050,26 @@ Content-Type: application/json
           }
         }
       },
+      "ProjectTemplateGroup": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "***"
+          },
+          "templates": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
       "ProjectViewModel": {
         "type": "object",
         "properties": {
@@ -20502,9 +22077,19 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "branchProtected": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/ProjectCapabilities"
+          },
           "comment": {
             "type": "string",
             "description": "***"
+          },
+          "compileStatus": {
+            "$ref": "#/components/schemas/ProjectStatusViewModel"
           },
           "dependencies": {
             "type": "array",
@@ -20512,6 +22097,13 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/ProjectDependencyViewModel"
             }
+          },
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "exposedMethods": {
+            "$ref": "#/components/schemas/ExposedMethodsViewModel"
           },
           "id": {
             "type": "string",
@@ -20528,6 +22120,13 @@ Content-Type: application/json
           "modifiedBy": {
             "type": "string",
             "description": "***"
+          },
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel"
+            }
           },
           "name": {
             "type": "string",
@@ -20570,6 +22169,20 @@ Content-Type: application/json
               "type": "string"
             },
             "description": "***"
+          },
+          "usedBy": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyViewModel"
+            }
+          },
+          "versionPatterns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -20594,6 +22207,64 @@ Content-Type: application/json
         },
         "required": [
           "revision"
+        ]
+      },
+      "ProjectsPageResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectViewModel"
+            }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "repositoryCounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetCount"
+            }
+          },
+          "statusCounts": {
+            "$ref": "#/components/schemas/ProjectStatusSummary"
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectStatusViewModel"
+            }
+          },
+          "tagCounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagFacetSummary"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
         ]
       },
       "RawCellInput": {
@@ -20948,6 +22619,23 @@ Content-Type: application/json
           }
         }
       },
+      "RepositoryCapabilities": {
+        "type": "object",
+        "properties": {
+          "canCreateDeployment": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCreateProject": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManage": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "RepositoryConfiguration": {
         "type": "object",
         "properties": {
@@ -20976,9 +22664,30 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "mappedFolders": {
+            "type": "boolean",
+            "description": "***"
+          },
           "searchable": {
             "type": "boolean",
             "description": "***"
+          }
+        }
+      },
+      "RepositoryFolder": {
+        "type": "object",
+        "properties": {
+          "mapped": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "project": {
+            "type": "boolean"
           }
         }
       },
@@ -21056,11 +22765,21 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "capabilities": {
+            "$ref": "#/components/schemas/RepositoryCapabilities"
+          },
+          "features": {
+            "$ref": "#/components/schemas/RepositoryFeatures"
+          },
           "id": {
             "type": "string",
             "description": "***"
           },
           "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
             "type": "string",
             "description": "***"
           }
@@ -22179,6 +23898,21 @@ Content-Type: application/json
           }
         }
       },
+      "TagFacetSummary": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetCount"
+            }
+          }
+        }
+      },
       "TagTypeDTO": {
         "type": "object",
         "properties": {
@@ -22227,6 +23961,27 @@ Content-Type: application/json
         "required": [
           "name"
         ]
+      },
+      "TagTypeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "extensible": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "TestAppend": {
         "type": "object",

@@ -5,6 +5,16 @@ Content-Type: application/json
   {
     "aclId": "REVTSUdOOmRlc2lnbjE=",
     "id": "design1",
-    "name": "H2"
+    "name": "H2",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
   }
 ]

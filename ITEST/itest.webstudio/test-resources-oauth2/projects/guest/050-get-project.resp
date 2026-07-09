@@ -12,5 +12,14 @@ Content-Type: application/json
   "status": "OPENED",
   "comment": "Project Project is created.",
   "repository": "design-flat",
-  "selectedBranches":["admin/feature-1","master"]
+  "selectedBranches": [
+    "admin/feature-1",
+    "master"
+  ],
+  "capabilities": {
+    "canClose": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canExport": true
+  }
 }

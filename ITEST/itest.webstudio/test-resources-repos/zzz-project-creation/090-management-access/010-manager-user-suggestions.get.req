@@ -1,0 +1,3 @@
+GET /rest/acls/projects/ZGVzaWduOkRiU291cmNl/subjects?principal=true&search=zzz_project_subject&pageSize=10 HTTP/1.1
+Authorization: Basic enp6X3Byb2plY3RfbWFuYWdlcjp6enpfcHJvamVjdF9tYW5hZ2Vy
+

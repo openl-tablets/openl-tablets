@@ -1,0 +1,7 @@
+HTTP/1.1 200
+Content-Type: application/zip
+Content-Disposition: attachment; filename=DbSource-*.zip; filename*=UTF-8''DbSource-*.zip
+
+*rules.xml = *
+*tags.properties = *Environment*prod*
+*

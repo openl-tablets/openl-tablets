@@ -4,40 +4,61 @@ Content-Type: application/json
 {
   "content": [
     {
+      "id": "ZGVzaWduOkVQQkRTXzE1NTk1",
       "name": "EPBDS_15595",
+      "status": "CLOSED",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "id": "ZGVzaWduOkVQQkRTXzE1NTk1",
-      "status": "CLOSED",
       "comment": "Project EPBDS_15595 is created.",
-      "repository": "design"
+      "capabilities": {
+        "canOpen": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     },
     {
-      "name": "EPBDS_15595",
-      "modifiedBy": "Admin",
-      "modifiedAt": "*",
-      "revision": "*",
       "id": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTU6ZmVmNjJhMTQxMjE3NDAyMWI4NjhkNTE2ZTljMDcyOTI4YTg0MWEyOGVkOGNmZjgwYjMwMDM0YmIwMjhhY2I2OQ==",
-      "status": "CLOSED",
-      "comment": "Project EPBDS_15595 is created.",
-      "repository": "design-flat",
-      "path": "EPBDS_15595",
+      "name": "EPBDS_15595",
       "branch": "master",
-      "selectedBranches": "***"
-    },
-    {
-      "name": "EPBDS_15595_path",
+      "status": "CLOSED",
+      "repository": "design-flat",
       "modifiedBy": "Admin",
       "modifiedAt": "*",
       "revision": "*",
+      "path": "EPBDS_15595",
+      "comment": "Project EPBDS_15595 is created.",
+      "selectedBranches": "***",
+      "capabilities": {
+        "canOpen": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
+    },
+    {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTVfcGF0aDoyMzRmZmMzZjhmOGM4N2ZjZDUzNGY0MDQ2OTljNzU2ZTMxMWNlOWZiNjM4YjQwMjk1ZDc4MWEzYmViY2Q2MTJl",
-      "status": "CLOSED",
-      "comment": "Project EPBDS_15595_path is created.",
-      "repository": "design-flat",
-      "path": "rules/EPBDS_15595_path",
+      "name": "EPBDS_15595_path",
       "branch": "master",
-      "selectedBranches": "***"
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "rules/EPBDS_15595_path",
+      "comment": "Project EPBDS_15595_path is created.",
+      "selectedBranches": "***",
+      "capabilities": {
+        "canOpen": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

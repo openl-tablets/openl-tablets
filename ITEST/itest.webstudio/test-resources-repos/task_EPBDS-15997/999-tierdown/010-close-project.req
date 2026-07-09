@@ -3,5 +3,6 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "status": "CLOSED"
+  "status": "CLOSED",
+  "discardChanges": true
 }

@@ -17,7 +17,18 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-13931_1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
@@ -31,7 +42,17 @@ Content-Type: application/json
         "lockedAt": "*"
       },
       "revision": "*",
-      "comment": "Project EPBDS-14095 is created."
+      "comment": "Project EPBDS-14095 is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canUnlock": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY6N2I3NDE1MjZhYjJhOTI3NDEyYzA2YTZhZTUzYzg4YTBlZTJjNWU0MzY5NWQ3ZjZhNmFlZjFmMTg5ZGJlMjE0ZQ==",
@@ -47,7 +68,18 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-14376_1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canSave": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
@@ -57,7 +89,17 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project EPBDS-14418 is created."
+      "comment": "Project EPBDS-14418 is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
@@ -73,7 +115,18 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-15409_1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canSave": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDE6ZDUyMjg0YjVmMzk5N2Y4N2I5MTNmNzAyN2ZlN2ZlMTE2MjI1MzM1N2M0M2ZkNmY5ZTlhM2NmZmI0OWVjN2E2Mg==",
@@ -97,7 +150,17 @@ Content-Type: application/json
           "status": "CLOSED",
           "repository": "design-flat"
         }
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
@@ -112,7 +175,17 @@ Content-Type: application/json
       "comment": "Project EPBDS-15425_Project2 is created.",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOlByb2plY3Q=",
@@ -122,7 +195,17 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project is created."
+      "comment": "Project is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
@@ -137,7 +220,17 @@ Content-Type: application/json
       "comment": "Project Project is created.",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
@@ -152,7 +245,17 @@ Content-Type: application/json
       "comment": "EPBDS-10682 Create project via rest",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOlByb2plY3Qy",
@@ -162,7 +265,17 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project is created."
+      "comment": "Project is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI6Y2Y1Yjc0NzY1NmU3MjBhMDZiZWUyMzQ2NGQ1YTJkZmY5M2Q0NDdjODU1Mzc1ODFmOTc5YzNhMzhhZDYzZTQxMA==",
@@ -178,7 +291,17 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-13930_Project2",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3QyOmNmNWI3NDc2NTZlNzIwYTA2YmVlMjM0NjRkNWEyZGZmOTNkNDQ3Yzg1NTM3NTgxZjk3OWMzYTM4YWQ2M2U0MTA=",
@@ -193,7 +316,17 @@ Content-Type: application/json
       "comment": "EPBDS-10682 Create project via rest",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q0OjRjMjg2ZTU2MjQ2NDU4ZWE0ZTRhMzQyMGEyODQyOTI0ZmYyN2UxODczZmU1MGMyMWMyMGM4YjNlM2JlMzg0YWM=",
@@ -208,7 +341,17 @@ Content-Type: application/json
       "comment": "EPBDS-10682 Create project via rest",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
@@ -223,7 +366,17 @@ Content-Type: application/json
       "comment": "EPBDS-10682 Update project via rest",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

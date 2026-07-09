@@ -1,0 +1,4 @@
+DELETE /rest/users/zzz_repo_manager HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+

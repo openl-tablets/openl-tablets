@@ -5,11 +5,31 @@ Content-Type: application/json
   {
     "aclId": "REVTSUdOOmRlc2lnbg==",
     "id": "design",
-    "name": "Design"
+    "name": "Design",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
   },
   {
     "aclId": "REVTSUdOOmRlc2lnbjE=",
     "id": "design1",
-    "name": "H2"
+    "name": "H2",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
   }
 ]

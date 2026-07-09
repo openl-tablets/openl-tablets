@@ -2,17 +2,28 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
   "name": "ProjectUser1",
+  "branch": "master",
+  "status": "OPENED",
+  "repository": "design-flat",
   "modifiedBy": "User User1",
   "modifiedAt": "*",
-  "branch": "master",
   "revision": "*",
   "path": "ProjectUser1",
-  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
-  "status": "OPENED",
   "comment": "Project ProjectUser1 is created.",
-  "repository": "design-flat",
   "selectedBranches": [
     "master"
-  ]
+  ],
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canEditTags": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

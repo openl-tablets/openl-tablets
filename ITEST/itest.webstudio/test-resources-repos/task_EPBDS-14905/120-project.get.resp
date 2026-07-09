@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.404.project.identifier.message",
-  "message": "*"
+  "message": "The project identifier is invalid or not found."
 }
