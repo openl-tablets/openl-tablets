@@ -66,6 +66,24 @@ class ProjectBeanDeclaredModulesTest {
         assertEquals(2, target.getModules().size());
     }
 
+    @Test
+    void applyDeclaredModulesRestoresWildcardWhenOpenApiGenerationAddedModules() {
+        // OpenAPI file generation (createOrUpdateOpenAPISchema) clones the resolved descriptor - whose
+        // wildcard is expanded into concrete files - and may append generated model/algorithm modules.
+        // Saving must restore the declared wildcard so the <modules> block is not rewritten with the
+        // expanded/generated files.
+        var target = createProject("target",
+                createModule("rules/A.xlsx"),
+                createModule("rules/B.xlsx"),
+                createModule("rules/Generated.xlsx"));
+        var declared = createProject("declared", createModule("rules/*.xlsx"));
+
+        ProjectBean.applyDeclaredModules(target, declared);
+
+        assertEquals(1, target.getModules().size());
+        assertEquals("rules/*.xlsx", target.getModules().getFirst().getRulesRootPath());
+    }
+
     private static ProjectDescriptor createProject(String name, Module... modules) {
         var pd = new ProjectDescriptor();
         pd.setName(name);

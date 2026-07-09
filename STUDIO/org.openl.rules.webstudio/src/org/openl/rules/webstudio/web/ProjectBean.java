@@ -1271,6 +1271,7 @@ public class ProjectBean {
                 }
             }
             ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentDescriptor);
+            keepDeclaredModules(newProjectDescriptor);
             clean(newProjectDescriptor);
             if (update && newProjectDescriptor.getOpenapi() != null) {
                 OpenAPI openAPI = newProjectDescriptor.getOpenapi();
