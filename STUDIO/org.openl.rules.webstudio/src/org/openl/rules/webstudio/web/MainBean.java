@@ -18,7 +18,6 @@ import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
-import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -31,20 +30,17 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class MainBean {
 
-    private final RepositoryTreeState repositoryTreeState;
-
     private final PropertyResolver propertyResolver;
 
     private String requestId;
 
 
-    public MainBean(RepositoryTreeState repositoryTreeState, PropertyResolver propertyResolver) {
+    public MainBean(PropertyResolver propertyResolver) {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(WebStudioUtils.getExternalContext().getRequestContextPath());
         }
         requestId = UUID.randomUUID().toString();
 
-        this.repositoryTreeState = repositoryTreeState;
         this.propertyResolver = propertyResolver;
     }
 
@@ -100,8 +96,6 @@ public class MainBean {
     }
 
     public void reload() {
-        repositoryTreeState.invalidateTree();
-        repositoryTreeState.invalidateSelection();
         WebStudioUtils.getWebStudio().resetProjects();
     }
 

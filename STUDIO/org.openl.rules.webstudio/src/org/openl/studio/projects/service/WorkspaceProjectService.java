@@ -62,7 +62,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
-import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -107,6 +106,7 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.studio.tags.service.TagAssignmentValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -145,6 +145,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStatusMapper projectStatusMapper;
     private final Environment environment;
+    private final TagAssignmentValidator tagAssignmentValidator;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -167,7 +168,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             AclProjectsHelper aclProjectsHelper,
             ProjectAccessService projectAccessService,
             ProjectStatusMapper projectStatusMapper,
-            Environment environment) {
+            Environment environment,
+            TagAssignmentValidator tagAssignmentValidator) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -187,6 +189,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.aclProjectsHelper = aclProjectsHelper;
         this.projectStatusMapper = projectStatusMapper;
         this.environment = environment;
+        this.tagAssignmentValidator = tagAssignmentValidator;
     }
 
     @Lookup
@@ -633,7 +636,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
-        project.saveTags(tags != null ? tags : Map.of());
+        project.saveTags(tagAssignmentValidator.sanitize(tags != null ? tags : Map.of()));
     }
 
     /**
@@ -718,9 +721,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         } else if (!projectStateValidator.canClose(project)) {
             throw new ConflictException("project.close.conflict.message");
         }
-        if (project.isModified() && !discardChanges) {
-            throw new ConflictException("project.close.modified.message");
-        }
+        requireDiscardForModifiedProject(project, discardChanges);
         try {
             ProjectHistoryService.deleteHistory(project.getBusinessName());
         } catch (IOException e) {
@@ -760,11 +761,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         var normalizedComment = StringUtils.trimToNull(comment);
-        try {
-            CommentValidator.forRepo(project.getRepository().getId()).validate(normalizedComment);
-        } catch (Exception e) {
-            throw new BadRequestException("repo.invalid.comment.message", new Object[]{e.getMessage()});
-        }
+        validateComment(project, normalizedComment);
 
         getWebStudio().getModel().clearModuleInfo();
         closeProjectForAllUsers(project);
@@ -779,7 +776,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         workspaceManager.refreshWorkspaces();
         getWebStudio().reset();
-        eventPublisher.publishEvent(new ProjectDeletedEvent(project));
     }
 
     /**
@@ -864,8 +860,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 throw new ConflictException("open.duplicated.project");
             }
         }
-        // Do we really need to check this if we have a version? Copy-paste from
-        // RepositoryTreeController#openProjectVersion
+        // Do we really need to check this if we have a version?
         if (workspace.isOpenedOtherProject(project)) {
             throw new ConflictException("open.duplicated.project");
         }
@@ -999,7 +994,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var branches = repository.getBranches(null);
             var statuses = repository.getBranchStatuses(branches, currentBranch);
             return branches.stream()
-                    .map(branch -> toBranchInfo(repository, branch, baseBranch, currentBranch, bypassEligible, statuses))
+                    .map(branch -> toBranchInfo(repository, branch, baseBranch, bypassEligible, statuses))
                     .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
                     .toList();
         } catch (IOException e) {
@@ -1008,8 +1003,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private ProjectBranchInfo toBranchInfo(BranchRepository repository, String branch, String baseBranch,
-                                           String currentBranch, boolean bypassEligible,
-                                           Map<String, BranchStatus> statuses) {
+                                           boolean bypassEligible, Map<String, BranchStatus> statuses) {
         boolean isProtected = repository.isBranchProtected(branch);
         var builder = ProjectBranchInfo.builder()
                 .name(branch)
@@ -1017,18 +1011,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .base(branch.equals(baseBranch))
                 .bypassEligible(isProtected && bypassEligible);
         try {
-            // Ahead/behind is measured against the project's current branch; a per-branch failure only
-            // drops that branch's stats, never the whole list.
             var status = statuses.get(branch);
             if (status != null) {
-                builder.commitsAhead(status.commitsAhead())
-                        .commitsBehind(status.commitsBehind())
-                        .lastCommit(ProjectBranchInfo.LastCommit.builder()
-                                .author(status.lastCommitAuthor() == null ? null : status.lastCommitAuthor().getName())
-                                .modifiedAt(DateTimes.atSystemZone(status.lastCommitAt()))
-                                .message(status.lastCommitMessage())
-                                .revision(status.lastCommitRevision())
-                                .build());
+                builder.lastCommit(ProjectBranchInfo.LastCommit.builder()
+                        .author(status.lastCommitAuthor() == null ? null : status.lastCommitAuthor().getName())
+                        .modifiedAt(DateTimes.atSystemZone(status.lastCommitAt()))
+                        .message(status.lastCommitMessage())
+                        .revision(status.lastCommitRevision())
+                        .build());
             }
         } catch (Exception e) {
             log.warn("Failed to read status for branch '{}'", branch, e);

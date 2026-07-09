@@ -3,11 +3,14 @@ package org.openl.studio.repositories.rest.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import jakarta.validation.Valid;
@@ -18,7 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.multipart.MultipartFile;
 
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -27,11 +32,11 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.projects.service.RepositoryProjectService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateFromRepositoryModel;
 import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
+import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 import org.openl.studio.repositories.service.ProjectCreationService;
 import org.openl.studio.repositories.service.ProjectRevisionService;
@@ -45,6 +50,11 @@ class DesignTimeRepositoryControllerTest {
     private static final String BRANCH = "main";
 
     private BranchRepository repository;
+    private DesignTimeRepository designTimeRepository;
+    private RepositoryAclService designRepositoryAclService;
+    private BeanValidationProvider validationProvider;
+    private ZipProjectSaveStrategy zipProjectSaveStrategy;
+    private AclProjectsHelper aclProjectsHelper;
     private ProtectedBranchBypassService bypassService;
     private ProjectCreationService projectCreationService;
     private DesignTimeRepositoryController controller;
@@ -52,6 +62,11 @@ class DesignTimeRepositoryControllerTest {
     @BeforeEach
     void setUp() {
         repository = mock(BranchRepository.class);
+        designTimeRepository = mock(DesignTimeRepository.class);
+        designRepositoryAclService = mock(RepositoryAclService.class);
+        validationProvider = mock(BeanValidationProvider.class);
+        zipProjectSaveStrategy = mock(ZipProjectSaveStrategy.class);
+        aclProjectsHelper = mock(AclProjectsHelper.class);
         bypassService = mock(ProtectedBranchBypassService.class);
         projectCreationService = mock(ProjectCreationService.class);
 
@@ -60,15 +75,14 @@ class DesignTimeRepositoryControllerTest {
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
 
         controller = new DesignTimeRepositoryController(
-                mock(DesignTimeRepository.class),
-                mock(RepositoryAclService.class),
-                mock(BeanValidationProvider.class),
+                designTimeRepository,
+                designRepositoryAclService,
+                validationProvider,
                 mock(CreateUpdateProjectModelValidator.class),
                 mock(ZipArchiveValidator.class),
-                mock(ZipProjectSaveStrategy.class),
+                zipProjectSaveStrategy,
                 "target",
-                mock(RepositoryProjectService.class),
-                mock(AclProjectsHelper.class),
+                aclProjectsHelper,
                 mock(DesignTimeRepositoryService.class),
                 mock(ProjectRevisionService.class),
                 bypassService,
@@ -98,6 +112,23 @@ class DesignTimeRepositoryControllerTest {
                 new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment"));
 
         verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
+    }
+
+    @Test
+    void createProjectFromArchiveRegistersTagsFromDesignProject() throws Exception {
+        when(aclProjectsHelper.hasCreateProjectPermission(REPOSITORY_ID)).thenReturn(true);
+        var archive = mock(MultipartFile.class);
+        when(archive.getOriginalFilename()).thenReturn("Project.zip");
+        when(archive.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(zipProjectSaveStrategy.save(any(CreateUpdateProjectModel.class), any(Path.class)))
+                .thenReturn(new FileData());
+        var project = mock(AProject.class);
+        when(designTimeRepository.getProject(REPOSITORY_ID, "Project")).thenReturn(project);
+
+        controller.createProject(repository, "Project", null, "comment", List.of(archive), null, null, null,
+                "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx", false, false);
+
+        verify(projectCreationService).registerExtensibleTagsAfterDesignChange(project);
     }
 
     @Test

@@ -1,4 +1,19 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{"name":"Sample2","modified":false,"opened":true,"localOnly":false,"openedForEditing":true,"deleted":false,"dependencies":[{"name":"Sample1","modified":false,"opened":true,"localOnly":false,"openedForEditing":true,"deleted":false}],"dependsOn":[{"name":"Sample3","modified":false,"opened":true,"localOnly":false,"openedForEditing":true,"deleted":false}]}
+{
+  "name": "Sample2",
+  "status": "OPENED",
+  "dependencies": [
+    {
+      "name": "Sample1",
+      "status": "OPENED"
+    }
+  ],
+  "usedBy": [
+    {
+      "name": "Sample3",
+      "status": "OPENED"
+    }
+  ]
+}

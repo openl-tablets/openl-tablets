@@ -75,8 +75,6 @@ import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
-import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclRole;
@@ -98,8 +96,6 @@ public class ProjectBean {
     public static final String RECONCILIATION = "reconciliation";
 
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-
-    private final RepositoryTreeState repositoryTreeState;
 
     private final WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -125,9 +121,7 @@ public class ProjectBean {
 
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
-    public ProjectBean(RepositoryTreeState repositoryTreeState,
-                       @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
-        this.repositoryTreeState = repositoryTreeState;
+    public ProjectBean(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
@@ -722,11 +716,6 @@ public class ProjectBean {
         ProjectDescriptor oldProjectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = studio.resolveProject(oldProjectDescriptor);
         studio.forceUpdateProjectDescriptor(repoId, newProjectDescriptor, oldProjectDescriptor);
-        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, name);
-        if (projectNode != null) {
-            // For example, repository wasn't refreshed yet
-            projectNode.refresh();
-        }
     }
 
     /**
