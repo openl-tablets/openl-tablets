@@ -41,7 +41,8 @@ Multi-module Maven project. The version inherits from the root `pom.xml`.
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
 - **Util/** — CLI tools and utilities
-- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides live under `Docs/user-guides/`
+- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/`,
+  cross-cutting architecture notes under `Docs/architecture/`
 
 Dependency versions are managed in the root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend).
 Read those files for current versions, prefer the latest ones, and do not hardcode versions in documentation or
@@ -61,6 +62,9 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-Dquick`** — skip heavy tests
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
+- **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
+  `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
+  `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
 - Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.
   Coverage is measured on the diff, not the whole project — add tests until new lines reach ≥80%.
 
