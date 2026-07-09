@@ -62,6 +62,9 @@ i18next.addResourceBundle('en', 'common', {
         create: 'Create',
         invite: 'Invite',
     },
+    confirm: {
+        title: 'Confirm',
+    },
     validation: {
         required: 'Required',
         invalid_email: 'Invalid email address',

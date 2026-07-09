@@ -446,31 +446,19 @@
 
                         $("#" + popupId).popup(popupParams);
                     },
+                    // Delegates to the React `ConfirmModal` (see DefaultLayout) via the `openConfirmModal`
+                    // event; `title`, `message`, `okButton` and the `onOK` callback are carried in the
+                    // event detail. The React side supplies the default title and button labels.
                     confirm: function (options) {
-                        let confirmPopup = RichFaces.$('confirmPopup');
-
-                        const defaults = {
-                            title: 'Confirm',
-                            message: 'Are you sure?',
-                            okButton: 'OK',
-                            cancelButton: 'Cancel',
-                            onOK: () => {},
-                            onCancel: () => {},
-                        };
-                        options = $.extend({}, defaults, options);
-
-                        $('#confirmPopupTitle').text(options.title);
-                        $('#confirmPopupMessage').text(options.message);
-                        $('#confirmPopupOkButton').val(options.okButton).off().click(() => {
-                            options.onOK();
-                            confirmPopup.hide();
-                        });
-                        $('#confirmPopupCancelButton').val(options.cancelButton).off().click(() => {
-                            options.onCancel();
-                            confirmPopup.hide();
-                        });
-
-                        confirmPopup.show();
+                        options = options || {};
+                        window.dispatchEvent(new CustomEvent('openConfirmModal', {
+                            detail: {
+                                title: options.title,
+                                message: options.message,
+                                okButton: options.okButton,
+                                onOK: options.onOK
+                            }
+                        }));
                     },
                     showLoader: function () {
                         if (reqs++ == 0) {
@@ -1200,6 +1188,5 @@
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
-    <ui:include src="/pages/modules/confirmPopup.xhtml" />
 </h:body>
 </html>
