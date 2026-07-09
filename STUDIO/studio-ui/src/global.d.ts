@@ -8,6 +8,7 @@ declare global {
     // Declared as a `var` so it surfaces on both `window` and `globalThis`.
     var openl: {
         projectStatus?: import('./services/projectStatus').ProjectStatusBridge
+        notification?: import('./legacy/notificationBridge').NotificationBridge
     } | undefined
 }
 

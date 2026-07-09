@@ -973,7 +973,7 @@
                     try {
                         JSON.parse(rawJson);
                     } catch (e) {
-                        message(e.message, 4000, true);
+                        ws.ui.info(e.message);
                         _executableTraceContext = null;
                         return;
                     }
@@ -1131,7 +1131,7 @@
                 try {
                     JSON.parse(textBean);
                 } catch (e) {
-                    message(e.message, 4000, true);
+                    ws.ui.info(e.message);
                     return false;
                 }
             }
