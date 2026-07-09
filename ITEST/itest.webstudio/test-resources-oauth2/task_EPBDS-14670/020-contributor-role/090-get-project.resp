@@ -6,8 +6,14 @@ Content-Type: application/json
   "name": "EPBDS_14670_Project",
   "status": "CLOSED",
   "repository": "design",
-  "modifiedBy": "epbds14670_contributor",
+  "modifiedBy": "admin",
   "modifiedAt": "*",
   "revision": "*",
-  "comment": "contributor saved the project"
+  "comment": "contributor saved the project",
+  "capabilities": {
+    "canOpen": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canExport": true
+  }
 }

@@ -1,0 +1,3 @@
+DELETE /rest/projects/UsernameOnlyTemplate?comment=EPBDS-16200%20Cleanup%20UsernameOnlyTemplate HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

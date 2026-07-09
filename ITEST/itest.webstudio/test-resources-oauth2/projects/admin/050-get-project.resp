@@ -2,15 +2,29 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
   "name": "Project",
+  "branch": "master",
+  "status": "OPENED",
+  "repository": "design-flat",
   "modifiedBy": "OpenL Admin",
   "modifiedAt": "*",
-  "branch": "master",
   "revision": "*",
   "path": "Project",
-  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
-  "status": "OPENED",
   "comment": "Project Project is created.",
-  "repository": "design-flat",
-  "selectedBranches": ["master"]
+  "selectedBranches": [
+    "master"
+  ],
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canEditTags": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

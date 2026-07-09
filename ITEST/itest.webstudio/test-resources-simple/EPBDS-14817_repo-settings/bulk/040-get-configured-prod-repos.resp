@@ -5,6 +5,10 @@ Content-Type: application/json
   {
     "aclId": "UFJPRDpwcm9kdWN0aW9uMQ==",
     "id": "production1",
-    "name": "H2_2"
+    "name": "H2_2",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canManage": true
+    }
   }
 ]

@@ -1,0 +1,5 @@
+DELETE /rest/user-workspace/design-flat/projects/Sample1%3A4c4f55f26606420db7bc089e32ea8503036d3b7a616c323764d033b7e4ccf7a7/delete HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/x-www-form-urlencoded
+
+comment=Foo Bar

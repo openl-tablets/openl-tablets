@@ -4,38 +4,62 @@ Content-Type: application/json
 {
   "content": [
     {
+      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
       "name": "EPBDS-14095",
+      "status": "VIEWING_VERSION",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
-      "revision": "4",
-      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
-      "status": "VIEWING_VERSION",
-      "comment": "Project EPBDS-14095 is created.",
-      "repository": "design",
       "lockInfo": {
         "lockedBy": "EPBDS_14095_user1",
         "lockedAt": "*"
+      },
+      "revision": "4",
+      "comment": "Project EPBDS-14095 is created.",
+      "capabilities": {
+        "canClose": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canCopy": true,
+        "canExport": true
       }
     },
     {
+      "id": "ZGVzaWduOlByb2plY3Q=",
       "name": "Project",
+      "status": "CLOSED",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "id": "ZGVzaWduOlByb2plY3Q=",
-      "status": "CLOSED",
       "comment": "Project is created.",
-      "repository": "design"
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
+      "id": "ZGVzaWduOlByb2plY3Qy",
       "name": "Project2",
+      "status": "CLOSED",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "id": "ZGVzaWduOlByb2plY3Qy",
-      "status": "CLOSED",
       "comment": "Project is created.",
-      "repository": "design"
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6U2FtcGxlMTo0YzRmNTVmMjY2MDY0MjBkYjdiYzA4OWUzMmVhODUwMzAzNmQzYjdhNjE2YzMyMzc2NGQwMzNiN2U0Y2NmN2E3",
+  "name": "Sample1",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "Sample1",
+  "comment": "Project Sample1 is created.",
+  "selectedBranches": [
+    "master"
+  ],
+  "usedBy": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6U2FtcGxlMjpiMjMxZTU4Y2VhODNjZDdhN2NkYjdhNGUxY2ZiMWFhMDgyNTI3MDY1MDNkNzk1MzhlMDg4MDhhYjA3ZTZjZDkz",
+      "name": "Sample2",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat"
+    }
+  ],
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
+}

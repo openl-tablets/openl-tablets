@@ -2,15 +2,27 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUwOTM6NTEzOWQ4MjQ2Yjg1MGExM2QwMDM0NmVhMDIzNGE4MzcxMWJhOGM5YjExZmI2ZTdkNGJhNTk5ZDRmNTdjMDBiNA==",
   "name": "EPBDS-15093",
   "modifiedBy": "John Doe",
-  "modifiedAt": "*",
   "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedAt": "*",
   "revision": "*",
   "path": "EPBDS-15093",
-  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUwOTM6NTEzOWQ4MjQ2Yjg1MGExM2QwMDM0NmVhMDIzNGE4MzcxMWJhOGM5YjExZmI2ZTdkNGJhNTk5ZDRmNTdjMDBiNA==",
-  "status": "CLOSED",
   "comment": "Project EPBDS-15093 is created.",
-  "repository": "design-flat",
-  "selectedBranches": ["master"]
+  "selectedBranches": [
+    "master"
+  ],
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

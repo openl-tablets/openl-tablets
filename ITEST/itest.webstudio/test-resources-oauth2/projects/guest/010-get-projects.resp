@@ -17,7 +17,13 @@ Content-Type: application/json
       "selectedBranches": [
         "admin/feature-1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

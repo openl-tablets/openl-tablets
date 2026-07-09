@@ -1,0 +1,38 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
+      "name": "Project7",
+      "branch": "master",
+      "status": "OPENED",
+      "repository": "design-non-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "foo/bar/project-custom-name",
+      "comment": "EPBDS-10682 Update project via rest",
+      "selectedBranches": [
+        "master"
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

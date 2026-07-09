@@ -11,7 +11,17 @@ Content-Type: application/json
       "modifiedBy": "*",
       "modifiedAt": "*",
       "revision": "*",
-      "path": "Project"
+      "path": "Project",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZpbGU6UHJvamVjdDI6MmMyNmI0NmI2OGZmYzY4ZmY5OWI0NTNjMWQzMDQxMzQxMzQyMmQ3MDY0ODNiZmEwZjk4YTVlODg2MjY2ZTdhZQ==",
@@ -21,7 +31,17 @@ Content-Type: application/json
       "modifiedBy": "*",
       "modifiedAt": "*",
       "revision": "*",
-      "path": "foo"
+      "path": "foo",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

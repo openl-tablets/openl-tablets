@@ -17,7 +17,18 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-13931_1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
@@ -31,7 +42,17 @@ Content-Type: application/json
         "lockedAt": "*"
       },
       "revision": "*",
-      "comment": "Project EPBDS-14095 is created."
+      "comment": "Project EPBDS-14095 is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canUnlock": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY6N2I3NDE1MjZhYjJhOTI3NDEyYzA2YTZhZTUzYzg4YTBlZTJjNWU0MzY5NWQ3ZjZhNmFlZjFmMTg5ZGJlMjE0ZQ==",
@@ -47,7 +68,18 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-14376_1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canSave": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
@@ -57,7 +89,17 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project EPBDS-14418 is created."
+      "comment": "Project EPBDS-14418 is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
@@ -73,7 +115,18 @@ Content-Type: application/json
       "selectedBranches": [
         "EPBDS-15409_1",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canSave": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

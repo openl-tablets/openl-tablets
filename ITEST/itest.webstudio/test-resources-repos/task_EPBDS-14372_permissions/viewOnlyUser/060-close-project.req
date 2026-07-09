@@ -3,5 +3,6 @@ Authorization: Basic RVBCRFNfMTQzNzI6RVBCRFNfMTQzNzI=
 Content-Type: application/json
 
 {
-  "status": "CLOSED"
+  "status": "CLOSED",
+  "discardChanges": true
 }

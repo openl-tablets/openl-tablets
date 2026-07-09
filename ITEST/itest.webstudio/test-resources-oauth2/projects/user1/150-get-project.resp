@@ -12,5 +12,18 @@ Content-Type: application/json
   "status": "EDITING",
   "comment": "Project ProjectUser1 is created.",
   "repository": "design-flat",
-  "selectedBranches":["master","user1/feature-1"]
+  "selectedBranches": [
+    "master",
+    "user1/feature-1"
+  ],
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canSave": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canEditTags": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

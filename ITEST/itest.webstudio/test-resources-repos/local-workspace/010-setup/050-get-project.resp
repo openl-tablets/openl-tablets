@@ -9,5 +9,10 @@ Content-Type: application/json
   "modifiedBy": "*",
   "modifiedAt": "*",
   "revision": "*",
-  "comment": "Project EPBDS-15649 is created."
+  "comment": "Project EPBDS-15649 is created.",
+  "capabilities": {
+    "canWrite": true,
+    "canDelete": true,
+    "canEditTags": true
+  }
 }

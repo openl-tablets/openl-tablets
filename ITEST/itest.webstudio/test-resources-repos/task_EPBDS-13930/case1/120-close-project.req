@@ -4,5 +4,6 @@ Content-Type: application/json
 
 {
   "status": "CLOSED",
-  "branch": "master"
+  "branch": "master",
+  "discardChanges": true
 }

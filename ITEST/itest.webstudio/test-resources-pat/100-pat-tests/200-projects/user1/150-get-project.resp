@@ -15,5 +15,15 @@ Content-Type: application/json
   "selectedBranches": [
     "master",
     "user1/feature-1"
-  ]
+  ],
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canSave": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canEditTags": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

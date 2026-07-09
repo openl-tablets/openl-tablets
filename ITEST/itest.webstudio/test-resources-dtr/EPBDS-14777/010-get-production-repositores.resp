@@ -5,6 +5,10 @@ Content-Type: application/json
   {
     "aclId": "UFJPRDpwcm9kdWN0aW9u",
     "id": "production",
-    "name": "Deployment"
+    "name": "Deployment",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canManage": true
+    }
   }
 ]

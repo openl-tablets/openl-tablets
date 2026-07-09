@@ -14,7 +14,21 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-15919",
       "comment": "Project EPBDS-15919 is created.",
-      "selectedBranches": ["master"]
+      "selectedBranches": [
+        "master"
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

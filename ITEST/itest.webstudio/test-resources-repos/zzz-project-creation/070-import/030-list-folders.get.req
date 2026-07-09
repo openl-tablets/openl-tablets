@@ -1,0 +1,3 @@
+GET /rest/repos/design-non-flat/folders?path=zzz-import-parent HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

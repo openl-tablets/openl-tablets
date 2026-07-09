@@ -15,5 +15,11 @@ Content-Type: application/json
   "selectedBranches": [
     "admin/feature-1",
     "master"
-  ]
+  ],
+  "capabilities": {
+    "canClose": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canExport": true
+  }
 }

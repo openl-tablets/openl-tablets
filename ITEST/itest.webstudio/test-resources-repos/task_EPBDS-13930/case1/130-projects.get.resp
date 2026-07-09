@@ -4,115 +4,195 @@ Content-Type: application/json
 {
   "content": [
     {
+      "id": "ZGVzaWduOlByb2plY3Q=",
       "name": "Project",
+      "status": "CLOSED",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "2",
-      "id": "ZGVzaWduOlByb2plY3Q=",
-      "status": "CLOSED",
       "comment": "Project is created.",
-      "repository": "design"
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
-      "name": "Project",
-      "modifiedBy": "Admin",
-      "modifiedAt": "*",
-      "branch": "master",
-      "revision": "*",
-      "path": "Project",
       "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
-      "status": "CLOSED",
-      "comment": "Project Project is created.",
-      "repository": "design-flat",
-      "selectedBranches": [
-        "master"
-      ]
-    },
-    {
       "name": "Project",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
       "modifiedBy": "Admin",
       "modifiedAt": "*",
-      "branch": "master",
       "revision": "*",
       "path": "Project",
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
-      "status": "CLOSED",
-      "comment": "EPBDS-10682 Create project via rest",
-      "repository": "design-non-flat",
+      "comment": "Project Project is created.",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+      "name": "Project",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-non-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project",
+      "comment": "EPBDS-10682 Create project via rest",
+      "selectedBranches": [
+        "master"
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduOlByb2plY3Qy",
       "name": "Project2",
+      "status": "CLOSED",
+      "repository": "design",
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "id": "ZGVzaWduOlByb2plY3Qy",
-      "status": "CLOSED",
       "comment": "Project is created.",
-      "repository": "design"
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI6Y2Y1Yjc0NzY1NmU3MjBhMDZiZWUyMzQ2NGQ1YTJkZmY5M2Q0NDdjODU1Mzc1ODFmOTc5YzNhMzhhZDYzZTQxMA==",
       "name": "Project2",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
       "modifiedBy": "Admin",
       "modifiedAt": "*",
-      "branch": "master",
       "revision": "*",
       "path": "Project2",
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI6Y2Y1Yjc0NzY1NmU3MjBhMDZiZWUyMzQ2NGQ1YTJkZmY5M2Q0NDdjODU1Mzc1ODFmOTc5YzNhMzhhZDYzZTQxMA==",
-      "status": "CLOSED",
       "comment": "Project is created.",
-      "repository": "design-flat",
       "selectedBranches": [
         "EPBDS-13930_Project2",
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3QyOmNmNWI3NDc2NTZlNzIwYTA2YmVlMjM0NjRkNWEyZGZmOTNkNDQ3Yzg1NTM3NTgxZjk3OWMzYTM4YWQ2M2U0MTA=",
       "name": "Project2",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-non-flat",
       "modifiedBy": "Admin",
       "modifiedAt": "*",
-      "branch": "master",
       "revision": "*",
       "path": "Project2",
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3QyOmNmNWI3NDc2NTZlNzIwYTA2YmVlMjM0NjRkNWEyZGZmOTNkNDQ3Yzg1NTM3NTgxZjk3OWMzYTM4YWQ2M2U0MTA=",
-      "status": "CLOSED",
       "comment": "EPBDS-10682 Create project via rest",
-      "repository": "design-non-flat",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q0OjRjMjg2ZTU2MjQ2NDU4ZWE0ZTRhMzQyMGEyODQyOTI0ZmYyN2UxODczZmU1MGMyMWMyMGM4YjNlM2JlMzg0YWM=",
       "name": "Project4",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-non-flat",
       "modifiedBy": "Admin",
       "modifiedAt": "*",
-      "branch": "master",
       "revision": "*",
       "path": "foo/bar/Project4",
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q0OjRjMjg2ZTU2MjQ2NDU4ZWE0ZTRhMzQyMGEyODQyOTI0ZmYyN2UxODczZmU1MGMyMWMyMGM4YjNlM2JlMzg0YWM=",
-      "status": "CLOSED",
       "comment": "EPBDS-10682 Create project via rest",
-      "repository": "design-non-flat",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     },
     {
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
       "name": "Project7",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-non-flat",
       "modifiedBy": "Admin",
       "modifiedAt": "*",
-      "branch": "master",
       "revision": "*",
       "path": "foo/bar/project-custom-name",
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
-      "status": "CLOSED",
       "comment": "EPBDS-10682 Update project via rest",
-      "repository": "design-non-flat",
       "selectedBranches": [
         "master"
-      ]
+      ],
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

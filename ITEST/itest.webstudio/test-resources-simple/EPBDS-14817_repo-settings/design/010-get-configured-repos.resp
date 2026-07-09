@@ -5,6 +5,16 @@ Content-Type: application/json
   {
     "aclId": "REVTSUdOOmRlc2lnbg==",
     "id": "design",
-    "name": "Design"
+    "name": "Design",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
   }
 ]

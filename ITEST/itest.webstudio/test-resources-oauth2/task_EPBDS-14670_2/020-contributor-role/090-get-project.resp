@@ -9,5 +9,13 @@ Content-Type: application/json
   "modifiedBy": "epbds14670r_manager",
   "modifiedAt": "*",
   "revision": "*",
-  "comment": "contributor saved the project"
+  "comment": "contributor saved the project",
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canCopy": true,
+    "canExport": true
+  }
 }

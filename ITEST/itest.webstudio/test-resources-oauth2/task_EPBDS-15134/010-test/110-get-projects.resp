@@ -11,7 +11,13 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project EPBDS-12973 is created."
+      "comment": "Project EPBDS-12973 is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     },
     {
       "id": "ZGVzaWduOlNvbWVfUHJvamVjdA==",
@@ -21,7 +27,13 @@ Content-Type: application/json
       "modifiedBy": "admin",
       "modifiedAt": "*",
       "revision": "*",
-      "comment": "Project Some_Project is created."
+      "comment": "Project Some_Project is created.",
+      "capabilities": {
+        "canOpen": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,
