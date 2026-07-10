@@ -271,7 +271,7 @@ public class DesignTimeRepositoryController {
     }
 
     @PostMapping(value = "/{repo-name}/projects/from-workspace", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Publish local workspace projects to a repository (BETA)")
+    @Operation(summary = "repos.create-from-workspace.summary", description = "repos.create-from-workspace.desc")
     public void createProjectsFromWorkspace(@DesignRepository("repo-name") Repository repository,
                                             @Valid @RequestBody CreateFromWorkspaceModel request) {
         if (request.names() == null || request.names().isEmpty()) {
@@ -286,9 +286,9 @@ public class DesignTimeRepositoryController {
     }
 
     @PostMapping(value = "/{repo-name}/projects/{project-name}/from-project", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Copy an existing project into a repository under a new name (BETA)")
+    @Operation(summary = "repos.create-from-project.summary", description = "repos.create-from-project.desc")
     public ProjectViewModel createProjectFromProject(@DesignRepository("repo-name") Repository repository,
-                                                     @Parameter(description = "New project name") @PathVariable("project-name") String projectName,
+                                                     @Parameter(description = "repos.create-from-project.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                      @Valid @RequestBody CreateFromProjectModel request) {
         allowedToPush(repository, false);
         // Validate the target name, comment and path before copying.
@@ -315,18 +315,18 @@ public class DesignTimeRepositoryController {
     }
 
     @GetMapping("/{repo-name}/folders")
-    @Operation(summary = "List importable folders of a non-flat repository (BETA)")
+    @Operation(summary = "repos.list-importable-folders.summary", description = "repos.list-importable-folders.desc")
     public List<RepositoryFolder> listImportableFolders(@DesignRepository("repo-name") Repository repository,
-                                                        @Parameter(description = "Internal folder whose children to list; empty lists the repository root") @RequestParam(value = "path", required = false) String path) {
+                                                        @Parameter(description = "repos.list-importable-folders.param.path.desc") @RequestParam(value = "path", required = false) String path) {
         return projectCreationService.listImportableFolders(repository.getId(), path);
     }
 
     @PostMapping(value = "/{repo-name}/projects/from-repository", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Import an existing repository folder as a project (BETA)")
+    @Operation(summary = "repos.create-from-repository.summary", description = "repos.create-from-repository.desc")
     public ProjectViewModel createProjectFromRepository(@DesignRepository("repo-name") Repository repository,
                                                         @Valid @RequestBody CreateFromRepositoryModel request) {
         allowedToPush(repository, false);
-        var data = projectCreationService.importFromRepository(repository.getId(), request.path(), request.tags());
+        var data = projectCreationService.importFromRepository(repository.getId(), request.path());
         return mapFileDataResponse(data, repository.supports());
     }
 

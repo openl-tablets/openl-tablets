@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -22,7 +23,7 @@ public record ProjectBranchInfo(
         @Schema(description = "Whether the current user is eligible to bypass protection (Manager role + global setting enabled)")
         boolean bypassEligible,
 
-        @Schema(description = "The branch's last (tip) commit")
+        @Parameter(description = "The branch's last (tip) commit")
         @JsonInclude(JsonInclude.Include.NON_NULL)
         LastCommit lastCommit
 ) {

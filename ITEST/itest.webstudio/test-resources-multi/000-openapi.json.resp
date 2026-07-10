@@ -14,7 +14,7 @@ Content-Type: application/json
   ],
   "security": [
     {
-      "basicAuth": []
+      "basicAuth": [ ]
     }
   ],
   "tags": [
@@ -303,9 +303,11 @@ Content-Type: application/json
     },
     "/acls/projects": {
       "get": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
+            "description": "***",
             "in": "query",
             "name": "sid",
             "required": true,
@@ -314,6 +316,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "principal",
             "schema": {
@@ -413,9 +416,11 @@ Content-Type: application/json
     },
     "/acls/projects/{project-id}": {
       "delete": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
+            "description": "***",
             "in": "query",
             "name": "sid",
             "required": true,
@@ -424,6 +429,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "principal",
             "schema": {
@@ -511,6 +517,7 @@ Content-Type: application/json
         ]
       },
       "get": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -523,6 +530,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "inherited",
             "schema": {
@@ -621,9 +629,11 @@ Content-Type: application/json
         ]
       },
       "put": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
+            "description": "***",
             "in": "query",
             "name": "sid",
             "required": true,
@@ -632,6 +642,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "principal",
             "schema": {
@@ -731,6 +742,7 @@ Content-Type: application/json
     },
     "/acls/projects/{project-id}/subjects": {
       "get": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -743,6 +755,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "principal",
             "required": true,
@@ -751,6 +764,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "search",
             "required": true,
@@ -759,6 +773,7 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
             "in": "query",
             "name": "pageSize",
             "schema": {
@@ -5429,6 +5444,7 @@ Content-Type: application/json
         "operationId": "***",
         "parameters": [
           {
+            "description": "***",
             "in": "path",
             "name": "id",
             "required": true,
@@ -6574,10 +6590,10 @@ Content-Type: application/json
               "items": {
                 "type": "string",
                 "enum": [
-                  "SUMMARY",
-                  "STATUS",
-                  "DELETED",
-                  "MODULES"
+                  "summary",
+                  "status",
+                  "deleted",
+                  "modules"
                 ]
               }
             },
@@ -6837,10 +6853,10 @@ Content-Type: application/json
               "items": {
                 "type": "string",
                 "enum": [
-                  "SUMMARY",
-                  "STATUS",
-                  "DELETED",
-                  "MODULES"
+                  "summary",
+                  "status",
+                  "deleted",
+                  "modules"
                 ]
               }
             },
@@ -9432,7 +9448,6 @@ Content-Type: application/json
             "name": "kind",
             "schema": {
               "type": "string",
-              "description": "***",
               "enum": [
                 "Rules",
                 "Spreadsheet",
@@ -15290,6 +15305,7 @@ Content-Type: application/json
     },
     "/repos/{repo-name}/folders": {
       "get": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -15402,6 +15418,7 @@ Content-Type: application/json
     },
     "/repos/{repo-name}/projects/from-repository": {
       "post": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -15513,6 +15530,7 @@ Content-Type: application/json
     },
     "/repos/{repo-name}/projects/from-workspace": {
       "post": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -15787,6 +15805,7 @@ Content-Type: application/json
     },
     "/repos/{repo-name}/projects/{project-name}/from-project": {
       "post": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -18069,8 +18088,8 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "enum": [
-              "PROJECT",
-              "REPOSITORY"
+              "project",
+              "repository"
             ]
           }
         },
@@ -18752,6 +18771,7 @@ Content-Type: application/json
       },
       "Capabilities": {
         "type": "object",
+        "description": "***",
         "properties": {
           "canDelete": {
             "type": "boolean",
@@ -19043,16 +19063,13 @@ Content-Type: application/json
         "properties": {
           "path": {
             "type": "string",
-            "description": "***"
-          },
-          "tags": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "***"
+            "description": "***",
+            "minLength": 1
           }
-        }
+        },
+        "required": [
+          "path"
+        ]
       },
       "CreateFromWorkspaceModel": {
         "type": "object",
@@ -20089,12 +20106,14 @@ Content-Type: application/json
         "properties": {
           "excludes": {
             "type": "array",
+            "description": "***",
             "items": {
               "type": "string"
             }
           },
           "includes": {
             "type": "array",
+            "description": "***",
             "items": {
               "type": "string"
             }
@@ -20107,13 +20126,16 @@ Content-Type: application/json
         "properties": {
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -20530,7 +20552,6 @@ Content-Type: application/json
       },
       "LastCommit": {
         "type": "object",
-        "description": "***",
         "properties": {
           "author": {
             "type": "string",
@@ -20959,10 +20980,12 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "path": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -21186,6 +21209,7 @@ Content-Type: application/json
       },
       "PageResponseProjectRevision_Short": {
         "type": "object",
+        "description": "***",
         "properties": {
           "content": {
             "type": "array",
@@ -21223,6 +21247,7 @@ Content-Type: application/json
       },
       "PageResponseSummaryTableView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "content": {
             "type": "array",
@@ -21630,27 +21655,33 @@ Content-Type: application/json
         "properties": {
           "closed": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           },
           "deleted": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           },
           "editing": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           },
           "local": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           },
           "opened": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           },
           "viewingVersion": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "***"
           }
         }
       },
@@ -21667,7 +21698,7 @@ Content-Type: application/json
           },
           "discardChanges": {
             "type": "boolean",
-            "description": "Discard local project modifications while closing, switching branches, or opening a revision."
+            "description": "***"
           },
           "openDependencies": {
             "type": "boolean",
@@ -21679,7 +21710,7 @@ Content-Type: application/json
           },
           "save": {
             "type": "boolean",
-            "description": "Optional. Set to true only when comment is null and local modifications must be saved using the repository's default comment generation rules."
+            "description": "***"
           },
           "selectedBranches": {
             "type": "array",
@@ -21922,6 +21953,7 @@ Content-Type: application/json
           },
           "repositoryCounts": {
             "type": "array",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/FacetCount"
             }
@@ -21931,12 +21963,14 @@ Content-Type: application/json
           },
           "statuses": {
             "type": "array",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/ProjectStatusViewModel"
             }
           },
           "tagCounts": {
             "type": "array",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/TagFacetSummary"
             }
@@ -22360,16 +22394,20 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "mapped": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "path": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "project": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           }
         }
       },
@@ -23585,10 +23623,12 @@ Content-Type: application/json
         "description": "***",
         "properties": {
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "values": {
             "type": "array",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/FacetCount"
             }
@@ -23649,16 +23689,20 @@ Content-Type: application/json
         "description": "***",
         "properties": {
           "extensible": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "nullable": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "***"
           },
           "values": {
             "type": "array",
+            "description": "***",
             "items": {
               "type": "string"
             }

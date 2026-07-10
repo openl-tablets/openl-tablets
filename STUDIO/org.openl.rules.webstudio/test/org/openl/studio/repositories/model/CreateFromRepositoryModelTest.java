@@ -3,7 +3,6 @@ package org.openl.studio.repositories.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.validation.Validation;
@@ -14,14 +13,14 @@ class CreateFromRepositoryModelTest {
 
     @Test
     void pathIsValidated() {
-        var violations = propertyViolations(new CreateFromRepositoryModel("/folder", Map.of()));
+        var violations = propertyViolations(new CreateFromRepositoryModel("/folder"));
 
         assertEquals(Set.of("path"), violations);
     }
 
     @Test
     void validPathPassesValidation() {
-        var violations = propertyViolations(new CreateFromRepositoryModel("parent/folder", Map.of()));
+        var violations = propertyViolations(new CreateFromRepositoryModel("parent/folder"));
 
         assertTrue(violations.isEmpty());
     }

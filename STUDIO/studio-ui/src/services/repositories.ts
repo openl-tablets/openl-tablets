@@ -9,7 +9,7 @@ import { ProjectStatus } from '../constants/project'
 const THROW_API_OPTIONS = { throwError: true } satisfies ApiCallOptions
 const PROJECT_MODIFIED_ERROR_CODE = 'openl.error.409.project.close.modified.message'
 
-export type ProjectInclude = 'SUMMARY' | 'STATUS' | 'DELETED' | 'MODULES'
+export type ProjectInclude = 'summary' | 'status' | 'deleted' | 'modules'
 
 export const isProjectModifiedConflict = (error: unknown): boolean => {
     if (!isApiHttpError(error) || error.status !== 409) {
@@ -294,7 +294,7 @@ export async function getImportableFolders(repositoryId: string, path?: string):
 /** Import an existing folder of a non-flat repository as a project, keeping the folder's own name. */
 export async function createProjectFromRepository(
     repositoryId: string,
-    body: { path: string, tags?: Record<string, string> | undefined }
+    body: { path: string }
 ): Promise<void> {
     await apiCall(
         `/repos/${encodeURIComponent(repositoryId)}/projects/from-repository`,

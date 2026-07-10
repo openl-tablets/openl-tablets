@@ -116,8 +116,8 @@ describe('AccessPanel', () => {
 
     it('shows repository ACL entries as read-only inherited rows', async () => {
         vi.mocked(getProjectAcl).mockResolvedValue([
-            entry('direct-user', 'PROJECT'),
-            entry('repo-user', 'REPOSITORY'),
+            entry('direct-user', 'project'),
+            entry('repo-user', 'repository'),
         ])
 
         await act(async () => {
@@ -128,10 +128,10 @@ describe('AccessPanel', () => {
         await waitFor(() => expect(screen.getByText('repo-user')).toBeTruthy())
         expect(screen.getByText('browser.access.source_project')).toBeTruthy()
         expect(screen.getByText('browser.access.source_repository')).toBeTruthy()
-        expect(screen.getByTestId('access-role-REPOSITORY-repo-user')).toBeDisabled()
-        expect(screen.queryByTestId('access-remove-REPOSITORY-repo-user')).toBeNull()
-        expect(screen.getByTestId('access-role-PROJECT-direct-user')).not.toBeDisabled()
-        expect(screen.getByTestId('access-remove-PROJECT-direct-user')).toBeTruthy()
+        expect(screen.getByTestId('access-role-repository-repo-user')).toBeDisabled()
+        expect(screen.queryByTestId('access-remove-repository-repo-user')).toBeNull()
+        expect(screen.getByTestId('access-role-project-direct-user')).not.toBeDisabled()
+        expect(screen.getByTestId('access-remove-project-direct-user')).toBeTruthy()
     })
 
     it('shows an error state when ACL loading fails', async () => {
@@ -146,16 +146,16 @@ describe('AccessPanel', () => {
     })
 
     it('updates and removes direct project ACL entries', async () => {
-        vi.mocked(getProjectAcl).mockResolvedValue([entry('direct-user', 'PROJECT')])
+        vi.mocked(getProjectAcl).mockResolvedValue([entry('direct-user', 'project')])
 
         await act(async () => {
             render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 
-        await waitFor(() => expect(screen.getByTestId('access-role-PROJECT-direct-user')).toBeTruthy())
+        await waitFor(() => expect(screen.getByTestId('access-role-project-direct-user')).toBeTruthy())
 
-        await userEvent.selectOptions(screen.getByTestId('access-role-PROJECT-direct-user'), 'CONTRIBUTOR')
+        await userEvent.selectOptions(screen.getByTestId('access-role-project-direct-user'), 'CONTRIBUTOR')
 
         await waitFor(() => expect(setProjectAcl).toHaveBeenCalledWith('p1', 'direct-user', 'CONTRIBUTOR', true))
 
@@ -167,7 +167,7 @@ describe('AccessPanel', () => {
     })
 
     it('hides add controls when the user cannot manage access', async () => {
-        vi.mocked(getProjectAcl).mockResolvedValue([entry('viewer', 'PROJECT')])
+        vi.mocked(getProjectAcl).mockResolvedValue([entry('viewer', 'project')])
 
         await act(async () => {
             render(<AccessPanel canManage={false} projectId="p1" projectName="Alpha" />)

@@ -8,7 +8,8 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
-- **API documentation**: Use OpenAPI annotations on REST controllers
+- **REST API / OpenAPI**: Externalized descriptions, `@Parameter` vs `@Schema`, enum wire codes, and request
+  validation follow strict rules — see [`org.openl.rules.webstudio/AGENTS.md`](org.openl.rules.webstudio/AGENTS.md)
 - **Response field projection**: Clients add `?fields=id,name,modules(id,name)` to reduce JSON to selected fields, including nested objects and arrays (hierarchical, GraphQL-like). Applied globally during serialization (`org.openl.studio.common.projection`) — no controller-side parameter, no configuration. Any DTO under `org.openl.rules.*` or `org.openl.studio.*` is projectable, except framework infrastructure in `org.openl.studio.common.model` (errors, pagination wrappers). Errors, binary and non-JSON responses are never touched. OpenAPI integration lives separately in `org.openl.studio.openapi` and registers itself when the projection feature is present.
 
 ## Submodules

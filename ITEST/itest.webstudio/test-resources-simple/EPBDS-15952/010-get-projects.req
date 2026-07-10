@@ -1,2 +1,2 @@
-GET /rest/projects?name=EPBDS-15952-Project&include=MODULES HTTP/1.1
+GET /rest/projects?name=EPBDS-15952-Project&include=modules HTTP/1.1
 

@@ -151,11 +151,10 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                     </thead>
                     <tbody>
                         {entries.map(entry => {
-                            const inherited = entry.source === 'REPOSITORY'
-                            const sourceKey = entry.source ?? 'PROJECT'
-                            const source = inherited ? t('browser.access.source_repository') : t('browser.access.source_project')
+                            const inherited = entry.source === 'repository'
+                            const sourceLabel = entry.source && t(`browser.access.source_${entry.source}`)
                             return (
-                                <tr key={`${sourceKey}:${entry.sub.principal ? 'u' : 'g'}:${entry.sub.sid}`}>
+                                <tr key={`${entry.source ?? 'none'}:${entry.sub.principal ? 'u' : 'g'}:${entry.sub.sid}`}>
                                     <td>
                                         <span className={styles.subject}>
                                             {entry.sub.principal ? <UserOutlined /> : <TeamOutlined />}
@@ -167,7 +166,7 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                                     </td>
                                     <td className={styles.roleCell}>
                                         <Select
-                                            data-testid={`access-role-${sourceKey}-${entry.sub.sid}`}
+                                            data-testid={`access-role-${entry.source}-${entry.sub.sid}`}
                                             disabled={inherited || !canManage || busy}
                                             onChange={value => changeRole(entry.sub.sid, value, entry.sub.principal ?? false)}
                                             options={roleOptions}
@@ -177,7 +176,7 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                                         />
                                     </td>
                                     <td className={styles.sourceCell}>
-                                        <Tag>{source}</Tag>
+                                        {sourceLabel && <Tag>{sourceLabel}</Tag>}
                                     </td>
                                     <td className={styles.actionsCell}>
                                         {canManage && !inherited && (
@@ -187,7 +186,7 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                                             >
                                                 <Button
                                                     danger
-                                                    data-testid={`access-remove-${sourceKey}-${entry.sub.sid}`}
+                                                    data-testid={`access-remove-${entry.source}-${entry.sub.sid}`}
                                                     disabled={busy}
                                                     icon={<DeleteOutlined />}
                                                     size="small"

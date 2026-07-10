@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.studio.common.projection.NoFieldProjection;
@@ -9,5 +10,8 @@ import org.openl.studio.common.projection.NoFieldProjection;
  */
 @NoFieldProjection
 @Schema(description = "Count for one selectable facet value in a projects summary.")
-public record FacetCount(String id, String name, long count) {
+public record FacetCount(
+        @Parameter(description = "Facet value identifier") String id,
+        @Parameter(description = "Human-readable facet value label") String name,
+        @Parameter(description = "Number of projects matching this facet value") long count) {
 }

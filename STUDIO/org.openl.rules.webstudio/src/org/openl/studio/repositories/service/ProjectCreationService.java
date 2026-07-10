@@ -351,7 +351,7 @@ public class ProjectCreationService {
      *
      * @return the imported project's file data (branch/revision)
      */
-    public FileData importFromRepository(String repositoryId, String path, Map<String, String> tags) {
+    public FileData importFromRepository(String repositoryId, String path) {
         requireCreatePermission(repositoryId);
         var folder = trimTrailingSlash(StringUtils.trimToEmpty(path));
         if (folder.isEmpty()) {
@@ -372,14 +372,11 @@ public class ProjectCreationService {
             workspace.refresh();
             RulesProject project = workspace.getProjectByPath(repositoryId, folder)
                     .orElseThrow(() -> new ConflictException("project.import.failed.message"));
-            if (tags != null && !tags.isEmpty() && !tags.equals(project.getLocalTags())) {
-                project.saveTags(tags);
-            }
             RepositoryAclService designRepoAclService = aclServiceProvider.getDesignRepoAclService();
             grantContributorAclIfAbsent(designRepoAclService, project);
             registerExtensibleTags(project);
             return project.getFileData();
-        } catch (IOException | ProjectException e) {
+        } catch (IOException e) {
             rollbackImportMapping(mapper, mappingAdded, mappedName, folder);
             throw new ConflictException("project.import.failed.message");
         } catch (RuntimeException e) {

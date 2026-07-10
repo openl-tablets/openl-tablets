@@ -26,7 +26,7 @@ public class TagsController {
 
     private final TagTypeService tagTypeService;
 
-    @Operation(summary = "List tag types", description = "Lists the configured tag types with their allowed values, for tagging projects.")
+    @Operation(summary = "tags.list-types.summary", description = "tags.list-types.desc")
     @GetMapping("/types")
     public List<TagTypeView> getTagTypes() {
         return tagTypeService.getAll().stream()

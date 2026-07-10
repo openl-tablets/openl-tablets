@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.rules.repository.api.Pageable;
 import org.openl.studio.common.model.PageResponse;
@@ -49,21 +50,25 @@ public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
         return new ProjectsPageResponse(content, page, total, statusCounts, repositoryCounts, tagCounts, statuses);
     }
 
+    @Parameter(description = "Per-status project counts. Present only when the summary is requested.")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public ProjectStatusSummary getStatusCounts() {
         return statusCounts;
     }
 
+    @Parameter(description = "Per-repository project counts. Present only when the summary is requested.")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public List<FacetCount> getRepositoryCounts() {
         return repositoryCounts;
     }
 
+    @Parameter(description = "Per-tag-type value counts. Present only when the summary is requested.")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public List<TagFacetSummary> getTagCounts() {
         return tagCounts;
     }
 
+    @Parameter(description = "Compilation statuses for the returned page. Present only when requested.")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public List<ProjectStatusViewModel> getStatuses() {
         return statuses;
