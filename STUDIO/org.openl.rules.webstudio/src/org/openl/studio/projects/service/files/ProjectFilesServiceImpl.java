@@ -27,6 +27,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -234,7 +235,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                               @NotNull ConflictPolicy conflictPolicy) throws IOException {
         root.requireModifiable();
         requireWritableBase(root, path);
-        writeEntries(root, archiveSupport.readArchive(path, archive), conflictPolicy,
+        writeEntries(root, path, archiveSupport.readArchive(path, archive), conflictPolicy,
                 uploadComment("Upload archive to ", path));
     }
 
@@ -254,7 +255,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             String fullPath = path.isEmpty() ? name : path + "/" + name;
             entries.add(new FileEntry(fullPath, file.content()));
         }
-        writeEntries(root, entries, conflictPolicy, uploadComment("Upload files to ", path));
+        writeEntries(root, path, entries, conflictPolicy, uploadComment("Upload files to ", path));
     }
 
     /**
@@ -268,78 +269,83 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * Writes the entries to the mount: a single changeset on an atomic (repository) mount, file by
-     * file otherwise. Every entry path is validated first, rejecting zip-slip and other unsafe names
-     * before anything is written.
+     * Commits the entries to the mount as one changeset. Every entry path is validated first,
+     * rejecting zip-slip and other unsafe names before anything is written.
+     *
+     * <p>For {@code FAIL}, {@code SKIP} and {@code OVERWRITE} the changeset only adds and
+     * overwrites files, honoring the policy per entry; nothing is committed when every entry is
+     * skipped. For {@code REPLACE} the base folder is made to contain exactly the uploaded
+     * entries, and the user must be allowed to delete every file the replace removes.
      */
-    private void writeEntries(FileRoot root, List<FileEntry> entries, ConflictPolicy conflictPolicy, String comment) {
+    private void writeEntries(FileRoot root,
+                              String basePath,
+                              List<FileEntry> entries,
+                              ConflictPolicy conflictPolicy,
+                              String comment) {
+        if (conflictPolicy == ConflictPolicy.REPLACE && entries.isEmpty()) {
+            throw new BadRequestException("file.archive.empty.message");
+        }
         entries.forEach(entry -> validateResourcePath(entry.fullPath()));
-        if (root.supportsAtomicWrite()) {
-            writeEntriesAtomically(root, entries, conflictPolicy, comment);
-        } else {
-            AProjectFolder writeFolder = root.writeFolder();
-            try {
-                for (FileEntry entry : entries) {
-                    addFileEntry(writeFolder, entry.fullPath(), entry.data(), conflictPolicy);
-                }
-            } catch (ProjectException e) {
-                throw new ConflictException("file.create.failed.message");
+        AProjectFolder current = root.readFolder(null);
+        List<FileItem> items = new ArrayList<>();
+        for (FileEntry entry : entries) {
+            if (!isEntrySkipped(current, entry, conflictPolicy)) {
+                InputStream validated = validateContent(FilePaths.name(entry.fullPath()),
+                        new ByteArrayInputStream(entry.data()));
+                var fileData = new FileData();
+                fileData.setName(entry.fullPath());
+                items.add(new FileItem(fileData, validated));
             }
+        }
+        if (conflictPolicy == ConflictPolicy.REPLACE) {
+            requireRemovedFilesDeletable(current, basePath, entries);
+            root.writeBatch(basePath, items, ChangesetType.FULL, comment);
+        } else if (!items.isEmpty()) {
+            root.writeBatch(basePath, items, ChangesetType.DIFF, comment);
         }
     }
 
     /**
-     * Validates and commits every archive entry as a single changeset, honoring the conflict policy.
-     * The mount overwrites existing files only for the {@code OVERWRITE} policy.
+     * Applies the per-entry conflict policy to an entry whose target file already exists: reports
+     * a conflict for {@code FAIL}, drops the entry for {@code SKIP}, and keeps it for
+     * {@code OVERWRITE} and {@code REPLACE}.
      */
-    private void writeEntriesAtomically(FileRoot root,
-                                        List<FileEntry> entries,
-                                        ConflictPolicy conflictPolicy,
-                                        String comment) {
-        AProjectFolder current = root.readFolder(null);
-        List<FileItem> items = new ArrayList<>();
-        for (FileEntry entry : entries) {
-            if (findArtefactByPath(current, entry.fullPath()) != null) {
-                switch (conflictPolicy) {
-                    case FAIL -> throw new ConflictException("file.archive.entry.exists.message", entry.fullPath());
-                    case SKIP -> {
-                        continue;
-                    }
-                    case OVERWRITE -> {
-                        // kept: the changeset overwrites the existing file
-                    }
+    private boolean isEntrySkipped(AProjectFolder current, FileEntry entry, ConflictPolicy conflictPolicy) {
+        if (findArtefactByPath(current, entry.fullPath()) == null) {
+            return false;
+        }
+        return switch (conflictPolicy) {
+            case FAIL -> throw new ConflictException("file.archive.entry.exists.message", entry.fullPath());
+            case SKIP -> true;
+            case OVERWRITE, REPLACE -> false;
+        };
+    }
+
+    /**
+     * Verifies the user may delete every file that the full replace removes: the files under the
+     * base folder that are not part of the upload.
+     */
+    private void requireRemovedFilesDeletable(AProjectFolder current, String basePath, List<FileEntry> entries) {
+        AProjectArtefact base = basePath.isEmpty() ? current : findArtefactByPath(current, basePath);
+        if (!(base instanceof AProjectFolder folder)) {
+            return;
+        }
+        Set<String> kept = entries.stream().map(FileEntry::fullPath).collect(Collectors.toSet());
+        Deque<AProjectFolder> queue = new ArrayDeque<>();
+        queue.add(folder);
+        while (!queue.isEmpty()) {
+            for (AProjectArtefact artefact : queue.poll().getArtefacts()) {
+                if (artefact.isFolder()) {
+                    queue.add((AProjectFolder) artefact);
+                } else if (!kept.contains(artefact.getInternalPath())) {
+                    requirePermission(artefact, BasePermission.DELETE);
                 }
             }
-            InputStream validated = validateContent(FilePaths.name(entry.fullPath()), new ByteArrayInputStream(entry.data()));
-            var fileData = new FileData();
-            fileData.setName(entry.fullPath());
-            items.add(new FileItem(fileData, validated));
         }
-        root.writeBatch(items, comment);
     }
 
     private static String uploadComment(String action, String path) {
         return action + (path.isEmpty() ? "repository root" : path);
-    }
-
-    /**
-     * Validates one archive entry and writes it into the target folder, honoring the conflict policy.
-     */
-    private void addFileEntry(AProjectFolder writeFolder, String fullPath, byte[] data, ConflictPolicy conflictPolicy)
-            throws ProjectException {
-        String fileName = FilePaths.name(fullPath);
-        InputStream validated = validateContent(fileName, new ByteArrayInputStream(data));
-        AProjectFolder targetFolder = resolveOrCreateFolders(writeFolder, fullPath, true, "file.path.not.folder.message");
-        if (targetFolder.hasArtefact(fileName)) {
-            switch (conflictPolicy) {
-                case FAIL -> throw new ConflictException("file.archive.entry.exists.message", fullPath);
-                case SKIP -> {
-                    return;
-                }
-                case OVERWRITE -> targetFolder.getArtefact(fileName).delete();
-            }
-        }
-        targetFolder.addResource(fileName, validated);
     }
 
     @Override

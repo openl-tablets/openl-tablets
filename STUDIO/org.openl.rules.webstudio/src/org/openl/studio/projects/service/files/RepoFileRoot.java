@@ -89,22 +89,14 @@ public class RepoFileRoot implements FileRoot {
     }
 
     @Override
-    public boolean supportsAtomicWrite() {
-        return true;
-    }
-
-    @Override
-    public void writeBatch(List<FileItem> items, String comment) {
-        if (items.isEmpty()) {
-            return;
-        }
+    public void writeBatch(String basePath, List<FileItem> items, ChangesetType changesetType, String comment) {
         var folderData = new FileData();
-        folderData.setName(ROOT_PATH);
+        folderData.setName(basePath);
         folderData.setComment(comment);
         try {
-            // DIFF adds and overwrites only the listed files in one commit, leaving others intact.
-            // The author is stamped by the AuthoringRepository wrapper.
-            repository.save(folderData, items, ChangesetType.DIFF);
+            // The mount is rooted at the repository root, so the base path and the item names are
+            // already repository paths. The author is stamped by the AuthoringRepository wrapper.
+            repository.save(folderData, items, changesetType);
         } catch (IOException e) {
             throw new ConflictException("file.archive.upload.failed.message");
         }

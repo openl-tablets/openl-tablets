@@ -7517,7 +7517,8 @@ Content-Type: application/json
               "enum": [
                 "FAIL",
                 "OVERWRITE",
-                "SKIP"
+                "SKIP",
+                "REPLACE"
               ]
             }
           },
@@ -7546,7 +7547,8 @@ Content-Type: application/json
                     "enum": [
                       "FAIL",
                       "OVERWRITE",
-                      "SKIP"
+                      "SKIP",
+                      "REPLACE"
                     ]
                   },
                   "createFolders": {
@@ -14377,7 +14379,8 @@ Content-Type: application/json
               "enum": [
                 "FAIL",
                 "OVERWRITE",
-                "SKIP"
+                "SKIP",
+                "REPLACE"
               ]
             }
           },
@@ -14406,7 +14409,8 @@ Content-Type: application/json
                     "enum": [
                       "FAIL",
                       "OVERWRITE",
-                      "SKIP"
+                      "SKIP",
+                      "REPLACE"
                     ]
                   },
                   "createFolders": {
