@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Button, Row, Form, notification, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from 'constants/'
+import { deriveDisplayNameMode } from 'utils/displayName'
 import { UserDetailsTab } from './UserDatailsTab'
 import { apiCall } from '../../services'
 import { UserDetails } from '../../types/user'
@@ -44,18 +45,6 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
     const [userGroups, setUserGroups] = React.useState<string[]>([])
 
     const initialValues = useMemo(() => {
-        const displayNameSelectInitialValue = () => {
-            const firstName = user.firstName || ''
-            const lastName = user.lastName || ''
-            if (user.displayName === `${firstName} ${lastName}`.trim()) {
-                return DisplayUserName.FirstLast
-            }
-            if (user.displayName === `${lastName} ${firstName}`.trim()) {
-                return DisplayUserName.LastFirst
-            }
-            return DisplayUserName.Other
-        }
-
         setUserGroups(user.userGroups?.map((group) => group.name) || [])
 
         return {
@@ -65,7 +54,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
             firstName: user.firstName || '',
             lastName: user.lastName || '',
             displayName: user.displayName,
-            displayNameSelect: displayNameSelectInitialValue(),
+            displayNameSelect: deriveDisplayNameMode(user),
         }
     }, [user])
 
