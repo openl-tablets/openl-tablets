@@ -77,13 +77,20 @@ i18next.addResourceBundle('en', 'merge', {
     commit_info: {
         title: 'Configure Git Commit Info',
         description: 'Git requires author information for commits. Please configure your name and email.',
-        display_name: 'Display Name',
-        display_name_placeholder: 'Enter your display name',
-        display_name_required: 'Display name is required',
         email: 'Email',
         email_placeholder: 'Enter your email address',
         email_required: 'Email is required',
         email_invalid: 'Please enter a valid email',
+        first_name: 'First Name',
+        first_name_placeholder: 'Enter your first name',
+        last_name: 'Last Name',
+        last_name_placeholder: 'Enter your last name',
+        display_name: 'Display Name',
+        display_name_placeholder: 'Enter your display name',
+        display_name_required: 'Display name is required',
+        display_name_first_last: 'First Last',
+        display_name_last_first: 'Last First',
+        display_name_other: 'Custom',
     },
 
     buttons: {
