@@ -263,7 +263,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             String newPath = prevPath.substring(0, index + 1) + realProjectName;
                             boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
                             if (renamed) {
-                                anyProjectRenamed = true;
+                                try {
+                                    localWorkspace.getMetainfoRegistry().rename(prevPath, newPath);
+                                    anyProjectRenamed = true;
+                                } catch (RuntimeException e) {
+                                    // A folder without a record is deleted at the next workspace load,
+                                    // so roll the folder rename back to keep the pair consistent.
+                                    log.error("Cannot rename the project metainfo from {} to {}."
+                                            + " The folder rename is rolled back.", prevPath, newPath, e);
+                                    if (!new File(repoRoot, newPath).renameTo(new File(repoRoot, prevPath))) {
+                                        log.error("Cannot roll back the folder rename from {} to {}",
+                                                newPath, prevPath);
+                                    }
+                                }
                             } else {
                                 log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
                             }

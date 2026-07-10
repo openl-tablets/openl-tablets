@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,11 +21,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.PropertiesUtils;
 
 /**
- * Tests for the project link stored in the {@code .studioProps/.version} file.
+ * Tests for the project link stored in the metainfo registry record.
  *
  * @author Yury Molchan
  */
@@ -33,19 +35,22 @@ class LocalRepositoryTest {
     @TempDir
     File root;
 
+    private LocalRepository repository;
     private ProjectState projectState;
 
     @BeforeEach
     void init() {
         assertTrue(new File(root, PROJECT).mkdirs());
-        projectState = new LocalRepository(root.toPath()).getProjectState(PROJECT);
+        MetainfoRegistry registry = MetainfoRegistry.open(root.toPath());
+        repository = new LocalRepository(root.toPath(), registry);
+        projectState = repository.getProjectState(PROJECT);
     }
 
     @Test
     void linkIsFullWhenAuthorIsKnown() throws IOException {
         projectState.saveFileData("design", createFileData(new UserInfo("jdoe", "jdoe@email.to", "John Doe")));
 
-        assertEquals("John Doe", readVersionFile().get("author"));
+        assertEquals("John Doe", readRecord().get("author"));
         FileData link = projectState.getFileData();
         assertNotNull(link);
         assertEquals("design", projectState.getRepositoryId());
@@ -59,7 +64,7 @@ class LocalRepositoryTest {
         // the checked out project unlinked, otherwise it shows up as a separate local project.
         projectState.saveFileData("design", createFileData(new UserInfo(null, "some@email.to", "")));
 
-        assertNull(readVersionFile().get("author"));
+        assertNull(readRecord().get("author"));
         FileData link = projectState.getFileData();
         assertNotNull(link);
         assertEquals("design", projectState.getRepositoryId());
@@ -88,6 +93,36 @@ class LocalRepositoryTest {
         assertNull(projectState.getRepositoryId());
     }
 
+    @Test
+    void sameSizeSameTimeEditIsStillDetected() throws IOException {
+        // An edit that accidentally matches the recorded baseline by size and modification time would
+        // look unchanged after a restart. The repository must move the modification time forward.
+        long baselineTime = System.currentTimeMillis() - 60_000;
+        FileData data = new FileData();
+        data.setName(PROJECT + "/rules/Main.xlsx");
+        data.setModifiedAt(new Date(baselineTime));
+        repository.save(data, new ByteArrayInputStream("12345".getBytes(StandardCharsets.UTF_8)));
+        projectState.saveSnapshot("design",
+                createFileData(null),
+                Map.of("/rules/Main.xlsx", new ProjectMetainfo.FileBaseline(null, 5, baselineTime)));
+
+        FileData saved = repository.save(data, new ByteArrayInputStream("54321".getBytes(StandardCharsets.UTF_8)));
+
+        assertTrue(saved.getModifiedAt().getTime() > baselineTime,
+                "The modification time must differ from the baseline after the edit.");
+        assertTrue(projectState.isModified());
+    }
+
+    @Test
+    void relinkPreservesLocalChanges() {
+        projectState.notifyModified();
+        assertTrue(projectState.isModified());
+
+        projectState.saveFileData("design", createFileData(new UserInfo("jdoe")));
+
+        assertTrue(projectState.isModified(), "Relinking is not a synchronization point.");
+    }
+
     private static FileData createFileData(UserInfo author) {
         FileData fileData = new FileData();
         fileData.setName(PROJECT);
@@ -98,11 +133,11 @@ class LocalRepositoryTest {
         return fileData;
     }
 
-    private LinkedHashMap<String, String> readVersionFile() throws IOException {
-        Path versionFile = root.toPath().resolve(PROJECT).resolve(FolderHelper.PROPERTIES_FOLDER).resolve(".version");
-        assertTrue(Files.exists(versionFile));
+    private LinkedHashMap<String, String> readRecord() throws IOException {
+        Path record = root.toPath().resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
+        assertTrue(Files.exists(record));
         var properties = new LinkedHashMap<String, String>();
-        PropertiesUtils.load(versionFile, properties::put);
+        PropertiesUtils.load(record, properties::put);
         return properties;
     }
 }

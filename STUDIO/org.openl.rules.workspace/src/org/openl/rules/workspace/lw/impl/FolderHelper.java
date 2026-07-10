@@ -16,7 +16,6 @@ import org.openl.rules.project.model.Module;
 @Slf4j
 public final class FolderHelper {
 
-    public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String HISTORY_FOLDER = ".history";
 
     private FolderHelper() {

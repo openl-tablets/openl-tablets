@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -34,15 +35,20 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
     private final LocalRepository localRepository;
     private final DesignTimeRepository designTimeRepository;
+    private final MetainfoRegistry metainfoRegistry;
 
-    LocalWorkspaceImpl(String userId, File location, DesignTimeRepository designTimeRepository) {
+    LocalWorkspaceImpl(String userId,
+                       File location,
+                       DesignTimeRepository designTimeRepository,
+                       MetainfoRegistry metainfoRegistry) {
         this.userId = userId;
         this.location = location;
         this.designTimeRepository = designTimeRepository;
+        this.metainfoRegistry = metainfoRegistry;
 
         localProjects = new HashMap<>();
 
-        localRepository = new LocalRepository(location.toPath());
+        localRepository = new LocalRepository(location.toPath(), metainfoRegistry);
         localRepository.initialize();
         loadProjects();
     }
@@ -58,7 +64,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             id = LOCAL_ID;
         }
         // Create a new instance with id and name.
-        LocalRepository repository = new LocalRepository(localRepository.getRoot());
+        LocalRepository repository = new LocalRepository(localRepository.getRoot(), metainfoRegistry);
         repository.setId(id);
         if (designTimeRepository != null) {
             Repository designRepository = designTimeRepository.getRepository(id);
@@ -73,6 +79,11 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public File getLocation() {
         return location;
+    }
+
+    @Override
+    public MetainfoRegistry getMetainfoRegistry() {
+        return metainfoRegistry;
     }
 
     @Override
@@ -138,10 +149,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     private void loadProjects() {
-        List<FileData> folders = localRepository.listFolders("");
-        for (FileData folder : folders) {
+        for (String name : metainfoRegistry.projects()) {
             AProject lpi;
-            String name = folder.getName();
             String repositoryPath = designTimeRepository.getRulesLocation() + name;
             ProjectState projectState = localRepository.getProjectState(name);
             LocalRepository repository = getRepository(projectState.getRepositoryId());

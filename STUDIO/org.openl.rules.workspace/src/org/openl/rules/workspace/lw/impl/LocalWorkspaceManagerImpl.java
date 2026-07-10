@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
@@ -12,6 +13,7 @@ import org.springframework.core.env.PropertyResolver;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
@@ -31,6 +33,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     // User name -> user workspace
     private final Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<>();
+
+    // User name -> metainfo registry. Registries are shared by all sessions of a user and are retained
+    // for the JVM lifetime, so workspace instance churn cannot fork the local-changes state.
+    private final Map<String, MetainfoRegistry> metainfoRegistries = new ConcurrentHashMap<>();
 
     // Project type (rules/deployment) -> Lock Engine
     private final Map<String, LockEngine> lockEngines = new HashMap<>();
@@ -66,7 +72,9 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
         log.debug("Workspace for user ''{}'' will be located at ''{}''", userId, userWorkspace.getAbsolutePath());
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId, userWorkspace, designTimeRepository);
+        MetainfoRegistry registry = metainfoRegistries.computeIfAbsent(userId,
+                id -> MetainfoRegistry.open(userWorkspace.toPath()));
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId, userWorkspace, designTimeRepository, registry);
         workspace.addWorkspaceListener(this);
         return workspace;
     }
