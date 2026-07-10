@@ -636,7 +636,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
-        project.saveTags(tagAssignmentValidator.sanitize(tags != null ? tags : Map.of()));
+        // Tag edits may change or clear a single tag, so mandatory tags are not required here (only on create).
+        project.saveTags(tagAssignmentValidator.sanitize(tags != null ? tags : Map.of(), false));
     }
 
     /**
