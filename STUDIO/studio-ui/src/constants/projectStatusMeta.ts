@@ -66,6 +66,7 @@ export const STATUS_META: Record<ProjectStatus, StatusMeta> = {
 
 /** Statuses for which the backend actually compiles a project; others are always shown as idle. */
 export const COMPILE_RELEVANT_STATUSES: ReadonlySet<ProjectStatus> = new Set([
+    ProjectStatus.Local,
     ProjectStatus.Opened,
     ProjectStatus.Editing,
     ProjectStatus.ViewingVersion,

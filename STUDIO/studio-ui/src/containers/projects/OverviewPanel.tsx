@@ -29,9 +29,8 @@ import {
     type ProjectStatusDetailedMessage,
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
-import { ELLIPSIS, MOCKUP } from './projectsTheme'
+import { COMPILE_COLORS, ELLIPSIS, MOCKUP } from './projectsTheme'
 import { StatusPill } from './StatusIndicator'
-import { CompileDot, getCompileTooltip } from './CompileIndicator'
 import { MonoChip } from './MonoChip'
 import { RepoBadge } from './RepoBadge'
 import { GitCommitMessage } from './GitCommitMessage'
@@ -72,7 +71,7 @@ const useStyles = createStyles(({ css, token }) => ({
         width: 100%;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         padding: 8px 12px;
         border: 0;
         background: transparent;
@@ -81,14 +80,19 @@ const useStyles = createStyles(({ css, token }) => ({
         font: inherit;
         text-align: left;
     `,
-    bannerStatic: css`
-        cursor: default;
+    bannerDot: css`
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex: none;
     `,
-    bannerSpacer: css`
+    bannerSummary: css`
         flex: 1;
+        min-width: 0;
+        font-size: 14px;
     `,
     bannerToggle: css`
-        margin-left: auto;
+        flex: none;
         color: ${token.colorTextTertiary};
         font-size: 12px;
     `,
@@ -481,9 +485,12 @@ const CompileMessageGroup = ({
     )
 }
 
-/** Live compilation banner. Subscribes to pushed status for compile-relevant projects; idle otherwise. */
-const CompileBanner = ({ project, supportsBranches = true }: { project: Project, supportsBranches?: boolean }) => {
-    const { styles, cx } = useStyles()
+/**
+ * Live compilation errors and warnings for the project. Renders nothing unless there are messages — the
+ * compile status itself sits next to the project header, so it is not repeated here.
+ */
+const CompileMessages = ({ project, supportsBranches = true }: { project: Project, supportsBranches?: boolean }) => {
+    const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const live = COMPILE_RELEVANT_STATUSES.has(project.status)
     const [expanded, setExpanded] = useState(false)
@@ -512,30 +519,33 @@ const CompileBanner = ({ project, supportsBranches = true }: { project: Project,
         }
     }, [project, live, supportsBranches])
 
-    const state = status.compileState
     const errors = errorMessagesOf(status)
     const warnings = warningMessagesOf(status)
-    const hasMessages = errors.length > 0 || warnings.length > 0
-    const tooltip = getCompileTooltip(status, state, t)
+    if (errors.length === 0 && warnings.length === 0) {
+        return null
+    }
+    const summary = [
+        errors.length > 0 ? t('browser.compile.error_count', { count: errors.length }) : null,
+        warnings.length > 0 ? t('browser.compile.warning_count', { count: warnings.length }) : null,
+    ].filter(Boolean).join(', ')
     const ToggleIcon = expanded ? DownOutlined : RightOutlined
-
     return (
-        <div className={styles.compilePanel}>
+        <div className={styles.compilePanel} data-testid="compile-messages">
             <button
-                aria-expanded={hasMessages ? expanded : undefined}
-                className={cx(styles.banner, !hasMessages && styles.bannerStatic)}
+                aria-expanded={expanded}
+                className={styles.banner}
+                onClick={() => setExpanded(value => !value)}
                 type="button"
-                onClick={() => {
-                    if (hasMessages) {
-                        setExpanded(value => !value)
-                    }
-                }}
             >
-                <CompileDot showLabel state={state} tooltip={tooltip} />
-                <span className={styles.bannerSpacer} />
-                {hasMessages && <ToggleIcon aria-hidden className={styles.bannerToggle} />}
+                <span
+                    aria-hidden
+                    className={styles.bannerDot}
+                    style={{ background: errors.length > 0 ? COMPILE_COLORS.errors : COMPILE_COLORS.warnings }}
+                />
+                <span className={styles.bannerSummary}>{summary}</span>
+                <ToggleIcon aria-hidden className={styles.bannerToggle} />
             </button>
-            {hasMessages && expanded && (
+            {expanded && (
                 <div className={styles.compileMessages}>
                     <CompileMessageGroup
                         messages={errors}
@@ -638,7 +648,7 @@ export const OverviewPanel = ({
     return (
         <div className={styles.panel} data-testid="overview-panel">
             <div className={styles.left} data-testid="overview-left">
-                <CompileBanner project={project} supportsBranches={supportsBranches} />
+                <CompileMessages project={project} supportsBranches={supportsBranches} />
                 {project.lockInfo && (
                     <div className={styles.lockBanner}>
                         <LockOutlined />

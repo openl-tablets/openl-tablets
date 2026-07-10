@@ -43,5 +43,5 @@ export const CompileStatusBadge = ({ projectId, branch, initialStatus, initialSt
     }
 
     const tooltip = getCompileTooltip(status, status.compileState, t)
-    return <CompileDot state={status.compileState} testId="compile-status" tooltip={tooltip} />
+    return <CompileDot showLabel state={status.compileState} testId="compile-status" tooltip={tooltip} />
 }

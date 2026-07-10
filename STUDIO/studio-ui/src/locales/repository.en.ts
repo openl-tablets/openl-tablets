@@ -61,6 +61,7 @@ i18next.addResourceBundle('en', 'repository', {
         all_section: 'All projects',
         count_filtered: '{{shown}} of {{total}} projects',
         summary: '{{workspace}} in your workspace · {{total}} total',
+        summary_total: '{{total}} projects',
         empty: 'No projects yet. Create one or import an archive to get started.',
         no_match: 'No projects match your filters',
         clear_filters: 'Clear filters',
@@ -79,7 +80,6 @@ i18next.addResourceBundle('en', 'repository', {
         col_repository: 'Repository',
         col_branch: 'Branch',
         col_modified: 'Modified',
-        col_compile: 'Compilation',
         row_actions: 'Actions',
     },
     deployments: {

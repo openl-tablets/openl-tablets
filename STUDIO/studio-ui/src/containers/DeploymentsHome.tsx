@@ -92,8 +92,10 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     title: css`
         margin: 0;
-        font-size: 18px;
+        font-family: ${MOCKUP.fontMono};
+        font-size: 20px;
         font-weight: 600;
+        letter-spacing: -0.02em;
     `,
     subtitle: css`
         margin-top: 2px;

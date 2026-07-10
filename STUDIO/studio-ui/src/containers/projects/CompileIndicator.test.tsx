@@ -17,8 +17,10 @@ vi.mock('react-i18next', () => ({
 vi.mock('antd-style', () => ({
     createStyles: () => () => ({
         styles: new Proxy({}, { get: () => '' }),
+        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
     }),
     useTheme: () => new Proxy({}, { get: () => '#000' }),
+    keyframes: () => '',
 }))
 
 const initialStatus = (state: ProjectStatusUpdate['compileState']): ProjectStatusUpdate => ({
@@ -65,6 +67,23 @@ describe('RowCompileDot', () => {
 
         expect(subscribeProjectStatus).not.toHaveBeenCalled()
         expect(screen.getByRole('img', { name: 'browser.compile.idle' })).toBeInTheDocument()
+    })
+
+    it('shows the real compile state for a local project instead of forcing idle', async () => {
+        await act(async () => {
+            render(
+                <RowCompileDot
+                    branch={null}
+                    initialStatus={initialStatus('ok')}
+                    projectId="p1"
+                    status={ProjectStatus.Local}
+                />
+            )
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(subscribeProjectStatus).toHaveBeenCalled()
+        expect(screen.getByRole('img', { name: 'browser.compile.ok' })).toBeInTheDocument()
     })
 
     it('updates the tooltip from live warning and error counts', async () => {
