@@ -340,7 +340,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 .setMessage(formatComment(CommitType.SAVE, data))
                 .setOnly(fileInRepository)
                 .setNoVerify(noVerify)
-                .setCommitter(data.getAuthor().getDisplayName(),
+                .setCommitter(data.getAuthor().getName(),
                         Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
                 .call();
     }
@@ -378,7 +378,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     .setMessage(formatComment(CommitType.DELETE, data))
                     .setOnly(name)
                     .setNoVerify(noVerify)
-                    .setCommitter(data.getAuthor().getDisplayName(),
+                    .setCommitter(data.getAuthor().getName(),
                             Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
                     .call();
             commitId = commit.getId().getName();
@@ -438,7 +438,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             RevCommit commit = git.commit()
                     .setMessage(formatComment(CommitType.SAVE, destData))
                     .setNoVerify(noVerify)
-                    .setCommitter(destData.getAuthor().getDisplayName(),
+                    .setCommitter(destData.getAuthor().getName(),
                             Optional.ofNullable(destData.getAuthor().getEmail()).orElse(""))
                     .call();
             commitId = commit.getId().getName();
@@ -1279,7 +1279,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             git.commit()
                     .setMessage(mergeMessage)
                     .setNoVerify(noVerify)
-                    .setCommitter(mergeAuthor.getDisplayName(), Optional.ofNullable(mergeAuthor.getEmail()).orElse(""))
+                    .setCommitter(mergeAuthor.getName(), Optional.ofNullable(mergeAuthor.getEmail()).orElse(""))
                     .call();
         }
     }
@@ -2311,7 +2311,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         CommitCommand commitCommand = git.commit()
                 .setNoVerify(noVerify)
                 .setMessage(formatComment(CommitType.SAVE, folderData))
-                .setCommitter(folderData.getAuthor().getDisplayName(),
+                .setCommitter(folderData.getAuthor().getName(),
                         Optional.ofNullable(folderData.getAuthor().getEmail()).orElse(""));
 
         return commitChangedFiles(commitCommand);
@@ -2403,7 +2403,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         CommitCommand conflictResolveCommit = git.commit()
                 .setNoVerify(noVerify)
                 .setMessage(mergeMessage)
-                .setCommitter(author.getDisplayName(), Optional.ofNullable(author.getEmail()).orElse(""));
+                .setCommitter(author.getName(), Optional.ofNullable(author.getEmail()).orElse(""));
 
         Status status = git.status().call();
 

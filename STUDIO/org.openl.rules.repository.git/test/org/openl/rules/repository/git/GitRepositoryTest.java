@@ -310,6 +310,25 @@ class GitRepositoryTest {
     }
 
     @Test
+    void saveWithBlankDisplayName() throws IOException {
+        // Regression for EPBDS-16228: a blank user display name must not break the commit.
+        // The git committer name falls back to the username (UserInfo.getName()); otherwise an
+        // empty committer ident aborts the commit and, in Studio, leaves a project half-opened.
+        String path = "rules/project1/folder/file-blank-dn";
+        String text = "File with blank display name author";
+        FileData data = new FileData();
+        data.setName(path);
+        data.setComment("Comment for " + path);
+        data.setAuthor(new UserInfo("jdoe", "jdoe@email", ""));
+        FileData result = repo.save(data, IOUtils.toInputStream(text));
+
+        assertNotNull(result);
+        // The committer name persisted to git is the username, not the blank display name.
+        assertEquals("jdoe", result.getAuthor().getDisplayName());
+        assertEquals(text, readText(repo.read(path)));
+    }
+
+    @Test
     void saveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
                 new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
