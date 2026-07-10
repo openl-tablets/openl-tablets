@@ -255,7 +255,7 @@ describe('ProjectWorkspace', () => {
         expect(getDesignRepositories).toHaveBeenCalledWith({ throwError: true, suppressErrorPages: true })
         expect(getProject).toHaveBeenCalledWith(
             'p1',
-            { includes: ['STATUS', 'MODULES']},
+            { includes: ['status', 'modules']},
             { throwError: true, suppressErrorPages: true }
         )
         // The breadcrumb links back to the Projects home.

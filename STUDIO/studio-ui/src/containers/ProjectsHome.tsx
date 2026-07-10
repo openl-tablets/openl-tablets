@@ -198,7 +198,7 @@ export const ProjectsHome = () => {
     const load = useCallback(() => {
         setLoading(true)
         return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjects({
-            includes: ['DELETED', 'STATUS', 'SUMMARY'],
+            includes: ['deleted', 'status', 'summary'],
             name: debouncedSearch,
             page: requestedPage - 1,
             repositories: repos,

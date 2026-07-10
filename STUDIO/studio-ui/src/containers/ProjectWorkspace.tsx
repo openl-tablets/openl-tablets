@@ -114,7 +114,7 @@ export const ProjectWorkspace = () => {
         try {
             const [repos, loaded] = await Promise.all([
                 getDesignRepositories(LOCAL_LOAD_API_OPTIONS),
-                getProject(projectId, { includes: ['STATUS', 'MODULES']}, LOCAL_LOAD_API_OPTIONS),
+                getProject(projectId, { includes: ['status', 'modules']}, LOCAL_LOAD_API_OPTIONS),
             ])
             if (generation !== loadGeneration.current) {
                 return

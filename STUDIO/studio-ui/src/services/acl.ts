@@ -9,14 +9,14 @@ export interface AclSubject {
 export interface AccessControlEntry {
     role: Role
     sub: AclSubject
-    source?: 'PROJECT' | 'REPOSITORY' | undefined
+    source?: 'project' | 'repository' | undefined
 }
 
 /** One ACL rule of a project as returned by the per-project endpoint (subject + role). */
 interface AclProjectRule {
     sid: AclSubject
     role: Role
-    source?: 'PROJECT' | 'REPOSITORY' | undefined
+    source?: 'project' | 'repository' | undefined
 }
 
 /** Fetch the access-control entries (subject + role) assigned to a specific project. */

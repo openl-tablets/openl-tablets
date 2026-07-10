@@ -172,7 +172,7 @@ class ProjectCreationServiceTest {
 
     @Test
     void import_from_repository_is_denied_without_create_permission() {
-        assertThrows(ForbiddenException.class, () -> service.importFromRepository("design", "folder", null));
+        assertThrows(ForbiddenException.class, () -> service.importFromRepository("design", "folder"));
     }
 
     @Test
@@ -183,7 +183,7 @@ class ProjectCreationServiceTest {
         var workspace = mock(UserWorkspace.class);
         service = serviceWithWorkspace(workspace);
 
-        assertThrows(ForbiddenException.class, () -> service.importFromRepository("design", "folder", null));
+        assertThrows(ForbiddenException.class, () -> service.importFromRepository("design", "folder"));
 
         verify(workspace, never()).getDesignTimeRepository();
     }
@@ -210,7 +210,7 @@ class ProjectCreationServiceTest {
 
         service = serviceWithWorkspace(workspace);
 
-        assertThrows(ConflictException.class, () -> service.importFromRepository("design", "folder/", null));
+        assertThrows(ConflictException.class, () -> service.importFromRepository("design", "folder/"));
 
         verify(mapper).addMapping("folder");
         verify(workspace).refresh();

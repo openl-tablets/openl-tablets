@@ -2,6 +2,7 @@ package org.openl.studio.deployment.rest.controller;
 
 import java.util.List;
 import java.util.Optional;
+import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,18 +51,18 @@ public class DeploymentsController {
     private final ProjectIdentityConverter projectConverter;
 
     @Operation(
-            summary = "Get Deployments",
-            description = "Returns a list of deployments. Optionally, filter by provided criterias."
+            summary = "deployments.get-list.summary",
+            description = "deployments.get-list.desc"
     )
     @Parameters({
             @Parameter(
                     name = "repository",
-                    description = "Production repository id to filter deployments",
+                    description = "deployments.get-list.param.repository.desc",
                     in = ParameterIn.QUERY
             ),
             @Parameter(
                     name = "project",
-                    description = "Deployed project name to filter deployments",
+                    description = "deployments.get-list.param.project.desc",
                     in = ParameterIn.QUERY
             )
     })
@@ -85,11 +86,11 @@ public class DeploymentsController {
                 .toList();
     }
 
-    @Operation(summary = "Get Deployment", description = "Returns a single deployment with its deployed projects.")
+    @Operation(summary = "deployments.get.summary", description = "deployments.get.desc")
     @GetMapping("/{id}")
     @JsonView(GenericView.Full.class)
     public DeploymentViewModel getDeployment(
-            @Parameter(description = "Deployment identifier") @PathVariable("id") String id) {
+            @Parameter(description = "deployments.get.param.id.desc") @PathVariable("id") String id) {
         var deploymentId = ProjectIdModel.decode(id);
         var query = DeploymentCriteriaQuery.builder()
                 .repository(deploymentId.getRepository())
@@ -101,10 +102,10 @@ public class DeploymentsController {
                 .orElseThrow(() -> new NotFoundException("deployment.not-found.message"));
     }
 
-    @Operation(summary = "Deploy Project", description = "Deploys a project to the specified deployment.")
+    @Operation(summary = "deployments.deploy.summary", description = "deployments.deploy.desc")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CommitInfoRequired
-    public void deploy(@RequestBody DeployProjectModel deployProject) throws ProjectException {
+    public void deploy(@Valid @RequestBody DeployProjectModel deployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.builder()
                 .repository(deployProject.productionRepositoryId)
                 .projectName(deployProject.deploymentName)
@@ -113,11 +114,11 @@ public class DeploymentsController {
         deploymentService.deploy(deploymentId, projectToDeploy, deployProject.comment);
     }
 
-    @Operation(summary = "Redeploy Project", description = "Redeploys a project to an existing deployment.")
+    @Operation(summary = "deployments.redeploy.summary", description = "deployments.redeploy.desc")
     @PostMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @CommitInfoRequired
-    public void redeploy(@PathVariable("id") String id,
-                         @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
+    public void redeploy(@Parameter(description = "deployments.redeploy.param.id.desc") @PathVariable("id") String id,
+                         @Valid @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.decode(id);
         var projectToDeploy = projectConverter.convert(redeployProject.projectId.encode());
         deploymentService.deploy(deploymentId, projectToDeploy, redeployProject.comment);

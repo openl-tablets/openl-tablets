@@ -4,9 +4,11 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.repository.api.Pageable;
 
+@Schema(description = "A page of results with pagination metadata")
 public class PageResponse<T> {
 
     @Parameter(description = "Current page content")

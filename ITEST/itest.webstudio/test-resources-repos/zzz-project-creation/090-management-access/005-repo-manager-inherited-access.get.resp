@@ -7,7 +7,7 @@ Content-Type: application/json
       "sid": "admin",
       "principal": true
     },
-    "source": "PROJECT",
+    "source": "project",
     "role": "CONTRIBUTOR"
   },
   {
@@ -15,7 +15,7 @@ Content-Type: application/json
       "sid": "zzz_project_manager",
       "principal": true
     },
-    "source": "PROJECT",
+    "source": "project",
     "role": "MANAGER"
   },
   {
@@ -23,7 +23,7 @@ Content-Type: application/json
       "sid": "EPBDS_14095_user1",
       "principal": true
     },
-    "source": "REPOSITORY",
+    "source": "repository",
     "role": "CONTRIBUTOR"
   },
   {
@@ -31,7 +31,7 @@ Content-Type: application/json
       "sid": "EPBDS_14095_user2",
       "principal": true
     },
-    "source": "REPOSITORY",
+    "source": "repository",
     "role": "CONTRIBUTOR"
   },
   {
@@ -39,7 +39,7 @@ Content-Type: application/json
       "sid": "zzz_repo_manager",
       "principal": true
     },
-    "source": "REPOSITORY",
+    "source": "repository",
     "role": "MANAGER"
   },
   {
@@ -47,7 +47,7 @@ Content-Type: application/json
       "sid": "zzz_repo_subject",
       "principal": true
     },
-    "source": "REPOSITORY",
+    "source": "repository",
     "role": "VIEWER"
   }
 ]

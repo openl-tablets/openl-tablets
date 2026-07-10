@@ -135,27 +135,27 @@ public class ProjectsController {
     }
 
     @GetMapping
-    @Operation(summary = "Get projects (BETA)")
+    @Operation(summary = "projects.list.summary")
     @Parameters({
-            @Parameter(name = "status", description = "Project status", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {
+            @Parameter(name = "status", description = "projects.list.param.status.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {
                     "LOCAL",
                     "DELETED",
                     "OPENED",
                     "VIEWING_VERSION",
                     "EDITING",
                     "CLOSED"})),
-            @Parameter(name = "repository", description = "Repository ID", in = ParameterIn.QUERY),
-            @Parameter(name = "dependsOn", description = "Identifier of the project that the returned projects depend on.", in = ParameterIn.QUERY),
-            @Parameter(name = "name", description = "Project name to filter by (partial match, case-insensitive)", in = ParameterIn.QUERY),
-            @Parameter(name = "sort", description = "Field to sort the returned page by.", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {"name", "status", "updated"})),
+            @Parameter(name = "repository", description = "projects.list.param.repository.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "dependsOn", description = "projects.list.param.depends-on.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "name", description = "projects.list.param.name.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "sort", description = "projects.list.param.sort.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {"name", "status", "updated"})),
             @Parameter(
                     name = "include",
-                    description = "Optional response expansions and listing behavior.",
+                    description = "projects.list.param.include.desc",
                     in = ParameterIn.QUERY,
                     style = ParameterStyle.FORM,
                     explode = Explode.TRUE,
                     array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class))),
-            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
+            @Parameter(name = "tags", description = "projects.list.param.tags.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public ProjectsPageResponse getProjects(@Parameter(hidden = true) @RequestParam MultiValueMap<String, String> params,
                                                       @RequestParam(value = "status", required = false) List<ProjectStatus> statuses,
@@ -194,9 +194,9 @@ public class ProjectsController {
     }
 
     @GetMapping("/{projectId}")
-    @Operation(summary = "Get project (BETA)")
+    @Operation(summary = "projects.get.summary")
     public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project,
-                                       @Parameter(description = "Optional response expansions.",
+                                       @Parameter(description = "projects.get.param.include.desc",
                                                style = ParameterStyle.FORM,
                                                explode = Explode.TRUE,
                                                array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class)))
@@ -205,7 +205,7 @@ public class ProjectsController {
     }
 
     @DeleteMapping("/{projectId}")
-    @Operation(summary = "Delete project (BETA)")
+    @Operation(summary = "projects.delete.summary")
     public void deleteProject(@ProjectId @PathVariable("projectId") RulesProject project,
                               @Parameter(description = "projects.delete.param.comment.desc")
                               @RequestParam(value = "comment", required = false) @Nullable String comment) {
@@ -213,9 +213,9 @@ public class ProjectsController {
     }
 
     @PatchMapping("/{projectId}")
-    @Operation(summary = "Update project status (BETA)")
+    @Operation(summary = "projects.status.update.summary")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
-                                    @RequestBody ProjectStatusUpdateModel request) {
+                                    @Valid @RequestBody ProjectStatusUpdateModel request) {
         var projectId = projectIdentifierMapper.map(project);
         if (conflictsSessionHolder.hasConflictInfo(projectId)) {
             throw new ConflictException("project.unresolved.merge.conflicts.message");
@@ -251,14 +251,14 @@ public class ProjectsController {
     }
 
     @DeleteMapping("/{projectId}/lock")
-    @Operation(summary = "Force-unlock a project (BETA)")
+    @Operation(summary = "projects.unlock.summary")
     public void unlockProject(@ProjectId @PathVariable("projectId") RulesProject project) {
         projectService.unlockProject(project);
         getWebStudio().reset();
     }
 
     @PutMapping("/{projectId}/tags")
-    @Operation(summary = "Update project tags (BETA)")
+    @Operation(summary = "projects.tags.update.summary")
     public void updateTags(@ProjectId @PathVariable("projectId") RulesProject project,
                            @RequestBody Map<String, String> tags) {
         withReset("project.tags.update.failed.message", () -> projectService.updateTags(project, tags));
@@ -285,9 +285,9 @@ public class ProjectsController {
     }
 
     @PostMapping("/{projectId}/branches")
-    @Operation(summary = "Create branch (BETA)")
+    @Operation(summary = "projects.branch.create.summary")
     public void createBranch(@ProjectId @PathVariable("projectId") RulesProject project,
-                             @RequestBody CreateBranchModel request) {
+                             @Valid @RequestBody CreateBranchModel request) {
         try {
             projectService.createBranch(project, request);
             getWebStudio().reset();
@@ -297,7 +297,7 @@ public class ProjectsController {
     }
 
     @GetMapping("/{projectId}/branches")
-    @Operation(summary = "Get all available branches for the project (BETA)")
+    @Operation(summary = "projects.branch.list.summary")
     public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project) throws ProjectException {
         return projectService.getBranches(project);
     }
@@ -319,9 +319,9 @@ public class ProjectsController {
     }
 
     @GetMapping("/{projectId}/tables")
-    @Operation(summary = "Get project tables (BETA)")
+    @Operation(summary = "projects.tables.list.summary")
     @Parameters({
-            @Parameter(name = "kind", description = "Table kinds", in = ParameterIn.QUERY, schema = @Schema(implementation = String.class, description = "Kind of the table object",
+            @Parameter(name = "kind", description = "projects.tables.list.param.kind.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = String.class,
                     allowableValues = {
                             "Rules",
                             "Spreadsheet",
@@ -340,8 +340,8 @@ public class ProjectsController {
                             "Properties",
                             "Other"
                     })),
-            @Parameter(name = "name", description = "Table name fragment", in = ParameterIn.QUERY),
-            @Parameter(name = "properties", description = "Project properties. Must start with `properties.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
+            @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
                                                     @Parameter(hidden = true) @RequestParam Map<String, String> params,
@@ -362,8 +362,8 @@ public class ProjectsController {
         return projectService.getTables(project, queryBuilder.build(), page);
     }
 
-    @Operation(summary = "Create new project table (BETA)")
-    @Parameter(name = "projectId", description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
+    @Operation(summary = "projects.tables.create.summary")
+    @Parameter(name = "projectId", description = "projects.param.project-id.desc", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
     @PostMapping("/{projectId}/tables")
     @ResponseStatus(HttpStatus.CREATED)
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
@@ -383,13 +383,13 @@ public class ProjectsController {
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")
-    @Operation(summary = "Get project table (BETA)")
+    @Operation(summary = "projects.table.get.summary")
     public EditableTableView getTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                      @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
-                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw,
-                                      @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "Zero-based index of the first row of the raw view; omit to start at the top. Combine with maxRows to read a large table in slices.") Integer startRow,
-                                      @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "Maximum number of rows for the raw view, counted from startRow; omit to read to the end. When the window omits rows, the response carries totalRows.") Integer maxRows,
-                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "Whether the raw view should carry each cell's Excel style (background, font, alignment)") boolean styles) {
+                                      @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "projects.table.get.param.raw.desc") boolean raw,
+                                      @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "projects.table.get.param.start-row.desc") Integer startRow,
+                                      @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
+                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles) {
         if (raw) {
             return projectService.getTableRaw(project, tableId, startRow, maxRows, styles);
         }
@@ -424,7 +424,7 @@ public class ProjectsController {
     @ApiResponse(responseCode = "204", description = "project.table.update.204.desc")
     @PutMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<TableIdView> updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                   @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                                   @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody EditableTableView editTable) throws ProjectException {
         try {
             var newTableId = projectService.updateTable(project, tableId, editTable);
@@ -439,7 +439,7 @@ public class ProjectsController {
     @ApiResponse(responseCode = "204", description = "project.table.append.204.desc")
     @PostMapping("/{projectId}/tables/{tableId}/lines")
     public ResponseEntity<TableIdView> appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                   @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                                   @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody AppendTableView editTable) throws ProjectException {
         try {
             var newTableId = projectService.appendTableLines(project, tableId, editTable);
@@ -454,7 +454,7 @@ public class ProjectsController {
     @ApiResponse(responseCode = "204", description = "project.table.actions.204.desc")
     @PostMapping("/{projectId}/tables/{tableId}/actions")
     public ResponseEntity<TableIdView> editTableSource(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                       @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                                       @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                        @Valid @RequestBody RawTableSourceAction action) throws ProjectException {
         try {
             var newTableId = projectService.editTableSource(project, tableId, action);
@@ -468,7 +468,7 @@ public class ProjectsController {
     @ApiResponse(responseCode = "204", description = "project.table.delete.204.desc")
     @DeleteMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<Void> deleteTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                            @PathVariable("tableId") @Parameter(description = "Table ID") String tableId) throws ProjectException {
+                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) throws ProjectException {
         try {
             projectService.deleteTable(project, tableId);
             return ResponseEntity.noContent().build();
@@ -499,15 +499,15 @@ public class ProjectsController {
                 .body(new TableIdView(currentTableId));
     }
 
-    @Operation(summary = "Run all tests in the project or in a specific table (BETA)")
-    @Parameter(name = "fromModule", description = "Module name to run tests from", in = ParameterIn.QUERY)
-    @Parameter(name = "tableId", description = "Table ID to run tests for a specific table", in = ParameterIn.QUERY)
-    @Parameter(name = "testRanges", description = "Test ranges to run specific tests in the table", in = ParameterIn.QUERY)
+    @Operation(summary = "projects.tests.run.summary")
+    @Parameter(name = "fromModule", description = "projects.tests.run.param.from-module.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "tableId", description = "projects.tests.run.param.table-id.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "testRanges", description = "projects.tests.run.param.test-ranges.desc", in = ParameterIn.QUERY)
     @PostMapping("/{projectId}/tests/run")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void runAllTests(@ProjectId @PathVariable("projectId") RulesProject project,
                             @RequestParam(value = "fromModule", required = false) String fromModule,
-                            @RequestParam(value = "tableId", required = false) @Parameter(description = "Table ID") String tableId,
+                            @RequestParam(value = "tableId", required = false) String tableId,
                             @RequestParam(value = "testRanges", required = false) String testRanges) {
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
@@ -543,13 +543,13 @@ public class ProjectsController {
         executionTestsResultRegistry.setTask(projectId, testTask);
     }
 
-    @Operation(summary = "Get latest tests execution summary (BETA)")
-    @ApiResponse(responseCode = "404", description = "No tests execution task found or the task is not completed yet")
-    @ApiResponse(responseCode = "409", description = "Tests execution is not completed yet")
-    @ApiResponse(responseCode = "406", description = "Requested media type is not acceptable")
+    @Operation(summary = "projects.tests.summary.summary")
+    @ApiResponse(responseCode = "404", description = "projects.tests.summary.404.desc")
+    @ApiResponse(responseCode = "409", description = "projects.tests.summary.409.desc")
+    @ApiResponse(responseCode = "406", description = "projects.tests.summary.406.desc")
     @ApiResponse(
             responseCode = "200",
-            description = "Tests execution summary retrieved successfully",
+            description = "projects.tests.summary.200.desc",
             headers = {
                     @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc")
 
@@ -562,10 +562,10 @@ public class ProjectsController {
     @GetMapping(value = "/{projectId}/tests/summary", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
     public ResponseEntity<?> getTestsSummary(@ProjectId @PathVariable("projectId") RulesProject project,
                                              @RequestParam(value = "failuresOnly", defaultValue = "false")
-                                             @Parameter(description = "Whether to include only failed test units in the summary")
+                                             @Parameter(description = "projects.tests.summary.param.failures-only.desc")
                                              boolean failuresOnly,
                                              @RequestParam(value = "failures", defaultValue = "5")
-                                             @Parameter(description = "Number of failed test units to include in the summary")
+                                             @Parameter(description = "projects.tests.summary.param.failures.desc")
                                              @Min(1)
                                              int failures,
                                              @PaginationDefault Pageable page,

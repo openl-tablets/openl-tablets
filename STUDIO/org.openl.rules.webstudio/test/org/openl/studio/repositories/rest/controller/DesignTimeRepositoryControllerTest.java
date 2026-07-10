@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 
@@ -159,9 +158,9 @@ class DesignTimeRepositoryControllerTest {
 
     @Test
     void createProjectFromRepositoryRequiresBranchProtectionBypass() {
-        when(projectCreationService.importFromRepository(REPOSITORY_ID, "folder", Map.of())).thenReturn(new FileData());
+        when(projectCreationService.importFromRepository(REPOSITORY_ID, "folder")).thenReturn(new FileData());
 
-        controller.createProjectFromRepository(repository, new CreateFromRepositoryModel("folder", Map.of()));
+        controller.createProjectFromRepository(repository, new CreateFromRepositoryModel("folder"));
 
         verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
     }

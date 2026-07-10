@@ -2,6 +2,7 @@ package org.openl.rules.rest.acl.model;
 
 import jakarta.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -106,7 +107,9 @@ public class AclProjectModel {
     }
 
     public enum AclProjectSource {
+        @JsonProperty("project")
         PROJECT,
+        @JsonProperty("repository")
         REPOSITORY
     }
 

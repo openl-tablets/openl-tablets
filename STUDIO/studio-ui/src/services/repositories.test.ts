@@ -67,7 +67,7 @@ describe('getProjects', () => {
         })
 
         await getProjects({
-            includes: ['DELETED', 'STATUS', 'SUMMARY'],
+            includes: ['deleted', 'status', 'summary'],
             name: ' Alpha ',
             page: 2,
             repositories: ['design', '__local__'],
@@ -83,7 +83,7 @@ describe('getProjects', () => {
         const query = new URLSearchParams(url.slice(url.indexOf('?') + 1))
 
         expect(url.startsWith('/projects?')).toBe(true)
-        expect(query.getAll('include')).toEqual(['DELETED', 'STATUS', 'SUMMARY'])
+        expect(query.getAll('include')).toEqual(['deleted', 'status', 'summary'])
         expect(query.get('name')).toBe('Alpha')
         expect(query.get('page')).toBe('2')
         expect(query.get('size')).toBe('50')
@@ -96,9 +96,9 @@ describe('getProjects', () => {
     it('requests one project with optional compilation status', async () => {
         vi.mocked(apiCall).mockResolvedValue({ id: 'abc' })
 
-        await getProject('abc=', { includes: ['STATUS', 'MODULES']})
+        await getProject('abc=', { includes: ['status', 'modules']})
 
-        expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=STATUS&include=MODULES', undefined, { throwError: true })
+        expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=status&include=modules', undefined, { throwError: true })
     })
 
     it('passes local error-page handling options to project list and detail calls', async () => {
@@ -295,13 +295,13 @@ describe('getProjects', () => {
     it('imports repository folders and downloads project archives', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
-        await createProjectFromRepository('design', { path: 'folder/Alpha', tags: { Team: 'Payroll' } })
+        await createProjectFromRepository('design', { path: 'folder/Alpha' })
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/design/projects/from-repository',
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: 'folder/Alpha', tags: { Team: 'Payroll' } }),
+                body: JSON.stringify({ path: 'folder/Alpha' }),
             },
             { throwError: true }
         )

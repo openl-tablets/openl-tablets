@@ -2,6 +2,7 @@ package org.openl.studio.common.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 /**
@@ -17,6 +18,7 @@ import lombok.Builder;
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Capabilities the current user has on a resource")
 public record Capabilities(
         @Parameter(description = "Whether the user can modify the resource content") Boolean canWrite,
         @Parameter(description = "Whether the user can delete the resource") Boolean canDelete) {

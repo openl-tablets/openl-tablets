@@ -441,7 +441,7 @@ export const NewProjectModal = ({
 
     useEffect(() => {
         if (open && mode === 'copy' && copyProjects === null) {
-            loadProjectSources({ includes: ['DELETED']}).then(setCopyProjects).catch(() => setCopyProjects(initialProjects))
+            loadProjectSources({ includes: ['deleted']}).then(setCopyProjects).catch(() => setCopyProjects(initialProjects))
         }
     }, [copyProjects, initialProjects, mode, open])
 

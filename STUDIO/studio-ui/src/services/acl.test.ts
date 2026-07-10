@@ -27,13 +27,13 @@ describe('acl service', () => {
 
     it('requests inherited project ACL entries when requested', async () => {
         vi.mocked(apiCall).mockResolvedValue([
-            { role: 'VIEWER', sid: { sid: 'jane', principal: true }, source: 'REPOSITORY' },
+            { role: 'VIEWER', sid: { sid: 'jane', principal: true }, source: 'repository' },
         ])
 
         const result = await getProjectAcl('abc=', { inherited: true })
 
         expect(result).toEqual([
-            { role: 'VIEWER', source: 'REPOSITORY', sub: { sid: 'jane', principal: true } },
+            { role: 'VIEWER', source: 'repository', sub: { sid: 'jane', principal: true } },
         ])
         expect(apiCall).toHaveBeenCalledWith(
             '/acls/projects/abc%3D?inherited=true',

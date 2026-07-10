@@ -2,6 +2,7 @@ package org.openl.studio.projects.model;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -16,12 +17,13 @@ import org.openl.studio.common.projection.NoFieldProjection;
  */
 @NoFieldProjection
 @Schema(description = "Number of projects per status across the query scope, ignoring the status filter and paging.")
-public record ProjectStatusSummary(long local,
-                                   long opened,
-                                   long viewingVersion,
-                                   long editing,
-                                   long closed,
-                                   long deleted) {
+public record ProjectStatusSummary(
+        @Parameter(description = "Number of local-only projects") long local,
+        @Parameter(description = "Number of opened projects with no local changes") long opened,
+        @Parameter(description = "Number of projects opened at a historical revision") long viewingVersion,
+        @Parameter(description = "Number of projects opened for editing") long editing,
+        @Parameter(description = "Number of closed projects") long closed,
+        @Parameter(description = "Number of deleted (archived) projects") long deleted) {
 
     public static ProjectStatusSummary of(Map<ProjectStatus, Long> counts) {
         return new ProjectStatusSummary(
