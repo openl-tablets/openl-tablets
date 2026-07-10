@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,10 +24,6 @@ import jakarta.validation.ValidationException;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.richfaces.event.FileUploadEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
@@ -35,7 +31,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -45,7 +40,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -54,7 +48,6 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
@@ -62,27 +55,17 @@ import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.repository.project.ProjectFile;
-import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
-import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
-import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
-import org.openl.rules.webstudio.web.repository.upload.zip.ProjectDescriptionException;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
-import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -96,7 +79,6 @@ import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHold
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.util.CollectionUtils;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -158,8 +140,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean manualCompile = false;
     private final Map<String, Object> externalProperties;
 
-    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
-
     private final RulesUserSession rulesUserSession;
 
     private final PropertyResolver propertyResolver;
@@ -172,8 +152,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final Authentication authentication;
     private final ProjectDescriptorArtefactResolver pdArtefactResolver;
-    private final PathFilter zipFilter;
-    private final ZipCharsetDetector zipCharsetDetector;
 
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
@@ -194,8 +172,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      RepositoryAclService designRepositoryAclService,
                      SimpleRepositoryAclService productionRepositoryAclService,
                      ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
-                     PathFilter zipFilter,
-                     ZipCharsetDetector zipCharsetDetector,
                      PropertyResolver propertyResolver,
                      DeploymentManager deploymentManager,
                      ApplicationEventPublisher eventPublisher,
@@ -209,8 +185,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.designRepositoryAclService = designRepositoryAclService;
         this.productionRepositoryAclService = productionRepositoryAclService;
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
-        this.zipFilter = zipFilter;
-        this.zipCharsetDetector = zipCharsetDetector;
         this.rulesUserSession = rulesUserSession;
         this.propertyResolver = propertyResolver;
         this.deploymentManager = deploymentManager;
@@ -448,6 +422,19 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public Module getCurrentModule() {
         return currentModule;
+    }
+
+    /**
+     * Path of the open module's rules file relative to the project root, with '/' separators.
+     * Empty when no module is open.
+     */
+    public String getCurrentModulePath() {
+        Module module = getCurrentModule();
+        if (module == null) {
+            return "";
+        }
+        Path projectFolder = getCurrentProjectDescriptor().getProjectFolder().toAbsolutePath();
+        return projectFolder.relativize(module.getRulesPath()).toString().replace('\\', '/');
     }
 
     /**
@@ -706,164 +693,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 module -> module.getName() != null && module.getName().equals(moduleName));
     }
 
-    public String updateModule() {
-        ProjectFile uploadedFile = getLastUploadedFile();
-        if (uploadedFile == null) {
-            // TODO Display message - e.getMessage()
-            return null;
-        }
-
-        InputStream stream = null;
-        try {
-            tryLockProject();
-
-            stream = uploadedFile.getInput();
-
-            Module module = getCurrentModule();
-            File sourceFile = module.getRulesPath().toFile();
-
-            ProjectHistoryService.init(model.getHistoryStoragePath(), sourceFile);
-            LocalRepository repository = rulesUserSession.getUserWorkspace()
-                    .getLocalWorkspace()
-                    .getRepository(currentRepositoryId);
-
-            File projectFolder = getCurrentProjectDescriptor().getProjectFolder().toFile();
-            String relativePath = getRelativePath(projectFolder, sourceFile);
-            FileData data = new FileData();
-            data.setName(projectFolder.getName() + "/" + relativePath);
-            repository.save(data, stream);
-            ProjectHistoryService.save(model.getHistoryStoragePath(), sourceFile);
-        } catch (FileNotFoundException e) {
-            log.debug("An error occurred during the module update. Close the module Excel file and try again.", e);
-            throw new IllegalStateException(
-                    "An error occurred during the module update. Close the module Excel file and try again.",
-                    e);
-        } catch (Exception e) {
-            log.error("Error updating file in user workspace.", e);
-            throw new IllegalStateException("Error while updating the module.", e);
-        } finally {
-            IOUtils.closeQuietly(stream);
-        }
-
-        model.resetSourceModified(); // Because we rewrite a file in the
-        // workspace
-        compile();
-        clearUploadedFiles();
-
-        return null;
-    }
-
-    public synchronized String updateProject() {
-        ProjectFile lastUploadedFile = getLastUploadedFile();
-        if (lastUploadedFile == null) {
-            // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("No file has been uploaded. Upload a .zip file to update the project.");
-        }
-        if (!FileTypeHelper.isZipFile(FilenameUtils.getName(lastUploadedFile.getName()))) {
-            // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("Wrong filename extension. Select a .zip file to upload.");
-        }
-        ProjectDescriptor projectDescriptor;
-        try {
-            initProjectHistory();
-            tryLockProject();
-
-            projectDescriptor = getCurrentProjectDescriptor();
-
-            List<String> filesInProject = getFilesInProject(zipFilter);
-            var charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile), filesInProject);
-            if (charset == null) {
-                throw new Message("Cannot detect a charset for the zip file");
-            }
-
-            String errorMessage = validateUploadedFiles(lastUploadedFile, zipFilter, projectDescriptor, charset);
-            if (errorMessage != null) {
-                // TODO Replace exceptions with FacesUtils.addErrorMessage()
-                throw new Message(errorMessage);
-            }
-
-            final CommonUser user = rulesUserSession.getUserWorkspace().getUser();
-            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository(currentRepositoryId);
-            // project folder is not the same as project name
-            final String projectPath = projectDescriptor.getProjectFolder().getFileName().toString();
-
-            // Release resources that can be deleted or replaced
-            getModel().clearModuleInfo();
-
-            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, zipFilter, charset);
-
-            FilePathsCollector filesCollector = new FilePathsCollector();
-            zipWalker.iterateEntries(filesCollector);
-            List<String> filesInZip = filesCollector.getFilePaths();
-
-            final File projectFolder = projectDescriptor.getProjectFolder().toFile();
-            Collection<File> files = getProjectFiles(projectFolder, zipFilter);
-            RulesProject rulesProject = getCurrentProject();
-
-            List<FileData> absentResources = new ArrayList<>();
-            // Delete absent files in project
-            for (File file : files) {
-                String relative = getRelativePath(projectFolder, file);
-                if (!filesInZip.contains(relative)) {
-                    var artefact = rulesProject.getArtefact(relative);
-                    if (!designRepositoryAclService.isGranted(artefact, true, BasePermission.DELETE)) {
-                        throw new Message("There is no permission for deleting '%s' file.".formatted(
-                                projectPath + "/" + relative));
-                    }
-                    FileData absentFileData = new FileData();
-                    absentFileData.setAuthor(user.getUserInfo());
-                    absentFileData.setComment("Uploaded from external source");
-                    absentFileData.setName(projectPath + "/" + relative);
-                    absentResources.add(absentFileData);
-                } else {
-                    if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
-                            List.of(BasePermission.WRITE))) {
-                        throw new Message("There is no permission for modifying '%s' file.".formatted(
-                                projectPath + "/" + relative));
-                    }
-                }
-            }
-            for (String fileInZip : filesInZip) {
-                if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
-                        List.of(BasePermission.CREATE))) {
-                    throw new Message("There is no permission for creating '%s' file.".formatted(
-                            ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
-                }
-            }
-            repository.delete(absentResources);
-            // Update/create other files in project
-            zipWalker.iterateEntries(new DefaultZipEntryCommand() {
-                @Override
-                public boolean execute(String filePath, InputStream inputStream) throws IOException {
-                    FileData data = new FileData();
-                    data.setAuthor(user.getUserInfo());
-                    data.setComment("Uploaded from external source");
-                    data.setName(projectPath + "/" + filePath);
-                    repository.save(data, inputStream);
-                    return true;
-                }
-            });
-            doResetProjects();
-        } catch (ValidationException e) {
-            // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw e;
-        } catch (Message e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Error while updating project in user workspace.", e);
-            // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalStateException("Error while updating project in user workspace.", e);
-        }
-
-        storeProjectHistory();
-
-        clearUploadedFiles();
-
-        return null;
-
-    }
-
     public void storeProjectHistory() {
         currentProject = resolveProject(getCurrentProjectDescriptor());
         if (currentProject == null) {
@@ -883,13 +712,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             String moduleHistoryPath = FolderHelper.resolveHistoryFolder(project.getProjectFolder(), module)
                     .toString();
             func.accept(moduleHistoryPath, moduleFile);
-        }
-    }
-
-    private void tryLockProject() {
-        RulesProject currentProject = getCurrentProject();
-        if (!currentProject.tryLock()) {
-            throw new Message("Project is locked by other user");
         }
     }
 
@@ -940,138 +762,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (descriptors.remove(oldProjectDescriptor)) {
             descriptors.add(newProjectDescriptor);
         }
-    }
-
-    public boolean isUploadedProjectStructureChanged() {
-        ProjectFile lastUploadedFile = getLastUploadedFile();
-        if (lastUploadedFile == null) {
-            return false;
-        }
-        try {
-            List<String> filesInProject = getFilesInProject(zipFilter);
-
-            Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile),
-                    filesInProject);
-            if (charset == null) {
-                return true;
-            }
-            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, zipFilter, charset);
-
-            FilePathsCollector filesCollector = new FilePathsCollector();
-            zipWalker.iterateEntries(filesCollector);
-            List<String> filesInZip = filesCollector.getFilePaths();
-
-            for (String filePath : filesInProject) {
-                if (!filesInZip.contains(filePath)) {
-                    // Deleted file
-                    return true;
-                }
-            }
-
-            for (String filePath : filesInZip) {
-                if (!filesInProject.contains(filePath)) {
-                    // Added file
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return false;
-    }
-
-    private List<String> getFilesInProject(PathFilter filter) {
-        final File projectFolder = getCurrentProjectDescriptor().getProjectFolder().toFile();
-        Collection<File> files = getProjectFiles(projectFolder, filter);
-        final List<String> filesInProject = new ArrayList<>();
-        for (File file : files) {
-            filesInProject.add(getRelativePath(projectFolder, file));
-        }
-        return filesInProject;
-    }
-
-    public boolean isUploadedModuleChanged() {
-        ProjectFile lastUploadedFile = getLastUploadedFile();
-        if (lastUploadedFile == null) {
-            return false;
-        }
-
-        Module module = getCurrentModule();
-        if (module != null) {
-            String moduleFullPath = module.getRulesPath().toString().replace('\\', '/');
-            String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
-
-            String moduleFileName = moduleFullPath.substring(moduleFullPath.lastIndexOf('/') + 1);
-            String lastUploadedFileName = lastUploadedFilePath.substring(lastUploadedFilePath.lastIndexOf('/') + 1);
-
-            return !lastUploadedFileName.equals(moduleFileName);
-        }
-
-        return false;
-    }
-
-    // Package-private for testing
-    String validateUploadedFiles(ProjectFile zipFile,
-                                 PathFilter zipFilter,
-                                 ProjectDescriptor oldProjectDescriptor,
-                                 Charset charset) throws IOException {
-        ProjectDescriptor newProjectDescriptor;
-        try {
-            newProjectDescriptor = ZipProjectDescriptorExtractor
-                    .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
-        } catch (ProjectDescriptionException e) {
-            return e.getMessage();
-        }
-        // A blank name in the uploaded rules.xml is legal - it defaults to the folder name, so it is not a rename
-        String newName = newProjectDescriptor == null ? null : newProjectDescriptor.getName();
-        if (StringUtils.isNotBlank(newName) && !newName.equals(oldProjectDescriptor.getName())) {
-            return validateProjectName(newName);
-        }
-
-        return null;
-    }
-
-    private String validateProjectName(String projectName) {
-        String msg = null;
-        if (StringUtils.isBlank(projectName)) {
-            msg = "Project name must not be empty.";
-        } else if (!NameChecker.checkName(projectName)) {
-            msg = NameChecker.BAD_PROJECT_NAME_MSG;
-        } else if (isProjectExists(projectName)) {
-            msg = "Failed to update the project. Another project with the same name already exists in Repository.";
-        }
-        return msg;
-    }
-
-    private Collection<File> getProjectFiles(File projectFolder, final PathFilter filter) {
-        IOFileFilter fileFilter = new IOFileFilter() {
-            @Override
-            public boolean accept(File file) {
-                String path = file.getPath().replace(File.separator, "/");
-                if (file.isDirectory() && !path.endsWith("/")) {
-                    path += "/";
-                }
-                return filter.accept(path);
-            }
-
-            @Override
-            public boolean accept(File dir, String name) {
-                return accept(new File(dir, name));
-            }
-        };
-        return FileUtils.listFiles(projectFolder, fileFilter, fileFilter);
-    }
-
-    private String getRelativePath(File baseFolder, File file) {
-        return baseFolder.toURI().relativize(file.toURI()).getPath().replace("\\", "/");
-    }
-
-    private ProjectFile getLastUploadedFile() {
-        if (!uploadedFiles.isEmpty()) {
-            return uploadedFiles.getLast();
-        }
-        return null;
     }
 
     public AProject getProjectByName(final String name) {
@@ -1259,16 +949,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return needRestart;
     }
 
-    public void uploadListener(FileUploadEvent event) {
-        ProjectFile file = null;
-        try {
-            file = new ProjectFile(event.getUploadedFile());
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-        uploadedFiles.add(file);
-    }
-
     public void destroy() {
         if (model != null) {
             model.destroy();
@@ -1278,15 +958,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             userWorkspace.getDesignTimeRepository().removeListener(this);
         }
-
-        clearUploadedFiles();
-    }
-
-    public void clearUploadedFiles() {
-        for (ProjectFile uploadedFile : uploadedFiles) {
-            uploadedFile.destroy();
-        }
-        uploadedFiles.clear();
     }
 
     /**

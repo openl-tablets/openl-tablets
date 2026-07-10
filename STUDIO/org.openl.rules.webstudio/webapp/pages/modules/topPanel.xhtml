@@ -11,16 +11,10 @@
     <c:set var="project" value="#{studio.currentProjectDescriptor}" />
     <c:set var="module" value="#{studio.currentModule}" />
 
-    <h:panelGroup rendered="#{!empty rProject and studio.model.editable and empty module}">
-        <ui:include src="/pages/modules/updateProject.xhtml" />
-    </h:panelGroup>
     <h:panelGroup rendered="#{!empty rProject and empty module}">
         <ui:include src="/pages/modules/exportProject.xhtml" />
     </h:panelGroup>
 
-    <h:panelGroup rendered="#{!empty module and studio.model.editable}">
-        <ui:include src="/pages/modules/updateModule.xhtml" />
-    </h:panelGroup>
     <h:panelGroup rendered="#{!empty module}">
         <ui:include src="/pages/modules/exportModule.xhtml" />
     </h:panelGroup>
@@ -397,6 +391,30 @@
             }).fail(() => {
                 alert("Failed to load project information.");
             });
+        }
+
+        // Opens the React update-project modal (mounted by studio-ui in #appRoot). The projectId
+        // is the REST id computed by the backend; the page reloads after a successful upload.
+        function openUpdateProjectDialog() {
+            globalThis.dispatchEvent(new CustomEvent('openUpdateProjectModal', {
+                detail: {
+                    projectId: '#{studio.currentProjectId}',
+                    projectName: '#{rProject.name}',
+                    onSuccess: () => ws.nav.reload(true)
+                }
+            }));
+        }
+
+        // Opens the React update-module modal. The module path is the rules file path relative
+        // to the project root; the page reloads after a successful upload.
+        function openUpdateModuleDialog() {
+            globalThis.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
+                detail: {
+                    projectId: '#{studio.currentProjectId}',
+                    modulePath: '#{studio.currentModulePath}',
+                    onSuccess: () => ws.nav.reload(true)
+                }
+            }));
         }
 
         //]]>
