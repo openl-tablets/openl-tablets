@@ -128,9 +128,13 @@ public interface ProjectFilesService {
             throws IOException;
 
     /**
-     * Expand a ZIP archive into a folder. Entry paths are resolved relative to the folder and
-     * missing intermediate folders are created. Each entry is validated for a safe path and for
-     * content consistency. The upload is bounded to guard against malicious archives.
+     * Expand a ZIP archive into a folder as one atomic changeset. Entry paths are resolved relative
+     * to the folder and missing intermediate folders are created. Each entry is validated for a safe
+     * path and for content consistency. The upload is bounded to guard against malicious archives.
+     *
+     * <p>The {@code REPLACE} policy makes the folder contain exactly the archive entries: existing
+     * files absent from the archive are deleted, so the archive must not be empty and the user must
+     * be allowed to delete the removed files.
      *
      * @param root           the file root
      * @param path           mount-relative target folder (e.g. "folder"); empty for the mount root
@@ -145,9 +149,13 @@ public interface ProjectFilesService {
                        @NotNull ConflictPolicy conflictPolicy) throws IOException;
 
     /**
-     * Upload several files into a folder as one operation. Each file's name is resolved relative to
-     * the folder, missing intermediate folders are created, and the name and content are validated.
-     * On a repository mount the files are committed as a single changeset.
+     * Upload several files into a folder as one atomic changeset. Each file's name is resolved
+     * relative to the folder, missing intermediate folders are created, and the name and content
+     * are validated.
+     *
+     * <p>The {@code REPLACE} policy makes the folder contain exactly the uploaded files: existing
+     * files absent from the upload are deleted, so the user must be allowed to delete the removed
+     * files.
      *
      * @param root           the file root
      * @param path           mount-relative target folder (e.g. "folder"); empty for the mount root

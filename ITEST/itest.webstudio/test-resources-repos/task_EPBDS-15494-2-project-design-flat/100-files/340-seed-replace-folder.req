@@ -1,0 +1,17 @@
+POST /rest/projects/{PROJECT_ID}/files/u-rep/?conflictPolicy=OVERWRITE HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="one.txt"
+Content-Type: text/plain
+
+one v1
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="sub/two.txt"
+Content-Type: text/plain
+
+two v1
+
+--MULTIBOUND--

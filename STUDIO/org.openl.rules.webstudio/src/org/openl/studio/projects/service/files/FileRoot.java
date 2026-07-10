@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.files;
 import java.util.List;
 
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.studio.projects.model.files.FsNode;
 
@@ -47,19 +48,17 @@ public interface FileRoot {
     List<FsNode> searchAncestors(String lookupPath);
 
     /**
-     * Whether each write to this mount is committed on its own, so a multi-file write should be
-     * grouped into a single changeset via {@link #writeBatch}.
-     *
-     * <p>A repository mount commits every write immediately and returns {@code true}. A workspace
-     * mount stages writes in a working copy and commits them later, so it returns {@code false} and
-     * is written file by file.
-     */
-    boolean supportsAtomicWrite();
-
-    /**
      * Writes the given files as one atomic changeset, using {@code comment} as the commit message.
      * Each item's name is the mount-relative path; existing files at those paths are overwritten.
-     * Only called when {@link #supportsAtomicWrite()} returns {@code true}.
+     *
+     * <p>A {@code DIFF} changeset adds and overwrites the listed files, leaving others intact.
+     * A {@code FULL} changeset makes the base folder contain exactly the listed files: files under
+     * it that are absent from the list are deleted.
+     *
+     * @param basePath      mount-relative folder the changeset applies to; empty for the mount root
+     * @param items         the files to write, named by their mount-relative paths
+     * @param changesetType how the changeset treats files absent from the list
+     * @param comment       the commit message
      */
-    void writeBatch(List<FileItem> items, String comment);
+    void writeBatch(String basePath, List<FileItem> items, ChangesetType changesetType, String comment);
 }

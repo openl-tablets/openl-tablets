@@ -12,6 +12,8 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ConflictException;
@@ -79,14 +81,30 @@ public class ProjectFileRoot implements FileRoot {
     }
 
     @Override
-    public boolean supportsAtomicWrite() {
-        // The working copy stages writes and commits them on check-in, so they are written per file.
-        return false;
+    public void writeBatch(String basePath, List<FileItem> items, ChangesetType changesetType, String comment) {
+        // The mount is rooted at the project folder, so the base path and the item names are
+        // translated into the paths of the project's backing repository — the working copy for an
+        // open project. The staged changes are committed to the design repository on check-in.
+        String projectPath = project.getFolderPath();
+        List<FileItem> repoItems = items.stream()
+                .map(item -> new FileItem(inProject(projectPath, item.getData().getName()), item.getStream()))
+                .toList();
+        var folderData = new FileData();
+        folderData.setName(basePath.isEmpty() ? projectPath : projectPath + "/" + basePath);
+        folderData.setComment(comment);
+        try {
+            project.getRepository().save(folderData, repoItems, changesetType);
+        } catch (IOException e) {
+            throw new ConflictException("file.archive.upload.failed.message");
+        }
+        // The save bypasses the artefact tree, so drop its cached state.
+        project.refresh();
     }
 
-    @Override
-    public void writeBatch(List<FileItem> items, String comment) {
-        throw new UnsupportedOperationException("Workspace mount is written per file");
+    private static FileData inProject(String projectPath, String name) {
+        var data = new FileData();
+        data.setName(projectPath + "/" + name);
+        return data;
     }
 
     @Override
