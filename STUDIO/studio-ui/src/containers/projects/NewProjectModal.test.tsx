@@ -9,6 +9,7 @@ import {
     getProjects,
     getProjectTemplates,
 } from '../../services/repositories'
+import { inspectOpenLArchive } from '../../utils/openlArchive'
 
 vi.mock('../../services/repositories', () => ({
     copyProject: vi.fn(),
@@ -17,6 +18,8 @@ vi.mock('../../services/repositories', () => ({
     getProjects: vi.fn(),
     getProjectTemplates: vi.fn(),
 }))
+
+vi.mock('../../utils/openlArchive', () => ({ inspectOpenLArchive: vi.fn() }))
 
 vi.mock('react-i18next', () => {
     const translations: Record<string, string> = {
@@ -133,6 +136,7 @@ describe('NewProjectModal', () => {
         vi.mocked(createProject).mockResolvedValue()
         vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 } as never)
         vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
+        vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
     })
 
     it('validates that a name is required', async () => {
@@ -323,6 +327,9 @@ describe('NewProjectModal', () => {
 
         await toConfig('copy')
         await userEvent.click(await screen.findByTestId('opt-source'))
+        // The name pre-fills from the source with a "(Copy)" suffix; the user can still edit it.
+        await waitFor(() => expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Source (Copy)'))
+        await userEvent.clear(screen.getByTestId('new-project-name'))
         await userEvent.type(screen.getByTestId('new-project-name'), 'Copied')
         await userEvent.type(screen.getByTestId('new-project-path'), 'team/rules')
         await userEvent.type(screen.getByTestId('new-project-comment'), 'copy comment')
@@ -360,5 +367,48 @@ describe('NewProjectModal', () => {
 
         expect(screen.getByTestId('opt-copyable')).toBeTruthy()
         expect(screen.queryByTestId('opt-readOnly')).toBeNull()
+    })
+
+    it('pre-fills the name from the selected template', async () => {
+        renderWizard()
+
+        await toConfig('template')
+        await userEvent.click(await screen.findByTestId('template-group-General'))
+        await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
+
+        await waitFor(() => expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Example'))
+    })
+
+    it('keeps a name the user typed over the auto-filled suggestion', async () => {
+        renderWizard()
+
+        await toConfig('template')
+        await userEvent.click(await screen.findByTestId('template-group-General'))
+        await userEvent.type(screen.getByTestId('new-project-name'), 'Custom')
+        await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
+
+        expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Custom')
+    })
+
+    it('pre-fills the name from an inspected archive', async () => {
+        vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: true, isOpenLProject: true, name: 'Pricing Rules' })
+        renderWizard()
+
+        await toConfig('archive')
+        await userEvent.click(screen.getByTestId('pick-file'))
+
+        await waitFor(() => expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Pricing Rules'))
+    })
+
+    it('warns and blocks submit when the archive is not an OpenL project', async () => {
+        vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: true, isOpenLProject: false, name: 'proj' })
+        renderWizard()
+
+        await toConfig('archive')
+        await userEvent.click(screen.getByTestId('pick-file'))
+
+        await waitFor(() => expect(screen.getByTestId('new-project-archive-error')).toBeTruthy())
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+        expect(createProject).not.toHaveBeenCalled()
     })
 })

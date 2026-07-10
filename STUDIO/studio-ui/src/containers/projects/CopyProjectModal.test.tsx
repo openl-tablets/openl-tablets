@@ -60,7 +60,7 @@ describe('CopyProjectModal', () => {
 
     it('copies with the default name to the source repository', async () => {
         render(<CopyProjectModal open onClose={vi.fn()} onCopied={vi.fn()} project={project} repositories={repositories} />)
-        await waitFor(() => expect((screen.getByTestId('copy-project-name') as HTMLInputElement).value).toBe('Alpha-copy'))
+        await waitFor(() => expect((screen.getByTestId('copy-project-name') as HTMLInputElement).value).toBe('Alpha (Copy)'))
 
         await userEvent.click(screen.getByTestId('copy-ok'))
 
@@ -68,7 +68,7 @@ describe('CopyProjectModal', () => {
             'design',
             'Alpha',
             'design',
-            'Alpha-copy',
+            'Alpha (Copy)',
             undefined,
             undefined
         ))
@@ -105,7 +105,7 @@ describe('CopyProjectModal', () => {
             'design',
             'Alpha',
             'design',
-            'Alpha-copy',
+            'Alpha (Copy)',
             'manual copy message',
             undefined
         ))
@@ -122,7 +122,7 @@ describe('CopyProjectModal', () => {
             'design',
             'Alpha',
             'design',
-            'Alpha-copy',
+            'Alpha (Copy)',
             undefined,
             'team/rules'
         ))
@@ -153,7 +153,7 @@ describe('CopyProjectModal', () => {
             'design',
             'Alpha',
             'prod',
-            'Alpha-copy',
+            'Alpha (Copy)',
             undefined,
             undefined
         ))
