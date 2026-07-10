@@ -28,11 +28,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.branch.BranchesData;
@@ -94,6 +97,9 @@ public class Migrator {
         if (stringFromVersion.compareTo("6.3.1") < 0) {
             migrateTo6_4_0(settings, props);
         }
+        if (stringFromVersion.compareTo("6.4.0") < 0) {
+            migrateUserWorkspacesToMetainfoRegistry();
+        }
 
         if ("saml".equals(Props.text("user.mode"))) {
             // Generating required a private key and its certificate if they are missed
@@ -114,6 +120,139 @@ public class Migrator {
             settings.reloadIfModified();
         } catch (IOException e) {
             log.error("Migration of properties failed.", e);
+        }
+    }
+
+    /**
+     * Moves the legacy per-project {@code .studioProps} metainfo into the per-user metainfo registry.
+     *
+     * <p>A project folder with a missing or unreadable repository link gets no record: the registry is
+     * authoritative, and such folders are deleted at the first workspace load. For linked projects the
+     * legacy {@code .studioProps} folder and the in-project edit history are deleted right away.
+     */
+    private static void migrateUserWorkspacesToMetainfoRegistry() {
+        String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
+        if (workspacePath != null) {
+            migrateUserWorkspacesToMetainfoRegistry(Path.of(workspacePath));
+        }
+    }
+
+    static void migrateUserWorkspacesToMetainfoRegistry(Path workspacesRoot) {
+        if (!Files.isDirectory(workspacesRoot)) {
+            return;
+        }
+        try (Stream<Path> userDirs = Files.list(workspacesRoot)) {
+            userDirs.filter(Files::isDirectory)
+                    .filter(dir -> !dir.getFileName().toString().startsWith("."))
+                    .forEach(Migrator::migrateUserWorkspace);
+        } catch (IOException e) {
+            log.error("Migration of user workspaces failed.", e);
+        }
+    }
+
+    private static void migrateUserWorkspace(Path userDir) {
+        try (Stream<Path> projectDirs = Files.list(userDir)) {
+            projectDirs.filter(Files::isDirectory)
+                    .filter(dir -> !dir.getFileName().toString().startsWith("."))
+                    .forEach(projectDir -> migrateProjectMetainfo(userDir, projectDir));
+        } catch (IOException e) {
+            log.error("Migration of the user workspace '{}' failed.", userDir, e);
+        }
+    }
+
+    private static void migrateProjectMetainfo(Path userDir, Path projectDir) {
+        String projectName = projectDir.getFileName().toString();
+        if (MetainfoRegistry.exists(userDir, projectName)) {
+            // Already migrated. A repeated run must not degrade the record to a local project.
+            return;
+        }
+        try {
+            Path studioProps = projectDir.resolve(".studioProps");
+            var metainfo = legacyMetainfo(studioProps.resolve(".version"),
+                    legacyBaselines(studioProps.resolve("file-properties")));
+            if (metainfo == null) {
+                log.warn("The '{}' project has no repository link. The folder is deleted at the first"
+                        + " workspace load.", projectName);
+                return;
+            }
+            MetainfoRegistry.store(userDir, projectName, metainfo);
+            FileUtils.deleteQuietly(studioProps.toFile());
+            FileUtils.deleteQuietly(projectDir.resolve(".history").toFile());
+        } catch (IOException | RuntimeException e) {
+            log.error("Migration of the '{}' project metainfo failed.", projectName, e);
+        }
+    }
+
+    /**
+     * Reads the legacy {@code .version} file. Returns {@code null} when the file is absent, unreadable,
+     * or does not identify the source repository — such a project has no restorable link.
+     */
+    @Nullable
+    private static ProjectMetainfo legacyMetainfo(Path versionFile, Map<String, ProjectMetainfo.FileBaseline> baselines) {
+        if (!Files.isRegularFile(versionFile)) {
+            return null;
+        }
+        var properties = new HashMap<String, String>();
+        try {
+            PropertiesUtils.load(versionFile, properties::put);
+        } catch (IOException e) {
+            log.warn("The '{}' file is unreadable.", versionFile, e);
+            return null;
+        }
+        String repositoryId = properties.get("repository-id");
+        if (repositoryId == null) {
+            return null;
+        }
+        return new ProjectMetainfo(repositoryId,
+                properties.get("path-in-repository"),
+                properties.get("branch"),
+                properties.get("version"),
+                properties.get("author"),
+                parseLongOrNull(properties.get("modified-at-long")),
+                parseLongOrNull(properties.get("size")),
+                properties.get("comment"),
+                baselines);
+    }
+
+    private static Map<String, ProjectMetainfo.FileBaseline> legacyBaselines(Path filePropertiesDir) throws IOException {
+        var baselines = new HashMap<String, ProjectMetainfo.FileBaseline>();
+        if (!Files.isDirectory(filePropertiesDir)) {
+            return baselines;
+        }
+        try (Stream<Path> stream = Files.walk(filePropertiesDir)) {
+            for (Path file : (Iterable<Path>) stream.filter(Files::isRegularFile)::iterator) {
+                var baseline = legacyBaseline(file);
+                if (baseline != null) {
+                    baselines.put("/" + filePropertiesDir.relativize(file).toString().replace('\\', '/'), baseline);
+                }
+            }
+        }
+        return baselines;
+    }
+
+    private static ProjectMetainfo.@Nullable FileBaseline legacyBaseline(Path propertiesFile) {
+        var properties = new HashMap<String, String>();
+        try {
+            PropertiesUtils.load(propertiesFile, properties::put);
+        } catch (IOException e) {
+            log.warn("The '{}' file properties are unreadable and are skipped.", propertiesFile, e);
+            return null;
+        }
+        Long size = parseLongOrNull(properties.get("size"));
+        Long modifiedAt = parseLongOrNull(properties.get("modified-at-long"));
+        if (size == null || modifiedAt == null) {
+            // Without the baseline the file is later detected as locally changed, which is the safe side.
+            return null;
+        }
+        return new ProjectMetainfo.FileBaseline(properties.get("unique-id"), size, modifiedAt);
+    }
+
+    @Nullable
+    private static Long parseLongOrNull(@Nullable String value) {
+        try {
+            return value == null ? null : Long.valueOf(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

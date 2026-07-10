@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -221,6 +222,70 @@ class MetainfoRegistryTest {
         assertFalse(registry.isDirty(PROJECT));
         assertFalse(Files
                 .exists(userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties")));
+    }
+
+    @Test
+    void repeatedSaveOverwritesRecord() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+
+        registry.save(PROJECT, new ProjectMetainfo("design", null, "main", "rev-2", null, 1L, 2L, null, Map.of()));
+
+        var reloaded = MetainfoRegistry.open(userDir).get(PROJECT);
+        assertNotNull(reloaded);
+        assertEquals("design", reloaded.repositoryId());
+        assertEquals("rev-2", reloaded.version());
+    }
+
+    @Test
+    void renameMovesRecordAndLocalChanges() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+        registry.markDirty(PROJECT);
+
+        registry.rename(PROJECT, "renamed");
+
+        assertNull(registry.get(PROJECT));
+        assertNotNull(registry.get("renamed"));
+        assertFalse(registry.isDirty(PROJECT));
+        assertTrue(registry.isDirty("renamed"), "The local-changes state must move with the record.");
+        assertFalse(Files
+                .exists(userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties")));
+        assertTrue(Files
+                .exists(userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve("renamed.properties")));
+    }
+
+    @Test
+    void renameFailsForUnregisteredProject() {
+        // The caller relies on the failure to roll the folder rename back, otherwise the folder and
+        // the record end up under different names and the reconciliation drops both.
+        assertThrows(IllegalStateException.class, () -> registry.rename("ghost", "renamed"));
+    }
+
+    @Test
+    void renameRejectsRegisteredDestination() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+        registry.save("occupied", localMetainfo());
+
+        assertThrows(IllegalStateException.class, () -> registry.rename(PROJECT, "occupied"));
+        assertNotNull(registry.get(PROJECT), "A failed rename must keep the source record.");
+        assertNotNull(registry.get("occupied"));
+    }
+
+    @Test
+    void relinkPreservesBaselinesAndLocalChanges() throws IOException {
+        var metainfo = saveProjectWithFile("data");
+        registry.markDirty(PROJECT);
+
+        registry.relink(PROJECT, new ProjectMetainfo("local", null, null, "rev-2", null, 2L, 3L, null, Map.of()));
+
+        var relinked = registry.get(PROJECT);
+        assertNotNull(relinked);
+        assertEquals("local", relinked.repositoryId());
+        assertEquals("rev-2", relinked.version());
+        assertEquals(metainfo.files(), relinked.files(), "Relinking must keep the recorded baselines.");
+        assertTrue(registry.isDirty(PROJECT), "Relinking is not a synchronization point.");
     }
 
     @Test
