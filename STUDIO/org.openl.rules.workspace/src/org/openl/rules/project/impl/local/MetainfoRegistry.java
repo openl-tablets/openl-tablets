@@ -1,6 +1,8 @@
 package org.openl.rules.project.impl.local;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -112,16 +114,41 @@ public class MetainfoRegistry {
         var lock = lockOf(projectName);
         lock.lock();
         try {
-            Files.createDirectories(metainfoDir);
-            var tmp = metainfoDir.resolve(projectName + RECORD_SUFFIX + TMP_SUFFIX);
-            PropertiesUtils.store(tmp, toProperties(metainfo).entrySet());
-            Files.move(tmp, recordFile(projectName), StandardCopyOption.ATOMIC_MOVE);
+            store(userDir, projectName, metainfo);
             records.put(projectName, metainfo);
             dirtyProjects.remove(projectName);
         } catch (IOException e) {
             throw new IllegalStateException("Cannot save the metainfo of the '" + projectName + "' project.", e);
         } finally {
             lock.unlock();
+        }
+    }
+
+    /**
+     * Returns whether the project of the given user workspace has a record on disk.
+     */
+    public static boolean exists(Path userDir, String projectName) {
+        return Files.isRegularFile(userDir.resolve(METAINFO_FOLDER).resolve(projectName + RECORD_SUFFIX));
+    }
+
+    /**
+     * Writes one project record of the given user workspace directly to disk.
+     *
+     * <p>Serves the one-time migration of legacy workspaces, which runs before any registry is loaded.
+     * The record is written atomically.
+     */
+    public static void store(Path userDir, String projectName, ProjectMetainfo metainfo) throws IOException {
+        var metainfoDir = userDir.resolve(METAINFO_FOLDER);
+        Files.createDirectories(metainfoDir);
+        var tmp = metainfoDir.resolve(projectName + RECORD_SUFFIX + TMP_SUFFIX);
+        PropertiesUtils.store(tmp, toProperties(metainfo).entrySet());
+        var target = metainfoDir.resolve(projectName + RECORD_SUFFIX);
+        try {
+            Files.move(tmp, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException | FileAlreadyExistsException e) {
+            // ATOMIC_MOVE ignores REPLACE_EXISTING, and overwriting an existing target is
+            // implementation-specific, so retry as a plain replacing move.
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
@@ -145,16 +172,28 @@ public class MetainfoRegistry {
     /**
      * Renames the project record following a project folder rename.
      *
-     * <p>The local-changes state moves together with the record. Does nothing when the project is not
-     * registered.
+     * <p>The local-changes state moves together with the record. Fails when the project is not
+     * registered or the new name is already registered, so the caller can undo the folder rename
+     * instead of leaving the folder and the record under different names.
      */
     public void rename(String projectName, String newProjectName) {
-        var lock = lockOf(projectName);
-        lock.lock();
+        if (projectName.equals(newProjectName)) {
+            return;
+        }
+        // Both names are locked in a deterministic order, so a concurrent save or rename of either
+        // project cannot desync the cache from the records on disk.
+        boolean directOrder = projectName.compareTo(newProjectName) < 0;
+        var first = lockOf(directOrder ? projectName : newProjectName);
+        var second = lockOf(directOrder ? newProjectName : projectName);
+        first.lock();
+        second.lock();
         try {
             var metainfo = records.get(projectName);
             if (metainfo == null) {
-                return;
+                throw new IllegalStateException("The '" + projectName + "' project is not registered.");
+            }
+            if (records.containsKey(newProjectName) || Files.exists(recordFile(newProjectName))) {
+                throw new IllegalStateException("The '" + newProjectName + "' project is already registered.");
             }
             Files.move(recordFile(projectName), recordFile(newProjectName), StandardCopyOption.ATOMIC_MOVE);
             records.remove(projectName);
@@ -166,6 +205,28 @@ public class MetainfoRegistry {
             throw new IllegalStateException(
                     "Cannot rename the metainfo of the '" + projectName + "' project to '" + newProjectName + "'.",
                     e);
+        } finally {
+            second.unlock();
+            first.unlock();
+        }
+    }
+
+    /**
+     * Relinks the registered project to another repository revision.
+     *
+     * <p>The recorded file baselines are preserved, and the local-changes state is not reset. The whole
+     * replacement runs under the project lock, so a concurrent editing notification cannot be lost.
+     */
+    public void relink(String projectName, ProjectMetainfo metainfo) {
+        var lock = lockOf(projectName);
+        lock.lock();
+        try {
+            var previous = records.get(projectName);
+            var merged = previous == null ? metainfo : metainfo.withFiles(previous.files());
+            store(userDir, projectName, merged);
+            records.put(projectName, merged);
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot relink the metainfo of the '" + projectName + "' project.", e);
         } finally {
             lock.unlock();
         }

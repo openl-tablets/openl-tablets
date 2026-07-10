@@ -90,9 +90,11 @@ public class LocalRepository extends FileSystemRepository {
         String name = data.getName();
         if (name.contains("/")) {
             registry.markDirty(projectNameOf(name));
-        } else {
+        } else if (deleted || check(name) == null) {
             // The project root is deleted: the project leaves the workspace together with its record
-            // and its local edit history.
+            // and its local edit history. When the folder deletion failed and the folder is still
+            // there, the record is kept, otherwise the project files would be dropped at the next
+            // workspace load.
             registry.remove(name);
             FileUtils.deleteQuietly(getRoot().resolve(FolderHelper.HISTORY_FOLDER).resolve(name).toFile());
         }
@@ -212,13 +214,7 @@ public class LocalRepository extends FileSystemRepository {
                 // No need to save empty fileData
                 return;
             }
-            ProjectMetainfo previous = registry.get(projectName);
-            boolean wasModified = registry.isDirty(projectName);
-            registry.save(projectName,
-                    toMetainfo(repositoryId, fileData, previous == null ? Map.of() : previous.files()));
-            if (wasModified) {
-                registry.markDirty(projectName);
-            }
+            registry.relink(projectName, toMetainfo(repositoryId, fileData, Map.of()));
         }
 
         @Override

@@ -56,4 +56,12 @@ public record ProjectMetainfo(String repositoryId,
         return new ProjectMetainfo(repositoryId, pathInRepository, branch, version, author, modifiedAt, size,
                 comment, files);
     }
+
+    /**
+     * Returns a copy of this metainfo with the given file baselines.
+     */
+    public ProjectMetainfo withFiles(Map<String, FileBaseline> files) {
+        return new ProjectMetainfo(repositoryId, pathInRepository, branch, version, author, modifiedAt, size,
+                comment, files);
+    }
 }
