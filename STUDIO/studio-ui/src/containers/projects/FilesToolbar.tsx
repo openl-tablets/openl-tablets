@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Input, Modal, notification, Space, Tooltip } from 'antd'
 import { FileAddOutlined, FolderAddOutlined, UploadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import { createFolder, createTextFile, uploadFiles } from '../../services/files'
+import { createTextFile, uploadFiles } from '../../services/files'
 
 const useStyles = createStyles(({ css, token }) => ({
     toolbar: css`
@@ -35,6 +35,11 @@ interface FilesToolbarProps {
     targetFolder?: string
     onFilterChange: (value: string) => void
     onChanged: () => void
+    /**
+     * Adds a client-side (virtual) folder to the tree. An empty folder is never persisted on its own;
+     * it becomes real once a file is created inside it, which creates the whole folder chain.
+     */
+    onCreateFolder: (path: string) => void
 }
 
 type CreateKind = 'folder' | 'text-file'
@@ -64,6 +69,7 @@ export const FilesToolbar = ({
     targetFolder = '',
     onFilterChange,
     onChanged,
+    onCreateFolder,
 }: FilesToolbarProps) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
@@ -115,18 +121,20 @@ export const FilesToolbar = ({
         if (!path) {
             return
         }
+        // An empty folder is only a UI convenience — add it virtually and let the file creation persist
+        // the folder chain later. Only a text file hits the server here.
+        if (createKind === 'folder') {
+            onCreateFolder(path)
+            closeCreate()
+            return
+        }
         setSubmitting(true)
         try {
-            if (createKind === 'folder') {
-                await createFolder(projectId, path)
-            } else {
-                await createTextFile(projectId, path)
-            }
+            await createTextFile(projectId, path)
             closeCreate()
             onChanged()
         } catch (e) {
-            const titleKey = createKind === 'folder' ? 'browser.files.folder_failed' : 'browser.files.text_file_failed'
-            notification.error({ title: t(titleKey), description: errorMessage(e) })
+            notification.error({ title: t('browser.files.text_file_failed'), description: errorMessage(e) })
         } finally {
             setSubmitting(false)
         }

@@ -62,9 +62,14 @@ const iconFor = (name: string, isLeaf: boolean, colors: { success: string, info:
     return { Icon: FileOutlined, color: colors.muted }
 }
 
-/** Builds a hierarchical tree from flat file paths, deriving intermediate folders as needed. */
+/**
+ * Builds a hierarchical tree from flat file paths, deriving intermediate folders as needed.
+ * {@link virtualFolders} are folder paths that do not exist on the server yet — they are shown as
+ * empty folders until a file is created inside them.
+ */
 const buildTreeData = (
     files: FsNode[],
+    virtualFolders: string[],
     sizeByPath: Map<string, number>,
     colors: { success: string, info: string, warning: string, muted: string },
     renderTitle: (name: string, path: string, size: number | undefined) => TreeDataNode['title']
@@ -73,11 +78,10 @@ const buildTreeData = (
     const childrenByKey = new Map<string, TreeDataNode[]>([['', roots]])
     const nodeByKey = new Map<string, TreeDataNode>()
 
-    for (const file of files) {
-        const segments = file.path.split('/').filter(Boolean)
+    const addPath = (segments: string[], lastIsFile: boolean) => {
         let parentKey = ''
         segments.forEach((segment, index) => {
-            const isLeaf = index === segments.length - 1
+            const isLeaf = lastIsFile && index === segments.length - 1
             const key = parentKey ? `${parentKey}/${segment}` : segment
             if (!nodeByKey.has(key)) {
                 const { Icon, color } = iconFor(segment, isLeaf, colors)
@@ -96,6 +100,13 @@ const buildTreeData = (
             }
             parentKey = key
         })
+    }
+
+    for (const file of files) {
+        addPath(file.path.split('/').filter(Boolean), true)
+    }
+    for (const folder of virtualFolders) {
+        addPath(folder.split('/').filter(Boolean), false)
     }
     return sortNodes(roots)
 }
@@ -140,6 +151,8 @@ interface FileTreeProps {
     selectedPath?: string | null
     /** Local pending changes indexed by mount-relative or project-scoped file path. */
     changes?: Map<string, ProjectFileChangeType>
+    /** Client-side folder paths not yet persisted on the server, shown as empty folders. */
+    virtualFolders?: string[]
     /** Called with a selected file or folder path. */
     onSelectFile?: (path: string) => void
 }
@@ -155,6 +168,7 @@ export const FileTree = ({
     filter,
     selectedPath,
     changes,
+    virtualFolders,
     onSelectFile,
 }: FileTreeProps) => {
     const { styles } = useStyles()
@@ -180,6 +194,7 @@ export const FileTree = ({
             }
         }
         const visible = files.filter(node => node.type === 'file' && (!query || node.path.toLowerCase().includes(query)))
+        const visibleVirtual = (virtualFolders ?? []).filter(path => !query || path.toLowerCase().includes(query))
         const renderTitle = (name: string, path: string, size: number | undefined) => {
             const label = formatSize(size, locale)
             const changeType = changes?.get(path)
@@ -197,8 +212,8 @@ export const FileTree = ({
                 </span>
             )
         }
-        return buildTreeData(visible, sizeByPath, colors, renderTitle)
-    }, [changes, files, locale, query, t, token, styles])
+        return buildTreeData(visible, visibleVirtual, sizeByPath, colors, renderTitle)
+    }, [changes, files, locale, query, t, token, styles, virtualFolders])
 
     if (files === undefined || files === 'loading') {
         return <Skeleton active className={styles.tree} paragraph={{ rows: 4 }} title={false} />

@@ -90,12 +90,13 @@ vi.mock('./FileTree', () => ({
     ),
 }))
 vi.mock('./FilesToolbar', () => ({
-    FilesToolbar: (props: { onChanged?: () => void, onFilterChange?: (value: string) => void }) => {
+    FilesToolbar: (props: { onChanged?: () => void, onFilterChange?: (value: string) => void, onCreateFolder?: (path: string) => void }) => {
         filesToolbarMock(props)
         return (
             <div data-testid="files-toolbar">
                 <button data-testid="files-filter" onClick={() => props.onFilterChange?.('xlsx')} type="button">filter</button>
                 <button data-testid="files-changed" onClick={() => props.onChanged?.()} type="button">changed</button>
+                <button data-testid="files-create-folder" onClick={() => props.onCreateFolder?.('drafts/wip')} type="button">new folder</button>
             </div>
         )
     },
@@ -526,6 +527,19 @@ describe('ProjectDetail', () => {
     it('shows folder actions when a folder is selected', () => {
         setParams('tab=files&file=rules')
         renderProjectDetail()
+        expect(screen.getByTestId('folder-actions')).toBeTruthy()
+        expect(screen.queryByTestId('file-preview')).toBeNull()
+    })
+
+    it('shows folder actions (not the content pane) for a selected virtual folder', async () => {
+        // The path is selected, but 'drafts/wip' has no backend node yet — until it is a virtual folder
+        // it looks like a file (content pane). Creating it must switch to folder actions so nothing is
+        // fetched for a folder that does not exist server-side (which would 404).
+        setParams('tab=files&file=drafts/wip')
+        renderProjectDetail()
+        expect(screen.getByTestId('file-preview')).toBeTruthy()
+
+        await userEvent.click(screen.getByTestId('files-create-folder'))
         expect(screen.getByTestId('folder-actions')).toBeTruthy()
         expect(screen.queryByTestId('file-preview')).toBeNull()
     })

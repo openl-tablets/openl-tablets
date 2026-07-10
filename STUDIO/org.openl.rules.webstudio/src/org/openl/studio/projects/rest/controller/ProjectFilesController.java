@@ -79,13 +79,6 @@ public class ProjectFilesController extends AbstractFilesController {
         getWebStudio().reset();
     }
 
-    @Override
-    protected void postCreateFolder() {
-        // Creating a folder already updates the working project tree and persists the empty
-        // directory through the repository. Legacy JSF keeps this tree as-is after addFolder(), so
-        // avoid an extra WebStudio.reset() that is only needed for file content writes.
-    }
-
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")

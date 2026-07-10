@@ -132,4 +132,12 @@ describe('FileTree', () => {
 
         expect(screen.getByTestId('file-change-modified-Pricing.xlsx')).toBeTruthy()
     })
+
+    it('shows an empty virtual folder that has no files yet', () => {
+        render(<FileTree files={files} projectId="p1" virtualFolders={['drafts/wip']} />)
+
+        // The virtual folder and its intermediate segment both appear as selectable folder nodes.
+        expect(screen.getByTestId('file-node-drafts')).toBeTruthy()
+        expect(screen.getByTestId('file-node-drafts/wip')).toBeTruthy()
+    })
 })
