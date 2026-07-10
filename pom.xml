@@ -120,7 +120,7 @@
         <cxf.version>4.1.7</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.82.1</grpc.version>
+        <grpc.version>1.82.2</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.52</swagger.core.version>
