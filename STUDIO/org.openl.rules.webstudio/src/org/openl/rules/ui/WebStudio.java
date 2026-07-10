@@ -880,8 +880,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private static void processProjectHistory(ProjectDescriptor project, BiConsumer<String, File> func) {
         for (Module module : project.getModules()) {
             File moduleFile = module.getRulesPath().toFile();
-            String moduleHistoryPath = project.getProjectFolder()
-                    .resolve(FolderHelper.resolveHistoryFolder(module))
+            String moduleHistoryPath = FolderHelper.resolveHistoryFolder(project.getProjectFolder(), module)
                     .toString();
             func.accept(moduleHistoryPath, moduleFile);
         }

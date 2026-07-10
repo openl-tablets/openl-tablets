@@ -88,7 +88,8 @@ public class ProjectHistoryService {
         String projectHistoryHome = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
         File userWorkspace = new File(projectHistoryHome);
         if (userWorkspace.exists() && userWorkspace.isDirectory()) {
-            Files.walkFileTree(userWorkspace.toPath(), new HashSet<>(), 3, new DeleteHistoryVisitor());
+            // The history of every project lives in the .history folder of each user workspace directory.
+            Files.walkFileTree(userWorkspace.toPath(), new HashSet<>(), 2, new DeleteHistoryVisitor());
         }
     }
 
@@ -113,7 +114,7 @@ public class ProjectHistoryService {
         File userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-        String projectHistoryPath = Path.of(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
+        String projectHistoryPath = Path.of(userWorkspace.getPath(), FolderHelper.HISTORY_FOLDER, projectName)
                 .toString();
         File dir = new File(projectHistoryPath);
         // Project can contain no history

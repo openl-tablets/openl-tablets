@@ -39,7 +39,6 @@
             <list>
                 <value>.svn</value>
                 <value>CVS</value>
-                <value>.history</value>
             </list>
         </constructor-arg>
     </bean>
