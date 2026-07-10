@@ -1,3 +1,0 @@
-DELETE /rest/projects/ImportMe?comment=EPBDS-16200%20teardown HTTP/1.1
-Authorization: ${ADMIN_AUTH_TOCKEN}
-

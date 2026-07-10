@@ -57,12 +57,10 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
-import org.openl.studio.repositories.model.CreateFromRepositoryModel;
 import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
-import org.openl.studio.repositories.model.RepositoryFolder;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 import org.openl.studio.repositories.rest.resolver.DesignRepository;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
@@ -312,22 +310,6 @@ public class DesignTimeRepositoryController {
         validationProvider.validate(model);
         validationProvider.validate(model, createUpdateProjectModelValidator);
         return model;
-    }
-
-    @GetMapping("/{repo-name}/folders")
-    @Operation(summary = "repos.list-importable-folders.summary", description = "repos.list-importable-folders.desc")
-    public List<RepositoryFolder> listImportableFolders(@DesignRepository("repo-name") Repository repository,
-                                                        @Parameter(description = "repos.list-importable-folders.param.path.desc") @RequestParam(value = "path", required = false) String path) {
-        return projectCreationService.listImportableFolders(repository.getId(), path);
-    }
-
-    @PostMapping(value = "/{repo-name}/projects/from-repository", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "repos.create-from-repository.summary", description = "repos.create-from-repository.desc")
-    public ProjectViewModel createProjectFromRepository(@DesignRepository("repo-name") Repository repository,
-                                                        @Valid @RequestBody CreateFromRepositoryModel request) {
-        allowedToPush(repository, false);
-        var data = projectCreationService.importFromRepository(repository.getId(), request.path());
-        return mapFileDataResponse(data, repository.supports());
     }
 
     private Lock getLock(Repository repository, CreateUpdateProjectModel model) {

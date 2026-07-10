@@ -4,12 +4,10 @@ import {
     copyProject,
     createProject,
     createProjectBranch,
-    createProjectFromRepository,
     createProjectsFromWorkspace,
     deleteProject,
     downloadProject,
     getDesignRepositories,
-    getImportableFolders,
     getProject,
     getProjectBranches,
     getProjectFiles,
@@ -271,7 +269,7 @@ describe('getProjects', () => {
         expect(request?.body).toBeInstanceOf(FormData)
     })
 
-    it('loads templates, workspace publish targets and importable folders', async () => {
+    it('loads templates and workspace publish targets', async () => {
         vi.mocked(apiCall).mockResolvedValue([])
 
         await getProjectTemplates()
@@ -287,24 +285,10 @@ describe('getProjects', () => {
             },
             { throwError: true }
         )
-
-        await getImportableFolders('design', 'nested')
-        expect(apiCall).toHaveBeenCalledWith('/repos/design/folders?path=nested', undefined, { throwError: true })
     })
 
-    it('imports repository folders and downloads project archives', async () => {
+    it('downloads project archives', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
-
-        await createProjectFromRepository('design', { path: 'folder/Alpha' })
-        expect(apiCall).toHaveBeenCalledWith(
-            '/repos/design/projects/from-repository',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: 'folder/Alpha' }),
-            },
-            { throwError: true }
-        )
 
         downloadProject('abc')
         expect(triggerDownload).toHaveBeenCalledWith('/studio/web/projects/abc/files/?download=true')

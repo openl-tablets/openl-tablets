@@ -272,37 +272,6 @@ export async function createProjectsFromWorkspace(
     )
 }
 
-export interface RepositoryFolder {
-    name: string
-    path: string
-    mapped?: boolean
-    /** The folder holds an OpenL project (rules.xml or Excel) and can be imported. */
-    project?: boolean
-}
-
-/** List the importable sub-folders of a non-flat repository; empty {@link path} lists the root. */
-export async function getImportableFolders(repositoryId: string, path?: string): Promise<RepositoryFolder[]> {
-    const query = path ? `?path=${encodeURIComponent(path)}` : ''
-    const response = await apiCall(
-        `/repos/${encodeURIComponent(repositoryId)}/folders${query}`,
-        undefined,
-        { throwError: true }
-    )
-    return asArray(response)
-}
-
-/** Import an existing folder of a non-flat repository as a project, keeping the folder's own name. */
-export async function createProjectFromRepository(
-    repositoryId: string,
-    body: { path: string }
-): Promise<void> {
-    await apiCall(
-        `/repos/${encodeURIComponent(repositoryId)}/projects/from-repository`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
-        { throwError: true }
-    )
-}
-
 /** Trigger a browser download of the whole project as a ZIP archive. */
 export function downloadProject(projectId: string): void {
     triggerDownload(`${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/files/?download=true`)

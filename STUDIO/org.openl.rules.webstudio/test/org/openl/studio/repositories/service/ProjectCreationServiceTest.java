@@ -9,19 +9,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -29,24 +25,18 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.FeaturesBuilder;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.studio.repositories.model.RepositoryFolder;
 import org.openl.studio.tags.service.TagService;
 import org.openl.studio.tags.service.TagTypeService;
 
@@ -121,100 +111,6 @@ class ProjectCreationServiceTest {
         verify(first).delete(user, "Rollback project upload.");
         verify(acl).deleteAcl(first);
         verify(workspace).refresh();
-    }
-
-    @Test
-    void list_importable_folders_is_denied_without_create_permission() {
-        assertThrows(ForbiddenException.class, () -> service.listImportableFolders("design", "folder"));
-    }
-
-    @Test
-    void list_importable_folders_is_denied_without_read_permission() {
-        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        var workspace = mock(UserWorkspace.class);
-        service = serviceWithWorkspace(workspace);
-
-        assertThrows(ForbiddenException.class, () -> service.listImportableFolders("design", "folder"));
-
-        verify(workspace, never()).getDesignTimeRepository();
-    }
-
-    @Test
-    void list_importable_folders_filters_unreadable_children() throws IOException {
-        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        when(acl.isGranted("design", null, List.of(BasePermission.READ))).thenReturn(true);
-        when(acl.isGranted("design", "Allowed", List.of(BasePermission.READ))).thenReturn(true);
-
-        var workspace = mock(UserWorkspace.class);
-        var designTimeRepository = mock(DesignTimeRepository.class);
-        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
-
-        var repository = mock(Repository.class, withSettings().extraInterfaces(FolderMapper.class));
-        var mapper = (FolderMapper) repository;
-        var delegate = mock(Repository.class);
-        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setMappedFolders(true).build());
-        when(designTimeRepository.getRepository("design")).thenReturn(repository);
-        when(mapper.getDelegate()).thenReturn(delegate);
-        when(delegate.listFolders("")).thenReturn(List.of(folder("Allowed/"), folder("Denied/")));
-        when(delegate.list("Allowed/")).thenReturn(List.of());
-
-        service = serviceWithWorkspace(workspace);
-
-        List<RepositoryFolder> result = service.listImportableFolders("design", null);
-
-        assertEquals(List.of("Allowed"), result.stream().map(RepositoryFolder::path).toList());
-        verify(delegate, never()).list("Denied/");
-    }
-
-    @Test
-    void import_from_repository_is_denied_without_create_permission() {
-        assertThrows(ForbiddenException.class, () -> service.importFromRepository("design", "folder"));
-    }
-
-    @Test
-    void import_from_repository_is_denied_without_read_permission() {
-        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        var workspace = mock(UserWorkspace.class);
-        service = serviceWithWorkspace(workspace);
-
-        assertThrows(ForbiddenException.class, () -> service.importFromRepository("design", "folder"));
-
-        verify(workspace, never()).getDesignTimeRepository();
-    }
-
-    @Test
-    void import_from_repository_rolls_back_mapping_when_project_cannot_be_resolved() throws IOException {
-        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        when(acl.isGranted("design", "folder", List.of(BasePermission.READ))).thenReturn(true);
-        var workspace = mock(UserWorkspace.class);
-        var designTimeRepository = mock(DesignTimeRepository.class);
-        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
-
-        var repository = mock(Repository.class, withSettings().extraInterfaces(FolderMapper.class));
-        var mapper = (FolderMapper) repository;
-        var delegate = mock(Repository.class);
-        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setMappedFolders(true).build());
-        when(designTimeRepository.getRepository("design")).thenReturn(repository);
-        when(mapper.getDelegate()).thenReturn(delegate);
-        when(delegate.check("folder")).thenReturn(new FileData());
-        when(mapper.findMappedName("folder")).thenReturn("Imported__hash");
-        when(workspace.getProjectByPath("design", "folder")).thenReturn(Optional.empty());
-
-        service = serviceWithWorkspace(workspace);
-
-        assertThrows(ConflictException.class, () -> service.importFromRepository("design", "folder/"));
-
-        verify(mapper).addMapping("folder");
-        verify(workspace).refresh();
-        verify(mapper).removeMapping("Imported__hash");
     }
 
     @Test
@@ -350,12 +246,6 @@ class ProjectCreationServiceTest {
         when(project.getDesignTags()).thenReturn(Map.of());
         when(project.getLocalTags()).thenReturn(Map.of());
         return project;
-    }
-
-    private static FileData folder(String name) {
-        var folder = new FileData();
-        folder.setName(name);
-        return folder;
     }
 
     private static class TestProjectCreationService extends ProjectCreationService {

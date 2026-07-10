@@ -1,6 +1,5 @@
 package org.openl.studio.repositories.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -33,22 +31,18 @@ import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
-import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
-import org.openl.studio.repositories.model.RepositoryFolder;
 import org.openl.studio.tags.service.TagService;
 import org.openl.studio.tags.service.TagTypeService;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
 
 /**
@@ -97,17 +91,6 @@ public class ProjectCreationService {
         if (!aclProjectsHelper.hasCreateProjectPermission(repositoryId)) {
             throw new ForbiddenException("default.message");
         }
-    }
-
-    private void requireReadPermission(String repositoryId, String path) {
-        if (!isReadable(repositoryId, path)) {
-            throw new ForbiddenException("default.message");
-        }
-    }
-
-    private boolean isReadable(String repositoryId, String path) {
-        return aclServiceProvider.getDesignRepoAclService()
-                .isGranted(repositoryId, aclPath(path), List.of(BasePermission.READ));
     }
 
     /**
@@ -311,94 +294,6 @@ public class ProjectCreationService {
     }
 
     /**
-     * List the immediate sub-folders of a non-flat design repository, offered as candidates for the
-     * "import from repository" flow. Folders already imported as a project (or nested in one) are
-     * marked as mapped.
-     *
-     * @param path the internal folder whose children to list; blank lists the repository root
-     */
-    public List<RepositoryFolder> listImportableFolders(String repositoryId, String path) {
-        requireCreatePermission(repositoryId);
-        requireReadPermission(repositoryId, path);
-        var mapper = mappedRepository(repositoryId);
-        var delegate = mapper.getDelegate();
-        try {
-            var result = new ArrayList<RepositoryFolder>();
-            for (FileData folder : delegate.listFolders(normalizeFolder(path))) {
-                var name = folder.getName();
-                if (isReadable(repositoryId, name)) {
-                    result.add(toRepositoryFolder(mapper, name, isOpenLProject(delegate, name)));
-                }
-            }
-            result.sort((left, right) -> left.name().compareToIgnoreCase(right.name()));
-            return result;
-        } catch (IOException e) {
-            throw new ConflictException("project.import.list.failed.message");
-        }
-    }
-
-    /** A folder holds an OpenL project when it contains a rules.xml descriptor or Excel workbooks. */
-    private static boolean isOpenLProject(Repository delegate, String folderPath) throws IOException {
-        return delegate.list(normalizeFolder(folderPath)).stream()
-                .map(file -> file.getName().substring(file.getName().lastIndexOf('/') + 1))
-                .anyMatch(name -> ProjectDescriptor.FILE_NAME.equals(name) || FileTypeHelper.isExcelFile(name));
-    }
-
-    /**
-     * Import an existing folder of a non-flat design repository as a project, granting the creator a
-     * CONTRIBUTOR ACL. The project keeps the folder's own name (from its descriptor, or the folder
-     * name). Given tags replace the imported project's local tags.
-     *
-     * @return the imported project's file data (branch/revision)
-     */
-    public FileData importFromRepository(String repositoryId, String path) {
-        requireCreatePermission(repositoryId);
-        var folder = trimTrailingSlash(StringUtils.trimToEmpty(path));
-        if (folder.isEmpty()) {
-            throw new BadRequestException("project.import.path-required.message");
-        }
-        requireReadPermission(repositoryId, folder);
-        var workspace = getUserWorkspace();
-        var mapper = mappedRepository(repositoryId);
-        boolean mappingAdded = false;
-        String mappedName = null;
-        try {
-            if (mapper.getDelegate().check(folder) == null) {
-                throw new NotFoundException("project.import.folder-not-found.message");
-            }
-            mapper.addMapping(folder);
-            mappingAdded = true;
-            mappedName = mapper.findMappedName(folder);
-            workspace.refresh();
-            RulesProject project = workspace.getProjectByPath(repositoryId, folder)
-                    .orElseThrow(() -> new ConflictException("project.import.failed.message"));
-            RepositoryAclService designRepoAclService = aclServiceProvider.getDesignRepoAclService();
-            grantContributorAclIfAbsent(designRepoAclService, project);
-            registerExtensibleTags(project);
-            return project.getFileData();
-        } catch (IOException e) {
-            rollbackImportMapping(mapper, mappingAdded, mappedName, folder);
-            throw new ConflictException("project.import.failed.message");
-        } catch (RuntimeException e) {
-            rollbackImportMapping(mapper, mappingAdded, mappedName, folder);
-            throw e;
-        }
-    }
-
-    private static void rollbackImportMapping(FolderMapper mapper, boolean mappingAdded, String mappedName,
-                                              String folder) {
-        if (!mappingAdded) {
-            return;
-        }
-        try {
-            var path = StringUtils.isNotBlank(mappedName) ? mappedName : folder;
-            mapper.removeMapping(path);
-        } catch (IOException e) {
-            log.warn("Cannot roll back imported project mapping for folder '{}'", folder, e);
-        }
-    }
-
-    /**
      * Copy an existing project into a design repository under a new name, entirely server-side (the
      * project's folder is copied in the repository, not downloaded and re-uploaded). The descriptor is
      * renamed, the creator is granted a CONTRIBUTOR ACL, and the workspace is refreshed so the copy is
@@ -441,40 +336,6 @@ public class ProjectCreationService {
         }
     }
 
-    private FolderMapper mappedRepository(String repositoryId) {
-        Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
-        if (repository == null) {
-            throw new NotFoundException("repository.not-found.message");
-        }
-        if (!repository.supports().mappedFolders()) {
-            throw new ConflictException("project.import.flat-repository.message");
-        }
-        return (FolderMapper) repository;
-    }
-
-    private static RepositoryFolder toRepositoryFolder(FolderMapper mapper, String internalPath, boolean project) {
-        var folder = trimTrailingSlash(internalPath);
-        return RepositoryFolder.builder()
-                .name(folder.substring(folder.lastIndexOf('/') + 1))
-                .path(folder)
-                .mapped(mapper.findMappedName(folder) != null ? Boolean.TRUE : null)
-                .project(project ? Boolean.TRUE : null)
-                .build();
-    }
-
-    private static String normalizeFolder(String path) {
-        var folder = StringUtils.trimToEmpty(path);
-        if (folder.isEmpty() || folder.endsWith("/")) {
-            return folder;
-        }
-        return folder + "/";
-    }
-
-    private static String aclPath(String path) {
-        var folder = trimTrailingSlash(StringUtils.trimToEmpty(path));
-        return StringUtils.trimToNull(folder);
-    }
-
     static String copyInternalPath(String path, String projectName) {
         var folder = StringUtils.trimToEmpty(path).replace('\\', '/');
         while (folder.startsWith("/")) {
@@ -484,9 +345,5 @@ public class ProjectCreationService {
             folder += "/";
         }
         return folder + projectName;
-    }
-
-    private static String trimTrailingSlash(String path) {
-        return path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
     }
 }

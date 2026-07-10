@@ -1,13 +1,11 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NewProjectModal } from './NewProjectModal'
 import {
     copyProject,
     createProject,
-    createProjectFromRepository,
     createProjectsFromWorkspace,
-    getImportableFolders,
     getProjects,
     getProjectTemplates,
 } from '../../services/repositories'
@@ -16,8 +14,6 @@ vi.mock('../../services/repositories', () => ({
     copyProject: vi.fn(),
     createProject: vi.fn(),
     createProjectsFromWorkspace: vi.fn(),
-    createProjectFromRepository: vi.fn(),
-    getImportableFolders: vi.fn(),
     getProjects: vi.fn(),
     getProjectTemplates: vi.fn(),
 }))
@@ -274,42 +270,6 @@ describe('NewProjectModal', () => {
         expect(repoId).toBe('design')
         expect(body.names).toEqual(['Draft'])
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
-    })
-
-    it('imports an existing folder from a repository', async () => {
-        vi.mocked(getImportableFolders).mockResolvedValue([{ name: 'Alpha', path: 'team/Alpha' }])
-        vi.mocked(createProjectFromRepository).mockResolvedValue()
-        const onCreated = vi.fn()
-        renderWizard({ repositories: mappedRepositories, onCreated })
-
-        await toConfig('repository')
-        await userEvent.click(await screen.findByTestId('opt-team/Alpha'))
-        await userEvent.click(screen.getByTestId('new-project-submit'))
-
-        await waitFor(() => expect(createProjectFromRepository).toHaveBeenCalledTimes(1))
-        const [repoId, body] = vi.mocked(createProjectFromRepository).mock.calls[0]!
-        expect(repoId).toBe('design')
-        expect(body.path).toBe('team/Alpha')
-        await waitFor(() => expect(onCreated).toHaveBeenCalled())
-    })
-
-    it('hides repository import when no mapped repository allows creating', async () => {
-        await act(async () => {
-            renderWizard({
-                repositories: [
-                    {
-                        id: 'readonly',
-                        name: 'Read Only',
-                        aclId: 'b',
-                        capabilities: {},
-                        features: { branches: false, searchable: false, mappedFolders: true },
-                    },
-                ],
-            })
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
-
-        expect(screen.queryByTestId('new-project-method-repository')).toBeNull()
     })
 
     it('creates a project from a selected template', async () => {
