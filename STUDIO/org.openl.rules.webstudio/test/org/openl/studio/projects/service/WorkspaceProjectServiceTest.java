@@ -79,8 +79,8 @@ class WorkspaceProjectServiceTest {
         var repository = mock(BranchRepository.class);
         var branchNames = List.of("main", "feature");
         var statuses = Map.of(
-                "main", status(0, 0),
-                "feature", status(2, 1));
+                "main", status(),
+                "feature", status());
 
         when(project.isSupportsBranches()).thenReturn(true);
         when(project.getDesignRepository()).thenReturn(repository);
@@ -88,15 +88,15 @@ class WorkspaceProjectServiceTest {
         when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
         when(repository.getBaseBranch()).thenReturn("main");
         when(repository.getBranches(null)).thenReturn(branchNames);
-        when(repository.getBranchStatuses(branchNames, "main")).thenReturn(statuses);
+        when(repository.getBranchStatuses(branchNames)).thenReturn(statuses);
 
         List<ProjectBranchInfo> result = service.getBranches(project);
 
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
         assertEquals("user", result.getFirst().lastCommit().author());
         assertEquals("message", result.getFirst().lastCommit().message());
-        verify(repository).getBranchStatuses(branchNames, "main");
-        verify(repository, never()).getBranchStatus(any(), any());
+        assertEquals("revision", result.getFirst().lastCommit().revision());
+        verify(repository).getBranchStatuses(branchNames);
     }
 
     @Test
@@ -626,10 +626,8 @@ class WorkspaceProjectServiceTest {
         return userWorkspace;
     }
 
-    private static BranchStatus status(int ahead, int behind) {
-        return new BranchStatus(ahead,
-                behind,
-                new UserInfo("user", "user@example.com", "user"),
+    private static BranchStatus status() {
+        return new BranchStatus(new UserInfo("user", "user@example.com", "user"),
                 Instant.EPOCH,
                 "message",
                 "revision");

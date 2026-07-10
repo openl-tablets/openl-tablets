@@ -204,13 +204,8 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     }
 
     @Override
-    public BranchStatus getBranchStatus(String branch, String comparedTo) throws IOException {
-        return ((BranchRepository) delegate).getBranchStatus(branch, comparedTo);
-    }
-
-    @Override
-    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches, String comparedTo) throws IOException {
-        return ((BranchRepository) delegate).getBranchStatuses(branches, comparedTo);
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatuses(branches);
     }
 
     @Override

@@ -76,13 +76,8 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     }
 
     @Override
-    public BranchStatus getBranchStatus(String branch, String comparedTo) throws IOException {
-        return branchRepository.getBranchStatus(branch, comparedTo);
-    }
-
-    @Override
-    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches, String comparedTo) throws IOException {
-        return branchRepository.getBranchStatuses(branches, comparedTo);
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException {
+        return branchRepository.getBranchStatuses(branches);
     }
 
     @Override

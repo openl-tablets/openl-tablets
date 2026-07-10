@@ -86,7 +86,6 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.revwalk.filter.AuthorRevFilter;
 import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
 import org.eclipse.jgit.revwalk.filter.OrRevFilter;
@@ -2640,16 +2639,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     @Override
-    public BranchStatus getBranchStatus(String branchName, String comparedTo) throws IOException {
-        BranchStatus status = getBranchStatuses(List.of(branchName), comparedTo).get(branchName);
-        if (status == null) {
-            throw new IOException("Branch not found: " + branchName);
-        }
-        return status;
-    }
-
-    @Override
-    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branchNames, String comparedTo) throws IOException {
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branchNames) throws IOException {
         if (branchNames.isEmpty()) {
             return Map.of();
         }
@@ -2659,13 +2649,11 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         try {
             readLock.lock();
             Repository repository = git.getRepository();
-            ObjectId referenceId = repository.resolve(comparedTo);
             var result = new HashMap<String, BranchStatus>();
             try (RevWalk walk = new RevWalk(repository)) {
-                RevCommit referenceCommit = referenceId == null ? null : walk.parseCommit(referenceId);
                 for (String branchName : branchNames) {
                     try {
-                        getBranchStatus(repository, walk, branchName, comparedTo, referenceCommit)
+                        getBranchStatus(repository, walk, branchName)
                                 .ifPresent(status -> result.put(branchName, status));
                     } catch (IOException | RuntimeException e) {
                         log.warn("Failed to read status for branch '{}'", branchName, e);
@@ -2680,9 +2668,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     private static Optional<BranchStatus> getBranchStatus(Repository repository,
                                                           RevWalk walk,
-                                                          String branchName,
-                                                          String comparedTo,
-                                                          RevCommit referenceCommit) throws IOException {
+                                                          String branchName) throws IOException {
         ObjectId branchId = repository.resolve(branchName);
         if (branchId == null) {
             return Optional.empty();
@@ -2694,26 +2680,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         var ident = tip.getAuthorIdent();
         var author = new UserInfo(ident.getName(), ident.getEmailAddress(), ident.getName());
         Instant lastAt = ident.getWhenAsInstant();
-        // Read the tip body now: the merge-base walk below can free it, and getShortMessage()
-        // would then throw an NPE on the released buffer.
         String message = tip.getShortMessage();
         String revision = tip.getName();
-
-        int ahead = 0;
-        int behind = 0;
-        // Ahead/behind is relative to the current branch, not the base.
-        if (!branchName.equals(comparedTo) && referenceCommit != null) {
-            walk.reset();
-            walk.setRevFilter(RevFilter.MERGE_BASE);
-            walk.markStart(tip);
-            walk.markStart(referenceCommit);
-            RevCommit mergeBase = walk.next();
-            walk.reset();
-            walk.setRevFilter(RevFilter.ALL);
-            ahead = RevWalkUtils.count(walk, tip, mergeBase);
-            behind = RevWalkUtils.count(walk, referenceCommit, mergeBase);
-        }
-        return Optional.of(new BranchStatus(ahead, behind, author, lastAt, message, revision));
+        return Optional.of(new BranchStatus(author, lastAt, message, revision));
     }
 
     @Override
