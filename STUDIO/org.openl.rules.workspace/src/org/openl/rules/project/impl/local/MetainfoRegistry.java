@@ -143,6 +143,35 @@ public class MetainfoRegistry {
     }
 
     /**
+     * Renames the project record following a project folder rename.
+     *
+     * <p>The local-changes state moves together with the record. Does nothing when the project is not
+     * registered.
+     */
+    public void rename(String projectName, String newProjectName) {
+        var lock = lockOf(projectName);
+        lock.lock();
+        try {
+            var metainfo = records.get(projectName);
+            if (metainfo == null) {
+                return;
+            }
+            Files.move(recordFile(projectName), recordFile(newProjectName), StandardCopyOption.ATOMIC_MOVE);
+            records.remove(projectName);
+            records.put(newProjectName, metainfo);
+            if (dirtyProjects.remove(projectName)) {
+                dirtyProjects.add(newProjectName);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Cannot rename the metainfo of the '" + projectName + "' project to '" + newProjectName + "'.",
+                    e);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * Marks the project as locally changed.
      */
     public void markDirty(String projectName) {

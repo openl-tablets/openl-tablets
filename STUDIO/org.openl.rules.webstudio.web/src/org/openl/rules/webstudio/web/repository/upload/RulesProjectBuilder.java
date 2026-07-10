@@ -13,6 +13,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -56,7 +57,8 @@ public class RulesProjectBuilder {
             } catch (IOException e) {
                 throw new IllegalStateException("Cannot create temp folder");
             }
-            LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath);
+            LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath,
+                    MetainfoRegistry.open(tempLocalRepositoryPath));
             localRepository.setId(repositoryId);
             localRepository.initialize();
 

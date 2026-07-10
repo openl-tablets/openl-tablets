@@ -410,9 +410,6 @@ public class FileSystemRepository implements Repository, Closeable {
         Files.walkFileTree(directory, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                if (isSkip(file)) {
-                    return FileVisitResult.CONTINUE;
-                }
                 if (!toSave.contains(file)) {
                     try {
                         Files.delete(file);
@@ -428,9 +425,6 @@ public class FileSystemRepository implements Repository, Closeable {
                 if (exc != null) {
                     throw exc;
                 }
-                if (isSkip(dir)) {
-                    return FileVisitResult.CONTINUE;
-                }
                 // Don't delete the root folder of the change
                 if (dir.equals(directory)) {
                     return FileVisitResult.CONTINUE;
@@ -445,10 +439,6 @@ public class FileSystemRepository implements Repository, Closeable {
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    protected boolean isSkip(Path file) {
-        return false;
     }
 
     public void setListenerTimerPeriod(int listenerTimerPeriod) {

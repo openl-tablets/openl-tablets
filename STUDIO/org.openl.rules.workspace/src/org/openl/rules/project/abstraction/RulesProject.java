@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
@@ -149,7 +151,7 @@ public class RulesProject extends UserWorkspaceProject {
             if (extraCommits) {
                 openVersion(version);
             } else {
-                resetLocalFileData(true);
+                resetLocalFileData();
             }
         }
         unlock();
@@ -181,9 +183,6 @@ public class RulesProject extends UserWorkspaceProject {
                 setRepository(designRepository);
                 setFolderPath(designFolderName);
                 setHistoryVersion(null);
-                if (!isRepositoryOnly()) {
-                    localRepository.getProjectState(localFolderName).setProjectVersion(null);
-                }
             }
         } finally {
             refresh();
@@ -364,7 +363,7 @@ public class RulesProject extends UserWorkspaceProject {
         }
 
         refresh();
-        resetLocalFileData(true);
+        resetLocalFileData();
     }
 
     @Override
@@ -435,52 +434,58 @@ public class RulesProject extends UserWorkspaceProject {
         return null;
     }
 
-    private void resetLocalFileData(boolean needUpdateUniqueId) {
+    private void resetLocalFileData() {
         FileData fileData = getFileData();
         if (designRepository.supports().branches()) {
             fileData.setBranch(((BranchRepository) designRepository).getBranch());
         }
-        localRepository.getProjectState(localFolderName).clearModifyStatus();
-        localRepository.getProjectState(localFolderName).saveFileData(designRepository.getId(), fileData);
-
-        if (needUpdateUniqueId) {
-            updateUniqueId();
-        }
+        localRepository.getProjectState(localFolderName)
+                .saveSnapshot(designRepository.getId(), fileData, collectBaselines());
     }
 
-    private void updateUniqueId() {
-        if (designRepository.supports().folders()) {
-            Repository fromRepository = designRepository;
-            if (fromRepository.supports().uniqueFileId()) {
-                try {
-                    localRepository.deleteAllFileProperties(localFolderName);
+    /**
+     * Captures the baselines of all local project files for the synchronization snapshot.
+     *
+     * <p>Every file records its actual size and modification time. The repository revision id is added
+     * when the design repository provides per-file ids.
+     */
+    private Map<String, ProjectMetainfo.FileBaseline> collectBaselines() {
+        var baselines = new HashMap<String, ProjectMetainfo.FileBaseline>();
+        try {
+            Map<String, String> designUniqueIds = designUniqueIds();
+            for (FileData localData : localRepository.list(localFolderName + "/")) {
+                String path = localData.getName().substring(localFolderName.length());
+                baselines.put(path,
+                        new ProjectMetainfo.FileBaseline(designUniqueIds.get(path),
+                                localData.getSize(),
+                                localData.getModifiedAt().getTime()));
+            }
+        } catch (IOException e) {
+            // An incomplete snapshot would silently corrupt the local-changes detection,
+            // so fail the whole operation instead.
+            throw new IllegalStateException(
+                    "Cannot capture the file baselines of the '" + localFolderName + "' project.", e);
+        }
+        return baselines;
+    }
 
-                    String fromFilePath = designFolderName + "/";
-                    String historyVersion = getHistoryVersion();
-                    List<FileData> designFiles = historyVersion != null ? fromRepository.listFiles(fromFilePath,
-                            historyVersion) : fromRepository.list(fromFilePath);
-
-                    for (FileData designData : designFiles) {
-                        String designDataName = designData.getName();
-                        String localName = localFolderName + designDataName.substring(designFolderName.length());
-
-                        // We need to store: 1) unique id 2) file size 3) modified time. Reuse local file data to get
-                        // file size and modified time for a file to avoid lazy loading and therefore performance
-                        // degradation. Only change unique id that was gotten from design repository.
-                        FileData localData = localRepository.check(localName);
-                        if (localData != null) {
-                            localData.setUniqueId(designData.getUniqueId());
-
-                            localRepository.updateFileProperties(localData);
-                        } else {
-                            log.warn("Files in local repository for folder {} are not found", localName);
-                        }
-                    }
-                } catch (IOException e) {
-                    log.error(e.getMessage(), e);
-                }
+    private Map<String, String> designUniqueIds() throws IOException {
+        if (!designRepository.supports().folders() || !designRepository.supports().uniqueFileId()) {
+            return Map.of();
+        }
+        String fromFilePath = designFolderName + "/";
+        String historyVersion = getHistoryVersion();
+        List<FileData> designFiles = historyVersion != null
+                ? designRepository.listFiles(fromFilePath, historyVersion)
+                : designRepository.list(fromFilePath);
+        var uniqueIds = new HashMap<String, String>();
+        for (FileData designData : designFiles) {
+            String uniqueId = designData.getUniqueId();
+            if (uniqueId != null) {
+                uniqueIds.put(designData.getName().substring(designFolderName.length()), uniqueId);
             }
         }
+        return uniqueIds;
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me

@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 /**
@@ -24,6 +25,11 @@ public interface LocalWorkspace extends ProjectsContainer {
     void addWorkspaceListener(LocalWorkspaceListener listener);
 
     LocalRepository getRepository(String id);
+
+    /**
+     * Returns the metainfo registry of the workspace projects.
+     */
+    MetainfoRegistry getMetainfoRegistry();
 
     /**
      * Returns directory in the filesystem used storage for workspace projects.

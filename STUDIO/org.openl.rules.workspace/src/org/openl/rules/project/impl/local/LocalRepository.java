@@ -3,12 +3,10 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.nio.file.attribute.FileTime;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,72 +21,54 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.util.FileUtils;
-import org.openl.util.PropertiesUtils;
-import org.openl.util.StringUtils;
 
+/**
+ * The repository of project copies in the user workspace.
+ *
+ * <p>Project folders contain only project files. The project metainfo lives in the per-user
+ * {@link MetainfoRegistry}: every save or delete of a project file reports a local change to it, and
+ * file listings enrich files with the repository revision id from the recorded baselines.
+ *
+ * <p>Top-level folders with a name starting with a dot are service folders of the workspace, not
+ * projects, and are hidden from listings.
+ *
+ * @author Yury Molchan
+ */
 @Slf4j
 public class LocalRepository extends FileSystemRepository {
-    /**
-     * @deprecated Will be removed in the future.
-     */
-    @Deprecated
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
-    private static final String REPOSITORY_ID = "repository-id";
-    private static final String PATH_IN_REPOSITORY = "path-in-repository";
-    private static final String VERSION_PROPERTY = "version";
-    private static final String BRANCH_PROPERTY = "branch";
-    private static final String AUTHOR_PROPERTY = "author";
-    /**
-     * @deprecated Will be removed in the future. Is replaced with {@link #MODIFIED_AT_LONG_PROPERTY}.
-     */
-    @Deprecated
-    private static final String MODIFIED_AT_PROPERTY = "modified-at";
-    private static final String MODIFIED_AT_LONG_PROPERTY = "modified-at-long";
-    private static final String SIZE_PROPERTY = "size";
-    private static final String COMMENT_PROPERTY = "comment";
-    private static final String UNIQUE_ID_PROPERTY = "unique-id";
-    private static final String FILE_MODIFIED_PROPERTY = "modified";
-    private static final String FILE_PROPERTIES_FOLDER = "file-properties";
 
-    private final PropertiesEngine propertiesEngine;
+    private final MetainfoRegistry registry;
 
-    public LocalRepository(Path location) {
+    public LocalRepository(Path location, MetainfoRegistry registry) {
         setRoot(location);
-        propertiesEngine = new PropertiesEngine(location.toFile());
+        this.registry = registry;
     }
 
     @Override
     public List<FileData> list(String path) throws IOException {
         List<FileData> list = super.list(path);
-
-        // Property and history files must be hidden
-        list.removeIf(fileData -> isShouldBeHidden(fileData.getName(), path));
-
+        list.removeIf(fileData -> fileData.getName().startsWith("."));
         return list;
     }
 
-    private boolean isShouldBeHidden(String fileName, String path) {
-        if (!path.endsWith("/")) {
-            path += "/";
-        }
-        return fileName.startsWith(path + FolderHelper.PROPERTIES_FOLDER + "/") || fileName
-                .startsWith(path + FolderHelper.HISTORY_FOLDER + "/");
+    @Override
+    public List<FileData> listFolders(String path) {
+        List<FileData> list = super.listFolders(path);
+        list.removeIf(fileData -> fileData.getName().startsWith("."));
+        return list;
     }
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         FileData fileData = super.save(data, stream);
-        notifyModified(data.getName());
-        return fileData;
+        return afterFileWrite(fileData);
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         List<FileData> result = super.save(fileItems);
-        for (FileData data : result) {
-            notifyModified(data.getName());
+        for (int i = 0; i < result.size(); i++) {
+            result.set(i, afterFileWrite(result.get(i)));
         }
         return result;
     }
@@ -98,22 +78,19 @@ public class LocalRepository extends FileSystemRepository {
                          final Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
         FileData fileData = super.save(folderData, files, changesetType);
-        notifyModified(folderData.getName());
+        registry.markDirty(projectNameOf(folderData.getName()));
         return fileData;
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
         boolean deleted = super.delete(data);
-        deleteFileProperties(data.getName());
-
-        if (deleted) {
-            // If name doesn't contain "/", it's a project name. No need to recreate project state for the deleted
-            // project.
-            String name = data.getName();
-            if (name.contains("/")) {
-                notifyModified(name);
-            }
+        String name = data.getName();
+        if (name.contains("/")) {
+            registry.markDirty(projectNameOf(name));
+        } else {
+            // The project root is deleted: the project leaves the workspace together with its record.
+            registry.remove(name);
         }
         return deleted;
     }
@@ -126,335 +103,167 @@ public class LocalRepository extends FileSystemRepository {
     @Override
     protected FileData getFileData(Path file) throws IOException {
         FileData fileData = super.getFileData(file);
-        var properties = readFileProperties(fileData.getName());
-        String uniqueId = properties.get(UNIQUE_ID_PROPERTY);
-        if (uniqueId != null) {
-            // If the file is modified, set unique id to null to mark that it's id is unknown
-            if (isFileModified(fileData, properties)) {
-                uniqueId = null;
-            }
-            fileData.setUniqueId(uniqueId);
+        String name = fileData.getName();
+        int slash = name.indexOf('/');
+        if (slash > 0 && Files.isRegularFile(file)) {
+            fileData.setUniqueId(registry.uniqueId(name.substring(0, slash),
+                    name.substring(slash),
+                    fileData.getSize(),
+                    fileData.getModifiedAt().getTime()));
         }
-
         return fileData;
     }
 
+    public MetainfoRegistry getMetainfoRegistry() {
+        return registry;
+    }
+
     /**
-     * The file is modified if any of these is true: a) it's marked as modified in properties file b) size is changed c)
-     * last modified time is changed
+     * Reports the written file to the registry and keeps the local-changes detection reliable.
      *
-     * @param fileData   file data for checking file
-     * @param properties properties of original file
-     * @return true if file is modified
+     * <p>When the written file accidentally matches its baseline by size and modification time, the
+     * modification time is moved forward. Otherwise the change would look like the recorded repository
+     * revision after a restart.
      */
-    private boolean isFileModified(FileData fileData, Map<String, String> properties) {
-        boolean modified = Boolean.parseBoolean(properties.get(FILE_MODIFIED_PROPERTY));
-        if (modified) {
-            return true;
-        }
-
-        try {
-            long size = Long.parseLong(properties.get(SIZE_PROPERTY));
-            if (fileData.getSize() != size) {
-                return true;
+    private FileData afterFileWrite(FileData fileData) throws IOException {
+        String name = fileData.getName();
+        String projectName = projectNameOf(name);
+        registry.markDirty(projectName);
+        if (name.length() > projectName.length()) {
+            var baseline = registry.baseline(projectName, name.substring(projectName.length()));
+            if (baseline != null && baseline.size() == fileData.getSize()
+                    && baseline.modifiedAt() == fileData.getModifiedAt().getTime()) {
+                long bumped = Math.max(System.currentTimeMillis(), baseline.modifiedAt() + 1);
+                Files.setLastModifiedTime(getRoot().resolve(name), FileTime.fromMillis(bumped));
+                fileData.setModifiedAt(new Date(bumped));
             }
-        } catch (NumberFormatException ignored) {
-            // Cannot determine saved size. So treat it as modified file
-            return true;
         }
-
-        try {
-            Date modifiedAt = new Date(Long.parseLong(properties.get(MODIFIED_AT_LONG_PROPERTY)));
-            return !modifiedAt.equals(fileData.getModifiedAt());
-        } catch (NumberFormatException ignored) {
-            // Cannot determine saved date. So treat it as modified file
-            return true;
-        }
+        return fileData;
     }
 
-    @Override
-    protected boolean isSkip(Path file) {
-        return FolderHelper.PROPERTIES_FOLDER.equals(file.getFileName().toString());
+    public ProjectState getProjectState(String pathInProject) {
+        return new RegistryProjectState(projectNameOf(pathInProject));
     }
 
-    public ProjectState getProjectState(final String pathInProject) {
-        return new ProjectState() {
-            private static final String MODIFIED_FILE_NAME = ".modified";
-            private static final String VERSION_FILE_NAME = ".version";
-
-            @Override
-            public void notifyModified() {
-                propertiesEngine.createPropertiesFile(pathInProject, MODIFIED_FILE_NAME);
-                setFileModified(pathInProject);
-                invokeListener();
-            }
-
-            @Override
-            public boolean isModified() {
-                return propertiesEngine.getPropertiesFile(pathInProject, MODIFIED_FILE_NAME).exists();
-            }
-
-            @Override
-            public void clearModifyStatus() {
-                propertiesEngine.deletePropertiesFile(pathInProject, MODIFIED_FILE_NAME);
-                File propertiesFolder = propertiesEngine.getPropertiesFolder(pathInProject);
-                File[] files = new File(propertiesFolder, FILE_PROPERTIES_FOLDER).listFiles();
-                clearFileModifyStatus(files);
-            }
-
-            private void clearFileModifyStatus(File[] files) {
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.isFile()) {
-                            var properties = new LinkedHashMap<String, String>();
-                            try {
-                                PropertiesUtils.load(file.toPath(), properties::put);
-                            } catch (IOException e) {
-                                log.error(e.getMessage(), e);
-                            }
-
-                            properties.remove(FILE_MODIFIED_PROPERTY);
-
-                            try {
-                                PropertiesUtils.store(file.toPath(), properties.entrySet());
-                            } catch (IOException e) {
-                                log.error(e.getMessage(), e);
-                            }
-                        } else if (file.isDirectory()) {
-                            clearFileModifyStatus(file.listFiles());
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void setProjectVersion(String version) {
-                if (version == null) {
-                    propertiesEngine.deletePropertiesFile(pathInProject, VERSION_FILE_NAME);
-                    return;
-                }
-
-                File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
-
-                var properties = new LinkedHashMap<String, String>();
-                properties.put(VERSION_PROPERTY, version);
-                try {
-                    PropertiesUtils.store(file.toPath(), properties.entrySet());
-                } catch (IOException e) {
-                    throw new IllegalStateException(version);
-                }
-            }
-
-            @Override
-            public String getProjectVersion() {
-                return getProperty(VERSION_PROPERTY, VERSION_FILE_NAME, pathInProject);
-            }
-
-            @Override
-            public String getRepositoryId() {
-                return getProperty(REPOSITORY_ID, VERSION_FILE_NAME, pathInProject);
-            }
-
-            @Override
-            public void saveFileData(String repositoryId, FileData fileData) {
-                if (fileData.getVersion() == null || fileData.getModifiedAt() == null) {
-                    // No need to save empty fileData
-                    return;
-                }
-                var properties = new LinkedHashMap<String, String>();
-                properties.put(REPOSITORY_ID, repositoryId);
-                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
-                if (mappingData != null) {
-                    properties.put(PATH_IN_REPOSITORY, mappingData.getInternalPath());
-                }
-                properties.put(VERSION_PROPERTY, fileData.getVersion());
-                Optional.ofNullable(fileData.getAuthor())
-                        .map(UserInfo::getName)
-                        .ifPresent(author -> properties.put(AUTHOR_PROPERTY, author));
-                properties.put(MODIFIED_AT_PROPERTY,
-                        new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
-                properties.put(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
-                properties.put(SIZE_PROPERTY, "" + fileData.getSize());
-                if (fileData.getComment() != null) {
-                    properties.put(COMMENT_PROPERTY, fileData.getComment());
-                }
-                String branch = fileData.getBranch();
-                if (branch != null) {
-                    properties.put(BRANCH_PROPERTY, branch);
-                }
-                File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
-                try {
-                    PropertiesUtils.store(file.toPath(), properties.entrySet());
-                } catch (IOException e) {
-                    throw new IllegalStateException(e.getMessage(), e);
-                }
-            }
-
-            @Override
-            public FileData getFileData() {
-                File file = propertiesEngine.getPropertiesFile(pathInProject, VERSION_FILE_NAME);
-                if (!file.exists()) {
-                    return null;
-                }
-
-                var properties = new HashMap<String, String>();
-                try {
-                    PropertiesUtils.load(file.toPath(), properties::put);
-                    FileData fileData = new FileData();
-                    File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
-
-                    String name = projectFolder.getName();
-                    String version = properties.get(VERSION_PROPERTY);
-                    String branch = properties.get(BRANCH_PROPERTY);
-                    String author = properties.get(AUTHOR_PROPERTY);
-                    String pathIntRepository = properties.get(PATH_IN_REPOSITORY);
-
-                    if (pathIntRepository != null) {
-                        fileData.addAdditionalData(new FileMappingData(name, pathIntRepository));
-                    }
-
-                    Date modifiedAt;
-                    String modifiedAtLong = properties.get(MODIFIED_AT_LONG_PROPERTY);
-                    if (modifiedAtLong != null) {
-                        modifiedAt = new Date(Long.parseLong(modifiedAtLong));
-                    } else {
-                        // Backward compatibility for projects opened in previous version of OpenL Studio.
-                        // Will be removed in the future.
-                        String modifiedAtStr = properties.get(MODIFIED_AT_PROPERTY);
-                        modifiedAt = modifiedAtStr == null ? null
-                                : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
-                    }
-                    String size = properties.get(SIZE_PROPERTY);
-                    String comment = properties.get(COMMENT_PROPERTY);
-
-                    if (version == null || modifiedAt == null) {
-                        // Only partial information is available. Cannot fill FileData. Must request from repository.
-                        return null;
-                    }
-
-                    fileData.setName(name);
-                    fileData.setVersion(version);
-                    fileData.setBranch(branch);
-                    if (author != null) {
-                        fileData.setAuthor(new UserInfo(author));
-                    }
-                    fileData.setModifiedAt(modifiedAt);
-                    fileData.setSize(Long.parseLong(size));
-                    fileData.setComment(comment);
-
-                    return fileData;
-                } catch (IOException | ParseException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        };
-    }
-
-    private String getProperty(String prop, String fileName, String pathInProject) {
-        File file = propertiesEngine.getPropertiesFile(pathInProject, fileName);
-        if (!file.exists()) {
-            return null;
+    private String projectNameOf(String path) {
+        String relative = path.replace('\\', '/');
+        if (new File(path).isAbsolute()) {
+            relative = relativize(path);
         }
+        int slash = relative.indexOf('/');
+        return slash < 0 ? relative : relative.substring(0, slash);
+    }
 
-        var properties = new LinkedHashMap<String, String>();
+    private String relativize(String path) {
+        Path base;
+        Path pathAbsolute;
         try {
-            PropertiesUtils.load(file.toPath(), properties::put);
-            return properties.get(prop);
+            base = getRoot().toAbsolutePath().toRealPath();
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            log.debug(e.getMessage(), e);
+            base = getRoot().toAbsolutePath().normalize();
         }
+        try {
+            pathAbsolute = Path.of(path).toRealPath();
+        } catch (IOException e) {
+            log.debug(e.getMessage(), e);
+            pathAbsolute = Path.of(path).normalize();
+        }
+        return base.relativize(pathAbsolute).toString().replace('\\', '/');
     }
 
-    private void notifyModified(String path) {
-        getProjectState(path).notifyModified();
-    }
+    private final class RegistryProjectState implements ProjectState {
+        private final String projectName;
 
-    private String getFilePropertiesPath(String path) {
-        String relativePath = path;
-        if (new File(relativePath).isAbsolute()) {
-            relativePath = propertiesEngine.getRelativePath(path).replace(File.separatorChar, '/');
+        private RegistryProjectState(String projectName) {
+            this.projectName = projectName;
         }
-        if (!relativePath.contains("/")) {
-            // Not a file. Just project name
-            return "";
+
+        @Override
+        public void notifyModified() {
+            registry.markDirty(projectName);
+            invokeListener();
         }
-        String pathInProject = relativePath.substring(relativePath.indexOf('/'));
-        return FILE_PROPERTIES_FOLDER + pathInProject;
-    }
 
-    private void setFileModified(String path) {
-        var properties = readFileProperties(path);
-        properties.put(FILE_MODIFIED_PROPERTY, "true");
+        @Override
+        public boolean isModified() {
+            return registry.isDirty(projectName);
+        }
 
-        String filePropertiesPath = getFilePropertiesPath(path);
-        if (StringUtils.isNotEmpty(filePropertiesPath)) {
-            File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
-            try {
-                PropertiesUtils.store(file.toPath(), properties.entrySet());
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
+        @Override
+        public String getProjectVersion() {
+            ProjectMetainfo metainfo = registry.get(projectName);
+            return metainfo == null ? null : metainfo.version();
+        }
+
+        @Override
+        public String getRepositoryId() {
+            ProjectMetainfo metainfo = registry.get(projectName);
+            return metainfo == null ? null : metainfo.repositoryId();
+        }
+
+        @Override
+        public void saveFileData(String repositoryId, FileData fileData) {
+            if (fileData.getVersion() == null || fileData.getModifiedAt() == null) {
+                // No need to save empty fileData
+                return;
+            }
+            ProjectMetainfo previous = registry.get(projectName);
+            boolean wasModified = registry.isDirty(projectName);
+            registry.save(projectName,
+                    toMetainfo(repositoryId, fileData, previous == null ? Map.of() : previous.files()));
+            if (wasModified) {
+                registry.markDirty(projectName);
             }
         }
-    }
 
-    public void updateFileProperties(FileData fileData) {
-        String path = fileData.getName();
-        String filePropertiesPath = getFilePropertiesPath(path);
-
-        if (StringUtils.isNotEmpty(filePropertiesPath)) {
-            var properties = readFileProperties(path);
-
-            if (fileData.getUniqueId() != null) {
-                properties.put(UNIQUE_ID_PROPERTY, fileData.getUniqueId());
-            } else {
-                properties.remove(UNIQUE_ID_PROPERTY);
-            }
-            properties.put(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
-            properties.put(SIZE_PROPERTY, "" + fileData.getSize());
-
-            File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
-            try {
-                PropertiesUtils.store(file.toPath(), properties.entrySet());
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-                FileUtils.deleteQuietly(file);
-            }
-        }
-    }
-
-    private Map<String, String> readFileProperties(String path) {
-        var properties = new HashMap<String, String>();
-        String filePropertiesPath = getFilePropertiesPath(path);
-        if (filePropertiesPath.isEmpty()) {
-            return properties;
+        @Override
+        public void saveSnapshot(String repositoryId,
+                                 FileData fileData,
+                                 Map<String, ProjectMetainfo.FileBaseline> baselines) {
+            registry.save(projectName, toMetainfo(repositoryId, fileData, baselines));
         }
 
-        File fileProperties = propertiesEngine.getPropertiesFile(path, filePropertiesPath);
-
-        if (fileProperties.exists()) {
-            try {
-                PropertiesUtils.load(fileProperties.toPath(), properties::put);
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
+        @Override
+        public FileData getFileData() {
+            ProjectMetainfo metainfo = registry.get(projectName);
+            if (metainfo == null || !metainfo.hasRevision()) {
+                // Only partial information is available. Cannot fill FileData. Must request from repository.
+                return null;
             }
-        }
-        return properties;
-    }
 
-    public void deleteAllFileProperties(String path) {
-        File propertiesFolder = propertiesEngine.getPropertiesFolder(path);
-        File fileProps = new File(propertiesFolder, FILE_PROPERTIES_FOLDER);
-        FileUtils.deleteQuietly(fileProps);
-    }
-
-    private void deleteFileProperties(String path) {
-        String filePropertiesPath = getFilePropertiesPath(path);
-        if (StringUtils.isNotEmpty(filePropertiesPath)) {
-            File fileProperties = propertiesEngine.getPropertiesFile(path, filePropertiesPath);
-            if (fileProperties.isFile()) {
-                FileUtils.deleteQuietly(fileProperties);
+            FileData fileData = new FileData();
+            fileData.setName(projectName);
+            fileData.setVersion(metainfo.version());
+            fileData.setBranch(metainfo.branch());
+            if (metainfo.author() != null) {
+                fileData.setAuthor(new UserInfo(metainfo.author()));
             }
+            fileData.setModifiedAt(new Date(metainfo.modifiedAt()));
+            if (metainfo.size() != null) {
+                fileData.setSize(metainfo.size());
+            }
+            fileData.setComment(metainfo.comment());
+            if (metainfo.pathInRepository() != null) {
+                fileData.addAdditionalData(new FileMappingData(projectName, metainfo.pathInRepository()));
+            }
+            return fileData;
+        }
+
+        private ProjectMetainfo toMetainfo(String repositoryId,
+                                           FileData fileData,
+                                           Map<String, ProjectMetainfo.FileBaseline> baselines) {
+            FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+            String author = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+            return new ProjectMetainfo(repositoryId,
+                    mappingData == null ? null : mappingData.getInternalPath(),
+                    fileData.getBranch(),
+                    fileData.getVersion(),
+                    author,
+                    fileData.getModifiedAt() == null ? null : fileData.getModifiedAt().getTime(),
+                    fileData.getSize(),
+                    fileData.getComment(),
+                    baselines);
         }
     }
-
 }

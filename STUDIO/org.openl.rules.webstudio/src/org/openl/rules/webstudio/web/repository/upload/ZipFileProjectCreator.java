@@ -23,12 +23,10 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
 
 @Slf4j
 public class ZipFileProjectCreator extends AProjectCreator {
@@ -219,14 +217,11 @@ public class ZipFileProjectCreator extends AProjectCreator {
                         invalidNames.add(name);
                     }
                 } else {
-                    if (!StringUtils.containsIgnoreCase(item.getName(), FolderHelper.PROPERTIES_FOLDER)) {
+                    String[] files = item.getName().split("/");
 
-                        String[] files = item.getName().split("/");
-
-                        for (String folderName : files) {
-                            if (!NameChecker.checkName(folderName)) {
-                                invalidNames.add(folderName);
-                            }
+                    for (String folderName : files) {
+                        if (!NameChecker.checkName(folderName)) {
+                            invalidNames.add(folderName);
                         }
                     }
                 }
