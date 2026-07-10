@@ -119,6 +119,8 @@ export type MergeStep = 'branches' | 'conflicts'
 // User info for commit config
 export interface UserCommitInfo {
     username: string
+    firstName?: string
+    lastName?: string
     displayName?: string
     email?: string
 }

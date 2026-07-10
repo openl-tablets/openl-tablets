@@ -50,6 +50,8 @@ const renderModal = async (props = defaultProps()) => {
 
 const getDisplayNameInput = () => screen.getByRole('textbox', { name: 'merge:commit_info.display_name' })
 const getEmailInput = () => screen.getByRole('textbox', { name: 'merge:commit_info.email' })
+const getFirstNameInput = () => screen.getByRole('textbox', { name: 'merge:commit_info.first_name' })
+const getLastNameInput = () => screen.getByRole('textbox', { name: 'merge:commit_info.last_name' })
 const getSaveButton = () => screen.getByRole('button', { name: 'merge:buttons.save' })
 
 describe('CommitInfoModal', () => {
@@ -152,7 +154,7 @@ describe('CommitInfoModal', () => {
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ displayName: 'Jane Doe', email: 'jane@example.com' }),
+                    body: JSON.stringify({ firstName: '', lastName: '', displayName: 'Jane Doe', email: 'jane@example.com' }),
                 },
                 true
             )
@@ -237,5 +239,61 @@ describe('CommitInfoModal', () => {
         // Only the load call should have been made, not a save call
         expect(mockApiCall).toHaveBeenCalledTimes(1)
         expect(props.onSave).not.toHaveBeenCalled()
+    })
+
+    it('renders and loads the first and last name fields', async () => {
+        mockApiCall.mockResolvedValueOnce({
+            firstName: 'John',
+            lastName: 'Doe',
+            displayName: 'John Doe',
+            email: 'john@example.com',
+        })
+
+        await renderModal()
+
+        expect(getFirstNameInput()).toHaveValue('John')
+        expect(getLastNameInput()).toHaveValue('Doe')
+    })
+
+    it('preserves the first and last name when saving (they are not dropped)', async () => {
+        mockApiCall
+            .mockResolvedValueOnce({ firstName: 'John', lastName: 'Doe', displayName: 'John Doe', email: 'john@example.com' })
+            .mockResolvedValueOnce({})
+
+        await renderModal()
+
+        await user.click(getSaveButton())
+
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith(
+                '/users/testuser',
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName: 'John', lastName: 'Doe', displayName: 'John Doe', email: 'john@example.com' }),
+                },
+                true
+            )
+        })
+    })
+
+    it('locks the display name in auto mode when it matches "First Last"', async () => {
+        mockApiCall.mockResolvedValueOnce({ firstName: 'John', lastName: 'Doe', displayName: 'John Doe', email: 'john@example.com' })
+
+        await renderModal()
+
+        // "John Doe" == first + last -> auto mode, the free-text field is disabled.
+        expect(getDisplayNameInput()).toHaveValue('John Doe')
+        expect(getDisplayNameInput()).toBeDisabled()
+    })
+
+    it('keeps the display name editable for a custom value', async () => {
+        mockApiCall.mockResolvedValueOnce({ firstName: 'John', lastName: 'Doe', displayName: 'JD', email: 'john@example.com' })
+
+        await renderModal()
+
+        // "JD" matches neither order -> custom mode, the field stays editable.
+        expect(getDisplayNameInput()).toHaveValue('JD')
+        expect(getDisplayNameInput()).not.toBeDisabled()
     })
 })
