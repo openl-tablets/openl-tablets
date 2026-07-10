@@ -19,6 +19,7 @@ vi.mock('antd-style', () => ({
         cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
     }),
     useTheme: () => new Proxy({}, { get: () => '#000' }),
+    keyframes: () => '',
 }))
 
 vi.mock('antd', () => ({
@@ -43,7 +44,8 @@ describe('CompileStatusBadge', () => {
 
         expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
         expect(screen.getByTestId('compile-status')).toHaveAttribute('aria-label', 'browser.compile.errors')
-        expect(screen.getByTestId('compile-status')).not.toHaveTextContent('browser.compile.errors')
+        // The badge now carries a visible label, not just an icon, matching the list and the status pill.
+        expect(screen.getByTestId('compile-status')).toHaveTextContent('browser.compile.errors')
     })
 
     it('shows warning and error counts in the tooltip', async () => {

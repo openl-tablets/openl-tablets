@@ -11,9 +11,9 @@ import { deriveProjectRow, activateOnKey, ProjectTags } from './projectRow'
 import { MOCKUP } from './projectsTheme'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
-type ColumnKey = 'project' | 'modified' | 'compilation'
+type ColumnKey = 'project' | 'modified'
 
-const DEFAULT_WIDTHS: Record<ColumnKey, number> = { project: 440, modified: 220, compilation: 140 }
+const DEFAULT_WIDTHS: Record<ColumnKey, number> = { project: 440, modified: 220 }
 const MIN_WIDTH = 96
 const ACTIONS_WIDTH = 240
 const STORAGE_KEY = 'openl.projects.table.widths'
@@ -114,6 +114,12 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 8px;
         min-width: 0;
     `,
+    compileSlot: css`
+        flex: none;
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    `,
     name: css`
         min-width: 0;
         font-weight: 600;
@@ -145,9 +151,6 @@ const useStyles = createStyles(({ css, token }) => ({
         font-size: 12px;
         white-space: nowrap;
     `,
-    compileCell: css`
-        text-align: center;
-    `,
     actionsCell: css`
         text-align: right;
     `,
@@ -168,9 +171,10 @@ interface ProjectsTableProps {
 }
 
 /**
- * The projects list as a borderless table (Project / Modified / Compilation / actions), each row
- * navigating to the project workspace. Column widths are user-resizable and persisted. A hand-rolled
- * table keeps rows fast in jsdom and matches the mockup's underlined-row styling.
+ * The projects list as a borderless table (Project / Modified / actions), each row navigating to the
+ * project workspace. The compilation status sits next to the project name. Column widths are
+ * user-resizable and persisted. A hand-rolled table keeps rows fast in jsdom and matches the mockup's
+ * underlined-row styling.
  */
 export const ProjectsTable = ({
     projects,
@@ -228,14 +232,12 @@ export const ProjectsTable = ({
             <colgroup>
                 <col style={{ width: widths.project }} />
                 <col style={{ width: widths.modified }} />
-                <col style={{ width: widths.compilation }} />
                 <col style={{ width: ACTIONS_WIDTH }} />
             </colgroup>
             <thead className={styles.head}>
                 <tr>
                     <th>{t('home.col_project')}{resizeHandle('project')}</th>
                     <th>{t('home.col_modified')}{resizeHandle('modified')}</th>
-                    <th className={styles.compileCell}>{t('home.col_compile')}{resizeHandle('compilation')}</th>
                     <th aria-label={t('home.row_actions')} />
                 </tr>
             </thead>
@@ -267,6 +269,14 @@ export const ProjectsTable = ({
                                                 <LockOutlined aria-label={lockLabel} className={styles.lock} />
                                             </Tooltip>
                                         )}
+                                        <span className={styles.compileSlot}>
+                                            <RowCompileDot
+                                                branch={supportsBranches ? project.branch || null : null}
+                                                initialStatus={compileStatusByProject.get(project.id)}
+                                                projectId={project.id}
+                                                status={project.status}
+                                            />
+                                        </span>
                                     </div>
                                     <div className={styles.subRow}>
                                         <ProjectTags tags={tags} />
@@ -276,14 +286,6 @@ export const ProjectsTable = ({
                             <td>
                                 <div className={styles.modAuthor}>{project.modifiedBy || '—'}</div>
                                 {date && <div className={styles.modDate}>{date}</div>}
-                            </td>
-                            <td className={styles.compileCell}>
-                                <RowCompileDot
-                                    branch={supportsBranches ? project.branch || null : null}
-                                    initialStatus={compileStatusByProject.get(project.id)}
-                                    projectId={project.id}
-                                    status={project.status}
-                                />
                             </td>
                             <td className={styles.actionsCell}>
                                 <div className={styles.actionsWrap}>

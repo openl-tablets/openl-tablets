@@ -93,7 +93,7 @@ describe('OverviewPanel', () => {
         expect(versionPatterns.compareDocumentPosition(exposedMethods) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
-    it('renders compilation messages when the compile panel is expanded', () => {
+    it('expands from the header to show compilation errors and warnings', () => {
         renderPanel({
             ...base,
             branch: 'main',
@@ -126,16 +126,21 @@ describe('OverviewPanel', () => {
             },
         })
 
+        // Collapsed by default; the header summarises the counts and expands to the message list.
         expect(screen.queryByText('Broken table syntax')).toBeNull()
-        const button = screen.getByRole('button', {
+        fireEvent.click(screen.getByRole('button', {
             name: 'browser.compile.error_count:1, browser.compile.warning_count:1',
-        })
-        fireEvent.click(button)
+        }))
 
         expect(screen.getByText('Broken table syntax')).toBeInTheDocument()
         expect(screen.getByText('Deprecated spreadsheet pattern')).toBeInTheDocument()
-        expect(screen.queryByText('browser.compile.live')).toBeNull()
         expect(screen.queryByRole('link', { name: 'Broken table syntax' })).toBeNull()
+    })
+
+    it('renders no compile panel when there are no errors or warnings', () => {
+        renderPanel({ ...base, status: ProjectStatus.Closed })
+
+        expect(screen.queryByTestId('compile-messages')).toBeNull()
     })
 
     it('paginates compilation messages and expands long message text', () => {

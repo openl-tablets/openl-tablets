@@ -8,7 +8,8 @@ import type { ThemeConfig } from 'antd'
 export const MOCKUP = {
     primary: '#2757b6',
     primaryFg: '#f9fcff',
-    pageBg: '#f9fafb',
+    // Neutrals biased a touch toward the brand indigo so the page ground reads chosen, not inherited.
+    pageBg: '#f6f8fc',
     containerBg: '#ffffff',
     text: '#131922',
     textSecondary: '#4b525c',
@@ -25,6 +26,18 @@ export const MOCKUP = {
     info: '#2a75ba',
     error: '#de2024',
     fontMono: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
+} as const
+
+/**
+ * First-class palette for the compilation state — OpenL's core signal — kept deliberately distinct from
+ * the brand indigo and refined off the Ant Design semantic defaults. Keyed by {@code ProjectCompileState}.
+ */
+export const COMPILE_COLORS = {
+    ok: '#1f8a63',
+    warnings: '#c0851b',
+    errors: '#cf4436',
+    compiling: '#2a75ba',
+    idle: '#8b9199',
 } as const
 
 /** Single-line clipping. Interpolated into co-located `css` template literals, like {@link MOCKUP.fontMono}. */

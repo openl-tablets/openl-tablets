@@ -22,11 +22,12 @@ import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
 import { parseProjectSearch } from './projects/projectSearch'
+import { COMPILE_COLORS, MOCKUP } from './projects/projectsTheme'
 import { NewProjectModal } from './projects/NewProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
-import type { ProjectStatusUpdate } from '../services/projectStatus'
+import type { ProjectCompileState, ProjectStatusUpdate } from '../services/projectStatus'
 
 /** A project action currently running, used to show per-row loading. */
 interface PendingAction {
@@ -80,14 +81,43 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     title: css`
         margin: 0;
-        font-size: 18px;
+        font-family: ${MOCKUP.fontMono};
+        font-size: 20px;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.02em;
     `,
     subtitle: css`
-        margin-top: 2px;
+        margin-top: 4px;
         color: ${token.colorTextTertiary};
         font-size: 12px;
+    `,
+    compileStrip: css`
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 14px;
+        font-family: ${MOCKUP.fontMono};
+        font-size: 12px;
+    `,
+    compileItem: css`
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: ${token.colorTextSecondary};
+    `,
+    compileDot: css`
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex: none;
+    `,
+    compileNum: css`
+        color: ${token.colorText};
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    `,
+    compileTotal: css`
+        color: ${token.colorTextTertiary};
     `,
     headActions: css`
         display: flex;
@@ -136,24 +166,12 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-/** Statuses meaning the project is open in the current user's workspace. */
-const WORKSPACE_STATUSES = new Set<ProjectStatus>([
-    ProjectStatus.Editing,
-    ProjectStatus.Opened,
-    ProjectStatus.ViewingVersion,
-    ProjectStatus.Local,
-])
+/** Compile states shown in the header health strip, ordered so what needs attention comes first. */
+const COMPILE_SUMMARY_ORDER: ProjectCompileState[] = ['errors', 'warnings', 'compiling', 'ok']
 
 const parsePositiveInt = (value: string | null, fallback: number): number => {
     const parsed = Number(value)
     return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback
-}
-
-const workspaceCountOf = (counts: ProjectStatusSummary | undefined, projects: Project[]): number => {
-    if (!counts) {
-        return projects.filter(project => WORKSPACE_STATUSES.has(project.status)).length
-    }
-    return counts.local + counts.opened + counts.viewingVersion + counts.editing
 }
 
 const useDebouncedValue = (value: string, delay: number): string => {
@@ -321,6 +339,14 @@ export const ProjectsHome = () => {
             (projectsPage.statuses ?? []).map(status => [status.projectId, status])
         )
     }, [projectsPage.statuses])
+    // Compilation health of the projects the server reported a live state for (the active workspace).
+    const compileTally = useMemo(() => {
+        const tally: Record<ProjectCompileState, number> = { idle: 0, compiling: 0, ok: 0, warnings: 0, errors: 0 }
+        for (const status of projectsPage.statuses ?? []) {
+            tally[status.compileState] += 1
+        }
+        return tally
+    }, [projectsPage.statuses])
     const localProjectNames = useMemo(
         () => projects.filter(project => project.status === ProjectStatus.Local).map(project => project.name),
         [projects]
@@ -329,11 +355,6 @@ export const ProjectsHome = () => {
     const repoInfoOf = useCallback(
         (project: Project) => repoInfo.get(project.repository) ?? localRepositoryInfo,
         [localRepositoryInfo, repoInfo]
-    )
-
-    const workspaceCount = useMemo(
-        () => workspaceCountOf(projectsPage.statusCounts, projects),
-        [projects, projectsPage.statusCounts]
     )
 
     const openProject = useCallback((project: Project) => {
@@ -500,7 +521,16 @@ export const ProjectsHome = () => {
                         <div>
                             <h1 className={styles.title}>{t('home.title')}</h1>
                             <div className={styles.subtitle} data-testid="projects-count">
-                                {t('home.summary', { workspace: workspaceCount, total: totalProjects })}
+                                <span className={styles.compileStrip} data-testid="projects-compile-summary">
+                                    {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
+                                        <span key={state} className={styles.compileItem}>
+                                            <span className={styles.compileDot} style={{ background: COMPILE_COLORS[state] }} />
+                                            <span className={styles.compileNum}>{compileTally[state]}</span>
+                                            {t(`browser.compile.${state}`)}
+                                        </span>
+                                    ))}
+                                    <span className={styles.compileTotal}>{t('home.summary_total', { total: totalProjects })}</span>
+                                </span>
                             </div>
                         </div>
                         {creatableRepos.length > 0 && (
