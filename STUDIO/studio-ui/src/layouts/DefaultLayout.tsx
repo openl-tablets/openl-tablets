@@ -9,6 +9,8 @@ import { DeleteProjectModal } from 'containers/DeleteProjectModal'
 import { ConfirmModal } from 'containers/ConfirmModal'
 import { TraceExecutionModal } from 'containers/TraceExecutionModal'
 import { TableGraphModal } from 'containers/TableGraphModal'
+import { UpdateModuleModal } from 'containers/UpdateModuleModal'
+import { UpdateProjectModal } from 'containers/UpdateProjectModal'
 import { JsfIslandHost } from 'components/JsfIslandHost'
 import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -62,6 +64,8 @@ export const DefaultLayout = () => {
             <DeleteProjectModal />
             <TraceExecutionModal />
             <TableGraphModal />
+            <UpdateProjectModal />
+            <UpdateModuleModal />
             <ConfirmModal />
             <LoadingOverlay />
             <JsfIslandHost />

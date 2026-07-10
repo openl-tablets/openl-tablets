@@ -18,10 +18,8 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
@@ -62,8 +60,6 @@ public class ServiceApiConfig {
                                              RepositoryAclService designRepositoryAclService,
                                              @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
-                                             PathFilter zipFilter,
-                                             ZipCharsetDetector zipCharsetDetector,
                                              PropertyResolver propertyResolver,
                                              DeploymentManager deploymentManager,
                                              ApplicationEventPublisher eventPublisher,
@@ -81,8 +77,6 @@ public class ServiceApiConfig {
                 designRepositoryAclService,
                 productionRepositoryAclService,
                 projectDescriptorArtefactResolver,
-                zipFilter,
-                zipCharsetDetector,
                 propertyResolver,
                 deploymentManager,
                 eventPublisher,

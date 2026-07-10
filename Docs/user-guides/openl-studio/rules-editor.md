@@ -105,19 +105,17 @@ All changes are saved in the project `rules.xml` file. For more information on t
 
 To update or export a project, proceed as follows:
 
-1.  To update a project directly in Rules Editor, in the top line menu, click **Update** and make the necessary changes.
+1.  To update a project directly in Rules Editor, in the top line menu, click **Update**.
 
     The **Update** button is available for projects in the **In Editing** status.
+
+    In the dialog that appears, upload a `.zip` archive with the project content, or switch to **Folder** and select a folder with the project files. The upload replaces the project content: files with the same path are overwritten, new files are added, and project files absent from the upload are deleted.
 
 1.  To export the project to the user’s local machine, for a project, in the top line menu, click **Export** and select a project revision.
 
 The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing.**
 
 Exported project is downloaded as a `.zip` archive.
-
-![](images/import-update-project-from-zip.png)
-
-*Importing and updating the project from a .zip file*
 
 #### Copying a Project
 
@@ -139,7 +137,7 @@ The new project appears in the project list.
 
 A user can export, update, or edit a module directly in Rules Editor. Proceed as follows:
 
-1.  To upload a changed module file, for a module, in the top line menu, click **Upload**.
+1.  To upload a changed module file, for a module, in the top line menu, click **Update** and select an Excel file. The uploaded file replaces the module file. When the selected file name differs from the current module file name, a warning is displayed.
 2.  To export the module to the user’s local machine, for a module, in the top line menu, click **Export** and select a module revision.
 
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.

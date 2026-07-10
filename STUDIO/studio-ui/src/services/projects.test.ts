@@ -1,4 +1,4 @@
-import { deleteProject, deleteProjectFile } from 'services/projects'
+import { deleteProject, deleteProjectFile, updateModuleFile, updateProjectFromFiles, updateProjectFromZip } from 'services/projects'
 import apiCall from 'services/apiCall'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
@@ -91,6 +91,73 @@ describe('projects service', () => {
 
         expect(errorSpy).toHaveBeenCalledWith(
             expect.objectContaining({ description: 'File is not found.' })
+        )
+        expect(successSpy).not.toHaveBeenCalled()
+    })
+
+    it('POSTs the zip archive to the project root with the replace policy and a URL-safe id', async () => {
+        mockApiCall.mockResolvedValueOnce(true)
+        const archive = new Blob(['zip-bytes'], { type: 'application/zip' })
+
+        await expect(updateProjectFromZip('id+with/chars', 'My Project', archive)).resolves.toBe(true)
+
+        expect(mockApiCall).toHaveBeenCalledWith(
+            '/projects/id-with_chars/files/?conflictPolicy=REPLACE',
+            { method: 'POST', headers: { 'Content-Type': 'application/zip' }, body: archive },
+            { throwError: true, suppressErrorPages: true }
+        )
+        expect(successSpy).toHaveBeenCalledTimes(1)
+        expect(errorSpy).not.toHaveBeenCalled()
+    })
+
+    it('surfaces the backend error message when the zip upload fails', async () => {
+        mockApiCall.mockRejectedValueOnce(new Error('Repository is read only.'))
+
+        await expect(updateProjectFromZip('proj-id', 'My Project', new Blob(['x']))).resolves.toBe(false)
+
+        expect(errorSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ description: 'Repository is read only.' })
+        )
+        expect(successSpy).not.toHaveBeenCalled()
+    })
+
+    it('POSTs the picked files as one multipart request keeping their relative paths', async () => {
+        mockApiCall.mockResolvedValueOnce(true)
+        const entries = [
+            { path: 'rules/Main.xlsx', file: new Blob(['a']) },
+            { path: 'deployment.xml', file: new Blob(['b']) },
+        ]
+
+        await expect(updateProjectFromFiles('proj-id', 'My Project', entries)).resolves.toBe(true)
+
+        const [url, params] = mockApiCall.mock.calls[0] as [string, RequestInit]
+        expect(url).toBe('/projects/proj-id/files/?conflictPolicy=REPLACE')
+        expect(params.method).toBe('POST')
+        const parts = (params.body as FormData).getAll('file') as File[]
+        expect(parts.map(part => part.name)).toEqual(['rules/Main.xlsx', 'deployment.xml'])
+        expect(successSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('PUTs the module file to its project-relative path with encoded segments', async () => {
+        mockApiCall.mockResolvedValueOnce(true)
+        const file = new Blob(['xlsx-bytes'])
+
+        await expect(updateModuleFile('proj-id', 'rules/UK 100%/Main.xlsx', file)).resolves.toBe(true)
+
+        const [url, params] = mockApiCall.mock.calls[0] as [string, RequestInit]
+        expect(url).toBe('/projects/proj-id/files/rules/UK%20100%25/Main.xlsx')
+        expect(params.method).toBe('PUT')
+        expect((params.body as FormData).getAll('file')).toHaveLength(1)
+        expect(successSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('surfaces the backend error message when the module update fails', async () => {
+        mockApiCall.mockRejectedValueOnce(new Error('File is locked.'))
+
+        await expect(updateModuleFile('proj-id', 'Main.xlsx', new Blob(['x']))).resolves.toBe(false)
+
+        expect(errorSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ description: 'File is locked.' })
         )
         expect(successSpy).not.toHaveBeenCalled()
     })
