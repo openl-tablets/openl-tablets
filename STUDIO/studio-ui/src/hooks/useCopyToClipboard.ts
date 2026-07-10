@@ -12,6 +12,10 @@ interface UseCopyToClipboardResult {
     copyToClipboard: (text: string) => Promise<void>
 }
 
+const findCopyDialog = (element: Element | null): HTMLElement | null => {
+    return element?.closest<HTMLElement>('[role="dialog"][aria-modal="true"]') ?? null
+}
+
 /**
  * Copies text through a hidden textarea and the `execCommand` API.
  *
@@ -19,22 +23,34 @@ interface UseCopyToClipboardResult {
  * contexts (plain HTTP on a non-localhost origin), where `navigator.clipboard`
  * does not exist.
  */
-const legacyCopy = (text: string): boolean => {
+const legacyCopy = (text: string, sourceDialog: HTMLElement | null): boolean => {
+    const activeElement = document.activeElement
     const textarea = document.createElement('textarea')
     textarea.value = text
     textarea.style.position = 'fixed'
     textarea.style.opacity = '0'
-    document.body.appendChild(textarea)
-    textarea.focus()
-    textarea.select()
+    const activeDialog = findCopyDialog(activeElement)
+    const dialog = sourceDialog?.isConnected ? sourceDialog : activeDialog
+    const container = dialog?.isConnected ? dialog : document.body
+    container.appendChild(textarea)
     try {
+        textarea.focus()
+        textarea.select()
+        if (document.activeElement !== textarea
+            || textarea.selectionStart !== 0
+            || textarea.selectionEnd !== textarea.value.length) {
+            return false
+        }
         return document.execCommand('copy')
     } finally {
         textarea.remove()
+        if (activeElement instanceof HTMLElement && activeElement.isConnected) {
+            activeElement.focus({ preventScroll: true })
+        }
     }
 }
 
-const writeToClipboard = async (text: string): Promise<boolean> => {
+const writeToClipboard = async (text: string, sourceDialog: HTMLElement | null): Promise<boolean> => {
     if (navigator.clipboard) {
         try {
             await navigator.clipboard.writeText(text)
@@ -43,7 +59,7 @@ const writeToClipboard = async (text: string): Promise<boolean> => {
             // Write permission denied or the document lost focus — try the legacy path
         }
     }
-    return legacyCopy(text)
+    return legacyCopy(text, sourceDialog)
 }
 
 /**
@@ -61,9 +77,10 @@ export const useCopyToClipboard = (): UseCopyToClipboardResult => {
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const copyToClipboard = useCallback(async (text: string) => {
+        const sourceDialog = findCopyDialog(document.activeElement)
         setCopying(true)
         try {
-            const success = await writeToClipboard(text)
+            const success = await writeToClipboard(text, sourceDialog)
             if (!success) {
                 throw new Error('The copy command was rejected')
             }

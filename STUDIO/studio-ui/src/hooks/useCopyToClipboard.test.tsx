@@ -22,6 +22,32 @@ const setNavigatorClipboard = (value: unknown) => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value })
 }
 
+const setupFocusTrappedDialog = () => {
+    const dialog = document.createElement('div')
+    dialog.setAttribute('aria-modal', 'true')
+    dialog.setAttribute('role', 'dialog')
+    const copyButton = document.createElement('button')
+    dialog.appendChild(copyButton)
+    document.body.appendChild(dialog)
+
+    const keepFocusInsideDialog = (event: Event) => {
+        if (event.target instanceof Node && !dialog.contains(event.target)) {
+            copyButton.focus()
+        }
+    }
+    window.addEventListener('focusin', keepFocusInsideDialog)
+    copyButton.focus()
+
+    return {
+        copyButton,
+        dialog,
+        dispose: () => {
+            window.removeEventListener('focusin', keepFocusInsideDialog)
+            dialog.remove()
+        },
+    }
+}
+
 describe('useCopyToClipboard', () => {
     afterEach(() => {
         setNavigatorClipboard(undefined)
@@ -61,6 +87,82 @@ describe('useCopyToClipboard', () => {
         expect(notificationError).not.toHaveBeenCalled()
     })
 
+    it('copies text with normalized line endings through execCommand', async () => {
+        let staged: string | undefined
+        document.execCommand = vi.fn(() => {
+            staged = (document.activeElement as HTMLTextAreaElement | null)?.value
+            return true
+        })
+
+        const { result } = renderHook(() => useCopyToClipboard())
+        await act(async () => {
+            await result.current.copyToClipboard('first\r\nsecond')
+        })
+
+        expect(staged).toBe('first\nsecond')
+        expect(result.current.copied).toBe(true)
+        expect(notificationError).not.toHaveBeenCalled()
+    })
+
+    it('copies through execCommand from inside a focus-trapped dialog', async () => {
+        const { copyButton, dialog, dispose } = setupFocusTrappedDialog()
+
+        let staged: string | undefined
+        document.execCommand = vi.fn(() => {
+            staged = document.activeElement instanceof HTMLTextAreaElement
+                ? document.activeElement.value
+                : undefined
+            return true
+        })
+
+        try {
+            const { result } = renderHook(() => useCopyToClipboard())
+            await act(async () => {
+                await result.current.copyToClipboard('secret-token')
+            })
+
+            expect(document.execCommand).toHaveBeenCalledWith('copy')
+            expect(staged).toBe('secret-token')
+            expect(result.current.copied).toBe(true)
+            expect(notificationError).not.toHaveBeenCalled()
+            expect(document.activeElement).toBe(copyButton)
+            expect(dialog.querySelector('textarea')).toBeNull()
+        } finally {
+            dispose()
+        }
+    })
+
+    it('reports a failure when focus is stolen from the legacy textarea', async () => {
+        const copyButton = document.createElement('button')
+        document.body.appendChild(copyButton)
+        copyButton.focus()
+
+        const stealFocus = (event: Event) => {
+            if (event.target !== copyButton) {
+                copyButton.focus()
+            }
+        }
+        window.addEventListener('focusin', stealFocus)
+        document.execCommand = vi.fn().mockReturnValue(true)
+
+        try {
+            const { result } = renderHook(() => useCopyToClipboard())
+            await act(async () => {
+                await result.current.copyToClipboard('secret-token')
+            })
+
+            expect(document.execCommand).not.toHaveBeenCalled()
+            expect(notificationError).toHaveBeenCalledWith({ title: 'common:copy_failed' })
+            expect(logError).toHaveBeenCalledWith(expect.any(Error))
+            expect(result.current.copied).toBe(false)
+            expect(document.activeElement).toBe(copyButton)
+            expect(document.querySelector('textarea')).toBeNull()
+        } finally {
+            window.removeEventListener('focusin', stealFocus)
+            copyButton.remove()
+        }
+    })
+
     it('falls back to execCommand when the Clipboard API write is rejected', async () => {
         setNavigatorClipboard({ writeText: vi.fn().mockRejectedValue(new Error('denied')) })
         document.execCommand = vi.fn().mockReturnValue(true)
@@ -73,6 +175,39 @@ describe('useCopyToClipboard', () => {
         expect(document.execCommand).toHaveBeenCalledWith('copy')
         expect(result.current.copied).toBe(true)
         expect(notificationError).not.toHaveBeenCalled()
+    })
+
+    it('uses the originating dialog when the Clipboard API rejection loses focus', async () => {
+        const { copyButton, dialog, dispose } = setupFocusTrappedDialog()
+        const writeText = vi.fn(async () => {
+            copyButton.blur()
+            throw new Error('denied')
+        })
+        setNavigatorClipboard({ writeText })
+
+        let staged: string | undefined
+        document.execCommand = vi.fn(() => {
+            staged = document.activeElement instanceof HTMLTextAreaElement
+                ? document.activeElement.value
+                : undefined
+            return true
+        })
+
+        try {
+            const { result } = renderHook(() => useCopyToClipboard())
+            await act(async () => {
+                await result.current.copyToClipboard('secret-token')
+            })
+
+            expect(writeText).toHaveBeenCalledWith('secret-token')
+            expect(document.execCommand).toHaveBeenCalledWith('copy')
+            expect(staged).toBe('secret-token')
+            expect(result.current.copied).toBe(true)
+            expect(notificationError).not.toHaveBeenCalled()
+            expect(dialog.querySelector('textarea')).toBeNull()
+        } finally {
+            dispose()
+        }
     })
 
     it('shows an error notification when no copy mechanism works', async () => {
