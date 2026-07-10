@@ -105,7 +105,7 @@ class ZipProjectSaveStrategyTest {
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
-        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
+        assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
@@ -133,7 +133,7 @@ class ZipProjectSaveStrategyTest {
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
-        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
+        assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
@@ -161,7 +161,7 @@ class ZipProjectSaveStrategyTest {
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
-        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
+        assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(0, actualData.getAdditionalData().size());
     }
 
@@ -187,7 +187,7 @@ class ZipProjectSaveStrategyTest {
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
-        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
+        assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
@@ -226,7 +226,7 @@ class ZipProjectSaveStrategyTest {
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualData.getName());
         assertEquals("Bar", actualData.getComment());
         assertEquals("jsmith@email", actualData.getAuthor().getEmail());
-        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
+        assertEquals("John Smith", actualData.getAuthor().getName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualAddData.getExternalPath());
