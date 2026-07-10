@@ -1,7 +1,13 @@
 import type { InputRef } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { Input, Segmented, Select } from 'antd'
-import { AppstoreOutlined, ControlOutlined, SearchOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import { Input, Segmented, Select, Tooltip } from 'antd'
+import {
+    AppstoreOutlined,
+    ControlOutlined,
+    QuestionCircleOutlined,
+    SearchOutlined,
+    UnorderedListOutlined,
+} from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { MOCKUP } from './projectsTheme'
 
@@ -36,6 +42,33 @@ const useStyles = createStyles(({ css, token }) => ({
         font-size: 11px;
         line-height: 16px;
     `,
+    suffix: css`
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    `,
+    help: css`
+        color: ${token.colorTextTertiary};
+        cursor: help;
+
+        &:hover {
+            color: ${token.colorPrimary};
+        }
+    `,
+    helpBody: css`
+        code {
+            font-family: ${MOCKUP.fontMono};
+        }
+
+        p {
+            margin: 6px 0 0;
+        }
+
+        ul {
+            margin: 4px 0 0;
+            padding-left: 16px;
+        }
+    `,
 }))
 
 interface ProjectsToolbarProps {
@@ -53,6 +86,17 @@ export const ProjectsToolbar = ({ search, onSearch, sort, onSort, view, onView, 
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
 
+    const searchHelp = (
+        <div className={styles.helpBody}>
+            {t('home.search_help_intro')}
+            <ul>
+                <li><code>author:jane</code> — {t('home.search_help_author')}</li>
+                <li><code>branch:main</code> — {t('home.search_help_branch')}</li>
+            </ul>
+            <p>{t('home.search_help_name')}</p>
+        </div>
+    )
+
     return (
         <div className={styles.toolbar}>
             <Input
@@ -63,8 +107,19 @@ export const ProjectsToolbar = ({ search, onSearch, sort, onSort, view, onView, 
                 onChange={event => onSearch(event.target.value)}
                 placeholder={t('home.search_placeholder')}
                 prefix={<SearchOutlined />}
-                suffix={<span aria-hidden className={styles.hint}>/</span>}
                 value={search}
+                suffix={(
+                    <span className={styles.suffix}>
+                        <Tooltip title={searchHelp}>
+                            <QuestionCircleOutlined
+                                aria-label={t('home.search_help_aria')}
+                                className={styles.help}
+                                data-testid="projects-search-help"
+                            />
+                        </Tooltip>
+                        <span aria-hidden className={styles.hint}>/</span>
+                    </span>
+                )}
             />
             <Select
                 className={styles.sort}

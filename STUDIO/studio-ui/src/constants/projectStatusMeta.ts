@@ -4,8 +4,8 @@ import {
     DeleteOutlined,
     EditOutlined,
     FolderOpenOutlined,
+    FolderOutlined,
     HistoryOutlined,
-    MinusCircleOutlined,
 } from '@ant-design/icons'
 import { ProjectStatus } from './project'
 
@@ -53,7 +53,7 @@ export const STATUS_META: Record<ProjectStatus, StatusMeta> = {
     },
     [ProjectStatus.Closed]: {
         tokenColor: 'colorTextTertiary',
-        icon: MinusCircleOutlined,
+        icon: FolderOutlined,
         labelKey: 'browser.status.closed',
     },
     [ProjectStatus.Deleted]: {

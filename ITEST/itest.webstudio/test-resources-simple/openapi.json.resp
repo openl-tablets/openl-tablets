@@ -6381,6 +6381,22 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "author",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "sort",
             "schema": {
               "type": "string",

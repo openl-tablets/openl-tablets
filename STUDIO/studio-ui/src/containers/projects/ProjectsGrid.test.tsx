@@ -43,7 +43,7 @@ vi.mock('@ant-design/icons', () => ({
 vi.mock('./StatusIndicator', () => ({ StatusPill: () => <span data-testid="status-pill" /> }))
 vi.mock('./RepoBadge', () => ({ RepoBadge: () => <span data-testid="repo-badge" /> }))
 vi.mock('./CompileIndicator', () => ({ RowCompileDot: () => null }))
-vi.mock('./ProjectRowActions', () => ({ ProjectRowActions: () => null }))
+vi.mock('./ProjectRowActions', () => ({ ProjectActionsMenu: () => null }))
 vi.mock('./projectRow', () => ({
     activateOnKey: (action: () => void) => (event: { key: string, preventDefault: () => void }) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -67,13 +67,17 @@ vi.mock('./projectRow', () => ({
 describe('ProjectsGrid', () => {
     it('opens a project from click and keyboard activation', async () => {
         const onOpen = vi.fn()
-        const handlers = { onCopy: vi.fn(), onDelete: vi.fn(), onDeploy: vi.fn(), onExport: vi.fn(), onOpen: vi.fn() }
+        const handlers = {
+            onOpen: vi.fn(), onClose: vi.fn(), onSave: vi.fn(),
+            onCopy: vi.fn(), onDelete: vi.fn(), onDeploy: vi.fn(), onExport: vi.fn(),
+        }
 
         render(
             <ProjectsGrid
                 compileStatusByProject={new Map()}
                 handlers={handlers}
                 onOpen={onOpen}
+                pending={null}
                 projects={[project]}
                 repoInfoOf={() => ({ id: 'design', name: 'Design', type: 'git' })}
             />

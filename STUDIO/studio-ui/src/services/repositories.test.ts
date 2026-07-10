@@ -67,6 +67,8 @@ describe('getProjects', () => {
         await getProjects({
             includes: ['deleted', 'status', 'summary'],
             name: ' Alpha ',
+            author: ' jane ',
+            branch: 'main',
             page: 2,
             repositories: ['design', '__local__'],
             size: 50,
@@ -83,6 +85,8 @@ describe('getProjects', () => {
         expect(url.startsWith('/projects?')).toBe(true)
         expect(query.getAll('include')).toEqual(['deleted', 'status', 'summary'])
         expect(query.get('name')).toBe('Alpha')
+        expect(query.get('author')).toBe('jane')
+        expect(query.get('branch')).toBe('main')
         expect(query.get('page')).toBe('2')
         expect(query.get('size')).toBe('50')
         expect(query.get('sort')).toBe('updated')

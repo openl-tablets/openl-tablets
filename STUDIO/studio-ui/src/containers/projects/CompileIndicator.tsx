@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
+import { Tooltip } from 'antd'
 import {
     CheckCircleFilled,
     CloseCircleFilled,
@@ -85,10 +86,12 @@ export const CompileDot = ({ state, showLabel, testId, tooltip }: CompileDotProp
     const label = t(`browser.compile.${state}`)
     const title = tooltip ?? label
     return (
-        <span aria-label={title} className={styles.dot} data-testid={testId} role="img" title={title}>
-            <Icon spin={meta.spin === true} style={{ color: token[meta.color] }} />
-            {showLabel && <span className={styles.label}>{label}</span>}
-        </span>
+        <Tooltip title={title}>
+            <span aria-label={title} className={styles.dot} data-testid={testId} role="img">
+                <Icon spin={meta.spin === true} style={{ color: token[meta.color] }} />
+                {showLabel && <span className={styles.label}>{label}</span>}
+            </span>
+        </Tooltip>
     )
 }
 

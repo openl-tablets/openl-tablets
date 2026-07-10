@@ -147,6 +147,8 @@ public class ProjectsController {
             @Parameter(name = "repository", description = "projects.list.param.repository.desc", in = ParameterIn.QUERY),
             @Parameter(name = "dependsOn", description = "projects.list.param.depends-on.desc", in = ParameterIn.QUERY),
             @Parameter(name = "name", description = "projects.list.param.name.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "author", description = "projects.list.param.author.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "branch", description = "projects.list.param.branch.desc", in = ParameterIn.QUERY),
             @Parameter(name = "sort", description = "projects.list.param.sort.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {"name", "status", "updated"})),
             @Parameter(
                     name = "include",
@@ -162,6 +164,8 @@ public class ProjectsController {
                                                       @RequestParam(value = "repository", required = false) List<String> repositories,
                                                       @RequestParam(value = "dependsOn", required = false) String dependsOn,
                                                       @RequestParam(value = "name", required = false) String name,
+                                                      @RequestParam(value = "author", required = false) String author,
+                                                      @RequestParam(value = "branch", required = false) String branch,
                                                       @RequestParam(value = "sort", required = false) @Nullable String sort,
                                                       @RequestParam(value = "include", required = false) List<ProjectInclude> includes,
                                                       @PaginationDefault Pageable page) {
@@ -169,6 +173,8 @@ public class ProjectsController {
                 .repositoryIds(repositories)
                 .statuses(statuses)
                 .name(name)
+                .author(author)
+                .branch(branch)
                 .sort(sort)
                 .includes(ProjectInclude.normalize(includes));
 

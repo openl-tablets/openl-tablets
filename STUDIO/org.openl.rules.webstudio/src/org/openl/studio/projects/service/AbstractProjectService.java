@@ -28,6 +28,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.model.Capabilities;
 import org.openl.studio.common.utils.AuditFields;
@@ -40,6 +41,7 @@ import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.ProjectsPageResponse;
 import org.openl.studio.projects.model.TagFacetSummary;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
+import org.openl.util.StringUtils;
 
 /**
  * Abstract project service.
@@ -196,24 +198,57 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     }
 
     private static Date modifiedAtOf(AProject project) {
-        try {
-            var fileData = project.getFileData();
-            return fileData == null ? null : fileData.getModifiedAt();
-        } catch (RuntimeException e) {
-            // getFileData() can rethrow a repository I/O failure as an unchecked exception. Treat an
-            // unreadable project as having no timestamp rather than failing the whole listing.
-            return null;
-        }
+        // An unreadable project (getFileData may throw a repository I/O failure) simply has no timestamp.
+        return readFileData(project).map(FileData::getModifiedAt).orElse(null);
     }
 
     @Nonnull
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = ALL_PROJECTS;
-        if (query.name() != null && !query.name().isBlank()) {
+        if (StringUtils.isNotBlank(query.name())) {
             var nameLower = query.name().toLowerCase();
             filter = filter.and(project -> project.getBusinessName().toLowerCase().contains(nameLower));
         }
+        if (StringUtils.isNotBlank(query.author())) {
+            var authorLower = query.author().toLowerCase();
+            filter = filter.and(project -> authorOf(project).toLowerCase().contains(authorLower));
+        }
+        if (StringUtils.isNotBlank(query.branch())) {
+            var branchLower = query.branch().toLowerCase();
+            filter = filter.and(project -> branchOf(project).toLowerCase().contains(branchLower));
+        }
         return filter;
+    }
+
+    /** Last modifier's name, or empty when the project's file data cannot be read. */
+    private static String authorOf(AProject project) {
+        return readFileData(project).map(FileData::getAuthor).map(UserInfo::getName).orElse("");
+    }
+
+    /** Project branch, resolved the same way as the response mapping, or empty when it cannot be read. */
+    private static String branchOf(AProject project) {
+        return resolveBranch(project, readFileData(project)).orElse("");
+    }
+
+    /** Reads a project's file data for the plain-text filter helpers, or empty when it cannot be read. */
+    private static Optional<FileData> readFileData(AProject project) {
+        try {
+            return Optional.ofNullable(project.getFileData());
+        } catch (RuntimeException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * The branch shown for a project: the workspace branch for an opened project, otherwise the design
+     * branch when the repository supports branches. Kept in one place so branch filtering matches the
+     * branch shown in the response.
+     */
+    private static Optional<String> resolveBranch(AProject project, Optional<FileData> fileData) {
+        if (project instanceof UserWorkspaceProject workspaceProject) {
+            return Optional.ofNullable(workspaceProject.getBranch());
+        }
+        return project.getRepository().supports().branches() ? fileData.map(FileData::getBranch) : Optional.empty();
     }
 
     @Nonnull
@@ -279,7 +314,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     }
 
     private static void addTagCount(Map<String, Map<String, Long>> counts, String type, String value) {
-        if (type != null && !type.isBlank() && value != null && !value.isBlank()) {
+        if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(value)) {
             counts.computeIfAbsent(type, ignored -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER))
                     .merge(value, 1L, Long::sum);
         }
@@ -314,13 +349,9 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         var designRepository = repository;
         if (src instanceof UserWorkspaceProject workspaceProject) {
             designRepository = workspaceProject.getDesignRepository();
-            builder.status(workspaceStatus(workspaceProject, statuses)).branch(workspaceProject.getBranch());
-        } else {
-            var features = repository.supports();
-            if (features.branches()) {
-                fileData.map(FileData::getBranch).ifPresent(builder::branch);
-            }
+            builder.status(workspaceStatus(workspaceProject, statuses));
         }
+        resolveBranch(src, fileData).ifPresent(builder::branch);
 
         if (designRepository != null && designRepository.supports().mappedFolders()) {
             var path = src.getRealPath().replace('\\', '/');

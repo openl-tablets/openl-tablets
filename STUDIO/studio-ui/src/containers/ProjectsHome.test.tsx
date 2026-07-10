@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
@@ -150,6 +150,7 @@ vi.mock('antd', async () => {
     const Tag = ({ children, icon }: { children?: unknown, icon?: unknown }) => <span>{icon as never}{children as never}</span>
     const Tooltip = ({ children }: { children?: unknown }) => <>{children as never}</>
     const Skeleton = () => <div>skeleton</div>
+    const Spin = () => <div>spin</div>
     const Alert = ({ action, title, description, showIcon, type, ...rest }: Record<string, unknown>) => {
         drop({ showIcon, type })
         return <div {...rest}>{title as never}{description as never}{action as never}</div>
@@ -166,7 +167,7 @@ vi.mock('antd', async () => {
     const Modal = Object.assign(() => null, { confirm: vi.fn() })
     const notification = { error: vi.fn(), success: vi.fn() }
 
-    return { Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Alert, Typography, Modal, notification }
+    return { Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert, Typography, Modal, notification }
 })
 
 const repositories = [
@@ -217,13 +218,19 @@ async function flushSearch() {
     })
 }
 
-function projectsPage(content: Project[], total = content.length): ProjectsPage {
-    return {
+function projectsPage(content: Project[], total = content.length, withCounts = true): ProjectsPage {
+    const page: ProjectsPage = {
         content,
         numberOfElements: content.length,
         pageNumber: 0,
         pageSize: 20,
         total,
+    }
+    if (!withCounts) {
+        return page
+    }
+    return {
+        ...page,
         statusCounts: {
             local: content.filter(project => project.status === ProjectStatus.Local).length,
             opened: content.filter(project => project.status === ProjectStatus.Opened).length,
@@ -268,9 +275,15 @@ function mockProjectSearch(source: Project[] = projects) {
         } else {
             result.sort((a, b) => a.name.localeCompare(b.name))
         }
-        return projectsPage(result)
+        // The backend computes facet counts only for the `summary` include; mirror that so tests can
+        // assert the UI reuses cached counts when it omits the flag on paging/facet changes.
+        const summaryRequested = [...(query.includes ?? [])].includes('summary')
+        return projectsPage(result, result.length, summaryRequested)
     })
 }
+
+/** The `include` values passed to the most recent getProjects call. */
+const lastIncludes = () => [...(vi.mocked(getProjects).mock.calls.at(-1)?.[0]?.includes ?? [])]
 
 describe('ProjectsHome', () => {
     beforeEach(() => {
@@ -284,9 +297,9 @@ describe('ProjectsHome', () => {
 
         expect(screen.getByTestId('project-row-p1')).toBeTruthy()
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
-        // Repository names show up both in the filter rail and as row metadata.
-        expect(screen.getAllByText('Design').length).toBeGreaterThan(1)
-        expect(screen.getAllByText('ReadOnly').length).toBeGreaterThan(1)
+        // Repositories are a filter facet, shown in the rail rather than as a list-row column.
+        expect(screen.getAllByText('Design').length).toBeGreaterThanOrEqual(1)
+        expect(screen.getAllByText('ReadOnly').length).toBeGreaterThanOrEqual(1)
         // The tag value shows up both as a row tag and as a tag facet in the rail.
         expect(screen.getAllByText('Payroll').length).toBeGreaterThan(1)
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
@@ -294,6 +307,8 @@ describe('ProjectsHome', () => {
         await userEvent.click(screen.getByText('grid'))
 
         expect(screen.getByTestId('project-card-p1')).toBeTruthy()
+        // The grid card still carries the repository badge, so it now appears in the rail and the card.
+        expect(screen.getAllByText('Design').length).toBeGreaterThan(1)
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
     })
 
@@ -363,6 +378,45 @@ describe('ProjectsHome', () => {
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
     })
 
+    it('overlays a loading spinner over the current list while a filter change refetches', async () => {
+        await renderHome()
+        expect(screen.getByTestId('project-row-p1')).toBeTruthy()
+        expect(screen.queryByTestId('projects-loading-overlay')).toBeNull()
+
+        // Hold the refetch the facet toggle triggers so its loading window is observable.
+        let release = () => {}
+        vi.mocked(getProjects).mockImplementationOnce(
+            () => new Promise(resolve => { release = () => resolve(projectsPage([projects[1]!])) })
+        )
+
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+
+        // The spinner overlays the previous rows, which stay visible until fresh data lands.
+        expect(await screen.findByTestId('projects-loading-overlay')).toBeTruthy()
+        expect(screen.getByTestId('project-row-p1')).toBeTruthy()
+
+        release()
+        await waitFor(() => expect(screen.queryByTestId('projects-loading-overlay')).toBeNull())
+    })
+
+    it('requests facet counts only when the search scope changes, not on paging or facet toggles', async () => {
+        await renderHome()
+        // The initial load fetches the counts, so the rail shows tag facets.
+        expect(lastIncludes()).toContain('summary')
+        expect(screen.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
+
+        // A facet toggle refetches the list without 'summary'; the rail keeps the counts already in state.
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+        await waitFor(() => expect(screen.queryByTestId('project-row-p1')).toBeNull())
+        expect(lastIncludes()).not.toContain('summary')
+        expect(screen.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
+
+        // Changing the search scope recomputes the counts.
+        await userEvent.type(screen.getByTestId('projects-search'), 'p')
+        await flushSearch()
+        expect(lastIncludes()).toContain('summary')
+    })
+
     it('groups tag filters under a collapsible Tags section', async () => {
         await renderHome()
 
@@ -429,8 +483,7 @@ describe('ProjectsHome', () => {
         mockProjectSearch([{ ...projects[0]!, capabilities: { canCopy: true } }])
         await renderHome()
 
-        await userEvent.click(screen.getByTestId('project-actions-p1'))
-        await userEvent.click(screen.getByText('browser.copy'))
+        await userEvent.click(screen.getByTestId('project-action-copy-p1'))
 
         expect(screen.getByTestId('copy-project-modal').textContent).toBe('design')
     })
