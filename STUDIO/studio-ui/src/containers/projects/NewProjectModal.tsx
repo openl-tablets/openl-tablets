@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Checkbox, Input, Modal, Select, TreeSelect, Upload, type UploadFile } from 'antd'
+import { Alert, Button, Checkbox, Input, Modal, Select, Upload, type UploadFile } from 'antd'
 import {
     ApiOutlined,
     ArrowLeftOutlined,
@@ -9,7 +9,6 @@ import {
     CloudUploadOutlined,
     CopyOutlined,
     FileExcelOutlined,
-    FolderAddOutlined,
     FolderOutlined,
     InboxOutlined,
     ProfileOutlined,
@@ -19,14 +18,11 @@ import { createStyles } from 'antd-style'
 import {
     copyProject,
     createProject,
-    createProjectFromRepository,
     createProjectsFromWorkspace,
-    getImportableFolders,
     getProjects,
     getProjectTemplates,
     type ProjectInclude,
     type ProjectTemplateGroup,
-    type RepositoryFolder,
 } from '../../services/repositories'
 import type { Repository } from '../../types/repositories'
 import type { Project } from '../../types/projects'
@@ -38,15 +34,13 @@ import { useCommitInfoGuard } from '../../hooks'
 /** Capitalise a template category name for display (e.g. "examples" → "Examples"). */
 const titleCase = (value: string): string => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value)
 
-type CreateMode = 'template' | 'archive' | 'excel' | 'openapi' | 'workspace' | 'repository' | 'copy'
+type CreateMode = 'template' | 'archive' | 'excel' | 'openapi' | 'workspace' | 'copy'
 
 interface MethodMeta {
     id: CreateMode
     icon: ComponentType
     labelKey: string
     descKey: string
-    /** Only offered when at least one repository supports folder import. */
-    needsMapped?: boolean
 }
 
 const METHODS: MethodMeta[] = [
@@ -55,37 +49,8 @@ const METHODS: MethodMeta[] = [
     { id: 'excel', icon: FileExcelOutlined, labelKey: 'browser.create.mode_excel', descKey: 'browser.create.mode_excel_desc' },
     { id: 'openapi', icon: ApiOutlined, labelKey: 'browser.create.mode_openapi', descKey: 'browser.create.mode_openapi_desc' },
     { id: 'workspace', icon: CloudUploadOutlined, labelKey: 'browser.create.mode_workspace', descKey: 'browser.create.mode_workspace_desc' },
-    { id: 'repository', icon: FolderAddOutlined, labelKey: 'browser.create.mode_repository', descKey: 'browser.create.mode_repository_desc', needsMapped: true },
     { id: 'copy', icon: CopyOutlined, labelKey: 'browser.create.mode_copy', descKey: 'browser.create.mode_copy_desc' },
 ]
-
-interface FolderNode {
-    value: string
-    title: string
-    isLeaf?: boolean
-    disabled?: boolean
-    selectable?: boolean
-    children?: FolderNode[]
-}
-
-const toFolderNodes = (folders: RepositoryFolder[]): FolderNode[] =>
-    folders.map(folder => ({
-        value: folder.path,
-        title: folder.name,
-        disabled: !!folder.mapped,
-        selectable: !folder.mapped && !!folder.project,
-    }))
-
-const attachChildren = (nodes: FolderNode[], parent: string, children: FolderNode[]): FolderNode[] =>
-    nodes.map(node => {
-        if (node.value === parent) {
-            return { ...node, children, isLeaf: children.length === 0 }
-        }
-        if (node.children) {
-            return { ...node, children: attachChildren(node.children, parent, children) }
-        }
-        return node
-    })
 
 const loadProjectSources = async (query: { includes?: ProjectInclude[], statuses?: ProjectStatus[] } = {}): Promise<Project[]> => {
     const projects: Project[] = []
@@ -384,21 +349,17 @@ export const NewProjectModal = ({
     const [openApiFile, setOpenApiFile] = useState<File | null>(null)
     const [openApi, setOpenApi] = useState(openApiDefaults)
     const [workspaceProjects, setWorkspaceProjects] = useState<string[]>([])
-    const [repoFolder, setRepoFolder] = useState<string | null>(null)
-    const [folderTree, setFolderTree] = useState<FolderNode[]>([])
     const [copyProjects, setCopyProjects] = useState<Project[] | null>(null)
     const [localProjects, setLocalProjects] = useState<string[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
     const templatesLoaded = useRef(false)
-    const loadedFoldersRepo = useRef<string | null>(null)
 
     const creatableRepos = useMemo(
         () => repositories.filter(repo => repo.capabilities?.canCreateProject),
         [repositories]
     )
-    const mappedRepos = useMemo(() => creatableRepos.filter(supportsMappedFolders), [creatableRepos])
-    const repoOptions = mode === 'repository' ? mappedRepos : creatableRepos
+    const repoOptions = creatableRepos
     const repository = useMemo(() => creatableRepos.find(repo => repo.id === repoId) ?? null, [creatableRepos, repoId])
     const repositorySupportsFolders = supportsMappedFolders(repository)
     const projectSources = copyProjects ?? initialProjects
@@ -414,30 +375,12 @@ export const NewProjectModal = ({
         }
     }, [creatableRepos, open])
 
-    // When entering repository mode, snap the repo select to a mapped repository.
-    useEffect(() => {
-        if (mode === 'repository' && !mappedRepos.some(repo => repo.id === repoId)) {
-            setRepoId(mappedRepos[0]?.id ?? '')
-        }
-    }, [mode, mappedRepos, repoId])
-
     useEffect(() => {
         if (open && mode === 'template' && !templatesLoaded.current) {
             templatesLoaded.current = true
             getProjectTemplates().then(setTemplates).catch(() => setTemplates([]))
         }
     }, [open, mode])
-
-    useEffect(() => {
-        if (open && mode === 'repository' && repository && loadedFoldersRepo.current !== repository.id) {
-            // Switching the target repository must reload its folder tree and drop the previous
-            // repository's selection, otherwise the import submits a folder that does not exist there.
-            loadedFoldersRepo.current = repository.id
-            setRepoFolder(null)
-            setFolderTree([])
-            getImportableFolders(repository.id).then(folders => setFolderTree(toFolderNodes(folders))).catch(() => setFolderTree([]))
-        }
-    }, [open, mode, repository])
 
     useEffect(() => {
         if (open && mode === 'copy' && copyProjects === null) {
@@ -453,15 +396,6 @@ export const NewProjectModal = ({
         }
     }, [initialLocalProjects, localProjects, mode, open])
 
-    const loadFolderChildren = async (node: { value?: string | number }) => {
-        if (!repository || node.value === undefined) {
-            return
-        }
-        const parent = String(node.value)
-        const children = await getImportableFolders(repository.id, parent)
-        setFolderTree(prev => attachChildren(prev, parent, toFolderNodes(children)))
-    }
-
     const close = () => {
         setStep('method')
         setMode('template')
@@ -475,13 +409,10 @@ export const NewProjectModal = ({
         setOpenApiFile(null)
         setOpenApi(openApiDefaults)
         setWorkspaceProjects([])
-        setRepoFolder(null)
-        setFolderTree([])
         setCopyProjects(null)
         setLocalProjects(null)
         setCopySource(null)
         templatesLoaded.current = false
-        loadedFoldersRepo.current = null
         setError(null)
         onClose()
     }
@@ -511,16 +442,12 @@ export const NewProjectModal = ({
 
     const submit = async () => {
         const trimmedName = name.trim()
-        if (mode !== 'workspace' && mode !== 'repository' && !trimmedName) {
+        if (mode !== 'workspace' && !trimmedName) {
             setError(t('browser.create.name_required'))
             return
         }
         if (mode === 'workspace' && workspaceProjects.length === 0) {
             setError(t('browser.create.workspace_required'))
-            return
-        }
-        if (mode === 'repository' && !repoFolder) {
-            setError(t('browser.create.repository_required'))
             return
         }
         if (mode === 'archive' && !archive) {
@@ -560,8 +487,6 @@ export const NewProjectModal = ({
                         comment.trim() || undefined,
                         repositorySupportsFolders ? path.trim() || undefined : undefined
                     )
-                } else if (mode === 'repository') {
-                    await createProjectFromRepository(repository.id, { path: repoFolder! })
                 } else if (mode === 'workspace') {
                     await createProjectsFromWorkspace(repository.id, {
                         names: workspaceProjects,
@@ -595,7 +520,7 @@ export const NewProjectModal = ({
 
     const fileList: UploadFile[] = archive ? [{ uid: '1', name: archive.name }] : []
     const activeMethod = METHODS.find(method => method.id === mode)!
-    const showName = mode !== 'workspace' && mode !== 'repository'
+    const showName = mode !== 'workspace'
 
     const repoSelectInput = (
         <Select
@@ -618,7 +543,7 @@ export const NewProjectModal = ({
         <>
             <p className={styles.configDesc}>{t('browser.create.wizard_desc')}</p>
             <div className={styles.grid}>
-                {METHODS.filter(method => !method.needsMapped || mappedRepos.length > 0).map(method => {
+                {METHODS.map(method => {
                     const Icon = method.icon
                     return (
                         <button
@@ -739,21 +664,6 @@ export const NewProjectModal = ({
                     )}
                 </div>
             )}
-            {mode === 'repository' && (
-                <div className={styles.field}>
-                    <span className={styles.label}>{t('browser.create.mode_repository')}</span>
-                    <TreeSelect
-                        data-testid="new-project-repository"
-                        loadData={loadFolderChildren}
-                        notFoundContent={t('browser.create.repository_empty')}
-                        onChange={value => setRepoFolder(value ?? null)}
-                        placeholder={t('browser.create.repository_placeholder')}
-                        style={{ width: '100%' }}
-                        treeData={folderTree}
-                        value={repoFolder ?? undefined}
-                    />
-                </div>
-            )}
             {mode === 'copy' && (
                 <div className={styles.field}>
                     <span className={styles.label}>{t('browser.create.copy_source')}</span>
@@ -840,20 +750,16 @@ export const NewProjectModal = ({
             ) : (
                 repoSelect
             )}
-            {mode !== 'repository' && (
-                <>
-                    {repositorySupportsFolders && (
-                        <div className={styles.field}>
-                            <span className={styles.label}>{t('browser.create.path')}</span>
-                            <Input data-testid="new-project-path" onChange={event => setPath(event.target.value)} value={path} />
-                        </div>
-                    )}
-                    <div className={styles.field}>
-                        <span className={styles.label}>{t('browser.create.comment')}</span>
-                        <Input.TextArea data-testid="new-project-comment" onChange={event => setComment(event.target.value)} rows={2} value={comment} />
-                    </div>
-                </>
+            {repositorySupportsFolders && (
+                <div className={styles.field}>
+                    <span className={styles.label}>{t('browser.create.path')}</span>
+                    <Input data-testid="new-project-path" onChange={event => setPath(event.target.value)} value={path} />
+                </div>
             )}
+            <div className={styles.field}>
+                <span className={styles.label}>{t('browser.create.comment')}</span>
+                <Input.TextArea data-testid="new-project-comment" onChange={event => setComment(event.target.value)} rows={2} value={comment} />
+            </div>
             {error && <Alert showIcon data-testid="new-project-error" style={{ marginTop: 4 }} title={error} type="error" />}
         </>
     )

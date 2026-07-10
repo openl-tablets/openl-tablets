@@ -33,7 +33,6 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
-import org.openl.studio.repositories.model.CreateFromRepositoryModel;
 import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
@@ -154,24 +153,6 @@ class DesignTimeRepositoryControllerTest {
 
         assertNotNull(size);
         assertEquals(CreateFromWorkspaceModel.MAX_PROJECTS, size.max());
-    }
-
-    @Test
-    void createProjectFromRepositoryRequiresBranchProtectionBypass() {
-        when(projectCreationService.importFromRepository(REPOSITORY_ID, "folder")).thenReturn(new FileData());
-
-        controller.createProjectFromRepository(repository, new CreateFromRepositoryModel("folder"));
-
-        verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
-    }
-
-    @Test
-    void createProjectFromRepositoryRequestBodyIsValidated() throws NoSuchMethodException {
-        var method = DesignTimeRepositoryController.class.getMethod("createProjectFromRepository", Repository.class,
-                CreateFromRepositoryModel.class);
-        var requestParameter = method.getParameters()[1];
-
-        assertTrue(requestParameter.isAnnotationPresent(Valid.class));
     }
 
 }
