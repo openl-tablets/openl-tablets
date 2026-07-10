@@ -257,8 +257,7 @@ public class LocalRepository extends FileSystemRepository {
 
             @Override
             public void saveFileData(String repositoryId, FileData fileData) {
-                if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getAuthor()
-                        .getName() == null || fileData.getModifiedAt() == null) {
+                if (fileData.getVersion() == null || fileData.getModifiedAt() == null) {
                     // No need to save empty fileData
                     return;
                 }
@@ -268,9 +267,10 @@ public class LocalRepository extends FileSystemRepository {
                 if (mappingData != null) {
                     properties.put(PATH_IN_REPOSITORY, mappingData.getInternalPath());
                 }
-                String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
                 properties.put(VERSION_PROPERTY, fileData.getVersion());
-                properties.put(AUTHOR_PROPERTY, name);
+                Optional.ofNullable(fileData.getAuthor())
+                        .map(UserInfo::getName)
+                        .ifPresent(author -> properties.put(AUTHOR_PROPERTY, author));
                 properties.put(MODIFIED_AT_PROPERTY,
                         new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
                 properties.put(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
@@ -327,7 +327,7 @@ public class LocalRepository extends FileSystemRepository {
                     String size = properties.get(SIZE_PROPERTY);
                     String comment = properties.get(COMMENT_PROPERTY);
 
-                    if (version == null || author == null || modifiedAt == null) {
+                    if (version == null || modifiedAt == null) {
                         // Only partial information is available. Cannot fill FileData. Must request from repository.
                         return null;
                     }
@@ -335,7 +335,9 @@ public class LocalRepository extends FileSystemRepository {
                     fileData.setName(name);
                     fileData.setVersion(version);
                     fileData.setBranch(branch);
-                    fileData.setAuthor(new UserInfo(author));
+                    if (author != null) {
+                        fileData.setAuthor(new UserInfo(author));
+                    }
                     fileData.setModifiedAt(modifiedAt);
                     fileData.setSize(Long.parseLong(size));
                     fileData.setComment(comment);
