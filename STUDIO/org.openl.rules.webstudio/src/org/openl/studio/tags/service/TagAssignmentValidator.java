@@ -39,6 +39,21 @@ public class TagAssignmentValidator {
      * @throws BadRequestException if a mandatory tag is missing, a value is not allowed, or a name is invalid
      */
     public Map<String, String> sanitize(Map<String, String> requested) {
+        return sanitize(requested, true);
+    }
+
+    /**
+     * Sanitizes tag assignments and, when {@code requireMandatory} is {@code true}, rejects a map that
+     * omits a mandatory (non-nullable) tag type. Project creation requires the mandatory tags; tag
+     * edits pass {@code false} so a single tag can be changed or cleared without resending every
+     * mandatory value.
+     *
+     * @param requested        the requested tag type to value assignments
+     * @param requireMandatory whether a missing mandatory tag type is rejected
+     * @return the sanitized assignments to persist (blank values dropped)
+     * @throws BadRequestException if a value is not allowed, a name is invalid, or a required mandatory tag is missing
+     */
+    public Map<String, String> sanitize(Map<String, String> requested, boolean requireMandatory) {
         var types = tagTypeService.getAllTagTypes();
         var byName = types.stream().collect(Collectors.toMap(TagType::getName, Function.identity()));
         var sanitized = new LinkedHashMap<String, String>();
@@ -48,11 +63,13 @@ public class TagAssignmentValidator {
                 sanitized.put(typeName, value);
             }
         });
-        types.forEach(type -> {
-            if (!type.isNullable() && !sanitized.containsKey(type.getName())) {
-                throw new BadRequestException("project.tags.type.mandatory.message", new Object[]{type.getName()});
-            }
-        });
+        if (requireMandatory) {
+            types.forEach(type -> {
+                if (!type.isNullable() && !sanitized.containsKey(type.getName())) {
+                    throw new BadRequestException("project.tags.type.mandatory.message", new Object[]{type.getName()});
+                }
+            });
+        }
         sanitized.forEach((typeName, value) -> registerExtensible(byName.get(typeName), value));
         return sanitized;
     }
