@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-    subscribeProjectStatus,
-    type ProjectCompileState,
-    type ProjectStatusUpdate,
-} from '../../services/projectStatus'
+import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
+import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { CompileDot, getCompileTooltip } from './CompileIndicator'
 
 interface CompileStatusBadgeProps {
@@ -20,23 +16,12 @@ interface CompileStatusBadgeProps {
  */
 export const CompileStatusBadge = ({ projectId, branch, initialStatus, initialState }: CompileStatusBadgeProps) => {
     const { t } = useTranslation('repository')
-    const [status, setStatus] = useState<ProjectStatusUpdate | null>(
+    const status = useLiveProjectStatus(
+        projectId,
+        branch,
+        true,
         initialStatus ?? (initialState ? { projectId, branch, compileState: initialState } : null)
     )
-
-    useEffect(() => {
-        let cancelled = false
-        setStatus(initialStatus ?? (initialState ? { projectId, branch, compileState: initialState } : null))
-        const subscription = subscribeProjectStatus(projectId, branch, update => {
-            if (!cancelled) {
-                setStatus(update)
-            }
-        })
-        return () => {
-            cancelled = true
-            subscription.unsubscribe()
-        }
-    }, [projectId, branch, initialStatus, initialState])
 
     if (!status || status.compileState === 'idle') {
         return null
