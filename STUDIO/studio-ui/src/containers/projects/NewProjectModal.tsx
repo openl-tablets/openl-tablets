@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import { Alert, Button, Checkbox, Input, Modal, Select, Upload, type UploadFile } from 'antd'
@@ -29,6 +29,7 @@ import type { Project } from '../../types/projects'
 import { ProjectStatus } from '../../constants/project'
 import { MOCKUP } from './projectsTheme'
 import { supportsMappedFolders } from '../../utils/repositoryFeatures'
+import { inspectOpenLArchive } from '../../utils/openlArchive'
 import { useCommitInfoGuard } from '../../hooks'
 
 /** Capitalise a template category name for display (e.g. "examples" → "Examples"). */
@@ -353,6 +354,12 @@ export const NewProjectModal = ({
     const [localProjects, setLocalProjects] = useState<string[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
+    // The name input auto-fills from the selection until the user edits it (which locks in their value).
+    const [nameTouched, setNameTouched] = useState(false)
+    // Suggested name and validity from inspecting the uploaded archive in the browser.
+    const [archiveName, setArchiveName] = useState('')
+    const [archiveError, setArchiveError] = useState<string | null>(null)
+    const inspectSeq = useRef(0)
     const templatesLoaded = useRef(false)
 
     const creatableRepos = useMemo(
@@ -396,10 +403,52 @@ export const NewProjectModal = ({
         }
     }, [initialLocalProjects, localProjects, mode, open])
 
+    // Name suggested by the current selection: the template name, the source name with a "(Copy)" suffix,
+    // or the name derived from the uploaded archive. Empty when nothing is selected yet.
+    const suggestedName = useMemo(() => {
+        if (mode === 'template' && template) {
+            try {
+                return (JSON.parse(template) as [string, string, string])[2]
+            } catch {
+                return ''
+            }
+        }
+        if (mode === 'copy' && copySource) {
+            const source = copyableProjectSources.find(candidate => candidate.id === copySource)
+            return source ? `${source.name} (Copy)` : ''
+        }
+        if (mode === 'archive') {
+            return archiveName
+        }
+        return ''
+    }, [mode, template, copySource, copyableProjectSources, archiveName])
+
+    useEffect(() => {
+        if (suggestedName && !nameTouched) {
+            setName(suggestedName)
+        }
+    }, [suggestedName, nameTouched])
+
+    // Inspect a chosen archive in the browser: suggest its project name and flag non-OpenL content early.
+    const inspectArchive = useCallback(async (file: File) => {
+        const seq = ++inspectSeq.current
+        setArchiveName('')
+        setArchiveError(null)
+        const info = await inspectOpenLArchive(file)
+        if (seq !== inspectSeq.current) {
+            return
+        }
+        setArchiveName(info.name)
+        setArchiveError(info.readable && !info.isOpenLProject ? t('browser.create.archive_invalid') : null)
+    }, [t])
+
     const close = () => {
         setStep('method')
         setMode('template')
         setName('')
+        setNameTouched(false)
+        setArchiveName('')
+        setArchiveError(null)
         setComment('')
         setPath('')
         setArchive(null)
@@ -452,6 +501,10 @@ export const NewProjectModal = ({
         }
         if (mode === 'archive' && !archive) {
             setError(t('browser.create.file_required'))
+            return
+        }
+        if (mode === 'archive' && archiveError) {
+            setError(archiveError)
             return
         }
         if (mode === 'excel' && excelFiles.length === 0) {
@@ -683,16 +736,25 @@ export const NewProjectModal = ({
                 <div className={styles.field}>
                     <Upload.Dragger
                         accept=".zip"
-                        beforeUpload={file => { setArchive(file); setError(null); return false }}
+                        beforeUpload={file => { setArchive(file); setError(null); void inspectArchive(file); return false }}
                         data-testid="new-project-upload"
                         fileList={fileList}
                         maxCount={1}
-                        onRemove={() => setArchive(null)}
+                        onRemove={() => { setArchive(null); setArchiveName(''); setArchiveError(null); inspectSeq.current++ }}
                     >
                         <p className="ant-upload-drag-icon"><InboxOutlined /></p>
                         <p className="ant-upload-text">{t('browser.create.archive_hint')}</p>
                         <p className="ant-upload-hint">{t('browser.create.archive_subhint')}</p>
                     </Upload.Dragger>
+                    {archiveError && (
+                        <Alert
+                            showIcon
+                            data-testid="new-project-archive-error"
+                            style={{ marginTop: 8 }}
+                            title={archiveError}
+                            type="error"
+                        />
+                    )}
                 </div>
             )}
             {mode === 'excel' && (
@@ -737,7 +799,7 @@ export const NewProjectModal = ({
                         <span className={styles.label}>{t('browser.create.name')}</span>
                         <Input
                             data-testid="new-project-name"
-                            onChange={event => setName(event.target.value)}
+                            onChange={event => { setName(event.target.value); setNameTouched(true) }}
                             placeholder={t('browser.create.name')}
                             value={name}
                         />

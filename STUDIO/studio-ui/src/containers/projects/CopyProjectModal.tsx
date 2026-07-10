@@ -36,7 +36,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             setTargetRepositoryId(repositories.some(repo => repo.id === project.repository)
                 ? project.repository
                 : repositories[0]?.id ?? '')
-            setName(`${project.name}-copy`)
+            setName(`${project.name} (Copy)`)
             setComment('')
             setPath('')
             setError(null)

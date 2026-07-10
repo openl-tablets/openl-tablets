@@ -455,6 +455,7 @@ i18next.addResourceBundle('en', 'repository', {
             name_required: 'Enter a project name',
             archive_hint: 'Click or drag a .zip archive here',
             archive_subhint: 'Supports .zip up to 50 MB',
+            archive_invalid: 'This archive is not an OpenL project: its root has no rules.xml and no Excel file.',
             excel_hint: 'Click or drag .xlsx/.xls files here',
             file_required: 'Select a .zip archive',
             excel_required: 'Select at least one Excel file',
