@@ -1,15 +1,11 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Tooltip } from 'antd'
 import { createStyles, keyframes } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
-import {
-    subscribeProjectStatus,
-    type ProjectCompileState,
-    type ProjectStatusUpdate,
-} from '../../services/projectStatus'
+import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
+import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
 
 // Only the compiling state animates: a soft pulse on its dot — the one state-driven motion moment.
@@ -114,25 +110,7 @@ interface RowCompileDotProps {
 export const RowCompileDot = ({ status, projectId, branch, initialStatus }: RowCompileDotProps) => {
     const { t } = useTranslation('repository')
     const live = COMPILE_RELEVANT_STATUSES.has(status)
-    const [currentStatus, setCurrentStatus] = useState<ProjectStatusUpdate | null>(initialStatus ?? null)
-
-    useEffect(() => {
-        if (!live) {
-            setCurrentStatus(null)
-            return
-        }
-        let cancelled = false
-        setCurrentStatus(initialStatus ?? null)
-        const subscription = subscribeProjectStatus(projectId, branch, update => {
-            if (!cancelled) {
-                setCurrentStatus(update)
-            }
-        })
-        return () => {
-            cancelled = true
-            subscription.unsubscribe()
-        }
-    }, [projectId, branch, initialStatus, live])
+    const currentStatus = useLiveProjectStatus(projectId, branch, live, initialStatus ?? null)
 
     const state = live ? currentStatus?.compileState ?? initialStatus?.compileState ?? 'idle' : 'idle'
     const tooltip = getCompileTooltip(currentStatus ?? initialStatus, state, t)

@@ -23,8 +23,8 @@ import { ProjectStatus } from '../../constants/project'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
 import type { Project, ProjectDependency } from '../../types/projects'
 import { formatDateTime } from '../../utils/dateFormat'
+import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import {
-    subscribeProjectStatus,
     type ProjectCompileState,
     type ProjectStatusDetailedMessage,
     type ProjectStatusUpdate,
@@ -494,30 +494,20 @@ const CompileMessages = ({ project, supportsBranches = true }: { project: Projec
     const { t } = useTranslation('repository')
     const live = COMPILE_RELEVANT_STATUSES.has(project.status)
     const [expanded, setExpanded] = useState(false)
-    const [status, setStatus] = useState<ProjectStatusUpdate>(
-        live
-            ? project.compileStatus ?? buildStatus(project, 'compiling', supportsBranches)
-            : buildStatus(project, 'idle', supportsBranches)
+    const liveStatus = useLiveProjectStatus(
+        project.id,
+        supportsBranches ? project.branch || null : null,
+        live,
+        live ? project.compileStatus ?? buildStatus(project, 'compiling', supportsBranches) : null
     )
+    const status = liveStatus ?? buildStatus(project, 'idle', supportsBranches)
 
+    // Collapse the list when the project leaves a compile-relevant state.
     useEffect(() => {
         if (!live) {
-            setStatus(buildStatus(project, 'idle', supportsBranches))
             setExpanded(false)
-            return
         }
-        let cancelled = false
-        setStatus(project.compileStatus ?? buildStatus(project, 'compiling', supportsBranches))
-        const subscription = subscribeProjectStatus(project.id, supportsBranches ? project.branch || null : null, update => {
-            if (!cancelled) {
-                setStatus(update)
-            }
-        })
-        return () => {
-            cancelled = true
-            subscription.unsubscribe()
-        }
-    }, [project, live, supportsBranches])
+    }, [live])
 
     const errors = errorMessagesOf(status)
     const warnings = warningMessagesOf(status)
