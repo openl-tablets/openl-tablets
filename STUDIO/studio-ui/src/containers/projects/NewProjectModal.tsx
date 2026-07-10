@@ -74,7 +74,7 @@ const PROJECT_SOURCE_PAGE_SIZE = 1000
 const useStyles = createStyles(({ css, token }) => ({
     grid: css`
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
 
         @media (max-width: 640px) {

@@ -7,7 +7,7 @@ import type { RepositoryInfo } from '../../types/repositories'
 import { StatusPill } from './StatusIndicator'
 import { RepoBadge } from './RepoBadge'
 import { RowCompileDot } from './CompileIndicator'
-import { ProjectRowActions, type ProjectListHandlers } from './ProjectRowActions'
+import { ProjectActionsMenu, type ProjectListHandlers, type RowActionId } from './ProjectRowActions'
 import { deriveProjectRow, activateOnKey, ProjectTags, BranchLabel } from './projectRow'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
@@ -121,10 +121,11 @@ interface ProjectsGridProps {
     handlers: ProjectListHandlers
     onOpen: (project: Project) => void
     compileStatusByProject: Map<string, ProjectStatusUpdate>
+    pending: { projectId: string; actionId: RowActionId } | null
 }
 
 /** Card-grid view of the projects list, mirroring the table's data with the same row actions. */
-export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileStatusByProject }: ProjectsGridProps) => {
+export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileStatusByProject, pending }: ProjectsGridProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
 
@@ -132,6 +133,7 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
         <div className={styles.grid} data-testid="projects-grid">
             {projects.map(project => {
                 const { muted, repoLabel, repoType, supportsBranches, lockLabel, tags, date } = deriveProjectRow(project, repoInfoOf, t)
+                const pendingActionId = pending?.projectId === project.id ? pending.actionId : null
                 return (
                     <div
                         key={project.id}
@@ -163,7 +165,7 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                                     projectId={project.id}
                                     status={project.status}
                                 />
-                                <ProjectRowActions handlers={handlers} project={project} />
+                                <ProjectActionsMenu handlers={handlers} pendingActionId={pendingActionId} project={project} />
                             </div>
                         </div>
                         <div className={styles.status}><StatusPill status={project.status} /></div>

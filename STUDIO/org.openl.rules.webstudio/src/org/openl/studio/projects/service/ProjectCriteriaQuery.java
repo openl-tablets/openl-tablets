@@ -47,6 +47,12 @@ public record ProjectCriteriaQuery(
         @Schema(description = "Project name to filter by (partial match, case-insensitive).")
         String name,
 
+        @Schema(description = "Author (last modifier) to filter by (partial match, case-insensitive).")
+        String author,
+
+        @Schema(description = "Branch to filter by (partial match, case-insensitive).")
+        String branch,
+
         @Schema(description = "Field to sort the returned page by: name, status or updated.")
         String sort,
 
@@ -103,6 +109,8 @@ public record ProjectCriteriaQuery(
         return ProjectCriteriaQuery.builder()
                 .dependsOn(dependsOn)
                 .name(name)
+                .author(author)
+                .branch(branch)
                 .sort(sort)
                 .includes(includes)
                 .build();

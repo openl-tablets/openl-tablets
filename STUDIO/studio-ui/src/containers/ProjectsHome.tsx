@@ -2,25 +2,44 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { errorMessage } from '../utils/errorMessage'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, Pagination, Skeleton, type InputRef } from 'antd'
+import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type InputRef } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
     downloadProject,
     getDesignRepositories,
     getProjects,
+    isProjectModifiedConflict,
+    type ProjectInclude,
+    setProjectStatus,
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
 import type { Repository, RepositoryInfo } from '../types/repositories'
-import type { Project, ProjectsPage, ProjectStatusSummary } from '../types/projects'
+import type { FacetCount, Project, ProjectsPage, ProjectStatusSummary, TagFacetSummary } from '../types/projects'
 import { ProjectsFilterRail } from './projects/ProjectsFilterRail'
 import { ProjectsToolbar, type ProjectSort, type ProjectView } from './projects/ProjectsToolbar'
 import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
-import type { ProjectListHandlers } from './projects/ProjectRowActions'
+import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
+import { parseProjectSearch } from './projects/projectSearch'
 import { NewProjectModal } from './projects/NewProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
+import { SaveProjectModal } from './projects/SaveProjectModal'
+import { DiscardChangesModal } from './DiscardChangesModal'
 import type { ProjectStatusUpdate } from '../services/projectStatus'
+
+/** A project action currently running, used to show per-row loading. */
+interface PendingAction {
+    projectId: string
+    actionId: RowActionId
+}
+
+/** The filter-rail facet counts, kept separate from the page so paging never drops or recomputes them. */
+interface ProjectFacets {
+    statusCounts: ProjectStatusSummary | undefined
+    repositoryCounts: FacetCount[] | undefined
+    tagCounts: TagFacetSummary[] | undefined
+}
 
 const DEFAULT_PAGE_SIZE = 20
 const SEARCH_DEBOUNCE_MS = 300
@@ -77,9 +96,23 @@ const useStyles = createStyles(({ css, token }) => ({
         flex: none;
     `,
     content: css`
+        position: relative;
         flex: 1;
         min-height: 0;
+        overflow: hidden;
+    `,
+    scroll: css`
+        height: 100%;
         overflow: auto;
+    `,
+    overlay: css`
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, ${token.colorBgContainer} 60%, transparent);
     `,
     paginationBar: css`
         display: flex;
@@ -145,11 +178,18 @@ export const ProjectsHome = () => {
     const [params, setParams] = useSearchParams()
     const [repositories, setRepositories] = useState<Repository[]>([])
     const [projectsPage, setProjectsPage] = useState<ProjectsPage>(() => emptyProjectsPage())
+    const [facets, setFacets] = useState<ProjectFacets | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [createOpen, setCreateOpen] = useState(false)
     const [copySource, setCopySource] = useState<Project | null>(null)
+    const [pending, setPending] = useState<PendingAction | null>(null)
+    const [saveTarget, setSaveTarget] = useState<Project | null>(null)
+    const [discardCloseTarget, setDiscardCloseTarget] = useState<Project | null>(null)
     const searchRef = useRef<InputRef>(null)
+    // The search scope the facet counts in state were computed for. They ignore paging and facet
+    // selection, so we recompute them only when this scope changes, not on every page/filter click.
+    const countsKeyRef = useRef<string | null>(null)
 
     const search = params.get('q') ?? ''
     const sort: ProjectSort = params.get('sort') === 'status' ? 'status' : params.get('sort') === 'updated' ? 'updated' : 'name'
@@ -160,6 +200,7 @@ export const ProjectsHome = () => {
     const pageSize = parsePositiveInt(params.get('size'), DEFAULT_PAGE_SIZE)
     const requestedPage = parsePositiveInt(params.get('page'), 1)
     const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS)
+    const searchQuery = useMemo(() => parseProjectSearch(debouncedSearch), [debouncedSearch])
 
     const statuses = useMemo(() => new Set(statusParam.split(',').filter(Boolean)), [statusParam])
     const repos = useMemo(() => new Set(repoParam.split(',').filter(Boolean)), [repoParam])
@@ -195,11 +236,19 @@ export const ProjectsHome = () => {
     }, [setParam])
 
     // Deleted projects are shown as an ordinary status facet, so the listing can include them on demand.
-    const load = useCallback(() => {
+    // The facet counts (the `summary` include) are the expensive part of the response — a full-scope scan
+    // that resolves every project's status. They ignore paging and facet selection, so request them only
+    // when their scope (the search text) changed, or after a mutation (refreshCounts); otherwise reuse the
+    // counts already in state. This keeps page/sort/facet clicks from recomputing counts server-side.
+    const load = useCallback((refreshCounts = false) => {
         setLoading(true)
+        const needCounts = refreshCounts || countsKeyRef.current !== debouncedSearch
+        const includes: ProjectInclude[] = needCounts ? ['deleted', 'status', 'summary'] : ['deleted', 'status']
         return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjects({
-            includes: ['deleted', 'status', 'summary'],
-            name: debouncedSearch,
+            includes,
+            name: searchQuery.name,
+            author: searchQuery.author,
+            branch: searchQuery.branch,
             page: requestedPage - 1,
             repositories: repos,
             size: pageSize,
@@ -210,6 +259,14 @@ export const ProjectsHome = () => {
             .then(([repos_, page]) => {
                 setRepositories(repos_)
                 setProjectsPage(page)
+                if (needCounts) {
+                    setFacets({
+                        statusCounts: page.statusCounts,
+                        repositoryCounts: page.repositoryCounts,
+                        tagCounts: page.tagCounts,
+                    })
+                    countsKeyRef.current = debouncedSearch
+                }
                 setError(null)
             })
             .catch((e: unknown) => {
@@ -218,7 +275,7 @@ export const ProjectsHome = () => {
             .finally(() => {
                 setLoading(false)
             })
-    }, [debouncedSearch, pageSize, repos, requestedPage, sort, statuses, tags])
+    }, [debouncedSearch, searchQuery, pageSize, repos, requestedPage, sort, statuses, tags])
 
     useEffect(() => {
         void load()
@@ -283,8 +340,53 @@ export const ProjectsHome = () => {
         navigate(`/projects/${encodeURIComponent(project.id)}`)
     }, [navigate])
 
+    // Run an open/close status change on a row, reload the page, and surface a notification on failure.
+    const runAction = useCallback((
+        project: Project,
+        actionId: RowActionId,
+        fn: () => Promise<unknown>,
+        failKey: string,
+        onError?: (error: unknown) => boolean
+    ) => {
+        setPending({ projectId: project.id, actionId })
+        return fn()
+            .then(() => load(true))
+            .catch((e: unknown) => {
+                if (onError?.(e)) {
+                    return
+                }
+                notification.error({ title: t(failKey), description: errorMessage(e) })
+            })
+            .finally(() => setPending(null))
+    }, [load, t])
+
+    const closeProject = useCallback((project: Project, discardChanges = false) =>
+        runAction(
+            project,
+            'close',
+            () => setProjectStatus(project.id, 'CLOSED', discardChanges ? { discardChanges: true } : {}),
+            'browser.status_change_failed',
+            discardChanges
+                ? undefined
+                : (error) => {
+                    if (!isProjectModifiedConflict(error)) {
+                        return false
+                    }
+                    setDiscardCloseTarget(project)
+                    return true
+                }
+        ), [runAction])
+
     const handlers: ProjectListHandlers = useMemo(() => ({
-        onOpen: openProject,
+        onOpen: project => runAction(project, 'open', () => setProjectStatus(project.id, 'OPENED', true), 'browser.status_change_failed'),
+        onClose: project => {
+            if (project.status === ProjectStatus.Editing) {
+                setDiscardCloseTarget(project)
+            } else {
+                void closeProject(project)
+            }
+        },
+        onSave: project => setSaveTarget(project),
         onCopy: project => setCopySource(project),
         onExport: project => downloadProject(project.id),
         onDeploy: project => window.dispatchEvent(new CustomEvent('openDeployModal', {
@@ -294,10 +396,10 @@ export const ProjectsHome = () => {
             detail: {
                 projectId: project.id,
                 projectName: project.name,
-                onSuccess: load,
+                onSuccess: () => load(true),
             },
         })),
-    }), [load, openProject])
+    }), [closeProject, load, runAction])
 
     const deleteParams = useCallback((...keys: string[]) => {
         setParams(prev => {
@@ -343,6 +445,7 @@ export const ProjectsHome = () => {
                     compileStatusByProject={compileStatusByProject}
                     handlers={handlers}
                     onOpen={openProject}
+                    pending={pending}
                     projects={projects}
                     repoInfoOf={repoInfoOf}
                 />
@@ -352,6 +455,7 @@ export const ProjectsHome = () => {
                 compileStatusByProject={compileStatusByProject}
                 handlers={handlers}
                 onOpen={openProject}
+                pending={pending}
                 projects={projects}
                 repoInfoOf={repoInfoOf}
             />
@@ -384,10 +488,10 @@ export const ProjectsHome = () => {
                 onToggleTag={value => toggleInParam('tags', tags, value)}
                 repos={repos}
                 repositories={repositories}
-                repositoryCounts={projectsPage.repositoryCounts}
-                statusCounts={projectsPage.statusCounts}
+                repositoryCounts={facets?.repositoryCounts}
+                statusCounts={facets?.statusCounts}
                 statuses={statuses}
-                tagCounts={projectsPage.tagCounts}
+                tagCounts={facets?.tagCounts}
                 tags={tags}
             />
             <div className={styles.main}>
@@ -422,7 +526,14 @@ export const ProjectsHome = () => {
                         view={view}
                     />
                 </div>
-                <div className={styles.content}>{content()}</div>
+                <div className={styles.content}>
+                    <div className={styles.scroll}>{content()}</div>
+                    {loading && projects.length > 0 && (
+                        <div className={styles.overlay} data-testid="projects-loading-overlay">
+                            <Spin />
+                        </div>
+                    )}
+                </div>
                 {totalProjects > pageSize && (
                     <div className={styles.paginationBar}>
                         <Pagination
@@ -450,17 +561,38 @@ export const ProjectsHome = () => {
             <NewProjectModal
                 localProjects={localProjectNames}
                 onClose={() => setCreateOpen(false)}
-                onCreated={() => { setCreateOpen(false); void load() }}
+                onCreated={() => { setCreateOpen(false); void load(true) }}
                 open={createOpen}
                 projects={projects}
                 repositories={creatableRepos}
             />
             <CopyProjectModal
                 onClose={() => setCopySource(null)}
-                onCopied={() => void load()}
+                onCopied={() => void load(true)}
                 open={copySource !== null}
                 project={copySource}
                 repositories={creatableRepos}
+            />
+            <SaveProjectModal
+                onClose={() => setSaveTarget(null)}
+                onSaved={() => { setSaveTarget(null); void load(true) }}
+                open={saveTarget !== null}
+                project={saveTarget}
+            />
+            <DiscardChangesModal
+                cancelButtonTestId="discard-close-cancel"
+                confirmButtonTestId="discard-close-confirm"
+                confirmText={t('browser.close_discard_confirm_unsafe')}
+                onCancel={() => setDiscardCloseTarget(null)}
+                open={discardCloseTarget !== null}
+                warning={t('browser.close_discard_warning')}
+                onConfirm={() => {
+                    const target = discardCloseTarget
+                    setDiscardCloseTarget(null)
+                    if (target) {
+                        void closeProject(target, true)
+                    }
+                }}
             />
         </div>
     )

@@ -6,7 +6,6 @@ import {
     CloseOutlined,
     CopyOutlined,
     DeleteOutlined,
-    DiffOutlined,
     DownloadOutlined,
     EditOutlined,
     FolderOpenOutlined,
@@ -22,7 +21,6 @@ import {
     updateFileContent,
 } from '../../services/files'
 import { ELLIPSIS, MOCKUP } from './projectsTheme'
-import { FileDiffModal } from './FileDiffModal'
 
 // The code editor pulls in CodeMirror; load it only when a text file is actually opened.
 const CodeEditor = lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })))
@@ -145,7 +143,6 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [comparing, setComparing] = useState(false)
     const [copying, setCopying] = useState<string | null>(null)
     const [copyBusy, setCopyBusy] = useState(false)
     const [editing, setEditing] = useState(false)
@@ -322,11 +319,6 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                                     <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small" />
                                 </Tooltip>
                             )}
-                            {editable && (
-                                <Tooltip title={t('browser.files.compare')}>
-                                    <Button data-testid="file-diff" icon={<DiffOutlined />} onClick={() => setComparing(true)} size="small" />
-                                </Tooltip>
-                            )}
                             <Tooltip title={t('browser.files.download')}>
                                 <Button
                                     data-testid="file-download"
@@ -396,15 +388,6 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
             >
                 {t('browser.files.discard_changes_desc')}
             </Modal>
-            <FileDiffModal
-                branch={activeSelection.branch}
-                onClose={() => setComparing(false)}
-                open={comparing}
-                path={activePath}
-                projectId={activeSelection.projectId}
-                projectName={activeSelection.projectName}
-                repositoryId={activeSelection.repositoryId}
-            />
         </div>
     )
 }

@@ -29,6 +29,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectInclude;
@@ -143,6 +144,27 @@ class AbstractProjectServiceTest {
                 .map(count -> count.id())
                 .sorted()
                 .toList());
+    }
+
+    @Test
+    void getProjectsFiltersByAuthorAndBranch() {
+        var alpha = rulesProject("Alpha", "design", "Design", Map.of());
+        alpha.getFileData().setAuthor(new UserInfo("jane"));
+        when(alpha.getBranch()).thenReturn("feature");
+        var beta = rulesProject("Beta", "design", "Design", Map.of());
+        beta.getFileData().setAuthor(new UserInfo("john"));
+        when(beta.getBranch()).thenReturn("main");
+        service.projects = List.of(alpha, beta);
+        service.projects.forEach(project -> {
+            grantRead(project);
+            stubProjectId(project);
+        });
+
+        var byAuthor = service.getProjects(ProjectCriteriaQuery.builder().author("JANE").build(), Pageable.unpaged());
+        assertEquals(List.of("Alpha"), byAuthor.getContent().stream().map(project -> project.name).toList());
+
+        var byBranch = service.getProjects(ProjectCriteriaQuery.builder().branch("main").build(), Pageable.unpaged());
+        assertEquals(List.of("Beta"), byBranch.getContent().stream().map(project -> project.name).toList());
     }
 
     @Test

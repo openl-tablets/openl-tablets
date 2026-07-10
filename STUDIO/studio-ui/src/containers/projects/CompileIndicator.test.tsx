@@ -47,7 +47,7 @@ describe('RowCompileDot', () => {
         })
 
         expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
-        expect(screen.getByTitle('browser.compile.ok')).toBeInTheDocument()
+        expect(screen.getByRole('img', { name: 'browser.compile.ok' })).toBeInTheDocument()
     })
 
     it('does not subscribe closed rows', async () => {
@@ -64,7 +64,7 @@ describe('RowCompileDot', () => {
         })
 
         expect(subscribeProjectStatus).not.toHaveBeenCalled()
-        expect(screen.getByTitle('browser.compile.idle')).toBeInTheDocument()
+        expect(screen.getByRole('img', { name: 'browser.compile.idle' })).toBeInTheDocument()
     })
 
     it('updates the tooltip from live warning and error counts', async () => {
@@ -100,7 +100,7 @@ describe('RowCompileDot', () => {
         }))
 
         await waitFor(() => {
-            expect(screen.getByTitle('browser.compile.error_count:2, browser.compile.warning_count:1')).toBeInTheDocument()
+            expect(screen.getByRole('img', { name: 'browser.compile.error_count:2, browser.compile.warning_count:1' })).toBeInTheDocument()
         })
     })
 })

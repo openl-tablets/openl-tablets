@@ -34,7 +34,9 @@ export async function getDesignRepositories(apiOptions: ApiCallOptions = THROW_A
 export interface GetProjectsQuery {
     page?: number
     size?: number
-    name?: string
+    name?: string | undefined
+    author?: string | undefined
+    branch?: string | undefined
     sort?: 'name' | 'status' | 'updated'
     statuses?: Iterable<ProjectStatus | string>
     repositories?: Iterable<string>
@@ -53,6 +55,8 @@ export async function getProjects(
     setParam(params, 'page', query.page)
     setParam(params, 'size', query.size)
     setParam(params, 'name', query.name?.trim())
+    setParam(params, 'author', query.author?.trim())
+    setParam(params, 'branch', query.branch?.trim())
     setParam(params, 'sort', query.sort)
     appendRepeated(params, 'include', query.includes)
     appendRepeated(params, 'status', query.statuses)

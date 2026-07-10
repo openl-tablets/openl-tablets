@@ -22,6 +22,7 @@ vi.mock('antd-style', () => ({
 }))
 
 vi.mock('antd', () => ({
+    Tooltip: ({ children }: { children: React.ReactNode }) => children,
     Tag: ({ children, color, ...rest }: Record<string, unknown>) => {
         void color
         return <span {...rest}>{children as never}</span>
@@ -41,7 +42,7 @@ describe('CompileStatusBadge', () => {
         })
 
         expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
-        expect(screen.getByTestId('compile-status')).toHaveAttribute('title', 'browser.compile.errors')
+        expect(screen.getByTestId('compile-status')).toHaveAttribute('aria-label', 'browser.compile.errors')
         expect(screen.getByTestId('compile-status')).not.toHaveTextContent('browser.compile.errors')
     })
 
@@ -70,7 +71,7 @@ describe('CompileStatusBadge', () => {
         })
 
         expect(screen.getByTestId('compile-status')).toHaveAttribute(
-            'title',
+            'aria-label',
             'browser.compile.error_count:2, browser.compile.warning_count:1'
         )
     })
@@ -105,7 +106,7 @@ describe('CompileStatusBadge', () => {
             compilation: { messages: { items: [], total: 1, errors: 0, warnings: 1 } },
         }))
 
-        await waitFor(() => expect(screen.getByTestId('compile-status')).toHaveAttribute('title', 'browser.compile.warning_count:1'))
+        await waitFor(() => expect(screen.getByTestId('compile-status')).toHaveAttribute('aria-label', 'browser.compile.warning_count:1'))
     })
 
     it('unsubscribes on unmount', async () => {

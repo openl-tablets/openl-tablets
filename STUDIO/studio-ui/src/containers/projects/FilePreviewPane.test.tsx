@@ -48,7 +48,6 @@ vi.mock('./CodeEditor', () => ({
     ),
 }))
 
-vi.mock('./FileDiffModal', () => ({ FileDiffModal: () => null }))
 
 vi.mock('antd', () => {
     const Button = ({ children, onClick, ...rest }: Record<string, unknown>) => {
