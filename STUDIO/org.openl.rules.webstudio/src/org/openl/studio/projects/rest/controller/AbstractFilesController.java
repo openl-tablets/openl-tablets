@@ -52,14 +52,6 @@ public abstract class AbstractFilesController {
     }
 
     /**
-     * Refreshes state after creating a folder. The default follows other writes; project working
-     * copies can keep the in-memory folder tree without a full workspace reset.
-     */
-    protected void postCreateFolder() {
-        postWrite();
-    }
-
-    /**
      * Handles a multipart create: a folder path uploads its files as one operation, a file path
      * creates a single resource.
      */
@@ -195,7 +187,7 @@ public abstract class AbstractFilesController {
         try {
             filesService.createFolder(root, stripSlashes(path), createFolders);
         } finally {
-            postCreateFolder();
+            postWrite();
         }
     }
 

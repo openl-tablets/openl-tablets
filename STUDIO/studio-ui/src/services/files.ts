@@ -82,17 +82,6 @@ export async function rootFileExists(projectId: string, name: string): Promise<b
     return files.some(node => node.type === 'file' && node.path === name)
 }
 
-/** Create a folder (and any missing parents) at the given path. */
-export async function createFolder(projectId: string, path: string): Promise<void> {
-    const normalizedPath = path.replaceAll('\\', '/').replace(/^\/+|\/+$/g, '')
-    const folderPath = normalizedPath ? `${normalizedPath}/` : ''
-    await apiCall(
-        `${fileUrl(projectId, folderPath)}?createFolders=true`,
-        { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' },
-        { throwError: true }
-    )
-}
-
 /** Move or rename a file within a project. */
 export async function moveFile(projectId: string, sourcePath: string, destinationPath: string): Promise<void> {
     await apiCall(

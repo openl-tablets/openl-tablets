@@ -3,7 +3,6 @@ import apiCall from './apiCall'
 import { getProjectFiles } from './repositories'
 import {
     copyFile,
-    createFolder,
     createTextFile,
     deleteFile,
     downloadFile,
@@ -66,18 +65,6 @@ describe('files service', () => {
             '/projects/repo%2Fproject/files/rules/Main.xlsx?version=rev%201',
             undefined,
             { throwError: true, responseType: 'blob' }
-        )
-    })
-
-    it('creates folders through a folder path with a trailing slash', async () => {
-        vi.mocked(apiCall).mockResolvedValue(true)
-
-        await createFolder('project', 'rules/new')
-
-        expect(apiCall).toHaveBeenCalledWith(
-            '/projects/project/files/rules/new/?createFolders=true',
-            { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' },
-            { throwError: true }
         )
     })
 

@@ -66,13 +66,20 @@ interface FolderActionsPaneProps {
     canDelete: boolean
     onChanged: () => void
     onDeleted: () => void
+    /** A client-only folder not yet on the server: it has no content to download, copy or delete. */
+    virtual?: boolean
+    /** Drops a virtual folder from the tree (client-side only, no server call). */
+    onRemoveVirtual?: () => void
 }
 
 /**
  * The right pane of the Files tab when a folder is selected. A folder has no content to show, so it
  * offers folder-level actions instead: download the folder as a zip archive, copy it, or delete it.
+ *
+ * A virtual folder exists only in the browser until a file is added inside it, so it offers no server
+ * actions — only a hint to add a file and a way to drop the empty folder from the tree.
  */
-export const FolderActionsPane = ({ projectId, path, canWrite, canDelete, onChanged, onDeleted }: FolderActionsPaneProps) => {
+export const FolderActionsPane = ({ projectId, path, canWrite, canDelete, onChanged, onDeleted, virtual, onRemoveVirtual }: FolderActionsPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const [copying, setCopying] = useState<string | null>(null)
@@ -109,24 +116,32 @@ export const FolderActionsPane = ({ projectId, path, canWrite, canDelete, onChan
             <div className={styles.toolbar}>
                 <span className={styles.path}><FolderOutlined />{path}</span>
                 <Space.Compact className={styles.actions}>
-                    <Tooltip title={t('browser.files.download_archive')}>
-                        <Button data-testid="folder-download" icon={<DownloadOutlined />} onClick={() => downloadFolder(projectId, path)} size="small" />
-                    </Tooltip>
-                    {canWrite && (
-                        <Tooltip title={t('browser.files.copy')}>
-                            <Button data-testid="folder-copy" icon={<CopyOutlined />} onClick={() => setCopying(suggestCopyPath(path))} size="small" />
+                    {virtual ? (
+                        <Tooltip title={t('browser.files.remove_empty_folder')}>
+                            <Button danger data-testid="folder-remove-virtual" icon={<DeleteOutlined />} onClick={onRemoveVirtual} size="small" />
                         </Tooltip>
-                    )}
-                    {canDelete && (
-                        <Popconfirm onConfirm={remove} title={t('browser.files.delete_confirm', { path })}>
-                            <Button danger data-testid="folder-delete" icon={<DeleteOutlined />} size="small" />
-                        </Popconfirm>
+                    ) : (
+                        <>
+                            <Tooltip title={t('browser.files.download_archive')}>
+                                <Button data-testid="folder-download" icon={<DownloadOutlined />} onClick={() => downloadFolder(projectId, path)} size="small" />
+                            </Tooltip>
+                            {canWrite && (
+                                <Tooltip title={t('browser.files.copy')}>
+                                    <Button data-testid="folder-copy" icon={<CopyOutlined />} onClick={() => setCopying(suggestCopyPath(path))} size="small" />
+                                </Tooltip>
+                            )}
+                            {canDelete && (
+                                <Popconfirm onConfirm={remove} title={t('browser.files.delete_confirm', { path })}>
+                                    <Button danger data-testid="folder-delete" icon={<DeleteOutlined />} size="small" />
+                                </Popconfirm>
+                            )}
+                        </>
                     )}
                 </Space.Compact>
             </div>
             <div className={styles.body} data-testid="folder-actions-body">
                 <FolderOutlined />
-                <span>{t('browser.files.folder_hint')}</span>
+                <span>{virtual ? t('browser.files.empty_folder_hint') : t('browser.files.folder_hint')}</span>
             </div>
             <Modal
                 destroyOnHidden

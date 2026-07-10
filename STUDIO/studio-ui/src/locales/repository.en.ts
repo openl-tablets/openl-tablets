@@ -203,6 +203,8 @@ i18next.addResourceBundle('en', 'repository', {
             },
             select_hint: 'Select a file to view or edit',
             folder_hint: 'Select an action for this folder.',
+            empty_folder_hint: 'This folder is empty. Add a file to save it.',
+            remove_empty_folder: 'Remove empty folder',
             text_editor: 'Text editor',
             binary: 'Binary',
             binary_hint: 'This file type cannot be previewed here. Download it to view.',

@@ -217,13 +217,35 @@ export const ProjectDetail = ({
     const [searchParams, setSearchParams] = useSearchParams()
     // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded.
     const selectedFile = searchParams.get('file')
-    // A folder selection shows folder actions (download/copy/delete); a file selection shows its content.
+    // Folders created in the UI but not yet on the server — shown as empty folders until a file lands
+    // inside them, at which point the create-file request persists the whole chain.
+    const [virtualFolders, setVirtualFolders] = useState<string[]>([])
+    const addVirtualFolder = useCallback((path: string) => {
+        setVirtualFolders(prev => (prev.includes(path) ? prev : [...prev, path]))
+    }, [])
+    const removeVirtualFolder = useCallback((path: string) => {
+        setVirtualFolders(prev => prev.filter(folder => folder !== path && !folder.startsWith(`${path}/`)))
+    }, [])
+    // Once a file exists under a virtual folder it is real; drop it from the client-side list.
+    useEffect(() => {
+        if (Array.isArray(files)) {
+            setVirtualFolders(prev => prev.filter(
+                folder => !files.some(node => node.path === folder || node.path.startsWith(`${folder}/`))
+            ))
+        }
+    }, [files])
+    // A folder selection shows folder actions; a file selection shows its content. A virtual folder has
+    // no backend node yet, but it is still a folder selection — never fetch its (missing) content.
     const selectedNode = useMemo(
         () => (Array.isArray(files) ? files.find(node => node.path === selectedFile) : undefined),
         [files, selectedFile]
     )
-    const selectedIsFolder = selectedNode?.type === 'folder'
-    const selectedTargetFolder = selectedNode?.type === 'folder' ? selectedNode.path : selectedNode?.basePath ?? ''
+    // A virtual folder counts whether the selection is its full path or an intermediate ancestor segment
+    // (creating "reports/2026" makes "reports" a folder too), so ancestors never render as a file preview.
+    const selectedIsVirtualFolder = !!selectedFile
+        && virtualFolders.some(folder => folder === selectedFile || folder.startsWith(`${selectedFile}/`))
+    const selectedIsFolder = selectedNode?.type === 'folder' || selectedIsVirtualFolder
+    const selectedTargetFolder = selectedIsFolder ? selectedNode?.path ?? selectedFile ?? '' : selectedNode?.basePath ?? ''
     const setSelectedFile = useCallback((path: string | null) => {
         setSearchParams(prev => {
             const next = new URLSearchParams(prev)
@@ -341,6 +363,7 @@ export const ProjectDetail = ({
                             canWrite={canWriteFiles}
                             filter={fileFilter}
                             onChanged={() => onChanged?.()}
+                            onCreateFolder={addVirtualFolder}
                             onFilterChange={setFileFilter}
                             projectId={project.id}
                             targetFolder={selectedTargetFolder}
@@ -355,6 +378,7 @@ export const ProjectDetail = ({
                                 projectId={project.id}
                                 reducedMotion={reducedMotion ?? false}
                                 selectedPath={selectedFile}
+                                virtualFolders={virtualFolders}
                             />
                         </div>
                     </div>
@@ -365,8 +389,10 @@ export const ProjectDetail = ({
                             canWrite={canWriteFiles}
                             onChanged={() => onChanged?.()}
                             onDeleted={() => { setSelectedFile(null); onChanged?.() }}
+                            onRemoveVirtual={() => { removeVirtualFolder(selectedFile); setSelectedFile(null) }}
                             path={selectedFile}
                             projectId={project.id}
+                            virtual={selectedIsVirtualFolder}
                         />
                     ) : (
                         <FilePreviewPane

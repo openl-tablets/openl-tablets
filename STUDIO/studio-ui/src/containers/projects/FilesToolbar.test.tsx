@@ -2,9 +2,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FilesToolbar } from './FilesToolbar'
-import { createFolder, createTextFile, uploadFiles } from '../../services/files'
+import { createTextFile, uploadFiles } from '../../services/files'
 
-vi.mock('../../services/files', () => ({ createFolder: vi.fn(), createTextFile: vi.fn(), uploadFiles: vi.fn() }))
+vi.mock('../../services/files', () => ({ createTextFile: vi.fn(), uploadFiles: vi.fn() }))
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (key: string, options?: { path?: string }) => options?.path ? `${key}:${options.path}` : key }),
@@ -68,6 +68,7 @@ const baseProps = {
     canWrite: true,
     filter: '',
     onChanged: vi.fn(),
+    onCreateFolder: vi.fn(),
     onFilterChange: vi.fn(),
     projectId: 'p1',
 }
@@ -76,7 +77,6 @@ describe('FilesToolbar', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(uploadFiles).mockResolvedValue()
-        vi.mocked(createFolder).mockResolvedValue()
         vi.mocked(createTextFile).mockResolvedValue()
     })
 
@@ -120,38 +120,42 @@ describe('FilesToolbar', () => {
         expect(onFilterChange).toHaveBeenCalledWith('x')
     })
 
-    it('creates a folder and refreshes', async () => {
+    it('adds a folder virtually without calling the server', async () => {
         const onChanged = vi.fn()
-        render(<FilesToolbar {...baseProps} onChanged={onChanged} />)
+        const onCreateFolder = vi.fn()
+        render(<FilesToolbar {...baseProps} onChanged={onChanged} onCreateFolder={onCreateFolder} />)
 
         await userEvent.click(screen.getByTestId('files-new-folder'))
         await userEvent.type(screen.getByTestId('files-folder-path'), 'sub/dir')
         await userEvent.click(screen.getByTestId('files-folder-submit'))
 
-        await waitFor(() => expect(createFolder).toHaveBeenCalledWith('p1', 'sub/dir'))
-        await waitFor(() => expect(onChanged).toHaveBeenCalled())
+        await waitFor(() => expect(onCreateFolder).toHaveBeenCalledWith('sub/dir'))
+        expect(createTextFile).not.toHaveBeenCalled()
+        expect(onChanged).not.toHaveBeenCalled()
     })
 
-    it('creates a folder relative to the selected target folder', async () => {
-        render(<FilesToolbar {...baseProps} targetFolder="rules" />)
+    it('adds a folder relative to the selected target folder', async () => {
+        const onCreateFolder = vi.fn()
+        render(<FilesToolbar {...baseProps} onCreateFolder={onCreateFolder} targetFolder="rules" />)
 
         await userEvent.click(screen.getByTestId('files-new-folder'))
         expect(screen.getByText('browser.files.create_target.folder:rules')).toBeTruthy()
         await userEvent.type(screen.getByTestId('files-folder-path'), 'sub/dir')
         await userEvent.click(screen.getByTestId('files-folder-submit'))
 
-        await waitFor(() => expect(createFolder).toHaveBeenCalledWith('p1', 'rules/sub/dir'))
+        await waitFor(() => expect(onCreateFolder).toHaveBeenCalledWith('rules/sub/dir'))
     })
 
     it('can reset folder creation to the project root', async () => {
-        render(<FilesToolbar {...baseProps} targetFolder="rules" />)
+        const onCreateFolder = vi.fn()
+        render(<FilesToolbar {...baseProps} onCreateFolder={onCreateFolder} targetFolder="rules" />)
 
         await userEvent.click(screen.getByTestId('files-new-folder'))
         await userEvent.click(screen.getByText('browser.files.create_in_root'))
         await userEvent.type(screen.getByTestId('files-folder-path'), 'sub/dir')
         await userEvent.click(screen.getByTestId('files-folder-submit'))
 
-        await waitFor(() => expect(createFolder).toHaveBeenCalledWith('p1', 'sub/dir'))
+        await waitFor(() => expect(onCreateFolder).toHaveBeenCalledWith('sub/dir'))
     })
 
     it('creates an empty text file', async () => {

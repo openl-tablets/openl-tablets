@@ -107,4 +107,20 @@ describe('FolderActionsPane', () => {
 
         await userEvent.click(screen.getByTestId('folder-delete'))
     })
+
+    it('offers only a client-side remove for a virtual folder and hits no server action', async () => {
+        const onRemoveVirtual = vi.fn()
+        render(<FolderActionsPane {...baseProps} virtual onRemoveVirtual={onRemoveVirtual} path="drafts/wip" />)
+
+        // A virtual folder is not on the server: no download/copy/delete.
+        expect(screen.queryByTestId('folder-download')).toBeNull()
+        expect(screen.queryByTestId('folder-copy')).toBeNull()
+        expect(screen.queryByTestId('folder-delete')).toBeNull()
+        expect(screen.getByText('browser.files.empty_folder_hint')).toBeTruthy()
+
+        await userEvent.click(screen.getByTestId('folder-remove-virtual'))
+        expect(onRemoveVirtual).toHaveBeenCalled()
+        expect(deleteFile).not.toHaveBeenCalled()
+        expect(downloadFolder).not.toHaveBeenCalled()
+    })
 })

@@ -212,7 +212,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         String[] segments = path.split("/");
         try {
             AProjectFolder current = root.writeFolder();
-            var created = false;
             for (int i = 0; i < segments.length; i++) {
                 String segment = segments[i];
                 if (current.hasArtefact(segment)) {
@@ -227,13 +226,9 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                     }
                     requirePermission(current, BasePermission.CREATE);
                     current = current.addFolder(segment);
-                    created = true;
                 }
             }
-            if (created) {
-                persistFolder(current);
-            }
-        } catch (IOException | ProjectException e) {
+        } catch (ProjectException e) {
             throw new ConflictException("file.create.failed.message");
         } finally {
             unlockIfClosed(root);
@@ -293,12 +288,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             validateResourcePath(path);
             requirePermission(root.writeFolder(), BasePermission.CREATE);
         }
-    }
-
-    private static void persistFolder(AProjectFolder folder) throws IOException {
-        var data = new FileData();
-        data.setName(folder.getFolderPath());
-        folder.setFileData(folder.getRepository().save(data, List.of(), ChangesetType.DIFF));
     }
 
     /**
