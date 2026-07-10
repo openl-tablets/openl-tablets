@@ -156,21 +156,21 @@ class GitRepositoryTest {
 
         FileData file1 = getFileData(files, "rules/project1/file1");
         assertNotNull(file1);
-        assertEquals("User 1", file1.getAuthor().getDisplayName());
+        assertEquals("User 1", file1.getAuthor().getName());
         assertEquals("user1@email.to", file1.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
         FileData file2 = getFileData(files, "rules/project1/file2");
         assertNotNull(file2);
-        assertEquals("User 2", file2.getAuthor().getDisplayName());
+        assertEquals("User 2", file2.getAuthor().getName());
         assertEquals("user2@email.to", file2.getAuthor().getEmail());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
         FileData file3 = getFileData(files, "rules/project1/folder/file3");
         assertNotNull(file3);
-        assertEquals("User 2", file3.getAuthor().getDisplayName());
+        assertEquals("User 2", file3.getAuthor().getName());
         assertEquals("user2@email.to", file3.getAuthor().getEmail());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
@@ -201,7 +201,7 @@ class GitRepositoryTest {
 
         FileData file2Rev2 = find(files, "rules/project1/file2");
         assertEquals("Rules_2", file2Rev2.getVersion());
-        assertEquals("User 1", file2Rev2.getAuthor().getDisplayName());
+        assertEquals("User 1", file2Rev2.getAuthor().getName());
         assertEquals("user1@email.to", file2Rev2.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file2Rev2.getComment());
         assertEquals(6, file2Rev2.getSize(), "Expected file content: 'Hello!'");
@@ -219,7 +219,7 @@ class GitRepositoryTest {
 
         FileData file2Rev3 = find(files, "rules/project1/file2");
         assertEquals("Rules_3", file2Rev3.getVersion());
-        assertEquals("User 2", file2Rev3.getAuthor().getDisplayName());
+        assertEquals("User 2", file2Rev3.getAuthor().getName());
         assertEquals("user2@email.to", file2Rev3.getAuthor().getEmail());
         assertEquals("Second modification", file2Rev3.getComment());
         assertEquals(12, file2Rev3.getSize(), "Expected file content: 'Hello World!'");
@@ -232,21 +232,21 @@ class GitRepositoryTest {
     void check() throws IOException {
         FileData file1 = repo.check("rules/project1/file1");
         assertNotNull(file1);
-        assertEquals("User 1", file1.getAuthor().getDisplayName());
+        assertEquals("User 1", file1.getAuthor().getName());
         assertEquals("user1@email.to", file1.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
         FileData file2 = repo.check("rules/project1/file2");
         assertNotNull(file2);
-        assertEquals("User 2", file2.getAuthor().getDisplayName());
+        assertEquals("User 2", file2.getAuthor().getName());
         assertEquals("user2@email.to", file2.getAuthor().getEmail());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
         FileData file3 = repo.check("rules/project1/folder/file3");
         assertNotNull(file3);
-        assertEquals("User 2", file3.getAuthor().getDisplayName());
+        assertEquals("User 2", file3.getAuthor().getName());
         assertEquals("user2@email.to", file3.getAuthor().getEmail());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
@@ -254,7 +254,7 @@ class GitRepositoryTest {
         FileData project1 = repo.check("rules/project1");
         assertNotNull(project1);
         assertEquals("rules/project1", project1.getName());
-        assertEquals("User 2", project1.getAuthor().getDisplayName());
+        assertEquals("User 2", project1.getAuthor().getName());
         assertEquals("user2@email.to", project1.getAuthor().getEmail());
         assertEquals("Second modification", project1.getComment());
         assertEquals(FileData.UNDEFINED_SIZE, project1.getSize());
@@ -278,7 +278,7 @@ class GitRepositoryTest {
 
         assertNotNull(result);
         assertEquals(path, result.getName());
-        assertEquals("John Smith", result.getAuthor().getDisplayName());
+        assertEquals("John Smith", result.getAuthor().getName());
         assertEquals("jsmith@email", result.getAuthor().getEmail());
         assertEquals("Comment for rules/project1/folder/file4", result.getComment());
         assertEquals(text.length(), result.getSize());
@@ -307,6 +307,25 @@ class GitRepositoryTest {
         path = "rules/project1/new-folder/file5";
         text = "File located in " + path;
         assertNotNull(repo.save(createFileData(path, text), IOUtils.toInputStream(text)));
+    }
+
+    @Test
+    void saveWithBlankDisplayName() throws IOException {
+        // Regression for EPBDS-16228: a blank user display name must not break the commit.
+        // The git committer name falls back to the username (UserInfo.getName()); otherwise an
+        // empty committer ident aborts the commit and, in Studio, leaves a project half-opened.
+        String path = "rules/project1/folder/file-blank-dn";
+        String text = "File with blank display name author";
+        FileData data = new FileData();
+        data.setName(path);
+        data.setComment("Comment for " + path);
+        data.setAuthor(new UserInfo("jdoe", "jdoe@email", ""));
+        FileData result = repo.save(data, IOUtils.toInputStream(text));
+
+        assertNotNull(result);
+        // The committer name persisted to git is the username, not the blank display name.
+        assertEquals("jdoe", result.getAuthor().getName());
+        assertEquals(text, readText(repo.read(path)));
     }
 
     @Test
@@ -466,12 +485,12 @@ class GitRepositoryTest {
 
         FileData v3 = repo.checkHistory("rules/project1", "Rules_3");
         assertEquals("Rules_3", v3.getVersion());
-        assertEquals("User 2", v3.getAuthor().getDisplayName());
+        assertEquals("User 2", v3.getAuthor().getName());
         assertEquals("user2@email.to", v3.getAuthor().getEmail());
 
         FileData v2 = repo.checkHistory("rules/project1", "Rules_2");
         assertEquals("Rules_2", v2.getVersion());
-        assertEquals("User 1", v2.getAuthor().getDisplayName());
+        assertEquals("User 1", v2.getAuthor().getName());
         assertEquals("user1@email.to", v2.getAuthor().getEmail());
 
         assertNull(repo.checkHistory("rules/project1", "Rules_1"));
@@ -496,7 +515,7 @@ class GitRepositoryTest {
         FileData copy = repo.copyHistory("rules/project1/file2", dest, "Rules_2");
         assertNotNull(copy);
         assertEquals("rules/project1/file2-copy", copy.getName());
-        assertEquals("John Smith", copy.getAuthor().getDisplayName());
+        assertEquals("John Smith", copy.getAuthor().getName());
         assertEquals("jsmith@email", copy.getAuthor().getEmail());
         assertEquals("Copy file 2", copy.getComment());
         assertEquals(6, copy.getSize());
@@ -510,7 +529,7 @@ class GitRepositoryTest {
         FileData project2 = repo.copyHistory("rules/project1", destProject, "Rules_2");
         assertNotNull(project2);
         assertEquals("rules/project2", project2.getName());
-        assertEquals("John Smith", project2.getAuthor().getDisplayName());
+        assertEquals("John Smith", project2.getAuthor().getName());
         assertEquals("jsmith@email", project2.getAuthor().getEmail());
         assertEquals("Copy of project1", project2.getComment());
         assertEquals(FileData.UNDEFINED_SIZE, project2.getSize());
@@ -684,7 +703,7 @@ class GitRepositoryTest {
                 assertEquals(resolveText, readText(remoteItem));
                 FileData remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("John Smith", remoteData.getAuthor().getDisplayName());
+                assertEquals("John Smith", remoteData.getAuthor().getName());
                 assertEquals("jsmith@email", remoteData.getAuthor().getEmail());
                 assertEquals(mergeMessage, remoteData.getComment());
 
@@ -845,7 +864,7 @@ class GitRepositoryTest {
                 assertEquals(resolveText, readText(remoteItem));
                 FileData remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("Jane Smith", remoteData.getAuthor().getDisplayName());
+                assertEquals("Jane Smith", remoteData.getAuthor().getName());
                 assertEquals("jasmith@email", remoteData.getAuthor().getEmail());
                 assertEquals(mergeMessage, remoteData.getComment());
 

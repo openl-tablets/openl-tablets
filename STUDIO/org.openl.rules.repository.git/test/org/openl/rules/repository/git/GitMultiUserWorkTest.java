@@ -85,7 +85,7 @@ class GitMultiUserWorkTest {
         assertNotNull(result);
         assertEquals(path, result.getName());
         assertEquals("jsmith@email", result.getAuthor().getEmail());
-        assertEquals("John Smith", result.getAuthor().getDisplayName());
+        assertEquals("John Smith", result.getAuthor().getName());
         assertEquals("Comment for " + path, result.getComment());
         assertEquals(text.length(), result.getSize());
         assertNotNull(result.getModifiedAt());

@@ -25,10 +25,6 @@ public class UserInfo {
         return email;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
     public String getName() {
         return StringUtils.isNotBlank(displayName) ? displayName : username;
     }
