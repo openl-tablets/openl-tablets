@@ -21,6 +21,8 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.util.FileUtils;
 
 /**
  * The repository of project copies in the user workspace.
@@ -89,8 +91,10 @@ public class LocalRepository extends FileSystemRepository {
         if (name.contains("/")) {
             registry.markDirty(projectNameOf(name));
         } else {
-            // The project root is deleted: the project leaves the workspace together with its record.
+            // The project root is deleted: the project leaves the workspace together with its record
+            // and its local edit history.
             registry.remove(name);
+            FileUtils.deleteQuietly(getRoot().resolve(FolderHelper.HISTORY_FOLDER).resolve(name).toFile());
         }
         return deleted;
     }
