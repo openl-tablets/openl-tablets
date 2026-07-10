@@ -66,43 +66,24 @@ class GitRepositoryBranchStatusTest {
     }
 
     @Test
-    void aheadBehindAndLastCommit() throws IOException {
-        // branch1 gets two commits, so it is two ahead of the shared "Initial".
+    void readsLastCommitForEachBranch() throws IOException {
         GitRepository branch = repo.forBranch(BRANCH);
         branch.save(createFileData("rules/project1/file1", "one"), IOUtils.toInputStream("one"));
         branch.save(createFileData("rules/project1/file2", "two"), IOUtils.toInputStream("two"));
-        // master gets one commit after the branch point, so branch1 is one behind master.
         repo.save(createFileData("rules/project1/file3", "three"), IOUtils.toInputStream("three"));
         repo.createBranch("rules/project1", SAME_TIP_BRANCH, BASE);
 
-        BranchStatus status = repo.getBranchStatus(BRANCH, BASE);
-        assertEquals(2, status.commitsAhead(), "branch1 is two commits ahead of master");
-        assertEquals(1, status.commitsBehind(), "branch1 is one commit behind master");
-        assertNotNull(status.lastCommitRevision());
-        assertNotNull(status.lastCommitAt());
-        assertNotNull(status.lastCommitAuthor());
-        // The tip message must survive the merge-base walk that runs when comparing two branches.
-        assertNotNull(status.lastCommitMessage());
-
-        // The current branch compared with itself is neither ahead nor behind.
-        BranchStatus self = repo.getBranchStatus(BASE, BASE);
-        assertEquals(0, self.commitsAhead());
-        assertEquals(0, self.commitsBehind());
-
-        var statuses = repo.getBranchStatuses(List.of(BRANCH, SAME_TIP_BRANCH, BASE, "missing"), BASE);
+        var statuses = repo.getBranchStatuses(List.of(BRANCH, SAME_TIP_BRANCH, BASE, "missing"));
+        // The unresolvable "missing" branch is omitted, the rest carry tip metadata.
         assertEquals(3, statuses.size());
-        var branchStatus = statuses.get(BRANCH);
-        assertNotNull(branchStatus);
-        assertEquals(2, branchStatus.commitsAhead());
-        assertEquals(1, branchStatus.commitsBehind());
-        var sameTipStatus = statuses.get(SAME_TIP_BRANCH);
-        assertNotNull(sameTipStatus);
-        assertEquals(0, sameTipStatus.commitsAhead());
-        assertEquals(0, sameTipStatus.commitsBehind());
-        var baseStatus = statuses.get(BASE);
-        assertNotNull(baseStatus);
-        assertEquals(0, baseStatus.commitsAhead());
-        assertEquals(0, baseStatus.commitsBehind());
+        for (String branchName : List.of(BRANCH, SAME_TIP_BRANCH, BASE)) {
+            BranchStatus status = statuses.get(branchName);
+            assertNotNull(status, branchName);
+            assertNotNull(status.lastCommitRevision());
+            assertNotNull(status.lastCommitAt());
+            assertNotNull(status.lastCommitAuthor());
+            assertNotNull(status.lastCommitMessage());
+        }
     }
 
     private GitRepository createRepository(String remoteUri, File local, String repositoriesFolder) throws IOException {

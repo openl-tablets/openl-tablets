@@ -398,6 +398,14 @@ export const BranchesPanel = ({ projectId, projectName, repositoryId, currentBra
                                             <div data-testid={`branch-commit-${branch.name}`}>
                                                 <div className={styles.commitMeta}>
                                                     {branch.lastCommit.author} · {formatDateTime(branch.lastCommit.modifiedAt)}
+                                                    {branch.lastCommit.revision && (
+                                                        <>
+                                                            {' · '}
+                                                            <MonoChip data-testid={`branch-commit-revision-${branch.name}`}>
+                                                                {branch.lastCommit.revision.slice(0, 8)}
+                                                            </MonoChip>
+                                                        </>
+                                                    )}
                                                 </div>
                                                 <GitCommitMessage
                                                     maxChars={140}

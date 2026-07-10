@@ -34,17 +34,19 @@ interface MonoChipProps {
     ellipsis?: boolean
     className?: string
     title?: string
+    'data-testid'?: string
 }
 
 /**
  * Monospace inline text — the heavy code-font motif of the mockup (repository names, branches, paths,
  * revisions, service names). Plain by default; `filled` renders a subtle chip.
  */
-export const MonoChip = ({ children, filled, ellipsis, className, title }: MonoChipProps) => {
+export const MonoChip = ({ children, filled, ellipsis, className, title, 'data-testid': testId }: MonoChipProps) => {
     const { styles, cx } = useStyles()
     return (
         <span
             className={cx(styles.mono, filled && styles.filled, !filled && ellipsis && styles.ellipsis, className)}
+            data-testid={testId}
             title={title}
         >
             {children}

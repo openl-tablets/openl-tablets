@@ -989,10 +989,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         boolean bypassEligible = bypassService.isBypassEligible(project);
         var baseBranch = repository.getBaseBranch();
         try {
-            var currentBranch = project.getBranch();
             // projectPath parameter is not required because we need all branches for repository, not only selected project branches
             var branches = repository.getBranches(null);
-            var statuses = repository.getBranchStatuses(branches, currentBranch);
+            var statuses = repository.getBranchStatuses(branches);
             return branches.stream()
                     .map(branch -> toBranchInfo(repository, branch, baseBranch, bypassEligible, statuses))
                     .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))

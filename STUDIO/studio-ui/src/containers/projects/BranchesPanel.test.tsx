@@ -25,7 +25,9 @@ vi.mock('antd-style', () => ({
 }))
 
 vi.mock('./projectsTheme', () => ({ MOCKUP: { fontMono: 'mono' } }))
-vi.mock('./MonoChip', () => ({ MonoChip: ({ children }: Record<string, unknown>) => <span>{children as never}</span> }))
+vi.mock('./MonoChip', () => ({
+    MonoChip: ({ children, ...rest }: Record<string, unknown>) => <span {...rest}>{children as never}</span>,
+}))
 
 vi.mock('antd', () => {
     const domProps = (props: unknown): Record<string, unknown> => {
@@ -198,6 +200,7 @@ describe('BranchesPanel', () => {
 
         expect(screen.getByTestId('branch-commit-feature').textContent).toContain('jane')
         expect(screen.getByTestId('branch-commit-message-feature').textContent).toContain('Add feature')
+        expect(screen.getByTestId('branch-commit-revision-feature').textContent).toBe('abc1234')
     })
 
     it('refetches branches after switching the current branch', async () => {
