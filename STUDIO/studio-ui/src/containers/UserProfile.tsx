@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Button, Divider, Form, notification, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
-import { DisplayUserName, WIDTH_OF_FORM_LABEL } from 'constants/'
+import { WIDTH_OF_FORM_LABEL } from 'constants/'
+import { deriveDisplayNameMode } from 'utils/displayName'
 import { SystemUserMode } from '../constants/system'
 import { SystemContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
@@ -75,25 +76,13 @@ export const UserProfile: React.FC = () => {
     }
 
     const initialValues = useMemo(() => {
-        const displayNameSelectInitialValue = () => {
-            const firstName = userProfile?.firstName || ''
-            const lastName = userProfile?.lastName || ''
-            if (userProfile?.displayName === `${firstName} ${lastName}`.trim()) {
-                return DisplayUserName.FirstLast
-            }
-            if (userProfile?.displayName === `${lastName} ${firstName}`.trim()) {
-                return DisplayUserName.LastFirst
-            }
-            return DisplayUserName.Other
-        }
-
         return {
             username: userProfile?.username,
             email: userProfile?.email,
             firstName: userProfile?.firstName || '',
             lastName: userProfile?.lastName || '',
             displayName: userProfile?.displayName,
-            displayNameSelect: displayNameSelectInitialValue(),
+            displayNameSelect: deriveDisplayNameMode(userProfile ?? {}),
         }
     }, [userProfile])
 

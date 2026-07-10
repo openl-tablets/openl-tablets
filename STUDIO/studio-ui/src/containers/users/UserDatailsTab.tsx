@@ -3,6 +3,7 @@ import { Divider, Form, Space, Button, notification, Row, Col, Input as AntInput
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
+import { formatDisplayName } from '../../utils/displayName'
 import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
 import { apiCall } from '../../services'
@@ -95,14 +96,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
     }, [showResendVerification, userProfile, systemSettings])
 
     useEffect(() => {
-        if (form.getFieldValue('displayNameSelect') === DisplayUserName.FirstLast) {
-            form.setFieldsValue({
-                displayName: (firstName + ' ' + lastName).trim()
-            })
-        } else if (form.getFieldValue('displayNameSelect') === DisplayUserName.LastFirst) {
-            form.setFieldsValue({
-                displayName: (lastName + ' ' + firstName).trim()
-            })
+        const formatted = formatDisplayName(form.getFieldValue('displayNameSelect'), firstName, lastName)
+        if (formatted !== null) {
+            form.setFieldsValue({ displayName: formatted })
         }
         form.validateFields(['displayName'])
     }, [firstName, lastName])
@@ -228,10 +224,13 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                                     } else {
                                         setIsDisplayNameFieldDisabled(true)
                                     }
-                                    if (getFieldValue('displayNameSelect') === DisplayUserName.FirstLast) {
-                                        setFieldValue('displayName', (getFieldValue('firstName') + ' ' + getFieldValue('lastName')).trim())
-                                    } else if (getFieldValue('displayNameSelect') === DisplayUserName.LastFirst) {
-                                        setFieldValue('displayName', (getFieldValue('lastName') + ' ' + getFieldValue('firstName')).trim())
+                                    const formatted = formatDisplayName(
+                                        getFieldValue('displayNameSelect'),
+                                        getFieldValue('firstName'),
+                                        getFieldValue('lastName')
+                                    )
+                                    if (formatted !== null) {
+                                        setFieldValue('displayName', formatted)
                                     }
                                 }
 

@@ -4,6 +4,7 @@ import { MailOutlined, UserOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { apiCall } from '../../services'
 import { DisplayUserName, WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
+import { deriveDisplayNameMode, formatDisplayName } from '../../utils/displayName'
 import { CommitInfoModalProps, UserCommitInfo } from './types'
 
 interface CommitInfoFormValues {
@@ -20,22 +21,6 @@ const EMPTY_VALUES: CommitInfoFormValues = {
     displayName: '',
     email: '',
     displayNameSelect: DisplayUserName.Other,
-}
-
-/**
- * Chooses the display-name mode from the stored value: "First Last", "Last First", or a custom
- * value. Mirrors the My Profile screen so the same identity edits the same way everywhere.
- */
-const deriveDisplayNameSelect = (info: UserCommitInfo): DisplayUserName => {
-    const firstName = info.firstName || ''
-    const lastName = info.lastName || ''
-    if (info.displayName && info.displayName === `${firstName} ${lastName}`.trim()) {
-        return DisplayUserName.FirstLast
-    }
-    if (info.displayName && info.displayName === `${lastName} ${firstName}`.trim()) {
-        return DisplayUserName.LastFirst
-    }
-    return DisplayUserName.Other
 }
 
 export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
@@ -71,7 +56,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                 lastName: userInfo.lastName || '',
                 displayName: userInfo.displayName || '',
                 email: userInfo.email || '',
-                displayNameSelect: deriveDisplayNameSelect(userInfo),
+                displayNameSelect: deriveDisplayNameMode(userInfo),
             })
         } catch (_err: any) {
             // User info might not exist yet, that's okay
@@ -91,10 +76,9 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
     // Keep the display name in sync with the first/last name unless a custom value was chosen — the same
     // behaviour as the My Profile screen.
     useEffect(() => {
-        if (displayNameSelect === DisplayUserName.FirstLast) {
-            form.setFieldsValue({ displayName: `${firstName || ''} ${lastName || ''}`.trim() })
-        } else if (displayNameSelect === DisplayUserName.LastFirst) {
-            form.setFieldsValue({ displayName: `${lastName || ''} ${firstName || ''}`.trim() })
+        const formatted = formatDisplayName(displayNameSelect, firstName, lastName)
+        if (formatted !== null) {
+            form.setFieldsValue({ displayName: formatted })
         }
     }, [firstName, lastName, displayNameSelect, form])
 
