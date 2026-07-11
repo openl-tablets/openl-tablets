@@ -14,7 +14,28 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-15952-Project",
       "comment": "*",
-      "selectedBranches": ["master"]
+      "selectedBranches": ["master"],
+      "modules": [
+        {
+          "name": "Main",
+          "path": "Main.xlsx"
+        },
+        {
+          "name": "Main2",
+          "path": "Main2.xlsx"
+        }
+      ],
+      "capabilities": {
+        "canWrite": true,
+        "canDelete": true,
+        "canClose": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
     }
   ],
   "pageNumber": 0,

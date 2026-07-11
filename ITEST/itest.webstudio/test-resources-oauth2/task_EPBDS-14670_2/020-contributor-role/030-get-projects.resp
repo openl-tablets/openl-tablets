@@ -58,6 +58,7 @@ Content-Type: application/json
         "canOpen": true,
         "canCompare": true,
         "canViewHistory": true,
+        "canCopy": true,
         "canExport": true
       }
     },
@@ -80,6 +81,7 @@ Content-Type: application/json
         "canOpen": true,
         "canCompare": true,
         "canViewHistory": true,
+        "canCopy": true,
         "canExport": true
       }
     }
