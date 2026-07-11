@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.rules.repository.api.Pageable;
 import org.openl.studio.common.model.PageResponse;
@@ -19,11 +20,23 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
  *
  * Compile statuses are present only when the client requests them and apply to the returned page content.
  */
+@Getter
 public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
 
+    @Parameter(description = "Per-status project counts. Present only when the summary is requested.")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final ProjectStatusSummary statusCounts;
+
+    @Parameter(description = "Per-repository project counts. Present only when the summary is requested.")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<FacetCount> repositoryCounts;
+
+    @Parameter(description = "Per-tag-type value counts. Present only when the summary is requested.")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<TagFacetSummary> tagCounts;
+
+    @Parameter(description = "Compilation statuses for the returned page. Present only when requested.")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<ProjectStatusViewModel> statuses;
 
     private ProjectsPageResponse(Collection<ProjectViewModel> content,
@@ -48,29 +61,5 @@ public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
                                           List<TagFacetSummary> tagCounts,
                                           List<ProjectStatusViewModel> statuses) {
         return new ProjectsPageResponse(content, page, total, statusCounts, repositoryCounts, tagCounts, statuses);
-    }
-
-    @Parameter(description = "Per-status project counts. Present only when the summary is requested.")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public ProjectStatusSummary getStatusCounts() {
-        return statusCounts;
-    }
-
-    @Parameter(description = "Per-repository project counts. Present only when the summary is requested.")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public List<FacetCount> getRepositoryCounts() {
-        return repositoryCounts;
-    }
-
-    @Parameter(description = "Per-tag-type value counts. Present only when the summary is requested.")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public List<TagFacetSummary> getTagCounts() {
-        return tagCounts;
-    }
-
-    @Parameter(description = "Compilation statuses for the returned page. Present only when requested.")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public List<ProjectStatusViewModel> getStatuses() {
-        return statuses;
     }
 }

@@ -5,9 +5,11 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.rules.repository.api.Pageable;
 
+@Getter
 @Schema(description = "A page of results with pagination metadata")
 public class PageResponse<T> {
 
@@ -51,25 +53,5 @@ public class PageResponse<T> {
     /** Build a page from already-sliced content, deriving the page number and size from the request. */
     public static <T> PageResponse<T> of(Collection<T> content, Pageable page, Long total) {
         return new PageResponse<>(content, page, total);
-    }
-
-    public Collection<T> getContent() {
-        return content;
-    }
-
-    public int getPageNumber() {
-        return pageNumber;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public int getNumberOfElements() {
-        return numberOfElements;
-    }
-
-    public Long getTotal() {
-        return total;
     }
 }

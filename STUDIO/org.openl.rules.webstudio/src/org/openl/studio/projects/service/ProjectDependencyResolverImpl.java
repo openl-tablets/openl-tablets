@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
 
@@ -24,18 +24,11 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ProjectDependencyResolverImpl implements ProjectDependencyResolver {
-
 
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
     private final ProjectListingContext listingContext;
-
-    @Autowired
-    public ProjectDependencyResolverImpl(ProjectDescriptorArtefactResolver projectDescriptorResolver,
-                                         ProjectListingContext listingContext) {
-        this.projectDescriptorResolver = projectDescriptorResolver;
-        this.listingContext = listingContext;
-    }
 
     @Lookup
     protected UserWorkspace getUserWorkspace() {
