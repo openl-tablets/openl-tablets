@@ -64,7 +64,7 @@ class ProjectDependencyResolverImplTest {
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
         UserWorkspace workspace = mock(UserWorkspace.class);
-        when(workspace.getProjects()).thenReturn(List.of(source, target));
+        when(workspace.getProjects(false)).thenReturn(List.of(source, target));
 
         assertEquals(List.of(target), resolver(descriptorResolver, workspace).getProjectDependencies(source));
     }
@@ -86,7 +86,7 @@ class ProjectDependencyResolverImplTest {
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
         UserWorkspace workspace = mock(UserWorkspace.class);
-        when(workspace.getProjects()).thenReturn(List.of(source, target));
+        when(workspace.getProjects(false)).thenReturn(List.of(source, target));
 
         assertEquals(List.of(source), resolver(descriptorResolver, workspace).getDependsOnProject(target));
     }
@@ -105,7 +105,7 @@ class ProjectDependencyResolverImplTest {
         when(descriptorResolver.getDependencies(targetB)).thenReturn(List.of());
 
         UserWorkspace workspace = mock(UserWorkspace.class);
-        when(workspace.getProjects()).thenReturn(List.of(source, targetA, targetB));
+        when(workspace.getProjects(false)).thenReturn(List.of(source, targetA, targetB));
 
         var resolver = resolver(descriptorResolver, workspace, new ProjectListingContext());
 
@@ -125,7 +125,7 @@ class ProjectDependencyResolverImplTest {
         when(descriptorResolver.getDependencies(target)).thenReturn(List.of());
 
         UserWorkspace workspace = mock(UserWorkspace.class);
-        when(workspace.getProjects()).thenReturn(List.of(source, target));
+        when(workspace.getProjects(false)).thenReturn(List.of(source, target));
 
         assertEquals(List.of(target), resolver(descriptorResolver, workspace).getProjectDependencies(source));
     }
