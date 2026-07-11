@@ -128,6 +128,6 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     }
 
     private Collection<RulesProject> getAllProjects() {
-        return getUserWorkspace().getProjects();
+        return getUserWorkspace().getProjects(false);
     }
 }

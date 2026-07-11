@@ -26,5 +26,9 @@
             <name>projectTags</name>
             <expireAfterWrite>30m</expireAfterWrite>
         </cache>
+        <cache>
+            <name>projectDescriptors</name>
+            <expireAfterWrite>30m</expireAfterWrite>
+        </cache>
     </caches>
 </cache2k>
