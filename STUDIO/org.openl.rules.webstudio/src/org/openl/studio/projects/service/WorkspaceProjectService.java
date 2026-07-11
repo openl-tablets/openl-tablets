@@ -539,9 +539,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     @Override
     protected List<ProjectStatusViewModel> projectStatuses(List<? extends AProject> pageProjects) {
+        // The list renders only the compile state and message counts, so build a summary that skips the
+        // per-message table/module resolution — the dominant cost on large projects.
         return pageProjects.stream()
                 .map(RulesProject.class::cast)
-                .map(projectStatusMapper::map)
+                .map(projectStatusMapper::mapSummary)
                 .toList();
     }
 

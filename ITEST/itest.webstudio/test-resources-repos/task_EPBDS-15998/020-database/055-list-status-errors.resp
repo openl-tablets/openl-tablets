@@ -1,0 +1,71 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "name": "EPBDS-15998-db",
+      "status": "EDITING",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project EPBDS-15998-db is created.",
+      "capabilities": {
+        "canWrite": true,
+        "canDelete": true,
+        "canClose": true,
+        "canSave": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canEditTags": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1,
+  "statuses": [
+    {
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "revision": "*",
+      "compileState": "errors",
+      "lastModifiedBy": {
+        "author": "admin",
+        "date": "*"
+      },
+      "compilation": {
+        "messages": {
+          "total": 1,
+          "errors": 1,
+          "warnings": 0
+        },
+        "modules": {
+          "total": 1,
+          "compiled": 1
+        },
+        "tests": {
+          "total": 14
+        }
+      },
+      "pendingChanges": {
+        "total": 2,
+        "files": [
+          {
+            "path": "DESIGN/rules/EPBDS-15998-db/Bank Rating.xlsx",
+            "type": "modified"
+          },
+          {
+            "path": "DESIGN/rules/EPBDS-15998-db/tags.properties",
+            "type": "modified"
+          }
+        ]
+      }
+    }
+  ]
+}

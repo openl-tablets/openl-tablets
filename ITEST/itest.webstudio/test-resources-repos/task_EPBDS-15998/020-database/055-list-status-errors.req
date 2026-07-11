@@ -1,0 +1,4 @@
+GET /rest/projects?name={PROJECT_DB_NAME}&include=status HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Accept: application/json
+
