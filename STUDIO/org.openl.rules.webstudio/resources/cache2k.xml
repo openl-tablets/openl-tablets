@@ -22,5 +22,9 @@
             <entryCapacity>100</entryCapacity>
             <expireAfterWrite>30m</expireAfterWrite>
         </cache>
+        <cache>
+            <name>projectTags</name>
+            <expireAfterWrite>30m</expireAfterWrite>
+        </cache>
     </caches>
 </cache2k>

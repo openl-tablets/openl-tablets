@@ -263,7 +263,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     }
 
     public boolean projectHasTags(RulesProject project, Map<String, Set<String>> tags) {
-        var projectTags = project.getLocalTags();
+        var projectTags = tagsOf(project);
         return tags.entrySet().stream().allMatch(tagValues -> {
             var value = projectTags.get(tagValues.getKey());
             return value != null && tagValues.getValue().contains(value);
@@ -300,12 +300,17 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         return Optional.ofNullable(project.getRepository().getName()).orElse(repositoryId);
     }
 
+    /** Project tags used for the facet counts. Overridden to cache committed tags per revision. */
+    protected Map<String, String> tagsOf(RulesProject project) {
+        return project.getLocalTags();
+    }
+
     private List<TagFacetSummary> tagCounts(List<? extends AProject> scope) {
         Map<String, Map<String, Long>> counts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         scope.stream()
                 .filter(RulesProject.class::isInstance)
                 .map(RulesProject.class::cast)
-                .map(RulesProject::getLocalTags)
+                .map(this::tagsOf)
                 .filter(Objects::nonNull)
                 .forEach(tags -> tags.forEach((type, value) -> addTagCount(counts, type, value)));
         return counts.entrySet().stream()
@@ -359,7 +364,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         }
 
         if (src instanceof RulesProject rulesProject) {
-            var tags = rulesProject.getLocalTags();
+            var tags = tagsOf(rulesProject);
             if (tags != null) {
                 tags.forEach(builder::addTag);
             }

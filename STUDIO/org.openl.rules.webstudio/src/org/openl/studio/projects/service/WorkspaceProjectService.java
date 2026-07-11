@@ -146,6 +146,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectStatusMapper projectStatusMapper;
     private final Environment environment;
     private final TagAssignmentValidator tagAssignmentValidator;
+    private final ProjectTagsCache projectTagsCache;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -169,7 +170,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectAccessService projectAccessService,
             ProjectStatusMapper projectStatusMapper,
             Environment environment,
-            TagAssignmentValidator tagAssignmentValidator) {
+            TagAssignmentValidator tagAssignmentValidator,
+            ProjectTagsCache projectTagsCache) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -190,6 +192,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.projectStatusMapper = projectStatusMapper;
         this.environment = environment;
         this.tagAssignmentValidator = tagAssignmentValidator;
+        this.projectTagsCache = projectTagsCache;
     }
 
     @Lookup
@@ -535,6 +538,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return project instanceof UserWorkspaceProject workspaceProject
                 ? Optional.ofNullable(workspaceProject.getStatus())
                 : Optional.empty();
+    }
+
+    @Override
+    protected Map<String, String> tagsOf(RulesProject project) {
+        return projectTagsCache.getTags(project);
     }
 
     @Override
