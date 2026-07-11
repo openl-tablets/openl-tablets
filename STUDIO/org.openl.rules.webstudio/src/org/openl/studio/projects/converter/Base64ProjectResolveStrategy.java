@@ -32,6 +32,10 @@ public class Base64ProjectResolveStrategy implements ProjectResolveStrategy {
         }
         var repoId = projectId.getRepository();
         var projectName = projectId.getProjectName();
+        // FIXME: getProject(repoId, name) force-refreshes the whole user workspace (rebuilds all ~160 RulesProject
+        //  instances on every request). The cached getProject(repoId, name, false) overload is far cheaper but serves
+        //  stale cross-session state — a deleted design repo still resolves, a fresh ACL grant stays invisible until
+        //  the session refreshes — so it is reverted until workspace-cache invalidation is fixed.
         try {
             return List.of(workspace.getProject(repoId, projectName));
         } catch (ProjectException e) {
