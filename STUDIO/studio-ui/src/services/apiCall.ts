@@ -42,14 +42,19 @@ class ForbiddenError extends ApiHttpError {
 
 const appStore = useAppStore.getState()
 
+/** Whether the response body is JSON, per its Content-Type. */
+const isJsonResponse = (response: Response): boolean => {
+    const contentType = response.headers.get('Content-Type')
+    return Boolean(contentType && contentType.includes('application/json'))
+}
+
 /**
  * Extract error message from response body.
  * Tries to parse JSON and extract 'message' field, falls back to default message.
  */
 const extractErrorMessage = async (response: Response, defaultMessage: string): Promise<string> => {
     try {
-        const contentType = response.headers.get('Content-Type')
-        if (contentType && contentType.includes('application/json')) {
+        if (isJsonResponse(response)) {
             const data = await response.json()
             return data.message || defaultMessage
         }
@@ -64,11 +69,6 @@ export interface ApiCallOptions {
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
     preserveEmptyText?: boolean // If true, return '' for empty text responses instead of the legacy true sentinel
     responseType?: 'auto' | 'blob' | 'response'
-}
-
-const isJsonResponse = (response: Response): boolean => {
-    const contentType = response.headers.get('Content-Type')
-    return Boolean(contentType && contentType.includes('application/json'))
 }
 
 const tryParseJsonBody = async (response: Response): Promise<unknown> => {
@@ -120,9 +120,7 @@ const apiCall = async (
                 if (opts.responseType === 'blob') {
                     return response.blob()
                 }
-                const { headers } = response
-                const contentType = headers.get('Content-Type')
-                if (contentType && contentType.includes('application/json')) {
+                if (isJsonResponse(response)) {
                     return response.json()
                 }
                 // For 204 No Content or responses without body
