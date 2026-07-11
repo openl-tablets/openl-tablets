@@ -24,6 +24,17 @@ public interface ProjectStatusMapper {
     ProjectStatusViewModel map(RulesProject project);
 
     /**
+     * Build a summary status view for a projects-list row. It reports the same state and message
+     * counts as {@link #map(RulesProject)}, but omits the detailed compilation message list, which
+     * the list does not display. Skipping it avoids resolving every message to its table and module,
+     * the dominant cost when a large project raises thousands of messages.
+     *
+     * @param project workspace project to inspect
+     * @return status view without the detailed compilation message list
+     */
+    ProjectStatusViewModel mapSummary(RulesProject project);
+
+    /**
      * Build a status view for the given project using the supplied {@link ProjectModel}
      * directly, without consulting the session-scoped compilation registry. Use this
      * overload when the model is already known (e.g. from a Spring event handler running

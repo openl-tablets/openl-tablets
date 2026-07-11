@@ -41,17 +41,30 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     @Override
     public ProjectStatusViewModel map(RulesProject project) {
-        // Read-only check: do not initiate any compilation. The status endpoint must only
-        // report whatever is already registered in the session-scoped compilation registry.
-        var projectId = projectIdentifierMapper.map(project);
-        var model = compilationJobRegistry.find(projectId, project.getBranch())
-                .map(CompilationJob::project)
-                .orElse(null);
-        return map(project, model);
+        return map(project, resolveModel(project), true);
+    }
+
+    @Override
+    public ProjectStatusViewModel mapSummary(RulesProject project) {
+        return map(project, resolveModel(project), false);
     }
 
     @Override
     public ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model) {
+        return map(project, model, true);
+    }
+
+    // Read-only check: do not initiate any compilation. The status endpoint must only
+    // report whatever is already registered in the session-scoped compilation registry.
+    @Nullable
+    private ProjectModel resolveModel(RulesProject project) {
+        var projectId = projectIdentifierMapper.map(project);
+        return compilationJobRegistry.find(projectId, project.getBranch())
+                .map(CompilationJob::project)
+                .orElse(null);
+    }
+
+    private ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model, boolean detailed) {
         var projectId = projectIdentifierMapper.map(project);
         var builder = ProjectStatusViewModel.builder()
                 .projectId(projectId);
@@ -67,7 +80,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         } else {
             var compilationStatus = model.getCompilationStatus();
             builder.compileState(deriveCompileState(model, compilationStatus));
-            builder.compilation(mapCompilationDetails(model, compilationStatus));
+            builder.compilation(mapCompilationDetails(model, compilationStatus, detailed));
         }
         builder.pendingChanges(pendingChangesResolver.resolve(project));
         return builder.build();
@@ -113,10 +126,11 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     }
 
     private CompilationDetails mapCompilationDetails(ProjectModel projectModel,
-                                                     ProjectCompilationStatus compilationStatus) {
+                                                     ProjectCompilationStatus compilationStatus,
+                                                     boolean detailed) {
         return CompilationDetails.builder()
-                .messages(mapMessages(projectModel, compilationStatus))
-                .modules(mapModules(projectModel, compilationStatus))
+                .messages(mapMessages(projectModel, compilationStatus, detailed))
+                .modules(mapModules(projectModel, compilationStatus, detailed))
                 .tests(mapTests(projectModel))
                 .build();
     }
@@ -128,38 +142,49 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .build();
     }
 
-    private CompilationMessages mapMessages(ProjectModel projectModel, ProjectCompilationStatus compilationStatus) {
-        var ordered = detailedMessageDescriptionMapper.mapSorted(compilationStatus.getAllMessage(), projectModel);
-        return CompilationMessages.builder()
-                .items(ordered)
-                .total(ordered.size())
+    private CompilationMessages mapMessages(ProjectModel projectModel,
+                                            ProjectCompilationStatus compilationStatus,
+                                            boolean includeItems) {
+        var allMessages = compilationStatus.getAllMessage();
+        var builder = CompilationMessages.builder()
+                .total(allMessages.size())
                 .errors(compilationStatus.getErrorsCount())
-                .warnings(compilationStatus.getWarningsCount())
-                .build();
+                .warnings(compilationStatus.getWarningsCount());
+        // The projects list shows only the counts; resolving each message to its table and module is
+        // the expensive part, so the list build (mapSummary) skips it and leaves items unset.
+        if (includeItems) {
+            builder.items(detailedMessageDescriptionMapper.mapSorted(allMessages, projectModel));
+        }
+        return builder.build();
     }
 
-    private CompilationModules mapModules(ProjectModel projectModel, ProjectCompilationStatus compilationStatus) {
+    private CompilationModules mapModules(ProjectModel projectModel, ProjectCompilationStatus compilationStatus,
+                                          boolean includeNames) {
         var total = compilationStatus.getModulesCount();
         if (total == 0) {
             return CompilationModules.empty();
         }
+        var builder = CompilationModules.builder()
+                .total(total)
+                .compiled(compilationStatus.getModulesCompiled());
+        // The projects list shows only the counts; the compiled-module names require walking the loader
+        // graph, so the list build (mapSummary) skips them.
+        if (includeNames) {
+            builder.compiledModules(resolveCompiledModuleNames(projectModel));
+        }
+        return builder.build();
+    }
+
+    private static List<String> resolveCompiledModuleNames(ProjectModel projectModel) {
         var moduleInfo = projectModel.getModuleInfo();
         // Single-module compile path: only the opened module is in the cycle and it's done
         // synchronously inside setModuleInfo, so no need to walk the loader graph.
         if (moduleInfo != null
                 && moduleInfo.getWebstudioConfiguration() != null
                 && moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
-            return CompilationModules.builder()
-                    .compiledModules(List.of(moduleInfo.getName()))
-                    .total(total)
-                    .compiled(compilationStatus.getModulesCompiled())
-                    .build();
+            return List.of(moduleInfo.getName());
         }
-        return CompilationModules.builder()
-                .compiledModules(collectCompiledModuleNames(projectModel, moduleInfo))
-                .total(total)
-                .compiled(compilationStatus.getModulesCompiled())
-                .build();
+        return collectCompiledModuleNames(projectModel, moduleInfo);
     }
 
     private static List<String> collectCompiledModuleNames(ProjectModel projectModel, @Nullable Module currentModule) {

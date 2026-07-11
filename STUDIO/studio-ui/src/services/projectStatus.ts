@@ -54,14 +54,16 @@ export interface ProjectStatusDetailedMessage extends ProjectStatusMessage {
 }
 
 export interface ProjectStatusCompilationMessages {
-    items: ProjectStatusDetailedMessage[]
+    /** The detailed message list. Populated for the project detail/status views; omitted for list rows, which show only the counts. */
+    items?: ProjectStatusDetailedMessage[]
     total: number
     errors: number
     warnings: number
 }
 
 export interface ProjectStatusCompilationModules {
-    compiledModules: string[]
+    /** Names of compiled modules. Populated for the project detail/status views; omitted for list rows, which show only the counts. */
+    compiledModules?: string[]
     total: number
     compiled: number
 }

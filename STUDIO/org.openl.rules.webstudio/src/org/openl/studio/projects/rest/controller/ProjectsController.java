@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,6 +61,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
@@ -159,6 +161,7 @@ public class ProjectsController {
                     array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class))),
             @Parameter(name = "tags", description = "projects.list.param.tags.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
+    @JsonView(GenericView.Full.class)
     public ProjectsPageResponse getProjects(@Parameter(hidden = true) @RequestParam MultiValueMap<String, String> params,
                                                       @RequestParam(value = "status", required = false) List<ProjectStatus> statuses,
                                                       @RequestParam(value = "repository", required = false) List<String> repositories,
@@ -201,6 +204,7 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}")
     @Operation(summary = "projects.get.summary")
+    @JsonView(GenericView.Detailed.class)
     public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project,
                                        @Parameter(description = "projects.get.param.include.desc",
                                                style = ParameterStyle.FORM,
@@ -273,6 +277,7 @@ public class ProjectsController {
     @GetMapping("/{projectId}/status")
     @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
     @Deprecated(forRemoval = false)
+    @JsonView(GenericView.Detailed.class)
     public ProjectStatusViewModel getStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                             @Parameter(description = "projects.status.param.branch.desc")
                                             @RequestParam(value = "branch", required = false) String branch) {

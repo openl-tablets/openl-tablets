@@ -6493,7 +6493,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectsPageResponse"
+                  "$ref": "#/components/schemas/ProjectsPageResponse_Full"
                 }
               }
             },
@@ -6704,7 +6704,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectViewModel"
+                  "$ref": "#/components/schemas/ProjectViewModel_Detailed"
                 }
               }
             },
@@ -9192,7 +9192,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectStatusViewModel"
+                  "$ref": "#/components/schemas/ProjectStatusViewModel_Detailed"
                 }
               }
             },
@@ -17899,6 +17899,34 @@ Content-Type: application/json
           }
         }
       },
+      "Capabilities_Detailed": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "Capabilities_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "CellHighlight": {
         "type": "object",
         "description": "***",
@@ -18010,6 +18038,34 @@ Content-Type: application/json
           }
         }
       },
+      "CompilationDetails_Detailed": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "$ref": "#/components/schemas/CompilationMessages_Detailed"
+          },
+          "modules": {
+            "$ref": "#/components/schemas/CompilationModules_Detailed"
+          },
+          "tests": {
+            "$ref": "#/components/schemas/CompilationTests_Detailed"
+          }
+        }
+      },
+      "CompilationDetails_Full": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "$ref": "#/components/schemas/CompilationMessages_Full"
+          },
+          "modules": {
+            "$ref": "#/components/schemas/CompilationModules_Full"
+          },
+          "tests": {
+            "$ref": "#/components/schemas/CompilationTests_Full"
+          }
+        }
+      },
       "CompilationMessages": {
         "type": "object",
         "properties": {
@@ -18024,6 +18080,53 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/DetailedMessageDescription"
             }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "warnings": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "CompilationMessages_Detailed": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "items": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/DetailedMessageDescription_Detailed"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "warnings": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "CompilationMessages_Full": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
           },
           "total": {
             "type": "integer",
@@ -18059,7 +18162,64 @@ Content-Type: application/json
           }
         }
       },
+      "CompilationModules_Detailed": {
+        "type": "object",
+        "properties": {
+          "compiled": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "compiledModules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "CompilationModules_Full": {
+        "type": "object",
+        "properties": {
+          "compiled": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
       "CompilationTests": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "CompilationTests_Detailed": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "CompilationTests_Full": {
         "type": "object",
         "properties": {
           "total": {
@@ -19079,6 +19239,33 @@ Content-Type: application/json
           }
         }
       },
+      "DetailedMessageDescription_Detailed": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "location": {
+            "$ref": "#/components/schemas/MessageSource_Detailed"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR"
+            ]
+          },
+          "stacktrace": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
       "DispatchInfo": {
         "type": "object",
         "description": "***",
@@ -19168,7 +19355,45 @@ Content-Type: application/json
           }
         }
       },
-      "FacetCount": {
+      "ExposedMethodsViewModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "excludes": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "includes": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExposedMethodsViewModel_Full": {
+        "type": "object",
+        "properties": {
+          "excludes": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "includes": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "FacetCount_Full": {
         "type": "object",
         "description": "***",
         "properties": {
@@ -19209,6 +19434,42 @@ Content-Type: application/json
         }
       },
       "FileChange": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          }
+        }
+      },
+      "FileChange_Detailed": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          }
+        }
+      },
+      "FileChange_Full": {
         "type": "object",
         "properties": {
           "path": {
@@ -19966,7 +20227,55 @@ Content-Type: application/json
           }
         }
       },
+      "MessageDescription_Detailed": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
       "MessageSource": {
+        "type": "object",
+        "description": "***",
+        "discriminator": {
+          "mapping": {
+            "module": "#/components/schemas/ModuleMessageSource",
+            "table": "#/components/schemas/TableMessageSource"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ModuleMessageSource"
+          },
+          {
+            "$ref": "#/components/schemas/TableMessageSource"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "MessageSource_Detailed": {
         "type": "object",
         "description": "***",
         "discriminator": {
@@ -20007,6 +20316,34 @@ Content-Type: application/json
           }
         }
       },
+      "ModifiedBy_Detailed": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "***"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          }
+        }
+      },
+      "ModifiedBy_Full": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "***"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          }
+        }
+      },
       "ModuleMessageSource": {
         "type": "object",
         "allOf": [
@@ -20024,7 +20361,50 @@ Content-Type: application/json
           }
         ]
       },
+      "ModuleMessageSource_Detailed": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource_Detailed"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ]
+      },
       "ModuleViewModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ModuleViewModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ModuleViewModel_Full": {
         "type": "object",
         "properties": {
           "name": {
@@ -20396,6 +20776,40 @@ Content-Type: application/json
           }
         }
       },
+      "PendingChanges_Detailed": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/FileChange_Detailed"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
+      "PendingChanges_Full": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/FileChange_Full"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
       "ProfileHotspotView": {
         "type": "object",
         "description": "***",
@@ -20551,7 +20965,195 @@ Content-Type: application/json
           }
         }
       },
+      "ProjectCapabilities_Detailed": {
+        "type": "object",
+        "properties": {
+          "canClose": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCompare": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCopy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDeploy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canEditTags": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canExport": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManage": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canOpen": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canSave": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canUnlock": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canViewHistory": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectCapabilities_Full": {
+        "type": "object",
+        "properties": {
+          "canClose": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCompare": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canCopy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDelete": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canDeploy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canEditTags": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canExport": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManage": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canOpen": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canSave": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canUnlock": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canViewHistory": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canWrite": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "ProjectDependencyViewModel": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "repository": {
+            "type": "string",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "LOCAL",
+              "DELETED",
+              "OPENED",
+              "VIEWING_VERSION",
+              "EDITING",
+              "CLOSED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ProjectDependencyViewModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "repository": {
+            "type": "string",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "LOCAL",
+              "DELETED",
+              "OPENED",
+              "VIEWING_VERSION",
+              "EDITING",
+              "CLOSED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ProjectDependencyViewModel_Full": {
         "type": "object",
         "properties": {
           "branch": {
@@ -20620,6 +21222,42 @@ Content-Type: application/json
           "lockedBy"
         ]
       },
+      "ProjectLockInfo_Detailed": {
+        "type": "object",
+        "properties": {
+          "lockedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "lockedBy": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "lockedAt",
+          "lockedBy"
+        ]
+      },
+      "ProjectLockInfo_Full": {
+        "type": "object",
+        "properties": {
+          "lockedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "lockedBy": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "lockedAt",
+          "lockedBy"
+        ]
+      },
       "ProjectRevision_Short": {
         "type": "object",
         "properties": {
@@ -20667,7 +21305,7 @@ Content-Type: application/json
           "technicalRevision"
         ]
       },
-      "ProjectStatusSummary": {
+      "ProjectStatusSummary_Full": {
         "type": "object",
         "description": "***",
         "properties": {
@@ -20774,6 +21412,80 @@ Content-Type: application/json
           },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectStatusViewModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "compilation": {
+            "$ref": "#/components/schemas/CompilationDetails_Detailed"
+          },
+          "compileState": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "idle",
+              "compiling",
+              "ok",
+              "warnings",
+              "errors"
+            ]
+          },
+          "lastModifiedBy": {
+            "$ref": "#/components/schemas/ModifiedBy_Detailed"
+          },
+          "pendingChanges": {
+            "$ref": "#/components/schemas/PendingChanges_Detailed"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectStatusViewModel_Full": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "compilation": {
+            "$ref": "#/components/schemas/CompilationDetails_Full"
+          },
+          "compileState": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "idle",
+              "compiling",
+              "ok",
+              "warnings",
+              "errors"
+            ]
+          },
+          "lastModifiedBy": {
+            "$ref": "#/components/schemas/ModifiedBy_Full"
+          },
+          "pendingChanges": {
+            "$ref": "#/components/schemas/PendingChanges_Full"
           },
           "projectId": {
             "type": "string",
@@ -20944,14 +21656,260 @@ Content-Type: application/json
           "revision"
         ]
       },
-      "ProjectsPageResponse": {
+      "ProjectViewModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "branchProtected": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/ProjectCapabilities_Detailed"
+          },
+          "comment": {
+            "type": "string",
+            "description": "***"
+          },
+          "compileStatus": {
+            "$ref": "#/components/schemas/ProjectStatusViewModel_Detailed"
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyViewModel_Detailed"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "exposedMethods": {
+            "$ref": "#/components/schemas/ExposedMethodsViewModel_Detailed"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "lockInfo": {
+            "$ref": "#/components/schemas/ProjectLockInfo_Detailed"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel_Detailed"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "repository": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          },
+          "selectedBranches": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "LOCAL",
+              "DELETED",
+              "OPENED",
+              "VIEWING_VERSION",
+              "EDITING",
+              "CLOSED"
+            ]
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "***"
+          },
+          "usedBy": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyViewModel_Detailed"
+            }
+          },
+          "versionPatterns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "modifiedAt",
+          "modifiedBy",
+          "name",
+          "revision"
+        ]
+      },
+      "ProjectViewModel_Full": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "branchProtected": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/ProjectCapabilities_Full"
+          },
+          "comment": {
+            "type": "string",
+            "description": "***"
+          },
+          "compileStatus": {
+            "$ref": "#/components/schemas/ProjectStatusViewModel_Full"
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyViewModel_Full"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "exposedMethods": {
+            "$ref": "#/components/schemas/ExposedMethodsViewModel_Full"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "lockInfo": {
+            "$ref": "#/components/schemas/ProjectLockInfo_Full"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel_Full"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "repository": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          },
+          "selectedBranches": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "LOCAL",
+              "DELETED",
+              "OPENED",
+              "VIEWING_VERSION",
+              "EDITING",
+              "CLOSED"
+            ]
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "***"
+          },
+          "usedBy": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyViewModel_Full"
+            }
+          },
+          "versionPatterns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "modifiedAt",
+          "modifiedBy",
+          "name",
+          "revision"
+        ]
+      },
+      "ProjectsPageResponse_Full": {
         "type": "object",
         "properties": {
           "content": {
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/ProjectViewModel"
+              "$ref": "#/components/schemas/ProjectViewModel_Full"
             }
           },
           "numberOfElements": {
@@ -20973,24 +21931,24 @@ Content-Type: application/json
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/FacetCount"
+              "$ref": "#/components/schemas/FacetCount_Full"
             }
           },
           "statusCounts": {
-            "$ref": "#/components/schemas/ProjectStatusSummary"
+            "$ref": "#/components/schemas/ProjectStatusSummary_Full"
           },
           "statuses": {
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/ProjectStatusViewModel"
+              "$ref": "#/components/schemas/ProjectStatusViewModel_Full"
             }
           },
           "tagCounts": {
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/TagFacetSummary"
+              "$ref": "#/components/schemas/TagFacetSummary_Full"
             }
           },
           "total": {
@@ -22489,6 +23447,35 @@ Content-Type: application/json
           }
         ]
       },
+      "TableMessageSource_Detailed": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MessageSource_Detailed"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cell": {
+                "type": "string",
+                "description": "***"
+              },
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "module": {
+                "type": "string",
+                "description": "***"
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ]
+      },
       "TableNodeView": {
         "type": "object",
         "properties": {
@@ -22615,7 +23602,7 @@ Content-Type: application/json
           }
         }
       },
-      "TagFacetSummary": {
+      "TagFacetSummary_Full": {
         "type": "object",
         "description": "***",
         "properties": {
@@ -22627,7 +23614,7 @@ Content-Type: application/json
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/FacetCount"
+              "$ref": "#/components/schemas/FacetCount_Full"
             }
           }
         }
