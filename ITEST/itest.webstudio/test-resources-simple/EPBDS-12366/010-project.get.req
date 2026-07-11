@@ -1,2 +1,2 @@
-GET /web/init?project=Sample&repositoryId=local&module=Main HTTP/1.1
+GET /web/init?project=Sample&repositoryId=design&module=Main HTTP/1.1
 
