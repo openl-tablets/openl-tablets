@@ -3,6 +3,7 @@ package org.openl.studio.repositories.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -17,22 +18,13 @@ import org.openl.studio.repositories.model.RepositoryViewModel;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryService {
 
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
     private final RepositoryAccessService repositoryAccessService;
     private final RepositoryAclServiceProvider aclServiceProvider;
     private final DeploymentManager deploymentManager;
-
-    public DeploymentRepositoryServiceImpl(SecureDeploymentRepositoryService deploymentRepositoryService,
-                                           RepositoryAccessService repositoryAccessService,
-                                           RepositoryAclServiceProvider aclServiceProvider,
-                                           DeploymentManager deploymentManager) {
-        this.deploymentRepositoryService = deploymentRepositoryService;
-        this.repositoryAccessService = repositoryAccessService;
-        this.aclServiceProvider = aclServiceProvider;
-        this.deploymentManager = deploymentManager;
-    }
 
     @Override
     public boolean canDeployToAnyRepository() {

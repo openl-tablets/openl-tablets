@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.standalone.persistence.Tag;
@@ -21,15 +22,11 @@ import org.openl.util.StringUtils;
  * A value of an extensible tag type that is not yet known is registered so it becomes selectable later.
  */
 @Service
+@RequiredArgsConstructor
 public class TagAssignmentValidator {
 
     private final TagTypeService tagTypeService;
     private final TagService tagService;
-
-    public TagAssignmentValidator(TagTypeService tagTypeService, TagService tagService) {
-        this.tagTypeService = tagTypeService;
-        this.tagService = tagService;
-    }
 
     /**
      * Validates the requested tag assignments and registers new values of extensible tag types.

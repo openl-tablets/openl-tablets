@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Page;
@@ -22,15 +24,11 @@ import org.openl.studio.repositories.model.ProjectRevision;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class HistoryRepositoryMapper {
 
     private final Repository repository;
     private final Comments commentService;
-
-    public HistoryRepositoryMapper(Repository repository, Comments commentService) {
-        this.repository = repository;
-        this.commentService = commentService;
-    }
 
     /**
      * Gets project history log filtered by {@code globalFilter} if present

@@ -2,6 +2,7 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.Locale;
 
+import lombok.Setter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,9 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     /** Escape char for SQL LIKE wildcards, exposed for subclasses that build LIKE predicates. */
     protected static final char ESCAPE_CHAR = '\\';
 
-    private SessionFactory sessionFactory;
-
-    @Autowired
+    @Setter(onMethod_ = @Autowired)
     @Qualifier("openlSessionFactory")
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private SessionFactory sessionFactory;
 
     public Session getSession() {
         return sessionFactory.getCurrentSession();

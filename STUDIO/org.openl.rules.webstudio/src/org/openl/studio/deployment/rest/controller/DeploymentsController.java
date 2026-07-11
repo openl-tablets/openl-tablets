@@ -142,7 +142,7 @@ public class DeploymentsController {
                 .build());
     }
 
-    private DeploymentViewModel.Builder builder(Deployment deployment) {
+    private DeploymentViewModel.DeploymentViewModelBuilder builder(Deployment deployment) {
         return DeploymentViewModel.builder()
                 .id(ProjectIdModel.builder()
                         .repository(deployment.getRepository().getId())

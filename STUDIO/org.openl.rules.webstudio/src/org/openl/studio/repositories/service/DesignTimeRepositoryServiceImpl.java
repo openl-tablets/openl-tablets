@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -21,22 +22,13 @@ import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 
 @Service
+@RequiredArgsConstructor
 public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryService {
 
     private final DesignTimeRepository designTimeRepository;
     private final RepositoryAclService designRepositoryAclService;
     private final RepositoryAccessService repositoryAccessService;
     private final PropertyResolver propertyResolver;
-
-    public DesignTimeRepositoryServiceImpl(DesignTimeRepository designTimeRepository,
-                                           RepositoryAclService designRepositoryAclService,
-                                           RepositoryAccessService repositoryAccessService,
-                                           PropertyResolver propertyResolver) {
-        this.designTimeRepository = designTimeRepository;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.repositoryAccessService = repositoryAccessService;
-        this.propertyResolver = propertyResolver;
-    }
 
     @Override
     public List<RepositoryViewModel> getRepositoryList() {
