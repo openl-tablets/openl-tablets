@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduOkVQQkRTLTE1OTUyLVByb2plY3Q6MjYyZGM4ZmY4NjY2YTA4NTBkNzU5YWExNjdiNzAwYmYzZDMxMmY0NGUwOGUyYTJjZDI0NDM4OGE3NTI3YTc4ZQ==",
+      "name": "EPBDS-15952-Project",
+      "branch": "master",
+      "status": "OPENED",
+      "repository": "design",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-15952-Project",
+      "comment": "*",
+      "selectedBranches": ["master"]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

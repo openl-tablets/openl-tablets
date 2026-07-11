@@ -1,0 +1,6 @@
+PATCH /rest/projects/ZGVzaWduOkVQQkRTLTE0NjIyOmRlYmQyYjE0ZTI1ZGFlYzFiMTBjNWY2ZGQ1ZDg4OWYxOGU0N2YyMGJkMzZjNTM4M2NmNmZmZDNkMWY5YmE5NTc= HTTP/1.1
+Content-Type: application/json
+
+{
+  "status": "OPENED"
+}

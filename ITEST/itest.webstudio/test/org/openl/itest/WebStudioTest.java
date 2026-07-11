@@ -48,7 +48,6 @@ class WebStudioTest {
                     .withInitParam("security.default-group", "Viewers")
                     .withInitParam("security.allow-project-create-delete", "false")
                     // system settings
-                    .withInitParam("user.workspace.home", "openl-repository/workspace")
                     .withInitParam("project.history.count", "99")
                     .withInitParam("data.format.date", "MM/dd/yyyy")
                     .withInitParam("data.format.time", "hh:mm:ss a")
