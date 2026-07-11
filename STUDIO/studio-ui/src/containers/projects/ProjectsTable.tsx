@@ -1,4 +1,3 @@
-import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tooltip, Typography } from 'antd'
 import { LockOutlined } from '@ant-design/icons'
@@ -11,31 +10,18 @@ import { deriveProjectRow, activateOnKey, ProjectTags } from './projectRow'
 import { MOCKUP } from './projectsTheme'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
-type ColumnKey = 'project' | 'modified'
-
-const DEFAULT_WIDTHS: Record<ColumnKey, number> = { project: 440, modified: 220 }
-const MIN_WIDTH = 96
-const ACTIONS_WIDTH = 240
-const STORAGE_KEY = 'openl.projects.table.widths'
-
-const readStoredWidths = (): Record<ColumnKey, number> => {
-    try {
-        const raw = window.localStorage.getItem(STORAGE_KEY)
-        return raw ? { ...DEFAULT_WIDTHS, ...JSON.parse(raw) } : { ...DEFAULT_WIDTHS }
-    } catch {
-        return { ...DEFAULT_WIDTHS }
-    }
-}
+/** Upper bound for the auto-sized Modified column so an unusually long author name can't crowd out the name. */
+const MODIFIED_MAX_WIDTH = 260
 
 const useStyles = createStyles(({ css, token }) => ({
     table: css`
-        table-layout: fixed;
+        width: 100%;
+        table-layout: auto;
         border-collapse: collapse;
         font-size: 14px;
     `,
     head: css`
         th {
-            position: relative;
             padding: 8px 12px;
             border-bottom: 1px solid ${token.colorBorderSecondary};
             color: ${token.colorTextTertiary};
@@ -46,37 +32,16 @@ const useStyles = createStyles(({ css, token }) => ({
             text-align: left;
             text-transform: uppercase;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         th:first-of-type {
             padding-left: 16px;
         }
     `,
-    resizeHandle: css`
-        position: absolute;
-        top: 0;
-        right: -3px;
-        z-index: 1;
-        width: 7px;
-        height: 100%;
-        cursor: col-resize;
-        touch-action: none;
-
-        &::after {
-            content: '';
-            position: absolute;
-            top: 6px;
-            bottom: 6px;
-            left: 3px;
-            width: 1px;
-            background: ${token.colorBorderSecondary};
-        }
-
-        &:hover::after {
-            background: ${token.colorPrimaryBorder};
-        }
+    /* Modified and actions shrink to their content; the name column (no width) absorbs the rest. */
+    fit: css`
+        width: 1px;
+        white-space: nowrap;
     `,
     row: css`
         cursor: pointer;
@@ -141,6 +106,7 @@ const useStyles = createStyles(({ css, token }) => ({
         margin-top: 4px;
     `,
     modAuthor: css`
+        max-width: ${MODIFIED_MAX_WIDTH}px;
         font-size: 13px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -172,9 +138,10 @@ interface ProjectsTableProps {
 
 /**
  * The projects list as a borderless table (Project / Modified / actions), each row navigating to the
- * project workspace. The compilation status sits next to the project name. Column widths are
- * user-resizable and persisted. A hand-rolled table keeps rows fast in jsdom and matches the mockup's
- * underlined-row styling.
+ * project workspace. The compilation status sits next to the project name. The layout is content-driven:
+ * the actions and modified columns shrink to fit their content (the modified column capped), and the
+ * project name takes all remaining width. A hand-rolled table keeps rows fast in jsdom and matches the
+ * mockup's underlined-row styling.
  */
 export const ProjectsTable = ({
     projects,
@@ -186,59 +153,14 @@ export const ProjectsTable = ({
 }: ProjectsTableProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
-    const [widths, setWidths] = useState<Record<ColumnKey, number>>(readStoredWidths)
-    const drag = useRef<{ key: ColumnKey; startX: number; startWidth: number } | null>(null)
-
-    const startResize = useCallback((key: ColumnKey) => (event: React.PointerEvent) => {
-        event.preventDefault()
-        drag.current = { key, startX: event.clientX, startWidth: widths[key] }
-        const onMove = (move: PointerEvent) => {
-            const state = drag.current
-            if (!state) {
-                return
-            }
-            const next = Math.max(MIN_WIDTH, state.startWidth + move.clientX - state.startX)
-            setWidths(prev => ({ ...prev, [state.key]: next }))
-        }
-        const onUp = () => {
-            drag.current = null
-            document.removeEventListener('pointermove', onMove)
-            document.removeEventListener('pointerup', onUp)
-            setWidths(current => {
-                try {
-                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(current))
-                } catch {
-                    // storage is best-effort; ignore quota/availability errors
-                }
-                return current
-            })
-        }
-        document.addEventListener('pointermove', onMove)
-        document.addEventListener('pointerup', onUp)
-    }, [widths])
-
-    const resizeHandle = (key: ColumnKey) => (
-        <span
-            aria-hidden
-            className={styles.resizeHandle}
-            data-testid={`projects-table-resize-${key}`}
-            onClick={event => event.stopPropagation()}
-            onPointerDown={startResize(key)}
-        />
-    )
 
     return (
-        <table className={styles.table} data-testid="projects-table" style={{ minWidth: '100%' }}>
-            <colgroup>
-                <col style={{ width: widths.project }} />
-                <col style={{ width: widths.modified }} />
-                <col style={{ width: ACTIONS_WIDTH }} />
-            </colgroup>
+        <table className={styles.table} data-testid="projects-table">
             <thead className={styles.head}>
                 <tr>
-                    <th>{t('home.col_project')}{resizeHandle('project')}</th>
-                    <th>{t('home.col_modified')}{resizeHandle('modified')}</th>
-                    <th aria-label={t('home.row_actions')} />
+                    <th>{t('home.col_project')}</th>
+                    <th className={styles.fit}>{t('home.col_modified')}</th>
+                    <th aria-label={t('home.row_actions')} className={styles.fit} />
                 </tr>
             </thead>
             <tbody>
@@ -283,11 +205,11 @@ export const ProjectsTable = ({
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td className={styles.fit}>
                                 <div className={styles.modAuthor}>{project.modifiedBy || '—'}</div>
                                 {date && <div className={styles.modDate}>{date}</div>}
                             </td>
-                            <td className={styles.actionsCell}>
+                            <td className={cx(styles.fit, styles.actionsCell)}>
                                 <div className={styles.actionsWrap}>
                                     <ProjectRowActions handlers={handlers} pendingActionId={pendingActionId} project={project} />
                                 </div>
