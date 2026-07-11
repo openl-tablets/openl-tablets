@@ -11,6 +11,9 @@ public interface DesignTimeRepositoryService {
 
     List<RepositoryViewModel> getRepositoryList();
 
+    /** Whether the user can create a project in at least one design repository (a copy's target). */
+    boolean canCreateInAnyRepository();
+
     List<String> getBranches(String id) throws IOException;
 
     List<String> getBranches(Repository repository) throws IOException;

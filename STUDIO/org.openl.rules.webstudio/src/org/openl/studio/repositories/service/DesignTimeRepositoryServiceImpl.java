@@ -50,6 +50,16 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
     }
 
     @Override
+    public boolean canCreateInAnyRepository() {
+        // Reuses the same per-repository capability the repository list exposes, so a copy is offered
+        // exactly when at least one repository would accept a new project (permission and, for branch
+        // repositories, an unprotected branch).
+        return designTimeRepository.getRepositories().stream()
+                .anyMatch(repo -> Boolean.TRUE.equals(
+                        repositoryAccessService.computeCapabilities(repo, AclRepositoryType.DESIGN).canCreateProject()));
+    }
+
+    @Override
     public List<String> getBranches(String id) throws IOException {
         var repository = getRepository(id);
         return getBranches(repository);

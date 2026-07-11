@@ -1,7 +1,5 @@
 package org.openl.studio.projects.service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -23,7 +21,7 @@ public class ProjectListingContext {
     private Object dependencyIndex;
     private Object usedByIndex;
     private Boolean canDeployToAnyRepository;
-    private final Map<String, Boolean> createPermissionByRepository = new HashMap<>();
+    private Boolean canCreateInAnyRepository;
 
     @FunctionalInterface
     public interface CheckedSupplier<T, E extends Exception> {
@@ -56,8 +54,11 @@ public class ProjectListingContext {
         return canDeployToAnyRepository;
     }
 
-    /** Whether the user can create a project in the given repository, computed once per repository per request. */
-    public boolean canCreateInRepository(String repositoryId, BooleanSupplier compute) {
-        return createPermissionByRepository.computeIfAbsent(repositoryId, id -> compute.getAsBoolean());
+    /** Whether the user can create a project in any repository, computed once per request. */
+    public boolean canCreateInAnyRepository(BooleanSupplier compute) {
+        if (canCreateInAnyRepository == null) {
+            canCreateInAnyRepository = compute.getAsBoolean();
+        }
+        return canCreateInAnyRepository;
     }
 }

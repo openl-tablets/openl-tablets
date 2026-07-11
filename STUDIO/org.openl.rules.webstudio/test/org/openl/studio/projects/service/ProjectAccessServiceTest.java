@@ -16,12 +16,14 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.DeploymentRepositoryService;
+import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 
 class ProjectAccessServiceTest {
 
     private AclProjectsHelper aclProjectsHelper;
     private ProjectStateValidator stateValidator;
     private DeploymentRepositoryService deploymentRepositoryService;
+    private DesignTimeRepositoryService designTimeRepositoryService;
     private ProjectListingContext listingContext;
     private UserWorkspaceProject project;
     private ProjectAccessService service;
@@ -31,11 +33,12 @@ class ProjectAccessServiceTest {
         aclProjectsHelper = mock(AclProjectsHelper.class);
         stateValidator = mock(ProjectStateValidator.class);
         deploymentRepositoryService = mock(DeploymentRepositoryService.class);
+        designTimeRepositoryService = mock(DesignTimeRepositoryService.class);
         listingContext = mock(ProjectListingContext.class);
         project = mock(UserWorkspaceProject.class);
         when(project.getRepository()).thenReturn(mock(Repository.class));
         service = new ProjectAccessService(aclProjectsHelper, stateValidator, deploymentRepositoryService,
-                listingContext);
+                designTimeRepositoryService, listingContext);
     }
 
     private void grant(Permission... permissions) {
@@ -134,5 +137,22 @@ class ProjectAccessServiceTest {
         when(listingContext.canDeployToAnyRepository(any())).thenReturn(true);
         when(project.isLocalOnly()).thenReturn(true);
         assertNull(service.computeCapabilities(project).canDeploy());
+    }
+
+    @Test
+    void copy_requires_a_creatable_target_repository_and_a_non_local_project() {
+        // A copy is created in whatever repository the user picks, so it mirrors the "can create in any
+        // repository" check (which itself honours branch protection), not the source repository.
+        when(listingContext.canCreateInAnyRepository(any())).thenReturn(true);
+        assertEquals(Boolean.TRUE, service.computeCapabilities(project).canCopy());
+
+        // No repository accepts a new project — nowhere to copy to, so the action is hidden.
+        when(listingContext.canCreateInAnyRepository(any())).thenReturn(false);
+        assertNull(service.computeCapabilities(project).canCopy());
+
+        // A local-only project is never copyable, regardless of repository availability.
+        when(listingContext.canCreateInAnyRepository(any())).thenReturn(true);
+        when(project.isLocalOnly()).thenReturn(true);
+        assertNull(service.computeCapabilities(project).canCopy());
     }
 }

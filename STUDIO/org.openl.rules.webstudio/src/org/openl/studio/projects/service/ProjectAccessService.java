@@ -13,6 +13,7 @@ import org.openl.studio.common.model.Capabilities;
 import org.openl.studio.projects.model.ProjectCapabilities;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.DeploymentRepositoryService;
+import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 
 /**
  * Computes the current user's capabilities on a project for UI action gating.
@@ -32,6 +33,7 @@ public class ProjectAccessService {
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStateValidator projectStateValidator;
     private final DeploymentRepositoryService deploymentRepositoryService;
+    private final DesignTimeRepositoryService designTimeRepositoryService;
     private final ProjectListingContext listingContext;
 
     public ProjectCapabilities computeCapabilities(AProject project) {
@@ -49,7 +51,6 @@ public class ProjectAccessService {
                 && (localOnly || workspaceProject.isOpenedForEditing());
         // Compare, view-history and export are all "read a shared (non-local) project".
         boolean readShared = read && !localOnly;
-        String repositoryId = workspaceProject.getRepository().getId();
         return ProjectCapabilities.builder()
                 .project(Capabilities.builder()
                         .canWrite(flag(write && editable))
@@ -65,8 +66,11 @@ public class ProjectAccessService {
                 .canViewHistory(flag(readShared))
                 .canEditTags(flag(write && workspaceProject.isOpened()))
                 .canManage(flag(administer && !localOnly))
-                .canCopy(flag(!localOnly && listingContext.canCreateInRepository(repositoryId,
-                        () -> aclProjectsHelper.hasCreateProjectPermission(repositoryId))))
+                // Copy creates a new project in a repository the user picks, so it mirrors the copy dialog's
+                // repository list: available when the user can create a project in any repository (permission
+                // and, for branch repositories, an unprotected branch) — not just the source repository.
+                .canCopy(flag(!localOnly && listingContext.canCreateInAnyRepository(
+                        designTimeRepositoryService::canCreateInAnyRepository)))
                 .canExport(flag(readShared))
                 .build();
     }
