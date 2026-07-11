@@ -24,6 +24,10 @@ public class ProjectNameResolveStrategy implements ProjectResolveStrategy {
 
     @Override
     public List<RulesProject> resolve(UserWorkspace workspace, String identity) {
+        // FIXME: getProjectsByName(identity) force-refreshes the whole user workspace (rebuilds all ~160 RulesProject
+        //  instances on every request). The cached getProjectsByName(identity, false) overload is far cheaper but
+        //  serves stale cross-session state (deleted repos still resolve, fresh ACL grants stay invisible), so it is
+        //  reverted until workspace-cache invalidation is fixed.
         var matches = new ArrayList<>(workspace.getProjectsByName(identity));
         if (matches.isEmpty()) {
             workspace.getDesignTimeRepository()

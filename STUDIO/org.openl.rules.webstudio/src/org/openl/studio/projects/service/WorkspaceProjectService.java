@@ -528,6 +528,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                     .map(workspace::getProjects)
                     .flatMap(Collection::stream);
         } else {
+            // FIXME: the no-arg getProjects() force-refreshes the whole user workspace (rebuilds all ~160 RulesProject
+            //  instances on every request — the dominant cost of the list and its facet-count scan). getProjects(false)
+            //  is far cheaper but serves stale cross-session state (deleted repos still listed, fresh ACL grants stay
+            //  invisible), so it is reverted until workspace-cache invalidation is fixed.
             projects = workspace.getProjects();
         }
         return projects.stream();
