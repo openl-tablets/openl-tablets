@@ -131,9 +131,10 @@ const apiCall = async (
                 return text || (opts.preserveEmptyText ? '' : true)
             }
             else if (status === 401) {
-                if (!opts.suppressErrorPages) {
-                    appStore.setShowLogin(true)
-                }
+                // A 401 means the session is gone (expired or invalidated): the whole app is unusable, so
+                // always redirect to login. suppressErrorPages only governs the expected 403/404/500 content
+                // pages a caller handles locally — it must never swallow an authentication failure.
+                appStore.setShowLogin(true)
                 throw new EmptyError()
             } else if (status === 403) {
                 if (!opts.suppressErrorPages) {

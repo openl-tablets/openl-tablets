@@ -201,14 +201,16 @@ describe('apiCall', () => {
         expect(notification.error).not.toHaveBeenCalled()
     })
 
-    it('suppresses the login page when error pages are disabled', async () => {
+    it('still redirects to login on 401 even when error pages are suppressed', async () => {
         fetchMock.mockResolvedValueOnce(mockResponse({ status: 401 }))
 
+        // suppressErrorPages governs the expected 403/404/500 content pages a caller handles locally; an
+        // expired session must always send the user to login, so the flag does not apply to 401.
         await expect(apiCall('/secure', undefined, {
             throwError: true,
             suppressErrorPages: true,
         })).rejects.toBeInstanceOf(EmptyError)
-        expect(__appStoreState['setShowLogin']).not.toHaveBeenCalled()
+        expect(__appStoreState['setShowLogin']).toHaveBeenCalledTimes(1)
     })
 
     it('throws joined field validation messages for structured API errors', async () => {
