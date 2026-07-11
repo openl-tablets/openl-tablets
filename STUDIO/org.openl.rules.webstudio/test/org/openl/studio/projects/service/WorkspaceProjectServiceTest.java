@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
@@ -504,7 +505,8 @@ class WorkspaceProjectServiceTest {
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
                 environment(),
-                mock(TagAssignmentValidator.class)) {
+                mock(TagAssignmentValidator.class),
+                new ProjectTagsCache(mock(CacheManager.class))) {
 
             @Override
             public UserWorkspace getUserWorkspace() {

@@ -103,7 +103,8 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
                 mock(Environment.class),
-                mock(TagAssignmentValidator.class)) {
+                mock(TagAssignmentValidator.class),
+                mock(ProjectTagsCache.class)) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return userWorkspace;
