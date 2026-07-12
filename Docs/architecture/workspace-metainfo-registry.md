@@ -109,6 +109,21 @@ workspace after the start — before the workspace projects are exposed:
 
 Every state has exactly one outcome, so a damaged entry cannot break or pollute the workspace load.
 
+## Unmatched Projects
+
+The workspace refresh never rewrites the repository link of an opened copy:
+
+- **Repository unavailable** (an outage, a wrong URL, lost credentials): the opened copies stay linked and
+  keep their last known state, reconstructed from the records. When the repository recovers, the copies
+  match their design counterparts again as if nothing happened.
+- **Project deleted in the current branch, or the branch removed**: an unchanged copy is silently closed;
+  a copy with local changes stays opened and linked — the next save targets the current branch of the
+  repository, so the changes are not lost.
+- A genuinely local project (`repository-id=local`) is served as is.
+- **Repository removed from the configuration**: the copy is relinked to the `local` repository — the
+  administrative detach is the only case when a design project becomes a local one. The baselines and
+  the local-changes state survive the relink.
+
 ## Local Edit History
 
 - The module edit history lives outside the project folder: `{userId}/.history/{project}/<module root>`
