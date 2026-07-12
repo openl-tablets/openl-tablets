@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "LockGuard",
+  "returnType": "String",
+  "signature": "LockGuard(Integer hour)",
+  "file": "ProjectLocked/Main.xlsx",
+  "pos": "*"
+}

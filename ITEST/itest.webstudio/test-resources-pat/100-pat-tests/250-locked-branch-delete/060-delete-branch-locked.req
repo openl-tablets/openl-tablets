@@ -1,0 +1,4 @@
+DELETE /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdExvY2tlZDo4OGU3NzQ4OTViYTNjYjgxZWZhMzEzYTA3YjNjNTYwODE5NTg3NjgwYWZhYjIxZWFkM2IxODMxMjdiYjY4ODE2/branches/EPBDS-16255-lock HTTP/1.1
+Authorization: Token ${ADMIN_PAT}
+Cookie: NO_JSESSIONID=noAuth
+

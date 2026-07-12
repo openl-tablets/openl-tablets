@@ -1,0 +1,38 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdExvY2tlZDo4OGU3NzQ4OTViYTNjYjgxZWZhMzEzYTA3YjNjNTYwODE5NTg3NjgwYWZhYjIxZWFkM2IxODMxMjdiYjY4ODE2/tables HTTP/1.1
+Authorization: Token ${USER1_PAT}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "table": {
+    "tableType": "SmartRules",
+    "kind": "Rules",
+    "name": "LockGuard",
+    "returnType": "String",
+    "args": [
+      {
+        "name": "hour",
+        "type": "Integer"
+      }
+    ],
+    "headers": [
+      {
+        "title": "Rule"
+      },
+      {
+        "title": "Hour"
+      },
+      {
+        "title": "Greeting"
+      }
+    ],
+    "rules": [
+      {
+        "Rule": "R10",
+        "Hour": "[0..12)",
+        "Greeting": "Hi"
+      }
+    ]
+  }
+}

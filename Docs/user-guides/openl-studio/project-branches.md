@@ -50,7 +50,8 @@ This section describes how to view existing branches, switch between them in the
 
     The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage
     branches** list. The project in the branch is deleted. If the non-default branch contains commits not merged to the
-    default branch, a warning message is displayed upon deletion attempt.
+    default branch, a warning message is displayed upon deletion attempt. A branch on which the project is locked by
+    another user cannot be deleted while the lock is held: the lock means that user is editing the project there.
 
     ![](images/delete-branch-unmerged-commits.png)
 

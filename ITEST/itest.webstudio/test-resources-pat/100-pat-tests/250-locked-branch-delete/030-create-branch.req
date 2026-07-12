@@ -1,0 +1,8 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdExvY2tlZDo4OGU3NzQ4OTViYTNjYjgxZWZhMzEzYTA3YjNjNTYwODE5NTg3NjgwYWZhYjIxZWFkM2IxODMxMjdiYjY4ODE2/branches HTTP/1.1
+Authorization: Token ${USER1_PAT}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "branch": "EPBDS-16255-lock"
+}
