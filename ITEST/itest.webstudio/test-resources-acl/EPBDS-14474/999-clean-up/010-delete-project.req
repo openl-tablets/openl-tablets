@@ -1,0 +1,3 @@
+DELETE /rest/projects/EPBDS_14474_Project?comment=Cleanup HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

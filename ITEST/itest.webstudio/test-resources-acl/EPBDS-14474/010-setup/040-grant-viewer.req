@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/ZGVzaWduOkVQQkRTXzE0NDc0X1Byb2plY3Q=?sid=EPBDS_14474&principal=true HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "role": "VIEWER"
+}
