@@ -618,6 +618,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * is currently opened on the branch being deleted, it is released first. Deleting a protected branch requires an
      * eligible user and the {@code force} flag.
      *
+     * <p>A branch on which the project is locked by another user cannot be deleted: the lock means the user
+     * is editing the project there. The lock owner can delete the branch.
+     *
      * @param project    project that identifies the target repository
      * @param branchName branch to delete
      * @param force      confirmation flag to bypass protected-branch restrictions
@@ -637,6 +640,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (!repository.branchExists(branchName)) {
                 throw new NotFoundException("repository.branch.message");
             }
+            requireNotLockedByAnotherUser(project, repository, branchName);
             bypassService.requireBypassOrThrow(repository, branchName, project, force);
             releaseProjectOnBranch(project, branchName);
             repository.deleteBranch(null, branchName);
@@ -645,6 +649,28 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.branch.delete.failed.message");
         }
         getUserWorkspace().refresh();
+    }
+
+    /**
+     * Rejects the branch deletion when the project on that branch is locked by another user.
+     *
+     * <p>The lock key includes the branch, so the check targets the branch being deleted, not the branch
+     * the caller is currently on. The caller's own lock does not block the deletion.
+     *
+     * <p>The lock is looked up by the caller-visible project path. A project moved or renamed inside the
+     * target branch of a mapped repository is not matched: the lock model identifies a project by its
+     * path, and every lock check shares this limitation.
+     *
+     * @param project    project that identifies the lock
+     * @param repository repository that hosts the branch
+     * @param branchName branch to delete
+     */
+    private void requireNotLockedByAnotherUser(RulesProject project, BranchRepository repository, String branchName) {
+        var lockInfo = getUserWorkspace().getProjectsLockEngine()
+                .getLockInfo(repository.getId(), branchName, project.getRealPath());
+        if (lockInfo.isLocked() && !lockInfo.getLockedBy().equals(getUserWorkspace().getUser().getUserName())) {
+            throw new ConflictException("project.branch.delete.locked.message", lockInfo.getLockedBy());
+        }
     }
 
     /**

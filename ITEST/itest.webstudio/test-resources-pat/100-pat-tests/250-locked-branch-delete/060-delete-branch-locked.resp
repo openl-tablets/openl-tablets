@@ -1,0 +1,7 @@
+HTTP/1.1 409
+Content-Type: application/json
+
+{
+  "code": "openl.error.409.project.branch.delete.locked.message",
+  "message": "Cannot delete the branch: the project is locked by user 'user1'."
+}
