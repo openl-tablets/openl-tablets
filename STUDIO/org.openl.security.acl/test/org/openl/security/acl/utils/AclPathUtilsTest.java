@@ -1,10 +1,8 @@
-package rg.openl.security.acl.utils;
+package org.openl.security.acl.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-
-import org.openl.security.acl.utils.AclPathUtils;
 
 class AclPathUtilsTest {
 
