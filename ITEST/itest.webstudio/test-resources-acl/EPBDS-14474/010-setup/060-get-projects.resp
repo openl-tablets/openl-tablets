@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "EPBDS_14474_Project",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOkVQQkRTXzE0NDc0X1Byb2plY3Q=",
+      "status": "OPENED",
+      "comment": "*",
+      "repository": "design"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

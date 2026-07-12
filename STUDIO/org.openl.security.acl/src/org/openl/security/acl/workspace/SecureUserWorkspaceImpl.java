@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
@@ -18,6 +19,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.repository.RepositoryAclService;
 
+@Slf4j
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     private final UserWorkspace userWorkspace;
@@ -46,8 +48,32 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public List<RulesProject> getProjects(String repositoryId) {
         return userWorkspace.getProjects(repositoryId)
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .filter(this::hasReadAccess)
                 .toList();
+    }
+
+    /**
+     * Checks the read access to the project and evicts the inaccessible copy from the workspace.
+     *
+     * <p>A revoked permission hides the project from all listings, and the copied data must not stay
+     * on the server either. The opened copy is closed: the local files and the registry record are
+     * removed. A genuinely local project has no source repository to control the access, so it is
+     * kept as is.
+     */
+    private boolean hasReadAccess(RulesProject project) {
+        if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
+            return true;
+        }
+        if (project.isOpened() && !project.isLocalOnly()) {
+            log.info("Access to the project '{}' was revoked. The copy leaves the user workspace.",
+                    project.getName());
+            try {
+                project.close();
+            } catch (ProjectException e) {
+                log.warn("Cannot close the revoked project '{}'.", project.getName(), e);
+            }
+        }
+        return false;
     }
 
     @Override
@@ -162,7 +188,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjects() {
         return userWorkspace.getProjects()
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .filter(this::hasReadAccess)
                 .toList();
     }
 
@@ -170,7 +196,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjects(boolean refreshBefore) {
         return userWorkspace.getProjects(refreshBefore)
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .filter(this::hasReadAccess)
                 .toList();
     }
 
@@ -178,7 +204,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjectsByName(String name) {
         return userWorkspace.getProjectsByName(name)
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .filter(this::hasReadAccess)
                 .toList();
     }
 
@@ -186,7 +212,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjectsByName(String name, boolean refreshBefore) {
         return userWorkspace.getProjectsByName(name, refreshBefore)
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
+                .filter(this::hasReadAccess)
                 .toList();
     }
 

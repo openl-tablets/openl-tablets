@@ -65,6 +65,8 @@ stateDiagram-v2
 
 - Only three coarse-grained operations write the record: open, save, close. They run under a per-project
   in-JVM lock inside the registry.
+- A revoked read permission also closes the copy: the first project listing that meets an opened copy
+  without the read access evicts it, so the copied data does not outlive the access.
 - Records are written atomically (temp file + rename), so a crash cannot leave a partially written record.
 - The record write is the commit point of the open operation: project files are copied first, and a crash
   before the record is written leaves a folder without a record, which the reconciliation removes.
