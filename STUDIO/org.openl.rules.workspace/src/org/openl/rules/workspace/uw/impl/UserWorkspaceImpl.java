@@ -29,7 +29,8 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.ProjectState;
+import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -40,7 +41,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 
@@ -413,46 +413,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         log.info("Project '{}' does not exist in the branch '{}' anymore",
                                                 name,
                                                 branch);
-                                        if (local != null) {
-                                            // We should either close the project or make it local if we don't want to
-                                            // lose the changes.
-                                            final RulesProject tmp = new RulesProject(getUser(),
-                                                    localRepository,
-                                                    local,
-                                                    repo,
-                                                    designFileData,
-                                                    projectsLockEngine);
-                                            if (tmp.isModified()) {
-                                                log.info(
-                                                        "Project '{}' is modified. Convert it to local project instead of closing to prevent losing user changes. ",
-                                                        tmp.getName());
-                                                if (tmp.isLockedByMe()) {
-                                                    tmp.unlock();
-                                                }
-                                                // We will have 2 projects: local project with changes in the branch
-                                                // with deleted project and closed project in the main branch.
-                                                // 1) Local project with changes in the branch with deleted project
-                                                ProjectState state = localRepository
-                                                        .getProjectState(lp.getFolderPath());
-                                                if (state != null && !LocalWorkspaceImpl.LOCAL_ID
-                                                        .equals(state.getRepositoryId())) {
-                                                    state.saveFileData(LocalWorkspaceImpl.LOCAL_ID, local);
-                                                }
-                                                // 2) Closed project in design repository in main branch
-                                                local = null;
-                                                localRepository = null;
-                                            } else {
-                                                // Close the project and stay in the main branch.
-                                                log.info(
-                                                        "Close the project '{}' because it does not exist in the branch '{}'",
-                                                        name,
-                                                        branch);
-                                                closeProject = true;
-                                            }
+                                        if (local != null && !isModifiedLocally(localRepository, lp)) {
+                                            // Close the unchanged copy and stay in the main branch. A copy
+                                            // with local changes stays opened and linked: the next save
+                                            // targets the current branch of the repository, so the changes
+                                            // are not lost and no phantom LOCAL project appears.
+                                            log.info(
+                                                    "Close the project '{}' because it does not exist in the branch '{}'",
+                                                    name,
+                                                    branch);
+                                            closeProject = true;
                                         }
                                     }
                                 }
-                            } else if (local != null) {
+                            } else if (local != null && !isModifiedLocally(localRepository, lp)) {
+                                // Same policy when the whole branch was removed: only an unchanged copy
+                                // is closed, a changed one stays opened on the current branch.
                                 log.info("Close the project {} because the branch {} was removed", name, branch);
                                 closeProject = true;
                             }
@@ -499,8 +475,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 putRulesProject(project);
             }
 
-            // LocalProjects that hasn't corresponding project in
-            // DesignTimeRepository
+            // Workspace projects that have no corresponding project in the design repositories:
+            // genuine local projects and opened copies whose repository is unavailable or whose
+            // upstream was deleted. The repository link is never rewritten: an unavailable
+            // repository is a temporary state, and the projects match their design counterparts
+            // again when it recovers.
             for (AProject lp : localWorkspace.getProjects()) {
                 String repoId = lp.getRepository().getId();
                 String name = lp.getName();
@@ -519,20 +498,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         continue;
                     }
 
-                    ProjectState state = repository.getProjectState(lp.getFolderPath());
-                    if (state != null) {
-                        if (!LocalWorkspaceImpl.LOCAL_ID.equals(state.getRepositoryId())) {
-                            state.saveFileData(LocalWorkspaceImpl.LOCAL_ID, local);
-                        }
-                    }
-
-                    RulesProject project = new RulesProject(getUser(),
-                            repository,
-                            local,
-                            null,
-                            null,
-                            projectsLockEngine);
-                    putRulesProject(project);
+                    putRulesProject(createUnmatchedProject(repoId, repository, local));
                 }
             }
 
@@ -543,6 +509,55 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 doSyncProjects();
             }
         }
+    }
+
+    private boolean isModifiedLocally(LocalRepository localRepository, AProject localProject) {
+        return localRepository.getProjectState(localProject.getFolderPath()).isModified();
+    }
+
+    /**
+     * Builds a workspace project that has no design counterpart in this refresh.
+     *
+     * <p>A genuine local project stays local. An opened copy linked to a design repository keeps the
+     * link: the design side is reconstructed from the metainfo record, so a temporary repository
+     * outage or an upstream deletion does not turn the copy into a LOCAL project.
+     *
+     * <p>The only conversion left is the administrative one: when the repository was removed from the
+     * configuration, the copy becomes a local project, otherwise it would hang under a repository
+     * that no longer exists.
+     */
+    private RulesProject createUnmatchedProject(String repoId, LocalRepository repository, FileData local) {
+        Repository designRepository = LocalWorkspace.LOCAL_ID.equals(repoId) ? null
+                : designTimeRepository.getRepository(repoId);
+        if (designRepository == null && !LocalWorkspace.LOCAL_ID.equals(repoId)) {
+            log.info("The repository '{}' was removed from the configuration."
+                    + " The project '{}' becomes a local project.", repoId, local.getName());
+            // The record is relinked directly, so a legacy record without revision details converts
+            // too, and the baselines with the local-changes state survive.
+            MetainfoRegistry registry = localWorkspace.getMetainfoRegistry();
+            ProjectMetainfo metainfo = registry.get(local.getName());
+            if (metainfo != null) {
+                registry.relink(local.getName(), metainfo.withRepositoryId(LocalWorkspace.LOCAL_ID));
+            }
+        }
+        FileData designFileData = null;
+        if (designRepository != null && local.getVersion() != null) {
+            designFileData = new FileData();
+            FileMappingData mappingData = local.getAdditionalData(FileMappingData.class);
+            designFileData.setName(mappingData != null ? mappingData.getInternalPath()
+                    : designTimeRepository.getRulesLocation() + local.getName());
+            designFileData.setVersion(local.getVersion());
+            designFileData.setBranch(local.getBranch());
+            designFileData.setAuthor(local.getAuthor());
+            designFileData.setModifiedAt(local.getModifiedAt());
+            designFileData.setSize(local.getSize());
+        }
+        return new RulesProject(getUser(),
+                repository,
+                local,
+                designFileData == null ? null : designRepository,
+                designFileData,
+                projectsLockEngine);
     }
 
     /**
