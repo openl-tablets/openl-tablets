@@ -1,0 +1,10 @@
+POST /rest/projects/{PROJECT_ID}/files/closed-upload/ HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="gamma.txt"
+Content-Type: text/plain
+
+&gamma.txt
+--MULTIBOUND--

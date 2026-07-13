@@ -1,0 +1,8 @@
+PUT /rest/acls/repositories/REVTSUdOOmRlc2lnbi1mbGF0?principal=true&sid=user16256 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "role": "CONTRIBUTOR"
+}

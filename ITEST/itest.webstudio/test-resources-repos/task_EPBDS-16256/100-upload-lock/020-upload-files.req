@@ -1,0 +1,15 @@
+POST /rest/projects/{PROJECT_ID}/files/upload-lock/ HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="alpha.txt"
+Content-Type: text/plain
+
+&alpha.txt
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="sub/beta.txt"
+Content-Type: text/plain
+
+&beta.txt
+--MULTIBOUND--

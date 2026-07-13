@@ -70,7 +70,7 @@ class RepoFileRootAncestorsGitTest {
         lenient().when(aclProvider.getDesignRepoAclService()).thenReturn(aclService);
 
         root = new RepoFileRoot(repository, aclProjectsHelper,
-                new ProjectFileLookupServiceImpl(aclProjectsHelper, aclProvider));
+                new ProjectFileLookupServiceImpl(aclProjectsHelper, aclProvider), mock(ProjectLockGuard.class));
     }
 
     @AfterEach

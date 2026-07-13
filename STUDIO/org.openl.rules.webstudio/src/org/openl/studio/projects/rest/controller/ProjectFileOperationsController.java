@@ -40,7 +40,7 @@ import org.openl.studio.projects.validator.file.FileSearchQueryValidator;
  */
 @RestController
 @RequestMapping(value = "/projects/{projectId}", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
+@Tag(name = "Projects: Files (BETA)", description = ProjectFilesController.TAG_DESCRIPTION)
 @Validated
 public class ProjectFileOperationsController extends AbstractFileOperationsController {
 
