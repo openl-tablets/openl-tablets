@@ -37,6 +37,15 @@ try {
     assert buildLog.contains("Service 'openl-groovy-0.0.0' has been deployed successfully.") :
             "openl:verify did not deploy openl-groovy"
 
+    // ----- Logging goes through the Maven slf4j logger --------------------------------------------
+    // log4j-to-slf4j must bind log4j-api users (Apache POI) both in the plugin classloader and in the
+    // embedded application, so the log4j fallback stub never activates and no log file is created.
+    assert !buildLog.contains('could not find a logging provider') :
+            'log4j-api has no provider: logging bypasses the Maven output'
+    def logsDirs = []
+    folder.eachDirRecurse { if (it.name == 'logs') logsDirs << it }
+    assert logsDirs.isEmpty() : "log files were created during the build:\n${logsDirs.join('\n')}"
+
     return true
 } catch (Throwable e) {
     e.printStackTrace()

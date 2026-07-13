@@ -81,9 +81,12 @@ public class VerifyMojo extends BaseOpenLMojo {
             openlJars.putAll(getJars(versionlessKey(dep.getGroupId(), dep.getArtifactId(), dep.getClassifier())));
         }
 
-        // Remove log4j due LOG4J2-3657 and needeless to log to the file.
+        // Remove log4j due LOG4J2-3657 and needless to log to the file.
         openlJars.remove("org.apache.logging.log4j:log4j-core");
         openlJars.remove("org.apache.logging.log4j:log4j-slf4j2-impl");
+
+        // Route log4j-api users (Apache POI) into the Maven slf4j logger instead of the silent log4j fallback.
+        openlJars.putAll(getJars("org.apache.logging.log4j:log4j-to-slf4j"));
 
         var world = new ClassWorld();
         var jettyClassLoader = world.newRealm("jetty");
