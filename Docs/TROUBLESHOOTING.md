@@ -45,8 +45,8 @@ curl http://localhost:8080/actuator/health | jq
 
 | Component | Log Location |
 |-----------|--------------|
-| **OpenL Studio** | `/var/log/openl/studio.log` or `STUDIO/target/studio.log` |
-| **Rule Service** | `/var/log/openl/ruleservice.log` or `WSFrontend/target/ruleservice.log` |
+| **OpenL Studio** | `logs/webstudio.log` under the servlet container base (`$CATALINA_BASE` for Tomcat, `$JETTY_BASE` for Jetty) |
+| **Rule Service** | `logs/ruleservice.log` under the servlet container base (`$CATALINA_BASE` for Tomcat, `$JETTY_BASE` for Jetty) |
 | **Docker Container** | `docker logs <container-id>` |
 | **Kubernetes Pod** | `kubectl logs <pod-name> -n openl-tablets` |
 
@@ -54,19 +54,19 @@ curl http://localhost:8080/actuator/health | jq
 
 ```bash
 # View last 100 lines
-tail -n 100 /var/log/openl/studio.log
+tail -n 100 $CATALINA_BASE/logs/webstudio.log
 
 # Follow logs in real-time
-tail -f /var/log/openl/studio.log
+tail -f $CATALINA_BASE/logs/webstudio.log
 
 # Search for errors
-grep -i "error" /var/log/openl/studio.log
+grep -i "error" $CATALINA_BASE/logs/webstudio.log
 
 # Search for exceptions
-grep -A 10 "Exception" /var/log/openl/studio.log
+grep -A 10 "Exception" $CATALINA_BASE/logs/webstudio.log
 
 # Count errors by type
-grep "ERROR" /var/log/openl/studio.log | cut -d' ' -f5 | sort | uniq -c | sort -rn
+grep "ERROR" $CATALINA_BASE/logs/webstudio.log | cut -d' ' -f5 | sort | uniq -c | sort -rn
 ```
 
 ---
@@ -835,8 +835,8 @@ docker run -it --entrypoint /bin/bash openltablets/webstudio:latest
 # 2. Check environment variables
 docker run --rm openltablets/webstudio:latest env
 
-# 3. Mount logs volume
-docker run -v /tmp/logs:/var/log/openl openltablets/webstudio:latest
+# 3. Follow the logs: the container writes them to stdout (see LOGGING_FORMAT=ecs|otel|plain|none)
+docker logs -f <container-id>
 ```
 
 ### Issue: Docker Network Issues
@@ -1054,7 +1054,7 @@ java -Djavax.net.ssl.trustStore=/path/to/truststore.jks \
 # Look for failed requests (404, 500)
 
 # 3. Check server logs
-tail -f logs/studio.log | grep ERROR
+tail -f logs/webstudio.log | grep ERROR
 
 # 4. Clear browser cache
 # Chrome: Ctrl+Shift+Delete

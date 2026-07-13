@@ -124,9 +124,9 @@ kill -9 <PID>
 java -version  # Should be Java 21+
 ```
 
-4. **Check logs**:
+4. **Check logs**: Maven builds and tests log to the console only. A war deployed to a servlet container writes to the container base directory:
 ```bash
-tail -f STUDIO/org.openl.rules.webstudio/logs/application.log
+tail -f $CATALINA_BASE/logs/webstudio.log
 ```
 
 ### ClassNotFoundException
@@ -163,9 +163,9 @@ Failed to deploy service: MyRuleService
 
 2. **Verify rule project exists** in repository
 
-3. **Check service logs**:
+3. **Check service logs**: Maven builds and tests log to the console only. A war deployed to a servlet container writes to the container base directory:
 ```bash
-tail -f WSFrontend/org.openl.rules.ruleservice.ws/logs/application.log
+tail -f $CATALINA_BASE/logs/ruleservice.log
 ```
 
 4. **Validate rules compile**:
