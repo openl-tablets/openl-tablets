@@ -1803,10 +1803,7 @@ public class RepositoryTreeController {
                     Module module = new Module();
                     module.setName(FileUtils.getBaseName(fileName));
                     module.setRulesRootPath(modulePath);
-                    ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
-                    if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
-                        projectDescriptor.getModules().add(module);
-                    }
+                    new ProjectDescriptorManager().registerModule(projectDescriptor, module);
                     resource.setContent(new ByteArrayInputStream(projectDescriptor.toBytes()));
                 }
             } catch (ProjectException ex) {
