@@ -97,6 +97,14 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
         </dependency>
+        <!-- Routes log4j-api users (Apache POI) of the plugin and of the embedded application into the
+             Maven slf4j logger. log4j-core stays absent, so the log4j2.properties bundled in the
+             ruleservice.ws jar is never read and no log file is created. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-annotations</artifactId>
