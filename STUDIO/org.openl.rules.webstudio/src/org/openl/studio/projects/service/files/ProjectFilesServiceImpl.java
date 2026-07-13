@@ -98,13 +98,17 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                @NotBlank String path,
                                @NotNull InputStream content) {
         root.requireModifiable();
-        var resource = findFileArtefact(root.readFolder(null), path);
-        requirePermission(resource, BasePermission.WRITE);
-        InputStream validatedContent = validateContent(resource.getName(), content);
+        lockIfClosed(root);
         try {
+            var resource = findFileArtefact(root.readFolder(null), path);
+            requirePermission(resource, BasePermission.WRITE);
+            lockForEditing(root, path);
+            InputStream validatedContent = validateContent(resource.getName(), content);
             resource.setContent(validatedContent);
         } catch (ProjectException e) {
             throw new ConflictException("file.update.failed.message");
+        } finally {
+            unlockIfClosed(root);
         }
     }
 
@@ -112,18 +116,22 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     public void deleteResource(@NotNull FileRoot root, @NotBlank String path) {
         root.requireModifiable();
         validateResourcePath(path);
-        AProjectArtefact found = findArtefactByPath(root.readFolder(null), path);
-        if (found == null) {
-            throw new NotFoundException("file.not.found.message");
-        }
-        requirePermission(found, BasePermission.DELETE);
+        lockIfClosed(root);
         try {
+            AProjectArtefact found = findArtefactByPath(root.readFolder(null), path);
+            if (found == null) {
+                throw new NotFoundException("file.not.found.message");
+            }
+            requirePermission(found, BasePermission.DELETE);
+            lockForEditing(root, path);
             if (root instanceof ProjectFileRoot projectRoot) {
                 descriptorCleaner.unregisterModules(projectRoot.getProject(), found);
             }
             found.delete();
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.delete.failed.message");
+        } finally {
+            unlockIfClosed(root);
         }
     }
 
@@ -133,16 +141,19 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                              @NotBlank String destinationPath) {
         root.requireModifiable();
         validateResourcePath(destinationPath);
-        var source = findExistingArtefact(root.readFolder(null), sourcePath);
-        requirePermission(source, BasePermission.READ);
-        requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.copy.into.itself.message");
-
+        lockIfClosed(root);
         try {
+            var source = findExistingArtefact(root.readFolder(null), sourcePath);
+            requirePermission(source, BasePermission.READ);
+            requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.copy.into.itself.message");
+            lockForEditing(root, destinationPath);
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.copy.path.conflict.message");
             copyArtefact(source, targetFolder, FilePaths.name(destinationPath));
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.copy.failed.message");
+        } finally {
+            unlockIfClosed(root);
         }
     }
 
@@ -152,12 +163,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                              @NotBlank String destinationPath) {
         root.requireModifiable();
         validateResourcePath(destinationPath);
-        var source = findExistingArtefact(root.readFolder(null), sourcePath);
-        requirePermission(source, BasePermission.READ);
-        requirePermission(source, BasePermission.DELETE);
-        requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.move.into.itself.message");
-
+        lockIfClosed(root);
         try {
+            var source = findExistingArtefact(root.readFolder(null), sourcePath);
+            requirePermission(source, BasePermission.READ);
+            requirePermission(source, BasePermission.DELETE);
+            requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.move.into.itself.message");
+            lockForEditing(root, sourcePath, destinationPath);
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.move.path.conflict.message");
             String fileName = FilePaths.name(destinationPath);
@@ -165,6 +177,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.move.failed.message");
+        } finally {
+            unlockIfClosed(root);
         }
     }
 
@@ -175,6 +189,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                boolean createFolders) {
         root.requireModifiable();
         validateResourcePath(path);
+        lockForEditing(root, path);
 
         try {
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
@@ -184,6 +199,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             targetFolder.addResource(fileName, validatedContent);
         } catch (ProjectException e) {
             throw new ConflictException("file.create.failed.message");
+        } finally {
+            unlockIfClosed(root);
         }
     }
 
@@ -191,6 +208,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     public void createFolder(@NotNull FileRoot root, @NotBlank String path, boolean createParents) {
         root.requireModifiable();
         validateResourcePath(path);
+        lockForEditing(root, path);
         String[] segments = path.split("/");
         try {
             AProjectFolder current = root.writeFolder();
@@ -212,6 +230,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
         } catch (ProjectException e) {
             throw new ConflictException("file.create.failed.message");
+        } finally {
+            unlockIfClosed(root);
         }
     }
 
@@ -378,6 +398,49 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private void requirePermission(AProjectArtefact artefact, org.springframework.security.acls.model.Permission permission) {
         if (!aclProjectsHelper.hasPermission(artefact, permission)) {
             throw new ForbiddenException("default.message");
+        }
+    }
+
+    /**
+     * Reserves a mount for a modification of the given paths, so a lock conflict is reported
+     * precisely before anything is written.
+     *
+     * <p>A project mount reserves its whole project for editing; the paths play no role. A
+     * repository mount verifies that no project owning one of the paths is locked by another
+     * user; the write itself is not serialized, matching direct repository commits.
+     *
+     * @throws ConflictException when an affected project is locked by another user
+     */
+    private static void lockForEditing(FileRoot root, String... paths) {
+        if (root instanceof ProjectFileRoot projectRoot) {
+            projectRoot.lockForEditing();
+        } else if (root instanceof RepoFileRoot repoRoot) {
+            repoRoot.requireUnlocked(List.of(paths));
+        }
+    }
+
+    /**
+     * Reserves a closed project before the artefacts of a modification are resolved: its state
+     * lives in the design repository, which other users change in parallel, so the resolved
+     * artefacts must not change until the modification ends. An opened project is resolved from
+     * the user's own working copy and is locked later, after validation.
+     *
+     * @throws ConflictException when the project is locked by another user
+     */
+    private static void lockIfClosed(FileRoot root) {
+        if (root instanceof ProjectFileRoot projectRoot) {
+            projectRoot.lockIfClosed();
+        }
+    }
+
+    /**
+     * Releases the edit lock of a project-backed mount when the modification leaves nothing for it
+     * to guard: a closed project is committed directly to the design repository, so it must not
+     * stay locked. An opened project keeps the lock until it is saved or closed.
+     */
+    private static void unlockIfClosed(FileRoot root) {
+        if (root instanceof ProjectFileRoot projectRoot) {
+            projectRoot.unlockIfClosed();
         }
     }
 

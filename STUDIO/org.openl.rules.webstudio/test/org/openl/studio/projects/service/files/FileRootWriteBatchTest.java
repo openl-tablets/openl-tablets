@@ -32,6 +32,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
@@ -57,7 +58,7 @@ class FileRootWriteBatchTest {
     void repositoryMountCommitsBatchAsOneChangeset() throws Exception {
         BranchRepository repository = mock(BranchRepository.class);
         var root = new RepoFileRoot(repository, mock(AclProjectsHelper.class),
-                mock(ProjectFileLookupService.class));
+                mock(ProjectFileLookupService.class), mock(ProjectLockGuard.class));
         var items = List.of(item("data/a.txt"), item("data/sub/b.txt"));
 
         root.writeBatch("data", items, ChangesetType.DIFF, "Upload archive");
@@ -74,8 +75,9 @@ class FileRootWriteBatchTest {
         RulesProject project = mock(RulesProject.class);
         when(project.getRepository()).thenReturn(repository);
         when(project.getFolderPath()).thenReturn("Project1");
+        var author = new UserInfo("user1");
         var root = new ProjectFileRoot(project, mock(AclProjectsHelper.class),
-                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class));
+                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class), () -> author);
 
         root.writeBatch("data", List.of(item("data/a.txt")), ChangesetType.FULL, "Replace data");
 
@@ -85,6 +87,7 @@ class FileRootWriteBatchTest {
         verify(repository).save(folder.capture(), items.capture(), eq(ChangesetType.FULL));
         assertEquals("Project1/data", folder.getValue().getName());
         assertEquals("Replace data", folder.getValue().getComment());
+        assertEquals(author, folder.getValue().getAuthor());
         assertEquals("Project1/data/a.txt",
                 ((List<FileItem>) items.getValue()).get(0).getData().getName());
         verify(project).refresh();
@@ -97,7 +100,8 @@ class FileRootWriteBatchTest {
         when(project.getRepository()).thenReturn(repository);
         when(project.getFolderPath()).thenReturn("Project1");
         var root = new ProjectFileRoot(project, mock(AclProjectsHelper.class),
-                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class));
+                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class),
+                () -> new UserInfo("user1"));
 
         root.writeBatch("", List.of(item("a.txt")), ChangesetType.DIFF, "Upload files");
 

@@ -1,18 +1,17 @@
 package org.openl.studio.projects.service.files;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.util.StringUtils;
@@ -29,6 +28,11 @@ public class RepoFileRootFactory {
     private final AclProjectsHelper aclProjectsHelper;
     private final UserManagementService userManagementService;
     private final ProjectFileLookupService fileLookupService;
+
+    @Lookup
+    public UserWorkspace getUserWorkspace() {
+        return null;
+    }
 
     public FileRoot of(Repository repository, String branch) {
         // The design repository is wrapped in a (secured) MappedRepository that presents a virtual
@@ -47,18 +51,22 @@ public class RepoFileRootFactory {
             }
         }
         Repository authored = resolved instanceof BranchRepository branchRepo
-                ? new AuthoringRepository(branchRepo, currentAuthor())
+                ? new AuthoringRepository(branchRepo, AuthoringRepository.currentAuthor(userManagementService))
                 : resolved;
-        return new RepoFileRoot(authored, aclProjectsHelper, fileLookupService);
+        return new RepoFileRoot(authored, aclProjectsHelper, fileLookupService, lockGuard(repository, resolved));
     }
 
     /**
-     * The current user, used as the git commit author for repository-mount writes.
+     * Guards the mount against modifying projects locked by other users. The lock is keyed by the
+     * repository id, the mount's branch and the project's repository path.
      */
-    private UserInfo currentAuthor() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return Optional.ofNullable(userManagementService.getUser(username))
-                .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
-                .orElseGet(() -> new UserInfo(username));
+    private ProjectLockGuard lockGuard(Repository repository, Repository resolved) {
+        var userWorkspace = getUserWorkspace();
+        String branch = resolved instanceof BranchRepository branchRepo ? branchRepo.getBranch() : null;
+        return new ProjectLockGuard(userWorkspace.getDesignTimeRepository(),
+                userWorkspace.getProjectsLockEngine(),
+                repository.getId(),
+                branch,
+                userWorkspace.getUser().getUserName());
     }
 }

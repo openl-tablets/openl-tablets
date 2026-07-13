@@ -3,15 +3,18 @@ package org.openl.studio.projects.service.files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
 
 /**
@@ -54,6 +57,16 @@ public class AuthoringRepository implements BranchRepository {
     @Delegate(excludes = Writes.class)
     private final BranchRepository delegate;
     private final UserInfo author;
+
+    /**
+     * The current user in the form the repository commits expect as the author.
+     */
+    static UserInfo currentAuthor(UserManagementService userManagementService) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return Optional.ofNullable(userManagementService.getUser(username))
+                .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
+                .orElseGet(() -> new UserInfo(username));
+    }
 
     /**
      * Stamps the author on the data and, when no comment is set, a non-empty default.

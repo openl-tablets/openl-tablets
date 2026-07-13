@@ -37,7 +37,7 @@ import org.openl.studio.repositories.rest.resolver.DesignRepository;
  */
 @RestController
 @RequestMapping(value = "/repos/{repo-name}", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Repositories: Files (BETA)", description = "APIs for managing repository files")
+@Tag(name = "Repositories: Files (BETA)", description = RepoFilesController.TAG_DESCRIPTION)
 @Validated
 public class RepoFileOperationsController extends AbstractFileOperationsController {
 

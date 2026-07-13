@@ -45,9 +45,16 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
  */
 @RestController
 @RequestMapping(value = "/projects/{projectId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Projects: Files (BETA)", description = "APIs for managing project files")
+@Tag(name = "Projects: Files (BETA)", description = ProjectFilesController.TAG_DESCRIPTION)
 @Validated
 public class ProjectFilesController extends AbstractFilesController {
+
+    /**
+     * Shared by every controller of the same OpenAPI tag, which merges by the tag name.
+     */
+    static final String TAG_DESCRIPTION = "APIs for managing project files. A modifying operation locks "
+            + "the project for editing; the lock is released when the project is saved or closed. A closed "
+            + "project is modified directly in the design repository and is not left locked.";
 
     private final ProjectFileRootFactory fileRootFactory;
 

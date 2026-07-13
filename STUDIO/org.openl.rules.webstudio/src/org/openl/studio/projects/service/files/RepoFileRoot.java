@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.files;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,9 @@ import org.openl.util.StringUtils;
  * workspace copy, so reads and writes go straight to the repository. Authorization is checked at
  * the repository path, consistent with how project artefacts are authorized.
  *
+ * <p>A modification of a path inside a project is rejected while the project is locked for
+ * editing by another user, so a direct write cannot slip under a staged edit of that project.
+ *
  * @author Yury Molchan
  */
 @RequiredArgsConstructor
@@ -43,6 +48,7 @@ public class RepoFileRoot implements FileRoot {
     private final Repository repository;
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectFileLookupService fileLookupService;
+    private final ProjectLockGuard lockGuard;
 
     @Override
     public AProjectFolder readFolder(String version) {
@@ -90,6 +96,12 @@ public class RepoFileRoot implements FileRoot {
 
     @Override
     public void writeBatch(String basePath, List<FileItem> items, ChangesetType changesetType, String comment) {
+        var affected = new ArrayList<>(items.stream().map(item -> item.getData().getName()).toList());
+        if (changesetType == ChangesetType.FULL) {
+            // A full changeset also deletes the files absent from it, affecting the whole subtree.
+            affected.add(basePath);
+        }
+        requireUnlocked(affected);
         var folderData = new FileData();
         folderData.setName(basePath);
         folderData.setComment(comment);
@@ -100,6 +112,16 @@ public class RepoFileRoot implements FileRoot {
         } catch (IOException e) {
             throw new ConflictException("file.archive.upload.failed.message");
         }
+    }
+
+    /**
+     * Verifies that no project affected by one of the paths — a path inside the project or a
+     * folder containing it — is locked for editing by another user.
+     *
+     * @throws ConflictException when an affected project is locked by another user
+     */
+    void requireUnlocked(Collection<String> paths) {
+        lockGuard.requireUnlocked(paths);
     }
 
     /**

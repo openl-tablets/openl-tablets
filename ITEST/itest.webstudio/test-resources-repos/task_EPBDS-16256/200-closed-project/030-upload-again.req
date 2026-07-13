@@ -1,0 +1,10 @@
+POST /rest/projects/{PROJECT_ID}/files/closed-upload-two/ HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="delta.txt"
+Content-Type: text/plain
+
+&delta.txt
+--MULTIBOUND--
