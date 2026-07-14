@@ -39,6 +39,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.all</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
         </dependency>
@@ -67,7 +73,6 @@
                     <configuration>
                         <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
                         <systemPropertyVariables>
-                            <webservice-webapp>../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp</webservice-webapp>
                             <someExternalProperty>#{${geocodeProvider}.mapSuggestion}</someExternalProperty>
                         </systemPropertyVariables>
                     </configuration>

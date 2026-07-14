@@ -26,6 +26,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.all</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-kafka</artifactId>
             <scope>test</scope>
@@ -54,9 +60,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
-                        <systemPropertyVariables>
-                            <webservice-webapp>../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp</webservice-webapp>
-                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>
