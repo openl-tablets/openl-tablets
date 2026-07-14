@@ -391,14 +391,31 @@ public class ProjectDescriptor {
         return this;
     }
 
+    /**
+     * Path patterns for the modules discovered when rules.xml declares none: every Excel file under the
+     * {@code rules/} and {@code tests/} directories.
+     */
+    private static final List<String> DEFAULT_MODULE_PATHS = List.of("rules/**/*.xlsx", "tests/**/*.xlsx");
+
+    /**
+     * Returns the modules discovered by default when rules.xml declares no modules.
+     *
+     * <p>These cover every Excel file under the {@code rules/} and {@code tests/} directories.
+     *
+     * <p>Each call returns fresh {@link Module} instances, so callers may modify or persist them freely.
+     */
+    public static List<Module> defaultModules() {
+        return DEFAULT_MODULE_PATHS.stream().map(path -> {
+            var module = new Module();
+            module.setRulesRootPath(path);
+            return module;
+        }).toList();
+    }
+
     private void fillModulesByPattern() throws IOException {
         var readModules = getModules();
         if (readModules.isEmpty()) {
-            var rules = new Module();
-            rules.setRulesRootPath("rules/**/*.xlsx");
-            var tests = new Module();
-            tests.setRulesRootPath("tests/**/*.xlsx");
-            readModules = Arrays.asList(rules, tests);
+            readModules = defaultModules();
         }
         var processedModules = new ArrayList<Module>(readModules.size());
         // Process modules without wildcard path

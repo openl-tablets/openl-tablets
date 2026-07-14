@@ -595,12 +595,12 @@ public class ProjectBean {
         Module module;
 
         boolean moduleWasRenamed = false;
+        boolean addNewModule = StringUtils.isBlank(oldName) && StringUtils.isBlank(index);
 
-        if (StringUtils.isBlank(oldName) && StringUtils.isBlank(index)) {
-            // Add new Module
+        if (addNewModule) {
+            // Add new Module - registered after its path is known so implicit modules are preserved
             module = new Module();
             module.setProject(newProjectDescriptor);
-            newProjectDescriptor.getModules().add(module);
         } else {
             // Edit current Module
             if (!StringUtils.isBlank(oldName)) {
@@ -654,6 +654,10 @@ public class ProjectBean {
             }
             module.setWebstudioConfiguration(webstudioConfiguration);
 
+            if (addNewModule) {
+                projectDescriptorManager.registerModule(newProjectDescriptor, module);
+            }
+
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
         }
@@ -704,7 +708,7 @@ public class ProjectBean {
         if (!moduleMatchesSomePathPattern) {
             // Add new Module
             newModule.setProject(newProjectDescriptor);
-            newProjectDescriptor.getModules().add(newModule);
+            projectDescriptorManager.registerModule(newProjectDescriptor, newModule);
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
