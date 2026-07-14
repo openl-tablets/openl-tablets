@@ -76,19 +76,18 @@ EPBDS-NNNNN <subject>
 <optional body>
 ```
 
-- **One logical change per commit.** Each commit is a logically complete implementation of one small piece of
-  functionality or one refactoring step: the code together with its tests and documentation, buildable and green on
-  its own.
-- **Fix issues in the commit that introduced them.** On a branch that is not pushed yet, fold fixes for bugs, failing
-  tests, documentation, and code review findings into the originating commit instead of stacking follow-up commits:
+- **One logical change per commit** — one small piece of functionality or one refactoring step, with its tests and
+  documentation, buildable and green on its own.
+- **Fix issues in the commit that introduced them.** On an unpushed branch, fold fixes (bugs, failing tests,
+  documentation, review findings) into the originating commit instead of stacking follow-up commits:
     - for the latest commit, use `git commit --amend`;
     - for an earlier commit, use `git commit --fixup=<sha>` and squash with
       `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash --autostash <base>`;
     - when a fix interacts with code changed by later commits (for example, an import they removed), adjust those
       commits in the same rebase so that every commit in the history stays buildable.
 - **Prefix with the Jira ticket** (`EPBDS-NNNNN`), usually equal to the branch name.
-- **The subject explains _why_ the change is needed or _what_ it achieves** — not the mechanical move, which is already
-  visible in the diff and history. Start it with an imperative verb.
+- **The subject explains _why_ or _what_, not the mechanical move** already visible in the diff. Start it with an
+  imperative verb.
     - Good — `EPBDS-15494 Stream file downloads instead of buffering`
     - Avoid — `EPBDS-15494 Move FileService into the rest package`
 - **For bug fixes, name the cause and its observable effect**, not the symptom:
@@ -119,7 +118,6 @@ EPBDS-NNNNN <subject>
 
 ## Markdown Rules
 
-- No HTML when Markdown equivalents exist
 - GFM style only
 - Single located images MUST have descriptive title text
 - Prefer bullet lists over dense prose

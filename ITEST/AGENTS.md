@@ -26,9 +26,9 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 
 Each suite declares the application it boots as a test-scoped `<type>war</type>` dependency
 (`org.openl.rules.ruleservice.ws`, `org.openl.rules.ruleservice.ws.all`, or `org.openl.rules.webstudio`).
-The `unpack-webapp` execution in `ITEST/pom.xml` unpacks that war into the suite's own `target/webapp`
-before tests, so suites never read another module's `target/` and a parallel or interrupted build of the
-application cannot corrupt a running suite.
+The `unpack-webapp` execution in `ITEST/pom.xml` unpacks it into the suite's own `target/webapp` before
+tests — so no suite reads another module's `target/`, and a parallel or interrupted application build
+cannot corrupt a running suite.
 
 - **One-command run:** `mvn verify -pl ITEST/<suite> -am` — rebuilds the war from source in the same
   reactor; always fresh, but heavy because it pulls the whole application chain.
@@ -212,7 +212,7 @@ When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` f
 
 **Pitfalls:**
 
-- Files use CRLF — read/write as binary with `\r\n` splits
+- Read and write as binary, splitting on `\r\n` (the files are CRLF — see Line Endings)
 - JSON keys like `/projects/{projectId}` contain literal `{}` — when counting braces to find block boundaries, skip characters inside quoted strings
 - Verify the resulting JSON is valid before running tests
 
@@ -229,7 +229,7 @@ Starting the embedded Jetty + Spring context costs several seconds. Start it **o
 private static final HttpClient client = JettyServer.get().withProfile("multi").start();
 ```
 
-Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`. Keep handshake-auth negative tests (which must run with no session) in a **separate class** from tests that log in, because the `HttpClient` session cookie persists across calls within a class.
+Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`. Keep no-session handshake-auth negative tests in a **separate class** from login tests, because the `HttpClient` session cookie persists across calls within a class.
 
 ### WebSocket / STOMP
 
