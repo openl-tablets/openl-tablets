@@ -83,6 +83,11 @@
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <dockerized>false</dockerized>
         <skipTestsForQuick>false</skipTestsForQuick>
+        <!-- Spotless runs 'apply' locally so a commit is always formatted, even if the developer
+             forgets. The 'ci' profile flips these to run 'check' instead, failing an unformatted
+             build rather than silently rewriting files in the CI workspace. -->
+        <spotless.apply.skip>false</spotless.apply.skip>
+        <spotless.check.skip>true</spotless.check.skip>
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
@@ -1725,10 +1730,24 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>spotless-apply</id>
                         <goals>
                             <goal>apply</goal>
                         </goals>
                         <phase>validate</phase>
+                        <configuration>
+                            <skip>${spotless.apply.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>spotless-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <skip>${spotless.check.skip}</skip>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -1776,6 +1795,20 @@
         <testSourceDirectory>test</testSourceDirectory>
     </build>
     <profiles>
+        <profile>
+            <!-- Activated automatically on CI (GitHub Actions sets CI=true). Verifies formatting
+                 instead of rewriting files, so an unformatted commit fails the build. -->
+            <id>ci</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <spotless.apply.skip>true</spotless.apply.skip>
+                <spotless.check.skip>false</spotless.check.skip>
+            </properties>
+        </profile>
         <profile>
             <id>perf</id>
             <activation>
