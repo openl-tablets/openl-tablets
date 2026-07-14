@@ -508,6 +508,16 @@
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
+            <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms.
+            Used by jgit and saml. The BOM keeps all Bouncy Castle artifacts on the same version and MUST be
+            imported before opensaml-bom, which manages them to its own Bouncy Castle version otherwise. -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bc-jdk18on-bom</artifactId>
+                <version>${bouncycastle.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-bom</artifactId>
@@ -840,24 +850,6 @@
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
-            </dependency>
-            <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
-            contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.
-            Used by jgit and saml. -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk18on</artifactId>
-                <version>${bouncycastle.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk18on</artifactId>
-                <version>${bouncycastle.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpg-jdk18on</artifactId>
-                <version>${bouncycastle.version}</version>
             </dependency>
             <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
