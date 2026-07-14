@@ -366,11 +366,23 @@
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
+                            <outputDirectory>${project.build.directory}/log4j-libs</outputDirectory>
                             <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/log4j-libs</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
