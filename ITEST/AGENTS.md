@@ -41,6 +41,23 @@ application cannot corrupt a running suite.
   missing war fails the suite loudly at dependency resolution. `mvn clean` on the suite forces a fresh
   webapp copy.
 
+## Container Images
+
+Most TestContainers images float on rolling tags **on purpose** — a new upstream release that breaks
+OpenL should surface in CI as early as possible, not months later at a manual version bump:
+
+- `apache/kafka-native:latest` — Kafka broker (`itest.kafka.smoke`)
+- `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.webstudio`)
+- `mcr.microsoft.com/azure-sql-edge:latest`, `mysql:lts`, `postgres:alpine`,
+  `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.webstudio`, `RdbmsTest`)
+- `S3MockContainer("latest")` — Adobe S3Mock (`itest.s3`, `itest.webstudio`)
+
+> [!Note]
+> A suite that starts failing right after an upstream image release is a real incompatibility signal, not flake. Investigate and adapt OpenL (or report upstream) — do not silence it by pinning the tag.
+
+The one **deliberately pinned** image is `openltablets/webstudio:6.0.0` in `RdbmsTest`: it is the fixed
+previous-release baseline the database-migration test upgrades *from*, so it must not move.
+
 ## Declarative HTTP Testing (*.req / *.resp)
 
 The **primary testing mechanism**. Instead of Java test code, define HTTP exchanges as file pairs.
