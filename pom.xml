@@ -1303,6 +1303,17 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Many modules get log4j-api on the test classpath transitively (e.g. via Apache POI). Without a
+             provider, log4j-api 2.x drops every event and prints "could not find a logging provider", so
+             route log4j calls into slf4j-simple for all unit tests. Where the packaged webapps also pull in
+             log4j-core, log4j-to-slf4j has the higher provider priority and wins, keeping tests on slf4j
+             without creating log files. The conflicting log4j-slf4j2-impl bridge is excluded from the test
+             classpath by the surefire configuration. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -1462,6 +1473,13 @@
                             <openl.config.location />
                         </systemPropertyVariables>
                         <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} @{jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
+                        <!-- Keep log4j-slf4j2-impl (the slf4j->log4j bridge packaged into the webapps as an
+                             optional runtime dependency) off the unit-test classpath: log4j-to-slf4j routes
+                             log4j into slf4j for tests, and log4j forbids both bridges together. A no-op for
+                             modules that do not carry the artifact. -->
+                        <classpathDependencyExcludes>
+                            <classpathDependencyExclude>org.apache.logging.log4j:log4j-slf4j2-impl</classpathDependencyExclude>
+                        </classpathDependencyExcludes>
                     </configuration>
                 </plugin>
                 <plugin>

@@ -70,13 +70,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- The test classpath has log4j-api (via Apache POI) but no log4j-core: route log4j calls into
-             slf4j-simple, so logging reaches the Maven output and no log files are created. -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-to-slf4j</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
