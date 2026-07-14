@@ -24,18 +24,22 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 
 ## Rebuilding the App Under Test
 
-ITEST serves the **exploded** webapp directory, not the `.war`: `itest.webstudio` →
-`STUDIO/org.openl.rules.webstudio/target/webapp`, `itest.WebService` →
-`WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`, both via embedded Jetty. ITEST does **not**
-rebuild STUDIO/WSFrontend — rebuild the module yourself before running a suite.
+Each suite declares the application it boots as a test-scoped `<type>war</type>` dependency
+(`org.openl.rules.ruleservice.ws`, `org.openl.rules.ruleservice.ws.all`, or `org.openl.rules.webstudio`).
+The `unpack-webapp` execution in `ITEST/pom.xml` unpacks that war into the suite's own `target/webapp`
+before tests, so suites never read another module's `target/` and a parallel or interrupted build of the
+application cannot corrupt a running suite.
 
-- Use `mvn clean install -pl <module> -DskipTests -DnoPerf`. **`clean` is mandatory whenever you delete or
-  rename a class.** A plain `mvn install` is incremental: it overwrites changed `.class` files in
-  `target/webapp` but never deletes ones whose source is gone. A leftover non-permitted subclass of a
-  `sealed` interface (e.g. an old record variant) then breaks class loading and the app never starts.
-- Never `-Dquick` for the webapp — it omits runtime jars (e.g. `log4j-core`) and the app won't start.
-- **Symptom of a stale or broken webapp:** the run hangs far past its usual ~2 min with **zero** files
-  under `target/responses/`. The server isn't answering — kill it, rebuild with `clean`, re-run.
+- **One-command run:** `mvn verify -pl ITEST/<suite> -am` — rebuilds the war from source in the same
+  reactor; always fresh, but heavy because it pulls the whole application chain.
+- **Iterating on application code:** `mvn install -pl <app-module> -DskipTests -DnoPerf` once, then re-run
+  the suite alone with `mvn test -pl ITEST/<suite>` — it resolves the freshly installed SNAPSHOT war.
+  **`clean` the application module whenever you delete or rename a class**: the war plugin only overlays
+  `target/webapp`, so a leftover `.class` file (e.g. an old non-permitted subclass of a `sealed`
+  interface) gets zipped into the war and breaks class loading.
+- **Freshness:** a rebuilt war is re-unpacked automatically (the unpack markers compare timestamps); a
+  missing war fails the suite loudly at dependency resolution. `mvn clean` on the suite forces a fresh
+  webapp copy.
 
 ## Declarative HTTP Testing (*.req / *.resp)
 
