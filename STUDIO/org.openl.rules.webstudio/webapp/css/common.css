@@ -24,7 +24,9 @@ optgroup {
     font-style: normal;
 }
 
-input[type='text']:not(.ant-input), input[type='password']:not(.ant-input), textarea:not(.ant-input) {
+input[type='text']:not(.ant-input):not(.ant-select-input),
+input[type='password']:not(.ant-input):not(.ant-select-input),
+textarea:not(.ant-input):not(.ant-select-input) {
     border-width: 1px;
     border-style: solid;
     border-color: #c7c7c7 #d5d5d5 #d5d5d5 #c7c7c7;
@@ -71,7 +73,10 @@ input.editable-select {
     padding-left: 6px;
 }
 
-input[type='text']:focus:not(.ant-input), input[type='password']:focus:not(.ant-input), textarea:focus, select:focus:not(.ant-input) {
+input[type='text']:focus:not(.ant-input):not(.ant-select-input),
+input[type='password']:focus:not(.ant-input):not(.ant-select-input),
+textarea:focus,
+select:focus:not(.ant-input):not(.ant-select-input) {
     border: 1px solid #39c;
     outline: none;
 }
