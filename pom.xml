@@ -518,6 +518,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- The BOM keeps all Jackson artifacts on the same version and MUST be imported before opensaml-bom,
+                 which pins jackson-core, jackson-databind, jackson-annotations and jackson-datatype-jsr310
+                 to its own older release otherwise. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- OpenSAML inherits a large dependencyManagement from net.shibboleth:parent (Jackson, Bouncy Castle,
+                 logback, slf4j bridges, and more). Between imported BOMs the first declaration wins, so any BOM
+                 sharing artifacts with that set MUST be imported above this line. -->
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-bom</artifactId>
@@ -892,13 +905,6 @@
                         <artifactId>jboss-logging</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.victools</groupId>
