@@ -18,7 +18,7 @@
 - **PostgreSQL**: 11.2+
 
 ### Other Software
-- **Java**: OpenJDK 11 or 21
+- **Java**: OpenJDK 21 or higher
 - **Application Servers**: Apache Tomcat 9, Jetty 10
 
 ### Hardware Requirements
