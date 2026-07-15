@@ -22,7 +22,7 @@ This guide covers installing OpenL Tablets on a **single node** for development 
 ## Before You Start
 
 **New to OpenL Tablets?**
-Try the [Demo Package](/../getting-started/demo-package/index.md) first - it's the quickest way to explore OpenL Tablets with zero configuration.
+Try the [Demo Package](/../getting-started/demo-package) first - it's the quickest way to explore OpenL Tablets with zero configuration.
 
 **Ready for production?**
 Skip this guide and go directly to [Deployment Guide](../../DEPLOYMENT.MD) for production-ready deployment options.
@@ -158,8 +158,8 @@ Once OpenL Tablets is installed:
 1. **Complete the setup wizard** - Configure initial settings
 2. **Explore the demo projects** - Learn by example
 3. **Read the user guides**:
-   - [OpenL Studio User Guide](../openl-studio/index.md) - Using OpenL Studio
-   - [Reference Guide](../reference-guide/index.md) - OpenL Tablets language reference
+   - [OpenL Studio User Guide](../openl-studio) - Using OpenL Studio
+   - [Reference Guide](../reference-guide/) - OpenL Tablets language reference
 4. **Create your first project** - Start building rules
 
 ---
@@ -174,7 +174,7 @@ When you're ready to deploy to production:
    - [Kubernetes](../../DEPLOYMENT.md#kubernetes-deployment) - Orchestrated deployment
    - [Cloud](../../DEPLOYMENT.md#cloud-platform-deployments) - AWS, Azure, or GCP
    - [VM](../../DEPLOYMENT.md#traditional-application-server) - Traditional VM deployment
-3. **Configure for production** - [Configuration Guide](../../configuration/index.md)
+3. **Configure for production** - [Configuration Guide](../../configuration/)
 4. **Secure your deployment** - [Security Guide](../../configuration/security.md)
 
 ---
@@ -190,11 +190,11 @@ When you're ready to deploy to production:
 
 ## Related Documentation
 
-- [Demo Package Guide](/../getting-started/demo-package/index.md) - Try before you install
+- [Demo Package Guide](/../getting-started/demo-package/) - Try before you install
 - [System Requirements](system-requirements.md) - Prerequisites
-- [Configuration Guide](../../configuration/index.md) - Configuration options
+- [Configuration Guide](../../configuration/) - Configuration options
 - **[Deployment Guide](../../DEPLOYMENT.MD)** - Production deployment
-- [OpenL Studio User Guide](../openl-studio/index.md) - Using OpenL Studio
+- [OpenL Studio User Guide](../openl-studio/) - Using OpenL Studio
 
 ---
 
