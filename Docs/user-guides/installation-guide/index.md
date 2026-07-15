@@ -155,7 +155,7 @@ See [System Requirements](system-requirements.md) for detailed prerequisites.
 
 Once OpenL Tablets is installed:
 
-1. **Complete the setup wizard** - Configure initial settings
+1. **Configure system settings** - Set up repositories, security, and other initial options in [Administration](../openl-studio/administration/)
 2. **Explore the demo projects** - Learn by example
 3. **Read the user guides**:
    - [OpenL Studio User Guide](../openl-studio) - Using OpenL Studio

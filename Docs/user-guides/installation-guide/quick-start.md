@@ -106,9 +106,11 @@ During the installation wizard, provide:
 
 ---
 
-### 5. Complete Installation Wizard
+### 5. Configure Initial Settings
 
-The installation wizard guides you through:
+On first launch, OpenL Studio starts in **single-user mode** and is ready to use. Configure your
+instance from the [Administration UI](../openl-studio/administration/) UI (**Administration → System Settings** and **Security**):
+
 
 #### Step 1: User Mode Selection
 
