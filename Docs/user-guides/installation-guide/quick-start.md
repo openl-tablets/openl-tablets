@@ -131,6 +131,7 @@ Select repository type for storing rules:
 - **AWS S3**: Cloud storage
 - **File System**: Local or network drive (single-user)
 - **JNDI**: Enterprise datasource
+- **Azure Blob Storage**: Cloud storage
 
 #### Step 3: User Credentials
 
