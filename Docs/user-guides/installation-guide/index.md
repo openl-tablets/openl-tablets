@@ -1,6 +1,6 @@
 # OpenL Tablets Installation Guide
 
-Installation guide for setting up OpenL Tablets for **development and testing** environments. For production deployment, see the [Deployment Guide](../../DEPLOYMENT.MD).
+Installation guide for setting up OpenL Tablets for **development and testing** environments. For production deployment, see the [Deployment Guide](../../DEPLOYMENT.md).
 
 ## Purpose and Scope
 
@@ -12,7 +12,7 @@ This guide covers installing OpenL Tablets on a **single node** for development 
 - Basic database configuration (single node)
 - Development and testing scenarios
 
-❌ **Not covered (see [Deployment Guide](../../DEPLOYMENT.MD)):**
+❌ **Not covered (see [Deployment Guide](../../DEPLOYMENT.md)):**
 - Production deployment and scaling
 - Docker/Kubernetes deployment
 - Cloud platform deployment (AWS, Azure)
@@ -22,10 +22,10 @@ This guide covers installing OpenL Tablets on a **single node** for development 
 ## Before You Start
 
 **New to OpenL Tablets?**
-Try the [Demo Package](/../getting-started/demo-package) first - it's the quickest way to explore OpenL Tablets with zero configuration.
+Try the [Demo Package](../getting-started/demo-package/) first - it's the quickest way to explore OpenL Tablets with zero configuration.
 
 **Ready for production?**
-Skip this guide and go directly to [Deployment Guide](../../DEPLOYMENT.MD) for production-ready deployment options.
+Skip this guide and go directly to [Deployment Guide](../../DEPLOYMENT.md) for production-ready deployment options.
 
 ---
 
@@ -168,7 +168,7 @@ Once OpenL Tablets is installed:
 
 When you're ready to deploy to production:
 
-1. **Review production requirements** - [Deployment Guide](../../DEPLOYMENT.MD)
+1. **Review production requirements** - [Deployment Guide](../../DEPLOYMENT.md)
 2. **Choose deployment platform**:
    - [Docker](../../DEPLOYMENT.md#docker-deployment) - Container-based deployment
    - [Kubernetes](../../DEPLOYMENT.md#kubernetes-deployment) - Orchestrated deployment
@@ -190,10 +190,10 @@ When you're ready to deploy to production:
 
 ## Related Documentation
 
-- [Demo Package Guide](/../getting-started/demo-package/) - Try before you install
+- [Demo Package Guide](../getting-started/demo-package/) - Try before you install
 - [System Requirements](system-requirements.md) - Prerequisites
 - [Configuration Guide](../../configuration/) - Configuration options
-- **[Deployment Guide](../../DEPLOYMENT.MD)** - Production deployment
+- **[Deployment Guide](../../DEPLOYMENT.md)** - Production deployment
 - [OpenL Studio User Guide](../openl-studio/) - Using OpenL Studio
 
 ---
