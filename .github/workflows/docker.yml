@@ -52,9 +52,9 @@ jobs:
           fi
           echo This version:       $version
           echo The latest version: $latest
-          tags_11="-t openltablets/\$appName:$version"
+          tags_11="-t openltablets/\$appName:$version\$tagSufix"
           if [ "$latest" = "$version" ]; then
-            tags_11+=" -t openltablets/\$appName:latest"
+            tags_11+=" -t openltablets/\$appName:latest\$tagSufix"
           fi
           echo "tags_11=$tags_11" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
@@ -122,17 +122,20 @@ jobs:
           docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
 
       - name: Push Rule Services (All)
+        env:
+          appName: ws
+          tagSufix: '-all'
         run: >
-          docker buildx build
-          -t openltablets/ws:$version-all
+          eval docker buildx build
+          $tags_11
           --platform ${BUILD_PLATFORMS} --push
           --build-arg APP=webservice-all
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --label "org.opencontainers.image.title=OpenL RuleServices (All)"
+          --label '"org.opencontainers.image.title=OpenL RuleServices (All)"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
           --label "org.opencontainers.image.created=${BUILD_DATE}"
-          --label "org.opencontainers.image.description=An OpenL web service with extra modules"
+          --label '"org.opencontainers.image.description=An OpenL web service with extra modules"'
           .
 
       - name: Push Rule Services
