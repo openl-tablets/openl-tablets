@@ -49,14 +49,18 @@ OpenL should surface in CI as early as possible, not months later at a manual ve
 - `apache/kafka-native:latest` — Kafka broker (`itest.kafka.smoke`)
 - `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.studio/sso`)
 - `mcr.microsoft.com/azure-sql-edge:latest`, `mysql:lts`, `postgres:alpine`,
-  `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.studio/acl`, `RdbmsTest`)
+  `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.studio/acl`, the `*RdbmsTest` classes)
 - `S3MockContainer("latest")` — Adobe S3Mock (`itest.s3`, `itest.studio/sso`)
 
 > [!Note]
 > A suite that starts failing right after an upstream image release is a real incompatibility signal, not flake. Investigate and adapt OpenL (or report upstream) — do not silence it by pinning the tag.
 
-The one **deliberately pinned** image is `openltablets/webstudio:6.0.0` in `RdbmsTest`: it is the fixed
-previous-release baseline the database-migration test upgrades *from*, so it must not move.
+The one **deliberately pinned** image is `openltablets/webstudio:6.0.0` in `AbstractRdbmsTest`: it is the
+fixed previous-release baseline the database-migration tests upgrade *from*, so it must not move.
+
+The `*RdbmsTest` classes run **only on CI** — they are gated on the `CI` environment variable (set by
+GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To run one locally, set
+`CI=true` (and do not pass `-DnoDocker`).
 
 ## Declarative HTTP Testing (*.req / *.resp)
 
