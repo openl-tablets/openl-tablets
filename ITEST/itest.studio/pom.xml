@@ -13,6 +13,7 @@
 
     <modules>
         <module>multi</module>
+        <module>repos</module>
         <module>simple</module>
         <module>users</module>
     </modules>

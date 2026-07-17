@@ -9,11 +9,6 @@ import org.openl.itest.core.JettyServer;
 class WebStudioTest {
 
     @Test
-    void repos() throws Exception {
-        JettyServer.test("repos");
-    }
-
-    @Test
     void dtr() throws Exception {
         JettyServer.test("dtr");
     }
