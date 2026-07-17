@@ -118,6 +118,12 @@ Choose one of the following modes:
 - **SSO: SAML**: Single Sign-On via a SAML 2.0 identity provider
 - **SSO: OIDC (OAuth2)**: Single Sign-On via an OAuth2/OIDC identity provider
 
+For multi-user mode, set up the administrator account:
+
+- Admin username
+- Admin password
+- Email (optional)
+
 #### Step 2: Repository Configuration
 
 Select repository type for storing rules:
@@ -128,12 +134,5 @@ Select repository type for storing rules:
 - **Azure Blob Storage**: Cloud storage
 - **File System**: Local or network drive (single-user)
 - **JNDI**: Enterprise datasource
-
-#### Step 3: User Credentials
-
-For multi-user mode, set up the administrator account:
-- Admin username
-- Admin password
-- Email (optional)
 
 ---
