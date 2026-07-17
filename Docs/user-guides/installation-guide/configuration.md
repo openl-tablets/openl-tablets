@@ -19,6 +19,11 @@
 - Scalable and distributed
 - Requires AWS credentials and bucket
 
+#### Azure Blob Storage Repository
+- Cloud storage on Microsoft Azure
+- Scalable and distributed
+- Requires an Azure Blob Storage connection URL
+
 ### User Authentication Modes
 
 #### Multi-user (Database)
