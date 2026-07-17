@@ -22,7 +22,7 @@ import org.openl.itest.core.StompTester;
  *
  * <p>Flow exercised per scenario:
  * <ol>
- *     <li>OpenL Studio starts in the {@code multi} profile (multi-user mode).</li>
+ *     <li>OpenL Studio starts in multi-user mode.</li>
  *     <li>A project is created in the design repository (see {@code test-resources-socket/projects-multi}).</li>
  *     <li>{@code GET /projects/{id}/status} reports {@code idle} — nothing compiled yet.</li>
  *     <li>The client subscribes to the per-user status topic over a WebSocket endpoint.</li>
@@ -46,13 +46,13 @@ import org.openl.itest.core.StompTester;
 class WebSocketProjectStatusTest {
 
     private static final String SETUP_RESOURCES = "test-resources-socket/projects-multi";
-    // Base64 of "admin:admin" — the design repo administrator from application-multi.properties.
+    // Base64 of "admin:admin" — the design repo administrator from application.properties.
     private static final String ADMIN_BASIC = "Basic YWRtaW46YWRtaW4=";
     // Compile states that mean the compile cycle has finished (progress was streamed to completion).
     private static final Set<String> TERMINAL_STATES = Set.of("ok", "warnings", "errors");
 
     @AutoClose
-    private static final HttpClient client = JettyServer.get().withProfile("multi").start();
+    private static final HttpClient client = JettyServer.get().start();
 
     record Scenario(String name,
                     String httpPrefix,

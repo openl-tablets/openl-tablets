@@ -12,6 +12,7 @@
     <name>ITEST - Studio - POM</name>
 
     <modules>
+        <module>multi</module>
         <module>simple</module>
         <module>users</module>
     </modules>

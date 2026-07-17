@@ -201,7 +201,7 @@ Compare `target/responses/<path>/<name>.req.body` (actual body) with the corresp
 When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` files need updating. Key files:
 
 - `itest.studio/simple/test-resources-simple/openapi.json.resp`
-- `itest.webstudio/test-resources-multi/000-openapi.json.resp`
+- `itest.studio/multi/test-resources/000-openapi.json.resp`
 
 **Procedure:**
 

@@ -68,7 +68,7 @@ Java `UPPER_SNAKE` `.name()`.
 
 Adding a description, changing an enum's wire codes, adding a `required`/`@NotBlank` field, or moving a leaked
 description all change the ITEST goldens (`ITEST/itest.studio/simple/test-resources-simple/openapi.json.resp` and
-`ITEST/itest.webstudio/test-resources-multi/000-openapi.json.resp`). `description`/`summary`/`operationId`/`version` values are masked to
+`ITEST/itest.studio/multi/test-resources/000-openapi.json.resp`). `description`/`summary`/`operationId`/`version` values are masked to
 `***`, so externalizing a literal to a same-text key does **not** move the golden — but enum arrays, `required`, and the
 presence of a `description` key do. Rebuild the webapp (`mvn -o clean install -DskipTests -pl …webstudio`), then run the
 capture-and-verify cycle (`WebStudioTest#simple+multi`, toggling `HttpClient.writeBodyTo`).

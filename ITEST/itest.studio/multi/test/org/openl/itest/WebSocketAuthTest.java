@@ -30,13 +30,13 @@ import org.openl.itest.core.StompTester;
 class WebSocketAuthTest {
 
     private static final String REST_WS = "/rest/ws";
-    // Base64 of "admin:admin" — the design repo administrator from application-multi.properties.
+    // Base64 of "admin:admin" — the design repo administrator from application.properties.
     private static final String VALID_BASIC = "Basic YWRtaW46YWRtaW4=";
     private static final String WRONG_BASIC = "Basic "
             + Base64.getEncoder().encodeToString("admin:wrong-password".getBytes(StandardCharsets.UTF_8));
 
     @AutoClose
-    private static final HttpClient client = JettyServer.get().withProfile("multi").start();
+    private static final HttpClient client = JettyServer.get().start();
 
     @Test
     void rest_ws_rejects_handshake_without_credentials() {
