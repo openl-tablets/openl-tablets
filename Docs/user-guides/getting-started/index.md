@@ -29,7 +29,7 @@ Before we dive in, here are the **OpenL Tablets** basic concepts:
 | **Projects** | An OpenL Tablets project is a container of all resources required for processing rule-related information. Usually, a simple project contains just Excel files with rules.                                                                                                                                                                                                                           |
 
 More details can be found
-in [OpenL Tablets Reference Guide, Chapter 1: Introducing OpenL Tablets](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-openl-tablets).
+in [OpenL Tablets Reference Guide, Chapter 1: Introducing OpenL Tablets](../reference-guide/index.md#getting-started).
 
 ---
 
@@ -76,7 +76,7 @@ and testing in OpenL Studio. You can also create the same rule directly in OpenL
 Wizard on your own.
 
 Details about creating rules and different rule table types can be found
-in [OpenL Tablets Reference Guide, Creating Tables for OpenL Tablets](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#creating-tables-for-openl-tablets).
+in [OpenL Tablets Reference Guide, Creating Tables for OpenL Tablets](../reference-guide/index.md#working-with-openl-tables).
 
 Here we are going to create a business rule according to an Excel file that contains requirements. The idea is that by
 slightly modifying the original requirements, we can create ready-to-execute OpenL rules without any special effort and
@@ -88,7 +88,7 @@ The following example demonstrates how to create a simple rule that determines t
 city of departure and a city of destination. For example, if the departure city is Chicago and the destination city is
 Madrid, we want our rules to return $900 as an air ticket price.
 
-The business requirements are represented as the following Excel table in the [**TicketsPrice.xls**](TicketsPrice.xlsx)
+The business requirements are represented as the following Excel table in the [**TicketsPrice.xlsx**](TicketsPrice.xlsx)
 file:
 
 ![Figure 2: A spreadsheet requirements for Air Tickets Price rule](images/spreadsheet-requirements-air-tickets-price.png)
@@ -120,14 +120,14 @@ Here:
   in your rule. Depending on the input values that the user enters, OpenL Tablets selects the result value.
 
 Details on data types can be found
-in [OpenL Tablets Reference Guide, OpenL Tablets Functions and Supported Data Types](../reference_guide/index.md#openl-tablets-functions-and-supported-data-types).
+in [OpenL Tablets Reference Guide, OpenL Tablets Functions and Supported Data Types](../reference-guide/index.md#openl-tablets-functions-and-supported-data-types).
 
 ---
 
 ## Rule Project Creation
 
 Now that we have the rule created and ready to use, let's create a project with the just-created rules in OpenL Studio.
-We will create a project from the Excel file **TicketsPrice.xls** containing our `AirTicketsPrice` rule that we prepared
+We will create a project from the Excel file **TicketsPrice.xlsx** containing our `AirTicketsPrice` rule that we prepared
 in the previous step.
 
 To do it:
@@ -150,7 +150,7 @@ To do it:
 
    *Figure 5: Create Project from.. window*
 
-3. **Add** and **Upload** the **TicketsPrice.xls** file.
+3. **Add** and **Upload** the **TicketsPrice.xlsx** file.
 
    ![Figure 6: Upload Excel file](images/upload-excel-file.png)
 
