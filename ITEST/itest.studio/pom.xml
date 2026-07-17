@@ -12,6 +12,7 @@
     <name>ITEST - Studio - POM</name>
 
     <modules>
+        <module>acl</module>
         <module>dtr</module>
         <module>multi</module>
         <module>repos</module>

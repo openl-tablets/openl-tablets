@@ -50,7 +50,7 @@ OpenL should surface in CI as early as possible, not months later at a manual ve
 - `apache/kafka-native:latest` — Kafka broker (`itest.kafka.smoke`)
 - `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.webstudio`)
 - `mcr.microsoft.com/azure-sql-edge:latest`, `mysql:lts`, `postgres:alpine`,
-  `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.webstudio`, `RdbmsTest`)
+  `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.studio/acl`, `RdbmsTest`)
 - `S3MockContainer("latest")` — Adobe S3Mock (`itest.s3`, `itest.webstudio`)
 
 > [!Note]

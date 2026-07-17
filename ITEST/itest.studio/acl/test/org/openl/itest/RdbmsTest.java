@@ -93,7 +93,6 @@ class RdbmsTest {
                     .withInitParam("db.url", db.getJdbcUrl())
                     .withInitParam("db.user", db.getUsername())
                     .withInitParam("db.password", db.getPassword())
-                    .withProfile("acl")
                     .test();
         }
     }

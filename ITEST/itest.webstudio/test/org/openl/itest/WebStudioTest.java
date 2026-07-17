@@ -9,11 +9,6 @@ import org.openl.itest.core.JettyServer;
 class WebStudioTest {
 
     @Test
-    void acl() throws Exception {
-        JettyServer.test("acl");
-    }
-
-    @Test
     void disabled_settings() throws Exception {
         var smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
