@@ -54,7 +54,6 @@ class UsersRestTest {
         h2Connection.setAutoCommit(false);
 
         client = JettyServer.get()
-                .withProfile("usr")
                 .withInitParam("db.url", dbUrl)
                 .start();
 
