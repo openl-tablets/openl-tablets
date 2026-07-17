@@ -200,13 +200,6 @@ To do it:
 
 4. Save the updated Decision Table.
 
-Alternatively, you can click the **Open** button — the rule file opens in Excel — and apply all required changes there.
-Your changes become available in OpenL Studio right upon saving the Excel file.
-
-> **Note**: This is valid only when OpenL Studio runs on your machine. If it does not — use the **Export** and **Update
-** buttons to download the file to your machine, edit it in Excel, and then import the updated file back into the
-> project.
-
 ---
 
 ## Testing a Rule
@@ -265,26 +258,6 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
 
    *Figure 16: Initial Test Table*
 
-### Editing a Test in Excel
-
-1. To edit the test in Excel, click ![Open in Excel](images/icon-open-in-excel.png) and update the table in the opened
-   Excel file.
-
-   ![Figure 17: Test Table being updated in Excel file](images/test-table-updated-in-excel.png)
-
-   *Figure 17: Test Table being updated in Excel file*
-
-2. Save the changes made in Excel. Your changes become available in OpenL Studio right upon saving the Excel file.
-
-   > **Note**: If OpenL Studio does not run on your machine, you need to update the file in OpenL Studio — click the *
-   *Update** button and upload the updated version of the file.
-
-3. The Test Table is refreshed and the updated data is displayed in OpenL Studio.
-
-   ![Figure 18: Updated Test Table in OpenL Studio](images/updated-test-table-in-studio.png)
-
-   *Figure 18: Updated Test Table in OpenL Studio*
-
 ### Editing a Test in OpenL Studio
 
 1. Click the **Edit** ![Edit](images/icon-edit.png) button to edit the test table in OpenL Studio.
@@ -296,29 +269,29 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
    b. In the table editor menu, select the ![Insert row](images/icon-insert-row.png) button to insert a row before the
    selected one. Insert two rows.
 
-   ![Figure 19: Table editor menu](images/table-editor-menu.png)
+   ![Figure 17: Table editor menu](images/table-editor-menu.png)
 
-   *Figure 19: Table editor menu*
+   *Figure 17: Table editor menu*
 
    c. Add test data and **Save** your changes.
 
-   ![Figure 20: Add test data](images/add-test-data.png)
+   ![Figure 18: Add test data](images/add-test-data.png)
 
-   *Figure 20: Add test data*
+   *Figure 18: Add test data*
 
 ### Test Execution
 
 1. Run the test table. To execute all test cases, click the **Run** button.
 
-   ![Figure 21: Run Test](images/run-test.png)
+   ![Figure 19: Run Test](images/run-test.png)
 
-   *Figure 21: Run Test*
+   *Figure 19: Run Test*
 
 2. OpenL Studio will display the test results.
 
-   ![Figure 22: Test results window](images/test-results-window.png)
+   ![Figure 20: Test results window](images/test-results-window.png)
 
-   *Figure 22: Test results window*
+   *Figure 20: Test results window*
 
 Failed test cases are marked by the ![Failed](images/icon-failed.png) icon.
 
