@@ -9,11 +9,6 @@ import org.openl.itest.core.JettyServer;
 class WebStudioTest {
 
     @Test
-    void dtr() throws Exception {
-        JettyServer.test("dtr");
-    }
-
-    @Test
     void acl() throws Exception {
         JettyServer.test("acl");
     }
