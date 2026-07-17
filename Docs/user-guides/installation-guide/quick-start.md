@@ -61,14 +61,11 @@ Download the latest WAR file from [openl-tablets.org/downloads](https://openl-ta
 
 The WAR will auto-extract to a directory with the same name.
 
-#### Access Installation Wizard
+#### Access OpenL Studio
 
-Navigate to:
-```
-http://localhost:8080/webstudio
-```
+Navigate to: http://localhost:8080/webstudio
 
-The installation wizard will guide you through initial setup.
+OpenL Studio opens in single-user mode, ready to use. Configure repositories, security, and other settings from the [Administration](../openl-studio/administration/) UI (see step 5).
 
 ---
 
@@ -98,7 +95,7 @@ For multi-user mode, configure an external database.
 
 #### Database Connection Configuration
 
-During the installation wizard, provide:
+In **Administration → Repositories Settings**, configure the database connection:
 - Database URL (e.g., `jdbc:mysql://localhost:3306/openl`)
 - Username
 - Password
@@ -106,9 +103,10 @@ During the installation wizard, provide:
 
 ---
 
-### 5. Complete Installation Wizard
+### 5. Configure Initial Settings
 
-The installation wizard guides you through:
+On first launch, OpenL Studio starts in **single-user mode** and is ready to use. Configure your
+instance from the [Administration](../openl-studio/administration/) UI (**Administration → System Settings** and **Security**):
 
 #### Step 1: User Mode Selection
 
@@ -120,6 +118,12 @@ Choose one of the following modes:
 - **SSO: SAML**: Single Sign-On via a SAML 2.0 identity provider
 - **SSO: OIDC (OAuth2)**: Single Sign-On via an OAuth2/OIDC identity provider
 
+For multi-user mode, set up the administrator account:
+
+- Admin username
+- Admin password
+- Email (optional)
+
 #### Step 2: Repository Configuration
 
 Select repository type for storing rules:
@@ -127,18 +131,7 @@ Select repository type for storing rules:
 - **JDBC**: Database storage (recommended for multi-user)
 - **Git**: Version control integration
 - **AWS S3**: Cloud storage
-- **File System**: Local or network drive (single-user)
+- **Azure Blob Storage**: Cloud storage
 - **JNDI**: Enterprise datasource
-
-#### Step 3: User Credentials
-
-For multi-user mode, set up the administrator account:
-- Admin username
-- Admin password
-- Email (optional)
-
-#### Step 4: Finish
-
-Review settings and complete installation.
 
 ---

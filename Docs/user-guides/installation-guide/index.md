@@ -1,6 +1,6 @@
 # OpenL Tablets Installation Guide
 
-Installation guide for setting up OpenL Tablets for **development and testing** environments. For production deployment, see the [Deployment Guide](../../deployment/).
+Installation guide for setting up OpenL Tablets for **development and testing** environments. For production deployment, see the [Deployment Guide](../../DEPLOYMENT.md).
 
 ## Purpose and Scope
 
@@ -12,7 +12,7 @@ This guide covers installing OpenL Tablets on a **single node** for development 
 - Basic database configuration (single node)
 - Development and testing scenarios
 
-❌ **Not covered (see [Deployment Guide](../../deployment/)):**
+❌ **Not covered (see [Deployment Guide](../../DEPLOYMENT.md)):**
 - Production deployment and scaling
 - Docker/Kubernetes deployment
 - Cloud platform deployment (AWS, Azure)
@@ -22,10 +22,10 @@ This guide covers installing OpenL Tablets on a **single node** for development 
 ## Before You Start
 
 **New to OpenL Tablets?**
-Try the [Demo Package](../demo-package/) first - it's the quickest way to explore OpenL Tablets with zero configuration.
+Try the [Demo Package](../getting-started/demo-package/) first - it's the quickest way to explore OpenL Tablets with zero configuration.
 
 **Ready for production?**
-Skip this guide and go directly to [Deployment Guide](../../deployment/) for production-ready deployment options.
+Skip this guide and go directly to [Deployment Guide](../../DEPLOYMENT.md) for production-ready deployment options.
 
 ---
 
@@ -155,10 +155,10 @@ See [System Requirements](system-requirements.md) for detailed prerequisites.
 
 Once OpenL Tablets is installed:
 
-1. **Complete the setup wizard** - Configure initial settings
+1. **Configure system settings** - Set up repositories, security, and other initial options in [Administration](../openl-studio/administration/)
 2. **Explore the demo projects** - Learn by example
 3. **Read the user guides**:
-   - [OpenL Studio User Guide](../openl-studio/) - Using OpenL Studio
+   - [OpenL Studio User Guide](../openl-studio) - Using OpenL Studio
    - [Reference Guide](../reference-guide/) - OpenL Tablets language reference
 4. **Create your first project** - Start building rules
 
@@ -168,12 +168,12 @@ Once OpenL Tablets is installed:
 
 When you're ready to deploy to production:
 
-1. **Review production requirements** - [Deployment Guide](../../deployment/)
+1. **Review production requirements** - [Deployment Guide](../../DEPLOYMENT.md)
 2. **Choose deployment platform**:
-   - [Docker](../../deployment/docker/) - Container-based deployment
-   - [Kubernetes](../../deployment/kubernetes/) - Orchestrated deployment
-   - [Cloud](../../deployment/cloud/) - AWS, Azure, or GCP
-   - [VM](../../deployment/vm/) - Traditional VM deployment
+   - [Docker](../../DEPLOYMENT.md#docker-deployment) - Container-based deployment
+   - [Kubernetes](../../DEPLOYMENT.md#kubernetes-deployment) - Orchestrated deployment
+   - [Cloud](../../DEPLOYMENT.md#cloud-platform-deployments) - AWS, Azure, or GCP
+   - [VM](../../DEPLOYMENT.md#traditional-application-server) - Traditional VM deployment
 3. **Configure for production** - [Configuration Guide](../../configuration/)
 4. **Secure your deployment** - [Security Guide](../../configuration/security.md)
 
@@ -190,10 +190,10 @@ When you're ready to deploy to production:
 
 ## Related Documentation
 
-- [Demo Package Guide](../demo-package/) - Try before you install
+- [Demo Package Guide](../getting-started/demo-package/) - Try before you install
 - [System Requirements](system-requirements.md) - Prerequisites
 - [Configuration Guide](../../configuration/) - Configuration options
-- **[Deployment Guide](../../deployment/)** - Production deployment
+- **[Deployment Guide](../../DEPLOYMENT.md)** - Production deployment
 - [OpenL Studio User Guide](../openl-studio/) - Using OpenL Studio
 
 ---
