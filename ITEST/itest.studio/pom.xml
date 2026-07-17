@@ -18,6 +18,7 @@
         <module>multi</module>
         <module>repos</module>
         <module>simple</module>
+        <module>sso</module>
         <module>users</module>
     </modules>
 

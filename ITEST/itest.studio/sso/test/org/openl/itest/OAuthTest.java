@@ -1,7 +1,7 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,7 +46,7 @@ class OAuthTest extends AbstractKeycloakTest {
             s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
-            try (var httpClient = studio("oauth2", s3).start()) {
+            try (var httpClient = studio(s3).start()) {
                 initStudio(httpClient, authServerUrl);
 
                 httpClient.localEnv.putAll(bearerTokens);
@@ -67,7 +67,7 @@ class OAuthTest extends AbstractKeycloakTest {
             s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
-            try (var httpClient = studio("oauth2", s3).start()) {
+            try (var httpClient = studio(s3).start()) {
                 initStudio(httpClient, authServerUrl);
 
                 httpClient.localEnv.putAll(bearerTokens);
@@ -115,7 +115,7 @@ class OAuthTest extends AbstractKeycloakTest {
             keycloack.start();
             s3.start();
             var authServerUrl = keycloack.getAuthServerUrl();
-            try (var httpClient = studio("oauth2", s3).start()) {
+            try (var httpClient = studio(s3).start()) {
                 initStudio(httpClient, authServerUrl);
 
                 var browser = new SsoBrowser(httpClient.getBaseURL());
@@ -129,15 +129,15 @@ class OAuthTest extends AbstractKeycloakTest {
 
                 // SP-initiated logout redirects to the OIDC end-session endpoint with the id_token_hint.
                 var logoutRedirect = browser.logoutViaOAuth2();
-                assertTrue("Unexpected logout redirect: " + logoutRedirect,
-                        logoutRedirect.startsWith(authServerUrl + "/realms/openlstudio/protocol/openid-connect/logout"));
-                assertTrue("Logout must pass the id_token_hint: " + logoutRedirect,
-                        logoutRedirect.contains("id_token_hint="));
+                assertTrue(logoutRedirect.startsWith(authServerUrl + "/realms/openlstudio/protocol/openid-connect/logout"),
+                        "Unexpected logout redirect: " + logoutRedirect);
+                assertTrue(logoutRedirect.contains("id_token_hint="),
+                        "Logout must pass the id_token_hint: " + logoutRedirect);
 
                 // Local session cleared; the IdP requires re-authentication.
                 assertRestUnauthorized(browser);
-                assertTrue("Keycloak must require re-authentication after logout",
-                        browser.oauth2ChallengesForLogin());
+                assertTrue(browser.oauth2ChallengesForLogin(),
+                        "Keycloak must require re-authentication after logout");
             }
         }
     }

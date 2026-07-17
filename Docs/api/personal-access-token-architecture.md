@@ -1417,7 +1417,7 @@ void validate_nonExistentToken_performsHashCheckForTimingConsistency() {
 
 ### Integration Tests
 
-**Location**: `ITEST/itest.webstudio/test-resources-pat/`
+**Location**: `ITEST/itest.studio/sso/test-resources-pat/`
 
 **Test Scenarios**:
 
@@ -1475,7 +1475,7 @@ Content-Type: application/json
 
 **Test Execution**:
 ```bash
-cd ITEST/itest.webstudio
+cd ITEST/itest.studio/sso
 mvn clean verify -Dtest=OAuthTest
 ```
 

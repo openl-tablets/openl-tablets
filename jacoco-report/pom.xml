@@ -335,13 +335,6 @@
         </dependency>
         <dependency>
             <groupId>org.openl.itest</groupId>
-            <artifactId>itest.webstudio</artifactId>
-            <version>${project.version}</version>
-            <type>pom</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.itest</groupId>
             <artifactId>itest.studio.acl</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
@@ -378,6 +371,13 @@
         <dependency>
             <groupId>org.openl.itest</groupId>
             <artifactId>itest.studio.simple</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>itest.studio.sso</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>

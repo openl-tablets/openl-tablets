@@ -27,7 +27,6 @@
         <module>itest.unpackClasspathJar</module>
         <module>itest.unpackClasspathZip</module>
         <module>itest.ruleServices-large-response</module>
-        <module>itest.webstudio</module>
         <module>itest.studio</module>
         <module>itest.kafka.smoke</module>
         <module>itest.tracing</module>

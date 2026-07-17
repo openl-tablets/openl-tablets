@@ -8,7 +8,6 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.smoke** — Base minimal Rule Services tests
 - **itest.WebService** — Main Rule Services test suite (largest)
 - **itest.security** — Authentication/authorization tests
-- **itest.webstudio** — OpenL Studio E2E tests
 - **itest.studio/** — OpenL Studio E2E tests split into independent per-suite modules (parallelizable with `-T 1C`)
 - **itest.kafka.smoke** — Kafka integration
 - **itest.s3** — S3 storage
@@ -48,10 +47,10 @@ Most TestContainers images float on rolling tags **on purpose** — a new upstre
 OpenL should surface in CI as early as possible, not months later at a manual version bump:
 
 - `apache/kafka-native:latest` — Kafka broker (`itest.kafka.smoke`)
-- `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.webstudio`)
+- `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.studio/sso`)
 - `mcr.microsoft.com/azure-sql-edge:latest`, `mysql:lts`, `postgres:alpine`,
   `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.studio/acl`, `RdbmsTest`)
-- `S3MockContainer("latest")` — Adobe S3Mock (`itest.s3`, `itest.webstudio`)
+- `S3MockContainer("latest")` — Adobe S3Mock (`itest.s3`, `itest.studio/sso`)
 
 > [!Note]
 > A suite that starts failing right after an upstream image release is a real incompatibility signal, not flake. Investigate and adapt OpenL (or report upstream) — do not silence it by pinning the tag.

@@ -1,6 +1,6 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,7 +25,7 @@ class SamlTest extends AbstractKeycloakTest {
             keycloak.start();
             s3.start();
             var authServerUrl = keycloak.getAuthServerUrl();
-            try (var httpClient = studio("saml", s3).start()) {
+            try (var httpClient = studio(s3).start()) {
                 initStudio(httpClient, authServerUrl);
 
                 var browser = new SsoBrowser(httpClient.getBaseURL());
@@ -39,13 +39,13 @@ class SamlTest extends AbstractKeycloakTest {
 
                 // SP-initiated logout sends a SAML LogoutRequest to the IdP Single Logout Service.
                 var logoutDestination = browser.logoutViaSaml();
-                assertTrue("Logout must target the IdP Single Logout Service: " + logoutDestination,
-                        logoutDestination.startsWith(authServerUrl + "/realms/openlstudio/protocol/saml"));
+                assertTrue(logoutDestination.startsWith(authServerUrl + "/realms/openlstudio/protocol/saml"),
+                        "Logout must target the IdP Single Logout Service: " + logoutDestination);
 
                 // Local session cleared; the IdP requires re-authentication.
                 assertRestUnauthorized(browser);
-                assertTrue("Keycloak must require re-authentication after logout",
-                        browser.samlChallengesForLogin());
+                assertTrue(browser.samlChallengesForLogin(),
+                        "Keycloak must require re-authentication after logout");
             }
         }
     }
