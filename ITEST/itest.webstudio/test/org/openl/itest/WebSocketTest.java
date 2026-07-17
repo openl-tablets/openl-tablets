@@ -27,13 +27,6 @@ class WebSocketTest {
                         "/topic/public/notification.txt",
                         "/app/admin/notification.txt",
                         "Hello, World!"
-                ),
-                new Scenario(
-                        "simple",
-                        "test-resources-socket/no-auth",
-                        "/topic/public/notification.txt",
-                        "/app/admin/notification.txt",
-                        "Hello, World!"
                 )
         };
     }

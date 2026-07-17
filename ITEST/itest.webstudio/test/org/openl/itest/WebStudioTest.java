@@ -9,11 +9,6 @@ import org.openl.itest.core.JettyServer;
 class WebStudioTest {
 
     @Test
-    void simple() throws Exception {
-        JettyServer.test("simple");
-    }
-
-    @Test
     void multi() throws Exception {
         JettyServer.test("multi");
     }

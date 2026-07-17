@@ -35,7 +35,6 @@ class WorkspaceCompileServiceTest {
             Path userDir = Path.of("target", "compile-workspace", "jdoe");
             seedLocalProject(userDir, "Sample", Path.of("test-resources", "workspace-compile", "Sample.zip"));
             return JettyServer.get()
-                    .withProfile("simple")
                     .withInitParam("user.workspace.home", "target/compile-workspace")
                     .start();
         } catch (Exception e) {
