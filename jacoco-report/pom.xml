@@ -349,6 +349,13 @@
         </dependency>
         <dependency>
             <groupId>org.openl.itest</groupId>
+            <artifactId>itest.studio.disabled-settings</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
             <artifactId>itest.studio.dtr</artifactId>
             <version>${project.version}</version>
             <type>pom</type>

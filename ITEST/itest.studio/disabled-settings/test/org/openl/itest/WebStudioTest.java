@@ -16,7 +16,6 @@ class WebStudioTest {
             smtpServer.start();
             var smtp = smtpServer.getSmtp();
             JettyServer.get()
-                    .withProfile("disabled-settings")
                     // auth
                     .withInitParam("user.mode", "multi")
                     .withInitParam("security.administrators", "admin")
