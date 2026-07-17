@@ -132,7 +132,6 @@ Select repository type for storing rules:
 - **Git**: Version control integration
 - **AWS S3**: Cloud storage
 - **Azure Blob Storage**: Cloud storage
-- **File System**: Local or network drive (single-user)
 - **JNDI**: Enterprise datasource
 
 ---

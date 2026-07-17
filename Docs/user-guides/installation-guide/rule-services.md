@@ -15,7 +15,6 @@ Download the Rule Services WAR from [openl-tablets.org/downloads](https://openl-
 Configure the data source for deployed rules:
 
 **Supported Sources:**
-- **File System**: Local folders or ZIP archives
 - **Classpath JAR**: Embedded rules
 - **JDBC**: Database storage (shared with OpenL Studio)
 - **JNDI**: Enterprise datasource
