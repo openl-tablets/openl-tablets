@@ -62,6 +62,8 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-Dquick`** — skip heavy tests
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
+- **`-DnoITest`** — exclude the integration-test modules (ITEST, openl-maven-plugin, archetypes) from the
+  reactor (CI runs them in separate parallel jobs)
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).

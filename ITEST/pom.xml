@@ -38,6 +38,9 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <http.timeout.connect>60000</http.timeout.connect>
         <http.timeout.read>7200000</http.timeout.read>
+        <!-- Set to true when no tests will run (e.g. the CI coverage-aggregation job) to
+             skip unpacking the webapp wars -->
+        <unpack-webapp.skip>false</unpack-webapp.skip>
     </properties>
 
     <dependencyManagement>
@@ -130,6 +133,7 @@
                         </goals>
                         <phase>process-test-resources</phase>
                         <configuration>
+                            <skip>${unpack-webapp.skip}</skip>
                             <includeTypes>war</includeTypes>
                             <excludeTransitive>true</excludeTransitive>
                             <outputDirectory>${project.build.directory}/webapp</outputDirectory>

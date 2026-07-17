@@ -40,6 +40,8 @@ cannot corrupt a running suite.
 - **Freshness:** a rebuilt war is re-unpacked automatically (the unpack markers compare timestamps); a
   missing war fails the suite loudly at dependency resolution. `mvn clean` on the suite forces a fresh
   webapp copy.
+- **`-Dunpack-webapp.skip=true`** skips the webapp unpacking — for builds that compile the suites without
+  running them (e.g. the CI coverage-aggregation job).
 
 ## Container Images
 

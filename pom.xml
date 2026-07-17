@@ -63,10 +63,6 @@
         <module>Util/openl-excel-builder</module>
         <module>Util/org.openl.rules.profiler</module>
         <module>Util/openl-rules-opentelemetry</module>
-        <module>ITEST</module>
-        <module>Util/openl-maven-plugin</module>
-        <module>Util/openl-simple-project-archetype</module>
-        <module>Util/openl-project-archetype</module>
         <module>Util/openl-yaml</module>
     </modules>
     <scm>
@@ -1582,6 +1578,9 @@
                         </includes>
                         <excludes>
                             <exclude>org/openl/generated/**/*</exclude>
+                            <!-- The OpenTelemetry javaagent rewrites its extension classes on loading,
+                                 so their execution data never matches the compiled classes -->
+                            <exclude>org/openl/opentelemetry/**/*</exclude>
                         </excludes>
                         <formats>
                             <format>XML</format>
@@ -1876,6 +1875,23 @@
                 <invoker.skip>true</invoker.skip>
                 <npm.test.skip>true</npm.test.skip>
             </properties>
+        </profile>
+        <profile>
+            <!-- Integration-test modules (the ITEST suites, the invoker-driven openl-maven-plugin
+                 and the archetypes building a generated project) are part of the default build;
+                 -DnoITest excludes them, so CI can run them in separate parallel jobs -->
+            <id>itest</id>
+            <activation>
+                <property>
+                    <name>!noITest</name>
+                </property>
+            </activation>
+            <modules>
+                <module>ITEST</module>
+                <module>Util/openl-maven-plugin</module>
+                <module>Util/openl-simple-project-archetype</module>
+                <module>Util/openl-project-archetype</module>
+            </modules>
         </profile>
         <profile>
             <id>no-sonar</id>

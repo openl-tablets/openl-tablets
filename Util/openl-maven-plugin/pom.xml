@@ -19,6 +19,9 @@
         <!-- 512MB Should be enough to don't fall in OutOfMemoryError -->
         <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m</invoker.mavenOpts>
         <invoker.noPerf>true</invoker.noPerf>
+        <!-- Keeps a developer machine responsive, but truncates to a single thread on a
+             4-core CI runner - CI passes an explicit value (e.g. 1C) -->
+        <invoker.parallelThreads>0.4C</invoker.parallelThreads>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <dependencies>
@@ -139,7 +142,7 @@
                         <goal>clean</goal>
                         <goal>verify</goal>
                     </goals>
-                    <parallelThreads>0.4C</parallelThreads>
+                    <parallelThreads>${invoker.parallelThreads}</parallelThreads>
                     <streamLogsOnFailures>true</streamLogsOnFailures>
                     <scope>compile</scope>
                     <properties>

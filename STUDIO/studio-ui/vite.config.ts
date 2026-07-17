@@ -42,6 +42,9 @@ export default defineConfig({
         globals: true,
         environment: 'jsdom',
         setupFiles: ['./vitest.setup.ts'],
+        // CI runs vitest concurrently with the parallel Maven build, which starves the workers
+        // of CPU, so antd-heavy tests overrun the default 5s timeout
+        testTimeout: process.env.CI === 'true' ? 15_000 : 5_000,
         coverage: {
             reporter: ['lcov', 'text-summary']
         }
