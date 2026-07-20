@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/trace/tree/children?uri=EPBDS-16291-profiling/arrayCallProject.xlsx%3Fsheet%3DRules%26range%3DA1%3AB4&instance=0&step=R1C0 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+
