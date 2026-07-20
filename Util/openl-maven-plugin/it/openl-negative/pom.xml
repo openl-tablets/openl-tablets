@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openl.internal</groupId>
+    <artifactId>openl-negative</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>Negative tests</name>
+
+    <!-- Independent negative scenarios merged into one reactor to pay the Maven fork cost once.
+         Every module must fail on its own; the build runs with the fail-at-end flag so a failure
+         does not hide the modules after it, and verify.groovy checks the reactor summary and the log. -->
+    <modules>
+        <module>EPBDS-12729-openl-tests-failure</module>
+        <module>openl-compilation-error-in-sources</module>
+        <module>openl-compilation-error-in-tests</module>
+        <module>openl-databinding-negative</module>
+        <module>openl-jar-verify-negative</module>
+        <module>openl-lib-threshold-default</module>
+        <module>openl-maven-property-validation</module>
+        <module>openl-openapi-verify-negative</module>
+        <module>openl-tests-failure</module>
+        <module>openl-tests-separated</module>
+        <module>openl-verify-missed-annotation-template-class-negative</module>
+    </modules>
+</project>
