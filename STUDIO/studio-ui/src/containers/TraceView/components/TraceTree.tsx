@@ -53,21 +53,24 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
                 nodeInstance: node.instance, ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                walkChildren(step.children, depth + 2, stepKey, path)
+                walkChildren(step, depth + 2, stepKey, path)
             }
         }
     }
 
     // Render only the first executions of a step's branch — a looped table can return thousands — and mark
     // the rest with a single "more" row, so expanding a hot branch never floods the tree.
-    const walkChildren = (children: CallNodeView[] | null | undefined, depth: number, keyBase: string,
-        refBase: string): void => {
+    const walkChildren = (step: StepValueView, depth: number, keyBase: string, refBase: string): void => {
+        const children = step.children
         if (!children) {
             return
         }
-        children.slice(0, MAX_TREE_CHILDREN).forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
-        if (children.length > MAX_TREE_CHILDREN) {
-            rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: children.length - MAX_TREE_CHILDREN })
+        const shown = children.slice(0, MAX_TREE_CHILDREN)
+        shown.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+        // The backend caps the list; childrenTotal is the true count when it did, else the array length.
+        const total = step.childrenTotal ?? children.length
+        if (total > shown.length) {
+            rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - shown.length })
         }
     }
 
@@ -84,7 +87,7 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'liveStep', key: stepKey, depth: depth + 1, frameIndex: i, frame, step,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                walkChildren(step.children, depth + 2, stepKey, `f${i}`)
+                walkChildren(step, depth + 2, stepKey, `f${i}`)
             }
             if (!drilled && step.status === 'current' && i + 1 < frames.length) {
                 walk(i + 1, depth + 2)

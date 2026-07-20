@@ -74,6 +74,9 @@ public class TraceDebugMapper {
     /** Upper bound on points returned per watch series, so a factor looped thousands of times stays renderable. */
     private static final int MAX_POINTS_PER_SERIES = 100;
 
+    /** Upper bound on executed children returned per step, so a table looped thousands of times stays renderable. */
+    private static final int MAX_TREE_CHILDREN = 100;
+
     /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
     public static final int DEFAULT_PROFILE_TOP = 20;
 
@@ -474,7 +477,7 @@ public class TraceDebugMapper {
             List<CallNode> kids = children.get(step.ref());
             result.add(kids == null || kids.isEmpty()
                     ? step
-                    : step.toBuilder().children(toCallNodeViews(kids)).build());
+                    : step.toBuilder().children(toCallNodeViews(kids)).childrenTotal(childrenTotalOf(kids)).build());
         }
         children.forEach((ref, kids) -> {
             if (!covered.contains(ref) && !kids.isEmpty()) {
@@ -482,6 +485,7 @@ public class TraceDebugMapper {
                         .ref(ref)
                         .status(StepStatus.EXECUTED)
                         .children(toCallNodeViews(kids))
+                        .childrenTotal(childrenTotalOf(kids))
                         .build());
             }
         });
@@ -490,7 +494,12 @@ public class TraceDebugMapper {
 
     /** Convert returned sub-calls to views, recursively — structure only, never values. */
     private static List<CallNodeView> toCallNodeViews(List<CallNode> nodes) {
-        return nodes.stream().map(TraceDebugMapper::toCallNodeView).toList();
+        return nodes.stream().limit(MAX_TREE_CHILDREN).map(TraceDebugMapper::toCallNodeView).toList();
+    }
+
+    /** The full child count when the list was capped, so the client can show how many executions were omitted. */
+    private static @Nullable Integer childrenTotalOf(List<CallNode> nodes) {
+        return nodes.size() > MAX_TREE_CHILDREN ? nodes.size() : null;
     }
 
     private static CallNodeView toCallNodeView(CallNode node) {
@@ -502,6 +511,7 @@ public class TraceDebugMapper {
                         .durationMillis(toMillis(step.durationNanos()))
                         .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
                         .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
+                        .childrenTotal(childrenTotalOf(step.children()))
                         .build())
                 .toList();
         // Self time is the node's own work: its total minus the time spent in the tables it called.

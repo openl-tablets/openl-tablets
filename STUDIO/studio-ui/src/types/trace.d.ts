@@ -220,8 +220,10 @@ export interface StepValueView {
     label?: string | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
-    /** Tables this step called, retained in profiling mode so a returned branch can be browsed. */
+    /** Tables this step called, retained in profiling mode so a returned branch can be browsed. Capped for a looped table. */
     children?: CallNodeView[] | null
+    /** Total number of tables this step called, set only when `children` was capped, so a "+N more" count stays accurate. */
+    childrenTotal?: number | null
     /** Total execution time (ms) of an executed step: its own work plus called tables; absent if not run. */
     durationMillis?: number | null
     /** Own execution time (ms) of an executed step: total minus called tables; absent if not run. */

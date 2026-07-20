@@ -276,6 +276,40 @@ class TraceDebugMapperTest {
     }
 
     @Test
+    void capsAStepsExecutedChildrenButKeepsTheFullCountAndHotspots() {
+        // A single step that called table B 150 times in a loop.
+        List<CallNode> kids = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            kids.add(leaf("uB", "B", 1));
+        }
+        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
+                List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
+
+        var step = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root,
+                StackRenderOptions.FULL, false).tree().steps().get(0);
+
+        assertEquals(100, step.children().size(), "a step looped 150 times returns only the first 100 child branches");
+        assertEquals(150, step.childrenTotal(), "the full child count is reported so the client can show +N more");
+
+        // The display cap must not affect profiling: hotspots still aggregate every invocation.
+        var b = TraceDebugMapper.buildProfileSummary(root, 10, false).hotspots().stream()
+                .filter(h -> h.uri().equals("uB")).findFirst().orElseThrow();
+        assertEquals(150, b.count(), "hotspots aggregate every invocation, not just the shown 100");
+    }
+
+    @Test
+    void leavesChildrenTotalUnsetWhenTheChildListFits() {
+        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10),
+                List.of(new CallNode.Step("R0C0", "$s", ms(10), List.of(leaf("uB", "B", 5)))), null, null);
+
+        var step = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root,
+                StackRenderOptions.FULL, false).tree().steps().get(0);
+
+        assertEquals(1, step.children().size());
+        assertNull(step.childrenTotal(), "childrenTotal is set only when the list is capped");
+    }
+
+    @Test
     void mapsTheCallNodeExecutionIndexSoALoopIterationCanBeReplayed() {
         CallNode root = new CallNode("uA", "A", 7, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
 

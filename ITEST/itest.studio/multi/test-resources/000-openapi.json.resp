@@ -24005,6 +24005,11 @@ Content-Type: application/json
               "$ref": "#/components/schemas/CallNodeView"
             }
           },
+          "childrenTotal": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
           "durationMillis": {
             "type": "number",
             "format": "double",
