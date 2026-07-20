@@ -61,6 +61,7 @@ i18next.addResourceBundle('en', 'trace', {
         profilingNotice: 'Profiling keeps the whole executed tree — it uses more memory and runs slower. Turn it off when you do not need the executed branches.',
         callStack: 'Call stack',
         notSuspended: 'Execution is not suspended',
+        runningNotice: 'Running… A large request can take a while. Use Pause or Stop to interrupt.',
         breakpoints: 'Breakpoints',
         breakpointsHint: 'A breakpoint pauses the run when a chosen table is about to execute, so you can inspect it. Add one by name below.',
         noBreakpoints: 'No breakpoints. Add one from a table below.',
