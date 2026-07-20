@@ -51,6 +51,31 @@ describe('TraceTree', () => {
         useTraceStore.getState().reset()
     })
 
+    const profile = (truncated: boolean) =>
+        ({ hotspots: [], distinctTables: 5, nodeCount: 999_999, totalMillis: 10, truncated })
+
+    it('warns that the tree is truncated so its partial branches are not mistaken for the whole run', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [frame(0, { name: 'ROOT', active: true })],
+            selectedFrameIndex: 0,
+            profile: profile(true),
+        })
+        render(<TraceTree />)
+        expect(screen.getByTestId('trace-tree-truncated')).toBeInTheDocument()
+    })
+
+    it('shows no truncation banner when the tree is complete', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [frame(0, { name: 'ROOT', active: true })],
+            selectedFrameIndex: 0,
+            profile: profile(false),
+        })
+        render(<TraceTree />)
+        expect(screen.queryByTestId('trace-tree-truncated')).toBeNull()
+    })
+
     it('renders a frame with its steps and runs to a not-yet-reached step', async () => {
         useTraceStore.setState({
             projectId: 'p1',

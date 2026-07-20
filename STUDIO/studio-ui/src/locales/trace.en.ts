@@ -33,6 +33,7 @@ i18next.addResourceBundle('en', 'trace', {
         referenceHint: 'Uses a step that already executed — click to jump to it',
         passHint: 'Execution #{{n}} of this table in the run',
         more: '+{{count}} more executions',
+        truncated: 'This tree is truncated for size — some branches are dropped. Hot Spots still count every call.',
     },
 
     hotspots: {
@@ -44,7 +45,7 @@ i18next.addResourceBundle('en', 'trace', {
         colSelf: 'Self',
         colTotal: 'Total',
         replayHint: 'Replay — restart and run to this table to inspect it live',
-        truncated: 'Showing the slowest of {{count}} tables that ran.',
+        more: 'Showing the {{shown}} slowest of {{total}} tables — every call is counted.',
         empty: 'Hot spots appear after a profiling run finishes. Turn on Profiling and run to the end.',
     },
 

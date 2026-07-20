@@ -153,6 +153,7 @@ const TraceTree: React.FC = () => {
     const runTo = useTraceStore(s => s.runTo)
     const replayNode = useTraceStore(s => s.replayNode)
     const status = useTraceStore(s => s.status)
+    const truncated = useTraceStore(s => s.profile?.truncated ?? false)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
     const [flashKey, setFlashKey] = useState<string | null>(null)
@@ -467,6 +468,9 @@ const TraceTree: React.FC = () => {
                     />
                 )}
             </div>
+            {truncated && (
+                <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>
+            )}
             {rows.map(render)}
         </div>
     )

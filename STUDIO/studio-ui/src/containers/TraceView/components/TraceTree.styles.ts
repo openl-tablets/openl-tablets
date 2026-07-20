@@ -18,6 +18,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         letter-spacing: 0.05em;
         color: ${token.colorTextTertiary};
     `,
+    // A quiet caption warning the tree is capped, so its partial branches aren't mistaken for the whole run.
+    // Pinned to the top of the scroll area, so the warning stays visible while drilling deep into the tree.
+    truncated: css`
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorWarningText};
+        background: ${token.colorWarningBg};
+    `,
     // The Total/Self switch is a control, not a heading — reset the heading typography.
     timeToggle: css`
         text-transform: none;
