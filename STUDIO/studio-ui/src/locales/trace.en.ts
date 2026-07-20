@@ -33,7 +33,9 @@ i18next.addResourceBundle('en', 'trace', {
         referenceHint: 'Uses a step that already executed — click to jump to it',
         passHint: 'Execution #{{n}} of this table in the run',
         more: '+{{count}} more executions',
+        loading: 'Loading…',
         truncated: 'This tree is truncated for size — some branches are dropped. Hot Spots still count every call.',
+        notRetained: '+{{count}} sub-calls not retained — tree too large. Hot Spots still count them.',
     },
 
     hotspots: {

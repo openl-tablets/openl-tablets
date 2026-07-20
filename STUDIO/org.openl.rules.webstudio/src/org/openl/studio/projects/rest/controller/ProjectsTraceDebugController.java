@@ -58,6 +58,7 @@ import org.openl.studio.projects.model.trace.StackRenderOptions;
 import org.openl.studio.projects.model.trace.StackViewMode;
 import org.openl.studio.projects.model.trace.StepType;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
+import org.openl.studio.projects.model.trace.TreeChildrenView;
 import org.openl.studio.projects.model.trace.WatchView;
 import org.openl.studio.projects.model.trace.WatchesRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -182,6 +183,24 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
             @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view) {
         return inspectStack(requireSession(project), renderOptions(includeTree, profileTop, view));
+    }
+
+    @Operation(summary = "trace.tree-children.summary", description = "trace.tree-children.desc")
+    @ApiResponse(responseCode = "200", description = "trace.tree-children.200.desc")
+    @GetMapping("/tree/children")
+    public TreeChildrenView treeChildren(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam("uri") @Parameter(description = "trace.param.node-uri.desc") String uri,
+            @RequestParam("instance") @Parameter(description = "trace.param.node-instance.desc") int instance,
+            @RequestParam("step") @Parameter(description = "trace.param.step-ref.desc") String step,
+            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Parameter(description = "trace.param.offset.desc") int offset,
+            @RequestParam(value = "limit", defaultValue = "100") @Min(1) @Parameter(description = "trace.param.limit.desc") int limit) {
+        DebugSession session = requireSession(project);
+        return session.inLock(() -> {
+            requireNotRunning(session);
+            return TraceDebugMapper.toChildrenView(session.getDebugger().completedTree(), uri, instance, step,
+                    offset, limit);
+        });
     }
 
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")

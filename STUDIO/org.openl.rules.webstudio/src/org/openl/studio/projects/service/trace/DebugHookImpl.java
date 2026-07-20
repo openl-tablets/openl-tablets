@@ -38,8 +38,19 @@ final class DebugHookImpl implements DebugHook {
     /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
     private static final int MAX_WATCH_CAPTURES = 50_000;
 
-    /** Default upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. */
-    private static final int MAX_TREE_NODES = 200_000;
+    /**
+     * Default upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. Since
+     * the tree is now serialized lazily (a level at a time), this is a memory bound only, not a response-size
+     * one.
+     */
+    private static final int MAX_TREE_NODES = 5_000_000;
+
+    /**
+     * Upper bound on the nodes any single branch may retain in its subtree. It keeps the earliest, deepest
+     * branch from consuming the whole {@link #MAX_TREE_NODES} budget and starving its later siblings, so every
+     * branch stays browsable even when the run as a whole is truncated.
+     */
+    private static final int MAX_BRANCH_NODES = 1_000_000;
 
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
@@ -199,19 +210,32 @@ final class DebugHookImpl implements DebugHook {
     private void recordChild(DebugFrame frame, @Nullable String callerRef, CallNode node) {
         if (admitNode()) {
             frame.recordExecutedChild(callerRef, node);
+        } else {
+            frame.incrementNotRetained();
         }
     }
 
     /**
-     * Reserve one node in the bounded tree. Returns {@code false} — and flags the tree truncated — once the cap
-     * is reached, so a huge run degrades to a truncated tree instead of exhausting memory.
+     * Reserve one node in the bounded tree. A node is admitted only while the global cap and the subtree budget
+     * of every branch it hangs under still have room, so a huge run degrades to a truncated tree — fairly across
+     * branches — instead of exhausting memory or letting one branch starve the rest. Flags the tree truncated
+     * whenever a node is dropped.
      */
     private boolean admitNode() {
         if (recordedNodes >= maxTreeNodes) {
             treeTruncated = true;
             return false;
         }
+        for (DebugFrame ancestor : stack) {
+            if (ancestor.getBudget() <= 0) {
+                treeTruncated = true;
+                return false;
+            }
+        }
         recordedNodes++;
+        for (DebugFrame ancestor : stack) {
+            ancestor.decrementBudget();
+        }
         return true;
     }
 
@@ -285,6 +309,15 @@ final class DebugHookImpl implements DebugHook {
         // attached on exit — even after its own descendants have filled the cap. Reserving on attach instead
         // (bottom-up) drops a node whose subtree reached the cap, orphaning (losing) that whole recorded subtree.
         boolean recorded = profiling && admitNode();
+        // Bound this frame's subtree by its parent's remaining budget and the per-branch cap, so a deep branch
+        // entered early cannot use up the whole tree before its siblings run. A frame that was not admitted gets
+        // no budget, so nothing is retained under it either.
+        frame.setBudget(recorded ? (parent == null ? maxTreeNodes : Math.min(parent.getBudget(), MAX_BRANCH_NODES)) : 0);
+        // A profiled sub-call the tree could not admit is one the caller made but the tree no longer keeps; count
+        // it on the caller so its node can honestly report how many of its sub-calls were dropped.
+        if (profiling && !recorded && parent != null) {
+            parent.incrementNotRetained();
+        }
         stack.push(frame);
         try {
             handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name(),

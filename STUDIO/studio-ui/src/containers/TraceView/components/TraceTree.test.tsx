@@ -13,6 +13,7 @@ vi.mock('services/traceService', () => ({
         getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
         getStack: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
+        getTreeChildren: vi.fn().mockResolvedValue({ children: [], total: 0 }),
     },
 }))
 
@@ -232,6 +233,29 @@ describe('TraceTree', () => {
         expect(screen.getByText('12 ms')).toBeInTheDocument()
     })
 
+    it('labels how many sub-calls a node dropped once the tree outgrew its size limit', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [],
+            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
+                durationMillis: 42, selfMillis: 12, steps: [], notRetained: 128 },
+        })
+        render(<TraceTree />)
+        // The gap is shown, not hidden — the analyst sees this node's children are incomplete, not absent.
+        expect(screen.getByTestId('tree-not-retained-tree/notRetained')).toBeInTheDocument()
+    })
+
+    it('shows no dropped-sub-calls note when the node retained everything', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [],
+            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
+                durationMillis: 42, selfMillis: 12, steps: [] },
+        })
+        render(<TraceTree />)
+        expect(screen.queryByTestId('tree-not-retained-tree/notRetained')).toBeNull()
+    })
+
     it('replays a returned node by restarting the trace and running to it', async () => {
         useTraceStore.setState({
             projectId: 'p1',
@@ -348,5 +372,43 @@ describe('TraceTree', () => {
         expect(screen.getByText('ROOT')).toBeInTheDocument()
         expect(screen.getByText('$Divider')).toBeInTheDocument()
         expect(screen.getAllByText('42 ms')).toHaveLength(1)
+    })
+
+    const getTreeChildren = traceService.getTreeChildren as ReturnType<typeof vi.fn>
+
+    const childNode = (name: string, instance: number) => ({
+        uri: `u${name}`, name, instance, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
+    })
+
+    const lazyTree = (childrenTotal: number) => ({
+        uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet' as const, durationMillis: 10, selfMillis: 5,
+        steps: [{ ref: 'R0C0', label: '$Calc', status: 'executed' as const, childrenTotal }],
+    })
+
+    it("lazily fetches a tree step's sub-calls only when it is expanded", async () => {
+        getTreeChildren.mockResolvedValueOnce({ children: [childNode('Child', 0)], total: 1 })
+        useTraceStore.setState({ projectId: 'p1', status: 'completed', tree: lazyTree(1) })
+        render(<TraceTree />)
+
+        expect(getTreeChildren).not.toHaveBeenCalled()
+        await userEvent.click(screen.getByTestId('tree-toggle-tree/R0C0'))
+
+        await waitFor(() => expect(getTreeChildren).toHaveBeenCalledWith('p1', 'uRoot', 0, 'R0C0', 0, 100))
+        expect(await screen.findByText('Child')).toBeInTheDocument()
+    })
+
+    it('pages in the next executions from a fetched offset when "+N more" is clicked', async () => {
+        getTreeChildren
+            .mockResolvedValueOnce({ children: [childNode('Call0', 0)], total: 2 })
+            .mockResolvedValueOnce({ children: [childNode('Call1', 1)], total: 2 })
+        useTraceStore.setState({ projectId: 'p1', status: 'completed', tree: lazyTree(2) })
+        render(<TraceTree />)
+
+        await userEvent.click(screen.getByTestId('tree-toggle-tree/R0C0'))
+        expect(await screen.findByText('Call0')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('tree-more-tree/R0C0/more'))
+        await waitFor(() => expect(getTreeChildren).toHaveBeenLastCalledWith('p1', 'uRoot', 0, 'R0C0', 1, 100))
+        expect(await screen.findByText('Call1')).toBeInTheDocument()
     })
 })

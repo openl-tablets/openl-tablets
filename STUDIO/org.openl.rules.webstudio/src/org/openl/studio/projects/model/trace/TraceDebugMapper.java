@@ -111,7 +111,7 @@ public class TraceDebugMapper {
                     .active(active)
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
-                    .steps(options.compact() && !active ? null : outlineSteps(frame))
+                    .steps(options.compact() && !active ? null : outlineSteps(frame, completedTree == null))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))
                     .dispatch(frame.getDispatch())
@@ -121,7 +121,8 @@ public class TraceDebugMapper {
                 .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
-                .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
+                .tree(completedTree == null || !options.includeTree() ? null
+                        : toShallowCallNodeView(completedTree))
                 .profile(completedTree == null ? null
                         : buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
                                 treeTruncated))
@@ -378,8 +379,11 @@ public class TraceDebugMapper {
      * the executed sub-steps. Each carries {@code executed}, {@code current}, or {@code pending} so the
      * tree can render the whole stack in one pass without cloning any values.
      */
-    static List<StepValueView> outlineSteps(DebugFrame frame) {
-        return attachExecutedChildren(frame, withStepDurations(frame, baseSteps(frame)));
+    static List<StepValueView> outlineSteps(DebugFrame frame, boolean withExecutedChildren) {
+        List<StepValueView> steps = withStepDurations(frame, baseSteps(frame));
+        // Once the run has finished, the executed sub-calls hang off the (lazy) completed tree instead, so a
+        // still-published root frame need not re-serialize them deep — that was the other half of a huge stack.
+        return withExecutedChildren ? attachExecutedChildren(frame, steps) : steps;
     }
 
     /** Attach each executed step's own measured total time, looked up by its ref. */
@@ -465,17 +469,20 @@ public class TraceDebugMapper {
     }
 
     private static CallNodeView toCallNodeView(CallNode node) {
-        List<StepValueView> steps = node.steps().stream()
-                .map(step -> StepValueView.builder()
-                        .ref(step.ref())
-                        .label(step.label())
-                        .status(StepStatus.EXECUTED)
-                        .durationMillis(toMillis(step.durationNanos()))
-                        .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
-                        .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
-                        .childrenTotal(childrenTotalOf(step.children()))
-                        .build())
-                .toList();
+        return toCallNodeView(node, false);
+    }
+
+    /**
+     * Serialize a node one level deep: its own steps with timings and a child count per step, but not the
+     * child sub-calls themselves. A step's children are fetched on demand ({@link #toChildrenView}), so a
+     * huge run's executed tree is never serialized whole — only the branches the analyst opens.
+     */
+    static CallNodeView toShallowCallNodeView(CallNode node) {
+        return toCallNodeView(node, true);
+    }
+
+    private static CallNodeView toCallNodeView(CallNode node, boolean shallow) {
+        List<StepValueView> steps = node.steps().stream().map(step -> toStepView(step, shallow)).toList();
         // Self time is the node's own work: its total minus the time spent in the tables it called.
         long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
         return CallNodeView.builder()
@@ -488,7 +495,63 @@ public class TraceDebugMapper {
                 .steps(steps)
                 .dispatch(node.dispatch())
                 .refStep(node.refStep())
+                .notRetained(node.notRetained() > 0 ? node.notRetained() : null)
                 .build();
+    }
+
+    private static StepValueView toStepView(CallNode.Step step, boolean shallow) {
+        var builder = StepValueView.builder()
+                .ref(step.ref())
+                .label(step.label())
+                .status(StepStatus.EXECUTED)
+                .durationMillis(toMillis(step.durationNanos()))
+                .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())));
+        if (shallow) {
+            // Children are fetched on demand; report only the count, so the client shows the step as
+            // expandable and knows how many executions to page through.
+            return builder.childrenTotal(step.children().isEmpty() ? null : step.children().size()).build();
+        }
+        return builder
+                .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
+                .childrenTotal(childrenTotalOf(step.children()))
+                .build();
+    }
+
+    /**
+     * The children of one step of one executed frame, one level deep, paged with {@code offset}/{@code limit}.
+     * The frame is addressed by its {@code (uri, instance)} — unique per execution in the run — so a specific
+     * loop iteration's sub-tree is reachable. Returns an empty page if the frame or step is no longer retained.
+     */
+    public static TreeChildrenView toChildrenView(@Nullable CallNode root, String uri, int instance, String stepRef,
+                                                  int offset, int limit) {
+        CallNode frame = root == null ? null : findNode(root, uri, instance);
+        List<CallNode> children = frame == null ? List.of() : frame.steps().stream()
+                .filter(step -> stepRef.equals(step.ref()))
+                .findFirst()
+                .map(CallNode.Step::children)
+                .orElse(List.of());
+        List<CallNodeView> page = children.stream()
+                .skip(Math.max(0, offset))
+                .limit(Math.max(1, limit))
+                .map(TraceDebugMapper::toShallowCallNodeView)
+                .toList();
+        return new TreeChildrenView(page, children.size());
+    }
+
+    /** Depth-first search for the retained frame with the given {@code (uri, instance)}; references are skipped. */
+    private static @Nullable CallNode findNode(CallNode node, String uri, int instance) {
+        if (node.refStep() == null && node.instance() == instance && uri.equals(node.uri())) {
+            return node;
+        }
+        for (CallNode.Step step : node.steps()) {
+            for (CallNode child : step.children()) {
+                CallNode found = findNode(child, uri, instance);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     /** Total time of a frame that has already returned (for example after a step out), otherwise {@code null}. */

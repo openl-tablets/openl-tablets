@@ -275,7 +275,7 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void capsAStepsExecutedChildrenButKeepsTheFullCountInTheView() {
+    void pagesALoopsChildrenAtTheRequestedLimit() {
         // A single step that called table B 150 times in a loop.
         List<CallNode> kids = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
@@ -284,23 +284,84 @@ class TraceDebugMapperTest {
         CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
                 List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
 
-        var step = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
-                StackRenderOptions.FULL, false).tree().steps().get(0);
+        var page = TraceDebugMapper.toChildrenView(root, "uA", 0, "R0C0", 0, 100);
 
-        assertEquals(100, step.children().size(), "a step looped 150 times returns only the first 100 child branches");
-        assertEquals(150, step.childrenTotal(), "the full child count is reported so the client can show +N more");
+        assertEquals(100, page.children().size(), "a step looped 150 times returns only the first 100 per page");
+        assertEquals(150, page.total(), "the full count is reported so the client can page through the rest");
     }
 
     @Test
-    void leavesChildrenTotalUnsetWhenTheChildListFits() {
+    void serializesTheCompletedTreeOneLevelDeepForLazyLoading() {
+        var tree = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
+                StackRenderOptions.FULL, false).tree();
+
+        assertNotNull(tree);
+        assertEquals("A", tree.name());
+        var step = tree.steps().get(0);
+        assertNull(step.children(), "children are lazy — not serialized with the root");
+        assertEquals(2, step.childrenTotal(), "the child count is reported so the client shows the step as expandable");
+    }
+
+    @Test
+    void fetchesAStepsChildrenLazilyOneLevelDeep() {
+        CallNode root = lazyTreeFixture();
+
+        // Expand the root's step: returns B and C, each shallow (B's own loop step stays unexpanded).
+        var top = TraceDebugMapper.toChildrenView(root, "uA", 0, "R0C0", 0, 100);
+        assertEquals(2, top.total());
+        assertEquals(List.of("B", "C"), top.children().stream().map(CallNodeView::name).toList());
+        assertNull(top.children().get(0).steps().get(0).children(), "B's grandchildren stay lazy");
+        assertEquals(3, top.children().get(0).steps().get(0).childrenTotal(), "B's loop count is reported");
+
+        // Expand B's loop step by its (uri, instance): returns its three iterations.
+        var loop = TraceDebugMapper.toChildrenView(root, "uB", 0, "R1C1", 0, 100);
+        assertEquals(3, loop.total());
+        assertEquals(List.of("D", "E", "F"), loop.children().stream().map(CallNodeView::name).toList());
+    }
+
+    @Test
+    void pagesThroughALoopsChildren() {
+        var page = TraceDebugMapper.toChildrenView(lazyTreeFixture(), "uB", 0, "R1C1", 1, 1);
+
+        assertEquals(3, page.total(), "the total stays the full count so the client can page through the rest");
+        assertEquals(List.of("E"), page.children().stream().map(CallNodeView::name).toList());
+    }
+
+    @Test
+    void returnsAnEmptyPageWhenTheFrameOrStepIsNoLongerRetained() {
+        assertEquals(0, TraceDebugMapper.toChildrenView(lazyTreeFixture(), "uMissing", 9, "R0C0", 0, 100).total());
+        assertEquals(0, TraceDebugMapper.toChildrenView(null, "uA", 0, "R0C0", 0, 100).total());
+    }
+
+    @Test
+    void marksExpandableStepsWithTheirChildCountAndChildlessStepsWithout() {
         CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10),
-                List.of(new CallNode.Step("R0C0", "$s", ms(10), List.of(leaf("uB", "B", 5)))), null, null);
+                List.of(new CallNode.Step("R0C0", "$called", ms(10), List.of(leaf("uB", "B", 5))),
+                        new CallNode.Step("R1C0", "$plain", ms(1), List.of())), null, null);
 
-        var step = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
-                StackRenderOptions.FULL, false).tree().steps().get(0);
+        var steps = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
+                StackRenderOptions.FULL, false).tree().steps();
 
-        assertEquals(1, step.children().size());
-        assertNull(step.childrenTotal(), "childrenTotal is set only when the list is capped");
+        // A step that made a call: children are lazy, but its count is reported so it shows as expandable.
+        assertNull(steps.get(0).children(), "children are lazy — fetched on expand");
+        assertEquals(1, steps.get(0).childrenTotal());
+        // A step that called nothing: no count, so no expand affordance.
+        assertNull(steps.get(1).children());
+        assertNull(steps.get(1).childrenTotal(), "a step that called nothing carries no child count");
+    }
+
+    @Test
+    void reportsDroppedSubCallsSoTheTruncationGapIsVisible() {
+        CallNode dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42);
+        CallNode kept = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
+
+        assertEquals(42L, treeOf(dropped).notRetained(), "a node reports how many of its sub-calls were dropped");
+        assertNull(treeOf(kept).notRetained(), "a node that kept every sub-call carries no dropped count");
+    }
+
+    private static CallNodeView treeOf(CallNode root) {
+        return TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
+                StackRenderOptions.FULL, false).tree();
     }
 
     @Test
@@ -387,6 +448,15 @@ class TraceDebugMapperTest {
 
     private static CallNode leaf(String uri, String name, long millis) {
         return new CallNode(uri, name, 0, FrameKind.SPREADSHEET, ms(millis), List.of(), null, null);
+    }
+
+    /** Root A → step calls B and C; B → loop step calls D, E, F. Three levels, for the lazy-tree tests. */
+    private static CallNode lazyTreeFixture() {
+        CallNode b = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10),
+                List.of(new CallNode.Step("R1C1", "$loop", ms(10),
+                        List.of(leaf("uD", "D", 1), leaf("uE", "E", 1), leaf("uF", "F", 1)))), null, null);
+        return new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),
+                List.of(new CallNode.Step("R0C0", "$s", ms(20), List.of(b, leaf("uC", "C", 5)))), null, null);
     }
 
     private static long ms(long millis) {

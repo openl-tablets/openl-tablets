@@ -71,6 +71,10 @@ public final class DebugFrame {
     private long durationNanos;
     /** Sum of the durations of this frame's direct sub-call frames, so its own time is {@code duration - childNanos}. */
     private long childNanos;
+    /** Remaining nodes this frame's subtree may still retain, so one big branch cannot starve its siblings. */
+    private long budget;
+    /** Direct sub-calls this frame made that ran but were dropped once the tree hit its size limit. */
+    private long notRetained;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
     private @Nullable DispatchInfo dispatch;
 
@@ -147,7 +151,7 @@ public final class DebugFrame {
                 steps.add(new CallNode.Step(ref, null, 0, List.copyOf(children)));
             }
         });
-        return new CallNode(uri, name, invocationIndex, kind, durationNanos, steps, dispatch, null);
+        return new CallNode(uri, name, invocationIndex, kind, durationNanos, steps, dispatch, null, notRetained);
     }
 
     private List<CallNode> childrenOf(String ref) {
@@ -171,6 +175,21 @@ public final class DebugFrame {
     /** Add a completed direct sub-call's time, so this frame's own time excludes the tables it called. */
     void addChildNanos(long nanos) {
         this.childNanos += nanos;
+    }
+
+    /** Set the number of nodes this frame's subtree may still retain (bounded by its parent and the branch cap). */
+    void setBudget(long budget) {
+        this.budget = budget;
+    }
+
+    /** Consume one node from this frame's subtree budget as a descendant is retained under it. */
+    void decrementBudget() {
+        this.budget--;
+    }
+
+    /** Record that one direct sub-call of this frame ran but was dropped from the tree once it hit its limit. */
+    void incrementNotRetained() {
+        this.notRetained++;
     }
 
     void setDispatch(DispatchInfo dispatch) {

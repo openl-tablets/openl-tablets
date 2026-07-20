@@ -49,6 +49,10 @@ interface DebugState {
     frames: DebugFrameView[]
     /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
     tree: CallNodeView | null
+    /** Lazily-fetched children of expanded tree steps, keyed by `treeChildKey(uri, instance, step)`; paged. */
+    treeChildren: Record<string, CallNodeView[]>
+    /** Tree steps currently fetching their next page of children, so the row can show a spinner. */
+    treeLoading: Record<string, boolean>
     /** Bounded hot-spots overview of a finished profiling run (slowest tables by own time); null otherwise. */
     profile: ProfileSummaryView | null
     debugError: DebugError | null
@@ -112,8 +116,14 @@ interface DebugState {
     onSocketStatus: (status: DebugStatus, message?: string) => void
     fetchTerminalError: () => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
+    /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
+    fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
     reset: () => void
 }
+
+/** Cache key for a tree step's lazily-fetched children: the frame's (uri, instance) plus the step ref. */
+export const treeChildKey = (uri: string, instance: number, step: string): string =>
+    JSON.stringify([uri, instance, step])
 
 const initialState = {
     projectId: null,
@@ -124,6 +134,8 @@ const initialState = {
     status: null,
     frames: [],
     tree: null,
+    treeChildren: {},
+    treeLoading: {},
     profile: null,
     debugError: null,
     selectedFrameIndex: null,
@@ -152,6 +164,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
             status: stack.status,
             frames: stack.frames,
             tree: stack.tree ?? null,
+            // A run without a tree yet (starting/running/rerun) invalidates any browsed sub-calls from the
+            // previous run; keep them only while browsing the completed tree.
+            ...(stack.tree ? {} : { treeChildren: {}, treeLoading: {} }),
             profile: stack.profile ?? null,
             debugError: stack.error ?? null,
             selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
@@ -496,6 +511,27 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 })
             }
             return result
+        },
+
+        fetchTreeChildren: async (uri, instance, step) => {
+            const key = treeChildKey(uri, instance, step)
+            const { projectId, treeChildren, treeLoading } = get()
+            // Ignore while a page for this step is already in flight, so a double-click can't page twice.
+            if (!projectId || treeLoading[key]) {
+                return
+            }
+            const offset = treeChildren[key]?.length ?? 0
+            set(s => ({ treeLoading: { ...s.treeLoading, [key]: true } }))
+            try {
+                const page = await traceService.getTreeChildren(projectId, uri, instance, step, offset, 100)
+                set(s => ({
+                    treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])]},
+                    treeLoading: { ...s.treeLoading, [key]: false },
+                }))
+            } catch (error: any) {
+                set(s => ({ treeLoading: { ...s.treeLoading, [key]: false } }))
+                notification.error({ title: error?.message || 'Failed to load sub-calls' })
+            }
         },
 
         reset: () => set(initialState),

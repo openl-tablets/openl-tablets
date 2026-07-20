@@ -21,9 +21,16 @@ import org.openl.studio.projects.model.trace.FrameKind;
  * @param steps         the sub-steps that executed, each with the sub-calls it made
  * @param dispatch      set when this table was selected by a dispatcher (overloaded by dimensions), else {@code null}
  * @param refStep       for a {@link FrameKind#STEP_REF} node, the reference of the step it points at, else {@code null}
+ * @param notRetained   direct sub-calls this node made that ran but were dropped once the tree hit its size limit
  */
 public record CallNode(String uri, String name, int instance, FrameKind kind, long durationNanos, List<Step> steps,
-                       @Nullable DispatchInfo dispatch, @Nullable String refStep) {
+                       @Nullable DispatchInfo dispatch, @Nullable String refStep, long notRetained) {
+
+    /** A node with no dropped sub-calls — the common case, while the tree is still under its size limit. */
+    public CallNode(String uri, String name, int instance, FrameKind kind, long durationNanos, List<Step> steps,
+                    @Nullable DispatchInfo dispatch, @Nullable String refStep) {
+        this(uri, name, instance, kind, durationNanos, steps, dispatch, refStep, 0);
+    }
 
     /**
      * One executed sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.
