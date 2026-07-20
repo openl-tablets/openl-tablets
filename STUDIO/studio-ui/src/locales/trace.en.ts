@@ -5,9 +5,12 @@ i18next.addResourceBundle('en', 'trace', {
 
     watch: {
         title: 'Watch',
+        titleHint: 'Capture the value of chosen cells on every run of their table, to see how an intermediate value changes.',
         add: 'Add',
+        addHint: 'Add this cell to the watch list.',
         addPlaceholder: 'Cell name ($Factor) or ref (R2C3)',
         collect: 'Collect',
+        collectHint: 'Run the trace to the end and record the value of each watched cell on every run of its table.',
         empty: 'No values captured — run a table that computes these cells.',
         truncated: 'Too many values — the series is capped and may miss late executions.',
         showing: 'Showing the first {{shown}} of {{total}} executions.',
@@ -59,6 +62,7 @@ i18next.addResourceBundle('en', 'trace', {
         callStack: 'Call stack',
         notSuspended: 'Execution is not suspended',
         breakpoints: 'Breakpoints',
+        breakpointsHint: 'A breakpoint pauses the run when a chosen table is about to execute, so you can inspect it. Add one by name below.',
         noBreakpoints: 'No breakpoints. Add one from a table below.',
         addBreakpoint: 'Add breakpoint',
         addBreakpointPlaceholder: 'Find a table by name…',

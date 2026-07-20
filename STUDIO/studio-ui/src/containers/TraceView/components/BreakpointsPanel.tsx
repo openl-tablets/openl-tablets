@@ -46,7 +46,9 @@ const BreakpointsPanel: React.FC = () => {
 
     return (
         <div className={styles.panel} data-testid="breakpoints-panel">
-            <div className={styles.header}>{t('debug.breakpoints')}</div>
+            <Tooltip title={t('debug.breakpointsHint')}>
+                <div className={styles.header}>{t('debug.breakpoints')}</div>
+            </Tooltip>
             <Select
                 key={selectKey}
                 showSearch
