@@ -250,6 +250,34 @@ describe('traceStore actions', () => {
         expect(state.loading).toBe(false)
     })
 
+    it('loads the root frame variables when inspecting a completed run, so the final result stays readable', async () => {
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        useTraceStore.setState({ status: 'completed' })
+
+        await useTraceStore.getState().selectFrame(0)
+
+        expect(getVariables).toHaveBeenCalledWith('p1', 0)
+        expect(useTraceStore.getState().variables).not.toBeNull()
+    })
+
+    it('auto-selects the root frame once a run completes, so its result is shown without a click', async () => {
+        getStack.mockResolvedValue({ status: 'completed', frames: [{ index: 0 } as any], tree: null, profile: null } as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+
+        await useTraceStore.getState().start()
+
+        expect(useTraceStore.getState().selectedFrameIndex).toBe(0)
+    })
+
+    it('does not fetch variables while the worker is still running', async () => {
+        useTraceStore.setState({ status: 'running' })
+
+        await useTraceStore.getState().selectFrame(0)
+
+        expect(getVariables).not.toHaveBeenCalled()
+        expect(useTraceStore.getState().variables).toBeNull()
+    })
+
     it('applies the returned stack on a successful step', async () => {
         step.mockResolvedValue(suspended([{ index: 0 } as any]))
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)

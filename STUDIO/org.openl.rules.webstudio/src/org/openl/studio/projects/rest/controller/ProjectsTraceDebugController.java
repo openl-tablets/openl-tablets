@@ -254,7 +254,7 @@ public class ProjectsTraceDebugController {
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
         DebugSession session = requireSession(project);
         TraceDebugMapper mapper = createMapper(session);
-        return withSuspendedFrame(session, index, frame -> mapper.freezeVariables(frame, session.getClassLoader()));
+        return withInspectableFrame(session, index, frame -> mapper.freezeVariables(frame, session.getClassLoader()));
     }
 
     @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
@@ -264,7 +264,7 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
         DebugSession session = requireSession(project);
-        return withSuspendedFrame(session, index, traceHighlightService::computeHighlights);
+        return withInspectableFrame(session, index, traceHighlightService::computeHighlights);
     }
 
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")
@@ -422,10 +422,14 @@ public class ProjectsTraceDebugController {
         }
     }
 
-    /** Run an inspection of frame {@code index} under the session lock, requiring a suspended worker. */
-    private <T> T withSuspendedFrame(DebugSession session, int index, Function<DebugFrame, T> inspection) {
+    /**
+     * Run an inspection of frame {@code index} under the session lock. Allowed whenever the worker is not
+     * running — while suspended at a step, and once the run has completed or failed — so an analyst can read
+     * the final result after a profiling run to completion, not only at a breakpoint.
+     */
+    private <T> T withInspectableFrame(DebugSession session, int index, Function<DebugFrame, T> inspection) {
         return session.inLock(() -> {
-            requireSuspendedState(session);
+            requireNotRunning(session);
             DebugFrame frame = session.getDebugger().frameAt(index);
             if (frame == null) {
                 throw new NotFoundException("trace.frame.not.found.message");

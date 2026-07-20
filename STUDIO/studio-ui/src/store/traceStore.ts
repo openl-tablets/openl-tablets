@@ -153,7 +153,10 @@ const initialState = {
     error: null,
 }
 
-const isSuspended = (status: DebugStatus | null): boolean => status === 'suspended'
+// A settled run whose frames can still be inspected: paused at a step, or finished (completed/failed) with
+// the root frame still published — so the final result is readable after a run to completion, not only at a stop.
+const isInspectable = (status: DebugStatus | null): boolean =>
+    status === 'suspended' || status === 'completed' || status === 'error'
 
 export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
@@ -169,7 +172,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             ...(stack.tree ? {} : { treeChildren: {}, treeLoading: {} }),
             profile: stack.profile ?? null,
             debugError: stack.error ?? null,
-            selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
+            selectedFrameIndex: isInspectable(stack.status) ? topIndex : null,
             variables: null,
             variablesLoading: false,
             stackVersion: get().stackVersion + 1,
@@ -182,7 +185,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         if (transient && get().breakpoints.includes(transient)) {
             void get().toggleBreakpoint(transient)
         }
-        if (isSuspended(stack.status) && topIndex !== null) {
+        if (isInspectable(stack.status) && topIndex !== null) {
             void get().selectFrame(topIndex)
         }
         // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
@@ -281,7 +284,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const { projectId, status, stackVersion } = get()
             if (!projectId) return
             set({ selectedFrameIndex: index })
-            if (!isSuspended(status)) {
+            if (!isInspectable(status)) {
                 set({ variables: null, variablesLoading: false })
                 return
             }
