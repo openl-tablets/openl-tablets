@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -136,22 +137,29 @@ public final class DebugFrame {
         executedChildCount++;
     }
 
-    /** Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values. */
-    CallNode toCallNode() {
+    /**
+     * Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values.
+     *
+     * <p>The table URI, name, and each step reference pass through {@code intern}, so the same table
+     * repeated across thousands of nodes shares one instance of each string instead of duplicating it.
+     */
+    CallNode toCallNode(UnaryOperator<String> intern) {
         List<CallNode.Step> steps = new ArrayList<>();
         Set<String> covered = new HashSet<>();
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
-                steps.add(new CallNode.Step(step.ref(), step.label(), step.durationNanos(),
-                        List.copyOf(childrenOf(step.ref()))));
+                steps.add(new CallNode.Step(intern.apply(step.ref()),
+                        step.label() == null ? null : intern.apply(step.label()),
+                        step.durationNanos(), List.copyOf(childrenOf(step.ref()))));
             }
         }
         executedChildren.forEach((ref, children) -> {
             if (!covered.contains(ref)) {
-                steps.add(new CallNode.Step(ref, null, 0, List.copyOf(children)));
+                steps.add(new CallNode.Step(intern.apply(ref), null, 0, List.copyOf(children)));
             }
         });
-        return new CallNode(uri, name, invocationIndex, kind, durationNanos, steps, dispatch, null, notRetained);
+        return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
+                steps, dispatch, null, notRetained);
     }
 
     private List<CallNode> childrenOf(String ref) {

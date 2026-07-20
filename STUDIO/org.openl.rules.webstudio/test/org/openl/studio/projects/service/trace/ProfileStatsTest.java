@@ -1,8 +1,10 @@
 package org.openl.studio.projects.service.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -53,6 +55,26 @@ class ProfileStatsTest {
         assertEquals(1, root.count());
         assertTrue(root.selfNanos() < root.totalNanos(),
                 "Root's own time excludes the SubCalc invocations it made");
+    }
+
+    @Test
+    @DisplayName("Shares one step-ref instance across a table's repeated invocations")
+    void sharesRepeatedStepStringsAcrossInvocations() {
+        TraceDebugger debugger = trace(1000);
+
+        List<CallNode> subCalls = new ArrayList<>();
+        walk(debugger.completedTree(), node -> {
+            if (node.kind() != FrameKind.STEP_REF && "SubCalc".equals(node.name())) {
+                subCalls.add(node);
+            }
+        });
+
+        assertEquals(3, subCalls.size(), "SubCalc runs three times");
+        // The step refs are rebuilt on every execution, so three invocations would keep three copies of each.
+        // Interning collapses them to one shared instance — the memory win, since a table can run thousands of times.
+        String ref0 = subCalls.get(0).steps().get(0).ref();
+        assertSame(ref0, subCalls.get(1).steps().get(0).ref(), "repeated invocations share one step-ref instance");
+        assertSame(ref0, subCalls.get(2).steps().get(0).ref());
     }
 
     private TraceDebugger trace(int cap) {
