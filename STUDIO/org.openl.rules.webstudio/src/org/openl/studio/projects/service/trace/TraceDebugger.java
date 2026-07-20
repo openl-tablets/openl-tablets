@@ -82,6 +82,11 @@ public final class TraceDebugger {
         return hook.isTreeTruncated();
     }
 
+    /** Lower the retained-tree node cap. Test seam only: exercise truncation without a huge profiled run. */
+    void setMaxTreeNodes(int maxTreeNodes) {
+        hook.setMaxTreeNodes(maxTreeNodes);
+    }
+
     /**
      * Start execution on a fresh virtual thread.
      *

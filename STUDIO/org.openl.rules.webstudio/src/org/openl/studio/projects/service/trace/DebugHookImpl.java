@@ -35,7 +35,7 @@ final class DebugHookImpl implements DebugHook {
     /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
     private static final int MAX_WATCH_CAPTURES = 50_000;
 
-    /** Upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. */
+    /** Default upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. */
     private static final int MAX_TREE_NODES = 200_000;
 
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
@@ -58,6 +58,8 @@ final class DebugHookImpl implements DebugHook {
     /** Running count of retained tree nodes and the flag set once the node cap stops the tree from growing. */
     private int recordedNodes;
     private volatile boolean treeTruncated;
+    /** Effective node cap; defaults to {@link #MAX_TREE_NODES}, lowered by tests to exercise truncation. */
+    private int maxTreeNodes = MAX_TREE_NODES;
     /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
@@ -183,18 +185,34 @@ final class DebugHookImpl implements DebugHook {
     }
 
     /**
-     * Attach a returned call or reference to its caller frame while the tree is under the node cap.
+     * Attach a leaf reference node to its caller frame while the tree is under the node cap.
      *
-     * <p>Bounds the retained tree for a huge run: once the cap is reached further nodes are dropped and the
-     * tree is flagged truncated, so the profile can report that it is incomplete instead of exhausting memory.
+     * <p>Returned call frames reserve their slot on entry and attach themselves; this handles the reference
+     * leaves a step leaves behind. Once the cap is reached the reference is dropped and the tree is flagged
+     * truncated, so the profile can report that it is incomplete instead of exhausting memory.
      */
     private void recordChild(DebugFrame frame, @Nullable String callerRef, CallNode node) {
-        if (recordedNodes >= MAX_TREE_NODES) {
-            treeTruncated = true;
-            return;
+        if (admitNode()) {
+            frame.recordExecutedChild(callerRef, node);
         }
-        frame.recordExecutedChild(callerRef, node);
+    }
+
+    /**
+     * Reserve one node in the bounded tree. Returns {@code false} — and flags the tree truncated — once the cap
+     * is reached, so a huge run degrades to a truncated tree instead of exhausting memory.
+     */
+    private boolean admitNode() {
+        if (recordedNodes >= maxTreeNodes) {
+            treeTruncated = true;
+            return false;
+        }
         recordedNodes++;
+        return true;
+    }
+
+    /** Lower the retained-tree node cap. Test seam only: exercise truncation without a huge profiled run. */
+    void setMaxTreeNodes(int maxTreeNodes) {
+        this.maxTreeNodes = maxTreeNodes;
     }
 
     boolean isTreeTruncated() {
@@ -258,6 +276,10 @@ final class DebugHookImpl implements DebugHook {
             pendingDispatch = null;
             pendingChosen = null;
         }
+        // Reserve this frame's slot in the bounded tree on ENTRY (top-down). A frame admitted here can always be
+        // attached on exit — even after its own descendants have filled the cap. Reserving on attach instead
+        // (bottom-up) drops a node whose subtree reached the cap, orphaning (losing) that whole recorded subtree.
+        boolean recorded = profiling && admitNode();
         stack.push(frame);
         try {
             handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name(),
@@ -282,10 +304,12 @@ final class DebugHookImpl implements DebugHook {
             // Profiling keeps the returned frame's structure (no values) so the executed call tree survives the pop.
             // A returned root frame has no parent to hold it, so it is kept as the completed tree instead. A frame
             // unwound by a terminate neither completed nor failed, so it is skipped — no misleading zero-time tree.
-            if (profiling && (frame.isCompleted() || frame.getError() != null)) {
+            if (recorded && (frame.isCompleted() || frame.getError() != null)) {
                 CallNode node = frame.toCallNode();
                 if (parent != null) {
-                    recordChild(parent, callerRef, node);
+                    // The slot was reserved on entry, so attach directly without a cap re-check: a frame whose
+                    // subtree filled the cap stays in the tree instead of being dropped with its whole subtree.
+                    parent.recordExecutedChild(callerRef, node);
                 } else {
                     completedTree.set(node);
                 }
