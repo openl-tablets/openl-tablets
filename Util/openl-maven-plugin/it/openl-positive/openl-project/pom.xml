@@ -5,7 +5,7 @@
     <artifactId>parent-pom</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Projecth</name>
+    <name>OpenL Project</name>
 
     <modules>
         <module>openl-groovy</module>
