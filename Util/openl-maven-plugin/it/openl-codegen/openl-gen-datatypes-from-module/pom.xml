@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-gen-datatypes</artifactId>
+    <artifactId>openl-gen-datatypes-from-module</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>Mixed datatypes</name>
+    <name>Generated datatypes from module</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>
@@ -13,19 +13,19 @@
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.project</artifactId>
+            <artifactId>org.openl.rules</artifactId>
             <version>${org.openl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.17</version>
+            <version>2.0.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.13.3</version>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -37,8 +37,7 @@
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <interfaceClass>com.example.Service</interfaceClass>
-                    <threadCount>2.5C</threadCount>
+                    <moduleName>Rules</moduleName>
                 </configuration>
                 <executions>
                     <execution>
