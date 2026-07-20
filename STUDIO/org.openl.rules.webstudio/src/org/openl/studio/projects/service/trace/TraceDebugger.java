@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.studio.projects.model.trace.DebugStatus;
+import org.openl.studio.projects.model.trace.TableProfile;
 import org.openl.vm.Tracer;
 
 /**
@@ -166,6 +167,11 @@ public final class TraceDebugger {
     /** The whole executed tree once the trace has finished (profiling mode), or {@code null} while it runs. */
     public @Nullable CallNode completedTree() {
         return hook.completedTree();
+    }
+
+    /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
+    public List<TableProfile> profileStats() {
+        return hook.profileStats();
     }
 
     /** Wait for the worker to reach its first suspend or a terminal state. */

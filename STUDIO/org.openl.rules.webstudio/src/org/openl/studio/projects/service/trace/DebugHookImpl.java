@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,8 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DebugStatus;
+import org.openl.studio.projects.model.trace.FrameKind;
+import org.openl.studio.projects.model.trace.TableProfile;
 import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
@@ -60,6 +63,8 @@ final class DebugHookImpl implements DebugHook {
     private volatile boolean treeTruncated;
     /** Effective node cap; defaults to {@link #MAX_TREE_NODES}, lowered by tests to exercise truncation. */
     private int maxTreeNodes = MAX_TREE_NODES;
+    /** Per-table profiling stats, accumulated as frames complete — independent of the retained (capped) tree. */
+    private final Map<String, TableAccumulator> tableStats = new LinkedHashMap<>();
     /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
@@ -301,17 +306,28 @@ final class DebugHookImpl implements DebugHook {
             throw ex;
         } finally {
             stack.pop();
-            // Profiling keeps the returned frame's structure (no values) so the executed call tree survives the pop.
-            // A returned root frame has no parent to hold it, so it is kept as the completed tree instead. A frame
-            // unwound by a terminate neither completed nor failed, so it is skipped — no misleading zero-time tree.
-            if (recorded && (frame.isCompleted() || frame.getError() != null)) {
-                CallNode node = frame.toCallNode();
+            // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
+            // misleading zero-time entry in either the hotspots or the tree.
+            if (profiling && (frame.isCompleted() || frame.getError() != null)) {
+                // Aggregate this table's time on the fly for EVERY execution — independent of whether the node
+                // is kept in the (capped) tree — so the hotspots overview stays accurate on a truncated run.
+                long selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
+                tableStats.computeIfAbsent(frame.getUri(),
+                                uri -> new TableAccumulator(uri, frame.getName(), frame.getKind()))
+                        .add(frame.getDurationNanos(), selfNanos);
                 if (parent != null) {
-                    // The slot was reserved on entry, so attach directly without a cap re-check: a frame whose
-                    // subtree filled the cap stays in the tree instead of being dropped with its whole subtree.
-                    parent.recordExecutedChild(callerRef, node);
-                } else {
-                    completedTree.set(node);
+                    parent.addChildNanos(frame.getDurationNanos());
+                }
+                // Profiling also keeps the returned frame's structure (no values) so the executed tree survives
+                // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
+                // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
+                if (recorded) {
+                    CallNode node = frame.toCallNode();
+                    if (parent != null) {
+                        parent.recordExecutedChild(callerRef, node);
+                    } else {
+                        completedTree.set(node);
+                    }
                 }
             }
         }
@@ -388,10 +404,41 @@ final class DebugHookImpl implements DebugHook {
         return completedTree.get();
     }
 
+    /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
+    List<TableProfile> profileStats() {
+        return tableStats.values().stream().map(TableAccumulator::toProfile).toList();
+    }
+
     /** The frame at the given stack index in the published snapshot, or {@code null} if out of range. */
     @Nullable
     DebugFrame frameAt(int index) {
         List<DebugFrame> current = published.get();
         return index >= 0 && index < current.size() ? current.get(index) : null;
+    }
+
+    /** Mutable accumulator for one table's aggregated time across every invocation in the run. */
+    private static final class TableAccumulator {
+        private final String uri;
+        private final String name;
+        private final FrameKind kind;
+        private int count;
+        private long totalNanos;
+        private long selfNanos;
+
+        private TableAccumulator(String uri, String name, FrameKind kind) {
+            this.uri = uri;
+            this.name = name;
+            this.kind = kind;
+        }
+
+        private void add(long totalNanos, long selfNanos) {
+            count++;
+            this.totalNanos += totalNanos;
+            this.selfNanos += selfNanos;
+        }
+
+        private TableProfile toProfile() {
+            return new TableProfile(uri, name, kind, count, selfNanos, totalNanos);
+        }
     }
 }

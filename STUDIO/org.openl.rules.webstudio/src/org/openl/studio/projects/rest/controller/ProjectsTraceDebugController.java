@@ -434,7 +434,7 @@ public class ProjectsTraceDebugController {
     private DebugStackView stackView(DebugSession session, StackRenderOptions options) {
         var debugger = session.getDebugger();
         return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
-                debugger.completedTree(), options, debugger.isTreeTruncated());
+                debugger.completedTree(), debugger.profileStats(), options, debugger.isTreeTruncated());
     }
 
     private TraceDebugMapper createMapper(DebugSession session) {

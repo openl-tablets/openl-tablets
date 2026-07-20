@@ -69,6 +69,8 @@ public final class DebugFrame {
     private int invocationIndex;
     /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
     private long durationNanos;
+    /** Sum of the durations of this frame's direct sub-call frames, so its own time is {@code duration - childNanos}. */
+    private long childNanos;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
     private @Nullable DispatchInfo dispatch;
 
@@ -164,6 +166,11 @@ public final class DebugFrame {
 
     void setDurationNanos(long durationNanos) {
         this.durationNanos = durationNanos;
+    }
+
+    /** Add a completed direct sub-call's time, so this frame's own time excludes the tables it called. */
+    void addChildNanos(long nanos) {
+        this.childNanos += nanos;
     }
 
     void setDispatch(DispatchInfo dispatch) {

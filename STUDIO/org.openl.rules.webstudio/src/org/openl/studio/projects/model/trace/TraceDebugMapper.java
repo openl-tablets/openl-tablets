@@ -82,7 +82,7 @@ public class TraceDebugMapper {
 
     /** Map the live stack (root to current frame) to a stack view with default full rendering. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
-        return toStackView(status, frames, error, null, StackRenderOptions.FULL, false);
+        return toStackView(status, frames, error, null, List.of(), StackRenderOptions.FULL, false);
     }
 
     /**
@@ -93,8 +93,8 @@ public class TraceDebugMapper {
      * every frame's steps. {@code treeTruncated} marks the profile incomplete when the tree hit the node cap.
      */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
-                                             @Nullable CallNode completedTree, StackRenderOptions options,
-                                             boolean treeTruncated) {
+                                             @Nullable CallNode completedTree, List<TableProfile> profileStats,
+                                             StackRenderOptions options, boolean treeTruncated) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -123,7 +123,8 @@ public class TraceDebugMapper {
                 .error(buildStackError(frames, error))
                 .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
                 .profile(completedTree == null ? null
-                        : buildProfileSummary(completedTree, options.profileTop(), treeTruncated))
+                        : buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
+                                treeTruncated))
                 .build();
     }
 
@@ -180,72 +181,33 @@ public class TraceDebugMapper {
     }
 
     /**
-     * Fold the executed call tree into a bounded hotspots overview: every invocation of the same table
-     * aggregated, keeping only the slowest {@code top} by own time. Constant-sized regardless of run size.
+     * Shape the per-table stats gathered on the fly into a bounded hotspots overview: keep only the slowest
+     * {@code top} tables by own time. Constant-sized regardless of run size.
+     *
+     * <p>The stats count every invocation the run made, so the overview stays accurate even when the executed
+     * tree was truncated for size — {@code treeTruncated} then flags only that the tree is incomplete, not the
+     * hotspots.
      */
-    static ProfileSummaryView buildProfileSummary(CallNode root, int top, boolean treeTruncated) {
-        Map<String, Hotspot> byUri = new HashMap<>();
-        int nodeCount = accumulateHotspots(root, byUri, 0);
-        List<ProfileHotspotView> hotspots = byUri.values().stream()
-                .sorted(Comparator.comparingLong(Hotspot::selfNanos).reversed())
+    static ProfileSummaryView buildProfileSummary(List<TableProfile> stats, int top, long rootNanos,
+                                                  boolean treeTruncated) {
+        List<ProfileHotspotView> hotspots = stats.stream()
+                .sorted(Comparator.comparingLong(TableProfile::selfNanos).reversed())
                 .limit(Math.max(1, top))
-                .map(Hotspot::toView)
+                .map(TraceDebugMapper::toHotspotView)
                 .toList();
+        int invocations = stats.stream().mapToInt(TableProfile::count).sum();
         return ProfileSummaryView.builder()
                 .hotspots(hotspots)
-                .distinctTables(byUri.size())
-                .nodeCount(nodeCount)
-                .totalMillis(toMillis(root.durationNanos()))
-                .truncated(byUri.size() > hotspots.size() || treeTruncated)
+                .distinctTables(stats.size())
+                .nodeCount(invocations)
+                .totalMillis(toMillis(rootNanos))
+                .truncated(treeTruncated)
                 .build();
     }
 
-    /** Add a node's own time to its table's hotspot and recurse into the tables its steps called. */
-    private static int accumulateHotspots(CallNode node, Map<String, Hotspot> byUri, int nodeCount) {
-        if (node.refStep() != null) {
-            // A reference to a step that ran elsewhere: no time of its own, so it is not an invocation.
-            return nodeCount;
-        }
-        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
-        byUri.computeIfAbsent(node.uri(), uri -> new Hotspot(uri, node.name(), node.kind()))
-                .add(node.durationNanos(), Math.max(0, node.durationNanos() - childrenNanos));
-        int count = nodeCount + 1;
-        for (CallNode.Step step : node.steps()) {
-            for (CallNode child : step.children()) {
-                count = accumulateHotspots(child, byUri, count);
-            }
-        }
-        return count;
-    }
-
-    /** Mutable accumulator for one table's aggregated profiling time across all its invocations. */
-    private static final class Hotspot {
-        private final String uri;
-        private final String name;
-        private final FrameKind kind;
-        private long totalNanos;
-        private long selfNanos;
-        private int count;
-
-        private Hotspot(String uri, String name, FrameKind kind) {
-            this.uri = uri;
-            this.name = name;
-            this.kind = kind;
-        }
-
-        private void add(long totalNanos, long selfNanos) {
-            this.totalNanos += totalNanos;
-            this.selfNanos += selfNanos;
-            this.count++;
-        }
-
-        private long selfNanos() {
-            return selfNanos;
-        }
-
-        private ProfileHotspotView toView() {
-            return new ProfileHotspotView(uri, name, kind, toMillis(selfNanos), toMillis(totalNanos), count);
-        }
+    private static ProfileHotspotView toHotspotView(TableProfile stat) {
+        return new ProfileHotspotView(stat.uri(), stat.name(), stat.kind(),
+                toMillis(stat.selfNanos()), toMillis(stat.totalNanos()), stat.count());
     }
 
     /** Build a non-technical error view: cleaned message, the table that failed, and a technical drill-down. */
