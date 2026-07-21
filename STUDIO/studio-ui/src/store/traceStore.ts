@@ -162,6 +162,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
+        // While suspended (or stopped at an error) the frame of interest is the current/failing one at the top;
+        // once the run completes, the result to surface is the root call at index 0 — not whichever deep frame
+        // the last suspend happened to leave published.
+        const focusIndex = topIndex === null ? null
+            : stack.status === 'completed' ? 0
+                : isInspectable(stack.status) ? topIndex
+                    : null
         const transient = get().transientBreakpoint
         set({
             status: stack.status,
@@ -172,7 +179,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             ...(stack.tree ? {} : { treeChildren: {}, treeLoading: {} }),
             profile: stack.profile ?? null,
             debugError: stack.error ?? null,
-            selectedFrameIndex: isInspectable(stack.status) ? topIndex : null,
+            selectedFrameIndex: focusIndex,
             variables: null,
             variablesLoading: false,
             stackVersion: get().stackVersion + 1,
@@ -185,8 +192,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
         if (transient && get().breakpoints.includes(transient)) {
             void get().toggleBreakpoint(transient)
         }
-        if (isInspectable(stack.status) && topIndex !== null) {
-            void get().selectFrame(topIndex)
+        if (focusIndex !== null) {
+            void get().selectFrame(focusIndex)
         }
         // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
         // not only on Collect — the panel then tracks the value as the user steps through.
@@ -518,7 +525,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
 
         fetchTreeChildren: async (uri, instance, step) => {
             const key = treeChildKey(uri, instance, step)
-            const { projectId, treeChildren, treeLoading } = get()
+            const { projectId, treeChildren, treeLoading, stackVersion } = get()
             // Ignore while a page for this step is already in flight, so a double-click can't page twice.
             if (!projectId || treeLoading[key]) {
                 return
@@ -527,6 +534,12 @@ export const useTraceStore = create<DebugState>((set, get) => {
             set(s => ({ treeLoading: { ...s.treeLoading, [key]: true } }))
             try {
                 const page = await traceService.getTreeChildren(projectId, uri, instance, step, offset, 100)
+                // Drop a page that arrives after a re-run: instance indices restart at 0, so the same (uri,
+                // instance) key would otherwise be reused by the new run's node at that position, pinning the
+                // previous run's sub-calls with no refetch.
+                if (get().stackVersion !== stackVersion) {
+                    return
+                }
                 set(s => ({
                     treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])]},
                     treeLoading: { ...s.treeLoading, [key]: false },

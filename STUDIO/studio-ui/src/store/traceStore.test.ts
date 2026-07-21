@@ -260,8 +260,11 @@ describe('traceStore actions', () => {
         expect(useTraceStore.getState().variables).not.toBeNull()
     })
 
-    it('auto-selects the root frame once a run completes, so its result is shown without a click', async () => {
-        getStack.mockResolvedValue({ status: 'completed', frames: [{ index: 0 } as any], tree: null, profile: null } as any)
+    it('auto-selects the root frame — not the deepest published — once a run completes', async () => {
+        // Resuming a deep breakpoint to completion leaves the multi-frame stack published; the run's result is
+        // the root call, so index 0 must be selected rather than the deepest frame at the top of the stack.
+        getStack.mockResolvedValue({ status: 'completed', frames: [{ index: 0 } as any, { index: 1 } as any],
+            tree: null, profile: null } as any)
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
 
         await useTraceStore.getState().start()
