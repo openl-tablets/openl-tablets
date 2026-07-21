@@ -6,9 +6,9 @@ This preface is an introduction to the *OpenL Tablets Demo Package Guide*.
 
 This guide describes a complete OpenL Tablets Demo package which contains configured and ready to demonstrate infrastructure for the OpenL Tablets product. The Demo package enables a user to develop business rules and manage business rule sets in OpenL Studio, and then execute these rules as web services ready to be used by solution applications.
 
-# Getting Started with the OpenL Tablets Demo
+## Getting Started with the OpenL Tablets Demo
 
-Welcome\! The OpenL Tablets Demo is the quickest way to explore the features of OpenL Tablets. It comes with pre-loaded example projects, so you can start working immediately without any complex setup.
+Welcome! The OpenL Tablets Demo is the quickest way to explore the features of OpenL Tablets. It comes with pre-loaded example projects, so you can start working immediately without any complex setup.
 
 You can use the included examples as a template, learn from them, or create your own projects from scratch. The Demo also includes a **Rule Services Demo Client**, allowing you to see how your business rules can be executed by other applications.
 
@@ -164,7 +164,7 @@ The following topics are included:
 
 Several examples and tutorials are already in the **No Changes** status, therefore available in **Rules Editor** by default. For more information on how to manage rules in Rules Editor, see [OpenL Studio Guide > Using Rules Editor](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#using-rules-editor).
 
-![](demo_studio_editor.png)
+![Projects in Rules Editor available for editing](demo_studio_editor.png)
 
 *Projects in Rules Editor available for editing*
 
@@ -172,11 +172,11 @@ Several examples and tutorials are already in the **No Changes** status, therefo
 
 Users can work with projects loaded in Repository in the Demo package and create their own new projects. For more information on how to manage projects in Repository, see [OpenL Studio Guide > Using Repository Editor](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#using-repository-editor).
 
-The “Example 3 – Auto Policy Calculation” project is already deployed and can be used via OpenL Tablets Rule Services as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project) in OpenL Tablets Web Services Demo Client as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
+The “Example 3 – Auto Policy Calculation” project is already deployed and can be used via OpenL Tablets Rule Services as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project) in OpenL Tablets Rule Services Demo Client as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
 
 As OpenL Studio is preconfigured in a single user mode, and all projects in Repository are created and modified by the “DEFAULT” user.
 
-![](demo_studio_projects.png)
+![The whole list of rules projects in Repository of the Demo package](demo_studio_projects.png)
 
 *The whole list of rules projects in Repository of the Demo package*
 
@@ -184,9 +184,9 @@ As OpenL Studio is preconfigured in a single user mode, and all projects in Repo
 
 By default, a project from the “Example 3 – Auto Policy Calculation” template is deployed to Deployment Repository from OpenL Studio by a startup script.
 
-To use this project as an example of project deployments as described in [OpenL Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package), several settings are defined in Rules Configuration of the project. It is set up that only \*DriverRisk\*, \*DriverAgeType\*, \*AccidentPremium\* are wildcards, and rules are included and can be used from the OpenL Tablets Rule Services Demo Client application.
+To use this project as an example of project deployments as described in [OpenL Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package), several settings are defined in Rules Configuration of the project. It is set up that only `DriverRisk`, `DriverAgeType`, `AccidentPremium` are wildcards, and rules are included and can be used from the OpenL Tablets Rule Services Demo Client application.
 
-![](demo_ruleservices_ui.png)
+![OpenL Rule Services main page and the project deployed on it](demo_ruleservices_ui.png)
 
 *OpenL Rule Services main page and the project deployed on it*
 
@@ -202,7 +202,7 @@ OpenL Rule Services Demo Client application is an application specially created 
 
 OpenL Rule Services Demo Client application allows to define a driver type by age and gender, get premium per accident, or determine how risky a driver is according to business rules specified in the “Example 3 – Auto Policy Calculation” project.
 
-![](demo_client_ui.png)
+![Executing DriverAgeType rule and getting results via OpenL Rule Services Demo Client](demo_client_ui.png)
 
 *Executing DriverAgeType rule and getting results via OpenL Rule Services Demo Client*
 
@@ -224,9 +224,3 @@ A standard setup for using OpenL Tablets involves two main steps:
 2.  **Configure the Connection**: Set up both **OpenL Studio** and **OpenL Rule Services** to use the same **`deployment`** repository.
 
 The most critical step is ensuring the **`deployment` repository** is configured identically in both applications. You can inspect the configuration files inside the Demo package as a working example of how to do this correctly.
-
-
-```
-Release 6.0
-OpenL Tablets Documentation is licensed under a Creative Commons Attribution 3.0 United States License.
-```

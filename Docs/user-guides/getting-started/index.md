@@ -169,8 +169,8 @@ To do it:
 
    *Figure 8: Created Air Ticket Price project*
 
-> **Note**: OpenL Studio also allows creating projects with Tutorials and Examples quickly from the **Create Project**
-> dialog.
+> [!Note]
+> OpenL Studio also allows creating projects with Tutorials and Examples quickly from the **Create Project** dialog.
 
 ---
 

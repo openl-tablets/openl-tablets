@@ -67,8 +67,3 @@ tables are discussed as well.
 <p><iframe src="https://www.youtube.com/embed/yC5K7T9H8zE" frameborder="0" width="420" height="315" allowfullscreen></iframe></p>
 
 [Watch on YouTube](https://youtu.be/yC5K7T9H8zE)
-
----
-
-*If you want further edits (add thumbnails, durations, or reformat the layout), tell me how you'd like it presented and
-I will update the file.*
