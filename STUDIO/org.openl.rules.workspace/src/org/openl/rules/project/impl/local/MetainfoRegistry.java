@@ -22,6 +22,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.impl.local.ProjectMetainfo.FileBaseline;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.PropertiesUtils;
 
@@ -34,7 +35,8 @@ import org.openl.util.PropertiesUtils;
  *
  * <p>The registry is authoritative. On load it reconciles the disk state: a record without a project
  * folder is dropped, a project folder without a record is deleted, an unreadable record is dropped
- * together with its folder.
+ * together with its folder, and a leftover of an interrupted record write is deleted. The same
+ * reconciliation can be re-run on a live registry with {@link #refresh()}, for example on user sign-in.
  *
  * <p>All records are cached in memory and written through. The local-changes state is not stored:
  * it is reconstructed on load by comparing project files against the recorded baselines and then
@@ -86,7 +88,7 @@ public class MetainfoRegistry {
      */
     public static MetainfoRegistry open(Path userDir) {
         var registry = new MetainfoRegistry(userDir);
-        registry.load();
+        registry.refresh();
         return registry;
     }
 
@@ -180,14 +182,12 @@ public class MetainfoRegistry {
         if (projectName.equals(newProjectName)) {
             return;
         }
-        // Both names are locked in a deterministic order, so a concurrent save or rename of either
-        // project cannot desync the cache from the records on disk.
-        boolean directOrder = projectName.compareTo(newProjectName) < 0;
-        var first = lockOf(directOrder ? projectName : newProjectName);
-        var second = lockOf(directOrder ? newProjectName : projectName);
-        first.lock();
-        second.lock();
-        try {
+        if (!FolderHelper.isSafeFolderName(newProjectName)) {
+            throw new IllegalStateException("The '" + newProjectName + "' name is not a valid folder name.");
+        }
+        // Both names are locked, so a concurrent save or rename of either project cannot desync
+        // the cache from the records on disk.
+        runLocked(projectName, newProjectName, () -> {
             var metainfo = records.get(projectName);
             if (metainfo == null) {
                 throw new IllegalStateException("The '" + projectName + "' project is not registered.");
@@ -195,19 +195,62 @@ public class MetainfoRegistry {
             if (records.containsKey(newProjectName) || Files.exists(recordFile(newProjectName))) {
                 throw new IllegalStateException("The '" + newProjectName + "' project is already registered.");
             }
-            Files.move(recordFile(projectName), recordFile(newProjectName), StandardCopyOption.ATOMIC_MOVE);
+            try {
+                Files.move(recordFile(projectName), recordFile(newProjectName), StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException e) {
+                throw new IllegalStateException(
+                        "Cannot rename the metainfo of the '" + projectName + "' project to '" + newProjectName + "'.",
+                        e);
+            }
             records.remove(projectName);
             records.put(newProjectName, metainfo);
             if (dirtyProjects.remove(projectName)) {
                 dirtyProjects.add(newProjectName);
             }
+            return null;
+        });
+    }
+
+    /**
+     * Renames the project folder together with its record.
+     *
+     * <p>Serves the workspace synchronization when the project was renamed on the design side. A name
+     * unusable as a folder name is rejected: it would escape the workspace or become a hidden service
+     * folder. When the record rename fails, the folder rename is rolled back — a folder without a
+     * record is garbage for the reconciliation, so the pair must stay consistent.
+     *
+     * @return whether the project was renamed
+     */
+    public boolean renameProjectFolder(String projectName, String newProjectName) {
+        if (!FolderHelper.isSafeFolderName(newProjectName)) {
+            log.warn("The new name '{}' of the '{}' project is not a valid folder name."
+                    + " The rename is skipped.", newProjectName, projectName);
+            return false;
+        }
+        return Boolean.TRUE.equals(runLocked(projectName, newProjectName, () -> {
+            try {
+                Files.move(userDir.resolve(projectName), userDir.resolve(newProjectName));
+            } catch (IOException e) {
+                log.warn("Cannot rename the project folder from {} to {}", projectName, newProjectName, e);
+                return false;
+            }
+            try {
+                rename(projectName, newProjectName);
+                return true;
+            } catch (RuntimeException e) {
+                log.error("Cannot rename the metainfo of the '{}' project to '{}'."
+                        + " The folder rename is rolled back.", projectName, newProjectName, e);
+                rollbackFolderRename(projectName, newProjectName);
+                return false;
+            }
+        }));
+    }
+
+    private void rollbackFolderRename(String projectName, String newProjectName) {
+        try {
+            Files.move(userDir.resolve(newProjectName), userDir.resolve(projectName));
         } catch (IOException e) {
-            throw new IllegalStateException(
-                    "Cannot rename the metainfo of the '" + projectName + "' project to '" + newProjectName + "'.",
-                    e);
-        } finally {
-            second.unlock();
-            first.unlock();
+            log.error("Cannot roll back the folder rename from {} to {}", newProjectName, projectName, e);
         }
     }
 
@@ -233,10 +276,67 @@ public class MetainfoRegistry {
     }
 
     /**
+     * Runs the action under the project lock.
+     *
+     * <p>A multi-step operation whose intermediate state must not be observed by a concurrent
+     * {@link #refresh()} runs under this lock. Opening a project copies the project files and then
+     * writes the record; without the lock the refresh could treat the half-copied folder as garbage.
+     *
+     * <p>The lock is reentrant: registry operations on the same project may be called inside the
+     * action.
+     */
+    @Nullable
+    public <T, E extends Exception> T runLocked(String projectName, LockedAction<T, E> action) throws E {
+        return runLocked(projectName, projectName, action);
+    }
+
+    /**
+     * Runs the action under the locks of two projects, for example a rename of the project folder
+     * together with its record.
+     *
+     * <p>Both locks are taken in a deterministic order, so two concurrent callers cannot deadlock.
+     * The locks are reentrant, so both names may be the same project.
+     */
+    @Nullable
+    private <T, E extends Exception> T runLocked(String projectName,
+                                                 String secondProjectName,
+                                                 LockedAction<T, E> action) throws E {
+        boolean directOrder = projectName.compareTo(secondProjectName) <= 0;
+        var first = lockOf(directOrder ? projectName : secondProjectName);
+        var second = lockOf(directOrder ? secondProjectName : projectName);
+        first.lock();
+        second.lock();
+        try {
+            return action.run();
+        } finally {
+            second.unlock();
+            first.unlock();
+        }
+    }
+
+    /**
+     * An action executed under the project lock by {@link #runLocked}.
+     */
+    @FunctionalInterface
+    public interface LockedAction<T, E extends Exception> {
+        @Nullable
+        T run() throws E;
+    }
+
+    /**
      * Marks the project as locally changed.
+     *
+     * <p>The mark is taken under the project lock, so a concurrent {@link #refresh()} cannot lose the
+     * notification. No IO is performed.
      */
     public void markDirty(String projectName) {
-        dirtyProjects.add(projectName);
+        var lock = lockOf(projectName);
+        lock.lock();
+        try {
+            dirtyProjects.add(projectName);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -282,47 +382,97 @@ public class MetainfoRegistry {
         return metainfoDir.resolve(projectName + RECORD_SUFFIX);
     }
 
-    // --- loading and reconciliation
+    // --- reconciliation
 
-    private void load() {
-        var corrupted = new HashSet<String>();
-        readRecords(corrupted);
-        var folders = listProjectFolders();
-        dropCorrupted(corrupted, folders);
-        dropRecordsWithoutFolder(folders);
-        dropFoldersWithoutRecord(folders);
-        reconstructDirtyState();
+    /**
+     * Runs the disk reconciliation and recomputes the local-changes state of every project.
+     *
+     * <p>The reconciliation outcomes are listed in the class description. The registry may be live:
+     * every project is reconciled under its project lock, and a project locked by an operation in
+     * progress is skipped — the operation rewrites the project state anyway, and the refresh must
+     * not stall behind it.
+     */
+    public void refresh() {
+        var names = new HashSet<String>();
+        names.addAll(records.keySet());
+        names.addAll(listRecordNames());
+        names.addAll(listProjectFolders());
+        names.forEach(this::refreshProject);
     }
 
-    private void readRecords(Set<String> corrupted) {
-        if (!Files.isDirectory(metainfoDir)) {
+    private void refreshProject(String projectName) {
+        var lock = lockOf(projectName);
+        if (!lock.tryLock()) {
+            log.debug("The '{}' project is inside an operation and is skipped by the refresh.", projectName);
             return;
         }
+        try {
+            var recordFile = recordFile(projectName);
+            var leftover = metainfoDir.resolve(recordFile.getFileName() + TMP_SUFFIX);
+            if (Files.exists(leftover)) {
+                // A leftover of an interrupted record write. Under the project lock it cannot belong
+                // to a store in progress, so it is garbage. The target record is intact.
+                FileUtils.deleteQuietly(leftover.toFile());
+            }
+            boolean hasFolder = Files.isDirectory(userDir.resolve(projectName));
+            if (!Files.isRegularFile(recordFile)) {
+                records.remove(projectName);
+                dirtyProjects.remove(projectName);
+                if (hasFolder) {
+                    deleteStrayFolder(projectName);
+                }
+                return;
+            }
+            ProjectMetainfo metainfo;
+            try {
+                metainfo = parse(recordFile);
+            } catch (IOException | RuntimeException e) {
+                log.error("The metainfo record of the '{}' project is unreadable and will be dropped together"
+                        + " with the project folder.", projectName, e);
+                dropCorrupted(projectName);
+                return;
+            }
+            if (!hasFolder) {
+                log.info("The metainfo record of the '{}' project has no project folder and is dropped.",
+                        projectName);
+                remove(projectName);
+                return;
+            }
+            records.put(projectName, metainfo);
+            recomputeLocalChanges(projectName, metainfo);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void recomputeLocalChanges(String projectName, ProjectMetainfo metainfo) {
+        if (hasLocalChanges(projectName, metainfo)) {
+            dirtyProjects.add(projectName);
+        } else {
+            dirtyProjects.remove(projectName);
+        }
+    }
+
+    private Set<String> listRecordNames() {
+        var names = new HashSet<String>();
+        if (!Files.isDirectory(metainfoDir)) {
+            return names;
+        }
         try (Stream<Path> stream = Files.list(metainfoDir)) {
-            stream.filter(Files::isRegularFile).forEach(file -> readRecord(file, corrupted));
+            stream.filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString())
+                    // A leftover of an interrupted record write also identifies its project, so an
+                    // orphaned leftover is visited and cleaned like any other project name.
+                    .map(name -> name.endsWith(TMP_SUFFIX)
+                            ? name.substring(0, name.length() - TMP_SUFFIX.length())
+                            : name)
+                    .filter(name -> name.endsWith(RECORD_SUFFIX))
+                    .map(name -> name.substring(0, name.length() - RECORD_SUFFIX.length()))
+                    .forEach(names::add);
         } catch (IOException e) {
             throw new IllegalStateException("Cannot list the metainfo registry at " + metainfoDir, e);
         }
-    }
-
-    private void readRecord(Path file, Set<String> corrupted) {
-        var fileName = file.getFileName().toString();
-        if (fileName.endsWith(TMP_SUFFIX)) {
-            // A leftover of an interrupted write. The target record is intact, the leftover is garbage.
-            FileUtils.deleteQuietly(file.toFile());
-            return;
-        }
-        if (!fileName.endsWith(RECORD_SUFFIX)) {
-            return;
-        }
-        var projectName = fileName.substring(0, fileName.length() - RECORD_SUFFIX.length());
-        try {
-            records.put(projectName, parse(file));
-        } catch (IOException | RuntimeException e) {
-            log.error("The metainfo record of the '{}' project is unreadable and will be dropped together"
-                    + " with the project folder.", projectName, e);
-            corrupted.add(projectName);
-        }
+        return names;
     }
 
     private Set<String> listProjectFolders() {
@@ -341,40 +491,16 @@ public class MetainfoRegistry {
         return folders;
     }
 
-    private void dropCorrupted(Set<String> corrupted, Set<String> folders) {
-        for (String projectName : corrupted) {
-            FileUtils.deleteQuietly(recordFile(projectName).toFile());
-            if (folders.remove(projectName)) {
-                FileUtils.deleteQuietly(userDir.resolve(projectName).toFile());
-            }
-        }
+    private void dropCorrupted(String projectName) {
+        FileUtils.deleteQuietly(recordFile(projectName).toFile());
+        FileUtils.deleteQuietly(userDir.resolve(projectName).toFile());
+        records.remove(projectName);
+        dirtyProjects.remove(projectName);
     }
 
-    private void dropRecordsWithoutFolder(Set<String> folders) {
-        for (String projectName : List.copyOf(records.keySet())) {
-            if (!folders.contains(projectName)) {
-                log.info("The metainfo record of the '{}' project has no project folder and is dropped.",
-                        projectName);
-                remove(projectName);
-            }
-        }
-    }
-
-    private void dropFoldersWithoutRecord(Set<String> folders) {
-        for (String folder : folders) {
-            if (!records.containsKey(folder)) {
-                log.warn("The '{}' folder in the user workspace has no metainfo record and is deleted.", folder);
-                FileUtils.deleteQuietly(userDir.resolve(folder).toFile());
-            }
-        }
-    }
-
-    private void reconstructDirtyState() {
-        records.forEach((projectName, metainfo) -> {
-            if (hasLocalChanges(projectName, metainfo)) {
-                dirtyProjects.add(projectName);
-            }
-        });
+    private void deleteStrayFolder(String folder) {
+        log.warn("The '{}' folder in the user workspace has no metainfo record and is deleted.", folder);
+        FileUtils.deleteQuietly(userDir.resolve(folder).toFile());
     }
 
     private boolean hasLocalChanges(String projectName, ProjectMetainfo metainfo) {

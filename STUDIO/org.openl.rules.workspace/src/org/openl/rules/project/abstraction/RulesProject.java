@@ -347,23 +347,27 @@ public class RulesProject extends UserWorkspaceProject {
             localFolderName = designProject.getBusinessName();
         }
 
-        AProject localProject = new AProject(localRepository, localFolderName);
-        localProject.update(designProject, getUser());
-        setRepository(localRepository);
-        setFolderPath(localFolderName);
+        // The file copy and the record write are one atomic step for the registry, so a concurrent
+        // registry refresh cannot treat the half-open project as garbage.
+        localRepository.getMetainfoRegistry().runLocked(localFolderName, () -> {
+            AProject localProject = new AProject(localRepository, localFolderName);
+            localProject.update(designProject, getUser());
+            setRepository(localRepository);
+            setFolderPath(localFolderName);
 
+            String designVersion = Optional.ofNullable(designProject.getFileData())
+                    .map(FileData::getVersion)
+                    .orElseThrow(() -> new ProjectException("Cannot open. Revision not found."));
+            setHistoryVersion(designVersion);
+            if (version == null) {
+                // version == 0 means that designVersion is last history version
+                setLastHistoryVersion(designVersion);
+            }
 
-        String designVersion = Optional.ofNullable(designProject.getFileData())
-                .map(FileData::getVersion)
-                .orElseThrow(() -> new ProjectException("Cannot open. Revision not found."));
-        setHistoryVersion(designVersion);
-        if (version == null) {
-            // version == 0 means that designVersion is last history version
-            setLastHistoryVersion(designVersion);
-        }
-
-        refresh();
-        resetLocalFileData();
+            refresh();
+            resetLocalFileData();
+            return null;
+        });
     }
 
     @Override

@@ -9,4 +9,13 @@ public interface LocalWorkspaceManager {
      * @param type projects type, used as a subfolder name. For example "rules" or "deployments"
      */
     LockEngine getLockEngine(String type);
+
+    /**
+     * Reconciles the metainfo registry of the user workspace with the disk state and recomputes
+     * the local-changes state of the workspace projects. Called on user sign-in.
+     *
+     * <p>When the registry of the user is not loaded yet, it is loaded now; the load performs the
+     * same reconciliation.
+     */
+    void refreshMetainfoRegistry(String userId);
 }

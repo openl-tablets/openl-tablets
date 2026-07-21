@@ -2,6 +2,8 @@ package org.openl.rules.workspace.uw.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -143,6 +145,49 @@ class UserWorkspaceRefreshTest {
         assertEquals(1, projects.size());
         assertTrue(projects.getFirst().isLocalOnly());
         assertEquals("local", registry.get(PROJECT).repositoryId());
+    }
+
+    @Test
+    void syncRenamesTheFolderTogetherWithItsRecord() throws IOException {
+        mockMappedDesign();
+        seedOpenedCopy("design", null, false);
+        // The project was renamed on the design side: rules.xml carries the actual name.
+        Files.writeString(userDir.resolve(PROJECT).resolve("rules.xml"),
+                "<?xml version=\"1.0\"?><project><name>P1-renamed</name></project>");
+
+        userWorkspace.syncProjects();
+        userWorkspace.getProjects(true);
+
+        assertNull(registry.get(PROJECT));
+        assertNotNull(registry.get("P1-renamed"), "The record must be renamed together with the folder.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)));
+        assertTrue(Files.isDirectory(userDir.resolve("P1-renamed")));
+    }
+
+    @Test
+    void syncRejectsActualNameEscapingTheWorkspace() throws IOException {
+        mockMappedDesign();
+        seedOpenedCopy("design", null, false);
+        // rules.xml is user-editable content, so the actual name cannot be trusted as a folder name.
+        Files.writeString(userDir.resolve(PROJECT).resolve("rules.xml"),
+                "<?xml version=\"1.0\"?><project><name>../evil</name></project>");
+
+        userWorkspace.syncProjects();
+        userWorkspace.getProjects(true);
+
+        assertNotNull(registry.get(PROJECT), "The record must keep its name.");
+        assertTrue(Files.isDirectory(userDir.resolve(PROJECT)), "The folder must not move.");
+        assertFalse(Files.exists(userDir.getParent().resolve("evil")),
+                "Nothing must escape the workspace root.");
+    }
+
+    private void mockMappedDesign() {
+        Repository designRepository = mock(Repository.class);
+        lenient().when(designRepository.getId()).thenReturn("design");
+        lenient().when(designRepository.supports())
+                .thenReturn(new FeaturesBuilder(designRepository).setMappedFolders(true).build());
+        when(designTimeRepository.getRepository("design")).thenReturn(designRepository);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
     }
 
     @Test

@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -303,6 +305,197 @@ class MetainfoRegistryTest {
                 "A file without a baseline has no known revision.");
         assertNull(registry.uniqueId("unknown", "/rules/Main.xlsx", baseline.size(), baseline.modifiedAt()),
                 "An unregistered project has no baselines.");
+    }
+
+    @Test
+    void refreshDeletesFolderThatAppearedWithoutRecord() throws IOException {
+        Files.createDirectories(userDir.resolve("stray").resolve("rules"));
+        Files.writeString(userDir.resolve("stray").resolve("rules").resolve("Main.xlsx"), "data");
+
+        registry.refresh();
+
+        assertFalse(Files.exists(userDir.resolve("stray")));
+    }
+
+    @Test
+    void refreshDropsProjectWhoseRecordWasDeletedExternally() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+        Files.delete(recordFile());
+
+        registry.refresh();
+
+        assertNull(registry.get(PROJECT));
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "A folder without a record is garbage.");
+    }
+
+    @Test
+    void refreshDropsRecordWhoseFolderWasDeletedExternally() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+        registry.markDirty(PROJECT);
+        Files.delete(userDir.resolve(PROJECT));
+
+        registry.refresh();
+
+        assertNull(registry.get(PROJECT));
+        assertFalse(registry.isDirty(PROJECT));
+        assertFalse(Files.exists(recordFile()));
+    }
+
+    @Test
+    void refreshDropsExternallyCorruptedRecordWithItsFolder() throws IOException {
+        saveProjectWithFile("data");
+        Files.writeString(recordFile(), "no-repository-id=true");
+
+        registry.refresh();
+
+        assertNull(registry.get(PROJECT));
+        assertFalse(registry.isDirty(PROJECT));
+        assertFalse(Files.exists(recordFile()));
+        assertFalse(Files.exists(userDir.resolve(PROJECT)));
+    }
+
+    @Test
+    void refreshCleansInterruptedWriteLeftover() throws IOException {
+        saveProjectWithFile("data");
+        var leftover = userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties.tmp");
+        Files.writeString(leftover, "partial write");
+
+        registry.refresh();
+
+        assertFalse(Files.exists(leftover));
+        assertNotNull(registry.get(PROJECT), "The intact record must survive.");
+    }
+
+    @Test
+    void refreshMarksProjectWithChangedFileDirty() throws IOException {
+        saveProjectWithFile("data");
+        assertFalse(registry.isDirty(PROJECT));
+        Files.writeString(projectFile(), "changed data");
+
+        registry.refresh();
+
+        assertTrue(registry.isDirty(PROJECT));
+    }
+
+    @Test
+    void refreshClearsStaleLocalChangesState() throws IOException {
+        var metainfo = saveProjectWithFile("data");
+        registry.markDirty(PROJECT);
+
+        registry.refresh();
+
+        assertFalse(registry.isDirty(PROJECT), "Files match the baselines, so the project has no local changes.");
+        assertEquals(metainfo, registry.get(PROJECT), "An intact project must survive the refresh untouched.");
+        assertTrue(Files.exists(projectFile()));
+    }
+
+    @Test
+    void runLockedIsReentrantAndReturnsTheResult() {
+        var result = registry.runLocked(PROJECT, () -> registry.runLocked(PROJECT, () -> {
+            registry.save(PROJECT, localMetainfo());
+            return "nested";
+        }));
+
+        assertEquals("nested", result);
+        assertNotNull(registry.get(PROJECT));
+    }
+
+    @Test
+    void renameProjectFolderMovesFolderAndRecordTogether() throws IOException {
+        saveProjectWithFile("data");
+        registry.markDirty(PROJECT);
+
+        assertTrue(registry.renameProjectFolder(PROJECT, "renamed"));
+
+        assertNull(registry.get(PROJECT));
+        assertNotNull(registry.get("renamed"));
+        assertTrue(registry.isDirty("renamed"), "The local-changes state must move with the project.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)));
+        assertTrue(Files.isDirectory(userDir.resolve("renamed")));
+    }
+
+    @Test
+    void renameProjectFolderRejectsUnsafeName() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+
+        assertFalse(registry.renameProjectFolder(PROJECT, "../evil"));
+
+        assertNotNull(registry.get(PROJECT), "The record must keep its name.");
+        assertTrue(Files.isDirectory(userDir.resolve(PROJECT)), "The folder must not move.");
+        assertFalse(Files.exists(userDir.getParent().resolve("evil")),
+                "Nothing must escape the workspace root.");
+    }
+
+    @Test
+    void renameProjectFolderRollsBackWhenRecordRenameFails() throws IOException {
+        createProjectFolder();
+        registry.save(PROJECT, localMetainfo());
+        // The destination name is already registered, so the record rename fails after the folder move.
+        registry.save("occupied", localMetainfo());
+
+        assertFalse(registry.renameProjectFolder(PROJECT, "occupied"));
+
+        assertNotNull(registry.get(PROJECT));
+        assertTrue(Files.isDirectory(userDir.resolve(PROJECT)), "The folder rename must be rolled back.");
+        assertFalse(Files.exists(userDir.resolve("occupied")));
+    }
+
+    @Test
+    void renameRejectsUnsafeName() {
+        assertThrows(IllegalStateException.class, () -> registry.rename(PROJECT, "../evil"));
+        assertThrows(IllegalStateException.class, () -> registry.rename(PROJECT, ".hidden"));
+    }
+
+    @Test
+    void refreshCleansOrphanInterruptedWriteLeftover() throws IOException {
+        var metainfoDir = userDir.resolve(MetainfoRegistry.METAINFO_FOLDER);
+        Files.createDirectories(metainfoDir);
+        var orphan = metainfoDir.resolve("ghost.properties.tmp");
+        Files.writeString(orphan, "partial write");
+
+        registry.refresh();
+
+        assertFalse(Files.exists(orphan), "An orphaned leftover must be cleaned like on load.");
+    }
+
+    @Test
+    void refreshSkipsProjectInsideOperation() throws Exception {
+        // Simulates a project open: the files are copied first, the record is written at the end.
+        var folderCopied = new CountDownLatch(1);
+        var proceed = new CountDownLatch(1);
+        var open = new Thread(() -> registry.runLocked(PROJECT, () -> {
+            try {
+                createProjectFolder();
+                folderCopied.countDown();
+                assertTrue(proceed.await(5, TimeUnit.SECONDS));
+            } catch (IOException | InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+            registry.save(PROJECT, localMetainfo());
+            return null;
+        }));
+        open.start();
+        assertTrue(folderCopied.await(5, TimeUnit.SECONDS));
+
+        // The half-open project is locked by the operation, so the refresh skips it without stalling.
+        registry.refresh();
+        assertTrue(Files.isDirectory(userDir.resolve(PROJECT)),
+                "The folder of the project being opened must not be treated as garbage.");
+
+        proceed.countDown();
+        open.join(5_000);
+        assertNotNull(registry.get(PROJECT), "The completed open must survive.");
+
+        registry.refresh();
+        assertNotNull(registry.get(PROJECT), "The released project must reconcile normally.");
+        assertTrue(Files.isDirectory(userDir.resolve(PROJECT)));
+    }
+
+    private Path recordFile() {
+        return userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
     }
 
     private static ProjectMetainfo localMetainfo() {

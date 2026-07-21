@@ -2,6 +2,7 @@ package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,14 +70,45 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     private LocalWorkspaceImpl createWorkspace(String userId) {
-        File workspaceRoot = new File(workspaceHome);
-        File userWorkspace = new File(workspaceRoot, userId);
+        File userWorkspace = userDir(userId).toFile();
         log.debug("Workspace for user ''{}'' will be located at ''{}''", userId, userWorkspace.getAbsolutePath());
-        MetainfoRegistry registry = metainfoRegistries.computeIfAbsent(userId,
-                id -> MetainfoRegistry.open(userWorkspace.toPath()));
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId, userWorkspace, designTimeRepository, registry);
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId,
+                userWorkspace,
+                designTimeRepository,
+                registryOf(userId));
         workspace.addWorkspaceListener(this);
         return workspace;
+    }
+
+    private MetainfoRegistry registryOf(String userId) {
+        return metainfoRegistries.computeIfAbsent(userId, id -> MetainfoRegistry.open(userDir(id)));
+    }
+
+    /**
+     * Resolves the workspace directory of the user.
+     *
+     * <p>The user id comes from the authentication and is used as a folder name, so it must stay
+     * a single path component right under the workspace root. Otherwise the workspace operations,
+     * including the registry reconciliation, could read or delete files outside the root.
+     */
+    private Path userDir(String userId) {
+        Path root = Path.of(workspaceHome).toAbsolutePath().normalize();
+        Path userDir = root.resolve(userId).toAbsolutePath().normalize();
+        if (!FolderHelper.isSafeFolderName(userId) || !root.equals(userDir.getParent())) {
+            throw new IllegalArgumentException("The user id is not a valid workspace folder name.");
+        }
+        return userDir;
+    }
+
+    @Override
+    public void refreshMetainfoRegistry(String userId) {
+        MetainfoRegistry registry = metainfoRegistries.get(userId);
+        if (registry == null) {
+            // The first load performs the same reconciliation, so loading now is enough.
+            registryOf(userId);
+        } else {
+            registry.refresh();
+        }
     }
 
     @Override

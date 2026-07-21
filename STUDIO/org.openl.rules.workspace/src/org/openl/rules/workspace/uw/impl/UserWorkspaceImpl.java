@@ -1,6 +1,5 @@
 package org.openl.rules.workspace.uw.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -257,28 +256,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (!rPr.getLocalFolderName().equals(realProjectName)) {
                             // We cannot close and then open a project in workspace, we should rename the folder
                             // in file system directly. Otherwise we will lose unsaved user changes.
-                            File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot().toFile();
                             String prevPath = rPr.getFolderPath();
                             int index = prevPath.lastIndexOf('/');
                             String newPath = prevPath.substring(0, index + 1) + realProjectName;
-                            boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
-                            if (renamed) {
-                                try {
-                                    localWorkspace.getMetainfoRegistry().rename(prevPath, newPath);
-                                    anyProjectRenamed = true;
-                                } catch (RuntimeException e) {
-                                    // A folder without a record is deleted at the next workspace load,
-                                    // so roll the folder rename back to keep the pair consistent.
-                                    log.error("Cannot rename the project metainfo from {} to {}."
-                                            + " The folder rename is rolled back.", prevPath, newPath, e);
-                                    if (!new File(repoRoot, newPath).renameTo(new File(repoRoot, prevPath))) {
-                                        log.error("Cannot roll back the folder rename from {} to {}",
-                                                newPath, prevPath);
-                                    }
-                                }
-                            } else {
-                                log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
-                            }
+                            anyProjectRenamed |= localWorkspace.getMetainfoRegistry()
+                                    .renameProjectFolder(prevPath, newPath);
                         }
                     } catch (Exception e) {
                         log.warn("Could not rename the project '{}' because of error: {}",
