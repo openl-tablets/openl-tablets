@@ -130,7 +130,7 @@ For advanced users who want to specify a custom folder location (e.g., on a diff
 
 For more advanced topics, such as deploying OpenL Tablets to your own application server, please see the official documentation:
 
-* [OpenL Tablets Installation Guide > Deploying OpenL Studio](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#deploying-openl-tablets-webstudio)
+* [OpenL Tablets Installation Guide > Deploying OpenL Studio](../../installation-guide/quick-start.md#3-deploy-openl-studio)
 
 ## 6. Accessing the Welcome Page
 
