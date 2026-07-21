@@ -69,9 +69,10 @@ final class DebugHookImpl implements DebugHook {
     /** Total time the worker spent parked at suspend points, subtracted from frame durations so think time is excluded. */
     private long parkedNanos;
     /**
-     * Monotonic running total of every step's wall-clock. A step reads it on entry and after its own execution:
-     * the difference is the time spent in nested steps (referenced cells computed on the way), which is subtracted
-     * from its own time so a cell that triggers another does not count that other cell twice.
+     * Running total of every step's wall-clock. A step reads it on entry and after its own execution: the growth
+     * is the time spent in nested steps (sibling cells the formula computed on the way), subtracted from its own
+     * time so a cell that triggers another does not count that other cell twice. A frame call saves and restores
+     * it, so a called table's own steps stay part of the calling step's time, not subtracted from it.
      */
     private long nestedStepNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
@@ -306,6 +307,7 @@ final class DebugHookImpl implements DebugHook {
         String callerRef = parent == null || parent.getLocation() == null ? null : stepRef(parent.getLocation());
         long enterNanos = System.nanoTime();
         long parkedAtEnter = parkedNanos;
+        long nestedAtEnter = nestedStepNanos;
         int depth = stack.size() + 1;
         DebugFrame frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
@@ -353,6 +355,10 @@ final class DebugHookImpl implements DebugHook {
             throw ex;
         } finally {
             stack.pop();
+            // A called table's own steps accrued into the nested-step counter; drop them so the calling step
+            // keeps this whole call in its time (a step's total includes the sub-calls it makes), instead of
+            // subtracting the callee's steps as if they were sibling cells computed on the way.
+            nestedStepNanos = nestedAtEnter;
             // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
             // misleading zero-time entry in either the hotspots or the tree.
             if (profiling && (frame.isCompleted() || frame.getError() != null)) {

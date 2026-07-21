@@ -63,6 +63,28 @@ class TreeNodeCapTest {
         assertEquals(0, child.notRetained(), "nothing is dropped, so the node reports no missing sub-calls");
     }
 
+    @Test
+    @DisplayName("A step's total time includes the nested call it makes")
+    void stepTotalIncludesItsNestedCall() {
+        CallNode tree = trace(1000).completedTree();
+        assertNotNull(tree);
+        CallNode.Step caller = tree.steps().stream()
+                .filter(step -> step.children().stream()
+                        .anyMatch(child -> child.kind() == FrameKind.SPREADSHEET && "Child".equals(child.name())))
+                .findFirst()
+                .orElseThrow();
+        CallNode child = caller.children().stream()
+                .filter(call -> "Child".equals(call.name()))
+                .findFirst()
+                .orElseThrow();
+        // Total time flows outward: a step that calls Child owns Child's whole duration. Subtracting nested-step
+        // time must stop at the frame boundary, or the caller would drop the callee's own steps and read as
+        // faster than the very call it makes.
+        assertTrue(caller.durationNanos() >= child.durationNanos(),
+                () -> "step total " + caller.durationNanos() + "ns must include its nested call "
+                        + child.durationNanos() + "ns");
+    }
+
     private TraceDebugger trace(int cap) {
         CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
         assertTrue(compiled.getAllMessages().isEmpty(), () -> "module must compile: " + compiled.getAllMessages());
