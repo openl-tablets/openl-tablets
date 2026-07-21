@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Badge, Collapse, Segmented } from 'antd'
+import { Alert, Badge, Collapse, Segmented, Spin } from 'antd'
 import type { BadgeProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
@@ -103,6 +103,7 @@ const TraceView: React.FC = () => {
     const [isResizing, setIsResizing] = useState(false)
     const [bannerDismissed, setBannerDismissed] = useState(false)
     const [viewMode, setViewMode] = useState<ViewMode>('tree')
+    const [busy, setBusy] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
     // The hot-spots tab is profiling-only; fall back to the tree if profiling is switched off while it is open.
@@ -160,6 +161,17 @@ const TraceView: React.FC = () => {
         }
     }, [status])
 
+    // A long trace only shows a small "Running" badge. Dim the content with a spinner once a run
+    // lasts a moment, so a heavy request is clearly busy — delayed so quick step-to-step runs do not flash it.
+    useEffect(() => {
+        if (status !== 'running') {
+            setBusy(false)
+            return undefined
+        }
+        const id = setTimeout(() => setBusy(true), 500)
+        return () => clearTimeout(id)
+    }, [status])
+
     if (!projectId || !tableId) {
         return (
             <div className={cx(styles.view, styles.viewError)} id="trace-view">
@@ -209,6 +221,14 @@ const TraceView: React.FC = () => {
                 ref={containerRef}
                 className={cx(styles.panels, isResizing && styles.resizing)}
             >
+                {busy && (
+                    <div className={styles.runningOverlay} data-testid="trace-running-overlay">
+                        <div className={styles.runningCard}>
+                            <Spin size="large" />
+                            <span className={styles.runningText}>{t('debug.runningNotice')}</span>
+                        </div>
+                    </div>
+                )}
                 <div
                     className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}
                     style={{ width: `${leftPanelWidth}%` }}

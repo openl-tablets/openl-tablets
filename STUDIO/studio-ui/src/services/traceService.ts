@@ -10,6 +10,7 @@ import type {
     RawTableView,
     StepType,
     TraceParameterValue,
+    TreeChildrenView,
     WatchView,
 } from 'types/trace'
 
@@ -156,6 +157,29 @@ export const traceService = {
     /** Get the current execution stack. */
     getStack: async (projectId: string): Promise<DebugStackView> =>
         retryApiCall<DebugStackView>(`${base(projectId)}/stack`, undefined, TRACE_API_OPTIONS),
+
+    /** Fetch one page of a step's executed sub-calls, for lazy loading of the executed tree. */
+    getTreeChildren: async (
+        projectId: string,
+        uri: string,
+        instance: number,
+        step: string,
+        offset: number,
+        limit: number
+    ): Promise<TreeChildrenView> => {
+        const params = new URLSearchParams({
+            uri,
+            instance: String(instance),
+            step,
+            offset: String(offset),
+            limit: String(limit),
+        })
+        return retryApiCall<TreeChildrenView>(
+            `${base(projectId)}/tree/children?${params.toString()}`,
+            undefined,
+            TRACE_API_OPTIONS
+        )
+    },
 
     /**
      * Step the suspended session and return the new stack. Not retried: stepping is not idempotent, so

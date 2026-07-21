@@ -70,8 +70,10 @@ const HotspotsPanel: React.FC = () => {
                     </Tooltip>
                 </div>
             ))}
-            {profile.truncated && (
-                <div className={styles.more}>{t('hotspots.truncated', { count: profile.distinctTables })}</div>
+            {profile.distinctTables > profile.hotspots.length && (
+                <div className={styles.more}>
+                    {t('hotspots.more', { shown: profile.hotspots.length, total: profile.distinctTables })}
+                </div>
             )}
         </div>
     )

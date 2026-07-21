@@ -74,12 +74,15 @@ public class TraceDebugMapper {
     /** Upper bound on points returned per watch series, so a factor looped thousands of times stays renderable. */
     private static final int MAX_POINTS_PER_SERIES = 100;
 
+    /** Upper bound on executed children returned per step, so a table looped thousands of times stays renderable. */
+    private static final int MAX_TREE_CHILDREN = 100;
+
     /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
     public static final int DEFAULT_PROFILE_TOP = 20;
 
     /** Map the live stack (root to current frame) to a stack view with default full rendering. */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error) {
-        return toStackView(status, frames, error, null, StackRenderOptions.FULL, false);
+        return toStackView(status, frames, error, null, List.of(), StackRenderOptions.FULL, false);
     }
 
     /**
@@ -90,8 +93,8 @@ public class TraceDebugMapper {
      * every frame's steps. {@code treeTruncated} marks the profile incomplete when the tree hit the node cap.
      */
     public static DebugStackView toStackView(DebugStatus status, List<DebugFrame> frames, @Nullable Throwable error,
-                                             @Nullable CallNode completedTree, StackRenderOptions options,
-                                             boolean treeTruncated) {
+                                             @Nullable CallNode completedTree, List<TableProfile> profileStats,
+                                             StackRenderOptions options, boolean treeTruncated) {
         List<DebugFrameView> views = new ArrayList<>(frames.size());
         for (int i = 0; i < frames.size(); i++) {
             DebugFrame frame = frames.get(i);
@@ -108,7 +111,7 @@ public class TraceDebugMapper {
                     .active(active)
                     .completed(frame.isCompleted())
                     .error(frame.getError() != null)
-                    .steps(options.compact() && !active ? null : outlineSteps(frame))
+                    .steps(options.compact() && !active ? null : outlineSteps(frame, completedTree == null))
                     .durationMillis(completedMillis(frame))
                     .selfMillis(completedSelfMillis(frame))
                     .dispatch(frame.getDispatch())
@@ -118,9 +121,11 @@ public class TraceDebugMapper {
                 .status(status)
                 .frames(views)
                 .error(buildStackError(frames, error))
-                .tree(completedTree == null || !options.includeTree() ? null : toCallNodeView(completedTree))
+                .tree(completedTree == null || !options.includeTree() ? null
+                        : toShallowCallNodeView(completedTree))
                 .profile(completedTree == null ? null
-                        : buildProfileSummary(completedTree, options.profileTop(), treeTruncated))
+                        : buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
+                                treeTruncated))
                 .build();
     }
 
@@ -130,7 +135,7 @@ public class TraceDebugMapper {
      * deep-cloned and serialized to the rich parameter view (like frame variables), so dates, arrays, and
      * spreadsheet results render properly and large values load lazily.
      */
-    public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader) {
+    public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader, boolean includeSchema) {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -149,7 +154,7 @@ public class TraceDebugMapper {
                 WatchCapture first = group.get(0);
                 List<WatchPointView> points = group.stream()
                         .limit(MAX_POINTS_PER_SERIES)
-                        .map(capture -> toWatchPoint(capture, clones))
+                        .map(capture -> toWatchPoint(capture, clones, includeSchema))
                         .toList();
                 series.add(WatchSeriesView.builder()
                         .name(first.name())
@@ -165,84 +170,45 @@ public class TraceDebugMapper {
         }
     }
 
-    private WatchPointView toWatchPoint(WatchCapture capture, Map<Object, Object> clones) {
-        var param = new ParameterWithValueDeclaration(capture.name(), safeClone(capture.value(), clones));
+    private WatchPointView toWatchPoint(WatchCapture capture, Map<Object, Object> clones, boolean includeSchema) {
+        var param = new ParameterWithValueDeclaration(capture.name(), safeClone(capture.value(), clones, true));
         return WatchPointView.builder()
                 .instance(capture.instance())
                 .label(capture.table() + " #" + (capture.instance() + 1))
                 .path(capture.path())
                 .ref(capture.ref())
-                .value(buildParameterValue(param, true))
+                .value(buildParameterValue(param, true, includeSchema))
                 .build();
     }
 
     /**
-     * Fold the executed call tree into a bounded hotspots overview: every invocation of the same table
-     * aggregated, keeping only the slowest {@code top} by own time. Constant-sized regardless of run size.
+     * Shape the per-table stats gathered on the fly into a bounded hotspots overview: keep only the slowest
+     * {@code top} tables by own time. Constant-sized regardless of run size.
+     *
+     * <p>The stats count every invocation the run made, so the overview stays accurate even when the executed
+     * tree was truncated for size — {@code treeTruncated} then flags only that the tree is incomplete, not the
+     * hotspots.
      */
-    static ProfileSummaryView buildProfileSummary(CallNode root, int top, boolean treeTruncated) {
-        Map<String, Hotspot> byUri = new HashMap<>();
-        int nodeCount = accumulateHotspots(root, byUri, 0);
-        List<ProfileHotspotView> hotspots = byUri.values().stream()
-                .sorted(Comparator.comparingLong(Hotspot::selfNanos).reversed())
+    static ProfileSummaryView buildProfileSummary(List<TableProfile> stats, int top, long rootNanos,
+                                                  boolean treeTruncated) {
+        List<ProfileHotspotView> hotspots = stats.stream()
+                .sorted(Comparator.comparingLong(TableProfile::selfNanos).reversed())
                 .limit(Math.max(1, top))
-                .map(Hotspot::toView)
+                .map(TraceDebugMapper::toHotspotView)
                 .toList();
+        int invocations = stats.stream().mapToInt(TableProfile::count).sum();
         return ProfileSummaryView.builder()
                 .hotspots(hotspots)
-                .distinctTables(byUri.size())
-                .nodeCount(nodeCount)
-                .totalMillis(toMillis(root.durationNanos()))
-                .truncated(byUri.size() > hotspots.size() || treeTruncated)
+                .distinctTables(stats.size())
+                .nodeCount(invocations)
+                .totalMillis(toMillis(rootNanos))
+                .truncated(treeTruncated)
                 .build();
     }
 
-    /** Add a node's own time to its table's hotspot and recurse into the tables its steps called. */
-    private static int accumulateHotspots(CallNode node, Map<String, Hotspot> byUri, int nodeCount) {
-        if (node.refStep() != null) {
-            // A reference to a step that ran elsewhere: no time of its own, so it is not an invocation.
-            return nodeCount;
-        }
-        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
-        byUri.computeIfAbsent(node.uri(), uri -> new Hotspot(uri, node.name(), node.kind()))
-                .add(node.durationNanos(), Math.max(0, node.durationNanos() - childrenNanos));
-        int count = nodeCount + 1;
-        for (CallNode.Step step : node.steps()) {
-            for (CallNode child : step.children()) {
-                count = accumulateHotspots(child, byUri, count);
-            }
-        }
-        return count;
-    }
-
-    /** Mutable accumulator for one table's aggregated profiling time across all its invocations. */
-    private static final class Hotspot {
-        private final String uri;
-        private final String name;
-        private final FrameKind kind;
-        private long totalNanos;
-        private long selfNanos;
-        private int count;
-
-        private Hotspot(String uri, String name, FrameKind kind) {
-            this.uri = uri;
-            this.name = name;
-            this.kind = kind;
-        }
-
-        private void add(long totalNanos, long selfNanos) {
-            this.totalNanos += totalNanos;
-            this.selfNanos += selfNanos;
-            this.count++;
-        }
-
-        private long selfNanos() {
-            return selfNanos;
-        }
-
-        private ProfileHotspotView toView() {
-            return new ProfileHotspotView(uri, name, kind, toMillis(selfNanos), toMillis(totalNanos), count);
-        }
+    private static ProfileHotspotView toHotspotView(TableProfile stat) {
+        return new ProfileHotspotView(stat.uri(), stat.name(), stat.kind(),
+                toMillis(stat.selfNanos()), toMillis(stat.totalNanos()), stat.count());
     }
 
     /** Build a non-technical error view: cleaned message, the table that failed, and a technical drill-down. */
@@ -316,7 +282,7 @@ public class TraceDebugMapper {
     }
 
     /** Freeze a frame's variables. Must be called while the session is suspended. */
-    public DebugFrameVariables freezeVariables(DebugFrame frame, @Nullable ClassLoader classLoader) {
+    public DebugFrameVariables freezeVariables(DebugFrame frame, @Nullable ClassLoader classLoader, boolean includeSchema) {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -324,10 +290,10 @@ public class TraceDebugMapper {
         try {
             Map<Object, Object> clones = new IdentityHashMap<>();
             return DebugFrameVariables.builder()
-                    .parameters(freezeParameters(frame, clones))
-                    .context(freezeContext(frame, clones))
-                    .result(freezeResult(frame, clones))
-                    .steps(freezeSteps(frame, clones))
+                    .parameters(freezeParameters(frame, clones, includeSchema))
+                    .context(freezeContext(frame, clones, includeSchema))
+                    .result(freezeResult(frame, clones, includeSchema))
+                    .steps(freezeSteps(frame, clones, includeSchema))
                     .gridColumns(gridNames(frame, true))
                     .gridRows(gridNames(frame, false))
                     .decision(decisionFor(frame))
@@ -339,7 +305,7 @@ public class TraceDebugMapper {
         }
     }
 
-    private List<ParameterValue> freezeParameters(DebugFrame frame, Map<Object, Object> clones) {
+    private List<ParameterValue> freezeParameters(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (!(frame.getSource() instanceof ExecutableRulesMethod method)) {
             return Collections.emptyList();
         }
@@ -350,43 +316,43 @@ public class TraceDebugMapper {
         for (int i = 0; i < count; i++) {
             var param = new ParameterWithValueDeclaration(
                     signature.getParameterName(i),
-                    safeClone(params[i], clones),
+                    safeClone(params[i], clones, !frame.isCompleted()),
                     signature.getParameterType(i));
-            result.add(buildParameterValue(param, true));
+            result.add(buildParameterValue(param, true, includeSchema));
         }
         return result;
     }
 
-    private @Nullable ParameterValue freezeContext(DebugFrame frame, Map<Object, Object> clones) {
+    private @Nullable ParameterValue freezeContext(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (frame.getContext() == null) {
             return null;
         }
-        var param = new ParameterWithValueDeclaration("context", safeClone(frame.getContext(), clones));
-        return buildParameterValue(param, false);
+        var param = new ParameterWithValueDeclaration("context", safeClone(frame.getContext(), clones, !frame.isCompleted()));
+        return buildParameterValue(param, false, includeSchema);
     }
 
-    private List<StepValueView> freezeSteps(DebugFrame frame, Map<Object, Object> clones) {
+    private List<StepValueView> freezeSteps(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (frame.getSource() instanceof Spreadsheet spreadsheet) {
-            return spreadsheetSteps(frame, spreadsheet, clones);
+            return spreadsheetSteps(frame, spreadsheet, clones, includeSchema);
         }
         // Non-spreadsheet frames: just the executed sub-steps.
         List<DebugFrame.ExecutedStep> executed = frame.getExecutedSteps();
         List<StepValueView> result = new ArrayList<>(executed.size());
         for (DebugFrame.ExecutedStep step : executed) {
             String name = step.label() != null ? step.label() : step.ref();
-            var param = new ParameterWithValueDeclaration(name, safeClone(step.value(), clones));
+            var param = new ParameterWithValueDeclaration(name, safeClone(step.value(), clones, !frame.isCompleted()));
             result.add(StepValueView.builder()
                     .ref(step.ref())
                     .label(step.label())
                     .status(StepStatus.EXECUTED)
-                    .value(buildParameterValue(param, true))
+                    .value(buildParameterValue(param, true, includeSchema))
                     .build());
         }
         return result;
     }
 
     /** All cells of a spreadsheet with their status (executed, current, pending) and executed values. */
-    private List<StepValueView> spreadsheetSteps(DebugFrame frame, Spreadsheet spreadsheet, Map<Object, Object> clones) {
+    private List<StepValueView> spreadsheetSteps(DebugFrame frame, Spreadsheet spreadsheet, Map<Object, Object> clones, boolean includeSchema) {
         Map<String, Object> executed = new HashMap<>();
         for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
             executed.put(step.ref(), step.value());
@@ -397,8 +363,8 @@ public class TraceDebugMapper {
             String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
             var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
             if (executed.containsKey(ref)) {
-                var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
-                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true)).build());
+                var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones, !frame.isCompleted()), cell.getType());
+                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true, includeSchema)).build());
             } else {
                 steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
             }
@@ -413,8 +379,11 @@ public class TraceDebugMapper {
      * the executed sub-steps. Each carries {@code executed}, {@code current}, or {@code pending} so the
      * tree can render the whole stack in one pass without cloning any values.
      */
-    static List<StepValueView> outlineSteps(DebugFrame frame) {
-        return attachExecutedChildren(frame, withStepDurations(frame, baseSteps(frame)));
+    static List<StepValueView> outlineSteps(DebugFrame frame, boolean withExecutedChildren) {
+        List<StepValueView> steps = withStepDurations(frame, baseSteps(frame));
+        // Once the run has finished, the executed sub-calls hang off the (lazy) completed tree instead, so a
+        // still-published root frame need not re-serialize them deep — that was the other half of a huge stack.
+        return withExecutedChildren ? attachExecutedChildren(frame, steps) : steps;
     }
 
     /** Attach each executed step's own measured total time, looked up by its ref. */
@@ -474,7 +443,7 @@ public class TraceDebugMapper {
             List<CallNode> kids = children.get(step.ref());
             result.add(kids == null || kids.isEmpty()
                     ? step
-                    : step.toBuilder().children(toCallNodeViews(kids)).build());
+                    : step.toBuilder().children(toCallNodeViews(kids)).childrenTotal(childrenTotalOf(kids)).build());
         }
         children.forEach((ref, kids) -> {
             if (!covered.contains(ref) && !kids.isEmpty()) {
@@ -482,6 +451,7 @@ public class TraceDebugMapper {
                         .ref(ref)
                         .status(StepStatus.EXECUTED)
                         .children(toCallNodeViews(kids))
+                        .childrenTotal(childrenTotalOf(kids))
                         .build());
             }
         });
@@ -490,22 +460,35 @@ public class TraceDebugMapper {
 
     /** Convert returned sub-calls to views, recursively — structure only, never values. */
     private static List<CallNodeView> toCallNodeViews(List<CallNode> nodes) {
-        return nodes.stream().map(TraceDebugMapper::toCallNodeView).toList();
+        return nodes.stream().limit(MAX_TREE_CHILDREN).map(TraceDebugMapper::toCallNodeView).toList();
+    }
+
+    /** The full child count when the list was capped, so the client can show how many executions were omitted. */
+    private static @Nullable Integer childrenTotalOf(List<CallNode> nodes) {
+        return nodes.size() > MAX_TREE_CHILDREN ? nodes.size() : null;
     }
 
     private static CallNodeView toCallNodeView(CallNode node) {
-        List<StepValueView> steps = node.steps().stream()
-                .map(step -> StepValueView.builder()
-                        .ref(step.ref())
-                        .label(step.label())
-                        .status(StepStatus.EXECUTED)
-                        .durationMillis(toMillis(step.durationNanos()))
-                        .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())))
-                        .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
-                        .build())
-                .toList();
-        // Self time is the node's own work: its total minus the time spent in the tables it called.
-        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        return toCallNodeView(node, false);
+    }
+
+    /**
+     * Serialize a node one level deep: its own steps with timings and a child count per step, but not the
+     * child sub-calls themselves. A step's children are fetched on demand ({@link #toChildrenView}), so a
+     * huge run's executed tree is never serialized whole — only the branches the analyst opens.
+     */
+    static CallNodeView toShallowCallNodeView(CallNode node) {
+        return toCallNodeView(node, true);
+    }
+
+    private static CallNodeView toCallNodeView(CallNode node, boolean shallow) {
+        List<StepValueView> steps = node.steps().stream().map(step -> toStepView(step, shallow)).toList();
+        // Self time is the node's own work: its total minus the time spent in the tables it called. childNanos
+        // counts every sub-call it made — including ones the node cap dropped — so a truncated node does not
+        // report the dropped children's time as its own Self. Falls back to summing the retained children only
+        // for a node that carries no recorded childNanos (for example one synthesized in a test).
+        long childrenNanos = node.childNanos() > 0 ? node.childNanos()
+                : sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
         return CallNodeView.builder()
                 .uri(node.uri())
                 .name(node.name())
@@ -516,7 +499,63 @@ public class TraceDebugMapper {
                 .steps(steps)
                 .dispatch(node.dispatch())
                 .refStep(node.refStep())
+                .notRetained(node.notRetained() > 0 ? node.notRetained() : null)
                 .build();
+    }
+
+    private static StepValueView toStepView(CallNode.Step step, boolean shallow) {
+        var builder = StepValueView.builder()
+                .ref(step.ref())
+                .label(step.label())
+                .status(StepStatus.EXECUTED)
+                .durationMillis(toMillis(step.durationNanos()))
+                .selfMillis(selfMillis(step.durationNanos(), sumDurations(step.children().stream())));
+        if (shallow) {
+            // Children are fetched on demand; report only the count, so the client shows the step as
+            // expandable and knows how many executions to page through.
+            return builder.childrenTotal(step.children().isEmpty() ? null : step.children().size()).build();
+        }
+        return builder
+                .children(step.children().isEmpty() ? null : toCallNodeViews(step.children()))
+                .childrenTotal(childrenTotalOf(step.children()))
+                .build();
+    }
+
+    /**
+     * The children of one step of one executed frame, one level deep, paged with {@code offset}/{@code limit}.
+     * The frame is addressed by its {@code (uri, instance)} — unique per execution in the run — so a specific
+     * loop iteration's sub-tree is reachable. Returns an empty page if the frame or step is no longer retained.
+     */
+    public static TreeChildrenView toChildrenView(@Nullable CallNode root, String uri, int instance, String stepRef,
+                                                  int offset, int limit) {
+        CallNode frame = root == null ? null : findNode(root, uri, instance);
+        List<CallNode> children = frame == null ? List.of() : frame.steps().stream()
+                .filter(step -> stepRef.equals(step.ref()))
+                .findFirst()
+                .map(CallNode.Step::children)
+                .orElse(List.of());
+        List<CallNodeView> page = children.stream()
+                .skip(Math.max(0, offset))
+                .limit(Math.max(1, limit))
+                .map(TraceDebugMapper::toShallowCallNodeView)
+                .toList();
+        return new TreeChildrenView(page, children.size());
+    }
+
+    /** Depth-first search for the retained frame with the given {@code (uri, instance)}; references are skipped. */
+    private static @Nullable CallNode findNode(CallNode node, String uri, int instance) {
+        if (node.refStep() == null && node.instance() == instance && uri.equals(node.uri())) {
+            return node;
+        }
+        for (CallNode.Step step : node.steps()) {
+            for (CallNode child : step.children()) {
+                CallNode found = findNode(child, uri, instance);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     /** Total time of a frame that has already returned (for example after a step out), otherwise {@code null}. */
@@ -625,18 +664,23 @@ public class TraceDebugMapper {
                 .toList();
     }
 
-    private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones) {
+    private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (!frame.isCompleted() || frame.getResult() == null
                 || !(frame.getSource() instanceof ExecutableRulesMethod method)) {
             return null;
         }
-        var param = new ParameterWithValueDeclaration("return", safeClone(frame.getResult(), clones), method.getType());
-        return buildParameterValue(param, true);
+        var param = new ParameterWithValueDeclaration("return", safeClone(frame.getResult(), clones, false), method.getType());
+        return buildParameterValue(param, true, includeSchema);
     }
 
-    private static Object safeClone(Object value, Map<Object, Object> clones) {
-        if (value == null) {
-            return null;
+    /**
+     * Freeze a value for later inspection. A suspended frame's values are live and may change once the worker
+     * resumes, so they are deep-cloned. A settled frame (completed or failed) will not run again, so its values
+     * are already stable — cloning them is skipped, avoiding a deep copy (and its heap blow-up) of a huge result.
+     */
+    private static Object safeClone(Object value, Map<Object, Object> clones, boolean freeze) {
+        if (value == null || !freeze) {
+            return value;
         }
         try {
             return Cloner.clone(value, clones);
@@ -696,7 +740,8 @@ public class TraceDebugMapper {
     }
 
     /** Build a parameter value, registering large values for lazy retrieval. */
-    public ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy) {
+    public ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy,
+                                              boolean includeSchema) {
         var type = param.getType();
         var rawValue = param.getValue();
         var description = type != null ? type.getDisplayName(INamedThing.SHORT) : null;
@@ -704,7 +749,9 @@ public class TraceDebugMapper {
         var builder = ParameterValue.builder()
                 .name(param.getName())
                 .description(description)
-                .schema(generateSchema(type));
+                // The schema is generated only on request: it is derived from the value's type via a recursive
+                // JSON-schema pass that is expensive for a large spreadsheet result, and no Studio client reads it.
+                .schema(includeSchema ? generateSchema(type) : null);
         if (preferLazy && rawValue != null && !isSimple) {
             return builder
                     .lazy(true)

@@ -50,7 +50,7 @@ class GeneralProjectTraceReproTest {
         var param = new ParameterWithValueDeclaration("return", new Object(), returnType);
 
         // Before the fix this threw StackOverflowError from victools schema generation.
-        var parameterValue = assertDoesNotThrow(() -> mapper.buildParameterValue(param, true),
+        var parameterValue = assertDoesNotThrow(() -> mapper.buildParameterValue(param, true, true),
                 "Schema generation must not overflow on a self-referential bean");
         assertNotNull(parameterValue);
         var schema = parameterValue.schema();

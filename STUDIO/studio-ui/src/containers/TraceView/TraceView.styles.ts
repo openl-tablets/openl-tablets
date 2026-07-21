@@ -104,6 +104,31 @@ export const useStyles = createStyles(({ css, token }) => ({
     panelDisabled: css`
         pointer-events: none;
     `,
+    runningOverlay: css`
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: ${token.colorBgMask};
+    `,
+    runningCard: css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: ${token.margin}px;
+        max-width: 320px;
+        padding: ${token.paddingLG}px ${token.paddingXL}px;
+        text-align: center;
+        background: ${token.colorBgElevated};
+        border-radius: ${token.borderRadiusLG}px;
+        box-shadow: ${token.boxShadowSecondary};
+    `,
+    runningText: css`
+        color: ${token.colorText};
+        font-size: ${token.fontSize}px;
+    `,
     errorBanner: css`
         flex: 0 0 auto;
         margin: ${token.marginXS}px ${token.marginSM}px 0;

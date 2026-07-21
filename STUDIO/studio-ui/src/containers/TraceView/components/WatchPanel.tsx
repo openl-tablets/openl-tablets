@@ -39,17 +39,25 @@ const WatchPanel: React.FC = () => {
     return (
         <div className={styles.panel} data-testid="watch-panel">
             <div className={styles.header}>
-                <span>{t('watch.title')}</span>
-                <Button
-                    data-testid="watch-collect"
-                    disabled={watches.length === 0 || loading}
-                    loading={loading}
-                    onClick={() => void collectWatch()}
-                    size="small"
-                    type="primary"
-                >
-                    {t('watch.collect')}
-                </Button>
+                <Tooltip title={t('watch.titleHint')}>
+                    <span>{t('watch.title')}</span>
+                </Tooltip>
+                <Tooltip title={t('watch.collectHint')}>
+                    {/* Span wrapper so the tooltip still shows on hover while the button is disabled
+                        (a disabled button has pointer-events: none and receives no hover events). */}
+                    <span>
+                        <Button
+                            data-testid="watch-collect"
+                            disabled={watches.length === 0 || loading}
+                            loading={loading}
+                            onClick={() => void collectWatch()}
+                            size="small"
+                            type="primary"
+                        >
+                            {t('watch.collect')}
+                        </Button>
+                    </span>
+                </Tooltip>
             </div>
             <div className={styles.addRow}>
                 <Input
@@ -60,9 +68,11 @@ const WatchPanel: React.FC = () => {
                     size="small"
                     value={draft}
                 />
-                <Button data-testid="watch-add-button" onClick={addWatch} size="small">
-                    {t('watch.add')}
-                </Button>
+                <Tooltip title={t('watch.addHint')}>
+                    <Button data-testid="watch-add-button" onClick={addWatch} size="small">
+                        {t('watch.add')}
+                    </Button>
+                </Tooltip>
             </div>
             {watches.length > 0 && (
                 <div className={styles.chips}>

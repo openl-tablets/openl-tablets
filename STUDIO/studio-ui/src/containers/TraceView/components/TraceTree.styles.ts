@@ -18,6 +18,31 @@ export const useStyles = createStyles(({ css, token }) => ({
         letter-spacing: 0.05em;
         color: ${token.colorTextTertiary};
     `,
+    // A quiet caption warning the tree is capped, so its partial branches aren't mistaken for the whole run.
+    // Pinned to the top of the scroll area, so the warning stays visible while drilling deep into the tree.
+    truncated: css`
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorWarningText};
+        background: ${token.colorWarningBg};
+    `,
+    // A per-node caption for sub-calls dropped once the tree hit its size limit, tinted like the truncation
+    // warning so the gap reads as "capped here", distinct from a plain "+N more" that can still be paged in.
+    notRetained: css`
+        color: ${token.colorWarningText};
+        font-style: italic;
+    `,
+    // A clickable "+N more" that pages in the next executions of a lazily-loaded branch.
+    moreLink: css`
+        cursor: pointer;
+        color: ${token.colorLink};
+        &:hover {
+            text-decoration: underline;
+        }
+    `,
     // The Total/Self switch is a control, not a heading — reset the heading typography.
     timeToggle: css`
         text-transform: none;

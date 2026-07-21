@@ -58,6 +58,7 @@ import org.openl.studio.projects.model.trace.StackRenderOptions;
 import org.openl.studio.projects.model.trace.StackViewMode;
 import org.openl.studio.projects.model.trace.StepType;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
+import org.openl.studio.projects.model.trace.TreeChildrenView;
 import org.openl.studio.projects.model.trace.WatchView;
 import org.openl.studio.projects.model.trace.WatchesRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -184,6 +185,24 @@ public class ProjectsTraceDebugController {
         return inspectStack(requireSession(project), renderOptions(includeTree, profileTop, view));
     }
 
+    @Operation(summary = "trace.tree-children.summary", description = "trace.tree-children.desc")
+    @ApiResponse(responseCode = "200", description = "trace.tree-children.200.desc")
+    @GetMapping("/tree/children")
+    public TreeChildrenView treeChildren(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam("uri") @Parameter(description = "trace.param.node-uri.desc") String uri,
+            @RequestParam("instance") @Parameter(description = "trace.param.node-instance.desc") int instance,
+            @RequestParam("step") @Parameter(description = "trace.param.step-ref.desc") String step,
+            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Parameter(description = "trace.param.offset.desc") int offset,
+            @RequestParam(value = "limit", defaultValue = "100") @Min(1) @Parameter(description = "trace.param.limit.desc") int limit) {
+        DebugSession session = requireSession(project);
+        return session.inLock(() -> {
+            requireNotRunning(session);
+            return TraceDebugMapper.toChildrenView(session.getDebugger().completedTree(), uri, instance, step,
+                    offset, limit);
+        });
+    }
+
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")
     @ApiResponse(responseCode = "200", description = "trace.step.200.desc")
     @PostMapping("/step")
@@ -232,10 +251,12 @@ public class ProjectsTraceDebugController {
     @GetMapping("/frames/{index}/variables")
     public DebugFrameVariables variables(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
+            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
         DebugSession session = requireSession(project);
         TraceDebugMapper mapper = createMapper(session);
-        return withSuspendedFrame(session, index, frame -> mapper.freezeVariables(frame, session.getClassLoader()));
+        return withInspectableFrame(session, index,
+                frame -> mapper.freezeVariables(frame, session.getClassLoader(), includeSchema));
     }
 
     @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
@@ -245,7 +266,7 @@ public class ProjectsTraceDebugController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
         DebugSession session = requireSession(project);
-        return withSuspendedFrame(session, index, traceHighlightService::computeHighlights);
+        return withInspectableFrame(session, index, traceHighlightService::computeHighlights);
     }
 
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")
@@ -253,13 +274,14 @@ public class ProjectsTraceDebugController {
     @GetMapping("/parameters/{parameterId}")
     public ParameterValue parameterValue(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId) {
+            @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
         DebugSession session = requireSession(project);
         var param = parameterRegistry.get(parameterId);
         if (param == null) {
             throw new NotFoundException("trace.parameter.not.found.message");
         }
-        return createMapper(session).buildParameterValue(param, false);
+        return createMapper(session).buildParameterValue(param, false, includeSchema);
     }
 
     @Operation(summary = "trace.get-breakpoints.summary", description = "trace.get-breakpoints.desc")
@@ -282,13 +304,16 @@ public class ProjectsTraceDebugController {
     @Operation(summary = "trace.watch.summary", description = "trace.watch.desc")
     @ApiResponse(responseCode = "200", description = "trace.watch.200.desc")
     @GetMapping("/watch")
-    public WatchView watch(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public WatchView watch(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
         DebugSession session = requireSession(project);
         TraceDebugMapper mapper = createMapper(session);
         return session.inLock(() -> {
             requireNotRunning(session);
             var debugger = session.getDebugger();
-            return mapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated(), session.getClassLoader());
+            return mapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated(), session.getClassLoader(),
+                    includeSchema);
         });
     }
 
@@ -403,10 +428,14 @@ public class ProjectsTraceDebugController {
         }
     }
 
-    /** Run an inspection of frame {@code index} under the session lock, requiring a suspended worker. */
-    private <T> T withSuspendedFrame(DebugSession session, int index, Function<DebugFrame, T> inspection) {
+    /**
+     * Run an inspection of frame {@code index} under the session lock. Allowed whenever the worker is not
+     * running — while suspended at a step, and once the run has completed or failed — so an analyst can read
+     * the final result after a profiling run to completion, not only at a breakpoint.
+     */
+    private <T> T withInspectableFrame(DebugSession session, int index, Function<DebugFrame, T> inspection) {
         return session.inLock(() -> {
-            requireSuspendedState(session);
+            requireNotRunning(session);
             DebugFrame frame = session.getDebugger().frameAt(index);
             if (frame == null) {
                 throw new NotFoundException("trace.frame.not.found.message");
@@ -434,7 +463,7 @@ public class ProjectsTraceDebugController {
     private DebugStackView stackView(DebugSession session, StackRenderOptions options) {
         var debugger = session.getDebugger();
         return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
-                debugger.completedTree(), options, debugger.isTreeTruncated());
+                debugger.completedTree(), debugger.profileStats(), options, debugger.isTreeTruncated());
     }
 
     private TraceDebugMapper createMapper(DebugSession session) {

@@ -61,6 +61,19 @@ describe('HotspotsPanel', () => {
         expect(screen.getByText('112 ms')).toBeInTheDocument() // inclusive time
     })
 
+    it('notes that only the slowest tables are shown while every call is still counted', () => {
+        // Three tables ran but only two are listed, so the display-limit note appears.
+        act(() => { useTraceStore.setState({ profile: profile() }) })
+        render(<HotspotsPanel />)
+        expect(screen.getByText('hotspots.more')).toBeInTheDocument()
+    })
+
+    it('omits the note when every table that ran is shown', () => {
+        act(() => { useTraceStore.setState({ profile: { ...profile(), distinctTables: 2 } }) })
+        render(<HotspotsPanel />)
+        expect(screen.queryByText('hotspots.more')).toBeNull()
+    })
+
     it('replays to the hot table on click, restarting and running to its uri', async () => {
         useTraceStore.setState({ profile: profile(), status: 'completed' })
         render(<HotspotsPanel />)

@@ -1,19 +1,16 @@
 import React, { useMemo, useRef, useState } from 'react'
-import { Button, Empty, Segmented, Tooltip } from 'antd'
+import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
 import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, LinkOutlined, RedoOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useTraceStore } from 'store'
+import { treeChildKey, useTraceStore } from 'store'
 import type { CallNodeView, DebugFrameView, DispatchInfo, StepValueView } from 'types/trace'
 import { formatMs } from 'utils/formatDuration'
 import { onActivate } from './keyboardActivate'
 import { useStyles } from './TraceTree.styles'
 
-/** A table computed in a loop can return thousands of executed branches; render only the first, on expand. */
-const MAX_TREE_CHILDREN = 100
-
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
 interface TreeRow {
-    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more'
+    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more' | 'loading' | 'notRetained'
     key: string
     depth: number
     frame?: DebugFrameView
@@ -32,14 +29,21 @@ interface TreeRow {
     moreCount?: number
 }
 
-const hasChildren = (step: StepValueView): boolean => !!step.children && step.children.length > 0
+const hasChildren = (step: StepValueView): boolean =>
+    (step.children?.length ?? 0) > 0 || (step.childrenTotal ?? 0) > 0
 
 /**
  * Flatten the live stack — plus any expanded executed branches — into indented rows. The live path is
  * always present and rebuilds as execution moves. Executed sub-calls (profiling mode) hang off the step
  * that made them and are collapsed by default; expanding one walks its retained structure, never values.
  */
-const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: Set<string>): TreeRow[] => {
+const flatten = (
+    frames: DebugFrameView[],
+    tree: CallNodeView | null,
+    expanded: Set<string>,
+    treeChildren: Record<string, CallNodeView[]>,
+    treeLoading: Record<string, boolean>
+): TreeRow[] => {
     const rows: TreeRow[] = []
 
     // `refBase` is the key namespace of the branch the node hangs off, so a step-reference node can point
@@ -53,21 +57,42 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
                 nodeInstance: node.instance, ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                walkChildren(step.children, depth + 2, stepKey, path)
+                walkChildren(node.uri, node.instance, step, depth + 2, stepKey, path)
             }
+        }
+        // A branch that outgrew the tree's size limit honestly reports how many of its sub-calls were dropped,
+        // so an analyst reading Hot Spots knows this node's children are incomplete rather than absent.
+        if ((node.notRetained ?? 0) > 0) {
+            rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1, moreCount: node.notRetained ?? 0 })
         }
     }
 
-    // Render only the first executions of a step's branch — a looped table can return thousands — and mark
-    // the rest with a single "more" row, so expanding a hot branch never floods the tree.
-    const walkChildren = (children: CallNodeView[] | null | undefined, depth: number, keyBase: string,
-        refBase: string): void => {
-        if (!children) {
+    // A live frame carries its sub-calls inline (capped for display); the completed tree fetches them lazily
+    // by (uri, instance, step) and pages them, so expanding a hot branch never floods the tree or the response.
+    const walkChildren = (nodeUri: string, nodeInstance: number, step: StepValueView,
+        depth: number, keyBase: string, refBase: string): void => {
+        if (step.children) {
+            // The server already caps inline children and reports the full count in childrenTotal, so the list
+            // is rendered as-is and the "+N more" reflects what the server omitted.
+            step.children.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+            const total = step.childrenTotal ?? step.children.length
+            if (total > step.children.length) {
+                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - step.children.length })
+            }
             return
         }
-        children.slice(0, MAX_TREE_CHILDREN).forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
-        if (children.length > MAX_TREE_CHILDREN) {
-            rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: children.length - MAX_TREE_CHILDREN })
+        const key = treeChildKey(nodeUri, nodeInstance, step.ref)
+        const loaded = treeChildren[key]
+        if (loaded) {
+            loaded.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+            const total = step.childrenTotal ?? loaded.length
+            if (total > loaded.length) {
+                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - loaded.length,
+                    nodeUri, nodeInstance, step })
+            }
+        }
+        if (treeLoading[key]) {
+            rows.push({ type: 'loading', key: `${keyBase}/loading`, depth })
         }
     }
 
@@ -84,7 +109,7 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'liveStep', key: stepKey, depth: depth + 1, frameIndex: i, frame, step,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                walkChildren(step.children, depth + 2, stepKey, `f${i}`)
+                walkChildren(frame.uri, frame.instance, step, depth + 2, stepKey, `f${i}`)
             }
             if (!drilled && step.status === 'current' && i + 1 < frames.length) {
                 walk(i + 1, depth + 2)
@@ -150,11 +175,16 @@ const TraceTree: React.FC = () => {
     const runTo = useTraceStore(s => s.runTo)
     const replayNode = useTraceStore(s => s.replayNode)
     const status = useTraceStore(s => s.status)
+    const truncated = useTraceStore(s => s.profile?.truncated ?? false)
+    const treeChildren = useTraceStore(s => s.treeChildren)
+    const treeLoading = useTraceStore(s => s.treeLoading)
+    const fetchTreeChildren = useTraceStore(s => s.fetchTreeChildren)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
     const [flashKey, setFlashKey] = useState<string | null>(null)
     const treeRef = useRef<HTMLDivElement>(null)
-    const rows = useMemo(() => flatten(frames, tree, expanded), [frames, tree, expanded])
+    const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading),
+        [frames, tree, expanded, treeChildren, treeLoading])
     // One pass over the rows for the heatmap: whether any row is timed, and the slowest timing (by the chosen
     // metric) that sets the bar scale. Recomputed only when the rows or the metric change, not on every render.
     const { hasTimings, maxDuration } = useMemo(() => {
@@ -207,6 +237,22 @@ const TraceTree: React.FC = () => {
         return next
     })
 
+    // Toggle a step and, when opening a lazily-loaded tree step, fetch its first page of sub-calls.
+    const onToggle = (key: string): void => {
+        const willOpen = !expanded.has(key)
+        toggle(key)
+        if (!willOpen) {
+            return
+        }
+        const row = rows.find(r => r.expandKey === key)
+        // Fetch a lazy tree step's first page only once — re-expanding a loaded branch reuses the cache; the
+        // "+N more" row is what pages in the rest.
+        if (row?.type === 'callStep' && row.step && !row.step.children && row.nodeUri !== undefined
+            && !treeChildren[treeChildKey(row.nodeUri, row.nodeInstance ?? 0, row.step.ref)]) {
+            void fetchTreeChildren(row.nodeUri, row.nodeInstance ?? 0, row.step.ref)
+        }
+    }
+
     const twisty = (expandKey?: string): React.ReactNode => {
         if (!expandKey) {
             return <span className={styles.chevronSlot} />
@@ -216,14 +262,14 @@ const TraceTree: React.FC = () => {
                 aria-expanded={expanded.has(expandKey)}
                 className={styles.chevron}
                 data-testid={`tree-toggle-${expandKey}`}
-                onClick={(e) => { e.stopPropagation(); toggle(expandKey) }}
+                onClick={(e) => { e.stopPropagation(); onToggle(expandKey) }}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
                         e.stopPropagation()
-                        toggle(expandKey)
+                        onToggle(expandKey)
                     }
                 }}
             >
@@ -409,7 +455,7 @@ const TraceTree: React.FC = () => {
         const step = row.step as StepValueView
         const ms = timingOf(row)
         const replayKey = `${row.nodeUri}#${step.ref}@${row.nodeInstance}`
-        const expand = row.expandKey ? () => toggle(row.expandKey as string) : undefined
+        const expand = row.expandKey ? () => onToggle(row.expandKey as string) : undefined
         return (
             <div
                 key={row.key}
@@ -429,10 +475,48 @@ const TraceTree: React.FC = () => {
         )
     }
 
-    const renderMore = (row: TreeRow): React.ReactNode => (
+    const renderMore = (row: TreeRow): React.ReactNode => {
+        // A lazy tree step carries its address on the "more" row, so clicking loads the next page of
+        // executions. A live frame's inline "more" has no address and stays a plain count.
+        const { nodeUri, nodeInstance, step } = row
+        const loadMore = nodeUri !== undefined && step
+            ? () => void fetchTreeChildren(nodeUri, nodeInstance ?? 0, step.ref)
+            : undefined
+        return (
+            <div
+                key={row.key}
+                className={cx(styles.row, styles.inactive)}
+                style={indent(row.depth)}
+                {...(loadMore && { onClick: loadMore, onKeyDown: onActivate(loadMore), role: 'button',
+                    tabIndex: 0, 'data-testid': `tree-more-${row.key}` })}
+            >
+                <span className={styles.chevronSlot} />
+                <span className={cx(styles.leafLabel, loadMore && styles.moreLink)}>
+                    {t('tree.more', { count: row.moreCount })}
+                </span>
+            </div>
+        )
+    }
+
+    const renderLoading = (row: TreeRow): React.ReactNode => (
         <div key={row.key} className={cx(styles.row, styles.inactive)} style={indent(row.depth)}>
             <span className={styles.chevronSlot} />
-            <span className={styles.leafLabel}>{t('tree.more', { count: row.moreCount })}</span>
+            <Spin size="small" />
+            <span className={styles.leafLabel}>{t('tree.loading')}</span>
+        </div>
+    )
+
+    // A node whose sub-calls overflowed the tree's size limit: label how many were dropped, so the gap is
+    // visible instead of silently missing. Not clickable — the dropped branches were never retained to load.
+    const renderNotRetained = (row: TreeRow): React.ReactNode => (
+        <div
+            key={row.key}
+            className={cx(styles.row, styles.inactive, styles.notRetained)}
+            data-testid={`tree-not-retained-${row.key}`}
+            style={indent(row.depth)}
+        >
+            <span className={styles.chevronSlot} />
+            <span className={styles.leafLabel}>{t('tree.notRetained', { count: row.moreCount })}</span>
         </div>
     )
 
@@ -442,6 +526,8 @@ const TraceTree: React.FC = () => {
             case 'liveStep': return renderLiveStep(row)
             case 'callNode': return renderCallNode(row)
             case 'more': return renderMore(row)
+            case 'loading': return renderLoading(row)
+            case 'notRetained': return renderNotRetained(row)
             default: return renderCallStep(row)
         }
     }
@@ -464,6 +550,9 @@ const TraceTree: React.FC = () => {
                     />
                 )}
             </div>
+            {truncated && (
+                <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>
+            )}
             {rows.map(render)}
         </div>
     )

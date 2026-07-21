@@ -73,7 +73,7 @@ class TraceDebugMapperTest {
             assertEquals("MyRule", top.name());
             assertTrue(top.active(), "the deepest frame is the active one");
 
-            var variables = mapper.freezeVariables(stack.get(stack.size() - 1), compiled.getClassLoader());
+            var variables = mapper.freezeVariables(stack.get(stack.size() - 1), compiled.getClassLoader(), true);
             assertNotNull(variables);
             assertTrue(variables.parameters().isEmpty(), "MyRule takes no parameters");
             assertNotNull(variables.context(), "the runtime context is frozen");
@@ -222,65 +222,154 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void foldsExecutedTreeIntoSelfTimeHotspots() {
-        // A(100) calls B(30) and C(50); C calls B(20) again; A also references B (no time).
-        CallNode b1 = leaf("uB", "B", 30);
-        CallNode b2 = leaf("uB", "B", 20);
-        CallNode c = node("uC", "C", 50, b2);
-        CallNode ref = new CallNode("uA", "$Ref", 0, FrameKind.STEP_REF, 0, List.of(), null, "R9C9");
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(100),
-                List.of(new CallNode.Step("R0C0", "$s", ms(100), List.of(b1, c, ref))), null, null);
+    void shapesStatsIntoSortedHotspots() {
+        // Per-table stats already aggregated by the hook: B ran twice (self 50), C once (self 30), A once (20).
+        List<TableProfile> stats = List.of(
+                new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(20), ms(100)),
+                new TableProfile("uB", "B", FrameKind.SPREADSHEET, 2, ms(50), ms(50)),
+                new TableProfile("uC", "C", FrameKind.SPREADSHEET, 1, ms(30), ms(50)));
 
-        var summary = TraceDebugMapper.buildProfileSummary(root, 10, false);
+        var summary = TraceDebugMapper.buildProfileSummary(stats, 10, ms(100), false);
 
-        assertEquals(3, summary.distinctTables(), "A, B, C — the reference is not a table");
-        assertEquals(4, summary.nodeCount(), "A + B + C + B again; the reference does not count");
-        assertEquals(100.0, summary.totalMillis(), "wall-clock is the root's own duration");
-        assertFalse(summary.truncated(), "all three tables fit within top=10");
+        assertEquals(3, summary.distinctTables(), "A, B, C");
+        assertEquals(4, summary.nodeCount(), "every invocation counts: A + B + B + C");
+        assertEquals(100.0, summary.totalMillis(), "wall-clock is the passed root duration");
+        assertFalse(summary.truncated(), "the tree was not truncated");
 
-        // Sorted by own time: B has the most (30 + 20), then C (50 − 20), then A (100 − 30 − 50).
-        var b = summary.hotspots().get(0);
-        assertEquals("uB", b.uri());
-        assertEquals(2, b.count(), "both B invocations fold into one hotspot");
-        assertEquals(50.0, b.selfMillis());
-        assertEquals(50.0, b.totalMillis(), "B calls nothing, so total equals self");
+        // Sorted by own time: B (50), C (30), A (20).
         assertEquals(List.of("uB", "uC", "uA"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
-        assertEquals(30.0, summary.hotspots().get(1).selfMillis(), "C's own time excludes the B it called");
-        assertEquals(20.0, summary.hotspots().get(2).selfMillis(), "A's own time excludes B and C");
+        var b = summary.hotspots().get(0);
+        assertEquals(2, b.count(), "both B invocations are one hotspot row");
+        assertEquals(50.0, b.selfMillis());
+        assertEquals(50.0, b.totalMillis());
+        assertEquals(30.0, summary.hotspots().get(1).selfMillis());
+        assertEquals(20.0, summary.hotspots().get(2).selfMillis());
     }
 
     @Test
-    void capsHotspotsToTopAndFlagsTruncation() {
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(60),
-                List.of(new CallNode.Step("R0C0", "$s", ms(60),
-                        List.of(leaf("uB", "B", 30), leaf("uC", "C", 20)))), null, null);
+    void capsHotspotsToTopWithoutFlaggingTruncation() {
+        List<TableProfile> stats = List.of(
+                new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(10), ms(60)),
+                new TableProfile("uB", "B", FrameKind.SPREADSHEET, 1, ms(30), ms(30)),
+                new TableProfile("uC", "C", FrameKind.SPREADSHEET, 1, ms(20), ms(20)));
 
-        var summary = TraceDebugMapper.buildProfileSummary(root, 2, false);
+        var summary = TraceDebugMapper.buildProfileSummary(stats, 2, ms(60), false);
 
         assertEquals(3, summary.distinctTables());
         assertEquals(2, summary.hotspots().size(), "only the two slowest are returned");
-        assertTrue(summary.truncated(), "a third table ran but did not make the cut");
+        assertFalse(summary.truncated(), "top-N is a display limit, not truncation — every table was counted");
         assertEquals(List.of("uB", "uC"), summary.hotspots().stream().map(ProfileHotspotView::uri).toList());
     }
 
     @Test
     void flagsTruncationWhenTheExecutedTreeHitTheNodeCap() {
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(60),
-                List.of(new CallNode.Step("R0C0", "$s", ms(60), List.of(leaf("uB", "B", 30)))), null, null);
+        List<TableProfile> stats = List.of(
+                new TableProfile("uA", "A", FrameKind.SPREADSHEET, 1, ms(30), ms(60)),
+                new TableProfile("uB", "B", FrameKind.SPREADSHEET, 1, ms(30), ms(30)));
 
-        // Both tables fit within top=10, so only the tree-node cap can mark the profile incomplete.
-        var summary = TraceDebugMapper.buildProfileSummary(root, 10, true);
+        // The hotspots are complete; only the executed tree hit its node cap.
+        var summary = TraceDebugMapper.buildProfileSummary(stats, 10, ms(60), true);
 
-        assertEquals(2, summary.hotspots().size(), "both tables are returned, so hotspots are complete");
-        assertTrue(summary.truncated(), "the node cap alone marks the profile incomplete");
+        assertEquals(2, summary.hotspots().size(), "the hotspots themselves are complete");
+        assertTrue(summary.truncated(), "the tree hit its node cap, so it is flagged incomplete");
+    }
+
+    @Test
+    void pagesALoopsChildrenAtTheRequestedLimit() {
+        // A single step that called table B 150 times in a loop.
+        List<CallNode> kids = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            kids.add(leaf("uB", "B", 1));
+        }
+        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
+                List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
+
+        var page = TraceDebugMapper.toChildrenView(root, "uA", 0, "R0C0", 0, 100);
+
+        assertEquals(100, page.children().size(), "a step looped 150 times returns only the first 100 per page");
+        assertEquals(150, page.total(), "the full count is reported so the client can page through the rest");
+    }
+
+    @Test
+    void serializesTheCompletedTreeOneLevelDeepForLazyLoading() {
+        var tree = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
+                StackRenderOptions.FULL, false).tree();
+
+        assertNotNull(tree);
+        assertEquals("A", tree.name());
+        var step = tree.steps().get(0);
+        assertNull(step.children(), "children are lazy — not serialized with the root");
+        assertEquals(2, step.childrenTotal(), "the child count is reported so the client shows the step as expandable");
+    }
+
+    @Test
+    void fetchesAStepsChildrenLazilyOneLevelDeep() {
+        CallNode root = lazyTreeFixture();
+
+        // Expand the root's step: returns B and C, each shallow (B's own loop step stays unexpanded).
+        var top = TraceDebugMapper.toChildrenView(root, "uA", 0, "R0C0", 0, 100);
+        assertEquals(2, top.total());
+        assertEquals(List.of("B", "C"), top.children().stream().map(CallNodeView::name).toList());
+        assertNull(top.children().get(0).steps().get(0).children(), "B's grandchildren stay lazy");
+        assertEquals(3, top.children().get(0).steps().get(0).childrenTotal(), "B's loop count is reported");
+
+        // Expand B's loop step by its (uri, instance): returns its three iterations.
+        var loop = TraceDebugMapper.toChildrenView(root, "uB", 0, "R1C1", 0, 100);
+        assertEquals(3, loop.total());
+        assertEquals(List.of("D", "E", "F"), loop.children().stream().map(CallNodeView::name).toList());
+    }
+
+    @Test
+    void pagesThroughALoopsChildren() {
+        var page = TraceDebugMapper.toChildrenView(lazyTreeFixture(), "uB", 0, "R1C1", 1, 1);
+
+        assertEquals(3, page.total(), "the total stays the full count so the client can page through the rest");
+        assertEquals(List.of("E"), page.children().stream().map(CallNodeView::name).toList());
+    }
+
+    @Test
+    void returnsAnEmptyPageWhenTheFrameOrStepIsNoLongerRetained() {
+        assertEquals(0, TraceDebugMapper.toChildrenView(lazyTreeFixture(), "uMissing", 9, "R0C0", 0, 100).total());
+        assertEquals(0, TraceDebugMapper.toChildrenView(null, "uA", 0, "R0C0", 0, 100).total());
+    }
+
+    @Test
+    void marksExpandableStepsWithTheirChildCountAndChildlessStepsWithout() {
+        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10),
+                List.of(new CallNode.Step("R0C0", "$called", ms(10), List.of(leaf("uB", "B", 5))),
+                        new CallNode.Step("R1C0", "$plain", ms(1), List.of())), null, null);
+
+        var steps = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
+                StackRenderOptions.FULL, false).tree().steps();
+
+        // A step that made a call: children are lazy, but its count is reported so it shows as expandable.
+        assertNull(steps.get(0).children(), "children are lazy — fetched on expand");
+        assertEquals(1, steps.get(0).childrenTotal());
+        // A step that called nothing: no count, so no expand affordance.
+        assertNull(steps.get(1).children());
+        assertNull(steps.get(1).childrenTotal(), "a step that called nothing carries no child count");
+    }
+
+    @Test
+    void reportsDroppedSubCallsSoTheTruncationGapIsVisible() {
+        CallNode dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42, 0);
+        CallNode kept = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
+
+        assertEquals(42L, treeOf(dropped).notRetained(), "a node reports how many of its sub-calls were dropped");
+        assertNull(treeOf(kept).notRetained(), "a node that kept every sub-call carries no dropped count");
+    }
+
+    private static CallNodeView treeOf(CallNode root) {
+        return TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
+                StackRenderOptions.FULL, false).tree();
     }
 
     @Test
     void mapsTheCallNodeExecutionIndexSoALoopIterationCanBeReplayed() {
         CallNode root = new CallNode("uA", "A", 7, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
 
-        var view = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, StackRenderOptions.FULL,
-                false);
+        var view = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
+                StackRenderOptions.FULL, false);
 
         assertNotNull(view.tree());
         assertEquals(7, view.tree().instance(), "the node carries its execution index so a uri@N replay hits it");
@@ -292,12 +381,12 @@ class TraceDebugMapperTest {
                 debugFrame(FrameKind.METHOD, "uRoot", "Root", 1),
                 debugFrame(FrameKind.SPREADSHEET, "uChild", "Child", 2));
 
-        var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, StackRenderOptions.FULL,
-                false);
+        var full = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
+                StackRenderOptions.FULL, false);
         assertNotNull(full.frames().get(0).steps(), "full view keeps every frame's steps");
         assertNotNull(full.frames().get(1).steps());
 
-        var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null,
+        var compact = TraceDebugMapper.toStackView(DebugStatus.SUSPENDED, stack, null, null, List.of(),
                 new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, true), false);
         assertNull(compact.frames().get(0).steps(), "compact drops the non-active frame's steps");
         assertTrue(compact.frames().get(1).active(), "the top frame is the active one");
@@ -311,7 +400,7 @@ class TraceDebugMapperTest {
                 new WatchCapture("$Factor", "Cov", "uCov", 1, List.of("Root", "Cov"), "uCov#R2C0", 83.372),
                 new WatchCapture("$Other", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R3C0", 2.0));
 
-        var view = mapper().toWatchView(captures, false, null);
+        var view = mapper().toWatchView(captures, false, null, true);
 
         assertEquals(2, view.series().size(), "two distinct cells → two series");
         var factor = view.series().get(0);
@@ -333,7 +422,7 @@ class TraceDebugMapperTest {
             captures.add(new WatchCapture("$Loop", "T", "uT", i, List.of("T"), "uT#R0C0", i));
         }
 
-        var series = mapper().toWatchView(captures, false, null).series().get(0);
+        var series = mapper().toWatchView(captures, false, null, true).series().get(0);
 
         assertEquals(100, series.points().size(), "a factor looped 150 times returns only the first 100 points");
         assertEquals(150, series.total(), "the full execution count is still reported");
@@ -346,7 +435,7 @@ class TraceDebugMapperTest {
                 new WatchCapture("$X", "A", "uA", 0, List.of("A"), "uA#R0C0", 1),
                 new WatchCapture("$X", "B", "uB", 0, List.of("B"), "uB#R0C0", 2));
 
-        var view = mapper().toWatchView(captures, true, null);
+        var view = mapper().toWatchView(captures, true, null, true);
 
         assertEquals(2, view.series().size(), "the same name in two tables stays two series");
         assertTrue(view.truncated(), "the cap flag is carried through");
@@ -361,9 +450,13 @@ class TraceDebugMapperTest {
         return new CallNode(uri, name, 0, FrameKind.SPREADSHEET, ms(millis), List.of(), null, null);
     }
 
-    private static CallNode node(String uri, String name, long millis, CallNode child) {
-        return new CallNode(uri, name, 0, FrameKind.SPREADSHEET, ms(millis),
-                List.of(new CallNode.Step("R0C0", "$s", ms(millis), List.of(child))), null, null);
+    /** Root A → step calls B and C; B → loop step calls D, E, F. Three levels, for the lazy-tree tests. */
+    private static CallNode lazyTreeFixture() {
+        CallNode b = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10),
+                List.of(new CallNode.Step("R1C1", "$loop", ms(10),
+                        List.of(leaf("uD", "D", 1), leaf("uE", "E", 1), leaf("uF", "F", 1)))), null, null);
+        return new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),
+                List.of(new CallNode.Step("R0C0", "$s", ms(20), List.of(b, leaf("uC", "C", 5)))), null, null);
     }
 
     private static long ms(long millis) {

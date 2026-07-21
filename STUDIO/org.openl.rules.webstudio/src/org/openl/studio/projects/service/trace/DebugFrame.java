@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -58,7 +59,6 @@ public final class DebugFrame {
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
     /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
     private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
-    private int executedChildCount;
 
     private @Nullable CurrentLocation location;
     private @Nullable Object currentStep;
@@ -69,6 +69,12 @@ public final class DebugFrame {
     private int invocationIndex;
     /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
     private long durationNanos;
+    /** Sum of the durations of this frame's direct sub-call frames, so its own time is {@code duration - childNanos}. */
+    private long childNanos;
+    /** Remaining nodes this frame's subtree may still retain, so one big branch cannot starve its siblings. */
+    private long budget;
+    /** Direct sub-calls this frame made that ran but were dropped once the tree hit its size limit. */
+    private long notRetained;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
     private @Nullable DispatchInfo dispatch;
 
@@ -121,31 +127,38 @@ public final class DebugFrame {
         }
     }
 
-    /** Record a returned sub-call's structure under the step that made it (profiling mode only). */
+    /**
+     * Record a returned sub-call's structure under the step that made it (profiling mode only). Retention is
+     * bounded solely by the node cap in {@code admitNode}, which the caller checks before recording; there is
+     * no separate per-frame breadth cap here, so an admitted sub-call is never silently dropped afterwards.
+     */
     void recordExecutedChild(@Nullable String callerRef, CallNode child) {
-        if (executedChildCount >= MAX_RECORDED_PER_FRAME) {
-            return;
-        }
         executedChildren.computeIfAbsent(callerRef == null ? "" : callerRef, key -> new ArrayList<>()).add(child);
-        executedChildCount++;
     }
 
-    /** Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values. */
-    CallNode toCallNode() {
+    /**
+     * Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values.
+     *
+     * <p>The table URI, name, and each step reference pass through {@code intern}, so the same table
+     * repeated across thousands of nodes shares one instance of each string instead of duplicating it.
+     */
+    CallNode toCallNode(UnaryOperator<String> intern) {
         List<CallNode.Step> steps = new ArrayList<>();
         Set<String> covered = new HashSet<>();
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
-                steps.add(new CallNode.Step(step.ref(), step.label(), step.durationNanos(),
-                        List.copyOf(childrenOf(step.ref()))));
+                steps.add(new CallNode.Step(intern.apply(step.ref()),
+                        step.label() == null ? null : intern.apply(step.label()),
+                        step.durationNanos(), List.copyOf(childrenOf(step.ref()))));
             }
         }
         executedChildren.forEach((ref, children) -> {
             if (!covered.contains(ref)) {
-                steps.add(new CallNode.Step(ref, null, 0, List.copyOf(children)));
+                steps.add(new CallNode.Step(intern.apply(ref), null, 0, List.copyOf(children)));
             }
         });
-        return new CallNode(uri, name, invocationIndex, kind, durationNanos, steps, dispatch, null);
+        return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
+                steps, dispatch, null, notRetained, childNanos);
     }
 
     private List<CallNode> childrenOf(String ref) {
@@ -164,6 +177,26 @@ public final class DebugFrame {
 
     void setDurationNanos(long durationNanos) {
         this.durationNanos = durationNanos;
+    }
+
+    /** Add a completed direct sub-call's time, so this frame's own time excludes the tables it called. */
+    void addChildNanos(long nanos) {
+        this.childNanos += nanos;
+    }
+
+    /** Set the number of nodes this frame's subtree may still retain (bounded by its parent and the branch cap). */
+    void setBudget(long budget) {
+        this.budget = budget;
+    }
+
+    /** Consume one node from this frame's subtree budget as a descendant is retained under it. */
+    void decrementBudget() {
+        this.budget--;
+    }
+
+    /** Record that one direct sub-call of this frame ran but was dropped from the tree once it hit its limit. */
+    void incrementNotRetained() {
+        this.notRetained++;
     }
 
     void setDispatch(DispatchInfo dispatch) {

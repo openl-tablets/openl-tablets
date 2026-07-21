@@ -49,6 +49,10 @@ interface DebugState {
     frames: DebugFrameView[]
     /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
     tree: CallNodeView | null
+    /** Lazily-fetched children of expanded tree steps, keyed by `treeChildKey(uri, instance, step)`; paged. */
+    treeChildren: Record<string, CallNodeView[]>
+    /** Tree steps currently fetching their next page of children, so the row can show a spinner. */
+    treeLoading: Record<string, boolean>
     /** Bounded hot-spots overview of a finished profiling run (slowest tables by own time); null otherwise. */
     profile: ProfileSummaryView | null
     debugError: DebugError | null
@@ -112,8 +116,14 @@ interface DebugState {
     onSocketStatus: (status: DebugStatus, message?: string) => void
     fetchTerminalError: () => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
+    /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
+    fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
     reset: () => void
 }
+
+/** Cache key for a tree step's lazily-fetched children: the frame's (uri, instance) plus the step ref. */
+export const treeChildKey = (uri: string, instance: number, step: string): string =>
+    JSON.stringify([uri, instance, step])
 
 const initialState = {
     projectId: null,
@@ -124,6 +134,8 @@ const initialState = {
     status: null,
     frames: [],
     tree: null,
+    treeChildren: {},
+    treeLoading: {},
     profile: null,
     debugError: null,
     selectedFrameIndex: null,
@@ -141,20 +153,35 @@ const initialState = {
     error: null,
 }
 
-const isSuspended = (status: DebugStatus | null): boolean => status === 'suspended'
+// A settled run whose frames can still be inspected: paused at a step, or finished (completed/failed) with
+// the root frame still published — so the final result is readable after a run to completion, not only at a stop.
+const isInspectable = (status: DebugStatus | null): boolean =>
+    status === 'suspended' || status === 'completed' || status === 'error'
+
+/** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
+const TREE_PAGE_SIZE = 100
 
 export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
+        // While suspended (or stopped at an error) the frame of interest is the current/failing one at the top;
+        // once the run completes, the result to surface is the root call at index 0 — not whichever deep frame
+        // the last suspend happened to leave published.
+        const focusIndex = !isInspectable(stack.status) || topIndex === null ? null
+            : stack.status === 'completed' ? 0
+                : topIndex
         const transient = get().transientBreakpoint
         set({
             status: stack.status,
             frames: stack.frames,
             tree: stack.tree ?? null,
+            // A run without a tree yet (starting/running/rerun) invalidates any browsed sub-calls from the
+            // previous run; keep them only while browsing the completed tree.
+            ...(stack.tree ? {} : { treeChildren: {}, treeLoading: {} }),
             profile: stack.profile ?? null,
             debugError: stack.error ?? null,
-            selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
+            selectedFrameIndex: focusIndex,
             variables: null,
             variablesLoading: false,
             stackVersion: get().stackVersion + 1,
@@ -167,8 +194,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
         if (transient && get().breakpoints.includes(transient)) {
             void get().toggleBreakpoint(transient)
         }
-        if (isSuspended(stack.status) && topIndex !== null) {
-            void get().selectFrame(topIndex)
+        if (focusIndex !== null) {
+            void get().selectFrame(focusIndex)
         }
         // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
         // not only on Collect — the panel then tracks the value as the user steps through.
@@ -266,7 +293,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const { projectId, status, stackVersion } = get()
             if (!projectId) return
             set({ selectedFrameIndex: index })
-            if (!isSuspended(status)) {
+            if (!isInspectable(status)) {
                 set({ variables: null, variablesLoading: false })
                 return
             }
@@ -496,6 +523,33 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 })
             }
             return result
+        },
+
+        fetchTreeChildren: async (uri, instance, step) => {
+            const key = treeChildKey(uri, instance, step)
+            const { projectId, treeChildren, treeLoading, stackVersion } = get()
+            // Ignore while a page for this step is already in flight, so a double-click can't page twice.
+            if (!projectId || treeLoading[key]) {
+                return
+            }
+            const offset = treeChildren[key]?.length ?? 0
+            set(s => ({ treeLoading: { ...s.treeLoading, [key]: true } }))
+            try {
+                const page = await traceService.getTreeChildren(projectId, uri, instance, step, offset, TREE_PAGE_SIZE)
+                // Drop a page that arrives after a re-run: instance indices restart at 0, so the same (uri,
+                // instance) key would otherwise be reused by the new run's node at that position, pinning the
+                // previous run's sub-calls with no refetch.
+                if (get().stackVersion !== stackVersion) {
+                    return
+                }
+                set(s => ({
+                    treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])]},
+                    treeLoading: { ...s.treeLoading, [key]: false },
+                }))
+            } catch (error: any) {
+                set(s => ({ treeLoading: { ...s.treeLoading, [key]: false } }))
+                notification.error({ title: error?.message || 'Failed to load sub-calls' })
+            }
         },
 
         reset: () => set(initialState),

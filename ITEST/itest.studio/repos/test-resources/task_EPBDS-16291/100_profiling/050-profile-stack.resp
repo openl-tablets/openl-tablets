@@ -1,0 +1,69 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "frames": [
+    {
+      "active": true,
+      "completed": true,
+      "depth": 1,
+      "durationMillis": "*",
+      "error": false,
+      "index": 0,
+      "instance": 0,
+      "kind": "spreadsheet",
+      "name": "Root",
+      "selfMillis": "*",
+      "steps": [
+        {
+          "durationMillis": "*",
+          "label": "$Items",
+          "ref": "R0C0",
+          "status": "executed"
+        },
+        {
+          "durationMillis": "*",
+          "label": "$Calcs",
+          "ref": "R1C0",
+          "status": "executed"
+        }
+      ],
+      "tableId": "58f193216942cdb10cbdcf60f9a3e7ba",
+      "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4"
+    }
+  ],
+  "profile": {
+    "distinctTables": 2,
+    "hotspots": "*",
+    "nodeCount": 4,
+    "totalMillis": "*",
+    "truncated": false
+  },
+  "status": "completed",
+  "tree": {
+    "durationMillis": "*",
+    "instance": 0,
+    "kind": "spreadsheet",
+    "name": "Root",
+    "selfMillis": "*",
+    "steps": [
+      {
+        "durationMillis": "*",
+        "label": "$Items",
+        "ref": "R0C0",
+        "selfMillis": "*",
+        "status": "executed"
+      },
+      {
+        "childrenTotal": 4,
+        "durationMillis": "*",
+        "label": "$Calcs",
+        "ref": "R1C0",
+        "selfMillis": "*",
+        "status": "executed"
+      }
+    ],
+    "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4"
+  }
+}
+

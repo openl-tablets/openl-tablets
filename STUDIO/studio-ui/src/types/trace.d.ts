@@ -220,8 +220,10 @@ export interface StepValueView {
     label?: string | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
-    /** Tables this step called, retained in profiling mode so a returned branch can be browsed. */
+    /** Tables this step called. Absent in the lazily-loaded executed tree (fetched on expand); inline for a live frame. */
     children?: CallNodeView[] | null
+    /** Total tables this step called, so the step shows as expandable and a "+N more" count stays accurate. */
+    childrenTotal?: number | null
     /** Total execution time (ms) of an executed step: its own work plus called tables; absent if not run. */
     durationMillis?: number | null
     /** Own execution time (ms) of an executed step: total minus called tables; absent if not run. */
@@ -247,6 +249,16 @@ export interface CallNodeView {
     dispatch?: DispatchInfo | null
     /** For a `stepRef` node, the reference of the already-executed step it points at; absent otherwise. */
     refStep?: string | null
+    /** Sub-calls this node made that ran but were dropped once the tree hit its size limit; absent when all kept. */
+    notRetained?: number | null
+}
+
+/** One page of a step's executed sub-calls, fetched on demand so a large executed tree loads lazily. */
+export interface TreeChildrenView {
+    /** One level of the step's sub-calls from the requested offset; each shallow (its own steps, not its sub-calls). */
+    children: CallNodeView[]
+    /** The step's full sub-call count, so the client can page through the rest. */
+    total: number
 }
 
 /** One evaluated decision-table condition, for one rule. */

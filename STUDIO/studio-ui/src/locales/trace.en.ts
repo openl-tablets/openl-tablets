@@ -5,9 +5,12 @@ i18next.addResourceBundle('en', 'trace', {
 
     watch: {
         title: 'Watch',
+        titleHint: 'Capture the value of chosen cells on every run of their table, to see how an intermediate value changes.',
         add: 'Add',
+        addHint: 'Add this cell to the watch list.',
         addPlaceholder: 'Cell name ($Factor) or ref (R2C3)',
         collect: 'Collect',
+        collectHint: 'Run the trace to the end and record the value of each watched cell on every run of its table.',
         empty: 'No values captured — run a table that computes these cells.',
         truncated: 'Too many values — the series is capped and may miss late executions.',
         showing: 'Showing the first {{shown}} of {{total}} executions.',
@@ -30,6 +33,9 @@ i18next.addResourceBundle('en', 'trace', {
         referenceHint: 'Uses a step that already executed — click to jump to it',
         passHint: 'Execution #{{n}} of this table in the run',
         more: '+{{count}} more executions',
+        loading: 'Loading…',
+        truncated: 'This tree is truncated for size — some branches are dropped. Hot Spots still count every call.',
+        notRetained: '+{{count}} sub-calls not retained — tree too large. Hot Spots still count them.',
     },
 
     hotspots: {
@@ -41,7 +47,7 @@ i18next.addResourceBundle('en', 'trace', {
         colSelf: 'Self',
         colTotal: 'Total',
         replayHint: 'Replay — restart and run to this table to inspect it live',
-        truncated: 'Showing the slowest of {{count}} tables that ran.',
+        more: 'Showing the {{shown}} slowest of {{total}} tables — every call is counted.',
         empty: 'Hot spots appear after a profiling run finishes. Turn on Profiling and run to the end.',
     },
 
@@ -58,7 +64,9 @@ i18next.addResourceBundle('en', 'trace', {
         profilingNotice: 'Profiling keeps the whole executed tree — it uses more memory and runs slower. Turn it off when you do not need the executed branches.',
         callStack: 'Call stack',
         notSuspended: 'Execution is not suspended',
+        runningNotice: 'Running… A large request can take a while. Use Pause or Stop to interrupt.',
         breakpoints: 'Breakpoints',
+        breakpointsHint: 'A breakpoint pauses the run when a chosen table is about to execute, so you can inspect it. Add one by name below.',
         noBreakpoints: 'No breakpoints. Add one from a table below.',
         addBreakpoint: 'Add breakpoint',
         addBreakpointPlaceholder: 'Find a table by name…',
