@@ -64,7 +64,8 @@ stateDiagram-v2
 ```
 
 - Only three coarse-grained operations write the record: open, save, close. They run under a per-project
-  in-JVM lock inside the registry.
+  in-JVM lock inside the registry. The open holds the lock for the whole operation — the file copy and
+  the record write — so a reconciliation running in parallel cannot meet the half-copied folder.
 - A revoked read permission also closes the copy: the first project listing that meets an opened copy
   without the read access evicts it, so the copied data does not outlive the access.
 - Records are written atomically (temp file + rename), so a crash cannot leave a partially written record.
@@ -98,18 +99,33 @@ stateDiagram-v2
 - The registry is cached write-through; all hot readers (statuses, `getRealPath`, ACL, lock operations,
   refresh) are served from memory. The OpenL Studio process is the only writer of
   `${user.workspace.home}`, so no cross-process invalidation is needed.
-- The editing hot path takes no locks and performs no metainfo IO.
+- The editing hot path performs no metainfo IO. Reporting a change takes the in-JVM project lock only
+  for the insertion into the dirty-set, so a concurrent reconciliation cannot lose the notification.
 
 ## Reconciliation
 
-The registry reconciles the disk state when it is loaded — once per JVM, at the first access to the user
-workspace after the start — before the workspace projects are exposed:
+The registry reconciles the disk state at two moments:
+
+- **On load** — once per JVM, at the first access to the user workspace after the start, before the
+  workspace projects are exposed.
+- **On every interactive sign-in of the user** — the login listener cleans up the registry and
+  recomputes the local-changes state of the opened projects. The reconciliation runs in the
+  background, so the sign-in latency does not depend on the workspace size. Stateless requests
+  (Basic authentication, personal access tokens) do not trigger it.
+
+The outcomes are the same in both cases:
 
 - a record without a project folder is dropped;
 - a project folder without a record is deleted;
-- an unreadable or unparseable record is dropped together with its folder.
+- an unreadable or unparseable record is dropped together with its folder;
+- a leftover of an interrupted record write is deleted;
+- the local-changes state of every remaining project is recomputed from the baselines.
 
 Every state has exactly one outcome, so a damaged entry cannot break or pollute the workspace load.
+
+The sign-in reconciliation runs on a live registry: every project is reconciled under its project lock,
+and a project locked by an operation in progress (an open, a save, a folder rename) is skipped — the
+operation rewrites the project state anyway, and the sign-in must not stall behind it.
 
 ## Unmatched Projects
 
@@ -153,7 +169,9 @@ A one-time `Migrator` step converts them on the first start:
 - `LocalRepository` — reports saves and deletes to the registry, enriches file listings with the baseline
   revision ids, hides top-level service folders, applies the baseline-collision guard.
 - `LocalWorkspaceImpl` / `LocalWorkspaceManagerImpl` — load projects from the registry and own the
-  per-user registry instances.
+  per-user registry instances; `refreshMetainfoRegistry` serves the sign-in reconciliation.
+- `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
+  interactive sign-in.
 - `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save.
 - `Migrator` — the one-time `.studioProps` conversion.
 - `FolderHelper`, `ProjectHistoryService` — the edit-history location and its maintenance.
