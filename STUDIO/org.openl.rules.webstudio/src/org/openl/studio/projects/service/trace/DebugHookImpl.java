@@ -18,6 +18,7 @@ import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.studio.projects.model.trace.TableProfile;
 import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
+import org.openl.util.StringPool;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -76,8 +77,6 @@ final class DebugHookImpl implements DebugHook {
     private int maxTreeNodes = MAX_TREE_NODES;
     /** Per-table profiling stats, accumulated as frames complete — independent of the retained (capped) tree. */
     private final Map<String, TableAccumulator> tableStats = new LinkedHashMap<>();
-    /** Canonicalizes the tree's repeated table URIs, names, and step refs, so each distinct value is stored once. */
-    private final Map<String, String> stringPool = new HashMap<>();
     /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
@@ -167,8 +166,8 @@ final class DebugHookImpl implements DebugHook {
         }
         if (profiling && enclosing != null) {
             // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
-            recordChild(top, stepRef(enclosing), CallNode.referenceTo(canonical(top.getUri()), canonical(ref),
-                    location.label() == null ? null : canonical(location.label())));
+            recordChild(top, stepRef(enclosing), CallNode.referenceTo(StringPool.intern(top.getUri()),
+                    StringPool.intern(ref), StringPool.intern(location.label())));
         }
         top.setLocation(enclosing);
         top.setCurrentStep(enclosingStep);
@@ -189,8 +188,8 @@ final class DebugHookImpl implements DebugHook {
         // ref-to-node, but only under another step — a top-level re-read adds nothing to the tree.
         CurrentLocation location = top.getLocation();
         if (profiling && location != null && !stepRef(location).equals(original.ref())) {
-            recordChild(top, stepRef(location), CallNode.referenceTo(canonical(top.getUri()),
-                    canonical(original.ref()), original.label() == null ? null : canonical(original.label())));
+            recordChild(top, stepRef(location), CallNode.referenceTo(StringPool.intern(top.getUri()),
+                    StringPool.intern(original.ref()), StringPool.intern(original.label())));
         }
         return true;
     }
@@ -215,11 +214,6 @@ final class DebugHookImpl implements DebugHook {
         if (admitNode()) {
             frame.recordExecutedChild(callerRef, node);
         }
-    }
-
-    /** One shared instance of the given string within this session, so the tree stores each distinct value once. */
-    private String canonical(String value) {
-        return stringPool.computeIfAbsent(value, key -> key);
     }
 
     /**
@@ -362,7 +356,7 @@ final class DebugHookImpl implements DebugHook {
                 // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
                 // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
                 if (recorded) {
-                    CallNode node = frame.toCallNode(this::canonical);
+                    CallNode node = frame.toCallNode(StringPool::intern);
                     if (parent != null) {
                         parent.recordExecutedChild(callerRef, node);
                     } else {

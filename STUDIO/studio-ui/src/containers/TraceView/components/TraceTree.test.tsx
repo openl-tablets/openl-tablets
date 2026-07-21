@@ -122,15 +122,17 @@ describe('TraceTree', () => {
         expect(screen.queryByTestId('tree-pass-0')).toBeNull()
     })
 
-    it('caps an expanded branch to the first executions and marks the rest with one more row', async () => {
-        const children = Array.from({ length: 101 }, (_, i) => ({
+    it('renders the server-provided children page and marks the omitted rest with one more row', async () => {
+        // The server caps inline children at its page size and reports the true total in childrenTotal; the
+        // client renders what it received and shows a single "+N more" for what the server left out.
+        const children = Array.from({ length: 100 }, (_, i) => ({
             uri: `uc${i}`, name: `Call${i}`, instance: i, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
         }))
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame(0, {
                 name: 'ROOT', active: true,
-                steps: [{ ...step('R0C0', 'executed', '$Loop'), children }],
+                steps: [{ ...step('R0C0', 'executed', '$Loop'), children, childrenTotal: 150 }],
             })],
             selectedFrameIndex: 0,
         })
@@ -139,9 +141,8 @@ describe('TraceTree', () => {
         await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
 
         expect(screen.getByText('Call0')).toBeInTheDocument()
-        expect(screen.getByText('Call99')).toBeInTheDocument() // the 100th executed branch
-        expect(screen.queryByText('Call100')).toBeNull() // the 101st is dropped
-        expect(screen.getByText('tree.more')).toBeInTheDocument() // a single marker stands in for the rest
+        expect(screen.getByText('Call99')).toBeInTheDocument() // the last server-provided branch
+        expect(screen.getByText('tree.more')).toBeInTheDocument() // "+50 more" stands in for the omitted rest
     })
 
     it('drills the current step into the child frame so every level shows at once', () => {

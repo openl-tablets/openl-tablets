@@ -8,9 +8,6 @@ import { formatMs } from 'utils/formatDuration'
 import { onActivate } from './keyboardActivate'
 import { useStyles } from './TraceTree.styles'
 
-/** A table computed in a loop can return thousands of executed branches; render only the first, on expand. */
-const MAX_TREE_CHILDREN = 100
-
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
 interface TreeRow {
     type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more' | 'loading' | 'notRetained'
@@ -75,11 +72,12 @@ const flatten = (
     const walkChildren = (nodeUri: string, nodeInstance: number, step: StepValueView,
         depth: number, keyBase: string, refBase: string): void => {
         if (step.children) {
-            const shown = step.children.slice(0, MAX_TREE_CHILDREN)
-            shown.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+            // The server already caps inline children and reports the full count in childrenTotal, so the list
+            // is rendered as-is and the "+N more" reflects what the server omitted.
+            step.children.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
             const total = step.childrenTotal ?? step.children.length
-            if (total > shown.length) {
-                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - shown.length })
+            if (total > step.children.length) {
+                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - step.children.length })
             }
             return
         }

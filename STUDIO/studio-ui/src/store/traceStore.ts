@@ -158,6 +158,9 @@ const initialState = {
 const isInspectable = (status: DebugStatus | null): boolean =>
     status === 'suspended' || status === 'completed' || status === 'error'
 
+/** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
+const TREE_PAGE_SIZE = 100
+
 export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
@@ -165,10 +168,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
         // While suspended (or stopped at an error) the frame of interest is the current/failing one at the top;
         // once the run completes, the result to surface is the root call at index 0 — not whichever deep frame
         // the last suspend happened to leave published.
-        const focusIndex = topIndex === null ? null
+        const focusIndex = !isInspectable(stack.status) || topIndex === null ? null
             : stack.status === 'completed' ? 0
-                : isInspectable(stack.status) ? topIndex
-                    : null
+                : topIndex
         const transient = get().transientBreakpoint
         set({
             status: stack.status,
@@ -533,7 +535,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const offset = treeChildren[key]?.length ?? 0
             set(s => ({ treeLoading: { ...s.treeLoading, [key]: true } }))
             try {
-                const page = await traceService.getTreeChildren(projectId, uri, instance, step, offset, 100)
+                const page = await traceService.getTreeChildren(projectId, uri, instance, step, offset, TREE_PAGE_SIZE)
                 // Drop a page that arrives after a re-run: instance indices restart at 0, so the same (uri,
                 // instance) key would otherwise be reused by the new run's node at that position, pinning the
                 // previous run's sub-calls with no refetch.
