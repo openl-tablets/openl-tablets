@@ -26,9 +26,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
 
     @Override
     public DebugSession startSession(TraceDebugStartRequest request) {
-        CompiledOpenClass compiled = request.currentOpenedModule()
-                ? request.projectModel().getOpenedModuleCompiledOpenClass()
-                : request.projectModel().getCompiledOpenClass();
+        CompiledOpenClass compiled = compiledOf(request);
         IOpenClass openClass = compiled.getOpenClassWithErrors();
         ClassLoader classLoader = compiled.getClassLoader();
 
@@ -40,13 +38,21 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         // Build the export replay's suite lazily, only if "Trace into File" is actually used. Building it
         // eagerly held a full second copy of the parsed input for the whole session — large for a big request,
         // and wasted whenever the run is never exported. Building it on demand also gives a distinct suite, so
-        // the export never re-enters the interactive suite while its worker is parked mid-run.
+        // the export never re-enters the interactive suite while its worker is parked mid-run. Resolve the class
+        // to run against at export time too, from the same model buildTestSuite resolves the method from, so an
+        // in-place recompile between start and export cannot pair a fresh method with the stale start-time class.
         DebugSession session = new DebugSession(request.projectId(), request.tableId(), debugger, classLoader,
-                tracer -> buildTestSuite(request).invokeSequentially(openClass, 1, tracer));
+                tracer -> buildTestSuite(request).invokeSequentially(compiledOf(request).getOpenClassWithErrors(), 1, tracer));
 
         debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(), request.profiling(),
                 () -> testSuite.invokeSequentially(openClass, 1, debugger.tracer()));
         return session;
+    }
+
+    private CompiledOpenClass compiledOf(TraceDebugStartRequest request) {
+        return request.currentOpenedModule()
+                ? request.projectModel().getOpenedModuleCompiledOpenClass()
+                : request.projectModel().getCompiledOpenClass();
     }
 
     private TestSuite buildTestSuite(TraceDebugStartRequest request) {
