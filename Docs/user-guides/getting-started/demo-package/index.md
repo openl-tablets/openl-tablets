@@ -192,7 +192,7 @@ To use this project as an example of project deployments as described in [OpenL 
 
 The demo does not restrict any deployments of other projects nor has any other limitations so the users can deploy their own projects in Demo setup. If a user deploys anything else, a full list of deployed projects appears on this page including user’s projects.
 
-**Swagger UI** is a third party tool used for testing services. For more information on Swagger UI and its usage in OpenL, see [OpenL Tablets Rule Services Usage and Customization Guide > Appendix D: OpenAPI Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#appendix-d-openapi-support).
+**Swagger UI** is a third party tool used for testing services. For more information on Swagger UI and its usage in OpenL, see [OpenL Tablets Rule Services Usage and Customization Guide > Appendix D: OpenAPI Support](../../rule-services/appendices/openapi-support.md#appendix-d-openapi-support).
 
 ### OpenL Rule Services Demo Client in a Demo Package
 
