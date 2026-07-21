@@ -352,7 +352,7 @@ class TraceDebugMapperTest {
 
     @Test
     void reportsDroppedSubCallsSoTheTruncationGapIsVisible() {
-        CallNode dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42);
+        CallNode dropped = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null, 42, 0);
         CallNode kept = new CallNode("uB", "B", 0, FrameKind.SPREADSHEET, ms(10), List.of(), null, null);
 
         assertEquals(42L, treeOf(dropped).notRetained(), "a node reports how many of its sub-calls were dropped");

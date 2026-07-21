@@ -210,10 +210,10 @@ final class DebugHookImpl implements DebugHook {
      * truncated, so the profile can report that it is incomplete instead of exhausting memory.
      */
     private void recordChild(DebugFrame frame, @Nullable String callerRef, CallNode node) {
+        // A reference leaf (a re-read of an already-executed step) is not a sub-call, so a dropped one only
+        // flags the tree truncated (in admitNode) — it must not inflate the frame's not-retained sub-call count.
         if (admitNode()) {
             frame.recordExecutedChild(callerRef, node);
-        } else {
-            frame.incrementNotRetained();
         }
     }
 

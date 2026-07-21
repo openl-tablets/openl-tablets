@@ -59,7 +59,6 @@ public final class DebugFrame {
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
     /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
     private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
-    private int executedChildCount;
 
     private @Nullable CurrentLocation location;
     private @Nullable Object currentStep;
@@ -128,13 +127,13 @@ public final class DebugFrame {
         }
     }
 
-    /** Record a returned sub-call's structure under the step that made it (profiling mode only). */
+    /**
+     * Record a returned sub-call's structure under the step that made it (profiling mode only). Retention is
+     * bounded solely by the node cap in {@code admitNode}, which the caller checks before recording; there is
+     * no separate per-frame breadth cap here, so an admitted sub-call is never silently dropped afterwards.
+     */
     void recordExecutedChild(@Nullable String callerRef, CallNode child) {
-        if (executedChildCount >= MAX_RECORDED_PER_FRAME) {
-            return;
-        }
         executedChildren.computeIfAbsent(callerRef == null ? "" : callerRef, key -> new ArrayList<>()).add(child);
-        executedChildCount++;
     }
 
     /**
@@ -159,7 +158,7 @@ public final class DebugFrame {
             }
         });
         return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
-                steps, dispatch, null, notRetained);
+                steps, dispatch, null, notRetained, childNanos);
     }
 
     private List<CallNode> childrenOf(String ref) {

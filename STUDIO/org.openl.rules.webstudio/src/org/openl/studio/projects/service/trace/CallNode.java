@@ -22,14 +22,16 @@ import org.openl.studio.projects.model.trace.FrameKind;
  * @param dispatch      set when this table was selected by a dispatcher (overloaded by dimensions), else {@code null}
  * @param refStep       for a {@link FrameKind#STEP_REF} node, the reference of the step it points at, else {@code null}
  * @param notRetained   direct sub-calls this node made that ran but were dropped once the tree hit its size limit
+ * @param childNanos    total time of all direct sub-calls this node made, including any dropped once the tree was
+ *                      capped, so its own time stays {@code durationNanos - childNanos} even on a truncated tree
  */
 public record CallNode(String uri, String name, int instance, FrameKind kind, long durationNanos, List<Step> steps,
-                       @Nullable DispatchInfo dispatch, @Nullable String refStep, long notRetained) {
+                       @Nullable DispatchInfo dispatch, @Nullable String refStep, long notRetained, long childNanos) {
 
     /** A node with no dropped sub-calls — the common case, while the tree is still under its size limit. */
     public CallNode(String uri, String name, int instance, FrameKind kind, long durationNanos, List<Step> steps,
                     @Nullable DispatchInfo dispatch, @Nullable String refStep) {
-        this(uri, name, instance, kind, durationNanos, steps, dispatch, refStep, 0);
+        this(uri, name, instance, kind, durationNanos, steps, dispatch, refStep, 0, 0);
     }
 
     /**

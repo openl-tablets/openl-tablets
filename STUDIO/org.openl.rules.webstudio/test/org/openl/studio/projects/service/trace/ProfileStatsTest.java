@@ -39,6 +39,8 @@ class ProfileStatsTest {
                 "the display tree drops the invocations past the cap");
         assertEquals(3, stat(debugger.profileStats(), "SubCalc").count(),
                 "the hotspots count every invocation, not just the ones kept in the tree");
+        assertTrue(debugger.completedTree().notRetained() > 0,
+                "the dropped SubCalc frames are counted as not-retained sub-calls on Root, so the gap is visible");
     }
 
     @Test

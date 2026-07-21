@@ -483,8 +483,12 @@ public class TraceDebugMapper {
 
     private static CallNodeView toCallNodeView(CallNode node, boolean shallow) {
         List<StepValueView> steps = node.steps().stream().map(step -> toStepView(step, shallow)).toList();
-        // Self time is the node's own work: its total minus the time spent in the tables it called.
-        long childrenNanos = sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
+        // Self time is the node's own work: its total minus the time spent in the tables it called. childNanos
+        // counts every sub-call it made — including ones the node cap dropped — so a truncated node does not
+        // report the dropped children's time as its own Self. Falls back to the retained children's sum for a
+        // node that carries no recorded childNanos (for example one synthesized in a test).
+        long childrenNanos = Math.max(node.childNanos(),
+                sumDurations(node.steps().stream().flatMap(step -> step.children().stream())));
         return CallNodeView.builder()
                 .uri(node.uri())
                 .name(node.name())

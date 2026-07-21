@@ -47,8 +47,8 @@ class TreeNodeCapTest {
         assertTrue(debugger.isTreeTruncated(), "hitting the cap flags the tree truncated");
         assertEquals(1, childReferences(child),
                 "only the references past the cap are dropped, never the nested call itself");
-        assertEquals(2, child.notRetained(),
-                "the dropped references are counted on their node, so the UI can show what was left out");
+        assertEquals(0, child.notRetained(),
+                "dropped references are re-reads, not sub-calls, so they flag the tree truncated without inflating the count");
     }
 
     @Test
