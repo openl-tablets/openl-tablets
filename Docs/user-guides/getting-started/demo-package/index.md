@@ -12,17 +12,17 @@ Welcome! The OpenL Tablets Demo is the quickest way to explore the features of O
 
 You can use the included examples as a template, learn from them, or create your own projects from scratch. The Demo also includes a **Rule Services Demo Client**, allowing you to see how your business rules can be executed by other applications.
 
------
+---
 
 ## 1. Download and Install
 
 First, download the **Demo (ZIP)** file from the official site:
 
-➡️ [https://openl-tablets.org/downloads](https://openl-tablets.org/downloads)
+[https://openl-tablets.org/downloads](https://openl-tablets.org/downloads)
 
 Once downloaded, **unzip the package** into a folder on your computer.
 
-### What's Inside the Package? 📦
+### What's Inside the Package?
 
 The unzipped folder contains everything you need to run the OpenL Tablets Demo:
 
@@ -33,7 +33,7 @@ The unzipped folder contains everything you need to run the OpenL Tablets Demo:
 * **Application Folder (`webapps/`)**: This folder holds the core files that make the application run. It is best not to modify its contents.
 * **Version File (`openl.version`)**: A text file that shows the version number of the Demo.
 
------
+---
 
 ## 2. The First Launch: Automatic Setup
 
@@ -46,9 +46,9 @@ The script will create several new folders inside your Demo directory and downlo
 * `webapps/` → The **OpenL Studio** and **Rule Services** applications themselves.
 * `jetty-home/lib/ext/` → **JDBC drivers** to enable connectivity with popular databases like MSSQL Server, Oracle, MariaDB, and PostgreSQL.
 
------
+---
 
-## 3. What's Pre-configured for You? ✨
+## 3. What's Pre-configured for You?
 
 The Demo is designed to work out-of-the-box with a smart default configuration.
 
@@ -65,17 +65,17 @@ The Demo is designed to work out-of-the-box with a smart default configuration.
 * Is already connected to OpenL Studio.
 * Allows all **CORS requests**, which makes it easier for developers to integrate and test rules from other web applications.
 
------
+---
 
-## 4. Launching the Demo Application 🚀
+## 4. Launching the Demo Application
 
 To start the application, navigate into the unzipped Demo folder and run the startup file for your operating system.
 
-### On Windows 🪟
+### On Windows
 
 Find the **`start.cmd`** file and double-click it.
 
-### On MacOS & Linux 🍏🐧
+### On MacOS & Linux
 
 Find the **`start`** file and double-click it.
 
@@ -87,15 +87,15 @@ bash start
 
 *(Note: On some systems, you may need to grant execute permissions to the file first with the command `chmod +x start`)*
 
------
+---
 
-## 5. Optional: Use a Shared Folder for Your Projects 📂
+## 5. Optional: Use a Shared Folder for Your Projects
 
 By default, all your projects and settings are saved inside the `openl-demo/` folder within the main Demo package. To preserve your work when you upgrade to a new version of the Demo, you can configure it to use a permanent, external folder.
 
-ℹ️ **Note:** When using this external folder mode, the initial set of **Examples and Tutorials** will not be created automatically. This mode is best for users who want to manage their own projects.
+**Note:** When using this external folder mode, the initial set of **Examples and Tutorials** will not be created automatically. This mode is best for users who want to manage their own projects.
 
------
+---
 
 ### Simple Method: The `OpenL_Home` Folder
 
@@ -112,7 +112,7 @@ mkdir "$HOME/Desktop/OpenL_Home"
 
 The next time you launch the Demo, it will use this new folder to store all your data.
 
------
+---
 
 ### Advanced Method: Using an Environment Variable
 
@@ -122,11 +122,11 @@ For advanced users who want to specify a custom folder location (e.g., on a diff
 2.  Create a system environment variable named **`OPENL_HOME`**.
 3.  Set the value of this variable to the full path of your chosen folder.
 
-⚠️ **Important:** The folder you specify **must exist** before you launch the Demo, and the application must have permission to write files into it.
+**Important:** The folder you specify **must exist** before you launch the Demo, and the application must have permission to write files into it.
 
------
+---
 
-### Learn More 📚
+### Learn More
 
 For more advanced topics, such as deploying OpenL Tablets to your own application server, please see the official documentation:
 
@@ -210,11 +210,11 @@ A user can change the values of input parameters in the fields and click the **E
 
 In OpenL Rule Services Demo Client application, a simple HTTP client is used. It is an example of how to create a simple client with zero dependencies.
 
-## Using the Demo as a Deployment Blueprint 🗺️
+## Using the Demo as a Deployment Blueprint
 
 The **OpenL Demo** package is more than just a trial version; it’s a practical template for a common real-world setup. You can use its configuration as a guide for deploying OpenL Tablets in your own environment.
 
-***
+---
 
 ### A Typical Deployment Pattern
 
