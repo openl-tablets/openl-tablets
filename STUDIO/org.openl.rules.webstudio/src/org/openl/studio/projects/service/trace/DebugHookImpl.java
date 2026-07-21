@@ -68,6 +68,12 @@ final class DebugHookImpl implements DebugHook {
     private volatile boolean watchTruncated;
     /** Total time the worker spent parked at suspend points, subtracted from frame durations so think time is excluded. */
     private long parkedNanos;
+    /**
+     * Monotonic running total of every step's wall-clock. A step reads it on entry and after its own execution:
+     * the difference is the time spent in nested steps (referenced cells computed on the way), which is subtracted
+     * from its own time so a cell that triggers another does not count that other cell twice.
+     */
+    private long nestedStepNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
     private final AtomicReference<@Nullable CallNode> completedTree = new AtomicReference<>();
     /** Running count of retained tree nodes and the flag set once the node cap stops the tree from growing. */
@@ -158,9 +164,14 @@ final class DebugHookImpl implements DebugHook {
         // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
         long stepEnter = System.nanoTime();
         long parkedAtStepEnter = parkedNanos;
+        long nestedAtStepEnter = nestedStepNanos;
         // On failure the location intentionally stays on the failing step, so the exception break shows it.
         R result = executor.invoke(target, params, env);
-        top.recordExecutedStep(executor, ref, location.label(), result, elapsed(stepEnter, parkedAtStepEnter));
+        // A referenced cell computed on the way runs as a nested step of the same frame and is recorded on its
+        // own; subtract that nested time so this step's own time does not count the referenced cell twice.
+        long wall = elapsed(stepEnter, parkedAtStepEnter);
+        top.recordExecutedStep(executor, ref, location.label(), result,
+                Math.max(0, wall - (nestedStepNanos - nestedAtStepEnter)));
         if (!watches.isEmpty()) {
             captureWatch(top, location, ref, result);
         }
@@ -169,6 +180,8 @@ final class DebugHookImpl implements DebugHook {
             recordChild(top, stepRef(enclosing), CallNode.referenceTo(StringPool.intern(top.getUri()),
                     StringPool.intern(ref), StringPool.intern(location.label())));
         }
+        // This whole step — its own time plus any nested steps — is nested time for the step it ran inside.
+        nestedStepNanos = nestedAtStepEnter + wall;
         top.setLocation(enclosing);
         top.setCurrentStep(enclosingStep);
         return result;

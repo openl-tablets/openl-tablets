@@ -87,6 +87,36 @@ class CrossStepCallTreeTest {
         });
     }
 
+    @Test
+    @DisplayName("A step that triggers another cell does not count that cell's time twice")
+    void doesNotDoubleCountNestedStepTime() {
+        CompiledOpenClass compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        IOpenClass module = compiled.getOpenClass();
+        IOpenMethod method = module.getMethods().stream()
+                .filter(candidate -> "DeterminePremium".equals(candidate.getName()))
+                .findFirst()
+                .orElseThrow();
+
+        TraceDebugger debugger = new TraceDebugger(DebugListener.NOOP);
+        debugger.start("cross-step-timing", compiled.getClassLoader(), false, true, () -> {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(debugger.tracer());
+            Object target = module.newInstance(env);
+            method.invoke(target, new Object[]{10}, env);
+        });
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(10_000));
+
+        CallNode tree = debugger.completedTree();
+        assertNotNull(tree);
+        // Several steps resolve or call other cells on the way ($GetContext → $RatingDate → $Value_Premiums →
+        // $Term). Each step's own time excludes that nested work, so the steps are disjoint slices of the frame
+        // and never sum past its own duration. Before nested time was subtracted, the referring step counted the
+        // referenced cell as well and the steps overran the frame.
+        long stepsTotal = tree.steps().stream().mapToLong(CallNode.Step::durationNanos).sum();
+        assertTrue(stepsTotal <= tree.durationNanos(),
+                () -> "steps total " + stepsTotal + "ns must not exceed frame " + tree.durationNanos() + "ns");
+    }
+
     /** The executed step with the given label. */
     private static CallNode.Step step(CallNode tree, String label) {
         return tree.steps().stream()
