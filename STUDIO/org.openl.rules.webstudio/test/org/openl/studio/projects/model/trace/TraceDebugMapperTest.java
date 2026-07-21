@@ -73,7 +73,7 @@ class TraceDebugMapperTest {
             assertEquals("MyRule", top.name());
             assertTrue(top.active(), "the deepest frame is the active one");
 
-            var variables = mapper.freezeVariables(stack.get(stack.size() - 1), compiled.getClassLoader());
+            var variables = mapper.freezeVariables(stack.get(stack.size() - 1), compiled.getClassLoader(), true);
             assertNotNull(variables);
             assertTrue(variables.parameters().isEmpty(), "MyRule takes no parameters");
             assertNotNull(variables.context(), "the runtime context is frozen");
@@ -400,7 +400,7 @@ class TraceDebugMapperTest {
                 new WatchCapture("$Factor", "Cov", "uCov", 1, List.of("Root", "Cov"), "uCov#R2C0", 83.372),
                 new WatchCapture("$Other", "Cov", "uCov", 0, List.of("Root", "Cov"), "uCov#R3C0", 2.0));
 
-        var view = mapper().toWatchView(captures, false, null);
+        var view = mapper().toWatchView(captures, false, null, true);
 
         assertEquals(2, view.series().size(), "two distinct cells → two series");
         var factor = view.series().get(0);
@@ -422,7 +422,7 @@ class TraceDebugMapperTest {
             captures.add(new WatchCapture("$Loop", "T", "uT", i, List.of("T"), "uT#R0C0", i));
         }
 
-        var series = mapper().toWatchView(captures, false, null).series().get(0);
+        var series = mapper().toWatchView(captures, false, null, true).series().get(0);
 
         assertEquals(100, series.points().size(), "a factor looped 150 times returns only the first 100 points");
         assertEquals(150, series.total(), "the full execution count is still reported");
@@ -435,7 +435,7 @@ class TraceDebugMapperTest {
                 new WatchCapture("$X", "A", "uA", 0, List.of("A"), "uA#R0C0", 1),
                 new WatchCapture("$X", "B", "uB", 0, List.of("B"), "uB#R0C0", 2));
 
-        var view = mapper().toWatchView(captures, true, null);
+        var view = mapper().toWatchView(captures, true, null, true);
 
         assertEquals(2, view.series().size(), "the same name in two tables stays two series");
         assertTrue(view.truncated(), "the cap flag is carried through");

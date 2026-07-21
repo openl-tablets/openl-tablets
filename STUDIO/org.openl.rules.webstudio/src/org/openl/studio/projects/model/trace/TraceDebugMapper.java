@@ -135,7 +135,7 @@ public class TraceDebugMapper {
      * deep-cloned and serialized to the rich parameter view (like frame variables), so dates, arrays, and
      * spreadsheet results render properly and large values load lazily.
      */
-    public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader) {
+    public WatchView toWatchView(List<WatchCapture> captures, boolean truncated, @Nullable ClassLoader classLoader, boolean includeSchema) {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -154,7 +154,7 @@ public class TraceDebugMapper {
                 WatchCapture first = group.get(0);
                 List<WatchPointView> points = group.stream()
                         .limit(MAX_POINTS_PER_SERIES)
-                        .map(capture -> toWatchPoint(capture, clones))
+                        .map(capture -> toWatchPoint(capture, clones, includeSchema))
                         .toList();
                 series.add(WatchSeriesView.builder()
                         .name(first.name())
@@ -170,14 +170,14 @@ public class TraceDebugMapper {
         }
     }
 
-    private WatchPointView toWatchPoint(WatchCapture capture, Map<Object, Object> clones) {
-        var param = new ParameterWithValueDeclaration(capture.name(), safeClone(capture.value(), clones));
+    private WatchPointView toWatchPoint(WatchCapture capture, Map<Object, Object> clones, boolean includeSchema) {
+        var param = new ParameterWithValueDeclaration(capture.name(), safeClone(capture.value(), clones, true));
         return WatchPointView.builder()
                 .instance(capture.instance())
                 .label(capture.table() + " #" + (capture.instance() + 1))
                 .path(capture.path())
                 .ref(capture.ref())
-                .value(buildParameterValue(param, true))
+                .value(buildParameterValue(param, true, includeSchema))
                 .build();
     }
 
@@ -282,7 +282,7 @@ public class TraceDebugMapper {
     }
 
     /** Freeze a frame's variables. Must be called while the session is suspended. */
-    public DebugFrameVariables freezeVariables(DebugFrame frame, @Nullable ClassLoader classLoader) {
+    public DebugFrameVariables freezeVariables(DebugFrame frame, @Nullable ClassLoader classLoader, boolean includeSchema) {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -290,10 +290,10 @@ public class TraceDebugMapper {
         try {
             Map<Object, Object> clones = new IdentityHashMap<>();
             return DebugFrameVariables.builder()
-                    .parameters(freezeParameters(frame, clones))
-                    .context(freezeContext(frame, clones))
-                    .result(freezeResult(frame, clones))
-                    .steps(freezeSteps(frame, clones))
+                    .parameters(freezeParameters(frame, clones, includeSchema))
+                    .context(freezeContext(frame, clones, includeSchema))
+                    .result(freezeResult(frame, clones, includeSchema))
+                    .steps(freezeSteps(frame, clones, includeSchema))
                     .gridColumns(gridNames(frame, true))
                     .gridRows(gridNames(frame, false))
                     .decision(decisionFor(frame))
@@ -305,7 +305,7 @@ public class TraceDebugMapper {
         }
     }
 
-    private List<ParameterValue> freezeParameters(DebugFrame frame, Map<Object, Object> clones) {
+    private List<ParameterValue> freezeParameters(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (!(frame.getSource() instanceof ExecutableRulesMethod method)) {
             return Collections.emptyList();
         }
@@ -316,43 +316,43 @@ public class TraceDebugMapper {
         for (int i = 0; i < count; i++) {
             var param = new ParameterWithValueDeclaration(
                     signature.getParameterName(i),
-                    safeClone(params[i], clones),
+                    safeClone(params[i], clones, !frame.isCompleted()),
                     signature.getParameterType(i));
-            result.add(buildParameterValue(param, true));
+            result.add(buildParameterValue(param, true, includeSchema));
         }
         return result;
     }
 
-    private @Nullable ParameterValue freezeContext(DebugFrame frame, Map<Object, Object> clones) {
+    private @Nullable ParameterValue freezeContext(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (frame.getContext() == null) {
             return null;
         }
-        var param = new ParameterWithValueDeclaration("context", safeClone(frame.getContext(), clones));
-        return buildParameterValue(param, false);
+        var param = new ParameterWithValueDeclaration("context", safeClone(frame.getContext(), clones, !frame.isCompleted()));
+        return buildParameterValue(param, false, includeSchema);
     }
 
-    private List<StepValueView> freezeSteps(DebugFrame frame, Map<Object, Object> clones) {
+    private List<StepValueView> freezeSteps(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (frame.getSource() instanceof Spreadsheet spreadsheet) {
-            return spreadsheetSteps(frame, spreadsheet, clones);
+            return spreadsheetSteps(frame, spreadsheet, clones, includeSchema);
         }
         // Non-spreadsheet frames: just the executed sub-steps.
         List<DebugFrame.ExecutedStep> executed = frame.getExecutedSteps();
         List<StepValueView> result = new ArrayList<>(executed.size());
         for (DebugFrame.ExecutedStep step : executed) {
             String name = step.label() != null ? step.label() : step.ref();
-            var param = new ParameterWithValueDeclaration(name, safeClone(step.value(), clones));
+            var param = new ParameterWithValueDeclaration(name, safeClone(step.value(), clones, !frame.isCompleted()));
             result.add(StepValueView.builder()
                     .ref(step.ref())
                     .label(step.label())
                     .status(StepStatus.EXECUTED)
-                    .value(buildParameterValue(param, true))
+                    .value(buildParameterValue(param, true, includeSchema))
                     .build());
         }
         return result;
     }
 
     /** All cells of a spreadsheet with their status (executed, current, pending) and executed values. */
-    private List<StepValueView> spreadsheetSteps(DebugFrame frame, Spreadsheet spreadsheet, Map<Object, Object> clones) {
+    private List<StepValueView> spreadsheetSteps(DebugFrame frame, Spreadsheet spreadsheet, Map<Object, Object> clones, boolean includeSchema) {
         Map<String, Object> executed = new HashMap<>();
         for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
             executed.put(step.ref(), step.value());
@@ -363,8 +363,8 @@ public class TraceDebugMapper {
             String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
             var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
             if (executed.containsKey(ref)) {
-                var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones), cell.getType());
-                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true)).build());
+                var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones, !frame.isCompleted()), cell.getType());
+                steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true, includeSchema)).build());
             } else {
                 steps.add(builder.status(stepStatus(ref, Collections.emptySet(), currentRef)).build());
             }
@@ -664,18 +664,23 @@ public class TraceDebugMapper {
                 .toList();
     }
 
-    private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones) {
+    private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (!frame.isCompleted() || frame.getResult() == null
                 || !(frame.getSource() instanceof ExecutableRulesMethod method)) {
             return null;
         }
-        var param = new ParameterWithValueDeclaration("return", safeClone(frame.getResult(), clones), method.getType());
-        return buildParameterValue(param, true);
+        var param = new ParameterWithValueDeclaration("return", safeClone(frame.getResult(), clones, false), method.getType());
+        return buildParameterValue(param, true, includeSchema);
     }
 
-    private static Object safeClone(Object value, Map<Object, Object> clones) {
-        if (value == null) {
-            return null;
+    /**
+     * Freeze a value for later inspection. A suspended frame's values are live and may change once the worker
+     * resumes, so they are deep-cloned. A settled frame (completed or failed) will not run again, so its values
+     * are already stable — cloning them is skipped, avoiding a deep copy (and its heap blow-up) of a huge result.
+     */
+    private static Object safeClone(Object value, Map<Object, Object> clones, boolean freeze) {
+        if (value == null || !freeze) {
+            return value;
         }
         try {
             return Cloner.clone(value, clones);
@@ -735,7 +740,8 @@ public class TraceDebugMapper {
     }
 
     /** Build a parameter value, registering large values for lazy retrieval. */
-    public ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy) {
+    public ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy,
+                                              boolean includeSchema) {
         var type = param.getType();
         var rawValue = param.getValue();
         var description = type != null ? type.getDisplayName(INamedThing.SHORT) : null;
@@ -743,7 +749,9 @@ public class TraceDebugMapper {
         var builder = ParameterValue.builder()
                 .name(param.getName())
                 .description(description)
-                .schema(generateSchema(type));
+                // The schema is generated only on request: it is derived from the value's type via a recursive
+                // JSON-schema pass that is expensive for a large spreadsheet result, and no Studio client reads it.
+                .schema(includeSchema ? generateSchema(type) : null);
         if (preferLazy && rawValue != null && !isSimple) {
             return builder
                     .lazy(true)

@@ -11834,6 +11834,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "includeSchema",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -11941,6 +11950,15 @@ Content-Type: application/json
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "includeSchema",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -12753,6 +12771,15 @@ Content-Type: application/json
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "includeSchema",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {

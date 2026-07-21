@@ -251,10 +251,12 @@ public class ProjectsTraceDebugController {
     @GetMapping("/frames/{index}/variables")
     public DebugFrameVariables variables(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index) {
+            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
         DebugSession session = requireSession(project);
         TraceDebugMapper mapper = createMapper(session);
-        return withInspectableFrame(session, index, frame -> mapper.freezeVariables(frame, session.getClassLoader()));
+        return withInspectableFrame(session, index,
+                frame -> mapper.freezeVariables(frame, session.getClassLoader(), includeSchema));
     }
 
     @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
@@ -272,13 +274,14 @@ public class ProjectsTraceDebugController {
     @GetMapping("/parameters/{parameterId}")
     public ParameterValue parameterValue(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId) {
+            @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
         DebugSession session = requireSession(project);
         var param = parameterRegistry.get(parameterId);
         if (param == null) {
             throw new NotFoundException("trace.parameter.not.found.message");
         }
-        return createMapper(session).buildParameterValue(param, false);
+        return createMapper(session).buildParameterValue(param, false, includeSchema);
     }
 
     @Operation(summary = "trace.get-breakpoints.summary", description = "trace.get-breakpoints.desc")
@@ -301,13 +304,16 @@ public class ProjectsTraceDebugController {
     @Operation(summary = "trace.watch.summary", description = "trace.watch.desc")
     @ApiResponse(responseCode = "200", description = "trace.watch.200.desc")
     @GetMapping("/watch")
-    public WatchView watch(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public WatchView watch(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
         DebugSession session = requireSession(project);
         TraceDebugMapper mapper = createMapper(session);
         return session.inLock(() -> {
             requireNotRunning(session);
             var debugger = session.getDebugger();
-            return mapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated(), session.getClassLoader());
+            return mapper.toWatchView(debugger.watchCaptures(), debugger.isWatchTruncated(), session.getClassLoader(),
+                    includeSchema);
         });
     }
 
