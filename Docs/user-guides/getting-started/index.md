@@ -35,19 +35,9 @@ in [OpenL Tablets Reference Guide, Chapter 1: Introducing OpenL Tablets](../refe
 
 ## Quick Start
 
-To start working with OpenL Studio, you can use our online demo. Please note that it is for demonstration purposes only
-and all the content is deleted from it once a day.
-
-Use the following links to the applications of our Live Demo:
-
-| Demo Application             | URL                                                                                                          |
-|------------------------------|--------------------------------------------------------------------------------------------------------------|
-| OpenL Studio                 | [http://demo.openl-tablets.org/webstudio](http://demo.openl-tablets.org/webstudio)                           |
-| Rule Services                | [http://demo.openl-tablets.org/webservice](http://demo.openl-tablets.org/webservice)                         |
-| Rule Services client example | [http://demo.openl-tablets.org/webservice-client.html](http://demo.openl-tablets.org/webservice-client.html) |
-
-For more details on OpenL Tablets Demo, you can refer to [OpenL Tablets Demo Package Guide](demo-package). You can
-always download and install OpenL Tablets Demo for yourself by following this guide.
+The quickest way to get started is the **OpenL Tablets Demo** — a ready-to-run package that comes with OpenL Studio,
+OpenL Rule Services, and example projects preconfigured. To download and install it, follow the
+[OpenL Tablets Demo Package Guide](demo-package).
 
 When you open OpenL Studio, you will see the OpenL Studio start page in your browser:
 
