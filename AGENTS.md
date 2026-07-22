@@ -100,6 +100,17 @@ EPBDS-NNNNN <subject>
 - **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a
   misconfiguration, or a dependency bump.
 
+## Sources of Truth
+
+- **Repository documentation is the centralized primary source.** `Docs/` (notably `Docs/architecture/`) and
+  `AGENTS.md` files hold the approved architecture and decisions and must always contain the most current
+  knowledge.
+- **Jira is supplementary, non-centralized working information.** Tickets may contradict each other and the
+  repository documentation.
+- **Surface every conflict.** When tickets disagree with the repository documentation or with each other, show
+  the divergence to the user instead of silently preferring one side. The repository document remains the
+  approved position until the user decides otherwise.
+
 ## Jira Workflow
 
 - **Search Jira before creating a ticket.** When a bug or an improvement is implemented, look for existing issues
