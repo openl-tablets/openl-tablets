@@ -1,0 +1,2 @@
+GET /healthcheck/readiness HTTP/1.1
+

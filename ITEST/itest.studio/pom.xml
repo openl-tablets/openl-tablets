@@ -56,8 +56,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <!-- OpenL Studio exposes no readiness endpoint - do not wait for one -->
-                        <readiness-url />
+                        <readiness-url>/healthcheck/readiness</readiness-url>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
