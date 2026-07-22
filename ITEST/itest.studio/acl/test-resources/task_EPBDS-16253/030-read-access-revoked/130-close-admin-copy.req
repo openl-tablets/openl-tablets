@@ -1,0 +1,9 @@
+PATCH /rest/projects/EPBDS-16253-acl-editing HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "status": "CLOSED",
+  "discardChanges": true
+}

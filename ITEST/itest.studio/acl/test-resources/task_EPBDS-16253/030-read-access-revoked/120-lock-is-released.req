@@ -1,0 +1,11 @@
+POST /rest/projects/EPBDS-16253-acl-editing/files/after-eviction/ HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="new-owner.txt"
+Content-Type: text/plain
+
+new owner content
+--MULTIBOUND--

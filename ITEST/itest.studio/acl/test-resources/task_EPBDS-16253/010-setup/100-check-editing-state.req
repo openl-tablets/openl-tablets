@@ -1,0 +1,4 @@
+GET /rest/projects/EPBDS-16253-acl-editing?fields=status HTTP/1.1
+Authorization: Basic RVBCRFNfMTYyNTM6RVBCRFNfMTYyNTM=
+Cookie: NO_JSESSIONID=noAuth
+
