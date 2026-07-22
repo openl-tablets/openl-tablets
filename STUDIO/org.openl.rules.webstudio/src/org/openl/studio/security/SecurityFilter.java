@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.WebAttributes;
 
@@ -26,6 +27,11 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
+        if (isHealthCheck(servletRequest)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         ServletContext sc = servletRequest.getServletContext();
         /*has been moved ahead as there is the case when step3 in wizard has a user mode choosen
           and new filterChainProxy object required but context still have an old one, see comment in the EPBDS-10752*/
@@ -52,6 +58,14 @@ public class SecurityFilter implements Filter {
                 }
             }
         }
+    }
+
+    private static boolean isHealthCheck(@NonNull ServletRequest servletRequest) {
+        if (servletRequest instanceof HttpServletRequest request) {
+            var path = request.getServletPath();
+            return "/healthcheck/startup".equals(path) || "/healthcheck/readiness".equals(path);
+        }
+        return false;
     }
 
     @Override

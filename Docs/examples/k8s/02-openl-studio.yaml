@@ -153,17 +153,22 @@ spec:
               memory: 2Gi
 
           # Allow extra time for JVM startup and Jetty WAR deployment before
-          # the liveness probe starts checking.
+          # Kubernetes starts liveness and readiness checks.
+          startupProbe:
+            httpGet:
+              path: /healthcheck/startup
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 30
           livenessProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: 60
             periodSeconds: 15
             failureThreshold: 4
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthcheck/readiness
               port: 8080
-            initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 3
 
