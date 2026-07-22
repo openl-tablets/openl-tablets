@@ -144,7 +144,7 @@ jobs:
             "webstudio"
             "webservice"
             "webservice/Example3-AutoPolicyCalculation/AccidentPremium"
-            "webstudio/faces/pages/modules/repository/index.xhtml"
+            "webstudio/faces/pages/public/showDiff.xhtml"
           )
 
           fail=0
