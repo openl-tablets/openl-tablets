@@ -309,3 +309,7 @@ You have created the rule that defines the air ticket price value depending on t
 destination. You have also created a test for your rule to verify the correctness of the rule logic.
 
 We hope that working with OpenL Tablets was interesting and easy for you.
+
+---
+
+OpenL Tablets Documentation is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
