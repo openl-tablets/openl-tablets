@@ -1,0 +1,8 @@
+PATCH /rest/projects/EPBDS-16253-acl-opened HTTP/1.1
+Authorization: Basic RVBCRFNfMTYyNTM6RVBCRFNfMTYyNTM=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "status": "OPENED"
+}

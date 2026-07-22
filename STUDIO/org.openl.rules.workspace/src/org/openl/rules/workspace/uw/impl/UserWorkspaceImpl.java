@@ -28,7 +28,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
@@ -416,11 +415,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         log.info("Project '{}' does not exist in the branch '{}' anymore",
                                                 name,
                                                 branch);
-                                        if (local != null && !isModifiedLocally(localRepository, lp)) {
-                                            // Close the unchanged copy and stay in the main branch. A copy
-                                            // with local changes stays opened and linked: the next save
-                                            // targets the current branch of the repository, so the changes
-                                            // are not lost and no phantom LOCAL project appears.
+                                        if (local != null) {
+                                            // The project is gone from the copy's branch: the copy leaves
+                                            // the workspace regardless of local changes, like on a revoked
+                                            // access — the copied data does not outlive the project.
                                             log.info(
                                                     "Close the project '{}' because it does not exist in the branch '{}'",
                                                     name,
@@ -429,9 +427,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         }
                                     }
                                 }
-                            } else if (local != null && !isModifiedLocally(localRepository, lp)) {
-                                // Same policy when the whole branch was removed: only an unchanged copy
-                                // is closed, a changed one stays opened on the current branch.
+                            } else if (local != null) {
+                                // Same policy when the whole branch was removed.
                                 log.info("Close the project {} because the branch {} was removed", name, branch);
                                 closeProject = true;
                             }
@@ -478,30 +475,18 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 putRulesProject(project);
             }
 
-            // Workspace projects that have no corresponding project in the design repositories:
-            // genuine local projects and opened copies whose repository is unavailable or whose
-            // upstream was deleted. The repository link is never rewritten: an unavailable
-            // repository is a temporary state, and the projects match their design counterparts
-            // again when it recovers.
+            // Workspace projects that have no corresponding project in the main branch of the
+            // design repositories: genuine local projects and opened copies whose repository is
+            // unavailable or removed or whose project was deleted from the main branch.
             for (AProject lp : localWorkspace.getProjects()) {
                 String repoId = lp.getRepository().getId();
                 String name = lp.getName();
 
                 if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)))) {
-                    FileData local = lp.getFileData();
-                    LocalRepository repository = (LocalRepository) lp.getRepository();
-
-                    // Project can be closed during refresh. See closeProject variable above.
-                    try {
-                        if (repository.check(local.getName()) == null) {
-                            continue;
-                        }
-                    } catch (IOException e) {
-                        log.warn(e.getMessage(), e);
-                        continue;
+                    RulesProject project = resolveUnmatchedProject(repoId, lp);
+                    if (project != null) {
+                        putRulesProject(project);
                     }
-
-                    putRulesProject(createUnmatchedProject(repoId, repository, local));
                 }
             }
 
@@ -514,35 +499,113 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    private boolean isModifiedLocally(LocalRepository localRepository, AProject localProject) {
-        return localRepository.getProjectState(localProject.getFolderPath()).isModified();
+    /**
+     * Resolves a workspace copy that has no design counterpart in this refresh.
+     *
+     * <p>A copy whose repository was removed or whose project was deleted from the configured main
+     * branch is silently closed and resolves to {@code null} regardless of local changes. A copy of
+     * an unavailable repository and a genuine local project are served from the last known state.
+     *
+     * <p>A copy already closed by this refresh also resolves to {@code null}.
+     */
+    private RulesProject resolveUnmatchedProject(String repoId, AProject lp) {
+        FileData local = lp.getFileData();
+        LocalRepository repository = (LocalRepository) lp.getRepository();
+
+        try {
+            if (repository.check(local.getName()) == null) {
+                return null;
+            }
+        } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+            return null;
+        }
+
+        RulesProject project = createUnmatchedProject(repoId, repository, local);
+        Repository designRepository = designTimeRepository.getRepository(repoId);
+        if (LocalWorkspace.LOCAL_ID.equals(repoId)) {
+            return project;
+        }
+
+        String designPath = designPath(lp.getName(), local);
+        if (designRepository == null) {
+            log.info("Close the project '{}' because repository '{}' was removed from the configuration",
+                    project.getName(),
+                    repoId);
+        } else if (isMissingFromMainBranch(designRepository, designPath)) {
+            log.info("Close the project '{}' because it does not exist in the main branch of repository '{}'",
+                    project.getName(),
+                    repoId);
+        } else {
+            return project;
+        }
+
+        try {
+            releaseOrphanLock(project, repoId, local.getBranch(), designPath);
+            project.close();
+            return null;
+        } catch (ProjectException e) {
+            log.warn("Cannot close the project {}", project.getName(), e);
+        }
+        return project;
+    }
+
+    private void releaseOrphanLock(RulesProject project, String repoId, String branch, String designPath) {
+        try {
+            var lockInfo = projectsLockEngine.getLockInfo(repoId, branch, designPath);
+            if (project.isLockedByMe(lockInfo)) {
+                projectsLockEngine.unlock(repoId, branch, designPath);
+            }
+        } catch (RuntimeException e) {
+            log.warn("Cannot release the lock of orphan project '{}' in repository '{}'",
+                    project.getName(),
+                    repoId,
+                    e);
+        }
     }
 
     /**
-     * Builds a workspace project that has no design counterpart in this refresh.
+     * Checks that the project does not exist in the configured main branch of the design repository.
      *
-     * <p>A genuine local project stays local. An opened copy linked to a design repository keeps the
-     * link: the design side is reconstructed from the metainfo record, so a temporary repository
-     * outage or an upstream deletion does not turn the copy into a LOCAL project.
+     * <p>The base repository uses its configured main branch. The answer is authoritative only when
+     * the repository responds: a missing path or a deletion marker means the project is gone. A
+     * repository that cannot respond is unavailable, not empty, so its projects are not reported as
+     * missing.
+     */
+    private boolean isMissingFromMainBranch(Repository designRepository, String designPath) {
+        try {
+            FileData fileData = designRepository.check(designPath);
+            return fileData == null || fileData.isDeleted();
+        } catch (IOException e) {
+            log.warn("Cannot check the project '{}' in the main branch of repository '{}' because of error: {}",
+                    designPath,
+                    designRepository.getId(),
+                    e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private String designPath(String projectName, FileData local) {
+        FileMappingData mappingData = local.getAdditionalData(FileMappingData.class);
+        if (mappingData != null) {
+            return mappingData.getInternalPath();
+        }
+        ProjectMetainfo metainfo = localWorkspace.getMetainfoRegistry().get(projectName);
+        if (metainfo != null && metainfo.pathInRepository() != null) {
+            return metainfo.pathInRepository();
+        }
+        return designTimeRepository.getRulesLocation() + projectName;
+    }
+
+    /**
+     * Builds a workspace project from its last known state when it has no design counterpart.
      *
-     * <p>The only conversion left is the administrative one: when the repository was removed from the
-     * configuration, the copy becomes a local project, otherwise it would hang under a repository
-     * that no longer exists.
+     * <p>A genuine local project stays local. An opened copy linked to a configured design repository
+     * keeps the link during a temporary repository outage. The metainfo record is not rewritten.
      */
     private RulesProject createUnmatchedProject(String repoId, LocalRepository repository, FileData local) {
         Repository designRepository = LocalWorkspace.LOCAL_ID.equals(repoId) ? null
                 : designTimeRepository.getRepository(repoId);
-        if (designRepository == null && !LocalWorkspace.LOCAL_ID.equals(repoId)) {
-            log.info("The repository '{}' was removed from the configuration."
-                    + " The project '{}' becomes a local project.", repoId, local.getName());
-            // The record is relinked directly, so a legacy record without revision details converts
-            // too, and the baselines with the local-changes state survive.
-            MetainfoRegistry registry = localWorkspace.getMetainfoRegistry();
-            ProjectMetainfo metainfo = registry.get(local.getName());
-            if (metainfo != null) {
-                registry.relink(local.getName(), metainfo.withRepositoryId(LocalWorkspace.LOCAL_ID));
-            }
-        }
         FileData designFileData = null;
         if (designRepository != null && local.getVersion() != null) {
             designFileData = new FileData();

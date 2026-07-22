@@ -361,10 +361,10 @@ FileData saved = gitRepo.save(metadata, inputStream);
 // Commits to Git
 ```
 
-**Delete (soft delete)**:
+**Delete**:
 ```java
 boolean deleted = gitRepo.delete(fileData);
-// Renames to .archived extension
+// Commits the path removal (commit type DELETE); the history keeps the deleted content
 ```
 
 ### Branch Management
@@ -476,9 +476,7 @@ String username = message.getUsername();       // (if included)
 ```java
 enum CommitType {
     SAVE,       // Normal save
-    ARCHIVE,    // Archive file
-    RESTORE,    // Restore from archive
-    ERASE,      // Permanent delete
+    DELETE,     // Path removal
     MERGE       // Merge commit
 }
 ```

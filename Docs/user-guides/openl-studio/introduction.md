@@ -25,7 +25,7 @@ OpenL Studio is intended for a multi-user environment. It provides a centralized
 
 Closing a project deletes it from the user's workspace without saving changes and does not affect the revision in Design repository. Closed projects can be browsed in repository editor but are not available in Rules Editor.
 
-The following diagram illustrates general rules project lifecycle. This is a simplified schema of rules development workflow where activities as opening, opening for editing, closing, deleting, and erasing the current project or deploying configuration are omitted.
+The following diagram illustrates general rules project lifecycle. This is a simplified schema of rules development workflow where activities as opening, opening for editing, closing, and deleting the current project or deploying configuration are omitted.
 
 ![Rules project development workflow](images/rules-project-development-workflow.png)
 

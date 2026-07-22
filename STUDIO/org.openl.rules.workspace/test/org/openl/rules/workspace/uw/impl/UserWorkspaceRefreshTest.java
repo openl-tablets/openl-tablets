@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -17,14 +18,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
@@ -38,14 +41,16 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
 /**
- * The workspace refresh must never rewrite the repository link of an opened copy: an unavailable
- * repository or a deleted upstream is not a reason to turn the copy into a LOCAL project.
+ * The workspace refresh keeps an opened copy linked when its repository is temporarily unavailable.
+ * When the repository is removed from the configuration or the project is deleted, the copy is
+ * silently closed regardless of local changes.
  *
  * @author Yury Molchan
  */
 class UserWorkspaceRefreshTest {
 
     private static final String PROJECT = "P1";
+    private static final String SECOND_PROJECT = "P2";
     private static final String DESIGN_PATH = "DESIGN/rules/" + PROJECT;
 
     @TempDir
@@ -54,6 +59,7 @@ class UserWorkspaceRefreshTest {
     private MetainfoRegistry registry;
     private LocalRepository localRepository;
     private DesignTimeRepository designTimeRepository;
+    private LockEngine projectsLockEngine;
     private UserWorkspaceImpl userWorkspace;
 
     @BeforeEach
@@ -65,6 +71,9 @@ class UserWorkspaceRefreshTest {
 
         designTimeRepository = mock(DesignTimeRepository.class);
         lenient().when(designTimeRepository.getRulesLocation()).thenReturn("DESIGN/rules/");
+        projectsLockEngine = mock(LockEngine.class);
+        lenient().when(projectsLockEngine.getLockInfo(anyString(), any(), anyString()))
+                .thenReturn(LockInfo.NO_LOCK);
 
         LocalWorkspace localWorkspace = mock(LocalWorkspace.class);
         lenient().when(localWorkspace.getRepository(anyString())).thenReturn(localRepository);
@@ -79,17 +88,14 @@ class UserWorkspaceRefreshTest {
         userWorkspace = new UserWorkspaceImpl(new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
                 localWorkspace,
                 designTimeRepository,
-                new DummyLockEngine());
+                projectsLockEngine);
     }
 
     @Test
     void unavailableRepositoryKeepsTheLink() throws IOException {
-        Repository designRepository = mock(Repository.class);
-        lenient().when(designRepository.getId()).thenReturn("design");
-        lenient().when(designRepository.supports()).thenReturn(new FeaturesBuilder(designRepository).build());
-        when(designTimeRepository.getRepository("design")).thenReturn(designRepository);
-        // The repository does not serve its projects: an outage or an invalid URL.
-        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+        Repository designRepository = mockEmptyDesign();
+        // The repository cannot answer: an outage or an invalid URL is not a deletion.
+        when(designRepository.check(anyString())).thenThrow(new IOException("The repository is unreachable."));
         seedOpenedCopy("design", null, false);
 
         List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
@@ -99,40 +105,213 @@ class UserWorkspaceRefreshTest {
         assertFalse(project.isLocalOnly(), "The copy must stay linked to the unavailable repository.");
         assertTrue(project.isOpened());
         assertEquals("design", registry.get(PROJECT).repositoryId(), "The record must not be rewritten.");
+        assertTrue(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must not be closed.");
     }
 
     @Test
-    void removedRepositoryConvertsTheCopyToLocal() {
-        // The repository is not configured anymore: the administrative detach is the only case
-        // when the copy becomes a genuine local project.
-        when(designTimeRepository.getRepository("design")).thenReturn(null);
-        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+    void unchangedCopyOfProjectDeletedUpstreamIsClosed() throws IOException {
+        // The repository answers, and the project is gone: a genuine deletion, not an outage.
+        mockEmptyDesign();
+        seedOpenedCopy("design", null, false);
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "The unchanged copy of the deleted project must be closed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
+    }
+
+    @Test
+    void modifiedCopyOfProjectDeletedUpstreamIsClosed() throws IOException {
+        // The deletion is equivalent to a revoked access: local changes do not keep the copy alive.
+        mockEmptyDesign();
+        seedOpenedCopy("design", null, true);
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "The modified copy of the deleted project must be closed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The copied data must not outlive the project.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
+    }
+
+    @Test
+    void modifiedCopyOfUnavailableRepositoryStaysOpened() throws IOException {
+        Repository designRepository = mockEmptyDesign();
+        when(designRepository.check(anyString())).thenThrow(new IOException("The repository is unreachable."));
         seedOpenedCopy("design", null, true);
 
         List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
-        assertTrue(projects.getFirst().isLocalOnly());
-        assertEquals("local", registry.get(PROJECT).repositoryId(),
-                "The record must be relinked to the local repository.");
-        assertTrue(registry.isDirty(PROJECT), "The local changes must survive the conversion.");
+        RulesProject project = projects.getFirst();
+        assertTrue(project.isOpened(), "The copy must stay opened: an outage is not a deletion.");
+        assertTrue(project.isModified());
+        assertTrue(Files.exists(userDir.resolve(PROJECT)), "The local changes must not be deleted.");
     }
 
     @Test
-    void removedRepositoryRelinksTheVersionlessCopy() {
-        // A record migrated from the legacy layout may lack the revision details. The administrative
-        // detach must relink it all the same, otherwise the record hangs under the removed repository.
-        when(designTimeRepository.getRepository("design")).thenReturn(null);
-        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
-        seedOpenedCopy("design", null, true, null);
+    void unchangedCopyOfArchivedProjectIsClosed() throws IOException {
+        Repository designRepository = mockEmptyDesign();
+        // The repository keeps the archived project as a deletion marker instead of a missing path.
+        FileData archived = new FileData();
+        archived.setName(DESIGN_PATH);
+        archived.setVersion("rev-2");
+        archived.setDeleted(true);
+        when(designRepository.check(DESIGN_PATH)).thenReturn(archived);
+        seedOpenedCopy("design", null, false);
 
         List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
 
-        assertEquals(1, projects.size());
-        assertTrue(projects.getFirst().isLocalOnly());
-        assertEquals("local", registry.get(PROJECT).repositoryId(),
-                "The record must be relinked to the local repository.");
-        assertTrue(registry.isDirty(PROJECT), "The local changes must survive the relink.");
+        assertTrue(projects.isEmpty(), "The unchanged copy of the archived project must be closed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
+    }
+
+    @Test
+    void unchangedCopyExistingOnlyInSecondaryBranchIsClosed() throws IOException {
+        mockDesignWithProjectInBranch("feature");
+        seedOpenedCopy("design", "feature", false);
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "A secondary branch does not keep a project absent from the main branch.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
+    }
+
+    @Test
+    void modifiedCopyExistingOnlyInSecondaryBranchIsClosed() throws IOException {
+        mockDesignWithProjectInBranch("feature");
+        seedOpenedCopy("design", "feature", true);
+        LockInfo lockInfo = mock(LockInfo.class);
+        when(lockInfo.isLocked()).thenReturn(true);
+        when(lockInfo.getLockedBy()).thenReturn("jdoe");
+        when(projectsLockEngine.getLockInfo("design", "feature", DESIGN_PATH)).thenReturn(lockInfo);
+        Path history = userDir.resolve(".history").resolve(PROJECT).resolve("module");
+        Files.createDirectories(history);
+        Files.writeString(history.resolve("edit"), "unsaved");
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "Local changes do not keep a project absent from the main branch.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The modified copy must be deleted.");
+        assertFalse(Files.exists(userDir.resolve(".history").resolve(PROJECT)),
+                "The local edit history must be deleted with the copy.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
+        verify(projectsLockEngine).unlock("design", "feature", DESIGN_PATH);
+    }
+
+    @Test
+    void lockFailureDoesNotKeepOrphanCopy() throws IOException {
+        mockEmptyDesign();
+        seedOpenedCopy("design", null, true);
+        when(projectsLockEngine.getLockInfo("design", null, DESIGN_PATH))
+                .thenThrow(new IllegalStateException("The lock storage is unavailable."));
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty());
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The lock failure must not prevent cleanup.");
+        assertNull(registry.get(PROJECT));
+    }
+
+    /**
+     * The main-branch listing misses the project, but a secondary branch still holds it.
+     */
+    private void mockDesignWithProjectInBranch(String branch) throws IOException {
+        BranchRepository branched = mockBranchedEmptyDesign();
+        when(branched.branchExists(branch)).thenReturn(true);
+        BranchRepository forBranch = mock(BranchRepository.class);
+        FileData existing = new FileData();
+        existing.setName(DESIGN_PATH);
+        existing.setVersion("rev-1");
+        when(forBranch.check(DESIGN_PATH)).thenReturn(existing);
+        when(branched.forBranch(branch)).thenReturn(forBranch);
+    }
+
+    @Test
+    void unchangedCopyOfRemovedBranchMissingUpstreamIsClosed() throws IOException {
+        BranchRepository branched = mockBranchedEmptyDesign();
+        when(branched.branchExists("dead")).thenReturn(false);
+        seedOpenedCopy("design", "dead", false);
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "The unchanged copy of the removed branch must be closed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The unchanged copy must be deleted.");
+    }
+
+    @Test
+    void versionlessLinkedRecordMissingFromMainBranchIsClosed() throws IOException {
+        // A record migrated from the legacy layout still has the repository path needed to identify
+        // an orphan, even when it has no revision details.
+        mockEmptyDesign();
+        seedOpenedCopy("design", null, false, null);
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty());
+        assertNull(registry.get(PROJECT), "The versionless record must be removed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The versionless copy must be deleted.");
+    }
+
+    private Repository mockEmptyDesign() throws IOException {
+        Repository designRepository = mock(Repository.class);
+        lenient().when(designRepository.getId()).thenReturn("design");
+        lenient().when(designRepository.supports()).thenReturn(new FeaturesBuilder(designRepository).build());
+        lenient().when(designRepository.check(anyString())).thenReturn(null);
+        when(designTimeRepository.getRepository("design")).thenReturn(designRepository);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+        return designRepository;
+    }
+
+    private BranchRepository mockBranchedEmptyDesign() {
+        BranchRepository branched = mock(BranchRepository.class);
+        lenient().when(branched.getId()).thenReturn("design");
+        lenient().when(branched.supports())
+                .thenReturn(new FeaturesBuilder(branched).setVersions(true).setBranches(true).build());
+        lenient().when(branched.getBranch()).thenReturn("work");
+        when(designTimeRepository.getRepository("design")).thenReturn(branched);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+        return branched;
+    }
+
+    @Test
+    void removedRepositoryEvictsAllLinkedCopies() throws IOException {
+        when(designTimeRepository.getRepository("design")).thenReturn(null);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+        seedOpenedCopy("design", null, true);
+        seedOpenedCopy(SECOND_PROJECT, "design", null, false, "rev-1");
+        LockInfo lockInfo = mock(LockInfo.class);
+        when(lockInfo.isLocked()).thenReturn(true);
+        when(lockInfo.getLockedBy()).thenReturn("jdoe");
+        when(projectsLockEngine.getLockInfo("design", null, DESIGN_PATH)).thenReturn(lockInfo);
+        Path history = userDir.resolve(".history").resolve(PROJECT).resolve("module");
+        Files.createDirectories(history);
+        Files.writeString(history.resolve("edit"), "unsaved");
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "A removed repository must not leave linked copies in the workspace.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The modified copy must be deleted.");
+        assertFalse(Files.exists(userDir.resolve(SECOND_PROJECT)), "The unchanged copy must be deleted.");
+        assertFalse(Files.exists(userDir.resolve(".history").resolve(PROJECT)),
+                "The local edit history must be deleted with the copy.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
+        assertNull(registry.get(SECOND_PROJECT), "Every record linked to the repository must be removed.");
+        verify(projectsLockEngine).unlock("design", null, DESIGN_PATH);
+    }
+
+    @Test
+    void versionlessCopyOfRemovedRepositoryIsEvicted() {
+        when(designTimeRepository.getRepository("design")).thenReturn(null);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+        seedOpenedCopy("design", null, false, null);
+
+        List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
+
+        assertTrue(projects.isEmpty(), "A removed repository must evict versionless linked copies too.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The versionless copy must be deleted.");
+        assertNull(registry.get(PROJECT), "The versionless record must be removed.");
     }
 
     @Test
@@ -181,29 +360,32 @@ class UserWorkspaceRefreshTest {
                 "Nothing must escape the workspace root.");
     }
 
-    private void mockMappedDesign() {
+    private void mockMappedDesign() throws IOException {
         Repository designRepository = mock(Repository.class);
         lenient().when(designRepository.getId()).thenReturn("design");
         lenient().when(designRepository.supports())
                 .thenReturn(new FeaturesBuilder(designRepository).setMappedFolders(true).build());
+        // The project still exists upstream: it was renamed, not deleted.
+        FileData existing = new FileData();
+        existing.setName(DESIGN_PATH);
+        existing.setVersion("rev-1");
+        lenient().when(designRepository.check(anyString())).thenReturn(existing);
         when(designTimeRepository.getRepository("design")).thenReturn(designRepository);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
     }
 
     @Test
-    void modifiedCopyOfProjectDeletedInBranchStaysOpened() throws IOException {
+    void modifiedCopyOfProjectDeletedInBranchIsClosed() throws IOException {
+        // The deletion is equivalent to a revoked access: local changes do not keep the copy alive.
         mockBranchedDesign(true);
         seedOpenedCopy("design", "dead", true);
 
         List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
-        RulesProject project = projects.getFirst();
-        assertFalse(project.isLocalOnly(), "The modified copy must not turn into a LOCAL project.");
-        assertTrue(project.isOpened(), "The modified copy must stay opened.");
-        assertTrue(project.isModified());
-        assertEquals("design", registry.get(PROJECT).repositoryId(), "The record must not be rewritten.");
-        assertTrue(Files.exists(userDir.resolve(PROJECT)), "The local changes must not be deleted.");
+        assertFalse(projects.getFirst().isOpened(), "The modified copy must be closed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The copied data must not outlive the project.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
     }
 
     @Test
@@ -219,19 +401,16 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
-    void modifiedCopyOfRemovedBranchStaysOpened() throws IOException {
+    void modifiedCopyOfRemovedBranchIsClosed() throws IOException {
         mockBranchedDesign(false);
         seedOpenedCopy("design", "dead", true);
 
         List<RulesProject> projects = new ArrayList<>(userWorkspace.getProjects(true));
 
         assertEquals(1, projects.size());
-        RulesProject project = projects.getFirst();
-        assertFalse(project.isLocalOnly(), "The modified copy must not turn into a LOCAL project.");
-        assertTrue(project.isOpened(), "The modified copy must stay opened.");
-        assertTrue(project.isModified());
-        assertEquals("design", registry.get(PROJECT).repositoryId(), "The record must not be rewritten.");
-        assertTrue(Files.exists(userDir.resolve(PROJECT)), "The local changes must not be deleted.");
+        assertFalse(projects.getFirst().isOpened(), "The modified copy must be closed.");
+        assertFalse(Files.exists(userDir.resolve(PROJECT)), "The copied data must not outlive the project.");
+        assertNull(registry.get(PROJECT), "The record must be removed together with the copy.");
     }
 
     @Test
@@ -276,8 +455,16 @@ class UserWorkspaceRefreshTest {
     }
 
     private void seedOpenedCopy(String repositoryId, String branch, boolean modified, String version) {
+        seedOpenedCopy(PROJECT, repositoryId, branch, modified, version);
+    }
+
+    private void seedOpenedCopy(String projectName,
+                                String repositoryId,
+                                String branch,
+                                boolean modified,
+                                String version) {
         try {
-            Path projectDir = userDir.resolve(PROJECT);
+            Path projectDir = userDir.resolve(projectName);
             Files.createDirectories(projectDir);
             Path mainFile = projectDir.resolve("Main.xlsx");
             Files.writeString(mainFile, "content");
@@ -287,12 +474,12 @@ class UserWorkspaceRefreshTest {
                     Files.getLastModifiedTime(mainFile).toMillis());
             // A record without a version has no revision details at all, like a record migrated
             // from the legacy layout.
-            registry.save(PROJECT,
-                    new ProjectMetainfo(repositoryId, DESIGN_PATH, branch, version, "jdoe",
+            registry.save(projectName,
+                    new ProjectMetainfo(repositoryId, "DESIGN/rules/" + projectName, branch, version, "jdoe",
                             version == null ? null : 1751980000000L, version == null ? null : 7L,
                             null, Map.of("/Main.xlsx", baseline)));
             if (modified) {
-                registry.markDirty(PROJECT);
+                registry.markDirty(projectName);
             }
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -302,12 +489,17 @@ class UserWorkspaceRefreshTest {
     private List<AProject> workspaceProjects() {
         List<AProject> projects = new ArrayList<>();
         for (String name : registry.projects()) {
-            FileData fileData = localRepository.getProjectState(name).getFileData();
+            LocalRepository projectRepository = new LocalRepository(userDir, registry);
+            ProjectMetainfo metainfo = Objects.requireNonNull(registry.get(name));
+            projectRepository.setId(metainfo.repositoryId());
+            projectRepository.initialize();
+            var projectState = projectRepository.getProjectState(name);
+            FileData fileData = projectState.getFileData();
             // Mirrors LocalWorkspaceImpl.loadProjects: a record without revision details serves
             // the project from the folder on disk.
             projects.add(fileData == null
-                    ? new AProject(localRepository, name, localRepository.getProjectState(name).getProjectVersion())
-                    : new AProject(localRepository, fileData));
+                    ? new AProject(projectRepository, name, projectState.getProjectVersion())
+                    : new AProject(projectRepository, fileData));
         }
         return projects;
     }

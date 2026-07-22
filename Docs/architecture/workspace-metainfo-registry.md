@@ -66,8 +66,8 @@ stateDiagram-v2
 - Only three coarse-grained operations write the record: open, save, close. They run under a per-project
   in-JVM lock inside the registry. The open holds the lock for the whole operation — the file copy and
   the record write — so a reconciliation running in parallel cannot meet the half-copied folder.
-- A revoked read permission also closes the copy: the first project listing that meets an opened copy
-  without the read access evicts it, so the copied data does not outlive the access.
+- Evicting an opened copy removes its record, project folder, edit history, and lock. Local changes do
+  not prevent the eviction.
 - Records are written atomically (temp file + rename), so a crash cannot leave a partially written record.
 - The record write is the commit point of the open operation: project files are copied first, and a crash
   before the record is written leaves a folder without a record, which the reconciliation removes.
@@ -129,18 +129,20 @@ operation rewrites the project state anyway, and the sign-in must not stall behi
 
 ## Unmatched Projects
 
-The workspace refresh never rewrites the repository link of an opened copy:
+An opened copy is evicted regardless of local changes in each of these cases:
+
+- **Project deleted**: OpenL Studio no longer identifies the project as existing.
+- **Branch deleted**: the branch used by the opened copy no longer exists.
+- **Read access revoked (Studio ACL)**: the user no longer has read access to the project.
+- **Repository removed from the configuration**: the source repository is no longer configured in
+  OpenL Studio.
+
+Other unmatched projects are handled as follows:
 
 - **Repository unavailable** (an outage, a wrong URL, lost credentials): the opened copies stay linked and
   keep their last known state, reconstructed from the records. When the repository recovers, the copies
   match their design counterparts again as if nothing happened.
-- **Project deleted in the current branch, or the branch removed**: an unchanged copy is silently closed;
-  a copy with local changes stays opened and linked — the next save targets the current branch of the
-  repository, so the changes are not lost.
 - A genuinely local project (`repository-id=local`) is served as is.
-- **Repository removed from the configuration**: the copy is relinked to the `local` repository — the
-  administrative detach is the only case when a design project becomes a local one. The baselines and
-  the local-changes state survive the relink.
 
 ## Local Edit History
 
@@ -170,6 +172,10 @@ A one-time `Migrator` step converts them on the first start:
   revision ids, hides top-level service folders, applies the baseline-collision guard.
 - `LocalWorkspaceImpl` / `LocalWorkspaceManagerImpl` — load projects from the registry and own the
   per-user registry instances; `refreshMetainfoRegistry` serves the sign-in reconciliation.
+- `UserWorkspaceImpl` — matches the opened copies against the design repositories on refresh and
+  applies the unmatched-project outcomes: evicts copies when their project or branch is deleted, read
+  access is revoked, or their repository is removed from the configuration; keeps copies of an
+  unavailable repository.
 - `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
   interactive sign-in.
 - `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save.

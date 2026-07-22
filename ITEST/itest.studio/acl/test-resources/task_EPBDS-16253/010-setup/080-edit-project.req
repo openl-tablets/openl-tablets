@@ -1,0 +1,11 @@
+POST /rest/projects/EPBDS-16253-acl-editing/files/unsaved/ HTTP/1.1
+Authorization: Basic RVBCRFNfMTYyNTM6RVBCRFNfMTYyNTM=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="unsaved.txt"
+Content-Type: text/plain
+
+unsaved content
+--MULTIBOUND--

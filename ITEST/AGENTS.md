@@ -177,6 +177,7 @@ Each test suite (typically one `task_EPBDS-NNNNN/` folder per ticket) **MUST** f
 
 ```
 task_EPBDS-NNNNN/
+├── README.md                    # Brief test-case description (optional)
 ├── itest.env                    # Per-suite environment variables
 ├── 010-setup/                   # Bring the system to the state under test
 │   ├── 010-initialize-project.req/.resp
@@ -189,6 +190,8 @@ task_EPBDS-NNNNN/
     └── 020-delete-project.req/.resp
 ```
 
+- `README.md` — optional; briefly describes the covered test case and its expected outcome. It can be placed in
+  the suite folder or an individual scenario folder.
 - `010-setup/` — first folder; pushes projects, opens them, seeds users/branches, etc.
 - `0X0-<scenario>/` — one folder per scenario, numbered `020`, `030`, … in execution order. Steps inside a scenario start at `010` and increment by `010`.
 - `999-tierdown/` — last folder (spelled `tierdown` to match the existing tree); closes/deletes projects and restores shared state so later suites start clean.
