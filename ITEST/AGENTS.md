@@ -42,6 +42,8 @@ cannot corrupt a running suite.
   webapp copy.
 - **`-Dunpack-webapp.skip=true`** skips the webapp unpacking — for builds that compile the suites without
   running them (e.g. the CI coverage-aggregation job).
+- **`-DskipTests`** removes the whole ITEST subtree (and the archetypes) from the reactor via the root
+  `itest` profile; `-Pitest` forces it back in — the CI coverage-aggregation job does this.
 
 ## Container Images
 

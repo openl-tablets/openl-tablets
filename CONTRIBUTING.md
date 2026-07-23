@@ -130,7 +130,7 @@ Build options:
 - `-DnoPerf` - Run tests without extreme memory limitation
 - `-DnoDocker` - Skip dockerized tests
 - `-Dquick` - Skip heavy or non-critical tests
-- `-DskipTests` - Skip all tests
+- `-DskipTests` - Skip all tests and exclude the integration-test modules (ITEST, the archetypes) from the reactor
 
 ### Running OpenL Locally
 

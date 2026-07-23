@@ -306,7 +306,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 
 ### Build Profiles
 - `quick` - Fast build, skip heavy tests
-- `skipTests` - Skip all tests
+- `skipTests` - Skip all tests and exclude the integration-test modules (ITEST, the archetypes) from the reactor
 - `perf` - Performance-optimized tests
 - `sonar` - SonarQube integration
 - `owasp` - OWASP security checks

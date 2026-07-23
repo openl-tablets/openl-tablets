@@ -63,6 +63,7 @@
         <module>Util/openl-excel-builder</module>
         <module>Util/openl-rules-opentelemetry</module>
         <module>Util/openl-yaml</module>
+        <module>Util/openl-maven-plugin</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
@@ -1876,18 +1877,20 @@
             </properties>
         </profile>
         <profile>
-            <!-- Integration-test modules (the ITEST suites, the invoker-driven openl-maven-plugin
-                 and the archetypes building a generated project) are part of the default build;
-                 -DnoITest excludes them, so CI can run them in separate parallel jobs -->
+            <!-- The ITEST suites and the archetypes building a generated project are integration-test
+                 modules nothing else depends on, so -DskipTests drops them from the reactor entirely
+                 instead of building them with skipped tests. CI deactivates the profile with -P '!itest'
+                 to keep unit-test runs free of them and re-includes it with -Pitest where the Sonar job
+                 folds their coverage. openl-maven-plugin stays in the default modules: test-skipping
+                 builds must still install the plugin for projects consuming the SNAPSHOT. -->
             <id>itest</id>
             <activation>
                 <property>
-                    <name>!noITest</name>
+                    <name>!skipTests</name>
                 </property>
             </activation>
             <modules>
                 <module>ITEST</module>
-                <module>Util/openl-maven-plugin</module>
                 <module>Util/openl-simple-project-archetype</module>
                 <module>Util/openl-project-archetype</module>
             </modules>

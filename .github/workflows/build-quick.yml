@@ -73,7 +73,7 @@ jobs:
         run: rm -rf ~/.m2/repository/org/openl ~/.m2/repository/com/example
 
       - name: Build with Maven
-        run: mvn -B "-Dstyle.color=always" -T1C install -DskipTests -DnoITest
+        run: mvn -B "-Dstyle.color=always" -T1C install -DskipTests
 
       - name: Share OpenL artifacts
         uses: actions/upload-artifact@v7
@@ -106,10 +106,13 @@ jobs:
           java-version: 25
           cache: 'maven'
 
-        # jacoco-report is deselected because it depends on the ITEST modules excluded by -DnoITest;
+        # -P '!itest' drops the ITEST suites and the archetypes: their tests run in the 'itest' matrix.
+        # openl-maven-plugin is deselected for the same reason - the maven-plugin leg runs its unit and
+        # invoker tests, so running them here would only clobber that leg's coverage data.
+        # jacoco-report is deselected because it depends on the dropped ITEST modules;
         # the aggregate report is built by the 'sonar' job instead.
       - name: Build and Verify
-        run: mvn -B "-Dstyle.color=always" -T1C verify -Psonar -DnoITest -pl '!jacoco-report'
+        run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' -pl '!jacoco-report,!Util/openl-maven-plugin'
 
         # The root pom.xml anchors the artifact at the repository root - see the itest job.
       - name: Share coverage data
@@ -244,10 +247,11 @@ jobs:
 
         # Recompile the sources the downloaded execution data was recorded against
         # (-Dmaven.test.skip=false brings the test classes back for the Sonar analysis, while
-        # -DskipTests still skips their execution) and build the JaCoCo aggregate report.
+        # -DskipTests still skips their execution; -Pitest re-includes the integration-test
+        # modules that -DskipTests drops from the reactor) and build the JaCoCo aggregate report.
       - name: Aggregate coverage
         shell: bash
-        run: mvn -B "-Dstyle.color=always" -T1C verify -Psonar -DskipTests -Dmaven.test.skip=false "-Dunpack-webapp.skip=true" | tee build.log
+        run: mvn -B "-Dstyle.color=always" -T1C verify -Psonar,itest -DskipTests -Dmaven.test.skip=false "-Dunpack-webapp.skip=true" | tee build.log
 
       - name: Verify coverage consistency
         run: |

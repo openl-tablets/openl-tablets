@@ -52,7 +52,7 @@ Read those files for current versions, prefer the latest ones, and do not hardco
 
 ```bash
 mvn clean install -Dquick -DnoPerf -T1C   # Fast dev build
-mvn clean install -DskipTests              # Skip all tests
+mvn clean install -DskipTests              # Skip all tests; also drops ITEST and the archetypes from the reactor
 mvn test -pl <module-path>                 # Test specific module
 mvn validate -N                            # Format check — run before committing
 mvn verify -Dsonar                         # Coverage: JaCoCo runs ONLY with -Dsonar
@@ -62,8 +62,9 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-Dquick`** — skip heavy tests
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
-- **`-DnoITest`** — exclude the integration-test modules (ITEST, openl-maven-plugin, archetypes) from the
-  reactor (CI runs them in separate parallel jobs)
+- **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
+  the reactor; openl-maven-plugin still builds with its tests skipped. CI re-adds the dropped modules
+  with `-Pitest` where it needs them
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
