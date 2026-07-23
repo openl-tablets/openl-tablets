@@ -91,35 +91,19 @@ public class RepositoryEditor {
     }
 
     public void deleteRepository(String configName) {
-        deleteRepository(configName, null);
-    }
-
-    public void deleteRepository(String configName, Callback callback) {
         Iterator<RepositoryConfiguration> it = repositoryConfigurations.iterator();
         while (it.hasNext()) {
             RepositoryConfiguration config = it.next();
             if (config.getConfigName().equals(configName)) {
                 deletedConfigurations.add(config);
                 it.remove();
-
-                if (callback != null) {
-                    callback.onDelete(configName);
-                }
-
                 break;
             }
         }
     }
 
     public void save() {
-        save(null);
-    }
-
-    public void save(Callback callback) {
         for (RepositoryConfiguration config : deletedConfigurations) {
-            if (callback != null) {
-                callback.onDelete(config.getConfigName());
-            }
             config.revert();
         }
 
@@ -176,11 +160,5 @@ public class RepositoryEditor {
 
     private String[] split(String s) {
         return StringUtils.split(s, ',');
-    }
-
-    public abstract static class Callback {
-        public void onDelete(String configName) {
-            // Do nothing
-        }
     }
 }
