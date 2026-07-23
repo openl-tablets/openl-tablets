@@ -456,7 +456,7 @@ For more information on serialization values, see <https://fasterxml.github.io/j
 
 JSON payload of the same datatype with different `serializationInclusion` property values are as follows:
 
-![](../../assets/images/rule-services/01e96b672cddf6a2778693641109b4ab.jpeg)
+![JSON payload of the same datatype with different serializationInclusion values](../../assets/images/rule-services/01e96b672cddf6a2778693641109b4ab.jpeg)
 
 *JSON payload of the same datatype with different* `serializationInclusion` *values*
 
