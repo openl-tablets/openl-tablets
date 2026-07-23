@@ -17,6 +17,13 @@
     </organization>
     <properties>
         <sonar.sources>src,webapp</sonar.sources>
+        <!-- One fork runs the whole suite and outgrows the inherited caps: the perf heap kills the fork
+             mid-suite, and the live class metadata of the full application stack loaded across the suite
+             (~157M measured at 976 tests, nothing leaking) overflows the Metaspace cap at the very end.
+             Both modes deliberately share the smallest CI-validated envelope: a tighter perf value is an
+             untested guess that risks turning the nightly Build red again. -->
+        <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=256m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=256m</surefire.argLine.perf>
     </properties>
     <dependencies>
         <dependency>
