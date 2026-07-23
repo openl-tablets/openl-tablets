@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 
 public interface DesignTimeRepositoryService {
@@ -14,12 +13,6 @@ public interface DesignTimeRepositoryService {
     /** Whether the user can create a project in at least one design repository (a copy's target). */
     boolean canCreateInAnyRepository();
 
-    List<String> getBranches(String id) throws IOException;
-
     List<String> getBranches(Repository repository) throws IOException;
-
-    RepositoryFeatures getFeatures(String id);
-
-    RepositoryFeatures getFeatures(Repository repository);
 
 }

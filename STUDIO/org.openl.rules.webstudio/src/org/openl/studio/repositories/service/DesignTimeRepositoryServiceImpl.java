@@ -17,7 +17,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 
@@ -60,20 +59,6 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
     }
 
     @Override
-    public List<String> getBranches(String id) throws IOException {
-        var repository = getRepository(id);
-        return getBranches(repository);
-    }
-
-    private Repository getRepository(String id) {
-        var repository = designTimeRepository.getRepository(id);
-        if (repository == null) {
-            throw new NotFoundException("design.repo.message", id);
-        }
-        return repository;
-    }
-
-    @Override
     public List<String> getBranches(Repository repository) throws IOException {
         if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
             throw new SecurityException();
@@ -84,16 +69,5 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
         var branches = ((BranchRepository) repository).getBranches(null);
         branches.sort(String.CASE_INSENSITIVE_ORDER);
         return branches;
-    }
-
-    @Override
-    public RepositoryFeatures getFeatures(String id) {
-        var repository = getRepository(id);
-        return getFeatures(repository);
-    }
-
-    @Override
-    public RepositoryFeatures getFeatures(Repository repository) {
-        return new RepositoryFeatures(repository.supports());
     }
 }
