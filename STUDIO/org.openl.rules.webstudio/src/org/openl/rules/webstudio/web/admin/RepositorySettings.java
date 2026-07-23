@@ -288,10 +288,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         return configPrefix + configSuffix;
     }
 
-    public String getConfigPrefix() {
-        return configPrefix;
-    }
-
     public static class Views {
         public interface Base {
         }
