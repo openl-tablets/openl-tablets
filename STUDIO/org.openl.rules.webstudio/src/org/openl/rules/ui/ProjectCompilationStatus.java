@@ -97,12 +97,6 @@ public final class ProjectCompilationStatus {
             return this;
         }
 
-        public Builder clearMessages() {
-            messages.clear();
-            uniqueMessages.clear();
-            return this;
-        }
-
         public ProjectCompilationStatus build() {
             return new ProjectCompilationStatus(this);
         }
