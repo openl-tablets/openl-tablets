@@ -120,9 +120,6 @@
         <jackson.version>2.22.1</jackson.version>
         <cxf.version>4.1.7</cxf.version>
 
-        <!-- gRPC -->
-        <grpc.version>1.82.2</grpc.version>
-
         <!-- OpenAPI -->
         <swagger.core.version>2.2.52</swagger.core.version>
         <swagger.parser.version>2.1.45</swagger.parser.version>
@@ -232,22 +229,6 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-            <!-- GRPC -->
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-netty-shaded</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-protobuf</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-stub</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
             <!-- Testing -->
             <dependency>
                 <groupId>org.junit</groupId>
@@ -1140,11 +1121,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio.ai</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -2031,9 +2007,7 @@
                             <!-- Read delomboked sources (Lombok-generated members materialized) plus generated sources -->
                             <sourcepath>${project.build.directory}/generated-sources/delombok:
                                 ${project.build.directory}/generated-sources/javacc:
-                                ${project.build.directory}/generated-sources/annotations:
-                                ${project.build.directory}/generated-sources/protobuf/java:
-                                ${project.build.directory}/generated-sources/protobuf/grpc-java:</sourcepath>
+                                ${project.build.directory}/generated-sources/annotations:</sourcepath>
                         </configuration>
                         <executions>
                             <execution>

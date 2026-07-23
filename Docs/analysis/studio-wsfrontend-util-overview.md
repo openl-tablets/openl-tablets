@@ -268,19 +268,7 @@ webstudio.concurrent.builds = 4
 - `WebContext` - Request context holder
 - `ExceptionHandler` - Global exception handling
 
-### 3. org.openl.rules.webstudio.ai - AI Features
-
-**Purpose**: AI-assisted rule authoring (experimental)
-
-**Features**:
-- Rule suggestion
-- Auto-completion
-- Pattern detection
-- Code generation assistance
-
-**Note**: Experimental module, limited documentation
-
-### 4. org.openl.rules.tableeditor - Table Editor
+### 3. org.openl.rules.tableeditor - Table Editor
 
 **Purpose**: Excel-like table editor component
 

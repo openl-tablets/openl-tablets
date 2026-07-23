@@ -21,9 +21,8 @@
 ├──────────────────────────────────────────────────────────┤
 │ OpenL Studio                RuleService                    │
 │   ├─ studio-ui            ├─ ruleservice.ws             │
-│   ├─ webstudio.ai         ├─ ruleservice.kafka          │
-│   ├─ tableeditor          └─ ruleservice.deployer       │
-│   ├─ repository*                                        │
+│   ├─ tableeditor          ├─ ruleservice.kafka          │
+│   ├─ repository*         └─ ruleservice.deployer       │
 │   ├─ workspace                                          │
 │   ├─ security*                                          │
 │   ├─ jackson*                                           │
