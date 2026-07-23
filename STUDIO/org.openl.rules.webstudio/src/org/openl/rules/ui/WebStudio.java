@@ -132,7 +132,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final UserSettingManagementService userSettingsManager;
 
-    private boolean needRestart = false;
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
@@ -929,14 +928,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void setShowComplexResult(boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
         userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_RESULT_COMPLEX_SHOW, showComplexResult);
-    }
-
-    public void setNeedRestart(boolean needRestart) {
-        this.needRestart = needRestart;
-    }
-
-    public boolean isNeedRestart() {
-        return needRestart;
     }
 
     public void destroy() {
