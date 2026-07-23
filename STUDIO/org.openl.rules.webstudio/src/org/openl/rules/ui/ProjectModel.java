@@ -959,9 +959,8 @@ public class ProjectModel {
                 continue;
             }
             TreeNode rfChild = build(child);
-            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
-                    .equals(rfChild.getType())) {
-                // skip workbook or worksheet node if it has no children nodes
+            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType())) {
+                // skip worksheet node if it has no children nodes
                 if (!rfChild.getChildrenKeysIterator().hasNext()) {
                     continue;
                 }
