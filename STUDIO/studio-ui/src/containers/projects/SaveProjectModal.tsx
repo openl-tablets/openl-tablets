@@ -37,9 +37,8 @@ const hasMergeConflicts = async (projectId: string): Promise<boolean> => {
 /**
  * Commit-comment dialog for saving a project, mirroring the legacy repository save flow.
  *
- * Before committing it ensures the user's Git identity is configured (prompting via
- * {@link CommitInfoModal} when it is missing). If the commit races another change and the server
- * reports a merge conflict, the shared merge resolver is opened on its conflicts step.
+ * Before committing it verifies that the profile completed during login is still valid. If the commit races another
+ * change and the server reports a merge conflict, the shared merge resolver is opened on its conflicts step.
  */
 export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjectModalProps) => {
     const { t } = useTranslation('repository')

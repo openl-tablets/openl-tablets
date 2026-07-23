@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import org.openl.rules.rest.model.ChangePasswordModel;
-import org.openl.rules.rest.model.UserInfoModel;
+import org.openl.rules.rest.model.UserInfoEditModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.UserExternalFlags;
@@ -115,7 +115,7 @@ class UsersControllerTest {
         when(userManagementService.getUser("jdoe")).thenReturn(dbUser);
         var controller = createController("multi");
 
-        var model = new UserInfoModel();
+        var model = new UserInfoEditModel();
         model.setFirstName("John").setLastName("Doe").setEmail("new@example.com").setDisplayName("John Doe");
 
         controller.editUserInfo(request, model);
@@ -134,7 +134,7 @@ class UsersControllerTest {
         when(userManagementService.getUser("jdoe")).thenReturn(dbUser);
         var controller = createController("multi");
 
-        var model = new UserInfoModel();
+        var model = new UserInfoEditModel();
         model.setFirstName("John").setLastName("Doe").setEmail("old@example.com").setDisplayName("John Doe");
 
         controller.editUserInfo(request, model);

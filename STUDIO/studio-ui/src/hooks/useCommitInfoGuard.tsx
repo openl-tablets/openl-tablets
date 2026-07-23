@@ -1,20 +1,13 @@
 import { useCallback, useRef, useState } from 'react'
 import { apiCall } from '../services'
 import { useUserStore } from 'store'
-import { CommitInfoModal } from '../containers/MergeModal/CommitInfoModal'
+import { UserProfileCompletionModal } from 'containers/users/UserProfileCompletionModal'
+import { isUserProfileComplete, type UserIdentity } from 'utils/userProfile'
 
 type RepositoryAction = () => void | Promise<void>
 
-interface UserCommitInfo {
-    displayName?: string
-    email?: string
-}
-
-const isCommitInfoFilled = (userInfo?: UserCommitInfo): boolean =>
-    Boolean(userInfo?.displayName?.trim() && userInfo?.email?.trim())
-
 /**
- * Guards repository-changing actions with the same Git author profile requirement as legacy Studio.
+ * Keeps repository-changing actions safe if the user profile becomes incomplete after login.
  */
 export const useCommitInfoGuard = () => {
     const { userProfile, fetchUserProfile } = useUserStore()
@@ -26,7 +19,7 @@ export const useCommitInfoGuard = () => {
     const username = userProfile?.username
 
     const runGuarded = useCallback(async (action: RepositoryAction) => {
-        if (!username || isCommitInfoFilled(userProfile)) {
+        if (!username || isUserProfileComplete(userProfile)) {
             await action()
             return
         }
@@ -36,8 +29,8 @@ export const useCommitInfoGuard = () => {
                 `/users/${encodeURIComponent(username)}`,
                 { method: 'GET' },
                 { throwError: true }
-            ) as UserCommitInfo
-            if (isCommitInfoFilled(userInfo)) {
+            ) as UserIdentity
+            if (isUserProfileComplete(userInfo)) {
                 await action()
                 return
             }
@@ -73,26 +66,28 @@ export const useCommitInfoGuard = () => {
         setPendingAction(null)
     }, [])
 
-    const save = useCallback(() => {
-        setVisible(false)
-        const action = pendingAction
-        setPendingAction(null)
+    const save = useCallback(async () => {
+        // The profile is now complete, so refresh it regardless of how the resumed action turns out.
         void fetchUserProfile?.()
+        const action = pendingAction
         if (action) {
-            void action()
+            // Await so a repository failure surfaces through the modal; keep the pending action for a retry.
+            await action()
         }
+        setPendingAction(null)
+        setVisible(false)
     }, [fetchUserProfile, pendingAction])
 
     return {
         runWithCommitInfo,
         /** Whether a guarded action is running: the caller keeps its button busy for the whole of it. */
         busy,
-        commitInfoModal: visible ? (
-            <CommitInfoModal
+        commitInfoModal: visible && userProfile ? (
+            <UserProfileCompletionModal
                 onCancel={close}
                 onSave={save}
-                username={username ?? ''}
-                visible={visible}
+                open={visible}
+                profile={userProfile}
             />
         ) : null,
     }

@@ -6,7 +6,21 @@ import { useCommitInfoGuard } from './useCommitInfoGuard'
 const { apiCallMock, fetchUserProfileMock, userProfileMock } = vi.hoisted(() => ({
     apiCallMock: vi.fn(),
     fetchUserProfileMock: vi.fn(),
-    userProfileMock: { current: { username: 'jane', displayName: '', email: '' } as { username?: string, displayName?: string, email?: string } },
+    userProfileMock: {
+        current: {
+            username: 'jane',
+            firstName: '',
+            lastName: '',
+            displayName: '',
+            email: '',
+        } as {
+            username?: string
+            firstName?: string
+            lastName?: string
+            displayName?: string
+            email?: string
+        },
+    },
 }))
 
 vi.mock('../services', () => ({
@@ -20,19 +34,20 @@ vi.mock('store', () => ({
     }),
 }))
 
-vi.mock('../containers/MergeModal/CommitInfoModal', () => ({
-    CommitInfoModal: ({
+vi.mock('../containers/users/UserProfileCompletionModal', () => ({
+    UserProfileCompletionModal: ({
         onCancel,
         onSave,
-        visible,
+        open,
     }: {
         onCancel: () => void
-        onSave: () => void
-        visible: boolean
-    }) => visible ? (
+        onSave: () => void | Promise<void>
+        open: boolean
+    }) => open ? (
         <div data-testid="commit-info-modal">
             <button data-testid="commit-info-cancel" onClick={onCancel} type="button">Cancel</button>
-            <button data-testid="commit-info-save" onClick={onSave} type="button">Save</button>
+            {/* Mirror the real modal: await onSave and swallow its rejection so the modal can show the error. */}
+            <button data-testid="commit-info-save" onClick={() => { void Promise.resolve(onSave()).catch(() => {}) }} type="button">Save</button>
         </div>
     ) : null,
 }))
@@ -46,12 +61,24 @@ const Harness = ({ onRun }: { onRun: (run: (action: () => void | Promise<void>) 
 describe('useCommitInfoGuard', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        userProfileMock.current = { username: 'jane', displayName: '', email: '' }
-        apiCallMock.mockResolvedValue({ displayName: '', email: '' })
+        userProfileMock.current = {
+            username: 'jane',
+            firstName: '',
+            lastName: '',
+            displayName: '',
+            email: '',
+        }
+        apiCallMock.mockResolvedValue({ firstName: '', lastName: '', displayName: '', email: '' })
     })
 
     it('runs the action immediately when commit info is already filled', async () => {
-        userProfileMock.current = { username: 'jane', displayName: 'Jane', email: 'jane@example.com' }
+        userProfileMock.current = {
+            username: 'jane',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            displayName: 'Jane Doe',
+            email: 'jane@example.com',
+        }
         const action = vi.fn()
         let run!: (action: () => void | Promise<void>) => Promise<void>
 
@@ -83,6 +110,30 @@ describe('useCommitInfoGuard', () => {
         await waitFor(() => expect(action).toHaveBeenCalledTimes(1))
         expect(fetchUserProfileMock).toHaveBeenCalled()
         expect(screen.queryByTestId('commit-info-modal')).toBeNull()
+    })
+
+    it('keeps the modal open and retains the action when the resumed action fails', async () => {
+        const action = vi.fn()
+            .mockRejectedValueOnce(new Error('repository failure'))
+            .mockResolvedValueOnce(undefined)
+        let run!: (action: () => void | Promise<void>) => Promise<void>
+
+        render(<Harness onRun={value => { run = value }} />)
+
+        await act(async () => {
+            await run(action)
+        })
+
+        // First attempt fails: the modal must stay open so the failure is visible.
+        await userEvent.click(screen.getByTestId('commit-info-save'))
+        await waitFor(() => expect(action).toHaveBeenCalledTimes(1))
+        expect(fetchUserProfileMock).toHaveBeenCalled()
+        expect(screen.getByTestId('commit-info-modal')).toBeTruthy()
+
+        // Retry succeeds: the pending action was retained, and the modal closes.
+        await userEvent.click(screen.getByTestId('commit-info-save'))
+        await waitFor(() => expect(screen.queryByTestId('commit-info-modal')).toBeNull())
+        expect(action).toHaveBeenCalledTimes(2)
     })
 
     it('drops the pending action when the modal is cancelled', async () => {

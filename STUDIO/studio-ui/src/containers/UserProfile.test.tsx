@@ -17,7 +17,12 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('./users/UserDatailsTab', () => ({
-    UserDetailsTab: () => <div data-testid="user-details-tab" />,
+    UserDetailsTab: ({ requireEmailAndDisplayName }: { requireEmailAndDisplayName?: boolean }) => (
+        <div
+            data-required-fields={requireEmailAndDisplayName}
+            data-testid="user-details-tab"
+        />
+    ),
 }))
 
 vi.mock('../hooks/useIsFormChanged', () => ({
@@ -63,6 +68,14 @@ describe('UserProfile', () => {
         await waitFor(() => expect(notification.success).toHaveBeenCalledWith({
             title: 'users:user_profile_updated_successfully',
         }))
+    })
+
+    it('requires email and display name in the profile editor', async () => {
+        await act(async () => {
+            render(<UserProfile />)
+        })
+
+        expect(screen.getByTestId('user-details-tab')).toHaveAttribute('data-required-fields', 'true')
     })
 
     it('shows an error notification when saving the profile fails', async () => {

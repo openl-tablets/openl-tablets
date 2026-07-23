@@ -123,7 +123,11 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
             onFinish={onFinish}
         >
             <Typography.Title level={4} style={{ marginTop: 0 }}>{title}</Typography.Title>
-            <UserDetailsTab externalFlags={user.externalFlags} isNewUser={isNewUser} />
+            <UserDetailsTab
+                requireEmailAndDisplayName
+                externalFlags={user.externalFlags}
+                isNewUser={isNewUser}
+            />
             <Row justify="end">
                 <Button key="back" onClick={closeModal} style={{ marginRight: 20 }}>
                     {t('users:edit_modal.cancel')}

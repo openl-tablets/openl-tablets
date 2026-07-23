@@ -43,6 +43,7 @@ import org.openl.rules.rest.model.GroupModel;
 import org.openl.rules.rest.model.GroupType;
 import org.openl.rules.rest.model.UserCreateModel;
 import org.openl.rules.rest.model.UserEditModel;
+import org.openl.rules.rest.model.UserInfoEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
@@ -190,7 +191,7 @@ public class UsersController {
 
     @Operation(description = "users.edit-user-info.desc", summary = "users.edit-user-info.summary")
     @PutMapping("/info")
-    public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoModel userModel) {
+    public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoEditModel userModel) {
         validationProvider.validate(userModel);
         updateCurrentUserData(request, userModel, null);
     }

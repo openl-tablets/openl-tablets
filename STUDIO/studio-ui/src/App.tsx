@@ -8,13 +8,15 @@ import { CONFIG } from './services'
 import ErrorBoundary from './components/ErrorBoundary'
 import { errorHandler, setupGlobalErrorHandling } from './utils/errorHandling'
 import { AppStyles } from './App.styles.ts'
+import { UserProfileCompletionModal } from './containers/users/UserProfileCompletionModal'
+import { isUserProfileComplete } from './utils/userProfile'
 
 // Expose bridges (notifications, project status) to legacy JSF pages via window.openl.
 import './legacy'
 
 function App() {
     const { showLogin } = useAppStore()
-    const { fetchUserInfo, isLoggedIn } = useUserStore()
+    const { fetchUserInfo, isLoggedIn, userProfile } = useUserStore()
     const { initializeWebSocket, cleanupWebSocket } = useNotificationStore()
 
     const loginPage = `${CONFIG.CONTEXT}/login`
@@ -69,6 +71,14 @@ function App() {
                     <SecurityProvider>
                         <RouterProvider router={router} />
                     </SecurityProvider>
+                    {userProfile && !isUserProfileComplete(userProfile) && (
+                        <UserProfileCompletionModal
+                            open
+                            required
+                            onSave={fetchUserInfo}
+                            profile={userProfile}
+                        />
+                    )}
                 </AntApp>
             </Suspense>
         </ErrorBoundary>
