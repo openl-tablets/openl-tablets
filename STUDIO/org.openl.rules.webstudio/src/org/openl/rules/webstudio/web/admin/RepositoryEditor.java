@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +24,6 @@ public class RepositoryEditor {
 
     private List<RepositoryConfiguration> repositoryConfigurations;
     private final List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
-    private final Set<String> forbiddenIds = new HashSet<>();
 
     private final PropertiesHolder properties;
 
@@ -34,13 +32,6 @@ public class RepositoryEditor {
         this.repoListConfig = repositoryFactoryProxy.getRepoListConfig();
         this.properties = properties;
         reload();
-    }
-
-    public void setForbiddenIds(String... ids) {
-        forbiddenIds.clear();
-        if (ids != null) {
-            forbiddenIds.addAll(Arrays.stream(ids).filter(Objects::nonNull).collect(Collectors.toSet()));
-        }
     }
 
     public static String getNewConfigName(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
