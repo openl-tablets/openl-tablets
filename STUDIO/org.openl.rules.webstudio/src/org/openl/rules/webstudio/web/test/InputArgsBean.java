@@ -66,7 +66,6 @@ public class InputArgsBean {
     private ParameterWithValueDeclaration[] arguments;
     private ParameterDeclarationTreeNode[] argumentTreeNodes;
     private IRulesRuntimeContext runtimeContext;
-    private String className;
     private final Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
     private InputTestCaseType inputTestCaseType = InputTestCaseType.BEAN;
     private String inputTextBean;
@@ -112,14 +111,6 @@ public class InputArgsBean {
     enum InputTestCaseType {
         TEXT,
         BEAN
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
     public String getUri() {
