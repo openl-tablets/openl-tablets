@@ -17,7 +17,6 @@ import jakarta.validation.constraints.NotBlank;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -61,35 +60,6 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
     public void setCategoryNameSelector(String categoryNameSelector) {
         this.categoryNameSelector = categoryNameSelector;
-    }
-
-    // Not sure, probably method can be removed
-    public List<SelectItem> getCategoryNamesList() {
-        List<SelectItem> categoryList = new ArrayList<>();
-        Set<String> categories = getAllCategories();
-        for (String categoryName : categories) {
-            categoryList.add(new SelectItem(
-                    // Replace new line by space
-                    categoryName.replaceAll("[\r\n]", " ")));
-        }
-        return categoryList;
-    }
-
-    // Not sure, probably method can be removed
-    private Set<String> getAllCategories() {
-        Set<String> categories = new TreeSet<>();
-        TableSyntaxNode[] syntaxNodes = WizardUtils.getTableSyntaxNodes();
-
-        for (TableSyntaxNode node : syntaxNodes) {
-            ITableProperties tableProperties = node.getTableProperties();
-            if (tableProperties != null) {
-                String categoryName = tableProperties.getCategory();
-                if (StringUtils.isNotBlank(categoryName)) {
-                    categories.add(categoryName);
-                }
-            }
-        }
-        return categories;
     }
 
     public List<SelectItem> getSpecificCategoryNameList() {
