@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.web.util;
 public final class Constants {
 
     public static final String REQUEST_PARAM_ID = "id";
-    public static final String REQUEST_PARAM_REPO_ID = "repo-id";
-    public static final String REQUEST_PARAM_NAME = "name";
-    public static final String REQUEST_PARAM_VERSION = "version";
     public static final String REQUEST_PARAM_PAGE = "p";
     public static final String REQUEST_PARAM_PERPAGE = "pp";
     public static final String REQUEST_PARAM_FAILURES_ONLY = "failuresOnly";
