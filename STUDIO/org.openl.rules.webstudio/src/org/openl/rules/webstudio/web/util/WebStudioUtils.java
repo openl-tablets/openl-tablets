@@ -133,10 +133,6 @@ public abstract class WebStudioUtils {
         FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(severity, summary, detail));
     }
 
-    public static void addInfoMessage(String summary) {
-        addMessage(null, summary, null, FacesMessage.SEVERITY_INFO);
-    }
-
     public static void addErrorMessage(String summary) {
         addErrorMessage(summary, null);
     }
