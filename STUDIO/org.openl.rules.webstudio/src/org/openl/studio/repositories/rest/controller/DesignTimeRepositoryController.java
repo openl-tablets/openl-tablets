@@ -64,7 +64,6 @@ import org.openl.studio.repositories.model.ProjectTemplateGroup;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 import org.openl.studio.repositories.rest.resolver.DesignRepository;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
-import org.openl.studio.repositories.service.HistoryRepositoryMapper;
 import org.openl.studio.repositories.service.ProjectCreationService;
 import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.ZipProjectSaveStrategy;
@@ -119,11 +118,6 @@ public class DesignTimeRepositoryController {
         this.projectRevisionService = projectRevisionService;
         this.bypassService = bypassService;
         this.projectCreationService = projectCreationService;
-    }
-
-    @Lookup
-    protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
-        return null;
     }
 
     @Lookup("commentService")
