@@ -49,7 +49,5 @@ An example of the file contents is as follows:
   }
 }
 ```
-```
-Release 5.27
-OpenL Tablets Documentation is licensed under a Creative Commons Attribution 3.0 United States License.
-```
+
+OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.

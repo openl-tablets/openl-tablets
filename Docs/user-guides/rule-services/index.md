@@ -33,3 +33,7 @@ This guide is organized into the following sections:
 - [OpenL Tablets Reference Guide](../reference-guide/index.md) - Complete language reference
 - [OpenL Studio User Guide](../openl-studio/index.md) - Rule development and management
 - [Installation Guide](../installation-guide/index.md) - Installation and deployment instructions
+
+---
+
+OpenL Tablets Documentation is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
