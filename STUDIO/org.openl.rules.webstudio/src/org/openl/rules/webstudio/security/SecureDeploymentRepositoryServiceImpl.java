@@ -74,9 +74,4 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
                         null,
                         List.of(permission)));
     }
-
-    @Override
-    public boolean hasPermission(Permission permission) {
-        return getRepositories(permission).findAny().isPresent();
-    }
 }
