@@ -18,10 +18,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.constraints.Constraint;
-import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.constraints.LessThanConstraint;
-import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -124,36 +120,6 @@ public class TableCopier extends TableCreationWizard {
             }
         }
         propertiesManager.setProperties(definedProperties);
-    }
-
-    public String getValidationJS() {
-        StringBuilder validation = new StringBuilder();
-        TableProperty prop = getCurrentProp();
-        Constraints constraints = prop.getConstraints();
-        if (constraints != null) {
-            String inputId = getInputIdJS(prop.getName());
-            for (Constraint constraint : constraints.getAll()) {
-                if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
-                    String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
-                    String compareToField = (String) constraint.getParams()[0];
-                    String compareToFieldId = getInputIdJS(compareToField);
-                    TableProperty compareToProperty = getProperty(prop.getName());
-                    String compareToPropertyDisplayName = compareToProperty == null ? ""
-                            : compareToProperty
-                            .getDisplayName();
-                    validation.append("new Validation(")
-                            .append(inputId)
-                            .append(", '")
-                            .append(validator)
-                            .append("', '', {compareToFieldId:")
-                            .append(compareToFieldId)
-                            .append(",messageParams:'")
-                            .append(compareToPropertyDisplayName)
-                            .append("'})");
-                }
-            }
-        }
-        return validation.toString();
     }
 
     private List<String> getAllPossibleProperties(String tableType) {
@@ -365,15 +331,6 @@ public class TableCopier extends TableCreationWizard {
     protected void onFinish() throws Exception {
         doCopy();
         super.onFinish();
-    }
-
-    private String getInputIdJS(String propName) {
-        return "$j('#" + propsTable.getParent()
-                .getId() + "').find('input[type=hidden][name=id][value=" + propName + "]').parent().find('input:first').id";
-    }
-
-    private TableProperty getCurrentProp() {
-        return (TableProperty) propsTable.getRowData();
     }
 
     public TableProperty getProperty(String name) {
