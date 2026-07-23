@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -439,27 +437,6 @@ class GroupManagementTest {
 
         userManagementService.updateAuthorities("jdoe", Collections.emptySet());
         assertTrue(userDao.getGroupsForUser("jdoe").isEmpty());
-    }
-
-    @Test
-    void testGetUserWithoutGroups() {
-        initOneUser();
-        userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
-
-        User userWithGroups = userManagementService.getUser("jdoe");
-        assertNotNull(userWithGroups);
-        assertFalse(userWithGroups.getAuthorities().isEmpty());
-        assertEquals(2, userWithGroups.getAuthorities().size());
-
-        User userWithoutGroups = userManagementService.getUserWithoutGroups("jdoe");
-        assertNotNull(userWithoutGroups);
-        assertTrue(userWithoutGroups.getAuthorities().isEmpty());
-        assertEquals("jdoe", userWithoutGroups.getUsername());
-    }
-
-    @Test
-    void testGetUserWithoutGroups_unknownUser() {
-        assertNull(userManagementService.getUserWithoutGroups("unknown"));
     }
 
     private static <T, R> void assertCollectionEquals(Collection<R> expected,

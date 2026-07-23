@@ -95,13 +95,6 @@ public class UserManagementService {
         return userDao.countUsersInGroup(groupName);
     }
 
-    @Transactional(readOnly = true)
-    public org.openl.rules.security.User getUserWithoutGroups(String username) {
-        return Optional.ofNullable(userDao.getUserByName(username))
-                .map(user -> createSecurityUser(user, Collections.emptySet()))
-                .orElse(null);
-    }
-
     @Transactional
     public boolean existsByName(String name) {
         return userDao.existsByName(name);
