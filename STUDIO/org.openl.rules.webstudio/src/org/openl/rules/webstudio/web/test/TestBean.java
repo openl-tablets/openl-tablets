@@ -334,10 +334,6 @@ public class TestBean {
         return row;
     }
 
-    public String getTestedTableUri() {
-        return uri;
-    }
-
     public String getTestTableName(Object testResults) {
         return TableSyntaxNodeUtils.getTestName(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
     }
