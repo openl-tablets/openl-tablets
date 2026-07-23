@@ -152,7 +152,7 @@ The following sections provide more details on Demo package work:
 
 ### OpenL Studio in a Demo Package
 
-OpenL Studio is preconfigured in a single user mode. A user is automatically signed in and sees the welcome start page.
+OpenL Studio is pre-configured in single-user mode. A user is automatically signed in and sees the welcome start page.
 
 The following topics are included:
 
