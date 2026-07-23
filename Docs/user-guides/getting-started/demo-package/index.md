@@ -174,7 +174,7 @@ Users can work with projects loaded in Repository in the Demo package and create
 
 The “Example 3 – Auto Policy Calculation” project is already deployed and can be used via OpenL Tablets Rule Services as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project) in OpenL Tablets Rule Services Demo Client as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
 
-As OpenL Studio is preconfigured in a single user mode, and all projects in Repository are created and modified by the “DEFAULT” user.
+OpenL Studio is pre-configured in single-user mode, so all projects in the Repository are created and modified by the “DEFAULT” user.
 
 ![The whole list of rules projects in Repository of the Demo package](demo_studio_projects.png)
 
