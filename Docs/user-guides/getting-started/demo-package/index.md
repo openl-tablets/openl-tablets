@@ -184,7 +184,7 @@ As OpenL Studio is preconfigured in a single user mode, and all projects in Repo
 
 By default, a project from the “Example 3 – Auto Policy Calculation” template is deployed to Deployment Repository from OpenL Studio by a startup script.
 
-To use this project as an example of project deployments as described in [OpenL Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package), several settings are defined in Rules Configuration of the project. It is set up that only `DriverRisk`, `DriverAgeType`, `AccidentPremium` are wildcards, and rules are included and can be used from the OpenL Tablets Rule Services Demo Client application.
+The [OpenL Tablets Rule Services Demo Client](#openl-rule-services-demo-client-in-a-demo-package) demonstrates three methods of this project — `DriverRisk`, `DriverAgeType`, and `AccidentPremium` — which are wired into the client page.
 
 ![OpenL Rule Services main page and the project deployed on it](demo_ruleservices_ui.png)
 
