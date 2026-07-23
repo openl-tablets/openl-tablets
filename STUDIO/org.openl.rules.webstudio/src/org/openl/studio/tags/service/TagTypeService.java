@@ -43,10 +43,6 @@ public class TagTypeService {
         return tagTypeDao.deleteById(id);
     }
 
-    public void delete(String name) {
-        tagTypeDao.deleteByName(name);
-    }
-
     public TagType getById(Long id) {
         return tagTypeDao.getById(id);
     }
