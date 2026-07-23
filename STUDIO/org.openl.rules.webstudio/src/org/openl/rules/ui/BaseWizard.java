@@ -7,7 +7,6 @@ public abstract class BaseWizard {
 
     private int step;
     private int maxVisitedStep;
-    private int stepsCount;
 
     public void cancel() {
         onCancel();
@@ -51,10 +50,6 @@ public abstract class BaseWizard {
 
     public void setStep(int step) {
         this.step = step;
-    }
-
-    public void setStepsCount(int stepsCount) {
-        this.stepsCount = stepsCount;
     }
 
     public String start() {

@@ -57,31 +57,24 @@ public class TableWizardManager extends BaseTableWizardManager {
         switch (tableType) {
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();
-                wizard.setStepsCount(3);
                 break;
             case DATATYPE_ALIAS:
                 wizard = new DatatypeAliasTableCreationWizard();
-                wizard.setStepsCount(3);
                 break;
             case DATA:
                 wizard = new DataTableCreationWizard();
-                wizard.setStepsCount(3);
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
-                wizard.setStepsCount(3);
                 break;
             case TEST_DIRECT:
                 wizard = new TestTableCreationWizardDirect(getTable());
-                wizard.setStepsCount(2);
                 break;
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
-                wizard.setStepsCount(3);
                 break;
             case SIMPLERULES:
                 wizard = new SimpleRulesCreationWizard();
-                wizard.setStepsCount(3);
                 break;
             default:
                 return null;
