@@ -20,12 +20,6 @@ public class MailConfigModel {
     public MailConfigModel() {
     }
 
-    public MailConfigModel(String url, String username, String password) {
-        this.url = url;
-        this.username = username;
-        this.password = password;
-    }
-
     public String getPassword() {
         return password;
     }
