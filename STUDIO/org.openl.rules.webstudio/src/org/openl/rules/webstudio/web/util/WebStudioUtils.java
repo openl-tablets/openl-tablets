@@ -77,11 +77,6 @@ public abstract class WebStudioUtils {
                 .orElseGet(() -> getRulesUserSession(session, true).getWebStudio());
     }
 
-    public static boolean isStudioReady() {
-        WebStudio webStudio = getWebStudio();
-        return webStudio != null && webStudio.getModel().isReady();
-    }
-
     public static ProjectModel getProjectModel() {
         return getWebStudio().getModel();
     }
