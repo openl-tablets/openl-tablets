@@ -9,7 +9,6 @@ The goal of this document is to explain how to configure Rule Services Core, tha
 The following topics are included in this chapter:
 
 -   [Audience](#audience)
--   [How This Guide Is Organized](#how-this-guide-is-organized)
 -   [Related Information](#related-information)
 -   [Typographic Conventions](#typographic-conventions)
 
@@ -18,23 +17,6 @@ The following topics are included in this chapter:
 This guide is targeted at rule developers who integrate the Rule Services Core module and set up, configure, and customize OpenL Rule Services to facilitate the needs of customer rules management applications.
 
 Basic knowledge of Java, Apache Tomcat, Ant, Maven, and Excel is required to use this guide effectively.
-
-### How This Guide Is Organized
-
-| Section                                                                                                                         | Description                                                                                                                         |
-|---------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| [Introduction](#introduction)                                                                                                  | Provides overall information about OpenL Rule Services.                                                                      |
-| [Rule Services Core](#rule-services-core)                                                                                       | Introduces Rule Services Core functionality.                                                                                        |
-| [OpenL Rule Services Configuration](#openl-rule-services-configuration)                                                              | Describes the default configuration of OpenL Rule Services, introduces Service <br/>Manager, and explains main configuration points. |
-| [OpenL Rule Services Advanced Configuration and Customization](#openl-rule-services-advanced-configuration-and-customization)                                 | Describes OpenL Rule Services advanced services configuration and customization.                                             |
-| [Appendix A: Tips and Tricks](#appendix-a-using-openl-tablets-rest-services-from-java-code)                                     | Describes how to use OpenL Rule Services from Java code.                                                                     |
-| [Appendix B: Projects on the OpenL Rule Services Launch](#appendix-b-projects-on-the-openl-rule-services-launch)                                       | Explains how projects appear upon OpenL Rule Services launch.                                                                |
-| [Appendix C: Types of Exceptions in OpenL Rule Services](#appendix-c-types-of-exceptions-in-openl-rule-services) | Explains typical exceptions in OpenL Rule Services.                                                                          |
-| [Appendix D: OpenAPI Support](#appendix-d-openapi-support)                                                                            | Explains Swagger support in OpenL Tablets.                                                                                          |
-| [Appendix E: Programmatically Deploying Rules to a Repository](#appendix-e-programmatically-deploying-rules-to-a-repository)    | Describes how to locate a project with rules in the database repository <br/>without OpenL Studio deploy functionality.      |
-| [Appendix F: Backward Compatibility Settings](#appendix-f-backward-compatibility-settings)                                      | Describes backward compatibility settings.                                                                                          |
-| [Appendix G: Deployment Project ZIP Structure](#appendix-g-deployment-project-zip-structure)                                    | Describes ZIP structure for single and multiple project deployment.                                                                 |
-| [Appendix H: Manifest File for Deployed Projects](#appendix-h-manifest-file-for-deployed-projects)                              | Introduces manifest files created during project deployment from OpenL Studio <br/>or using the OpenL Tablets Maven plugin.  |
 
 ### Related Information
 
