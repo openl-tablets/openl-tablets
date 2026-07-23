@@ -1,12 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -28,7 +22,6 @@ import org.openl.studio.settings.model.constraint.TimePatternConstraint;
  * @author NSamatov
  */
 public final class AdministrationSettings implements SettingsHolder {
-    private static final Collection<String> allSettings;
 
     public static final String USER_WORKSPACE_HOME = "user.workspace.home";
     public static final String PROJECT_HISTORY_COUNT = "project.history.count";
@@ -80,37 +73,6 @@ public final class AdministrationSettings implements SettingsHolder {
     @NotNull
     @JsonMerge
     private DBSettings db;
-
-    static {
-        List<String> settingNames = new ArrayList<>();
-
-        for (Field field : AdministrationSettings.class.getFields()) {
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
-                try {
-                    Object value = field.get(null);
-                    if (value instanceof String string) {
-                        settingNames.add(string);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-
-        settingNames.add(OpenLSystemProperties.DISPATCHING_VALIDATION);
-
-        allSettings = Collections.unmodifiableCollection(settingNames);
-    }
-
-    /**
-     * Get all settings edited in "Administration" page
-     *
-     * @return setting property names edited in "Administration" page
-     */
-    public static Collection<String> getAllSettings() {
-        return allSettings;
-    }
 
     public AdministrationSettings() {
         db = new DBSettings();
