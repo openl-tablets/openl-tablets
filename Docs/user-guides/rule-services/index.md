@@ -30,9 +30,9 @@ This guide is organized into the following sections:
 
 ## Additional Resources
 
-- [OpenL Tablets Reference Guide](../reference-guide/index.md) - Complete language reference
-- [OpenL Studio User Guide](../openl-studio/index.md) - Rule development and management
-- [Installation Guide](../installation-guide/index.md) - Installation and deployment instructions
+- [OpenL Tablets Reference Guide](../reference-guide/) - Complete language reference
+- [OpenL Studio User Guide](../openl-studio/) - Rule development and management
+- [Installation Guide](../installation-guide/) - Installation and deployment instructions
 
 ---
 

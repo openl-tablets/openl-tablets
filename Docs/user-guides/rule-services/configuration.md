@@ -45,7 +45,7 @@ For more information on configuration files, see [Configuration Points](#configu
 
 ### Service Manager
 
-**Service Manager** is the main component of OpenL Rule Services frontend joining all major parts, such as a loader, rule service publishers, and Service Configurer. For more information on OpenL Rule Services frontend components, see [OpenL Tablets Developers Guide](../../developer-guides/index.md).
+**Service Manager** is the main component of OpenL Rule Services frontend joining all major parts, such as a loader, rule service publishers, and Service Configurer. For more information on OpenL Rule Services frontend components, see [OpenL Tablets Developers Guide](../../developer-guides/).
 
 Service Manager manages all currently running services and intelligently controls all operations for deploying, undeploying, and redeploying the services. These operations are only performed in the following cases:
 
@@ -56,7 +56,7 @@ Service Manager always acts as a data source listener as described in further se
 
 ### Configuration Points
 
-Any part of OpenL Rule Services frontend can be replaced by the user’s own implementation. For more information on the system architecture, see [OpenL Tablets Developers Guide](../../developer-guides/index.md).
+Any part of OpenL Rule Services frontend can be replaced by the user’s own implementation. For more information on the system architecture, see [OpenL Tablets Developers Guide](../../developer-guides/).
 
 If the common approach is used, the following components must be configured:
 
