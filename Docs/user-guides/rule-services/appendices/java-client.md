@@ -5,7 +5,7 @@ This section describes how to write a client code that invokes OpenL Tablets RES
 The following example illustrates client code generation for the JSON content type:
 
 ```java
-JacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
+JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
 jacksonObjectMapperFactoryBean.setEnableDefaultTyping(true);
 Set<String> overrideTypes = new HashSet<String>();
 overrideTypes.add(SomeClass.class.getName());
