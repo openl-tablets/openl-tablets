@@ -1,6 +1,6 @@
 ## Appendix G: Deployment Project ZIP Structure
 
-OpenL projects without Excel files inside are supported
+OpenL projects without Excel files inside are supported.
 
 Deployment projects described in this section can be built via **OpenL Maven Plugin** or archived manually. The following topics are included:
 
@@ -32,11 +32,11 @@ deployment.zip:
                 rules-deploy.xml
                 *.xlsx
         project-2                                OpenL Tablets project folder #2
-rules.xml
+                rules.xml
                 rules-deploy.xml
                 *.xlsx
         project-*                                OpenL Tablets project folder #N
-rules.xml
+                rules.xml
                 rules-deploy.xml
                 *.xlsx
 ```
