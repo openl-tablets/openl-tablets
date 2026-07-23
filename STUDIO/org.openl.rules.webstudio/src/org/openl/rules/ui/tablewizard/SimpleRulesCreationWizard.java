@@ -80,14 +80,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         initWorkbooks();
     }
 
-    public int getColumnSize() {
-        int size = 0;
-        size += this.parameters.size();
-        size++;
-
-        return size;
-    }
-
     public List<SelectItem> getPropertyList() {
         List<SelectItem> propertyNames = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
