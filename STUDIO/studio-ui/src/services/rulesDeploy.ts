@@ -3,6 +3,7 @@
 // any elements the form does not manage (e.g. the `configuration` map), so unknown settings survive edits.
 
 import { escapeXml } from '../utils/escapeXml'
+import { childValue, childValues, directChild, parseXmlRoot, unmanagedChildren } from './xmlDescriptor'
 
 export interface DeployConfig {
     serviceName: string
@@ -54,9 +55,6 @@ export class DeployConfigConfigurationError extends Error {
     }
 }
 
-const directChild = (parent: Element, tag: string): Element | null =>
-    Array.from(parent.children).find(child => child.tagName === tag) ?? null
-
 /** The serialized inner XML of an element (its children), trimmed. */
 const innerXml = (element: Element): string => {
     const serializer = new XMLSerializer()
@@ -65,13 +63,11 @@ const innerXml = (element: Element): string => {
 
 /** Parse a rules-deploy descriptor into the form model. A blank descriptor starts from an empty config. */
 const rootOf = (xml: string): Element | null => {
-    const trimmed = xml.trim()
-    if (!trimmed) {
+    if (!xml.trim()) {
         return null
     }
-    const doc = new DOMParser().parseFromString(trimmed, 'application/xml')
-    const root = doc.documentElement
-    if (!root || doc.getElementsByTagName('parsererror').length > 0 || root.tagName !== ROOT) {
+    const root = parseXmlRoot(xml, ROOT)
+    if (!root) {
         throw new DeployConfigParseError()
     }
     return root
@@ -95,7 +91,7 @@ export function parseDeployConfig(xml: string): DeployConfig {
     if (!root) {
         return { ...EMPTY_DEPLOY_CONFIG }
     }
-    const text = (tag: string) => directChild(root, tag)?.textContent?.trim() ?? ''
+    const text = (tag: string) => childValue(root, tag)
     const publishers = directChild(root, 'publishers')
     const configuration = directChild(root, 'configuration')
     return {
@@ -107,12 +103,7 @@ export function parseDeployConfig(xml: string): DeployConfig {
         annotationTemplateClassName: text('annotationTemplateClassName') || text('interceptingTemplateClassName'),
         provideRuntimeContext: text('isProvideRuntimeContext') === 'true',
         groups: text('groups'),
-        publishers: publishers
-            ? Array.from(publishers.children)
-                .filter(child => child.tagName === 'publisher')
-                .map(child => child.textContent?.trim() ?? '')
-                .filter(Boolean)
-            : [],
+        publishers: publishers ? childValues(publishers, 'publisher') : [],
         configuration: configuration ? innerXml(configuration) : '',
     }
 }
@@ -122,21 +113,14 @@ export function parseDeployConfig(xml: string): DeployConfig {
  * carried over verbatim from the original document so no existing settings are lost.
  */
 export function serializeDeployConfig(config: DeployConfig, originalXml: string): string {
-    const preserved: string[] = []
     let root: Element | null
     try {
         root = rootOf(originalXml)
     } catch {
         return originalXml
     }
-    if (root) {
-        const serializer = new XMLSerializer()
-        for (const child of Array.from(root.children)) {
-            if (!MANAGED.has(child.tagName)) {
-                preserved.push(`    ${serializer.serializeToString(child)}`)
-            }
-        }
-    }
+    // Reuse the document already parsed above rather than parsing the same string a second time.
+    const preserved = root ? unmanagedChildren(root, MANAGED).map(child => `    ${child}`) : []
 
     const lines = ['<rules-deploy>']
     lines.push(`    <isProvideRuntimeContext>${config.provideRuntimeContext}</isProvideRuntimeContext>`)

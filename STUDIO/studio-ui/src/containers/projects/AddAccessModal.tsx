@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Alert, AutoComplete, Modal, Select, Spin } from 'antd'
 import { TeamOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { useSharedStyles } from './sharedStyles'
+import { FieldRow } from '../../components/FieldRow'
 import { Role } from '../../constants'
 import { searchProjectAclSubjects, setProjectAcl } from '../../services/acl'
 import { SystemContext } from '../../contexts'
@@ -13,15 +15,6 @@ const MIN_SUBJECT_SEARCH_LENGTH = 2
 const SUBJECT_PAGE_SIZE = 10
 
 const useStyles = createStyles(({ css, token }) => ({
-    field: css`
-        margin-bottom: 12px;
-    `,
-    label: css`
-        display: block;
-        margin-bottom: 4px;
-        font-size: 13px;
-        font-weight: 500;
-    `,
     kinds: css`
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -33,18 +26,9 @@ const useStyles = createStyles(({ css, token }) => ({
         justify-content: center;
         gap: 8px;
         height: 36px;
-        border: 1px solid ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
         color: ${token.colorTextTertiary};
-        cursor: pointer;
-
-        &:hover {
-            background: ${token.colorFillQuaternary};
-        }
     `,
     kindActive: css`
-        border-color: ${token.colorPrimary};
-        background: ${token.colorPrimaryBg};
         color: ${token.colorText};
     `,
 }))
@@ -64,6 +48,7 @@ interface AddAccessModalProps {
 export const AddAccessModal = ({ open, projectId, projectName, onClose, onGranted }: AddAccessModalProps) => {
     const { t } = useTranslation('repository')
     const { isGroupsManagementEnabled } = useContext(SystemContext)
+    const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const [kind, setKind] = useState<'user' | 'group'>('user')
     const [sid, setSid] = useState('')
@@ -138,7 +123,7 @@ export const AddAccessModal = ({ open, projectId, projectName, onClose, onGrante
 
     const grant = async () => {
         const trimmed = sid.trim()
-        if (!trimmed) {
+        if (submitting || !trimmed) {
             return
         }
         setSubmitting(true)
@@ -166,23 +151,24 @@ export const AddAccessModal = ({ open, projectId, projectName, onClose, onGrante
             title={<><UserAddOutlined /> {t('browser.access.dialog_title')}</>}
         >
             <p style={{ marginTop: 0, color: 'inherit' }}>{t('browser.access.dialog_desc', { name: projectName })}</p>
-            <div className={styles.field}>
-                <span className={styles.label}>{t('browser.access.subject_type')}</span>
+            <FieldRow alignTop label={t('browser.access.subject_type')} labelWidth={110}>
                 <div className={styles.kinds} style={{ gridTemplateColumns: isGroupsManagementEnabled ? '1fr 1fr' : '1fr' }}>
-                    <button className={cx(styles.kind, kind === 'user' && styles.kindActive)} onClick={() => setKind('user')} type="button">
+                    <button className={cx(shared.selectableCard, styles.kind, kind === 'user' && cx(shared.selectedCard, styles.kindActive))} onClick={() => setKind('user')} type="button">
                         <UserOutlined /> {t('browser.access.type_user')}
                     </button>
                     {isGroupsManagementEnabled && (
-                        <button className={cx(styles.kind, kind === 'group' && styles.kindActive)} onClick={() => setKind('group')} type="button">
+                        <button className={cx(shared.selectableCard, styles.kind, kind === 'group' && cx(shared.selectedCard, styles.kindActive))} onClick={() => setKind('group')} type="button">
                             <TeamOutlined /> {t('browser.access.type_group')}
                         </button>
                     )}
                 </div>
-            </div>
-            <div className={styles.field}>
-                <span className={styles.label}>
-                    {kind === 'user' ? t('browser.access.subject_user_label') : t('browser.access.subject_group_label')}
-                </span>
+            </FieldRow>
+            <FieldRow
+                alignTop
+                required
+                label={kind === 'user' ? t('browser.access.subject_user_label') : t('browser.access.subject_group_label')}
+                labelWidth={110}
+            >
                 <AutoComplete
                     autoFocus
                     data-testid="add-access-sid"
@@ -199,9 +185,8 @@ export const AddAccessModal = ({ open, projectId, projectName, onClose, onGrante
                         }
                     }}
                 />
-            </div>
-            <div className={styles.field}>
-                <span className={styles.label}>{t('browser.access.role')}</span>
+            </FieldRow>
+            <FieldRow label={t('browser.access.role')} labelWidth={110}>
                 <Select
                     data-testid="add-access-role"
                     onChange={setRole}
@@ -209,7 +194,7 @@ export const AddAccessModal = ({ open, projectId, projectName, onClose, onGrante
                     style={{ width: '100%' }}
                     value={role}
                 />
-            </div>
+            </FieldRow>
             {error && <Alert showIcon data-testid="add-access-error" style={{ marginTop: 12 }} title={error} type="error" />}
         </Modal>
     )

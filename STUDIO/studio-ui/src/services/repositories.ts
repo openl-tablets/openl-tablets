@@ -1,7 +1,7 @@
 import apiCall, { asArray, isApiHttpError, type ApiCallOptions } from './apiCall'
 import CONFIG from './config'
 import { triggerDownload } from '../utils/download'
-import type { Repository } from '../types/repositories'
+import type { Repository, RepositoryConfig } from '../types/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { ProjectStatus } from '../constants/project'
@@ -9,7 +9,7 @@ import { ProjectStatus } from '../constants/project'
 const THROW_API_OPTIONS = { throwError: true } satisfies ApiCallOptions
 const PROJECT_MODIFIED_ERROR_CODE = 'openl.error.409.project.close.modified.message'
 
-export type ProjectInclude = 'summary' | 'status' | 'deleted' | 'modules'
+export type ProjectInclude = 'summary' | 'status' | 'deleted' | 'descriptor'
 
 export const isProjectModifiedConflict = (error: unknown): boolean => {
     if (!isApiHttpError(error) || error.status !== 409) {
@@ -34,6 +34,10 @@ export async function getDesignRepositories(apiOptions: ApiCallOptions = THROW_A
 export interface GetProjectsQuery {
     page?: number
     size?: number
+    /** Ask for every project at once instead of a page of them. */
+    unpaged?: boolean
+    /** Comma-separated response fields to keep, for a caller that needs only a few of them. */
+    fields?: string
     name?: string | undefined
     author?: string | undefined
     branch?: string | undefined
@@ -54,10 +58,12 @@ export async function getProjects(
     const params = new URLSearchParams()
     setParam(params, 'page', query.page)
     setParam(params, 'size', query.size)
+    setParam(params, 'unpaged', query.unpaged)
     setParam(params, 'name', query.name?.trim())
     setParam(params, 'author', query.author?.trim())
     setParam(params, 'branch', query.branch?.trim())
     setParam(params, 'sort', query.sort)
+    setParam(params, 'fields', query.fields)
     appendRepeated(params, 'include', query.includes)
     appendRepeated(params, 'status', query.statuses)
     appendRepeated(params, 'repository', query.repositories)
@@ -118,8 +124,8 @@ function appendTags(params: URLSearchParams, tags: Iterable<string> | undefined)
 
 /**
  * Load a single project by id. This detail response carries everything the workspace needs — including
- * the dependency graph and the rules.xml-derived fields (description, modules, version patterns, exposed
- * methods) that are too costly to compute for every row of the list.
+ * the dependency graph and, when the descriptor is requested, the resolved modules and sources that are
+ * too costly to compute for every row of the list. The rest of rules.xml the UI reads from the file.
  */
 export async function getProject(
     projectId: string,
@@ -147,6 +153,27 @@ export async function getProjectFiles(projectId: string, recursive = true, versi
     const response = await apiCall(
         `/projects/${encodeURIComponent(projectId)}/files/?${params.toString()}`,
         undefined,
+        // The Files tab shows its own error state; a failure here must not take over the whole screen.
+        { throwError: true, suppressErrorPages: true }
+    )
+    return asArray(response)
+}
+
+/**
+ * List the immediate sub-folders of a repository folder. Returns one level only (not recursive), so a
+ * folder tree can be expanded lazily — important because a repository may hold very many folders.
+ *
+ * @param repositoryId design repository id
+ * @param path repository-relative folder path; empty lists the repository root
+ */
+export async function listRepoFolders(repositoryId: string, path = ''): Promise<FsNode[]> {
+    // The backend lists a folder's children only when the path ends with a slash; without it the path is
+    // read as a file. The root path is already "files/", so the slash is only appended to a sub-path.
+    const encodedPath = path.split('/').filter(Boolean).map(encodeURIComponent).join('/')
+    const folderPath = encodedPath ? `${encodedPath}/` : ''
+    const response = await apiCall(
+        `/repos/${encodeURIComponent(repositoryId)}/files/${folderPath}?foldersOnly=true&recursive=false`,
+        undefined,
         { throwError: true }
     )
     return asArray(response)
@@ -173,7 +200,8 @@ export async function copyProject(
     targetRepositoryId: string,
     newName: string,
     comment?: string,
-    path?: string
+    path?: string,
+    revision?: string
 ): Promise<void> {
     await apiCall(
         `/repos/${encodeURIComponent(targetRepositoryId)}/projects/${encodeURIComponent(newName)}/from-project`,
@@ -185,6 +213,7 @@ export async function copyProject(
                 sourceProjectName,
                 ...(comment?.trim() ? { comment: comment.trim() } : {}),
                 ...(path?.trim() ? { path: path.trim() } : {}),
+                ...(revision?.trim() ? { revision: revision.trim() } : {}),
             }),
         },
         { throwError: true }
@@ -276,9 +305,20 @@ export async function createProjectsFromWorkspace(
     )
 }
 
-/** Trigger a browser download of the whole project as a ZIP archive. */
-export function downloadProject(projectId: string): void {
-    triggerDownload(`${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/files/?download=true`)
+/**
+ * Trigger a browser download of the whole project as a ZIP archive.
+ *
+ * @param version revision to download; omit for the workspace copy, which carries the local changes of a
+ *                project being edited
+ */
+export function downloadProject(projectId: string, version?: string): void {
+    const params = new URLSearchParams({ download: 'true' })
+    if (version) {
+        params.set('version', version)
+    }
+    triggerDownload(
+        `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/files/?${params.toString()}`
+    )
 }
 
 export type ProjectStatusToSet = 'OPENED' | 'CLOSED'
@@ -330,19 +370,38 @@ export async function saveProject(projectId: string, comment?: string): Promise<
     })
 }
 
+/**
+ * Read the settings of the repository the project is stored in — the branch and comment rules the project
+ * forms suggest values from and validate against. Asked per project, so it also works for a user granted
+ * access to the project alone rather than to the whole repository.
+ */
+export async function getRepositoryConfig(projectId: string): Promise<RepositoryConfig> {
+    const response = await apiCall(
+        `/projects/${encodeURIComponent(projectId)}/repository-config`,
+        undefined,
+        THROW_API_OPTIONS
+    )
+    return response as RepositoryConfig
+}
+
+/**
+ * Read the settings of a repository the user may create a project in — the same branch and comment rules,
+ * asked before a project exists.
+ */
+export async function getDesignRepositoryConfig(repositoryId: string): Promise<RepositoryConfig> {
+    const response = await apiCall(
+        `/repos/${encodeURIComponent(repositoryId)}/config`,
+        undefined,
+        THROW_API_OPTIONS
+    )
+    return response as RepositoryConfig
+}
+
 export interface ProjectBranch {
     name: string
     protected: boolean
     /** The repository base branch; it can never be deleted. */
     base: boolean
-    bypassEligible: boolean
-    /** The branch's tip commit; absent when it could not be read. */
-    lastCommit?: {
-        author: string
-        modifiedAt: string
-        message: string
-        revision: string
-    }
 }
 
 /** Create a new branch for a project, optionally from a specific revision (defaults to HEAD). */
@@ -458,18 +517,6 @@ export async function switchProjectBranch(
  */
 export async function setSelectedBranches(projectId: string, branches: string[]): Promise<void> {
     await patchProject(projectId, { selectedBranches: branches })
-}
-
-/**
- * Replace a project's tag assignments with the given map. The backend enforces the WRITE grant and
- * stores the tags as provided; callers should refresh afterwards.
- */
-export async function updateProjectTags(projectId: string, tags: Record<string, string>): Promise<void> {
-    await apiCall(`/projects/${encodeURIComponent(projectId)}/tags`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tags),
-    }, { throwError: true })
 }
 
 export interface TagType {

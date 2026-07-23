@@ -22,7 +22,6 @@ import {
     setSelectedBranches,
     switchProjectBranch,
     unlockProject,
-    updateProjectTags,
 } from './repositories'
 import { ProjectStatus } from '../constants/project'
 
@@ -98,9 +97,9 @@ describe('getProjects', () => {
     it('requests one project with optional compilation status', async () => {
         vi.mocked(apiCall).mockResolvedValue({ id: 'abc' })
 
-        await getProject('abc=', { includes: ['status', 'modules']})
+        await getProject('abc=', { includes: ['status', 'descriptor']})
 
-        expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=status&include=modules', undefined, { throwError: true })
+        expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=status&include=descriptor', undefined, { throwError: true })
     })
 
     it('passes local error-page handling options to project list and detail calls', async () => {
@@ -125,7 +124,7 @@ describe('getProjects', () => {
         expect(apiCall).toHaveBeenCalledWith(
             '/projects/abc%3D/files/?viewMode=FLAT&recursive=true&version=rev+1',
             undefined,
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         )
     })
 
@@ -330,13 +329,6 @@ describe('getProjects', () => {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ selectedBranches: ['main', 'hotfix']}),
-        }, { throwError: true })
-
-        await updateProjectTags('abc', { Team: 'Payroll' })
-        expect(apiCall).toHaveBeenLastCalledWith('/projects/abc/tags', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Team: 'Payroll' }),
         }, { throwError: true })
 
         vi.mocked(apiCall).mockResolvedValue([{ name: 'Team', extensible: true, nullable: false, values: []}])

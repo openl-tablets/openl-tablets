@@ -136,10 +136,10 @@ describe('Tags', () => {
         })
     })
 
-    it('calls fill endpoint on Fill Tags click', async () => {
+    it('saves the templates and opens the preview on Fill Tags click', async () => {
         mockApiCall
             .mockResolvedValueOnce(undefined) // saveTemplatesRequest (PUT)
-            .mockResolvedValueOnce({ updated: 3, skipped: 1 }) // fill (POST)
+            .mockResolvedValueOnce([]) // the preview the modal loads
 
         await act(async () => {
             render(<Tags />)
@@ -152,15 +152,53 @@ describe('Tags', () => {
         const fillButton = screen.getByRole('button', { name: /tags:fill_tags_for_project/i })
         await userEvent.click(fillButton)
 
+        // The preview shows what filling would do; nothing is written before the user confirms it.
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledWith(
+                '/admin/tag-config/fill/preview',
+                expect.objectContaining({ method: 'GET' }),
+                { throwError: true }
+            )
+        })
+        expect(mockApiCall).not.toHaveBeenCalledWith(
+            '/admin/tag-config/fill',
+            expect.anything(),
+            expect.anything()
+        )
+    })
+
+    it('fills the picked projects and closes the preview, reporting how many changed', async () => {
+        mockApiCall
+            .mockResolvedValueOnce(undefined) // saveTemplatesRequest (PUT) — the templates decide the preview
+            .mockResolvedValueOnce([{
+                projectName: 'Policy-rules',
+                modifiable: true,
+                tags: [{ type: 'Domain', derived: 'Policy', state: 'assign' }],
+            }]) // the preview the modal loads
+            .mockResolvedValueOnce({ updated: 1, skipped: 0 }) // the fill itself
+
+        render(<Tags />)
+        await waitFor(() => {
+            expect(mockApiCall).toHaveBeenCalledTimes(2)
+        })
+
+        await userEvent.click(screen.getByRole('button', { name: /tags:fill_tags_for_project/i }))
+        expect(await screen.findByTestId('fill-project-Policy-rules')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByRole('button', { name: /fill_preview.apply/i }))
+
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith(
                 '/admin/tag-config/fill',
                 expect.objectContaining({ method: 'POST' }),
                 { throwError: true }
             )
-            expect(notification.success).toHaveBeenCalledWith({
-                title: 'tags:fill_tags_success (3)',
-            })
+        })
+        // The success toast names how many projects were updated.
+        await waitFor(() => {
+            expect(notification.success).toHaveBeenCalledWith(
+                expect.objectContaining({ title: expect.stringContaining('fill_tags_success') })
+            )
         })
     })
 

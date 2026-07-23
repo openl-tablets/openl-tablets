@@ -4,11 +4,11 @@ import { LockOutlined, RightOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { Project } from '../../types/projects'
 import type { RepositoryInfo } from '../../types/repositories'
-import { StatusPill } from './StatusIndicator'
+import { StatusMark } from './StatusIndicator'
 import { RepoBadge } from './RepoBadge'
 import { RowCompileDot } from './CompileIndicator'
-import { ProjectActionsMenu, type ProjectListHandlers, type RowActionId } from './ProjectRowActions'
-import { deriveProjectRow, activateOnKey, ProjectTags, BranchLabel } from './projectRow'
+import { ProjectRowActions, type ProjectListHandlers, type RowActionId } from './ProjectRowActions'
+import { deriveProjectRow, activateOnKey, ProjectTags, ProjectBranch } from './projectRow'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -44,7 +44,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     head: css`
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         gap: 8px;
     `,
@@ -53,6 +53,9 @@ const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         gap: 8px;
         min-width: 0;
+        /* The name keeps the height of the actions button, so the header band never shifts when a card
+           carries no actions. */
+        min-height: ${token.controlHeight}px;
     `,
     name: css`
         min-width: 0;
@@ -121,7 +124,8 @@ interface ProjectsGridProps {
     handlers: ProjectListHandlers
     onOpen: (project: Project) => void
     compileStatusByProject: Map<string, ProjectStatusUpdate>
-    pending: { projectId: string; actionId: RowActionId } | null
+    /** The action running on each project, keyed by project id. */
+    pending: Record<string, RowActionId>
 }
 
 /** Card-grid view of the projects list, mirroring the table's data with the same row actions. */
@@ -133,10 +137,11 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
         <div className={styles.grid} data-testid="projects-grid">
             {projects.map(project => {
                 const { muted, repoLabel, repoType, supportsBranches, lockLabel, tags, date } = deriveProjectRow(project, repoInfoOf, t)
-                const pendingActionId = pending?.projectId === project.id ? pending.actionId : null
+                const pendingActionId = pending[project.id] ?? null
                 return (
                     <div
                         key={project.id}
+                        aria-label={project.name}
                         className={styles.card}
                         data-testid={`project-card-${project.id}`}
                         onClick={() => onOpen(project)}
@@ -146,6 +151,7 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                     >
                         <div className={styles.head}>
                             <div className={styles.title}>
+                                <StatusMark status={project.status} testId={`status-${project.id}`} />
                                 <Typography.Text
                                     className={cx(styles.name, muted && styles.nameMuted)}
                                     ellipsis={{ tooltip: project.name }}
@@ -157,24 +163,23 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                                         <LockOutlined aria-label={lockLabel} className={styles.lock} />
                                     </Tooltip>
                                 )}
-                            </div>
-                            <div className={styles.headRight}>
                                 <RowCompileDot
                                     branch={supportsBranches ? project.branch || null : null}
                                     initialStatus={compileStatusByProject.get(project.id)}
                                     projectId={project.id}
                                     status={project.status}
                                 />
-                                <ProjectActionsMenu handlers={handlers} pendingActionId={pendingActionId} project={project} />
+                            </div>
+                            <div className={styles.headRight}>
+                                <ProjectRowActions handlers={handlers} layout="menu" pendingActionId={pendingActionId} project={project} />
                             </div>
                         </div>
-                        <div className={styles.status}><StatusPill status={project.status} /></div>
                         <div className={styles.tags}>
                             <ProjectTags tags={tags} />
                         </div>
                         <div className={styles.footer}>
                             <RepoBadge name={repoLabel} type={repoType} />
-                            <BranchLabel project={project} supportsBranches={supportsBranches} />
+                            <ProjectBranch project={project} supportsBranches={supportsBranches} />
                         </div>
                         <div className={styles.meta}>
                             <div>

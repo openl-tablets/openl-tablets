@@ -4,9 +4,10 @@ import { Button } from 'antd'
 import { createStyles } from 'antd-style'
 
 const DEFAULT_MAX_CHARS = 220
-const DEFAULT_MAX_LINES = 3
+// A multi-line message collapses to its first line — the subject — the way git shows a commit.
+const DEFAULT_MAX_LINES = 1
 
-const useStyles = createStyles(({ css, token }) => ({
+const useStyles = createStyles(({ css }) => ({
     root: css`
         min-width: 0;
     `,

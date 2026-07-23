@@ -6,6 +6,7 @@ import {
     copyProject,
     createProject,
     createProjectsFromWorkspace,
+    getDesignRepositoryConfig,
     getProjects,
     getProjectTemplates,
 } from '../../services/repositories'
@@ -15,11 +16,15 @@ vi.mock('../../services/repositories', () => ({
     copyProject: vi.fn(),
     createProject: vi.fn(),
     createProjectsFromWorkspace: vi.fn(),
+    getDesignRepositoryConfig: vi.fn(),
     getProjects: vi.fn(),
     getProjectTemplates: vi.fn(),
+    getRepositoryConfig: vi.fn(),
 }))
 
 vi.mock('../../utils/openlArchive', () => ({ inspectOpenLArchive: vi.fn() }))
+
+vi.mock('./RepoFolderPicker', () => ({ RepoFolderPicker: () => null }))
 
 vi.mock('react-i18next', () => {
     const translations: Record<string, string> = {
@@ -48,8 +53,14 @@ vi.mock('antd', () => {
         void type; void loading; void danger
         return <button onClick={onClick as never} {...dom}>{icon as never}{children as never}</button>
     }
-    const Input = ({ onChange, ...rest }: Record<string, unknown>) => <input onChange={onChange as never} {...rest} />
-    Input.TextArea = ({ onChange, ...rest }: Record<string, unknown>) => <textarea onChange={onChange as never} {...rest} />
+    const Input = ({ onChange, addonAfter, ...rest }: Record<string, unknown>) => {
+        void addonAfter
+        return <input onChange={onChange as never} {...rest} />
+    }
+    Input.TextArea = ({ onChange, autoSize, ...rest }: Record<string, unknown>) => {
+        void autoSize
+        return <textarea onChange={onChange as never} {...rest} />
+    }
     const Dragger = ({ children, beforeUpload }: Record<string, unknown>) => (
         <div>
             <button
@@ -104,7 +115,16 @@ vi.mock('antd', () => {
             </label>
         )
     }
-    return { Modal, Button, Checkbox, Input, Upload, Alert, Select, TreeSelect }
+    const Space = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    Space.Compact = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    const Tooltip = ({ children }: Record<string, unknown>) => children as never
+    const Typography = {
+        Text: ({ children, type, ...rest }: Record<string, unknown>) => {
+            void type
+            return <span {...rest}>{children as never}</span>
+        },
+    }
+    return { Modal, Button, Checkbox, Input, Upload, Alert, Select, Space, Tooltip, TreeSelect, Typography }
 })
 
 const repositories = [{ id: 'design', name: 'Design', aclId: 'a', capabilities: { canCreateProject: true } }]
@@ -121,12 +141,9 @@ const mappedRepositories = [
 const renderWizard = (props: Record<string, unknown> = {}) =>
     render(<NewProjectModal open onClose={vi.fn()} onCreated={vi.fn()} repositories={repositories as never} {...props} />)
 
-/** Pick a method tile (if given) and advance to the config step. */
-const toConfig = async (methodId?: string) => {
-    if (methodId) {
-        await userEvent.click(screen.getByTestId(`new-project-method-${methodId}`))
-    }
-    await userEvent.click(screen.getByTestId('new-project-next'))
+/** Click a method tile, which advances to the config step in a single click. */
+const toConfig = async (methodId = 'template') => {
+    await userEvent.click(screen.getByTestId(`new-project-method-${methodId}`))
 }
 
 describe('NewProjectModal', () => {
@@ -137,6 +154,51 @@ describe('NewProjectModal', () => {
         vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 } as never)
         vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
         vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+    })
+
+    it('advances to the config step on a single method click, without a Next button', async () => {
+        renderWizard()
+
+        // Method selection is now a single click — the separate "select + Next" step is gone.
+        expect(screen.queryByTestId('new-project-next')).toBeNull()
+        expect(screen.queryByTestId('new-project-submit')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('new-project-method-archive'))
+
+        // A single click lands directly on the archive config: its submit action and file picker show.
+        expect(await screen.findByTestId('new-project-submit')).toBeTruthy()
+        expect(screen.getByTestId('pick-file')).toBeTruthy()
+    })
+
+    it('suggests the create comment the target repository configures, following the typed name', async () => {
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
+            comment: { templates: { create: 'Project {project-name} was created' } },
+        })
+        renderWizard()
+
+        await toConfig()
+        await userEvent.type(screen.getByTestId('new-project-name'), 'Alpha')
+
+        await waitFor(() => expect((screen.getByTestId('new-project-comment') as HTMLTextAreaElement).value)
+            .toBe('Project Alpha was created'))
+    })
+
+    it('refuses a comment the target repository pattern forbids', async () => {
+        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
+            comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket', templates: {} },
+        })
+        renderWizard()
+
+        await toConfig()
+        await userEvent.type(screen.getByTestId('new-project-name'), 'Alpha')
+        await userEvent.type(screen.getByTestId('new-project-comment'), 'no ticket')
+
+        // The repository words the rejection itself, and the wizard shows it on the field.
+        await waitFor(() => expect(screen.getByTestId('new-project-comment-error'))
+            .toHaveTextContent('Start with a ticket'))
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+        expect(createProject).not.toHaveBeenCalled()
     })
 
     it('validates that a name is required', async () => {
@@ -250,6 +312,20 @@ describe('NewProjectModal', () => {
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
     })
 
+    it('requires every OpenAPI module name and path', async () => {
+        renderWizard()
+
+        await toConfig('openapi')
+        await userEvent.type(screen.getByTestId('new-project-name'), 'FromApi')
+        await userEvent.click(screen.getByTestId('pick-file'))
+        // A module field cleared by the user must block submit even though the others keep their defaults.
+        await userEvent.clear(screen.getByTestId('new-project-openapi-data-module'))
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+
+        expect(screen.getByTestId('new-project-error')).toBeTruthy()
+        expect(createProject).not.toHaveBeenCalled()
+    })
+
     it('publishes selected local projects from the workspace', async () => {
         vi.mocked(createProjectsFromWorkspace).mockResolvedValue()
         vi.mocked(getProjects).mockResolvedValue({
@@ -309,6 +385,20 @@ describe('NewProjectModal', () => {
         const [, name, options] = vi.mocked(createProject).mock.calls[0]!
         expect(name).toBe('Nested')
         expect(options.path).toBe('team/rules')
+    })
+
+    it('appends the project name to the path of an uploaded archive', async () => {
+        renderWizard({ repositories: mappedRepositories })
+
+        await toConfig('archive')
+        await userEvent.type(screen.getByTestId('new-project-name'), 'Nested')
+        await userEvent.type(screen.getByTestId('new-project-path'), 'team/rules')
+        await userEvent.click(screen.getByTestId('pick-file'))
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+
+        await waitFor(() => expect(createProject).toHaveBeenCalledTimes(1))
+        // An archive is mapped by its full internal path, unlike every other create mode.
+        expect(vi.mocked(createProject).mock.calls[0]![2].path).toBe('team/rules/Nested')
     })
 
     it('passes the repository path when copying a project', async () => {

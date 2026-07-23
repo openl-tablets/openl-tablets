@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Button, Empty, Input, notification, Skeleton, Switch, Tag } from 'antd'
-import { DiffOutlined, FolderOpenOutlined } from '@ant-design/icons'
+import { Button, Empty, notification, Skeleton, Switch, Tag, Tooltip } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { SearchInput } from '../../components/SearchInput'
 import {
     getProjectRevisions,
     isProjectModifiedConflict,
@@ -12,10 +13,9 @@ import {
     type ProjectRevision,
 } from '../../services/repositories'
 import { formatDateTime } from '../../utils/dateFormat'
-import { MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
 import { GitCommitMessage } from './GitCommitMessage'
 import { DiscardChangesModal } from '../DiscardChangesModal'
-import { ProjectRevisionCompareModal } from './ProjectRevisionCompareModal'
 
 const useStyles = createStyles(({ css, token }) => ({
     panel: css`
@@ -37,9 +37,6 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 8px;
         color: ${token.colorTextSecondary};
         font-size: 13px;
-    `,
-    compareAction: css`
-        margin-left: auto;
     `,
     timeline: css`
         margin: 0;
@@ -94,9 +91,7 @@ const useStyles = createStyles(({ css, token }) => ({
         font-size: 14px;
     `,
     tag: css`
-        margin: 0;
         border-radius: ${token.borderRadiusSM}px;
-        font-size: 11px;
     `,
     meta: css`
         display: flex;
@@ -111,9 +106,6 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         gap: 4px;
         flex: none;
-    `,
-    hash: css`
-        font-family: ${MOCKUP.fontMono};
     `,
     loadMore: css`
         display: flex;
@@ -132,7 +124,6 @@ interface RevisionsPanelProps {
     currentRevision?: string | null
     branch?: string | null
     searchable?: boolean | undefined
-    canCompare?: boolean | undefined
     onOpened: () => void
     /** Bumped when the project reloads (e.g. after a save), forcing the history to refetch. */
     reloadToken?: number
@@ -154,11 +145,11 @@ export const RevisionsPanel = ({
     currentRevision,
     branch,
     searchable = true,
-    canCompare = false,
     onOpened,
     reloadToken,
 }: RevisionsPanelProps) => {
     const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const [items, setItems] = useState<ProjectRevision[]>([])
     const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -170,8 +161,6 @@ export const RevisionsPanel = ({
     const [techRevs, setTechRevs] = useState(false)
     const [opening, setOpening] = useState<string | null>(null)
     const [discardOpenRevision, setDiscardOpenRevision] = useState<string | null>(null)
-    const [compareSelection, setCompareSelection] = useState<string[]>([])
-    const [comparePair, setComparePair] = useState<{ from: ProjectRevision, to: ProjectRevision } | null>(null)
     const fetchGeneration = useRef(0)
     const revisionQuery = useCallback((page: number) => ({
         ...(searchable && appliedSearch ? { search: appliedSearch } : {}),
@@ -209,12 +198,6 @@ export const RevisionsPanel = ({
         ? items.length < pageInfo.total
         : pageInfo.numberOfElements === pageInfo.pageSize && pageInfo.numberOfElements > 0)
 
-    useEffect(() => {
-        setCompareSelection(prev => prev.filter(revisionNo =>
-            items.some(revision => revision.revisionNo === revisionNo && !revision.deleted && !revision.technicalRevision)
-        ))
-    }, [items])
-
     const loadMore = async () => {
         const next = page + 1
         const generation = fetchGeneration.current
@@ -239,6 +222,9 @@ export const RevisionsPanel = ({
     }
 
     const open = async (revisionNo: string, discardChanges = false) => {
+        if (opening !== null) {
+            return
+        }
         setOpening(revisionNo)
         try {
             await openProjectRevision(projectId, revisionNo, discardChanges ? { discardChanges: true } : {})
@@ -254,55 +240,20 @@ export const RevisionsPanel = ({
         }
     }
 
-    const toggleCompare = (revisionNo: string) => {
-        setCompareSelection(prev => prev.includes(revisionNo)
-            ? prev.filter(selected => selected !== revisionNo)
-            : [...prev, revisionNo].slice(0, 2)
-        )
-    }
-
-    const openCompare = () => {
-        const selected = items.filter(revision => compareSelection.includes(revision.revisionNo))
-        if (selected.length !== 2) {
-            return
-        }
-        setComparePair({ from: selected[1]!, to: selected[0]! })
-    }
-
-    const compareButton = canCompare && (
-        <Button
-            className={styles.compareAction}
-            data-testid="revisions-compare"
-            disabled={compareSelection.length !== 2}
-            icon={<DiffOutlined />}
-            onClick={openCompare}
-            size="small"
-        >
-            {compareSelection.length === 2
-                ? t('browser.history.compare')
-                : t('browser.history.compare_count', { n: compareSelection.length })}
-        </Button>
-    )
-
-    const filters = (searchable || canCompare) && (
+    const filters = searchable && (
         <div className={styles.filters}>
-            {searchable && (
-                <>
-                    <Input.Search
-                        allowClear
-                        className={styles.search}
-                        data-testid={`revisions-search-${projectId}`}
-                        onChange={event => setSearch(event.target.value)}
-                        placeholder={t('browser.history.search')}
-                        value={search}
-                    />
-                    <label className={styles.techToggle}>
-                        <Switch checked={techRevs} data-testid="revisions-tech" onChange={setTechRevs} size="small" />
-                        {t('browser.history.tech_revs')}
-                    </label>
-                </>
-            )}
-            {compareButton}
+            <SearchInput
+                className={styles.search}
+                data-testid={`revisions-search-${projectId}`}
+                onChange={event => setSearch(event.target.value)}
+                placeholder={t('browser.history.search')}
+                size="small"
+                value={search}
+            />
+            <label className={styles.techToggle}>
+                <Switch checked={techRevs} data-testid="revisions-tech" onChange={setTechRevs} size="small" />
+                {t('browser.history.tech_revs')}
+            </label>
         </div>
     )
 
@@ -319,8 +270,6 @@ export const RevisionsPanel = ({
                     <ol className={styles.timeline} data-testid={`revisions-${projectId}`}>
                         {items.map((revision, index) => {
                             const current = !!currentRevision && revision.revisionNo === currentRevision
-                            const comparable = canCompare && !revision.deleted && !revision.technicalRevision
-                            const selectedForCompare = compareSelection.includes(revision.revisionNo)
                             return (
                                 <li key={revision.revisionNo} className={styles.item}>
                                     <div className={styles.rail}>
@@ -337,46 +286,28 @@ export const RevisionsPanel = ({
                                                         message={revision.fullComment}
                                                         testId={`revision-comment-${revision.revisionNo}`}
                                                     />
-                                                    {current && (
-                                                        <Tag
-                                                            className={styles.tag}
-                                                            color="blue"
-                                                            data-testid={`revision-current-${revision.revisionNo}`}
-                                                        >
-                                                            {t('browser.history.current')}
-                                                        </Tag>
-                                                    )}
-                                                    {revision.technicalRevision && <Tag className={styles.tag}>{t('browser.history.technical')}</Tag>}
+                                                    {revision.technicalRevision && <Tag className={cx(shared.chipTag, styles.tag)}>{t('browser.history.technical')}</Tag>}
                                                 </div>
                                                 <div className={styles.meta}>
                                                     <span>{authorName(revision)}</span>
                                                     <span>{formatDateTime(revision.createdAt) ?? '—'}</span>
-                                                    <span className={styles.hash}>{revision.shortRevisionNo}</span>
+                                                    <span className={shared.mono}>{revision.shortRevisionNo}</span>
                                                 </div>
                                             </div>
                                             <div className={styles.actions}>
-                                                {comparable && (
-                                                    <Button
-                                                        data-testid={`revision-compare-${revision.revisionNo}`}
-                                                        disabled={compareSelection.length >= 2 && !selectedForCompare}
-                                                        icon={<DiffOutlined />}
-                                                        onClick={() => toggleCompare(revision.revisionNo)}
-                                                        size="small"
-                                                        type={selectedForCompare ? 'primary' : 'default'}
-                                                    >
-                                                        {t('browser.history.compare_select')}
-                                                    </Button>
-                                                )}
                                                 {!current && !revision.technicalRevision && (
-                                                    <Button
-                                                        data-testid={`revision-open-${revision.revisionNo}`}
-                                                        icon={<FolderOpenOutlined />}
-                                                        loading={opening === revision.revisionNo}
-                                                        onClick={() => open(revision.revisionNo)}
-                                                        size="small"
-                                                    >
-                                                        {t('browser.history.open')}
-                                                    </Button>
+                                                    <Tooltip title={t('browser.history.open')}>
+                                                        <Button
+                                                            aria-label={t('browser.history.open')}
+                                                            data-testid={`revision-open-${revision.revisionNo}`}
+                                                            // One revision opens at a time: the workspace holds one.
+                                                            disabled={opening !== null && opening !== revision.revisionNo}
+                                                            icon={<SearchOutlined />}
+                                                            loading={opening === revision.revisionNo}
+                                                            onClick={() => open(revision.revisionNo)}
+                                                            size="small"
+                                                        />
+                                                    </Tooltip>
                                                 )}
                                             </div>
                                         </div>
@@ -408,13 +339,6 @@ export const RevisionsPanel = ({
                         void open(revisionNo, true)
                     }
                 }}
-            />
-            <ProjectRevisionCompareModal
-                fromRevision={comparePair?.from ?? null}
-                onClose={() => setComparePair(null)}
-                open={comparePair !== null}
-                projectId={projectId}
-                toRevision={comparePair?.to ?? null}
             />
         </div>
     )

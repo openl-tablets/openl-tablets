@@ -1,4 +1,5 @@
 import apiCall from './apiCall'
+import { encodeProjectPath, toUrlSafeId } from './projectId'
 import CONFIG from './config'
 import { getProjectFiles } from './repositories'
 import { triggerDownload } from '../utils/download'
@@ -20,7 +21,7 @@ export function isEditableTextFile(name: string): boolean {
 
 /** Build the files-API URL for a single file, encoding each path segment while keeping the separators. */
 const fileUrl = (projectId: string, path: string): string =>
-    `/projects/${encodeURIComponent(projectId)}/files/${path.split('/').map(encodeURIComponent).join('/')}`
+    `/projects/${toUrlSafeId(projectId)}/files/${encodeProjectPath(path)}`
 
 /**
  * Read a project file's raw text content, optionally at a specific historical revision. The endpoint
@@ -31,20 +32,13 @@ export async function getFileContent(projectId: string, path: string, version?: 
     const content = await apiCall(
         `${fileUrl(projectId, path)}${query}`,
         undefined,
-        { throwError: true, preserveEmptyText: true }
+        // A missing file is the pane's to report inline; it must not replace the whole screen with the
+        // global 404 page, which a folder path or a file gone since the tree was read would otherwise do.
+        { throwError: true, preserveEmptyText: true, suppressErrorPages: true }
     )
     return typeof content === 'string' ? content : ''
 }
 
-/** Read a project file's raw bytes, optionally at a specific historical revision. */
-export async function getFileBlob(projectId: string, path: string, version?: string): Promise<Blob> {
-    const query = version ? `?version=${encodeURIComponent(version)}` : ''
-    return await apiCall(
-        `${fileUrl(projectId, path)}${query}`,
-        undefined,
-        { throwError: true, responseType: 'blob' }
-    ) as Blob
-}
 
 /**
  * Overwrite a project file with new text content. The backend enforces the WRITE grant and the project's
@@ -56,6 +50,16 @@ export async function updateFileContent(projectId: string, path: string, content
         { method: 'PUT', headers: { 'Content-Type': 'text/plain' }, body: content },
         { throwError: true }
     )
+}
+
+/**
+ * Replace a project file with an uploaded one, keeping its path. The backend enforces the WRITE grant and
+ * the project's editable state.
+ */
+export async function replaceFile(projectId: string, path: string, file: File): Promise<void> {
+    const form = new FormData()
+    form.append('file', file)
+    await apiCall(fileUrl(projectId, path), { method: 'PUT', body: form }, { throwError: true })
 }
 
 /** Create a new text file, creating intermediate folders when the entered path includes them. */
@@ -73,6 +77,19 @@ export async function deleteFile(projectId: string, path: string): Promise<void>
 }
 
 /**
+ * Write text content to a file at the project root. Overwriting an existing file and creating a new one
+ * go through different requests of the files API — a distinction the callers name by the mode instead of
+ * making themselves.
+ */
+export async function writeRootFile(projectId: string, name: string, content: string, mode: 'create' | 'overwrite'): Promise<void> {
+    if (mode === 'overwrite') {
+        await updateFileContent(projectId, name, content)
+    } else {
+        await uploadFiles(projectId, '', [new File([content], name, { type: 'application/xml' })])
+    }
+}
+
+/**
  * Whether a file with the given name exists directly in the project root. Uses a root listing so a
  * missing file is a normal empty result, rather than fetching the file and treating a 404 as "absent".
  */
@@ -85,7 +102,7 @@ export async function rootFileExists(projectId: string, name: string): Promise<b
 /** Move or rename a file within a project. */
 export async function moveFile(projectId: string, sourcePath: string, destinationPath: string): Promise<void> {
     await apiCall(
-        `/projects/${encodeURIComponent(projectId)}/file-move`,
+        `/projects/${toUrlSafeId(projectId)}/file-move`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourcePath, destinationPath }) },
         { throwError: true }
     )
@@ -94,7 +111,7 @@ export async function moveFile(projectId: string, sourcePath: string, destinatio
 /** Copy a file within a project to a new path. */
 export async function copyFile(projectId: string, sourcePath: string, destinationPath: string): Promise<void> {
     await apiCall(
-        `/projects/${encodeURIComponent(projectId)}/file-copy`,
+        `/projects/${toUrlSafeId(projectId)}/file-copy`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourcePath, destinationPath }) },
         { throwError: true }
     )
@@ -112,13 +129,25 @@ export function downloadFolder(projectId: string, path: string): void {
 }
 
 /**
- * Upload one or more files into a project folder (empty path targets the project root). The backend
- * enforces the WRITE/CREATE grant; each file keeps its own name.
+ * Upload a file into a project folder (empty path targets the project root) under the given name. The
+ * backend enforces the WRITE/CREATE grant.
  */
+export async function uploadFile(projectId: string, targetPath: string, file: File, name: string): Promise<void> {
+    await upload(projectId, targetPath, [{ file, name }])
+}
+
+/** Upload files into a project folder, each under its own name. */
 export async function uploadFiles(projectId: string, targetPath: string, files: File[]): Promise<void> {
+    await upload(projectId, targetPath, files.map(file => ({ file, name: file.name })))
+}
+
+async function upload(
+    projectId: string,
+    targetPath: string,
+    entries: Array<{ file: File, name: string }>
+): Promise<void> {
     const form = new FormData()
-    for (const file of files) {
-        form.append('file', file, file.name)
-    }
+    // The third argument is the name the file lands under, which the user may have changed.
+    entries.forEach(entry => form.append('file', entry.file, entry.name))
     await apiCall(fileUrl(projectId, targetPath), { method: 'POST', body: form }, { throwError: true })
 }

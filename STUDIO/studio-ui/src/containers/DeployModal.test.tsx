@@ -18,6 +18,15 @@ vi.mock('hooks', async (importOriginal) => {
     }
 })
 
+class MockApiHttpError extends Error {
+    status: number
+    constructor(status: number, message: string) {
+        super(message)
+        this.name = 'ApiHttpError'
+        this.status = status
+    }
+}
+
 vi.mock('services', async () => ({
     apiCall: vi.fn(),
     ForbiddenError: class ForbiddenError extends Error {
@@ -26,6 +35,7 @@ vi.mock('services', async () => ({
             this.name = 'ForbiddenError'
         }
     },
+    isApiHttpError: (error: unknown) => error instanceof MockApiHttpError,
 }))
 
 vi.mock('react-i18next', async () => {
@@ -191,7 +201,7 @@ describe('DeployModal', () => {
         renderDeployModal()
         await openModal(defaultDetail)
 
-        await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument())
+        await screen.findByRole('dialog')
 
         // Submit without filling required fields - triggers validation
         await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
@@ -334,7 +344,7 @@ describe('DeployModal', () => {
         renderDeployModal()
         await openModal(defaultDetail)
         await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
-        await waitFor(() => expect(screen.getByRole('option', { name: 'Deploy1' })).toBeInTheDocument())
+        await screen.findByRole('option', { name: 'Deploy1' })
         await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
         await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Deploy changes')
         await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
@@ -370,4 +380,58 @@ describe('DeployModal', () => {
         ))
     })
 
+
+    it('shows what the server refused instead of the generic sentence', async () => {
+        mockApiCall
+            .mockReset()
+            .mockResolvedValueOnce([{ id: 'repo-1', name: 'Production' }])
+            .mockResolvedValueOnce([{ id: 'dep-1', name: 'Deploy1' }])
+            .mockRejectedValueOnce(new MockApiHttpError(
+                409,
+                "This deployment repository takes a project only from the 'master' branch."
+            ))
+
+        renderDeployModal()
+        await openModal(defaultDetail)
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+        await screen.findByRole('option', { name: 'Deploy1' })
+        await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
+        await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Deploy changes')
+        await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalledWith(expect.objectContaining({
+            description: "This deployment repository takes a project only from the 'master' branch.",
+        })))
+    })
+
+    it('refuses a repository that takes the main branch only while the project is elsewhere', async () => {
+        mockApiCall
+            .mockReset()
+            .mockResolvedValueOnce([{ id: 'repo-1', name: 'Production', mainBranchOnly: true }])
+            .mockResolvedValueOnce([{ id: 'dep-1', name: 'Deploy1' }])
+
+        renderDeployModal()
+        await openModal({ ...defaultDetail, branch: 'feature/rates', branchDefault: false })
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+
+        await screen.findByTestId('deploy-main-branch-only')
+        expect(screen.getByTestId('deploy-submit')).toBeDisabled()
+        // Nothing was sent: the repository list and its deployments are the only calls.
+        expect(mockApiCall).toHaveBeenCalledTimes(2)
+    })
+
+    it('deploys from the main branch to the same repository', async () => {
+        mockApiCall
+            .mockReset()
+            .mockResolvedValueOnce([{ id: 'repo-1', name: 'Production', mainBranchOnly: true }])
+            .mockResolvedValueOnce([{ id: 'dep-1', name: 'Deploy1' }])
+
+        renderDeployModal()
+        await openModal({ ...defaultDetail, branch: 'master', branchDefault: true })
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+
+        await screen.findByRole('option', { name: 'Deploy1' })
+        expect(screen.queryByTestId('deploy-main-branch-only')).not.toBeInTheDocument()
+        expect(screen.getByTestId('deploy-submit')).not.toBeDisabled()
+    })
 })

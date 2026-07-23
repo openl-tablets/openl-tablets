@@ -1,11 +1,35 @@
+import type { ComponentProps } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { fireEvent } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CopyProjectModal } from './CopyProjectModal'
-import { copyProject } from '../../services/repositories'
+import type { Project } from '../../types/projects'
+import type { Repository } from '../../types/repositories'
+import {
+    copyProject,
+    createProjectBranch,
+    getProjectRevisions,
+    getRepositoryConfig,
+    isProjectModifiedConflict,
+    switchProjectBranch,
+} from '../../services/repositories'
 
-vi.mock('../../services/repositories', () => ({ copyProject: vi.fn() }))
+vi.mock('../../services/repositories', () => ({
+    copyProject: vi.fn(),
+    createProjectBranch: vi.fn(),
+    getProjectRevisions: vi.fn(),
+    getRepositoryConfig: vi.fn(),
+    isProjectModifiedConflict: vi.fn(() => false),
+    switchProjectBranch: vi.fn(),
+    REVISIONS_PAGE_SIZE: 50,
+}))
+
+vi.mock('../../store', async importOriginal => ({
+    ...await importOriginal<object>(),
+    useUserStore: () => 'jdoe',
+}))
+
 vi.mock('react-i18next', () => {
     // Stable t: a new t per render would re-run the modal's reset effect and clobber field edits.
     const t = (key: string, opts?: Record<string, unknown>) => (opts?.['name'] ? `${key}:${opts['name']}` : key)
@@ -13,21 +37,37 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('antd', () => {
-    const Modal = ({ open, children, onOk, okText }: Record<string, unknown>) =>
+    const Modal = ({ open, children, onOk, okText, okButtonProps }: Record<string, unknown>) =>
         open
-            ? <div>{children as never}<button data-testid="copy-ok" onClick={onOk as never}>{okText as never}</button></div>
+            ? (
+                <div>
+                    {children as never}
+                    <button
+                        data-testid={(okButtonProps as Record<string, string> | undefined)?.['data-testid']}
+                        onClick={onOk as never}
+                    >
+                        {okText as never}
+                    </button>
+                </div>
+            )
             : null
     const Input = ({ onChange, ...rest }: Record<string, unknown>) => <input onChange={onChange as never} {...rest} />
     Input.TextArea = ({ onChange, autoSize, ...rest }: Record<string, unknown>) => {
         void autoSize
         return <textarea onChange={onChange as never} {...rest} />
     }
-    const Alert = ({ message, showIcon, ...rest }: Record<string, unknown>) => {
+    const Alert = ({ title, showIcon, ...rest }: Record<string, unknown>) => {
         void showIcon
-        return <div {...rest}>{message as never}</div>
+        return <div {...rest}>{title as never}</div>
     }
-    const Form = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
-    Form.Item = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    const Checkbox = ({ checked, onChange, ...rest }: Record<string, unknown>) => (
+        <input
+            checked={checked as boolean}
+            data-testid={rest['data-testid'] as string}
+            onChange={onChange as never}
+            type="checkbox"
+        />
+    )
     interface Opt { value: string, label: string }
     const Select = ({ options, onChange, value, ...rest }: Record<string, unknown>) => (
         <select
@@ -38,135 +78,256 @@ vi.mock('antd', () => {
             {(options as Opt[]).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
     )
+    const Button = ({ children, onClick, icon, ...rest }: Record<string, unknown>) => {
+        const { type, loading, ...dom } = rest
+        void type; void loading
+        return <button onClick={onClick as never} {...dom}>{icon as never}{children as never}</button>
+    }
+    const Space = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    Space.Compact = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    const Tooltip = ({ children }: Record<string, unknown>) => children as never
     const notification = { success: vi.fn(), error: vi.fn() }
-    return { Alert, Form, Input, Modal, notification, Select }
+    const Typography = {
+        Text: ({ children, type, ...rest }: Record<string, unknown>) => {
+            void type
+            return <span {...rest}>{children as never}</span>
+        },
+    }
+    return { Alert, Button, Checkbox, Input, Modal, notification, Select, Space, Tooltip, Typography }
 })
 
-const project = { id: 'p1', name: 'Alpha', repository: 'design' } as never
-const repositories = [{ id: 'design', name: 'Design' }, { id: 'prod', name: 'Prod' }] as never
+vi.mock('./RepoFolderPicker', () => ({ RepoFolderPicker: () => null }))
+
+const project = {
+    id: 'p1',
+    name: 'Alpha',
+    repository: 'design',
+    branch: 'master',
+    capabilities: { canCopy: true, canManageBranches: true },
+} as unknown as Project
+const repositories = [{ id: 'design', name: 'Design' }, { id: 'prod', name: 'Prod' }] as unknown as Repository[]
 const mappedRepositories = [
     {
         id: 'design',
         name: 'Design',
         features: { branches: false, searchable: false, mappedFolders: true },
     },
-] as never
+] as unknown as Repository[]
+
+const renderModal = async (overrides: Partial<ComponentProps<typeof CopyProjectModal>> = {}) => {
+    const props = { open: true, onClose: vi.fn(), onCopied: vi.fn(), project, repositories, ...overrides }
+    render(<CopyProjectModal {...props} />)
+    await waitFor(() => expect(getRepositoryConfig).toHaveBeenCalled())
+    return props
+}
+
+const asNewProject = async () => {
+    await userEvent.click(screen.getByTestId('copy-project-as-new'))
+    await screen.findByTestId('copy-project-name')
+}
 
 describe('CopyProjectModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(copyProject).mockResolvedValue()
+        vi.mocked(createProjectBranch).mockResolvedValue()
+        vi.mocked(switchProjectBranch).mockResolvedValue()
+        vi.mocked(getRepositoryConfig).mockResolvedValue({
+            newBranch: { pattern: '{project-name}/{username}', namePattern: '[A-Za-z0-9/-]+' },
+            comment: { templates: { copy: 'Copied from: {project-name}.' } },
+        })
+        vi.mocked(getProjectRevisions).mockResolvedValue({
+            content: [
+                { revisionNo: 'rev-2', shortRevisionNo: 'rev2', createdAt: '2026-07-22T16:35:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Joe Doe' } },
+                { revisionNo: 'rev-1', shortRevisionNo: 'rev1', createdAt: '2026-07-21T10:00:00Z', fullComment: '', deleted: false, technicalRevision: false, author: { displayName: 'Jane Roe' } },
+            ],
+            pageNumber: 0,
+            pageSize: 50,
+            numberOfElements: 2,
+            total: 2,
+        })
     })
 
-    it('copies with the default name to the source repository', async () => {
-        render(<CopyProjectModal open onClose={vi.fn()} onCopied={vi.fn()} project={project} repositories={repositories} />)
-        await waitFor(() => expect((screen.getByTestId('copy-project-name') as HTMLInputElement).value).toBe('Alpha (Copy)'))
+    it('rejects a branch name the repository pattern forbids, without calling the API', async () => {
+        vi.mocked(getRepositoryConfig).mockResolvedValue({
+            newBranch: { pattern: '{project-name}', namePattern: 'release/.+', invalidNameHint: 'Use release/<name>' },
+            comment: { templates: {} },
+        })
+        await renderModal()
+        await waitFor(() => expect((screen.getByTestId('copy-project-branch') as HTMLInputElement).value).toBe('Alpha'))
 
-        await userEvent.click(screen.getByTestId('copy-ok'))
+        // The repository words the rejection itself, and the field says so before the dialog is submitted.
+        await waitFor(() => expect(screen.getByTestId('copy-project-branch-error')).toHaveTextContent('Use release/<name>'))
 
-        await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design',
-            'Alpha',
-            'design',
-            'Alpha (Copy)',
-            undefined,
-            undefined
-        ))
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        await waitFor(() => expect(screen.getByTestId('copy-project-error')).toHaveTextContent('Use release/<name>'))
+        expect(createProjectBranch).not.toHaveBeenCalled()
     })
 
-    it('copies to a chosen repository under an edited name', async () => {
-        const onCopied = vi.fn()
-        render(<CopyProjectModal open onClose={vi.fn()} onCopied={onCopied} project={project} repositories={repositories} />)
-        await waitFor(() => expect(screen.getByTestId('copy-project-name')).toBeTruthy())
+    it('rejects a comment the repository pattern forbids, without calling the API', async () => {
+        vi.mocked(getRepositoryConfig).mockResolvedValue({
+            newBranch: { pattern: '{project-name}' },
+            comment: {
+                userMessagePattern: 'EPBDS-\\d+.*',
+                invalidUserMessageHint: 'Start with a ticket',
+                templates: { copy: 'Copied from: {project-name}.' },
+            },
+        })
+        await renderModal()
+        await asNewProject()
 
         fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
-        fireEvent.change(screen.getByTestId('copy-project-repository'), { target: { value: 'prod' } })
-        await userEvent.click(screen.getByTestId('copy-ok'))
+        await waitFor(() => expect(screen.getByTestId('copy-project-comment-error')).toHaveTextContent('Start with a ticket'))
+
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        await waitFor(() => expect(screen.getByTestId('copy-project-error')).toHaveTextContent('Start with a ticket'))
+        expect(copyProject).not.toHaveBeenCalled()
+    })
+
+    it('offers a new branch built from the repository pattern', async () => {
+        await renderModal()
+
+        await waitFor(() => expect((screen.getByTestId('copy-project-branch') as HTMLInputElement).value)
+            .toBe('Alpha/jdoe'))
+        expect(screen.getByTestId('copy-project-current-branch')).toHaveTextContent('master')
+        expect(screen.queryByTestId('copy-project-name')).toBeNull()
+    })
+
+    it('creates the branch and moves the project onto it', async () => {
+        const props = await renderModal()
+        await waitFor(() => expect((screen.getByTestId('copy-project-branch') as HTMLInputElement).value).not.toBe(''))
+
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        await waitFor(() => expect(createProjectBranch).toHaveBeenCalledWith('p1', 'Alpha/jdoe'))
+        expect(switchProjectBranch).toHaveBeenCalledWith('p1', 'Alpha/jdoe')
+        expect(copyProject).not.toHaveBeenCalled()
+        expect(props.onCopied).toHaveBeenCalled()
+    })
+
+    it('copies into a new project with the suggested comment when asked', async () => {
+        await renderModal()
+        await asNewProject()
+
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
             'design',
             'Alpha',
-            'prod',
+            'design',
             'Beta',
+            'Copied from: Alpha.',
             undefined,
             undefined
         ))
-        await waitFor(() => expect(onCopied).toHaveBeenCalled())
+        expect(createProjectBranch).not.toHaveBeenCalled()
     })
 
-    it('passes an entered commit comment without generating a default one', async () => {
-        render(<CopyProjectModal open onClose={vi.fn()} onCopied={vi.fn()} project={project} repositories={repositories} />)
-        await waitFor(() => expect(screen.getByTestId('copy-project-comment')).toBeTruthy())
+    it('copies from a chosen older revision', async () => {
+        await renderModal()
+        await asNewProject()
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
 
-        fireEvent.change(screen.getByTestId('copy-project-comment'), { target: { value: 'manual copy message' } })
-        await userEvent.click(screen.getByTestId('copy-ok'))
+        await userEvent.click(screen.getByTestId('copy-project-old-revision'))
+        await screen.findByTestId('copy-project-revision')
+        // Business users read a revision as who changed the project and when, not as its number.
+        expect(screen.getByText(/^Joe Doe: /)).toBeInTheDocument()
+        fireEvent.change(screen.getByTestId('copy-project-revision'), { target: { value: 'rev-1' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design',
-            'Alpha',
-            'design',
-            'Alpha (Copy)',
-            'manual copy message',
-            undefined
+            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', undefined, 'rev-1'
         ))
+    })
+
+    it('copies into a new project directly when branching is not granted', async () => {
+        await renderModal({ project: { ...project, capabilities: { canCopy: true } } })
+
+        expect(screen.queryByTestId('copy-project-as-new')).toBeNull()
+        expect(screen.getByTestId('copy-project-name')).toBeInTheDocument()
+    })
+
+    it('only branches when creating a project is not granted', async () => {
+        await renderModal({ project: { ...project, capabilities: { canManageBranches: true } } })
+
+        expect(screen.queryByTestId('copy-project-as-new')).toBeNull()
+        expect(screen.getByTestId('copy-project-branch')).toBeInTheDocument()
+        expect(screen.queryByTestId('copy-project-name')).toBeNull()
     })
 
     it('passes a target path only for repositories that support mapped folders', async () => {
-        render(<CopyProjectModal open onClose={vi.fn()} onCopied={vi.fn()} project={project} repositories={mappedRepositories} />)
-        await waitFor(() => expect(screen.getByTestId('copy-project-path')).toBeTruthy())
+        await renderModal({ repositories: mappedRepositories })
+        await asNewProject()
 
-        fireEvent.change(screen.getByTestId('copy-project-path'), { target: { value: 'team/rules' } })
-        await userEvent.click(screen.getByTestId('copy-ok'))
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        fireEvent.change(screen.getByTestId('copy-project-path'), { target: { value: 'folder' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design',
-            'Alpha',
-            'design',
-            'Alpha (Copy)',
-            undefined,
-            'team/rules'
+            'design', 'Alpha', 'design', 'Beta', 'Copied from: Alpha.', 'folder', undefined
         ))
     })
 
     it('hides the target path for flat repositories', async () => {
-        render(<CopyProjectModal open onClose={vi.fn()} onCopied={vi.fn()} project={project} repositories={repositories} />)
-        await waitFor(() => expect(screen.getByTestId('copy-project-name')).toBeTruthy())
+        await renderModal()
+        await asNewProject()
 
         expect(screen.queryByTestId('copy-project-path')).toBeNull()
     })
 
-    it('defaults to the first creatable repository when the source is not creatable', async () => {
-        render(
-            <CopyProjectModal
-                open
-                onClose={vi.fn()}
-                onCopied={vi.fn()}
-                project={project}
-                repositories={[{ id: 'prod', name: 'Prod' }] as never}
-            />
-        )
-        await waitFor(() => expect((screen.getByTestId('copy-project-repository') as HTMLSelectElement).value).toBe('prod'))
+    it('rejects an empty name without calling the API', async () => {
+        await renderModal()
+        await asNewProject()
 
-        await userEvent.click(screen.getByTestId('copy-ok'))
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
 
-        await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design',
-            'Alpha',
-            'prod',
-            'Alpha (Copy)',
-            undefined,
-            undefined
-        ))
+        await screen.findByTestId('copy-project-error')
+        expect(copyProject).not.toHaveBeenCalled()
     })
 
-    it('rejects an empty name without calling the API', async () => {
-        render(<CopyProjectModal open onClose={vi.fn()} onCopied={vi.fn()} project={project} repositories={repositories} />)
-        await waitFor(() => expect(screen.getByTestId('copy-project-name')).toBeTruthy())
+    it('rejects an empty branch name without calling the API', async () => {
+        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+        await renderModal()
 
-        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: '  ' } })
-        await userEvent.click(screen.getByTestId('copy-ok'))
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
 
-        expect(copyProject).not.toHaveBeenCalled()
-        await waitFor(() => expect(screen.getByTestId('copy-project-error')).toBeTruthy())
+        await screen.findByTestId('copy-project-error')
+        expect(createProjectBranch).not.toHaveBeenCalled()
+    })
+
+    it('warns that a branch leaves the unsaved changes behind', async () => {
+        await renderModal({ project: { ...project, status: 'EDITING' } as unknown as Project })
+
+        expect(screen.getByTestId('copy-project-modified-warning')).toHaveTextContent(
+            'browser.copy_dialog.modified_warning'
+        )
+
+        // The warning is about moving onto the branch; copying into a new project does not move anything.
+        await asNewProject()
+        expect(screen.queryByTestId('copy-project-modified-warning')).not.toBeInTheDocument()
+    })
+
+    it('asks before dropping the unsaved changes the branch cannot take', async () => {
+        vi.mocked(isProjectModifiedConflict).mockReturnValue(true)
+        vi.mocked(switchProjectBranch).mockRejectedValueOnce(new Error('modified'))
+        const props = await renderModal({ project: { ...project, status: 'EDITING' } as unknown as Project })
+
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        // The branch is created; the project stays where it is until the user accepts losing the changes.
+        await screen.findByTestId('copy-project-discard-confirm')
+        expect(createProjectBranch).toHaveBeenCalled()
+        expect(props.onCopied).not.toHaveBeenCalled()
+
+        vi.mocked(switchProjectBranch).mockResolvedValueOnce()
+        await userEvent.click(screen.getByTestId('copy-project-discard-confirm'))
+
+        await waitFor(() => expect(switchProjectBranch).toHaveBeenLastCalledWith('p1', expect.any(String), {
+            discardChanges: true,
+        }))
+        await waitFor(() => expect(props.onCopied).toHaveBeenCalled())
     })
 })

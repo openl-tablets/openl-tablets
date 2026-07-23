@@ -36,54 +36,75 @@ describe('RowCompileDot', () => {
     })
 
     it('subscribes open rows to the project status channel', async () => {
+        render(
+            <RowCompileDot
+                branch="main"
+                initialStatus={initialStatus('errors')}
+                projectId="p1"
+                status={ProjectStatus.Opened}
+            />
+        )
+        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
         await act(async () => {
-            render(
-                <RowCompileDot
-                    branch="main"
-                    initialStatus={initialStatus('ok')}
-                    projectId="p1"
-                    status={ProjectStatus.Opened}
-                />
-            )
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 
         expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
-        expect(screen.getByRole('img', { name: 'browser.compile.ok' })).toBeInTheDocument()
+        expect(screen.getByRole('img', { name: 'browser.compile.errors' })).toBeInTheDocument()
+    })
+
+    it('shows nothing for a clean compiled project', async () => {
+        render(
+            <RowCompileDot
+                branch="main"
+                initialStatus={initialStatus('ok')}
+                projectId="p1"
+                status={ProjectStatus.Opened}
+            />
+        )
+        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
+        await act(async () => {
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(screen.queryByRole('img')).toBeNull()
     })
 
     it('does not subscribe closed rows', async () => {
+        render(
+            <RowCompileDot
+                branch="main"
+                initialStatus={initialStatus('ok')}
+                projectId="p1"
+                status={ProjectStatus.Closed}
+            />
+        )
+        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
         await act(async () => {
-            render(
-                <RowCompileDot
-                    branch="main"
-                    initialStatus={initialStatus('ok')}
-                    projectId="p1"
-                    status={ProjectStatus.Closed}
-                />
-            )
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 
         expect(subscribeProjectStatus).not.toHaveBeenCalled()
-        expect(screen.getByRole('img', { name: 'browser.compile.idle' })).toBeInTheDocument()
+        // A closed, clean project shows no compile dot.
+        expect(screen.queryByRole('img')).toBeNull()
     })
 
     it('shows the real compile state for a local project instead of forcing idle', async () => {
+        render(
+            <RowCompileDot
+                branch={null}
+                initialStatus={initialStatus('errors')}
+                projectId="p1"
+                status={ProjectStatus.Local}
+            />
+        )
+        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
         await act(async () => {
-            render(
-                <RowCompileDot
-                    branch={null}
-                    initialStatus={initialStatus('ok')}
-                    projectId="p1"
-                    status={ProjectStatus.Local}
-                />
-            )
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 
         expect(subscribeProjectStatus).toHaveBeenCalled()
-        expect(screen.getByRole('img', { name: 'browser.compile.ok' })).toBeInTheDocument()
+        expect(screen.getByRole('img', { name: 'browser.compile.errors' })).toBeInTheDocument()
     })
 
     it('updates the tooltip from live warning and error counts', async () => {
@@ -92,15 +113,16 @@ describe('RowCompileDot', () => {
             onUpdate = listener
             return { unsubscribe: vi.fn() } as never
         })
+        render(
+            <RowCompileDot
+                branch="main"
+                initialStatus={initialStatus('ok')}
+                projectId="p1"
+                status={ProjectStatus.Editing}
+            />
+        )
+        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
         await act(async () => {
-            render(
-                <RowCompileDot
-                    branch="main"
-                    initialStatus={initialStatus('ok')}
-                    projectId="p1"
-                    status={ProjectStatus.Editing}
-                />
-            )
             await new Promise(resolve => setTimeout(resolve, 0))
         })
 

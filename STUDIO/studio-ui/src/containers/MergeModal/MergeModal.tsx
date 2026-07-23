@@ -172,6 +172,7 @@ export const MergeModal: React.FC = () => {
                 )}
                 {detail && currentStep === 'conflicts' && (
                     <ConflictResolutionStep
+                        branches={detail.branches}
                         conflictGroups={conflictGroups}
                         onCancel={handleCancelMerge}
                         onCompare={handleCompare}

@@ -6,7 +6,8 @@ import { createStyles, useTheme } from 'antd-style'
 import type { FsNode } from '../../types/files'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
 import { FileChangeIcon } from './FileChangeIcon'
-import { ELLIPSIS, MOCKUP } from './projectsTheme'
+import { MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
     tree: css`
@@ -33,7 +34,6 @@ const useStyles = createStyles(({ css, token }) => ({
     name: css`
         flex: 1;
         min-width: 0;
-        ${ELLIPSIS}
     `,
     size: css`
         flex: none;
@@ -171,7 +171,8 @@ export const FileTree = ({
     virtualFolders,
     onSelectFile,
 }: FileTreeProps) => {
-    const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
     const { i18n, t } = useTranslation('repository')
     const token = useTheme()
     const locale = i18n.resolvedLanguage ?? i18n.language
@@ -200,7 +201,7 @@ export const FileTree = ({
             const changeType = changes?.get(path)
             return (
                 <span className={styles.node}>
-                    <span className={styles.name}>{name}</span>
+                    <span className={cx(shared.ellipsis, styles.name)}>{name}</span>
                     {changeType && changeType !== 'deleted' && (
                         <FileChangeIcon
                             testId={`file-change-${changeType}-${path}`}

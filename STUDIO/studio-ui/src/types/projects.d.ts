@@ -1,6 +1,12 @@
 import { ProjectStatus } from '../constants/project'
 import { Role } from '../constants'
 import type { ProjectStatusUpdate } from '../services/projectStatus'
+import type { RepositoryInfo } from './repositories'
+
+/** The repository a project reports about itself. */
+export interface ProjectRepository extends RepositoryInfo {
+    id: string
+}
 
 export interface Project {
     branch: string
@@ -14,49 +20,72 @@ export interface Project {
     modifiedBy: string
     name: string
     path?: string
+    /** Id of the repository the project is stored in. */
     repository: string
+    /**
+     * The repository the project is stored in. Comes with the project, so it stays readable for a user
+     * granted a single project and no access to the repository as a whole.
+     */
+    repositoryInfo?: ProjectRepository
     revision: string
     status: ProjectStatus
     tags?: Record<string, string>
     selectedBranches?: string[]
     /** Whether the project's current branch is protected. */
     branchProtected?: boolean
+    /** Whether the project's current branch is the repository main branch. */
+    branchDefault?: boolean
     capabilities?: ProjectCapabilities
     /** Other projects this project depends on (from its rules.xml). */
     dependencies?: ProjectDependency[]
     /** Other projects that depend on this one. Only populated on the single-project detail response. */
     usedBy?: ProjectDependency[]
-    /** rules.xml project comment. Only populated when requested. */
-    description?: string
-    /** rules.xml modules. Only populated when requested. */
-    modules?: ProjectModule[]
-    /** rules.xml properties file-name patterns. Only populated when requested. */
-    versionPatterns?: string[]
-    /** rules.xml exposed-methods filter. Only populated when requested. */
-    exposedMethods?: ProjectExposedMethods
+    /**
+     * The parts of rules.xml the UI cannot work out from the file itself — the resolved modules and the
+     * sources — with whether each is an engine default. Only populated when the descriptor is requested.
+     */
+    descriptor?: ProjectDescriptorInfo
     /** Current compilation status. Only populated when requested. */
     compileStatus?: ProjectStatusUpdate
+}
+
+/**
+ * The parts of a project's rules.xml the backend resolves for the UI: the modules a wildcard expands to,
+ * and the source path entries. Each carries whether it is the engine's default because the file declares
+ * none — a default is shown as such and is never written back into rules.xml.
+ */
+export interface ProjectDescriptorInfo {
+    modules?: ProjectModule[]
+    modulesDefault?: boolean
+    sources?: string[]
+    sourcesDefault?: boolean
 }
 
 /** A reference to another project, used for the depends-on / used-by relations. */
 export interface ProjectDependency {
     name: string
-    id: string
+    /** Absent when the declared project is missing from the workspace. */
+    id?: string
     status?: ProjectStatus
     repository?: string
     branch?: string
+    /** Whether the branch of the dependency is the repository main branch. */
+    branchDefault?: boolean
+    /** Whether direct commits to the branch of the dependency are restricted. */
+    branchProtected?: boolean
+    /** Whether rules.xml declares this project but the workspace has no such project. */
+    missing?: boolean
 }
 
-/** A rules module declared in rules.xml. */
+/**
+ * A module as rules.xml declares it. A declaration whose path is a pattern stands for the files it
+ * matched and carries them as its own modules; every other declaration carries none.
+ */
 export interface ProjectModule {
-    name: string
+    /** Absent when the declaration is a pattern that names no module of its own. */
+    name?: string
     path?: string
-}
-
-/** The rules.xml exposed-methods filter (glob patterns on method names). */
-export interface ProjectExposedMethods {
-    includes?: string[]
-    excludes?: string[]
+    modules?: ProjectModule[]
 }
 
 /**
@@ -74,9 +103,10 @@ export interface ProjectCapabilities {
     canDeploy?: boolean
     canCompare?: boolean
     canViewHistory?: boolean
-    canEditTags?: boolean
     canManage?: boolean
     canCopy?: boolean
+    /** Whether the project branches can be created, merged and deleted. */
+    canManageBranches?: boolean
     canExport?: boolean
 }
 

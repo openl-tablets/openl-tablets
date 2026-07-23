@@ -3,7 +3,8 @@ import { Button, Checkbox, Form, Modal, Space, Typography } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { TextArea } from 'components/form'
-import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
+import { useCommitInfoGuard, useGlobalEvents, useRepositoryConfig } from 'hooks'
+import { validateComment } from 'utils/repositoryConfig'
 import { deleteProject } from 'services/projects'
 
 interface DeleteProjectModalDetail {
@@ -26,6 +27,15 @@ export const DeleteProjectModal: React.FC = () => {
     const [deleting, setDeleting] = useState(false)
     const confirmed = Form.useWatch('confirmed', form)
     const comment = Form.useWatch('comment', form)
+    // Deleting commits too, so the comment obeys the same rule the repository configures. The repository
+    // has no template for a deletion, so nothing is suggested.
+    const config = useRepositoryConfig(detail?.projectId ? { projectId: detail.projectId } : null)
+    const commentError = validateComment(
+        comment ?? '',
+        config,
+        t('repository:browser.comment.too_long'),
+        t('repository:browser.comment.invalid')
+    )
 
     useEffect(() => {
         const hasDetails = !!(detail && Object.keys(detail).length > 0)
@@ -59,7 +69,7 @@ export const DeleteProjectModal: React.FC = () => {
         })
     }, [detail, form, handleClose, runWithCommitInfo])
 
-    const canDelete = Boolean(confirmed && comment?.trim())
+    const canDelete = Boolean(confirmed && comment?.trim() && !commentError)
 
     return (
         <>
@@ -98,6 +108,7 @@ export const DeleteProjectModal: React.FC = () => {
                         label={t('repository:delete_project_modal.comment_label', { project: detail?.projectName })}
                         name="comment"
                         rows={4}
+                        rules={[{ validator: async () => commentError ? Promise.reject(new Error(commentError)) : Promise.resolve() }]}
                     />
                     <Form.Item name="confirmed" valuePropName="checked">
                         <Checkbox>{t('repository:delete_project_modal.confirmation')}</Checkbox>

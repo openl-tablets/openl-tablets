@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Input, Modal, notification, Typography } from 'antd'
+import { Modal, notification, Typography } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { apiCall, isApiHttpError } from '../../services'
-import { getProjectBranches, saveProject } from '../../services/repositories'
-import { useCommitInfoGuard } from '../../hooks'
+import { saveProject } from '../../services/repositories'
+import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
+import { suggestComment } from '../../utils/repositoryConfig'
+import { CommentField, useCommentError } from './CommentField'
+import { openMergeDialog } from './branchDialogs'
 import type { Project } from '../../types/projects'
+import { ProjectStatus } from '../../constants/project'
+import { formatDateTime } from '../../utils/dateFormat'
 
 interface SaveProjectModalProps {
     open: boolean
@@ -40,35 +45,35 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     const { t } = useTranslation('repository')
     const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
     const [comment, setComment] = useState('')
+    const [commentTouched, setCommentTouched] = useState(false)
     const [submitting, setSubmitting] = useState(false)
+    const config = useRepositoryConfig(open && project ? { projectId: project.id } : null)
+    const commentError = useCommentError(comment, config)
 
+    // A fresh dialog starts from the repository's suggestion again.
     useEffect(() => {
-        if (open) {
-            setComment('')
+        setCommentTouched(false)
+    }, [open, project])
+
+    // The repository suggests the comment; it stays editable. Saving a project opened on an older revision
+    // restores that revision, and the repository has its own template for it.
+    useEffect(() => {
+        if (!open || commentTouched) {
+            return
         }
-    }, [open])
+        setComment(project?.status === ProjectStatus.ViewingVersion
+            ? suggestComment(config, 'restoreFrom', {
+                revision: project.revision,
+                author: project.modifiedBy,
+                datetime: formatDateTime(project.modifiedAt) ?? '',
+            })
+            : suggestComment(config, 'save', project?.name))
+    }, [commentTouched, config, open, project])
 
     const openConflictResolution = async (target: Project) => {
-        let branches: unknown[] = []
-        try {
-            branches = await getProjectBranches(target.id)
-        } catch {
-            // The resolver only needs the conflicts endpoint; branch list is best-effort.
-        }
         notification.warning({ title: t('browser.save_conflict') })
-        window.dispatchEvent(new CustomEvent('openMergeModal', {
-            detail: {
-                projectId: target.id,
-                projectName: target.name,
-                repositoryId: target.repository,
-                // Only Git repositories can produce a save-time merge conflict.
-                repositoryType: 'repo-git',
-                currentBranch: target.branch || '',
-                branches,
-                initialStep: 'conflicts',
-                onSuccess: onSaved,
-            },
-        }))
+        // Only Git repositories can produce a save-time merge conflict.
+        await openMergeDialog(target, onSaved, 'conflicts')
     }
 
     const doSave = async (target: Project) => {
@@ -94,7 +99,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     }
 
     const submit = async () => {
-        if (!project) {
+        if (!project || commentError) {
             return
         }
         await runWithCommitInfo(() => doSave(project))
@@ -105,7 +110,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
             <Modal
                 destroyOnHidden
                 confirmLoading={submitting}
-                okButtonProps={{ 'data-testid': 'save-project-submit', icon: <SaveOutlined /> }}
+                okButtonProps={{ 'data-testid': 'save-project-submit', disabled: !!commentError, icon: <SaveOutlined /> }}
                 okText={t('browser.save')}
                 onCancel={onClose}
                 onOk={submit}
@@ -113,15 +118,16 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
                 title={<><SaveOutlined /> {t('browser.save_title')}</>}
             >
                 <Typography.Paragraph type="secondary">
-                    {t('browser.save_desc', { repository: project?.repository ?? '' })}
+                    {t('browser.save_desc', { repository: project?.repositoryInfo?.name ?? project?.repository ?? '' })}
                 </Typography.Paragraph>
-                <Typography.Text strong>{t('browser.save_comment')}</Typography.Text>
-                <Input.TextArea
-                    autoSize={{ maxRows: 6, minRows: 3 }}
-                    data-testid="save-project-comment"
-                    onChange={event => setComment(event.target.value)}
-                    style={{ marginTop: 6 }}
+                <CommentField
+                    config={config}
+                    testId="save-project-comment"
                     value={comment}
+                    onChange={value => {
+                        setCommentTouched(true)
+                        setComment(value)
+                    }}
                 />
             </Modal>
             {commitInfoModal}

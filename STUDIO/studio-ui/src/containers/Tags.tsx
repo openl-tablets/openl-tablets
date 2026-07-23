@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
 import { Tag, TagTable, TagType } from './tags/TagTable'
+import { FillTagsModal } from './tags/FillTagsModal'
 
 
 export const Tags: React.FC = () => {
@@ -14,6 +15,7 @@ export const Tags: React.FC = () => {
     const [templates, setTemplates] = useState('')
     const [isSavingTemplates, setIsSavingTemplates] = useState(false)
     const [isFillingTags, setIsFillingTags] = useState(false)
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
     const fetchTagTypes = async () => {
         setIsLoading(true)
@@ -156,15 +158,12 @@ export const Tags: React.FC = () => {
         }
     }
 
+    // The templates the user is looking at decide what the preview shows, so they are saved first.
     const onFillTagsForProject = async () => {
         setIsFillingTags(true)
         try {
             await saveTemplatesRequest()
-            const result = await apiCall('/admin/tag-config/fill', {
-                method: 'POST',
-            }, { throwError: true }) as { updated: number; skipped: number } | undefined
-            const updated = result?.updated ?? 0
-            notification.success({ title: t('tags:fill_tags_success', { count: updated }) })
+            setIsPreviewOpen(true)
         } catch (e) {
             notification.error({ title: e instanceof Error ? e.message : t('tags:fill_tags_error') })
         } finally {
@@ -277,6 +276,13 @@ export const Tags: React.FC = () => {
                     {t('tags:fill_tags_for_project')}
                 </Button>
             </Row>
+            <FillTagsModal
+                onClose={() => setIsPreviewOpen(false)}
+                open={isPreviewOpen}
+                onFilled={updated => notification.success({
+                    title: t('tags:fill_tags_success', { count: updated }),
+                })}
+            />
         </>
     )
 }

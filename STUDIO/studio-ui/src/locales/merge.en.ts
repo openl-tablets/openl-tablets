@@ -21,8 +21,11 @@ i18next.addResourceBundle('en', 'merge', {
         merging: 'Merging branches...',
         up_to_date_receive: 'You have all their updates. Nothing to merge.',
         up_to_date_send: 'They have all your updates. Nothing to merge.',
-        protected_warning: 'Warning: The target branch is protected.',
-        locked_warning: 'Project is currently being edited in another branch.',
+    },
+
+    blocked: {
+        protected: 'There are changes to merge, but the branch "{{branch}}" is protected and you may not merge into it.',
+        locked: 'There are changes to merge, but the branch "{{branch}}" is locked by another operation. Try again later.',
     },
 
     conflicts: {
@@ -39,9 +42,9 @@ i18next.addResourceBundle('en', 'merge', {
         yours: 'Your version',
         theirs: 'Their version',
         base: 'Base version',
-        by: 'by {{- author}}',
-        at: '{{- date}}',
-        commit: 'Commit: {{- commit}}',
+        by: 'by {{author}}',
+        at: '{{date}}',
+        commit: 'Commit: {{commit}}',
         not_exists: 'File does not exist in this version',
     },
 

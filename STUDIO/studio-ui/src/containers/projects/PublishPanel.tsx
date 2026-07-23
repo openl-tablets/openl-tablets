@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Skeleton, Tag } from 'antd'
-import { RocketOutlined } from '@ant-design/icons'
+import { Alert, Skeleton, Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { getProductionRepositories, getProjectDeployments } from '../../services/deployments'
 import { formatDateTime } from '../../utils/dateFormat'
 import { MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
+import { shortRevision } from './revisions'
 import { DeployConfigPanel } from './DeployConfigPanel'
 import { MonoChip } from './MonoChip'
 
@@ -31,20 +32,6 @@ const useStyles = createStyles(({ css, token }) => ({
         font-size: 14px;
         font-weight: 600;
     `,
-    titleHint: css`
-        color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
-        font-size: 11px;
-        font-weight: 400;
-    `,
-    configBox: css`
-        border: 1px solid ${token.colorBorderSecondary};
-        border-radius: ${token.borderRadiusLG}px;
-        overflow: hidden;
-    `,
-    deployBtn: css`
-        margin-top: 12px;
-    `,
     cards: css`
         display: flex;
         flex-direction: column;
@@ -62,9 +49,7 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 8px;
     `,
     envTag: css`
-        margin: 0;
         border-radius: ${token.borderRadiusSM}px;
-        font-size: 11px;
     `,
     cardMeta: css`
         display: flex;
@@ -74,21 +59,12 @@ const useStyles = createStyles(({ css, token }) => ({
         font-family: ${MOCKUP.fontMono};
         font-size: 11px;
     `,
-    empty: css`
-        padding: 24px;
-        border: 1px dashed ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
-        text-align: center;
-        color: ${token.colorTextTertiary};
-    `,
 }))
 
 interface PublishPanelProps {
     projectId: string
     projectName: string
     canWrite: boolean
-    canDeploy: boolean
-    onDeploy: () => void
     onChanged: () => void
     /** Bumped when the project reloads; forwarded so the deploy descriptor refetches instead of going stale. */
     reloadToken?: number
@@ -130,13 +106,12 @@ export const PublishPanel = ({
     projectId,
     projectName,
     canWrite,
-    canDeploy,
-    onDeploy,
     onChanged,
     reloadToken = 0,
 }: PublishPanelProps) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
     const [deployments, setDeployments] = useState<DeploymentCard[] | 'error' | null>(null)
     const [deploymentsReloadToken, setDeploymentsReloadToken] = useState(0)
 
@@ -190,23 +165,12 @@ export const PublishPanel = ({
     return (
         <div className={styles.panel} data-testid="publish-panel">
             <div className={styles.col}>
-                <h3 className={styles.title}>
-                    {t('browser.publish.config_title')}
-                    <span className={styles.titleHint}>rules-deploy.xml</span>
-                </h3>
-                <div className={styles.configBox}>
-                    <DeployConfigPanel
-                        canWrite={canWrite}
-                        onSaved={onChanged}
-                        projectId={projectId}
-                        reloadToken={reloadToken}
-                    />
-                </div>
-                {canDeploy && (
-                    <Button className={styles.deployBtn} icon={<RocketOutlined />} onClick={onDeploy} type="primary">
-                        {t('browser.publish.deploy_button')}
-                    </Button>
-                )}
+                <DeployConfigPanel
+                    canWrite={canWrite}
+                    onSaved={onChanged}
+                    projectId={projectId}
+                    reloadToken={reloadToken}
+                />
             </div>
             <div className={styles.col}>
                 <h3 className={styles.title}>{t('browser.publish.deployments_title')}</h3>
@@ -215,7 +179,7 @@ export const PublishPanel = ({
                     <Alert showIcon data-testid="publish-error" title={t('browser.publish.load_failed')} type="error" />
                 )}
                 {cards.length === 0 && deployments !== null && deployments !== 'error' && (
-                    <div className={styles.empty} data-testid="publish-no-deployments">
+                    <div className={shared.dashedEmpty} data-testid="publish-no-deployments">
                         {t('browser.publish.no_deployments')}
                     </div>
                 )}
@@ -225,13 +189,13 @@ export const PublishPanel = ({
                             <div key={card.key} className={styles.card} data-testid={`publish-deployment-${card.key}`}>
                                 <div className={styles.cardTop}>
                                     <MonoChip>{card.service}</MonoChip>
-                                    <Tag className={styles.envTag} color={envColor(card.env)}>{card.env}</Tag>
+                                    <Tag className={cx(shared.chipTag, styles.envTag)} color={envColor(card.env)}>{card.env}</Tag>
                                 </div>
                                 <div className={styles.cardMeta}>
                                     {card.revision && (
                                         <span>
                                             {t('browser.deployments.revision', {
-                                                revision: card.revision.slice(0, 8),
+                                                revision: shortRevision(card.revision),
                                             })}
                                         </span>
                                     )}

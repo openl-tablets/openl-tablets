@@ -1,5 +1,5 @@
 import apiCall from './apiCall'
-import { getProductionRepositories, getDeployments, getProjectDeployments, getDeployment } from './deployments'
+import { getProductionRepositories, getDeployments, getProjectDeployments, getDeployment, hasDeploymentRepositories } from './deployments'
 
 vi.mock('./apiCall', () => ({
     default: vi.fn(),
@@ -46,5 +46,15 @@ describe('deployments service', () => {
 
         await expect(getDeployment('d 1')).resolves.toBe(deployment)
         expect(apiCall).toHaveBeenCalledWith('/deployments/d%201', undefined, { throwError: true })
+    })
+
+    it('answers a failed access check with true but probes again next time', async () => {
+        // A transient error must not hide the tab, yet the guess is not remembered for the session.
+        vi.mocked(apiCall).mockRejectedValueOnce(new Error('blip'))
+        await expect(hasDeploymentRepositories()).resolves.toBe(true)
+
+        vi.mocked(apiCall).mockResolvedValueOnce([])
+        await expect(hasDeploymentRepositories()).resolves.toBe(false)
+        expect(apiCall).toHaveBeenCalledTimes(2)
     })
 })

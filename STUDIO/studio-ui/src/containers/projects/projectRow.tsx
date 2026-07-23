@@ -1,16 +1,15 @@
 import type { KeyboardEvent } from 'react'
-import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Tag, Tooltip } from 'antd'
-import { BranchesOutlined, SafetyOutlined } from '@ant-design/icons'
+import { Tag } from 'antd'
 import { createStyles } from 'antd-style'
+import { useSharedStyles } from './sharedStyles'
 import { ProjectStatus } from '../../constants/project'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import { formatDateTime } from '../../utils/dateFormat'
 import type { Project } from '../../types/projects'
 import type { RepositoryInfo } from '../../types/repositories'
 import { supportsBranches } from '../../utils/repositoryFeatures'
-import { MonoChip } from './MonoChip'
+import { BranchLabel } from './BranchLabel'
 
 /** Tags shown inline on a project row before the rest collapse into a "+N" chip. */
 const MAX_TAGS = 4
@@ -34,7 +33,10 @@ export function deriveProjectRow(project: Project, repoInfoOf: (project: Project
         repoType: repository.type,
         supportsBranches: supportsBranches(repository),
         lockLabel: project.lockInfo
-            ? t('browser.locked_by', { by: project.lockInfo.lockedBy, at: project.lockInfo.lockedAt })
+            ? t('browser.locked_by', {
+                by: project.lockInfo.lockedBy,
+                at: formatDateTime(project.lockInfo.lockedAt) ?? project.lockInfo.lockedAt,
+            })
             : undefined,
         tags: Object.values(project.tags ?? {}),
         date: formatDateTime(project.modifiedAt),
@@ -51,70 +53,57 @@ export const activateOnKey = (onActivate: () => void) => (event: KeyboardEvent) 
 
 const useStyles = createStyles(({ css, token }) => ({
     tag: css`
-        margin: 0;
         border-radius: ${token.borderRadiusSM}px;
-        font-size: 11px;
-        line-height: 18px;
     `,
     tagMore: css`
         color: ${token.colorTextTertiary};
         font-size: 11px;
     `,
     branch: css`
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        min-width: 0;
         max-width: 200px;
-        color: ${token.colorTextTertiary};
-
-        .anticon {
-            flex: none;
-            font-size: 13px;
-        }
-
-        .anticon-safety {
-            color: ${token.colorInfo};
-        }
-    `,
-    dash: css`
-        color: ${token.colorTextTertiary};
     `,
 }))
 
 /** The project's tags as chips, collapsing everything past {@link MAX_TAGS} into a "+N" indicator. */
 export const ProjectTags = ({ tags }: { tags: string[] }) => {
-    const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
     if (tags.length === 0) {
         return null
     }
     return (
         <>
-            {tags.slice(0, MAX_TAGS).map((value, index) => (
-                <Tag key={index} className={styles.tag}>{value}</Tag>
+            {/* One tag per type, so the value itself identifies the chip. */}
+            {tags.slice(0, MAX_TAGS).map(value => (
+                <Tag key={value} className={cx(shared.chipTag, styles.tag)}>{value}</Tag>
             ))}
             {tags.length > MAX_TAGS && <span className={styles.tagMore}>+{tags.length - MAX_TAGS}</span>}
         </>
     )
 }
 
-/** The project's branch with a protected-branch shield, or an em dash for a project shown without one. */
-export const BranchLabel = ({ project, supportsBranches }: { project: Project, supportsBranches: boolean }) => {
-    const { t } = useTranslation('repository')
+/** Whether the project is shown on a branch: a local copy and a repository without branches have none. */
+export const showsBranch = (project: Project, repositorySupportsBranches: boolean): boolean =>
+    repositorySupportsBranches && !!project.branch && project.status !== ProjectStatus.Local
+
+/** {@link showsBranch}, resolving the repository's support from the repository itself. */
+export const hasBranch = (project: Project, repository: RepositoryInfo): boolean =>
+    showsBranch(project, supportsBranches(repository))
+
+/** The project's branch with its marks, or nothing for a project shown without one. */
+export const ProjectBranch = ({ project, supportsBranches }: { project: Project, supportsBranches: boolean }) => {
     const { styles } = useStyles()
-    const showBranch = supportsBranches && !!project.branch && project.status !== ProjectStatus.Local
-    if (!showBranch) {
-        return <span className={styles.dash}>—</span>
+    if (!showsBranch(project, supportsBranches)) {
+        return null
     }
     return (
-        <span className={styles.branch}>
-            <BranchesOutlined />
-            <MonoChip ellipsis>{project.branch}</MonoChip>
-            {project.branchProtected && (
-                <Tooltip title={t('browser.branch.protected_tag')}>
-                    <SafetyOutlined />
-                </Tooltip>
-            )}
-        </span>
+        <BranchLabel
+            withIcon
+            className={styles.branch}
+            isDefault={project.branchDefault}
+            isProtected={project.branchProtected}
+            name={project.branch}
+            testId="row-branch"
+        />
     )
 }

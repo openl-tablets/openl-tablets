@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConflictResolutionStep } from 'containers/MergeModal/ConflictResolutionStep'
 import * as services from 'services'
-import { ConflictDetails, ConflictGroup } from 'containers/MergeModal/types'
+import { BranchInfo, ConflictDetails, ConflictGroup } from 'containers/MergeModal/types'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services', () => ({
@@ -72,6 +72,7 @@ vi.mock('antd', () => {
                 ),
             }
         ),
+        Tag: ({ children, ...rest }: any) => <span {...rest}>{children}</span>,
         Tooltip: ({ children }: any) => <>{children}</>,
         Upload: ({ children }: any) => (
             <div data-testid="upload">{children}</div>
@@ -150,9 +151,15 @@ const conflictDetails: ConflictDetails = {
     defaultMessage: 'Merge feature into main',
 }
 
+const branches: BranchInfo[] = [
+    { name: 'main', protected: true, base: true },
+    { name: 'feature', protected: false },
+]
+
 const defaultProps = () => ({
     projectId: 'proj-1',
     conflictGroups,
+    branches,
     onResolveSuccess: vi.fn(),
     onCancel: vi.fn(),
     onCompare: vi.fn(),
@@ -217,6 +224,14 @@ describe('ConflictResolutionStep', () => {
 
             expect(screen.getByText('feature')).toBeInTheDocument()
             expect(screen.getByText('main')).toBeInTheDocument()
+        })
+
+        it('marks a revision branch as the default and protected one', async () => {
+            await renderAndLoad()
+
+            expect(screen.getByTestId('conflict-branch-main-default')).toBeInTheDocument()
+            expect(screen.getByTestId('conflict-branch-main-protected')).toBeInTheDocument()
+            expect(screen.queryByTestId('conflict-branch-feature-protected')).not.toBeInTheDocument()
         })
 
         it('shows "not exists" for non-existing revision', async () => {

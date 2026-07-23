@@ -13,7 +13,10 @@ vi.mock('../../services/acl', () => ({
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
 vi.mock('antd-style', () => ({
-    createStyles: () => () => ({ styles: new Proxy({}, { get: () => '' }) }),
+    createStyles: () => () => ({
+        styles: new Proxy({}, { get: () => '' }),
+        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
+    }),
 }))
 
 vi.mock('@ant-design/icons', () => ({

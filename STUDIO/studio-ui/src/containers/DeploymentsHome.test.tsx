@@ -2,11 +2,14 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeploymentsHome } from './DeploymentsHome'
-import { getDeployment, getDeployments, getProductionRepositories } from '../services/deployments'
+import { getDeployments, getProductionRepositories } from '../services/deployments'
+
+const navigate = vi.fn()
 
 vi.mock('react-router-dom', async () => {
     const { useState } = await import('react')
     return {
+        useNavigate: () => navigate,
         useSearchParams: () => {
             const [params, setParams] = useState(new URLSearchParams())
             const set = (next: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams)) => {
@@ -20,7 +23,6 @@ vi.mock('react-router-dom', async () => {
 vi.mock('../services/deployments', () => ({
     getProductionRepositories: vi.fn(),
     getDeployments: vi.fn(),
-    getDeployment: vi.fn(),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -80,8 +82,8 @@ vi.mock('antd', () => {
 })
 
 vi.mock('@ant-design/icons', () => ({
-    ReloadOutlined: () => <span>reload</span>,
-    RightOutlined: () => <span>right</span>,
+    // The shared search input carries its own icon.
+    SearchOutlined: () => <span>search</span>,
 }))
 
 const repositories = [
@@ -108,19 +110,6 @@ describe('DeploymentsHome', () => {
         vi.mocked(getDeployments).mockImplementation(async repoId => repoId === 'prod' ? deployments : [
             { id: 'd3', name: 'Claims' },
         ])
-        vi.mocked(getDeployment).mockResolvedValue({
-            id: 'd1',
-            name: 'Benefits',
-            repository: 'prod',
-            items: [
-                {
-                    name: 'Benefits Rules',
-                    modifiedAt: '2026-07-09T10:30:00Z',
-                    modifiedBy: 'jane',
-                    revision: 'abc123',
-                },
-            ],
-        })
     })
 
     it('loads production repositories and deployments for the first repository', async () => {
@@ -133,15 +122,18 @@ describe('DeploymentsHome', () => {
         expect(screen.getByTestId('deployment-row-d2')).toBeInTheDocument()
     })
 
-    it('loads deployed projects lazily when a deployment is expanded', async () => {
+    it('opens a deployment on its own page', async () => {
         await renderPage()
 
-        await userEvent.click(screen.getAllByLabelText('deployments.expand')[0]!)
+        await userEvent.click(screen.getByTestId('deployment-open-d1'))
 
-        await waitFor(() => expect(getDeployment).toHaveBeenCalledWith('d1'))
-        expect(screen.getByTestId('deployment-project-row-Benefits Rules')).toBeInTheDocument()
-        expect(screen.getByText('abc123')).toBeInTheDocument()
-        expect(screen.getByText('jane')).toBeInTheDocument()
+        expect(navigate).toHaveBeenCalledWith('/deployments/d1')
+    })
+
+    it('counts the deployments without mentioning the repositories', async () => {
+        await renderPage()
+
+        expect(screen.getByTestId('deployments-summary')).toHaveTextContent('deployments.summary:{"count":2}')
     })
 
     it('switches repositories and loads deployments for the selected repository', async () => {
@@ -151,5 +143,52 @@ describe('DeploymentsHome', () => {
 
         await waitFor(() => expect(getDeployments).toHaveBeenCalledWith('uat'))
         expect(screen.getByTestId('deployment-row-d3')).toBeInTheDocument()
+    })
+
+    it('reports failing repositories instead of an empty screen', async () => {
+        vi.mocked(getProductionRepositories).mockRejectedValue(new Error('down'))
+        await renderPage()
+
+        expect(screen.getByTestId('deployments-repositories-error')).toBeInTheDocument()
+    })
+
+    it('reports failing deployments and loads them again on retry', async () => {
+        vi.mocked(getDeployments).mockRejectedValueOnce(new Error('down'))
+        await renderPage()
+
+        expect(screen.getByTestId('deployments-error')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('deployments.retry'))
+
+        await screen.findByText('Benefits')
+    })
+
+    it('tells apart an empty repository from a search without matches', async () => {
+        vi.mocked(getDeployments).mockResolvedValue([])
+        await renderPage()
+
+        expect(screen.getByTestId('deployments-empty')).toBeInTheDocument()
+
+        vi.mocked(getDeployments).mockImplementation(async () => deployments)
+        await userEvent.click(screen.getByText('UAT'))
+        await screen.findByText('Benefits')
+        await userEvent.type(screen.getByTestId('deployments-search'), 'nothing-matches')
+
+        expect(screen.getByTestId('deployments-no-match')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('deployments.clear_search'))
+        expect(screen.queryByTestId('deployments-no-match')).toBeNull()
+    })
+
+    it('reloads the open repository when a project was deployed', async () => {
+        await renderPage()
+        const calls = vi.mocked(getDeployments).mock.calls.length
+
+        await act(async () => {
+            window.dispatchEvent(new Event('projectDeployed'))
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(vi.mocked(getDeployments).mock.calls.length).toBeGreaterThan(calls)
     })
 })

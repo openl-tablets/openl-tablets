@@ -23,7 +23,9 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { apiCall, CONFIG } from '../../services'
+import { formatDateTime } from '../../utils/dateFormat'
 import {
+    BranchInfo,
     ConflictDetails,
     ConflictFileState,
     ConflictGroup,
@@ -31,12 +33,15 @@ import {
     FileSide,
     RevisionInfo,
 } from './types'
+import { MergeBranchLabel } from './MergeBranchLabel'
 
 const { TextArea } = Input
 
 interface ConflictResolutionStepProps {
     projectId: string
     conflictGroups: ConflictGroup[]
+    /** The branches of the project, so a branch carries its marks here as it does everywhere else. */
+    branches: BranchInfo[]
     onResolveSuccess: () => void
     onCancel: () => void
     onCompare: (filePath: string) => void
@@ -45,6 +50,7 @@ interface ConflictResolutionStepProps {
 export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     projectId,
     conflictGroups: initialConflictGroups,
+    branches,
     onResolveSuccess,
     onCancel,
     onCompare,
@@ -231,15 +237,6 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         onCancel()
     }
 
-    const formatDateTime = (isoDate: string | null): string => {
-        if (!isoDate) return ''
-        try {
-            return new Date(isoDate).toLocaleString()
-        } catch {
-            return isoDate
-        }
-    }
-
     const renderRevisionInfo = (label: string, revision: RevisionInfo | undefined) => {
         if (!revision) return null
 
@@ -248,7 +245,13 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 {revision.exists ? (
                     <Tooltip title={t('merge:revisions.commit', { commit: revision.commit })}>
                         <Space orientation="vertical" size={0}>
-                            <Typography.Text strong>{revision.branch}</Typography.Text>
+                            {revision.branch && (
+                                <MergeBranchLabel
+                                    branches={branches}
+                                    name={revision.branch}
+                                    testId={`conflict-branch-${revision.branch}`}
+                                />
+                            )}
                             {revision.author && (
                                 <Typography.Text type="secondary">
                                     {t('merge:revisions.by', { author: revision.author })}
@@ -256,7 +259,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                             )}
                             {revision.modifiedAt && (
                                 <Typography.Text type="secondary">
-                                    {t('merge:revisions.at', { date: formatDateTime(revision.modifiedAt) })}
+                                    {t('merge:revisions.at', { date: formatDateTime(revision.modifiedAt) ?? '' })}
                                 </Typography.Text>
                             )}
                         </Space>

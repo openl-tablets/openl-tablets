@@ -97,7 +97,7 @@ describe('DeleteBranchModal', () => {
         await userEvent.click(screen.getByRole('button', { name: 'repository:delete_branch.confirm_button' }))
 
         await waitFor(() => {
-            expect(mockDeleteBranch).toHaveBeenCalledWith(urlSafeId('repo-1:MyProject'), 'feature', true)
+            expect(mockDeleteBranch).toHaveBeenCalledWith(urlSafeId('repo-1:MyProject'), 'feature', false)
             expect(detail.onSuccess).toHaveBeenCalled()
         })
     })
@@ -126,6 +126,27 @@ describe('DeleteBranchModal', () => {
             expect(screen.getByText('repository:delete_branch.not_merged_warning')).toBeInTheDocument()
         )
         expect(screen.getByText('repository:delete_branch.confirm_button_unsafe')).toBeInTheDocument()
+    })
+
+    it('trusts the merge check even when the user may not merge into a protected main branch', async () => {
+        mockApiCall
+            .mockResolvedValueOnce({ status: 'VIEWING' } as never) // not modified
+            // The main branch is protected: the merge is refused, the branches are still up to date.
+            .mockResolvedValueOnce({ status: 'up-to-date', canMerge: false, blockedBy: 'protected-branch' } as never)
+
+        render(<DeleteBranchModal />)
+        await dispatchOpen(createDetail())
+
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: 'repository:delete_branch.confirm_button' })).toBeEnabled()
+        )
+        expect(screen.queryByText('repository:delete_branch.not_merged_warning')).not.toBeInTheDocument()
+        // The check asks where the branches stand, not for permission to merge.
+        expect(mockApiCall).toHaveBeenCalledWith(
+            `/projects/${urlSafeId('repo-1:MyProject')}/merge/check`,
+            expect.objectContaining({ method: 'POST' }),
+            expect.anything()
+        )
     })
 
     it('falls back to the cautious (unsafe) state when the preflight fails', async () => {

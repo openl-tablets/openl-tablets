@@ -2,19 +2,28 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeployConfigPanel } from './DeployConfigPanel'
-import { getFileContent, rootFileExists, updateFileContent, uploadFiles } from '../../services/files'
+import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
+
+vi.mock('./CodeEditor', () => ({
+    CodeEditor: ({ value, readOnly }: { value: string, readOnly?: boolean }) => (
+        <textarea data-testid="deploy-xml" readOnly={readOnly} value={value} />
+    ),
+}))
 
 vi.mock('../../services/files', () => ({
     getFileContent: vi.fn(),
     rootFileExists: vi.fn(),
-    updateFileContent: vi.fn(),
-    uploadFiles: vi.fn(),
+    writeRootFile: vi.fn(),
 }))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
 })
+
+vi.mock('../../components/FieldRow', () => ({
+    FieldRow: ({ label, children }: Record<string, unknown>) => <div><label>{label as never}</label>{children as never}</div>,
+}))
 
 vi.mock('antd', () => {
     const Form = ({ children, ...rest }: Record<string, unknown>) => {
@@ -52,9 +61,23 @@ vi.mock('antd', () => {
     }
     const Skeleton = () => <div>loading</div>
     const Space = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    const Tag = ({ children }: Record<string, unknown>) => <span>{children as never}</span>
     const notification = { error: vi.fn(), success: vi.fn() }
-    return { Alert, Button, Form, Input, Select, Skeleton, Space, Switch, notification }
+    return { Alert, Button, Form, Input, Select, Skeleton, Space, Switch, Tag, notification }
 })
+
+vi.mock('antd-style', () => ({
+    createStyles: () => () => ({
+        styles: new Proxy({}, { get: (_t, name) => String(name) }),
+        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
+    }),
+}))
+
+vi.mock('@ant-design/icons', () => ({
+    EditOutlined: () => <span>edit</span>,
+    CheckOutlined: () => <span>check</span>,
+    CloseOutlined: () => <span>close</span>,
+}))
 
 async function renderPanel(canWrite = true, onSaved = vi.fn()) {
     await act(async () => {
@@ -66,16 +89,47 @@ async function renderPanel(canWrite = true, onSaved = vi.fn()) {
 describe('DeployConfigPanel', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(updateFileContent).mockResolvedValue()
-        vi.mocked(uploadFiles).mockResolvedValue()
+        vi.mocked(writeRootFile).mockResolvedValue()
         vi.mocked(rootFileExists).mockResolvedValue(true)
     })
 
-    it('loads and shows the parsed descriptor', async () => {
+    it('reads the parsed descriptor as plain values, not as fields, by default', async () => {
         vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
         await renderPanel()
 
-        await waitFor(() => expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('svc'))
+        await waitFor(() => expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc'))
+        // No inputs before the user asks to edit; the runtime-context toggle reads disabled.
+        expect(screen.getByTestId('deploy-service-name').tagName).toBe('SPAN')
+        expect(screen.getByTestId('deploy-runtime-context')).toBeDisabled()
+        // The Edit button is the only way in; Save appears only in the editing view.
+        expect(screen.getByTestId('deploy-config-edit')).toBeInTheDocument()
+        expect(screen.queryByTestId('deploy-config-save')).toBeNull()
+    })
+
+    it('turns the values into fields when the user clicks Edit, and back on cancel', async () => {
+        vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
+        await renderPanel()
+        await waitFor(() => expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc'))
+
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+        expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('svc')
+
+        await userEvent.clear(screen.getByTestId('deploy-service-name'))
+        await userEvent.type(screen.getByTestId('deploy-service-name'), 'changed')
+        await userEvent.click(screen.getByTestId('deploy-config-cancel'))
+
+        // Cancel discards the edit and returns to the read view of the saved value.
+        expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc')
+        expect(writeRootFile).not.toHaveBeenCalled()
+    })
+
+    it('shows the raw XML as a read-only file, even in the editing view', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(
+            '<rules-deploy><configuration><foo/></configuration></rules-deploy>')
+        await renderPanel()
+
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+        expect(screen.getByTestId('deploy-xml')).toHaveAttribute('readOnly')
     })
 
     it('shows a hint and creates the file on save when missing', async () => {
@@ -84,18 +138,17 @@ describe('DeployConfigPanel', () => {
         await renderPanel(true, onSaved)
 
         expect(screen.getByTestId('deploy-config-missing')).toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
         await userEvent.type(screen.getByTestId('deploy-service-name'), 'brand-new')
         await userEvent.click(screen.getByTestId('deploy-config-save'))
 
-        await waitFor(() => expect(uploadFiles).toHaveBeenCalledTimes(1))
-        const [projectId, path, files] = vi.mocked(uploadFiles).mock.calls[0]!
+        // A missing descriptor is created — writeRootFile is told the file does not exist yet.
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalledTimes(1))
+        const [projectId, name, xml, exists] = vi.mocked(writeRootFile).mock.calls[0]!
         expect(projectId).toBe('p1')
-        expect(path).toBe('')
-        expect(files).toHaveLength(1)
-        expect(files[0]!.name).toBe('rules-deploy.xml')
-        const xml = await files[0]!.text()
+        expect(name).toBe('rules-deploy.xml')
         expect(xml).toContain('<serviceName>brand-new</serviceName>')
-        expect(updateFileContent).not.toHaveBeenCalled()
+        expect(exists).toBe('create')
         expect(onSaved).toHaveBeenCalledTimes(1)
     })
 
@@ -104,15 +157,17 @@ describe('DeployConfigPanel', () => {
         vi.mocked(getFileContent).mockResolvedValue('<rules-deploy><serviceName>svc</serviceName></rules-deploy>')
         await renderPanel(true, onSaved)
 
-        await waitFor(() => expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('svc'))
+        await waitFor(() => expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc'))
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
         await userEvent.clear(screen.getByTestId('deploy-service-name'))
         await userEvent.type(screen.getByTestId('deploy-service-name'), 'updated')
         await userEvent.click(screen.getByTestId('deploy-config-save'))
 
-        await waitFor(() => expect(updateFileContent).toHaveBeenCalledWith(
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalledWith(
             'p1',
             'rules-deploy.xml',
-            expect.stringContaining('<serviceName>updated</serviceName>')
+            expect.stringContaining('<serviceName>updated</serviceName>'),
+            'overwrite'
         ))
         expect(onSaved).toHaveBeenCalledTimes(1)
     })
@@ -122,6 +177,7 @@ describe('DeployConfigPanel', () => {
         await renderPanel(false)
 
         expect(screen.queryByTestId('deploy-config-save')).toBeNull()
+        expect(screen.queryByTestId('deploy-config-edit')).toBeNull()
     })
 
     it('surfaces a load error', async () => {
@@ -137,6 +193,6 @@ describe('DeployConfigPanel', () => {
 
         expect(screen.getByTestId('deploy-config-invalid')).toBeInTheDocument()
         expect(screen.queryByTestId('deploy-config')).toBeNull()
-        expect(updateFileContent).not.toHaveBeenCalled()
+        expect(writeRootFile).not.toHaveBeenCalled()
     })
 })

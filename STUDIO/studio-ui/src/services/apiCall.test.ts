@@ -3,6 +3,7 @@ import apiCall, {
     EmptyError,
     NotFoundError,
     isApiHttpError,
+    WORKSPACE_CHANGED_EVENT,
 } from 'services/apiCall'
 import { notification } from 'antd'
 import * as storeModule from 'store'
@@ -241,6 +242,24 @@ describe('apiCall', () => {
 
         await apiCall('/bad')
         expect(notification.error).toHaveBeenCalled()
+    })
+
+    it('announces a change of the server state, so what other screens cached is read again', async () => {
+        const changed = vi.fn()
+        window.addEventListener(WORKSPACE_CHANGED_EVENT, changed)
+
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 204 }))
+        await apiCall('/projects/p1', { method: 'DELETE' }, { throwError: true })
+        expect(changed).toHaveBeenCalledTimes(1)
+
+        // A read changes nothing, and a rejected write changed nothing either.
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 200, jsonData: { content: []} }))
+        await apiCall('/projects', undefined, { throwError: true })
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 409, jsonData: { message: 'nope' } }))
+        await apiCall('/projects/p1', { method: 'DELETE' }).catch(() => {})
+
+        expect(changed).toHaveBeenCalledTimes(1)
+        window.removeEventListener(WORKSPACE_CHANGED_EVENT, changed)
     })
 
     it('falls back to the default forbidden message when the body is not JSON', async () => {

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { Modal } from 'antd'
 import { MergeBranchesStep } from 'containers/MergeModal/MergeBranchesStep'
 import * as services from 'services'
-import { BranchInfo, CheckMergeResult, MergeResultResponse } from 'containers/MergeModal/types'
+import { BranchInfo, CheckMergeResult, MergeBlockedBy, MergeResultResponse } from 'containers/MergeModal/types'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('antd', async () => {
@@ -72,10 +72,14 @@ vi.mock('components/form', () => ({
                 <option value="">{placeholder}</option>
                 {options?.map((opt: any) => (
                     <option key={String(opt.value)} value={String(opt.value)}>
-                        {opt.label}
+                        {String(opt.value)}
                     </option>
                 ))}
             </select>
+            {/* A rendered label is a node, which a native <option> cannot hold — render them alongside. */}
+            <div data-testid="option-labels">
+                {options?.map((opt: any) => <div key={String(opt.value)}>{opt.label}</div>)}
+            </div>
         </div>
     ),
 }))
@@ -99,16 +103,19 @@ const defaultProps = () => ({
     onCheckCommitInfo: vi.fn((cb: () => void) => cb()),
 })
 
-const mergeableResult = (source: string, target: string): CheckMergeResult => ({
+const mergeableResult = (source: string, target: string, blockedBy?: MergeBlockedBy): CheckMergeResult => ({
     sourceBranch: source,
     targetBranch: target,
     status: 'mergeable',
+    canMerge: !blockedBy,
+    ...(blockedBy ? { blockedBy } : {}),
 })
 
 const upToDateResult = (source: string, target: string): CheckMergeResult => ({
     sourceBranch: source,
     targetBranch: target,
     status: 'up-to-date',
+    canMerge: true,
 })
 
 const createApiError = (status: number, message: string, payload?: unknown) =>
@@ -145,9 +152,9 @@ describe('MergeBranchesStep', () => {
         expect(values).toContain('release-1.0')
     })
 
-    it('shows protected label in branch options', () => {
+    it('marks a protected branch in the options', () => {
         render(<MergeBranchesStep {...defaultProps()} />)
-        expect(screen.getByText('release-1.0 (protected)')).toBeInTheDocument()
+        expect(screen.getByTestId('merge-branch-release-1.0-protected')).toBeInTheDocument()
     })
 
     describe('merge check', () => {
@@ -312,7 +319,7 @@ describe('MergeBranchesStep', () => {
             render(<MergeBranchesStep {...defaultProps()} />)
             await selectBranch('feature')
 
-            await waitFor(() => expect(screen.getByText('merge:errors.check_failed')).toBeInTheDocument())
+            expect(await screen.findByText('merge:errors.check_failed')).toBeInTheDocument()
         })
     })
 
@@ -384,7 +391,7 @@ describe('MergeBranchesStep', () => {
             mockApiCall.mockRejectedValueOnce(new Error('Connection failed'))
             await userEvent.click(getButton(/merge:actions.receive/i))
 
-            await waitFor(() => expect(screen.getByText('Connection failed')).toBeInTheDocument())
+            await screen.findByText('Connection failed')
         })
 
         it('uses onCheckCommitInfo for git repositories before merging', async () => {
@@ -422,11 +429,10 @@ describe('MergeBranchesStep', () => {
         })
     })
 
-    describe('protected branch bypass', () => {
-        it('retries check with force=true and shows bypass warning when check returns bypass-required', async () => {
+    describe('a protected target branch', () => {
+        it('offers the merge as a bypass when the check says the user may confirm it', async () => {
             mockApiCall
-                .mockRejectedValueOnce(createBypassError())
-                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('feature', 'main', 'bypass-required'))
                 .mockResolvedValueOnce(mergeableResult('main', 'feature'))
 
             render(<MergeBranchesStep {...defaultProps()} />)
@@ -436,27 +442,49 @@ describe('MergeBranchesStep', () => {
                 expect(screen.getByText('merge:bypass.title')).toBeInTheDocument()
             })
 
-            // First receive check (no force) → bypass-required
+            // One question, one request: the check answers it whether or not the user may merge.
+            expect(mockApiCall).toHaveBeenCalledTimes(2)
             expect(mockApiCall).toHaveBeenNthCalledWith(
                 1,
                 '/projects/proj-1/merge/check',
                 expect.anything(),
                 expect.anything()
             )
-            // Receive retried with force=true
-            expect(mockApiCall).toHaveBeenNthCalledWith(
-                2,
-                '/projects/proj-1/merge/check?force=true',
-                expect.anything(),
-                expect.anything()
-            )
-            // Merge button enabled because forced check returned mergeable
+            // The merge stays available: the user confirms the bypass themselves.
             const receiveBtn = getButton(/merge:actions.receive/i)
             expect(receiveBtn).not.toBeDisabled()
             // Button styled danger (red) to mirror GitHub's "Confirm bypass rules and merge" UX
             expect(receiveBtn).toHaveClass('ant-btn-dangerous')
-            // Send button is unaffected because its check resolved normally
+            // Send button is unaffected because its check reported no obstacle
             expect(getButton(/merge:actions.send/i)).not.toHaveClass('ant-btn-dangerous')
+        })
+
+        it('reports the difference and refuses the merge the user may not perform', async () => {
+            mockApiCall
+                .mockResolvedValueOnce(upToDateResult('release-1.0', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'release-1.0', 'protected-branch'))
+
+            render(<MergeBranchesStep {...defaultProps()} />)
+            await selectBranch('release-1.0')
+
+            await screen.findByTestId('merge-blocked-send')
+            expect(screen.getByTestId('merge-blocked-send')).toHaveTextContent('merge:blocked.protected')
+            expect(getButton(/merge:actions.send/i)).toBeDisabled()
+            // No error alert: the answer arrived, it just says the merge is not for this user.
+            expect(screen.queryByText('merge:errors.check_failed')).not.toBeInTheDocument()
+        })
+
+        it('says a locked target branch is what blocks the merge', async () => {
+            mockApiCall
+                .mockResolvedValueOnce(mergeableResult('feature', 'main', 'locked'))
+                .mockResolvedValueOnce(upToDateResult('main', 'feature'))
+
+            render(<MergeBranchesStep {...defaultProps()} />)
+            await selectBranch('feature')
+
+            await screen.findByTestId('merge-blocked-receive')
+            expect(screen.getByTestId('merge-blocked-receive')).toHaveTextContent('merge:blocked.locked')
+            expect(getButton(/merge:actions.receive/i)).toBeDisabled()
         })
 
         it('opens danger confirm modal and retries merge with force=true on confirm', async () => {

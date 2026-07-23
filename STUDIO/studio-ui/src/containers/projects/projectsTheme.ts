@@ -40,12 +40,6 @@ export const COMPILE_COLORS = {
     idle: '#8b9199',
 } as const
 
-/** Single-line clipping. Interpolated into co-located `css` template literals, like {@link MOCKUP.fontMono}. */
-export const ELLIPSIS = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'
-
-/** The monospace base (font, size, line-height) shared by the chip-like labels (MonoChip, RepoBadge). */
-export const MONO_TEXT = `font-family: ${MOCKUP.fontMono}; font-size: 12px; line-height: 18px;`
-
 /**
  * Ant Design theme scoped to the Projects tab only (mounted by {@link ProjectsThemeProvider} around the two
  * `/projects` route elements). It never leaks to the shared Header, Editor or Administration screens.
@@ -81,6 +75,8 @@ export const PROJECTS_THEME: ThemeConfig = {
             itemHoverColor: MOCKUP.text,
         },
         Button: {
+            // Match the 36px Input/Select height so buttons align in compact input groups and toolbars.
+            controlHeight: 36,
             defaultBorderColor: MOCKUP.border,
             primaryShadow: 'none',
             defaultShadow: 'none',

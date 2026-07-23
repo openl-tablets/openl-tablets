@@ -10,14 +10,12 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
-import { Empty, Tabs, Tooltip, Typography, type TabsProps } from 'antd'
+import { Empty, Skeleton, Tabs, Typography, type TabsProps } from 'antd'
 import {
-    BranchesOutlined,
     FileTextOutlined,
     HistoryOutlined,
     ProfileOutlined,
     RocketOutlined,
-    SafetyOutlined,
     TeamOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -25,20 +23,19 @@ import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { FsNode } from '../../types/files'
 import type { RepositoryFeatures } from '../../types/repositories'
-import { StatusPill } from './StatusIndicator'
-import { CompileStatusBadge } from './CompileStatusBadge'
+import { StatusMark } from './StatusIndicator'
 import { ProjectActionBar, type ActionId, type ProjectActionHandlers } from './ProjectActionBar'
 import { FileTree } from './FileTree'
 import { FilesToolbar } from './FilesToolbar'
+import { projectFolders } from './ProjectFolderInput'
 import { FilePreviewPane } from './FilePreviewPane'
 import { FolderActionsPane } from './FolderActionsPane'
-import { TagsModal } from './TagsModal'
 import { RevisionsPanel } from './RevisionsPanel'
 import { OverviewPanel } from './OverviewPanel'
-import { BranchesPanel } from './BranchesPanel'
 import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
 import { MonoChip } from './MonoChip'
+import { BranchSwitcher } from './BranchSwitcher'
 import { LocalChangesSummary } from './LocalChangesSummary'
 import { buildFileChangeMap, normalizeProjectFileChanges } from './fileChanges'
 import { SystemContext } from '../../contexts'
@@ -75,9 +72,6 @@ const useStyles = createStyles(({ css, token }) => ({
                 color: ${token.colorPrimary};
             }
         }
-    `,
-    shield: css`
-        color: ${token.colorTextTertiary};
     `,
     titleRow: css`
         display: flex;
@@ -129,7 +123,7 @@ const useStyles = createStyles(({ css, token }) => ({
         }
 
         /* The active pane fills the body and owns its scroll. The Files pane fills it exactly (its
-           tree and editor scroll internally); taller panes (e.g. Publish) scroll here. */
+           tree and editor scroll internally); taller panes (e.g. Deploy Configuration) scroll here. */
         .ant-tabs-content-active {
             display: flex;
             flex-direction: column;
@@ -150,6 +144,8 @@ const useStyles = createStyles(({ css, token }) => ({
         flex: none;
         min-height: 0;
         overflow: hidden;
+        /* The divider belongs to the tree column, so every border inside it ends exactly on the line. */
+        border-right: 1px solid ${token.colorBorderSecondary};
 
         /* Toolbar + local-changes summary stay pinned; only the tree scroll wrapper (last child) grows. */
         > *:not(:last-child) {
@@ -161,14 +157,26 @@ const useStyles = createStyles(({ css, token }) => ({
         min-height: 0;
         overflow: auto;
     `,
+    filePlaceholder: css`
+        flex: 1;
+        min-width: 0;
+        padding: 16px;
+    `,
     resizer: css`
+        /* A grab strip laid over the divider: it takes no width, so the two panes stay flush with it. */
+        position: relative;
         flex: none;
-        width: 5px;
-        cursor: col-resize;
-        border-right: 1px solid ${token.colorBorderSecondary};
-        transition: background 0.15s ease;
+        width: 0;
 
-        &:hover {
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0 -4px;
+            cursor: col-resize;
+            transition: background 0.15s ease;
+        }
+
+        &:hover::after {
             background: ${token.colorPrimaryBorder};
         }
     `,
@@ -194,8 +202,8 @@ interface ProjectDetailProps {
 }
 
 /**
- * A single project's workspace: identity header, capability-driven action bar, and the Overview, Files,
- * History, Branches, Publish and Access tabs. Table editing is not hosted here yet.
+ * A single project's workspace: identity header, capability-driven action bar, and the Overview,
+ * Revisions, Files, Branches, Deploy Configuration and Access tabs. Table editing is not hosted here yet.
  */
 export const ProjectDetail = ({
     project,
@@ -246,6 +254,10 @@ export const ProjectDetail = ({
         && virtualFolders.some(folder => folder === selectedFile || folder.startsWith(`${selectedFile}/`))
     const selectedIsFolder = selectedNode?.type === 'folder' || selectedIsVirtualFolder
     const selectedTargetFolder = selectedIsFolder ? selectedNode?.path ?? selectedFile ?? '' : selectedNode?.basePath ?? ''
+    // Whether the tree is loaded well enough to tell a file from a folder. Until it is, a selection is of
+    // an unknown kind — an extension-less folder name (say "__MACOSX") would otherwise be read as a text
+    // file and its content fetched, which fails. A virtual folder is known without the tree.
+    const selectionClassified = Array.isArray(files) || selectedIsVirtualFolder
     const setSelectedFile = useCallback((path: string | null) => {
         setSearchParams(prev => {
             const next = new URLSearchParams(prev)
@@ -258,7 +270,6 @@ export const ProjectDetail = ({
             return next
         }, { replace: true })
     }, [setSearchParams])
-    const [editingTags, setEditingTags] = useState(false)
     const [fileFilter, setFileFilter] = useState('')
     const [treeWidth, setTreeWidth] = useState(288)
     const resizeCleanup = useRef<(() => void) | null>(null)
@@ -267,6 +278,7 @@ export const ProjectDetail = ({
         () => normalizeProjectFileChanges(pendingFileChanges, project?.path, project?.name),
         [pendingFileChanges, project?.name, project?.path]
     )
+    const folders = useMemo(() => projectFolders(Array.isArray(files) ? files : undefined), [files])
     const fileChangeByPath = useMemo(
         () => buildFileChangeMap(pendingFileChanges, project?.path, project?.name),
         [pendingFileChanges, project?.name, project?.path]
@@ -284,7 +296,6 @@ export const ProjectDetail = ({
         'overview',
         'files',
         ...(canViewHistory ? ['history'] : []),
-        ...(hasBranches ? ['branches'] : []),
         'publish',
         ...(canShowAccess ? ['access'] : []),
     ]
@@ -298,7 +309,6 @@ export const ProjectDetail = ({
         }
     }, [activeTab, onFilesVisible, project])
 
-    const initialTags = useMemo(() => project?.tags ?? {}, [project?.tags])
     const stopResize = useCallback(() => {
         const cleanup = resizeCleanup.current
         resizeCleanup.current = null
@@ -338,21 +348,81 @@ export const ProjectDetail = ({
     const muted = project.status === ProjectStatus.Deleted
     const canWriteFiles = project.capabilities?.canWrite ?? false
 
+    // What the right side of the Files tab shows for the selection: a placeholder while the freshly
+    // selected path is still being classified, the folder actions for a folder, the preview for a file.
+    const filePane = () => {
+        if (selectedFile && !selectionClassified) {
+            return (
+                <div className={styles.filePlaceholder} data-testid="file-pane-loading">
+                    <Skeleton active paragraph={{ rows: 6 }} title={false} />
+                </div>
+            )
+        }
+        if (selectedIsFolder && selectedFile) {
+            return (
+                <FolderActionsPane
+                    canDelete={canWriteFiles}
+                    canWrite={canWriteFiles}
+                    folders={folders}
+                    onChanged={() => onChanged?.()}
+                    onDeleted={() => { setSelectedFile(null); onChanged?.() }}
+                    onRemoveVirtual={() => { removeVirtualFolder(selectedFile); setSelectedFile(null) }}
+                    path={selectedFile}
+                    projectId={project.id}
+                    virtual={selectedIsVirtualFolder}
+                />
+            )
+        }
+        return (
+            <FilePreviewPane
+                branch={repositorySupportsBranches ? project.branch : null}
+                canDelete={canWriteFiles}
+                canWrite={canWriteFiles}
+                folders={folders}
+                onChanged={() => onChanged?.()}
+                onDeleted={() => { setSelectedFile(null); onChanged?.() }}
+                onMoved={newPath => { setSelectedFile(newPath); onChanged?.() }}
+                path={selectedFile}
+                projectId={project.id}
+                projectName={project.name}
+                reloadToken={reloadToken}
+                repositoryId={project.repository}
+            />
+        )
+    }
+
     const items: TabsProps['items'] = [
         {
             key: 'overview',
             label: <><ProfileOutlined /> {t('browser.tab_overview')}</>,
             children: (
                 <OverviewPanel
-                    onEditTags={() => setEditingTags(true)}
+                    onChanged={() => onChanged?.()}
                     onUnlock={handlers.unlock}
                     project={project}
+                    reloadToken={reloadToken}
                     repoLabel={repoLabel}
                     repoType={repoType}
                     supportsBranches={repositorySupportsBranches}
                 />
             ),
         },
+        ...(canViewHistory ? [{
+            key: 'history',
+            label: <><HistoryOutlined /> {t('browser.tab_history')}</>,
+            children: activeTab === 'history' && (
+                <RevisionsPanel
+                    branch={repositorySupportsBranches ? project.branch : null}
+                    currentRevision={project.revision}
+                    onOpened={() => onChanged?.()}
+                    projectId={project.id}
+                    projectName={project.name}
+                    reloadToken={reloadToken}
+                    repositoryId={project.repository}
+                    searchable={repositorySupportsRevisionSearch}
+                />
+            ),
+        }] : []),
         {
             key: 'files',
             label: <><FileTextOutlined /> {t('browser.tab_files')}</>,
@@ -362,6 +432,7 @@ export const ProjectDetail = ({
                         <FilesToolbar
                             canWrite={canWriteFiles}
                             filter={fileFilter}
+                            folders={folders}
                             onChanged={() => onChanged?.()}
                             onCreateFolder={addVirtualFolder}
                             onFilterChange={setFileFilter}
@@ -383,75 +454,17 @@ export const ProjectDetail = ({
                         </div>
                     </div>
                     <div aria-hidden className={styles.resizer} data-testid="file-tree-resizer" onMouseDown={startResize} />
-                    {selectedIsFolder && selectedFile ? (
-                        <FolderActionsPane
-                            canDelete={canWriteFiles}
-                            canWrite={canWriteFiles}
-                            onChanged={() => onChanged?.()}
-                            onDeleted={() => { setSelectedFile(null); onChanged?.() }}
-                            onRemoveVirtual={() => { removeVirtualFolder(selectedFile); setSelectedFile(null) }}
-                            path={selectedFile}
-                            projectId={project.id}
-                            virtual={selectedIsVirtualFolder}
-                        />
-                    ) : (
-                        <FilePreviewPane
-                            branch={repositorySupportsBranches ? project.branch : null}
-                            canDelete={canWriteFiles}
-                            canWrite={canWriteFiles}
-                            onChanged={() => onChanged?.()}
-                            onDeleted={() => { setSelectedFile(null); onChanged?.() }}
-                            path={selectedFile}
-                            projectId={project.id}
-                            projectName={project.name}
-                            reloadToken={reloadToken}
-                            repositoryId={project.repository}
-                        />
-                    )}
+                    {filePane()}
                 </div>
             ),
         },
-        ...(canViewHistory ? [{
-            key: 'history',
-            label: <><HistoryOutlined /> {t('browser.tab_history')}</>,
-            children: activeTab === 'history' && (
-                <RevisionsPanel
-                    branch={repositorySupportsBranches ? project.branch : null}
-                    canCompare={project.capabilities?.canCompare ?? false}
-                    currentRevision={project.revision}
-                    onOpened={() => onChanged?.()}
-                    projectId={project.id}
-                    projectName={project.name}
-                    reloadToken={reloadToken}
-                    repositoryId={project.repository}
-                    searchable={repositorySupportsRevisionSearch}
-                />
-            ),
-        }] : []),
-        ...(hasBranches ? [{
-            key: 'branches',
-            label: <><BranchesOutlined /> {t('browser.tab_branches')}</>,
-            children: (
-                <BranchesPanel
-                    canWrite={canWriteFiles}
-                    currentBranch={project.branch}
-                    onChanged={() => onChanged?.()}
-                    projectId={project.id}
-                    projectName={project.name}
-                    repositoryId={project.repository}
-                    selectedBranches={project.selectedBranches ?? []}
-                />
-            ),
-        }] : []),
         {
             key: 'publish',
             label: <><RocketOutlined /> {t('browser.tab_publish')}</>,
             children: (
                 <PublishPanel
-                    canDeploy={project.capabilities?.canDeploy ?? false}
                     canWrite={canWriteFiles}
                     onChanged={() => onChanged?.()}
-                    onDeploy={handlers.deploy}
                     projectId={project.id}
                     projectName={project.name}
                     reloadToken={reloadToken}
@@ -488,17 +501,21 @@ export const ProjectDetail = ({
                     {hasBranches && (
                         <>
                             <span aria-hidden>/</span>
-                            <MonoChip>{project.branch}</MonoChip>
-                            {project.branchProtected && (
-                                <Tooltip title={t('browser.branch.protected_tag')}>
-                                    <SafetyOutlined className={styles.shield} data-testid="crumb-branch-protected" />
-                                </Tooltip>
-                            )}
+                            <BranchSwitcher
+                                currentBranch={project.branch}
+                                currentBranchDefault={project.branchDefault}
+                                currentBranchProtected={project.branchProtected}
+                                data-testid="crumb-branch"
+                                onSwitched={() => onChanged?.()}
+                                projectId={project.id}
+                                selectedBranches={project.selectedBranches ?? []}
+                            />
                         </>
                     )}
                 </div>
                 <div className={styles.titleRow}>
                     <div className={styles.titleLeft}>
+                        <StatusMark status={project.status} testId={`status-${project.id}`} />
                         <Typography.Title
                             className={cx(styles.title, muted && styles.titleMuted)}
                             ellipsis={{ tooltip: project.name }}
@@ -506,27 +523,11 @@ export const ProjectDetail = ({
                         >
                             {project.name}
                         </Typography.Title>
-                        <StatusPill status={project.status} testId={`status-${project.id}`} />
-                        <CompileStatusBadge
-                            branch={repositorySupportsBranches ? project.branch || null : null}
-                            initialStatus={project.compileStatus}
-                            projectId={project.id}
-                        />
                     </div>
                     <ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />
                 </div>
             </div>
             <Tabs activeKey={activeTab} className={styles.tabs} data-testid="project-tabs" items={items} onChange={onTabChange} />
-            <TagsModal
-                initialTags={initialTags}
-                onClose={() => setEditingTags(false)}
-                open={editingTags}
-                projectId={project.id}
-                onSaved={() => {
-                    setEditingTags(false)
-                    onChanged?.()
-                }}
-            />
         </div>
     )
 }

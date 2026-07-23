@@ -2,9 +2,13 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsHome } from './ProjectsHome'
-import { getDesignRepositories, getProjects, type GetProjectsQuery } from '../services/repositories'
+import { getDesignRepositories, getProjects, setProjectStatus } from '../services/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
 import { ProjectStatus } from '../constants/project'
+import { invalidateProjectIndex } from '../services/projectIndex'
+import { notification } from 'antd'
+import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
+import { openCompareWindow } from './projects/compare'
 
 const { copyModalMock, navigateMock } = vi.hoisted(() => ({ copyModalMock: vi.fn(), navigateMock: vi.fn() }))
 
@@ -23,11 +27,18 @@ vi.mock('react-router-dom', async () => {
     }
 })
 
+vi.mock('./projects/filterStorage', () => ({
+    // The screen under test starts from a clean slate; restoring is covered by the storage's own tests.
+    loadProjectFilters: vi.fn(() => null),
+    saveProjectFilters: vi.fn(),
+}))
+
 vi.mock('../services/repositories', () => ({
     getDesignRepositories: vi.fn(),
     getProjects: vi.fn(),
     downloadProject: vi.fn(),
     deleteProject: vi.fn(),
+    setProjectStatus: vi.fn(),
 }))
 
 vi.mock('./projects/NewProjectModal', () => ({
@@ -43,6 +54,25 @@ vi.mock('./projects/CopyProjectModal', () => ({
             : null
     },
 }))
+
+vi.mock('./projects/ExportProjectModal', () => ({
+    ExportProjectModal: ({ open }: { open: boolean }) => (open ? <div data-testid="export-modal" /> : null),
+}))
+
+vi.mock('./projects/OpenRevisionModal', () => ({
+    OpenRevisionModal: ({ open }: { open: boolean }) => (open ? <div data-testid="open-revision-modal" /> : null),
+}))
+
+vi.mock('./projects/SaveProjectModal', () => ({
+    SaveProjectModal: ({ open }: { open: boolean }) => (open ? <div data-testid="save-project-modal" /> : null),
+}))
+
+vi.mock('./projects/branchDialogs', () => ({
+    openDeleteBranchDialog: vi.fn().mockResolvedValue(undefined),
+    openMergeDialog: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('./projects/compare', () => ({ openCompareWindow: vi.fn() }))
 
 // The compile dot fetches project status; stub it out so the list test stays offline.
 vi.mock('./projects/CompileIndicator', () => ({
@@ -102,8 +132,8 @@ vi.mock('antd', async () => {
         )
     }
 
-    const Segmented = ({ options, onChange, value, ...rest }: Record<string, unknown>) => {
-        drop({ value })
+    const Segmented = ({ options, onChange, value, block, size, className, ...rest }: Record<string, unknown>) => {
+        drop({ value, block, size, className })
         return (
             <div {...rest}>
                 {(options as Option[])?.map(option => (
@@ -164,7 +194,28 @@ vi.mock('antd', async () => {
     }
     Typography.Title = ({ children }: { children?: unknown }) => <h3>{children as never}</h3>
 
-    const Modal = Object.assign(() => null, { confirm: vi.fn() })
+    const Modal = Object.assign(({ open, children, title, onOk, onCancel, okText, okButtonProps, cancelButtonProps }: Record<string, unknown>) => (open
+        ? (
+            <div role="dialog">
+                {title as never}
+                {children as never}
+                <button
+                    data-testid={(okButtonProps as { 'data-testid'?: string } | undefined)?.['data-testid']}
+                    onClick={onOk as never}
+                    type="button"
+                >
+                    {(okText as string | undefined) ?? 'ok'}
+                </button>
+                <button
+                    data-testid={(cancelButtonProps as { 'data-testid'?: string } | undefined)?.['data-testid']}
+                    onClick={onCancel as never}
+                    type="button"
+                >
+                    cancel
+                </button>
+            </div>
+        )
+        : null), { confirm: vi.fn() })
     const notification = { error: vi.fn(), success: vi.fn() }
 
     return { Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert, Typography, Modal, notification }
@@ -180,6 +231,7 @@ const projects = [
         id: 'p1',
         name: 'Alpha',
         repository: 'design',
+        repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: true, searchable: true, mappedFolders: false } },
         status: ProjectStatus.Closed,
         branch: 'main',
         modifiedBy: 'jane',
@@ -193,6 +245,7 @@ const projects = [
         id: 'p2',
         name: 'Beta',
         repository: 'ro',
+        repositoryInfo: { id: 'ro', name: 'ReadOnly', type: 'repo-jdbc', features: { branches: false, searchable: false, mappedFolders: false } },
         status: ProjectStatus.Closed,
         branch: 'main',
         modifiedBy: 'john',
@@ -210,6 +263,9 @@ async function renderHome() {
         render(<ProjectsHome />)
         await new Promise(resolve => setTimeout(resolve, 50))
     })
+    // The screen restores the saved filters before it asks for anything, so wait for the answer itself
+    // rather than for a fixed delay — on a busy machine the fetch lands after it.
+    await waitFor(() => expect(screen.queryByText('skeleton')).toBeNull())
 }
 
 async function flushSearch() {
@@ -254,40 +310,20 @@ function projectsPage(content: Project[], total = content.length, withCounts = t
     }
 }
 
+/**
+ * The screen reads the whole workspace once and filters, sorts and pages it in the browser, so the
+ * server answers one request with everything.
+ */
 function mockProjectSearch(source: Project[] = projects) {
-    vi.mocked(getProjects).mockImplementation(async (query: GetProjectsQuery = {}) => {
-        let result = [...source]
-        const name = query.name?.toLowerCase()
-        if (name) {
-            result = result.filter(project => project.name.toLowerCase().includes(name))
-        }
-        const statuses = new Set([...(query.statuses ?? [])].map(String))
-        if (statuses.size > 0) {
-            result = result.filter(project => statuses.has(project.status))
-        }
-        const repositories = new Set([...(query.repositories ?? [])])
-        if (repositories.size > 0) {
-            result = result.filter(project => repositories.has(project.repository)
-                || repositories.has('__local__') && project.status === ProjectStatus.Local)
-        }
-        if (query.sort === 'updated') {
-            result.sort((a, b) => new Date(b.modifiedAt ?? 0).getTime() - new Date(a.modifiedAt ?? 0).getTime())
-        } else {
-            result.sort((a, b) => a.name.localeCompare(b.name))
-        }
-        // The backend computes facet counts only for the `summary` include; mirror that so tests can
-        // assert the UI reuses cached counts when it omits the flag on paging/facet changes.
-        const summaryRequested = [...(query.includes ?? [])].includes('summary')
-        return projectsPage(result, result.length, summaryRequested)
-    })
+    vi.mocked(getProjects).mockImplementation(async () =>
+        projectsPage([...source].sort((left, right) => left.name.localeCompare(right.name)), source.length, false))
 }
-
-/** The `include` values passed to the most recent getProjects call. */
-const lastIncludes = () => [...(vi.mocked(getProjects).mock.calls.at(-1)?.[0]?.includes ?? [])]
 
 describe('ProjectsHome', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        // The snapshot of the workspace is shared by the screens, so each test starts without one.
+        invalidateProjectIndex()
         vi.mocked(getDesignRepositories).mockResolvedValue(repositories as never)
         mockProjectSearch()
     })
@@ -312,6 +348,17 @@ describe('ProjectsHome', () => {
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
     })
 
+    it('names the repository of a project the user may read without reading its repository', async () => {
+        // A user granted a single project sees no repositories at all: the badge has to come from the project.
+        vi.mocked(getDesignRepositories).mockResolvedValue([])
+
+        await renderHome()
+
+        await userEvent.click(screen.getByText('grid'))
+
+        expect(screen.getAllByText('Design').length).toBeGreaterThanOrEqual(1)
+    })
+
     it('keeps initial load failures local to the Projects page', async () => {
         await renderHome()
 
@@ -319,15 +366,19 @@ describe('ProjectsHome', () => {
         expect(getProjects).toHaveBeenCalledWith(expect.any(Object), { throwError: true, suppressErrorPages: true })
     })
 
-    it('sorts alphabetically by default, by most recent update on demand', async () => {
+    it('sorts alphabetically by default, by the Modified header on demand, newest first', async () => {
         await renderHome()
 
         expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
 
-        await userEvent.selectOptions(screen.getByTestId('projects-sort'), 'updated')
+        await userEvent.click(screen.getByTestId('projects-sort-updated'))
 
         await screen.findByTestId('project-row-p2')
         expect(rowOrder()).toEqual(['project-row-p2', 'project-row-p1'])
+
+        // A second click on the same header flips the direction.
+        await userEvent.click(screen.getByTestId('projects-sort-updated'))
+        expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2'])
     })
 
     it('navigates to the project workspace when a row is clicked', async () => {
@@ -378,57 +429,76 @@ describe('ProjectsHome', () => {
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
     })
 
-    it('overlays a loading spinner over the current list while a filter change refetches', async () => {
+    it('reads the workspace once and filters it without asking the server again', async () => {
         await renderHome()
-        expect(screen.getByTestId('project-row-p1')).toBeTruthy()
-        expect(screen.queryByTestId('projects-loading-overlay')).toBeNull()
 
-        // Hold the refetch the facet toggle triggers so its loading window is observable.
-        let release = () => {}
-        vi.mocked(getProjects).mockImplementationOnce(
-            () => new Promise(resolve => { release = () => resolve(projectsPage([projects[1]!])) })
-        )
-
-        await userEvent.click(screen.getByTestId('filter-repo-ro'))
-
-        // The spinner overlays the previous rows, which stay visible until fresh data lands.
-        expect(await screen.findByTestId('projects-loading-overlay')).toBeTruthy()
-        expect(screen.getByTestId('project-row-p1')).toBeTruthy()
-
-        release()
-        await waitFor(() => expect(screen.queryByTestId('projects-loading-overlay')).toBeNull())
-    })
-
-    it('requests facet counts only when the search scope changes, not on paging or facet toggles', async () => {
-        await renderHome()
-        // The initial load fetches the counts, so the rail shows tag facets.
-        expect(lastIncludes()).toContain('summary')
+        expect(getProjects).toHaveBeenCalledTimes(1)
+        // The counts of the rail are counted in the browser, not asked for.
         expect(screen.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
 
-        // A facet toggle refetches the list without 'summary'; the rail keeps the counts already in state.
         await userEvent.click(screen.getByTestId('filter-repo-ro'))
         await waitFor(() => expect(screen.queryByTestId('project-row-p1')).toBeNull())
-        expect(lastIncludes()).not.toContain('summary')
-        expect(screen.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
 
-        // Changing the search scope recomputes the counts.
         await userEvent.type(screen.getByTestId('projects-search'), 'p')
         await flushSearch()
-        expect(lastIncludes()).toContain('summary')
+
+        // Filtering and searching are answered from the snapshot: no second read.
+        expect(getProjects).toHaveBeenCalledTimes(1)
+        // The counts still stand for the search scope, with the picked facets ignored.
+        expect(screen.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
     })
 
-    it('groups tag filters under a collapsible Tags section', async () => {
+    it('gives every tag type a group of its own, which folds on its own', async () => {
         await renderHome()
 
-        const tagGroup = within(screen.getByTestId('filter-tags'))
-        expect(tagGroup.getByText('home.facet_tags')).toBeTruthy()
+        const tagGroup = within(screen.getByTestId('filter-group-tag:Category'))
         expect(tagGroup.getByText('Category')).toBeTruthy()
         expect(tagGroup.getByTestId('filter-tag-Category:Payroll')).toBeTruthy()
 
-        await userEvent.click(screen.getByTestId('filter-tags-toggle'))
+        await userEvent.click(screen.getByTestId('filter-toggle-tag:Category'))
 
-        expect(screen.getByTestId('filter-tags-toggle').getAttribute('aria-expanded')).toBe('false')
+        expect(screen.getByTestId('filter-toggle-tag:Category').getAttribute('aria-expanded')).toBe('false')
         expect(screen.queryByTestId('filter-tag-Category:Payroll')).toBeNull()
+    })
+
+    it('reads the repositories first, the tags next and the states last', async () => {
+        await renderHome()
+
+        const groups = [...document.querySelectorAll('[data-testid^="filter-group-"]')]
+            .map(group => group.getAttribute('data-testid'))
+
+        expect(groups).toEqual(['filter-group-repository', 'filter-group-tag:Category', 'filter-group-status'])
+    })
+
+    it('puts a filter away and brings it back, while the rail is being arranged', async () => {
+        await renderHome()
+
+        // Off that mode the rail carries no controls of its own — only the filters themselves.
+        expect(screen.queryByTestId('filter-hide-status')).toBeNull()
+        expect(screen.queryByTestId('filter-drag-status')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('projects-filter-arrange'))
+        await userEvent.click(screen.getByTestId('filter-hide-status'))
+
+        expect(screen.queryByTestId('filter-group-status')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('filter-show-status'))
+
+        expect(screen.getByTestId('filter-group-status')).toBeTruthy()
+    })
+
+    it('keeps what was put away out of sight once the arranging is done', async () => {
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('projects-filter-arrange'))
+        await userEvent.click(screen.getByTestId('filter-hide-status'))
+
+        expect(screen.getByTestId('filter-hidden')).toBeTruthy()
+
+        await userEvent.click(screen.getByTestId('projects-filter-arrange-done'))
+
+        expect(screen.queryByTestId('filter-hidden')).toBeNull()
+        expect(screen.queryByTestId('filter-group-status')).toBeNull()
     })
 
     it('offers a Local facet and matches local-only projects with it', async () => {
@@ -520,5 +590,121 @@ describe('ProjectsHome', () => {
         await screen.findByTestId('project-row-p1')
         expect(screen.queryByTestId('projects-home-error')).toBeNull()
         expect(getProjects).toHaveBeenCalledTimes(2)
+    })
+})
+
+/** Row actions run against one project, so each test lists exactly the one it drives. */
+describe('ProjectsHome row actions', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        // The snapshot of the workspace is shared by the screens, so each test starts without one.
+        invalidateProjectIndex()
+        vi.mocked(getDesignRepositories).mockResolvedValue(repositories as never)
+    })
+
+    const single = (capabilities: NonNullable<Project['capabilities']>, over: Partial<Project> = {}) =>
+        [{ ...projects[0]!, capabilities, ...over }] as Project[]
+
+    it('opens a project and reloads the list', async () => {
+        mockProjectSearch(single({ canOpen: true }))
+        vi.mocked(setProjectStatus).mockResolvedValue(undefined as never)
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('project-action-open-p1'))
+
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'OPENED', true))
+    })
+
+    it('says a status change failed instead of failing silently', async () => {
+        mockProjectSearch(single({ canOpen: true }))
+        vi.mocked(setProjectStatus).mockRejectedValue(new Error('boom'))
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('project-action-open-p1'))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalled())
+    })
+
+    it('asks before closing a project with unsaved changes and closes discarding them', async () => {
+        mockProjectSearch(single({ canClose: true }, { status: ProjectStatus.Editing }))
+        vi.mocked(setProjectStatus).mockResolvedValue(undefined as never)
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('project-action-close-p1'))
+        // Nothing is sent until the user accepts losing the changes.
+        expect(setProjectStatus).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('discard-close-confirm'))
+
+        await waitFor(() => expect(setProjectStatus).toHaveBeenCalledWith('p1', 'CLOSED', { discardChanges: true }))
+    })
+
+    it('hands branch deletion to the shared branch dialog', async () => {
+        mockProjectSearch(single({ canManageBranches: true }))
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('project-action-deleteBranch-p1'))
+
+        await waitFor(() => expect(openDeleteBranchDialog).toHaveBeenCalled())
+    })
+
+    it('hands branch sync to the shared merge dialog', async () => {
+        mockProjectSearch(single({ canManageBranches: true }))
+        await renderHome()
+
+        await userEvent.click(screen.getByText('browser.sync'))
+
+        await waitFor(() => expect(openMergeDialog).toHaveBeenCalled())
+    })
+
+    it('opens the comparison window for a comparable project', async () => {
+        mockProjectSearch(single({ canCompare: true }))
+        await renderHome()
+
+        await userEvent.click(screen.getByText('browser.compare'))
+
+        expect(openCompareWindow).toHaveBeenCalled()
+    })
+
+    it('opens the export, revision and save dialogs from the row menu', async () => {
+        mockProjectSearch(single({ canExport: true, canViewHistory: true, canSave: true }))
+        await renderHome()
+
+        await userEvent.click(screen.getByText('browser.export'))
+        expect(screen.getByTestId('export-modal')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('browser.open_revision'))
+        expect(screen.getByTestId('open-revision-modal')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('browser.save'))
+        expect(screen.getByTestId('save-project-modal')).toBeInTheDocument()
+    })
+
+    it('raises the global deploy and delete dialogs through window events', async () => {
+        mockProjectSearch(single({ canDeploy: true, canDelete: true }))
+        const deploy = vi.fn()
+        const remove = vi.fn()
+        window.addEventListener('openDeployModal', deploy)
+        window.addEventListener('openDeleteProjectModal', remove)
+        try {
+            await renderHome()
+
+            await userEvent.click(screen.getByText('browser.deploy'))
+            expect(deploy).toHaveBeenCalled()
+
+            await userEvent.click(screen.getByText('browser.delete'))
+            expect(remove).toHaveBeenCalled()
+            // The delete dialog reports back through the event, and the list reloads.
+            const detail = (remove.mock.calls[0]![0] as CustomEvent<{ onSuccess: () => void }>).detail
+            const before = vi.mocked(getProjects).mock.calls.length
+            await act(async () => {
+                detail.onSuccess()
+                await new Promise(resolve => setTimeout(resolve, 0))
+            })
+            expect(vi.mocked(getProjects).mock.calls.length).toBeGreaterThan(before)
+        } finally {
+            window.removeEventListener('openDeployModal', deploy)
+            window.removeEventListener('openDeleteProjectModal', remove)
+        }
     })
 })

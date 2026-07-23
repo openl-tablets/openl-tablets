@@ -8,6 +8,7 @@ import { Repositories } from '../containers/Repositories'
 import { Skeleton } from 'antd'
 import { ProjectsHome } from '../containers/ProjectsHome'
 import { DeploymentsHome } from '../containers/DeploymentsHome'
+import { DeploymentWorkspace } from '../containers/DeploymentWorkspace'
 import { ProjectsThemeProvider } from '../containers/projects/ProjectsThemeProvider'
 
 // The single-project workspace (detail tabs, editor, CodeMirror) is code-split and loaded on demand,
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
             {
                 path: 'deployments',
                 element: <ProjectsThemeProvider><DeploymentsHome /></ProjectsThemeProvider>,
+            },
+            {
+                path: 'deployments/:deploymentId',
+                element: <ProjectsThemeProvider><DeploymentWorkspace /></ProjectsThemeProvider>,
             },
             {
                 path: 'projects/:projectId',

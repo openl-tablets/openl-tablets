@@ -7,6 +7,7 @@ import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
 
 // Only the compiling state animates: a soft pulse on its dot — the one state-driven motion moment.
 const pulse = keyframes`
@@ -33,12 +34,6 @@ const useStyles = createStyles(({ css, token }) => ({
         font-size: 12px;
         line-height: 20px;
         white-space: nowrap;
-    `,
-    dot: css`
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex: none;
     `,
     dotPulse: css`
         animation: ${pulse} 1.4s ease-in-out infinite;
@@ -74,10 +69,18 @@ export const getCompileTooltip = (
 }
 
 /**
+ * Whether a compile state is worth showing to the user: compilation in progress, or a result carrying
+ * warnings or errors. A clean ({@code ok}) or not-yet-compiled ({@code idle}) project shows nothing.
+ */
+export const isNoteworthyCompileState = (state: ProjectCompileState): boolean =>
+    state === 'compiling' || state === 'warnings' || state === 'errors'
+
+/**
  * Presentational compilation indicator: a coloured state dot in a rounded pill (optionally labelled),
  * encoding the compile state by hue. The compiling state pulses. Carries no data-fetching of its own.
  */
 export const CompileDot = ({ state, showLabel, testId, tooltip }: CompileDotProps) => {
+    const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
     const label = t(`browser.compile.${state}`)
@@ -87,7 +90,7 @@ export const CompileDot = ({ state, showLabel, testId, tooltip }: CompileDotProp
             <span aria-label={title} className={showLabel ? styles.chip : styles.bare} data-testid={testId} role="img">
                 <span
                     aria-hidden
-                    className={cx(styles.dot, state === 'compiling' && styles.dotPulse)}
+                    className={cx(shared.stateDot, state === 'compiling' && styles.dotPulse)}
                     style={{ background: COMPILE_COLORS[state] }}
                 />
                 {showLabel && <span>{label}</span>}
@@ -113,6 +116,9 @@ export const RowCompileDot = ({ status, projectId, branch, initialStatus }: RowC
     const currentStatus = useLiveProjectStatus(projectId, branch, live, initialStatus ?? null)
 
     const state = live ? currentStatus?.compileState ?? initialStatus?.compileState ?? 'idle' : 'idle'
+    if (!isNoteworthyCompileState(state)) {
+        return null
+    }
     const tooltip = getCompileTooltip(currentStatus ?? initialStatus, state, t)
-    return <CompileDot showLabel state={state} tooltip={tooltip} />
+    return <CompileDot state={state} tooltip={tooltip} />
 }

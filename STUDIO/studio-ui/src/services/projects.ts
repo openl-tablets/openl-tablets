@@ -1,20 +1,10 @@
 import { notification } from 'antd'
 import apiCall, { type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
+import { encodeProjectPath as encodePath, toUrlSafeId } from './projectId'
 
 const PROJECT_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
-/**
- * Normalizes a project id to the URL-safe Base64 alphabet so it fits a URL path segment.
- * Legacy pages supply the id in the standard alphabet; the backend decodes both forms.
- */
-const toUrlSafeId = (projectId: string): string => projectId.replaceAll('+', '-').replaceAll('/', '_')
-
-/**
- * Encodes a project-relative path for the {*path} mapping. The path keeps '/' separators;
- * each segment is encoded so reserved characters such as '#' or '%' do not corrupt the URL.
- */
-const encodePath = (path: string): string => path.split('/').map(encodeURIComponent).join('/')
 
 /** A file to upload into a project, addressed by its project-relative '/'-separated path. */
 export interface ProjectUploadEntry {
@@ -97,28 +87,6 @@ export async function updateProjectFromFiles(
     )
 }
 
-/**
- * Replace the content of a single project file, e.g. a module's rules file. The file must
- * already exist at the path; the change is staged in the working copy.
- *
- * @param projectId project identifier provided by the backend, in either Base64 alphabet
- * @param path      file path relative to the project root; may contain '/' separators
- * @param file      the new file content
- * @returns {@code true} when the file was updated, {@code false} otherwise
- */
-export async function updateModuleFile(projectId: string, path: string, file: Blob): Promise<boolean> {
-    const formData = new FormData()
-    formData.append('file', file)
-    return uploadToProject(
-        `/projects/${toUrlSafeId(projectId)}/files/${encodePath(path)}`,
-        { method: 'PUT', body: formData },
-        {
-            title: i18n.t('project:notifications.module_updated'),
-            description: i18n.t('project:notifications.module_updated_description', { file: path.split('/').pop() }),
-        },
-        i18n.t('project:notifications.module_update_failed')
-    )
-}
 
 /**
  * Delete a project from its repository.

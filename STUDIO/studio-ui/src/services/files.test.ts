@@ -7,13 +7,15 @@ import {
     deleteFile,
     downloadFile,
     downloadFolder,
-    getFileBlob,
     getFileContent,
     isEditableTextFile,
     moveFile,
+    replaceFile,
     rootFileExists,
     updateFileContent,
+    uploadFile,
     uploadFiles,
+    writeRootFile,
 } from './files'
 
 vi.mock('./apiCall', () => ({
@@ -43,9 +45,10 @@ describe('files service', () => {
         await expect(getFileContent('repo/project', 'rules/My File.xml', 'rev 1')).resolves.toBe('hello')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/repo%2Fproject/files/rules/My%20File.xml?version=rev%201',
+            '/projects/repo_project/files/rules/My%20File.xml?version=rev%201',
             undefined,
-            { throwError: true, preserveEmptyText: true }
+            // A missing file is reported inline, not by the global 404 page.
+            { throwError: true, preserveEmptyText: true, suppressErrorPages: true }
         )
     })
 
@@ -55,18 +58,6 @@ describe('files service', () => {
         await expect(getFileContent('project', 'empty.txt')).resolves.toBe('')
     })
 
-    it('loads versioned file bytes through apiCall', async () => {
-        const blob = new Blob(['data'])
-        vi.mocked(apiCall).mockResolvedValue(blob)
-
-        await expect(getFileBlob('repo/project', 'rules/Main.xlsx', 'rev 1')).resolves.toBe(blob)
-
-        expect(apiCall).toHaveBeenCalledWith(
-            '/projects/repo%2Fproject/files/rules/Main.xlsx?version=rev%201',
-            undefined,
-            { throwError: true, responseType: 'blob' }
-        )
-    })
 
     it('creates empty text files through the create endpoint', async () => {
         vi.mocked(apiCall).mockResolvedValue(true)
@@ -164,6 +155,53 @@ describe('files service', () => {
         await uploadFiles('project', 'rules', [file])
 
         const [, request] = vi.mocked(apiCall).mock.calls[0]!
+        expect(request?.method).toBe('POST')
+        expect(request?.body).toBeInstanceOf(FormData)
+    })
+
+    it('uploads a single file under the name the user picked', async () => {
+        vi.mocked(apiCall).mockResolvedValue(undefined)
+        const file = new File(['data'], 'original.txt', { type: 'text/plain' })
+
+        await uploadFile('project', '', file, 'renamed.txt')
+
+        const [url, request] = vi.mocked(apiCall).mock.calls[0]!
+        expect(url).toBe('/projects/project/files/')
+        expect(request?.method).toBe('POST')
+        expect((request?.body as FormData).getAll('file')).toHaveLength(1)
+    })
+
+    it('replaces a file in place with an uploaded one', async () => {
+        vi.mocked(apiCall).mockResolvedValue(undefined)
+        const file = new File(['data'], 'Main.xlsx')
+
+        await replaceFile('project', 'rules/Main.xlsx', file)
+
+        const [url, request] = vi.mocked(apiCall).mock.calls[0]!
+        expect(url).toBe('/projects/project/files/rules/Main.xlsx')
+        expect(request?.method).toBe('PUT')
+        expect(request?.body).toBeInstanceOf(FormData)
+    })
+
+    it('overwrites an existing root file through the plain-text update', async () => {
+        vi.mocked(apiCall).mockResolvedValue(undefined)
+
+        await writeRootFile('project', 'rules.xml', '<project/>', 'overwrite')
+
+        expect(apiCall).toHaveBeenCalledWith(
+            '/projects/project/files/rules.xml',
+            { method: 'PUT', headers: { 'Content-Type': 'text/plain' }, body: '<project/>' },
+            { throwError: true }
+        )
+    })
+
+    it('creates a missing root file through a multipart upload', async () => {
+        vi.mocked(apiCall).mockResolvedValue(undefined)
+
+        await writeRootFile('project', 'rules.xml', '<project/>', 'create')
+
+        const [url, request] = vi.mocked(apiCall).mock.calls[0]!
+        expect(url).toBe('/projects/project/files/')
         expect(request?.method).toBe('POST')
         expect(request?.body).toBeInstanceOf(FormData)
     })

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SaveProjectModal } from './SaveProjectModal'
 import { apiCall, ApiHttpError } from '../../services'
-import { getProjectBranches, saveProject } from '../../services/repositories'
+import { getProjectBranches, getRepositoryConfig, saveProject } from '../../services/repositories'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -25,7 +25,12 @@ vi.mock('../../services', () => {
     }
 })
 
-vi.mock('../../services/repositories', () => ({ getProjectBranches: vi.fn(), saveProject: vi.fn() }))
+vi.mock('../../services/repositories', () => ({
+    getDesignRepositoryConfig: vi.fn(),
+    getProjectBranches: vi.fn(),
+    getRepositoryConfig: vi.fn(),
+    saveProject: vi.fn(),
+}))
 
 vi.mock('store', () => ({ useUserStore: () => ({ userProfile: { username: 'jane' } }) }))
 
@@ -54,7 +59,10 @@ vi.mock('antd', () => {
     const Input = { TextArea }
     const Typography = {
         Paragraph: ({ children }: { children?: unknown }) => <p>{children as never}</p>,
-        Text: ({ children }: { children?: unknown }) => <span>{children as never}</span>,
+        Text: ({ children, type, ...rest }: Record<string, unknown>) => {
+            void type
+            return <span {...rest}>{children as never}</span>
+        },
     }
     const notification = { error: vi.fn(), success: vi.fn(), warning: vi.fn() }
     return { Input, Modal, Typography, notification }
@@ -67,6 +75,7 @@ describe('SaveProjectModal', () => {
         vi.clearAllMocks()
         vi.mocked(saveProject).mockResolvedValue()
         vi.mocked(getProjectBranches).mockResolvedValue([])
+        vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
         // Default: identity configured
         vi.mocked(apiCall).mockResolvedValue({ displayName: 'Jane', email: 'jane@x.io' })
     })
@@ -90,7 +99,7 @@ describe('SaveProjectModal', () => {
         await waitFor(() => expect(onClose).toHaveBeenCalled())
     })
 
-    it('commits without generating a default comment when the comment is empty', async () => {
+    it('commits without generating a default comment when the repository suggests none', async () => {
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
         const comment = screen.getByTestId('save-project-comment') as HTMLTextAreaElement
@@ -98,6 +107,40 @@ describe('SaveProjectModal', () => {
         await userEvent.click(screen.getByTestId('save-project-submit'))
 
         await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', undefined))
+    })
+
+    it('starts from the comment the repository suggests for a save', async () => {
+        vi.mocked(getRepositoryConfig).mockResolvedValue({
+            comment: { templates: { save: 'Project {project-name} was modified' } },
+        })
+        render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
+
+        await waitFor(() => expect((screen.getByTestId('save-project-comment') as HTMLTextAreaElement).value)
+            .toBe('Project Alpha was modified'))
+    })
+
+    it('starts from the restore template when the project is opened on an older revision', async () => {
+        vi.mocked(getRepositoryConfig).mockResolvedValue({
+            comment: { templates: { restoreFrom: 'Restored from {revision} by {author}' } },
+        })
+        const viewing = { ...project as object, status: 'VIEWING_VERSION', revision: 'abc123', modifiedBy: 'john' } as never
+        render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={viewing} />)
+
+        await waitFor(() => expect((screen.getByTestId('save-project-comment') as HTMLTextAreaElement).value)
+            .toBe('Restored from abc123 by john'))
+    })
+
+    it('refuses a comment the repository pattern forbids', async () => {
+        vi.mocked(getRepositoryConfig).mockResolvedValue({
+            comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket', templates: {} },
+        })
+        render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
+
+        await userEvent.type(screen.getByTestId('save-project-comment'), 'no ticket')
+
+        await waitFor(() => expect(screen.getByTestId('save-project-comment-error')).toHaveTextContent('Start with a ticket'))
+        await userEvent.click(screen.getByTestId('save-project-submit'))
+        expect(saveProject).not.toHaveBeenCalled()
     })
 
     it('prompts for commit identity when it is missing, then saves', async () => {

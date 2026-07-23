@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useMemo } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
@@ -7,6 +7,7 @@ import { UserMenu } from './header/UserMenu'
 import { Link } from 'react-router-dom'
 import Logo from '../components/Logo'
 import { CONFIG } from '../services'
+import { hasDeploymentRepositories } from '../services/deployments'
 import { SystemContext } from '../contexts'
 import { useScript } from '../hooks'
 import { useNotificationStore } from 'store'
@@ -32,6 +33,20 @@ export const Header = () => {
         setIsUserMenuOpen(false)
     }, [])
 
+    // Deployments are only worth a tab for a user who may read at least one deployment repository.
+    const [showDeployments, setShowDeployments] = useState(false)
+    useEffect(() => {
+        let current = true
+        void hasDeploymentRepositories().then(available => {
+            if (current) {
+                setShowDeployments(available)
+            }
+        })
+        return () => {
+            current = false
+        }
+    }, [])
+
     const menuItems: MenuItem[] = [
         {
             key: `${CONFIG.CONTEXT}/`,
@@ -41,10 +56,10 @@ export const Header = () => {
             key: `${CONFIG.CONTEXT}/projects`,
             label: t('common:menu.projects'),
         },
-        {
+        ...(showDeployments ? [{
             key: `${CONFIG.CONTEXT}/deployments`,
             label: t('common:menu.deployments'),
-        }
+        }] : []),
     ]
 
     const goTo = (key = `${CONFIG.CONTEXT}/`) => {

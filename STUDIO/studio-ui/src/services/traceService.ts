@@ -108,7 +108,8 @@ const retryApiCall = async <T>(
 }
 
 /** Standard API call options for trace endpoints */
-const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
+// Tracing drives a debug session, not the project workspace, so its POSTs never signal a workspace change.
+const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
 
 const base = (projectId: string): string => `/projects/${encodeURIComponent(projectId)}/trace`
 

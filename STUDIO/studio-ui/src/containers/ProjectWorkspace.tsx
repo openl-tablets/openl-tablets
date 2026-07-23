@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, notification, Skeleton } from 'antd'
 import { createStyles } from 'antd-style'
 import {
-    downloadProject,
     getDesignRepositories,
     getProject,
     getProjectFiles,
@@ -19,10 +18,19 @@ import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { ProjectDetail } from './projects/ProjectDetail'
+import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
+import { supportsBranches } from '../utils/repositoryFeatures'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
+import { ExportProjectModal } from './projects/ExportProjectModal'
+import { OpenRevisionModal } from './projects/OpenRevisionModal'
+import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
+import { openCompareWindow } from './projects/compare'
 import type { ActionId, ProjectActionHandlers } from './projects/ProjectActionBar'
 import { DiscardChangesModal } from './DiscardChangesModal'
+import { ProjectsRail } from './projects/ProjectsRail'
+import type { NodeFilters } from './projects/projectGrouping'
+import { toUrlSafeId } from '../services/projectId'
 
 const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } as const
 
@@ -33,6 +41,12 @@ const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         overflow: hidden;
         background: ${token.colorBgContainer};
+    `,
+    /** The workspace beside the tree rail: the rail on the left, the project filling the rest. */
+    withRail: css`
+        display: flex;
+        flex: 1;
+        min-height: 0;
     `,
     crumb: css`
         display: inline-flex;
@@ -88,6 +102,8 @@ export const ProjectWorkspace = () => {
     const [pendingId, setPendingId] = useState<ActionId | null>(null)
     const [saveOpen, setSaveOpen] = useState(false)
     const [copySource, setCopySource] = useState<Project | null>(null)
+    const [openRevisionFor, setOpenRevisionFor] = useState<Project | null>(null)
+    const [exportSource, setExportSource] = useState<Project | null>(null)
     const [discardCloseOpen, setDiscardCloseOpen] = useState(false)
     // Bumped on every reload so tabs that cache their own data (history, file content) refetch and reset.
     const [reloadToken, setReloadToken] = useState(0)
@@ -112,14 +128,10 @@ export const ProjectWorkspace = () => {
         const generation = ++loadGeneration.current
         setLoading(true)
         try {
-            const [repos, loaded] = await Promise.all([
-                getDesignRepositories(LOCAL_LOAD_API_OPTIONS),
-                getProject(projectId, { includes: ['status', 'modules']}, LOCAL_LOAD_API_OPTIONS),
-            ])
+            const loaded = await getProject(projectId, { includes: ['status', 'descriptor']}, LOCAL_LOAD_API_OPTIONS)
             if (generation !== loadGeneration.current) {
                 return
             }
-            setRepositories(repos)
             setProject(loaded)
             setReloadToken(token => token + 1)
             filesGeneration.current += 1
@@ -142,6 +154,14 @@ export const ProjectWorkspace = () => {
         }
     }, [projectId])
 
+    // Only the copy targets need the repository list, and it is unreadable for a user granted a single
+    // project — the project itself carries the repository it lives in, so this is read once per screen.
+    useEffect(() => {
+        getDesignRepositories(LOCAL_LOAD_API_OPTIONS)
+            .then(setRepositories)
+            .catch(() => setRepositories([]))
+    }, [])
+
     // Drop the previous project immediately on navigation so its content never flashes under the new id.
     useEffect(() => {
         setProject(null)
@@ -151,24 +171,17 @@ export const ProjectWorkspace = () => {
         void load()
     }, [load])
 
-    const repoInfo = useMemo(() => {
-        if (!project) {
-            return null
-        }
-        return repositories.find(repo => repo.id === project.repository) ?? null
-    }, [repositories, project])
-    const repoLabel = useMemo(() => {
-        if (!project) {
-            return ''
-        }
-        return repoInfo?.name ?? project.repository
-    }, [repoInfo, project])
-    const repoType = useMemo(() => {
-        if (!project) {
-            return undefined
-        }
-        return repoInfo?.type ?? (project.status === ProjectStatus.Local ? 'repo-file' : undefined)
-    }, [repoInfo, project])
+    // The project reports its own repository, so the screen keeps its badge and its branch controls for a
+    // user granted the project alone and not the repository it lives in. A local project that the
+    // repository does not describe reads as the Local pseudo-repository.
+    const repoInfo = project?.repositoryInfo ?? null
+    const local = project?.status === ProjectStatus.Local
+    let repoLabel = ''
+    let repoType: string | undefined
+    if (project) {
+        repoLabel = repoInfo?.name ?? (local ? t('home.local') : project.repository)
+        repoType = repoInfo?.type ?? (local ? 'repo-file' : undefined)
+    }
     const creatableRepos = useMemo(
         () => repositories.filter(repo => repo.capabilities?.canCreateProject),
         [repositories]
@@ -244,18 +257,9 @@ export const ProjectWorkspace = () => {
     }, [project, runAction])
 
     const handlers: ProjectActionHandlers = useMemo(() => {
-        const noOp: ProjectActionHandlers = {
-            open: () => {},
-            close: () => {},
-            save: () => {},
-            deploy: () => {},
-            copy: () => {},
-            export: () => {},
-            delete: () => {},
-            unlock: () => {},
-        }
         if (!project) {
-            return noOp
+            // The action bar is only rendered with a project; the handlers are never reached without one.
+            return {} as ProjectActionHandlers
         }
         return {
             open: () => runAction('open', () => setProjectStatus(project.id, 'OPENED', true), 'browser.status_change_failed'),
@@ -268,7 +272,10 @@ export const ProjectWorkspace = () => {
             },
             save: () => setSaveOpen(true),
             copy: () => setCopySource(project),
-            export: () => downloadProject(project.id),
+            openRevision: () => setOpenRevisionFor(project),
+            sync: () => void openMergeDialog(project, () => void load()),
+            deleteBranch: () => void openDeleteBranchDialog(project, () => void load()),
+            export: () => setExportSource(project),
             delete: () => window.dispatchEvent(new CustomEvent('openDeleteProjectModal', {
                 detail: {
                     projectId: project.id,
@@ -282,6 +289,7 @@ export const ProjectWorkspace = () => {
                     detail: { ...project, selectedBranches: project.selectedBranches ?? []},
                 }))
             },
+            compare: () => openCompareWindow(project),
         }
     }, [closeProject, navigate, project, runAction])
 
@@ -309,42 +317,71 @@ export const ProjectWorkspace = () => {
 
     return (
         <div className={styles.page} data-testid="project-workspace">
-            <div className={styles.body}>
-                {project ? (
-                    <ProjectDetail
-                        files={files}
-                        handlers={handlers}
-                        onChanged={() => void load()}
-                        onFilesVisible={loadFiles}
-                        pendingId={pendingId}
-                        project={project}
-                        reducedMotion={reducedMotion}
-                        reloadToken={reloadToken}
-                        repoFeatures={repoInfo?.features}
-                        repoLabel={repoLabel}
-                        repoType={repoType}
-                        headerPrefix={(
-                            <span className={styles.crumb}>
-                                <Link to="/projects">{t('home.title')}</Link>
-                                <span aria-hidden>/</span>
-                            </span>
-                        )}
-                    />
-                ) : (
-                    <div className={styles.centered}>
-                        <Empty data-testid="project-workspace-missing" description={t('home.not_found')}>
-                            <Button onClick={() => navigate('/projects')} type="primary">
-                                {t('home.back_to_projects')}
-                            </Button>
-                        </Empty>
-                    </div>
-                )}
+            <div className={styles.withRail}>
+                <ProjectsRail
+                    currentProjectId={project?.id}
+                    initialMode="tree"
+                    // A group leads back to the list, showing exactly the projects it holds.
+                    onOpenGroup={filters => navigate(`/projects?${groupQuery(filters)}`)}
+                    onOpenProject={other => navigate(`/projects/${toUrlSafeId(other.id)}`)}
+                    onShowAll={() => navigate('/projects')}
+                    reloadToken={reloadToken}
+                    repositories={repositories}
+                />
+                <div className={styles.body}>
+                    {project ? (
+                        <ProjectDetail
+                            files={files}
+                            handlers={handlers}
+                            onChanged={() => void load()}
+                            onFilesVisible={loadFiles}
+                            pendingId={pendingId}
+                            project={project}
+                            reducedMotion={reducedMotion}
+                            reloadToken={reloadToken}
+                            repoFeatures={repoInfo?.features}
+                            repoLabel={repoLabel}
+                            repoType={repoType}
+                            headerPrefix={(
+                                <span className={styles.crumb}>
+                                    <Link to="/projects">{t('home.title')}</Link>
+                                    <span aria-hidden>/</span>
+                                </span>
+                            )}
+                        />
+                    ) : (
+                        <div className={styles.centered}>
+                            <Empty data-testid="project-workspace-missing" description={t('home.not_found')}>
+                                <Button onClick={() => navigate('/projects')} type="primary">
+                                    {t('home.back_to_projects')}
+                                </Button>
+                            </Empty>
+                        </div>
+                    )}
+                    {project && (
+                        <CompileProblemsPanel
+                            project={project}
+                            supportsBranches={supportsBranches({ features: repoInfo?.features })}
+                        />
+                    )}
+                </div>
             </div>
             <SaveProjectModal
                 onClose={() => setSaveOpen(false)}
                 onSaved={() => void load()}
                 open={saveOpen}
                 project={project}
+            />
+            <ExportProjectModal
+                onClose={() => setExportSource(null)}
+                open={exportSource !== null}
+                project={exportSource}
+            />
+            <OpenRevisionModal
+                onClose={() => setOpenRevisionFor(null)}
+                onOpened={() => void load()}
+                open={openRevisionFor !== null}
+                project={openRevisionFor}
             />
             <CopyProjectModal
                 onClose={() => setCopySource(null)}
@@ -367,4 +404,16 @@ export const ProjectWorkspace = () => {
             />
         </div>
     )
+}
+
+/** The list parameters that show the projects of a tree group. */
+const groupQuery = (filters: NodeFilters): string => {
+    const params = new URLSearchParams()
+    if (filters.repositories.length > 0) {
+        params.set('repo', filters.repositories.join(','))
+    }
+    if (filters.tags.length > 0) {
+        params.set('tags', filters.tags.join(','))
+    }
+    return params.toString()
 }

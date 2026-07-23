@@ -4,8 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { RevisionsPanel } from './RevisionsPanel'
 import { getProjectRevisions, openProjectRevision } from '../../services/repositories'
 
-const revisionCompareModalMock = vi.hoisted(() => vi.fn())
-
 vi.mock('../../services/repositories', () => ({
     getProjectRevisions: vi.fn(),
     isProjectModifiedConflict: vi.fn((error: unknown) => error instanceof Error && error.message === 'modified'),
@@ -13,14 +11,12 @@ vi.mock('../../services/repositories', () => ({
     REVISIONS_PAGE_SIZE: 20,
 }))
 
-vi.mock('./ProjectRevisionCompareModal', () => ({
-    ProjectRevisionCompareModal: (props: Record<string, unknown>) => {
-        revisionCompareModalMock(props)
-        return props['open'] ? <div data-testid="revision-compare-modal" /> : null
-    },
-}))
-
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
+
+vi.mock('../../components/SearchInput', () => ({
+    SearchInput: ({ onChange, value, ...rest }: Record<string, unknown>) =>
+        <input onChange={onChange as never} value={value as never} {...rest} />,
+}))
 
 vi.mock('antd-style', () => ({
     createStyles: () => () => ({
@@ -74,19 +70,13 @@ vi.mock('antd', () => {
         return <div {...dom}>{description as never}</div>
     }
     Empty.PRESENTED_IMAGE_SIMPLE = 'simple'
-    const Search = ({ onChange, ...rest }: Record<string, unknown>) => {
-        const { allowClear, ...dom } = rest
-        void allowClear
-        return <input onChange={onChange as never} {...dom} />
-    }
-    const Input = { Search }
     const Switch = ({ checked, onChange, ...rest }: Record<string, unknown>) => {
         const { size, ...dom } = rest
         void size
         return <input checked={checked as boolean} onChange={e => (onChange as (v: boolean) => void)(e.target.checked)} role="switch" type="checkbox" {...dom} />
     }
     const notification = { error: vi.fn(), success: vi.fn() }
-    return { Alert, Button, Skeleton, Empty, Input, Modal, Switch, Tag, Tooltip, notification }
+    return { Alert, Button, Skeleton, Empty, Modal, Switch, Tag, Tooltip, notification }
 })
 
 const REVS = [
@@ -116,13 +106,11 @@ async function renderPanel(props: {
     currentRevision?: string | null
     onOpened?: () => void
     searchable?: boolean
-    canCompare?: boolean
 } = {}) {
     await act(async () => {
         render(
             <RevisionsPanel
                 branch="main"
-                canCompare={props.canCompare}
                 currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
                 onOpened={props.onOpened ?? vi.fn()}
                 projectId="p1"
@@ -138,7 +126,6 @@ async function renderPanel(props: {
 describe('RevisionsPanel', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        revisionCompareModalMock.mockClear()
         vi.mocked(getProjectRevisions).mockImplementation((_repo, _name, _branch, query) => {
             const search = query?.search
             const content = search ? REVS.filter(revision => revision.fullComment.includes(search)) : REVS
@@ -206,7 +193,7 @@ describe('RevisionsPanel', () => {
         expect(openProjectRevision).not.toHaveBeenCalled()
     })
 
-    it('marks the project revision as current even when a technical revision is newest', async () => {
+    it('offers no open action on the current revision even when a technical revision is newest', async () => {
         vi.mocked(getProjectRevisions).mockResolvedValue(page([
             {
                 revisionNo: 'technical123',
@@ -224,8 +211,6 @@ describe('RevisionsPanel', () => {
         await renderPanel()
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
 
-        expect(screen.queryByTestId('revision-current-technical123')).toBeNull()
-        expect(screen.getByTestId('revision-current-abcdef1234')).toBeTruthy()
         expect(screen.queryByTestId('revision-open-abcdef1234')).toBeNull()
         expect(screen.getByTestId('revision-open-0987654321')).toBeTruthy()
     })
@@ -245,7 +230,9 @@ describe('RevisionsPanel', () => {
         await renderPanel()
         await waitFor(() => expect(screen.getByTestId('revision-comment-long')).toBeTruthy())
 
+        // Only the first line — the subject — shows until the message is expanded.
         expect(screen.getByTestId('revision-comment-long').textContent).toContain('browser.commit.show_more')
+        expect(screen.getByTestId('revision-comment-long').textContent).not.toContain('Second line')
         expect(screen.getByTestId('revision-comment-long').textContent).not.toContain('Fourth line')
 
         await userEvent.click(screen.getByTestId('revision-comment-long-toggle'))
@@ -311,50 +298,6 @@ describe('RevisionsPanel', () => {
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
 
         expect(screen.queryByTestId('revision-restore-0987654321')).toBeNull()
-    })
-
-    it('does not offer compare without the project capability', async () => {
-        await renderPanel()
-        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
-
-        expect(screen.queryByTestId('revisions-compare')).toBeNull()
-        expect(screen.queryByTestId('revision-compare-0987654321')).toBeNull()
-    })
-
-    it('opens revision compare after selecting two comparable revisions', async () => {
-        await renderPanel({ canCompare: true })
-        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
-
-        const compare = screen.getByTestId('revisions-compare') as HTMLButtonElement
-        expect(compare.disabled).toBe(true)
-        expect(screen.queryByText('browser.history.compare_prompt')).toBeNull()
-
-        await userEvent.click(screen.getByTestId('revision-compare-abcdef1234'))
-        await userEvent.click(screen.getByTestId('revision-compare-0987654321'))
-
-        expect(compare.disabled).toBe(false)
-        await userEvent.click(compare)
-
-        expect(screen.getByTestId('revision-compare-modal')).toBeTruthy()
-        const props = revisionCompareModalMock.mock.calls.at(-1)?.[0] as {
-            fromRevision: { revisionNo: string }
-            toRevision: { revisionNo: string }
-        }
-        expect(props.fromRevision.revisionNo).toBe('0987654321')
-        expect(props.toRevision.revisionNo).toBe('abcdef1234')
-    })
-
-    it('does not offer compare for technical revisions', async () => {
-        vi.mocked(getProjectRevisions).mockResolvedValue(page([
-            REVS[0]!,
-            { ...REVS[1]!, technicalRevision: true },
-        ]))
-
-        await renderPanel({ canCompare: true })
-        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
-
-        expect(screen.getByTestId('revision-compare-abcdef1234')).toBeTruthy()
-        expect(screen.queryByTestId('revision-compare-0987654321')).toBeNull()
     })
 
     it('does not append a stale page after the search changes', async () => {
