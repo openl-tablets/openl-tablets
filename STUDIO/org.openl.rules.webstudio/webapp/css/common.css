@@ -68,11 +68,6 @@ select {
     font-family: Verdana, Helvetica, Arial;
 }
 
-input.editable-select {
-    width: 200px;
-    padding-left: 6px;
-}
-
 input[type='text']:focus:not(.ant-input):not(.ant-select-input),
 input[type='password']:focus:not(.ant-input):not(.ant-select-input),
 textarea:focus,
