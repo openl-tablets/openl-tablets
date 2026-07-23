@@ -22,10 +22,6 @@ public class TestTableCreationWizardDirect extends TestTableCreationWizard {
 
     private TableSyntaxNode selectedNode;
 
-    public void setSelectedNode(TableSyntaxNode selectedNode) {
-        this.selectedNode = selectedNode;
-    }
-
     @Override
     protected TableSyntaxNode getSelectedNode() {
         return selectedNode;
