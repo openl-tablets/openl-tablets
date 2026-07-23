@@ -1,4 +1,4 @@
-## Appendix G: Deployment Project ZIP Structure
+## Appendix F: Deployment Project ZIP Structure
 
 OpenL projects without Excel files inside are supported.
 

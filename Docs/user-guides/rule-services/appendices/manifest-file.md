@@ -1,4 +1,4 @@
-## Appendix H: Manifest File for Deployed Projects
+## Appendix G: Manifest File for Deployed Projects
 
 When a user deploys the OpenL Tablets project from OpenL Studio or using the OpenL Tablets Maven plugin, the MANIFEST.MF file is generated. This file contains information about deployment author, deployment time, project version, and OpenL Tablets version used for deployment.
 

@@ -24,9 +24,8 @@ This guide is organized into the following sections:
 - [Appendix C: Types of Exceptions in OpenL Rule Services](appendices/exceptions.md)
 - [Appendix D: OpenAPI Support](appendices/openapi-support.md)
 - [Appendix E: Programmatically Deploying Rules to a Repository](appendices/programmatic-deployment.md)
-- [Appendix F: Backward Compatibility Settings](appendices/backward-compatibility.md)
-- [Appendix G: Deployment Project ZIP Structure](appendices/deployment-structure.md)
-- [Appendix H: Manifest File for Deployed Projects](appendices/manifest-file.md)
+- [Appendix F: Deployment Project ZIP Structure](appendices/deployment-structure.md)
+- [Appendix G: Manifest File for Deployed Projects](appendices/manifest-file.md)
 
 ## Additional Resources
 
