@@ -233,7 +233,6 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 | Framework | Purpose |
 |-----------|---------|
 | JMH | Microbenchmarking |
-| Custom profiler | Built-in performance profiling |
 
 ---
 

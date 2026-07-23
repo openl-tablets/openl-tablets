@@ -194,7 +194,6 @@ This document provides guidance for using Claude Code when working with the Open
 **Approach**:
 ```
 1. Profile:
-   - Use org.openl.rules.profiler
    - Identify bottlenecks
    - Measure baseline performance
 

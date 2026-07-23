@@ -55,7 +55,7 @@ openl-tablets/
 ├── Util/                         # Tools & Utilities (9 modules)
 │   ├── openl-maven-plugin/       # Maven plugin for OpenL
 │   ├── openl-openapi-parser/     # OpenAPI tooling
-│   └── ...                       # Archetypes, profiler
+│   └── ...                       # Archetypes
 │
 ├── ITEST/                        # Integration Tests (18+ modules)
 │   ├── itest.smoke/
@@ -260,10 +260,6 @@ constrainer, annotations, util, gen, test
 - Parses OpenAPI specs
 - Generates OpenL types from OpenAPI models
 - Scaffolds Excel tables from API definitions
-
-**`org.openl.rules.profiler`** - Performance Profiler
-- Rules execution profiling
-- Performance metrics
 
 **`openl-rules-opentelemetry`** - OpenTelemetry
 - Distributed tracing

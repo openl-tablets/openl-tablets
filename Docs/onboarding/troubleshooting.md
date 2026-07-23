@@ -265,13 +265,6 @@ ruleservice:
 export MAVEN_OPTS="-Xmx8g"
 ```
 
-4. **Use profiler** to identify bottlenecks:
-```java
-Profiler.enable();
-// ... execute rules
-Profiler.printResults();
-```
-
 ### High Memory Usage
 
 **Symptoms**:

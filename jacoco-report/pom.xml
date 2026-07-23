@@ -227,11 +227,6 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.profiler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
             <artifactId>openl-rules-opentelemetry</artifactId>
             <version>${project.version}</version>
         </dependency>

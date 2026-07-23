@@ -164,13 +164,12 @@ OpenL Tablets is organized into 5 major module groups:
 
 ### 4. Util - Tools & Utilities
 **Location**: `/Util/`
-**Purpose**: Maven plugins, archetypes, profiler, OpenTelemetry
+**Purpose**: Maven plugins, archetypes, OpenTelemetry
 **Documentation**: [Util Overview](analysis/studio-wsfrontend-util-overview.md) | [Util/CLAUDE.md](/Util/CLAUDE.md)
 
 **Key Submodules**:
 - `openl-maven-plugin` - Maven plugin for OpenL compilation
 - `openl-openapi-*` - OpenAPI code generation and parsing
-- `org.openl.rules.profiler` - Performance profiling
 - `openl-rules-opentelemetry` - Observability integration
 
 ### 5. ITEST - Integration Tests

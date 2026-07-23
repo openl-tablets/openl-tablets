@@ -61,7 +61,6 @@
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
-        <module>Util/org.openl.rules.profiler</module>
         <module>Util/openl-rules-opentelemetry</module>
         <module>Util/openl-yaml</module>
     </modules>
