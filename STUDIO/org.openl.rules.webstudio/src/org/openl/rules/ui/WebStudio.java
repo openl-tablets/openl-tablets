@@ -130,8 +130,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private ProjectDescriptor currentProject;
     private Module currentModule;
 
-    private boolean collapseProperties = true;
-
     private final UserSettingManagementService userSettingsManager;
 
     private boolean needRestart = false;
@@ -922,14 +920,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void setTestsFailuresPerTest(int testsFailuresPerTest) {
         this.testsFailuresPerTest = testsFailuresPerTest;
         userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_FAILURES_PERTEST, testsFailuresPerTest);
-    }
-
-    public boolean isCollapseProperties() {
-        return collapseProperties;
-    }
-
-    public void setCollapseProperties(boolean collapseProperties) {
-        this.collapseProperties = collapseProperties;
     }
 
     public boolean isShowComplexResult() {
