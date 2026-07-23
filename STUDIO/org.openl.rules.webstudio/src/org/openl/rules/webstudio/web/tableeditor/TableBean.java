@@ -211,14 +211,6 @@ public class TableBean {
         return runnableTestMethods.length > 0;
     }
 
-    /**
-     * Checks if there are tests, including tests with test cases, runs with filled runs, tests without cases(empty),
-     * runs without any parameters and tests without cases and runs.
-     */
-    public boolean isHasAnyTests() {
-        return CollectionUtils.isNotEmpty(allTests);
-    }
-
     public boolean isHasTests() {
         return CollectionUtils.isNotEmpty(tests);
     }
