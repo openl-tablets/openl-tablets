@@ -165,8 +165,6 @@ public class ProjectModel {
 
     private final WebStudio studio;
 
-    private final ColorFilterHolder filterHolder = new ColorFilterHolder();
-
     private TreeNode projectRoot = null;
 
     @Getter
@@ -315,10 +313,6 @@ public class ProjectModel {
 
     public synchronized List<OpenLMessage> getErrorsByUri(String uri) {
         return getMessagesByTsn(uri, Severity.ERROR);
-    }
-
-    public synchronized ColorFilterHolder getFilterHolder() {
-        return filterHolder;
     }
 
     public synchronized IOpenMethod getMethod(String tableUri) {
