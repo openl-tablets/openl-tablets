@@ -12,6 +12,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "jdoe saved the project",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "Design",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canClose": true,
         "canCompare": true,

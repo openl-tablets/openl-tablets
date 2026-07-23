@@ -18,15 +18,25 @@ Content-Type: application/json
         "EPBDS-13931_1",
         "master"
       ],
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canWrite": true,
         "canClose": true,
         "canDeploy": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canManage": true,
         "canCopy": true,
+        "canManageBranches": true,
         "canExport": true
       }
     },
@@ -43,6 +53,16 @@ Content-Type: application/json
       },
       "revision": "*",
       "comment": "Project EPBDS-14095 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canUnlock": true,
@@ -69,15 +89,25 @@ Content-Type: application/json
         "EPBDS-14376_1",
         "master"
       ],
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canWrite": true,
         "canClose": true,
         "canSave": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canManage": true,
         "canCopy": true,
+        "canManageBranches": true,
         "canExport": true
       }
     },
@@ -90,6 +120,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project EPBDS-14418 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canDelete": true,
@@ -116,15 +156,25 @@ Content-Type: application/json
         "EPBDS-15409_1",
         "master"
       ],
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canWrite": true,
         "canClose": true,
         "canSave": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canManage": true,
         "canCopy": true,
+        "canManageBranches": true,
         "canExport": true
       }
     }

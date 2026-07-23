@@ -1,0 +1,12 @@
+PATCH /rest/admin/settings/repos/production HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/merge-patch+json
+
+{
+  "name": "Deployment Main Branch Only",
+  "type": "repo-jdbc",
+  "settings": {
+    "uri": "jdbc:h2:mem:repo-prod-main;DB_CLOSE_DELAY=-1",
+    "mainBranchOnly": true
+  }
+}

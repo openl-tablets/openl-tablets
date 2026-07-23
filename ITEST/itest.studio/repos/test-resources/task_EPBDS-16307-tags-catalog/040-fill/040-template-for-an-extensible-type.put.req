@@ -1,0 +1,5 @@
+PUT /rest/admin/tag-config/templates HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+["%Team%_Tags"]

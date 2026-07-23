@@ -12,6 +12,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project EPBDS-15998-db is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canWrite": true,
         "canDelete": true,
@@ -19,7 +29,6 @@ Content-Type: application/json
         "canSave": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canManage": true,
         "canCopy": true,
         "canExport": true

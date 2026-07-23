@@ -1,0 +1,8 @@
+PATCH /rest/projects/ZGVzaWduMTpEQkhpc3Rvcnk= HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "status": "OPENED",
+  "revision": "1"
+}

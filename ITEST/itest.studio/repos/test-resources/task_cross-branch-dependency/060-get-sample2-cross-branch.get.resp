@@ -22,9 +22,20 @@ Content-Type: application/json
       "name": "Sample1",
       "branch": "master",
       "status": "CLOSED",
-      "repository": "design-flat"
+      "repository": "design-flat",
+      "branchDefault": true
     }
   ],
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
   "capabilities": {
     "canOpen": true,
     "canDeploy": true,
@@ -32,6 +43,7 @@ Content-Type: application/json
     "canViewHistory": true,
     "canManage": true,
     "canCopy": true,
+    "canManageBranches": true,
     "canExport": true
   }
 }

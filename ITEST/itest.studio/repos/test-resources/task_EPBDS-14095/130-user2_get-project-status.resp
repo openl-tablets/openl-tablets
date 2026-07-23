@@ -16,11 +16,20 @@ Content-Type: application/json
       },
       "revision": "4",
       "comment": "Project EPBDS-14095 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canClose": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canCopy": true,
         "canExport": true
       }
@@ -34,6 +43,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canDelete": true,
@@ -52,6 +71,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canDelete": true,

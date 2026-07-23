@@ -15,25 +15,43 @@ Content-Type: application/json
       "path": "EPBDS-15952-Project",
       "comment": "*",
       "selectedBranches": ["master"],
-      "modules": [
-        {
-          "name": "Main",
-          "path": "Main.xlsx"
-        },
-        {
-          "name": "Main2",
-          "path": "Main2.xlsx"
+      "descriptor": {
+        "modules": [
+          {
+            "name": "Main",
+            "path": "Main.xlsx"
+          },
+          {
+            "name": "Main2",
+            "path": "Main2.xlsx"
+          }
+        ],
+        "sources": [
+          "groovy/",
+          "lib/*.jar"
+        ],
+        "sourcesDefault": true
+      },
+      "branchDefault": true,
+      "repositoryInfo": {
+        "id": "design",
+        "name": "Design",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
         }
-      ],
+      },
       "capabilities": {
         "canWrite": true,
         "canDelete": true,
         "canClose": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canManage": true,
         "canCopy": true,
+        "canManageBranches": true,
         "canExport": true
       }
     }

@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "projectName": "EPBDS_Tags",
+    "modifiable": true,
+    "tags": [
+      {
+        "type": "Region",
+        "derived": "EPBDS",
+        "state": "rejected"
+      }
+    ]
+  }
+]

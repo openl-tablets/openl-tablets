@@ -3817,6 +3817,19 @@ Content-Type: application/json
       "post": {
         "description": "***",
         "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": "***"
+        },
         "responses": {
           "200": {
             "content": {
@@ -3826,6 +3839,102 @@ Content-Type: application/json
                   "additionalProperties": {
                     "type": "integer",
                     "format": "int32"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/admin/tag-config/fill/preview": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TagFillPreview"
                   }
                 }
               }
@@ -6404,7 +6513,7 @@ Content-Type: application/json
                   "summary",
                   "status",
                   "deleted",
-                  "modules"
+                  "descriptor"
                 ]
               }
             },
@@ -6667,7 +6776,7 @@ Content-Type: application/json
                   "summary",
                   "status",
                   "deleted",
-                  "modules"
+                  "descriptor"
                 ]
               }
             },
@@ -8299,15 +8408,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "force",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -8833,6 +8933,108 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/repository-config": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryConfigModel"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
         ]
       }
     },
@@ -10364,104 +10566,6 @@ Content-Type: application/json
               }
             }
           },
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      }
-    },
-    "/projects/{projectId}/tags": {
-      "put": {
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
           "204": {
             "description": "***"
           },
@@ -14373,6 +14477,108 @@ Content-Type: application/json
         ]
       }
     },
+    "/repos/{repo-name}/config": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "repo-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryConfigModel"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Design Repository"
+        ]
+      }
+    },
     "/repos/{repo-name}/file-copy": {
       "post": {
         "description": "***",
@@ -18136,6 +18342,19 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "blockedBy": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "bypass-required",
+              "protected-branch",
+              "locked"
+            ]
+          },
+          "canMerge": {
+            "type": "boolean",
+            "description": "***"
+          },
           "sourceBranch": {
             "type": "string",
             "description": "***"
@@ -18158,6 +18377,22 @@ Content-Type: application/json
           "status",
           "targetBranch"
         ]
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "invalidUserMessageHint": {
+            "type": "string",
+            "description": "***"
+          },
+          "templates": {
+            "$ref": "#/components/schemas/Templates"
+          },
+          "userMessagePattern": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "CommonRepositorySettings": {
         "type": "object",
@@ -18483,6 +18718,10 @@ Content-Type: application/json
             "description": "***"
           },
           "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "revision": {
             "type": "string",
             "description": "***"
           },
@@ -19380,6 +19619,87 @@ Content-Type: application/json
           "repository"
         ]
       },
+      "DescriptorViewModel": {
+        "type": "object",
+        "properties": {
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel"
+            }
+          },
+          "modulesDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "sources": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourcesDefault": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "DescriptorViewModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel_Detailed"
+            }
+          },
+          "modulesDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "sources": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourcesDefault": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "DescriptorViewModel_Full": {
+        "type": "object",
+        "properties": {
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel_Full"
+            }
+          },
+          "modulesDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "sources": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourcesDefault": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "DetailedMessageDescription": {
         "type": "object",
         "properties": {
@@ -19501,63 +19821,6 @@ Content-Type: application/json
           "tableType": {
             "type": "string",
             "description": "***"
-          }
-        }
-      },
-      "ExposedMethodsViewModel": {
-        "type": "object",
-        "properties": {
-          "excludes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
-          "includes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "ExposedMethodsViewModel_Detailed": {
-        "type": "object",
-        "properties": {
-          "excludes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
-          "includes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "ExposedMethodsViewModel_Full": {
-        "type": "object",
-        "properties": {
-          "excludes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
-          "includes": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
@@ -20026,28 +20289,6 @@ Content-Type: application/json
       },
       "JsonNode": {
         "type": "object"
-      },
-      "LastCommit": {
-        "type": "object",
-        "properties": {
-          "author": {
-            "type": "string",
-            "description": "***"
-          },
-          "message": {
-            "type": "string",
-            "description": "***"
-          },
-          "modifiedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "***"
-          },
-          "revision": {
-            "type": "string",
-            "description": "***"
-          }
-        }
       },
       "LocalRepositorySettings": {
         "type": "object",
@@ -20549,6 +20790,13 @@ Content-Type: application/json
       "ModuleViewModel": {
         "type": "object",
         "properties": {
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel"
+            }
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -20562,6 +20810,13 @@ Content-Type: application/json
       "ModuleViewModel_Detailed": {
         "type": "object",
         "properties": {
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel_Detailed"
+            }
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -20575,6 +20830,13 @@ Content-Type: application/json
       "ModuleViewModel_Full": {
         "type": "object",
         "properties": {
+          "modules": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ModuleViewModel_Full"
+            }
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -20649,6 +20911,23 @@ Content-Type: application/json
           "lastName",
           "username"
         ]
+      },
+      "NewBranch": {
+        "type": "object",
+        "properties": {
+          "invalidNameHint": {
+            "type": "string",
+            "description": "***"
+          },
+          "namePattern": {
+            "type": "string",
+            "description": "***"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "OAuth2AttributesSettings": {
         "type": "object",
@@ -21039,13 +21318,6 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "bypassEligible": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "lastCommit": {
-            "$ref": "#/components/schemas/LastCommit"
-          },
           "name": {
             "type": "string",
             "description": "***"
@@ -21079,15 +21351,15 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "canEditTags": {
-            "type": "boolean",
-            "description": "***"
-          },
           "canExport": {
             "type": "boolean",
             "description": "***"
           },
           "canManage": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManageBranches": {
             "type": "boolean",
             "description": "***"
           },
@@ -21136,15 +21408,15 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "canEditTags": {
-            "type": "boolean",
-            "description": "***"
-          },
           "canExport": {
             "type": "boolean",
             "description": "***"
           },
           "canManage": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManageBranches": {
             "type": "boolean",
             "description": "***"
           },
@@ -21193,15 +21465,15 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
-          "canEditTags": {
-            "type": "boolean",
-            "description": "***"
-          },
           "canExport": {
             "type": "boolean",
             "description": "***"
           },
           "canManage": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canManageBranches": {
             "type": "boolean",
             "description": "***"
           },
@@ -21234,8 +21506,20 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "branchDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "branchProtected": {
+            "type": "boolean",
+            "description": "***"
+          },
           "id": {
             "type": "string",
+            "description": "***"
+          },
+          "missing": {
+            "type": "boolean",
             "description": "***"
           },
           "name": {
@@ -21271,8 +21555,20 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "branchDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "branchProtected": {
+            "type": "boolean",
+            "description": "***"
+          },
           "id": {
             "type": "string",
+            "description": "***"
+          },
+          "missing": {
+            "type": "boolean",
             "description": "***"
           },
           "name": {
@@ -21308,8 +21604,20 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "branchDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "branchProtected": {
+            "type": "boolean",
+            "description": "***"
+          },
           "id": {
             "type": "string",
+            "description": "***"
+          },
+          "missing": {
+            "type": "boolean",
             "description": "***"
           },
           "name": {
@@ -21405,6 +21713,66 @@ Content-Type: application/json
           "lockedAt",
           "lockedBy"
         ]
+      },
+      "ProjectRepositoryModel": {
+        "type": "object",
+        "properties": {
+          "features": {
+            "$ref": "#/components/schemas/RepositoryFeatures"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectRepositoryModel_Detailed": {
+        "type": "object",
+        "properties": {
+          "features": {
+            "$ref": "#/components/schemas/RepositoryFeatures_Detailed"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ProjectRepositoryModel_Full": {
+        "type": "object",
+        "properties": {
+          "features": {
+            "$ref": "#/components/schemas/RepositoryFeatures_Full"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "ProjectRevision_Short": {
         "type": "object",
@@ -21672,6 +22040,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "branchDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
           "branchProtected": {
             "type": "boolean",
             "description": "***"
@@ -21693,12 +22065,8 @@ Content-Type: application/json
               "$ref": "#/components/schemas/ProjectDependencyViewModel"
             }
           },
-          "description": {
-            "type": "string",
-            "description": "***"
-          },
-          "exposedMethods": {
-            "$ref": "#/components/schemas/ExposedMethodsViewModel"
+          "descriptor": {
+            "$ref": "#/components/schemas/DescriptorViewModel"
           },
           "id": {
             "type": "string",
@@ -21716,13 +22084,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "modules": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ModuleViewModel"
-            }
-          },
           "name": {
             "type": "string",
             "description": "***"
@@ -21734,6 +22095,9 @@ Content-Type: application/json
           "repository": {
             "type": "string",
             "description": "***"
+          },
+          "repositoryInfo": {
+            "$ref": "#/components/schemas/ProjectRepositoryModel"
           },
           "revision": {
             "type": "string",
@@ -21770,13 +22134,6 @@ Content-Type: application/json
             "description": "***",
             "items": {
               "$ref": "#/components/schemas/ProjectDependencyViewModel"
-            }
-          },
-          "versionPatterns": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
             }
           }
         },
@@ -21811,6 +22168,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "branchDefault": {
+            "type": "boolean",
+            "description": "***"
+          },
           "branchProtected": {
             "type": "boolean",
             "description": "***"
@@ -21832,12 +22193,8 @@ Content-Type: application/json
               "$ref": "#/components/schemas/ProjectDependencyViewModel_Detailed"
             }
           },
-          "description": {
-            "type": "string",
-            "description": "***"
-          },
-          "exposedMethods": {
-            "$ref": "#/components/schemas/ExposedMethodsViewModel_Detailed"
+          "descriptor": {
+            "$ref": "#/components/schemas/DescriptorViewModel_Detailed"
           },
           "id": {
             "type": "string",
@@ -21855,13 +22212,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "modules": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ModuleViewModel_Detailed"
-            }
-          },
           "name": {
             "type": "string",
             "description": "***"
@@ -21873,6 +22223,9 @@ Content-Type: application/json
           "repository": {
             "type": "string",
             "description": "***"
+          },
+          "repositoryInfo": {
+            "$ref": "#/components/schemas/ProjectRepositoryModel_Detailed"
           },
           "revision": {
             "type": "string",
@@ -21910,13 +22263,6 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/ProjectDependencyViewModel_Detailed"
             }
-          },
-          "versionPatterns": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
@@ -21932,6 +22278,10 @@ Content-Type: application/json
         "properties": {
           "branch": {
             "type": "string",
+            "description": "***"
+          },
+          "branchDefault": {
+            "type": "boolean",
             "description": "***"
           },
           "branchProtected": {
@@ -21955,12 +22305,8 @@ Content-Type: application/json
               "$ref": "#/components/schemas/ProjectDependencyViewModel_Full"
             }
           },
-          "description": {
-            "type": "string",
-            "description": "***"
-          },
-          "exposedMethods": {
-            "$ref": "#/components/schemas/ExposedMethodsViewModel_Full"
+          "descriptor": {
+            "$ref": "#/components/schemas/DescriptorViewModel_Full"
           },
           "id": {
             "type": "string",
@@ -21978,13 +22324,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "modules": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "$ref": "#/components/schemas/ModuleViewModel_Full"
-            }
-          },
           "name": {
             "type": "string",
             "description": "***"
@@ -21996,6 +22335,9 @@ Content-Type: application/json
           "repository": {
             "type": "string",
             "description": "***"
+          },
+          "repositoryInfo": {
+            "$ref": "#/components/schemas/ProjectRepositoryModel_Full"
           },
           "revision": {
             "type": "string",
@@ -22032,13 +22374,6 @@ Content-Type: application/json
             "description": "***",
             "items": {
               "$ref": "#/components/schemas/ProjectDependencyViewModel_Full"
-            }
-          },
-          "versionPatterns": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
             }
           }
         },
@@ -22476,6 +22811,17 @@ Content-Type: application/json
           }
         }
       },
+      "RepositoryConfigModel": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "$ref": "#/components/schemas/Comment"
+          },
+          "newBranch": {
+            "$ref": "#/components/schemas/NewBranch"
+          }
+        }
+      },
       "RepositoryConfiguration": {
         "type": "object",
         "properties": {
@@ -22498,6 +22844,40 @@ Content-Type: application/json
         }
       },
       "RepositoryFeatures": {
+        "type": "object",
+        "properties": {
+          "branches": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "mappedFolders": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "searchable": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "RepositoryFeatures_Detailed": {
+        "type": "object",
+        "properties": {
+          "branches": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "mappedFolders": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "searchable": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "RepositoryFeatures_Full": {
         "type": "object",
         "properties": {
           "branches": {
@@ -22596,6 +22976,10 @@ Content-Type: application/json
           },
           "id": {
             "type": "string",
+            "description": "***"
+          },
+          "mainBranchOnly": {
+            "type": "boolean",
             "description": "***"
           },
           "name": {
@@ -23772,6 +24156,56 @@ Content-Type: application/json
           }
         }
       },
+      "TagFillItem": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "current": {
+            "type": "string",
+            "description": "***",
+            "nullable": true
+          },
+          "derived": {
+            "type": "string",
+            "description": "***"
+          },
+          "state": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "assign",
+              "create",
+              "rejected",
+              "keep"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TagFillPreview": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "modifiable": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "projectName": {
+            "type": "string",
+            "description": "***"
+          },
+          "tags": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TagFillItem"
+            }
+          }
+        }
+      },
       "TagTypeDTO": {
         "type": "object",
         "properties": {
@@ -23843,6 +24277,27 @@ Content-Type: application/json
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "Templates": {
+        "type": "object",
+        "properties": {
+          "copy": {
+            "type": "string",
+            "description": "***"
+          },
+          "create": {
+            "type": "string",
+            "description": "***"
+          },
+          "restoreFrom": {
+            "type": "string",
+            "description": "***"
+          },
+          "save": {
+            "type": "string",
+            "description": "***"
           }
         }
       },

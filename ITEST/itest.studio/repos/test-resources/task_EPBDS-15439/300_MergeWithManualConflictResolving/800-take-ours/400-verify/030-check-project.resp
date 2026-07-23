@@ -25,15 +25,25 @@ Content-Type: application/json
     "EPBDS-15439_MergeWithoutConflicts_two",
     "master"
   ],
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
   "capabilities": {
     "canWrite": true,
     "canClose": true,
     "canDeploy": true,
     "canCompare": true,
     "canViewHistory": true,
-    "canEditTags": true,
     "canManage": true,
     "canCopy": true,
+    "canManageBranches": true,
     "canExport": true
   }
 }

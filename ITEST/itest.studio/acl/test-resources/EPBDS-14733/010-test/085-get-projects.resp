@@ -12,13 +12,22 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project EPBDS_14670_Project is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "Design",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canWrite": true,
         "canClose": true,
         "canDelete": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canExport": true
       }
     }

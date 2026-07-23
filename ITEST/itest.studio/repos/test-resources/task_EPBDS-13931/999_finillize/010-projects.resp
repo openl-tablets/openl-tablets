@@ -18,15 +18,25 @@ Content-Type: application/json
         "EPBDS-13931_1",
         "master"
       ],
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canWrite": true,
         "canClose": true,
         "canSave": true,
         "canCompare": true,
         "canViewHistory": true,
-        "canEditTags": true,
         "canManage": true,
         "canCopy": true,
+        "canManageBranches": true,
         "canExport": true
       }
     }

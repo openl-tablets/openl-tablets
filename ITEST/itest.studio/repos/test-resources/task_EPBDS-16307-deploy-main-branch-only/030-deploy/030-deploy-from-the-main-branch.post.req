@@ -1,0 +1,10 @@
+POST /rest/deployments HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production1",
+  "deploymentName": "EPBDS-16307-deploy",
+  "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzMDctZGVwbG95OjU1NjIwNWYwMmNlMTFhYzMwNWNhNzg0Mzk2ZjAyMDI0MjUwOGM2ZmUzMzAyNGNlY2VmNjNlYWE0YzY1ZGM5NDE=",
+  "comment": "Deploy EPBDS-16307-deploy"
+}
