@@ -222,11 +222,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         this.name = name;
     }
 
-    @JsonIgnore
-    public boolean isFolderRepository() {
-        return RepositoryType.GIT.factoryId.equals(repoType);
-    }
-
     @SettingPropertyName(suffix = REPOSITORY_FACTORY_SUFFIX)
     public String getType() {
         return repoType;
