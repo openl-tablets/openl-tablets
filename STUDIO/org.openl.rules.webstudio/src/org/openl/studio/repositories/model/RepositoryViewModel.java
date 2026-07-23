@@ -20,5 +20,8 @@ public record RepositoryViewModel(
         RepositoryCapabilities capabilities,
         @Parameter(description = "Repository storage features")
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        RepositoryFeatures features) {
+        RepositoryFeatures features,
+        @Parameter(description = "Whether the repository takes a project only from the main branch of its design repository")
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        Boolean mainBranchOnly) {
 }

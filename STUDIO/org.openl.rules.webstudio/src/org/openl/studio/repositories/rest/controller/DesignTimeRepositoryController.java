@@ -61,11 +61,13 @@ import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
+import org.openl.studio.repositories.model.RepositoryConfigModel;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 import org.openl.studio.repositories.rest.resolver.DesignRepository;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 import org.openl.studio.repositories.service.ProjectCreationService;
 import org.openl.studio.repositories.service.ProjectRevisionService;
+import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.repositories.service.ZipProjectSaveStrategy;
 import org.openl.studio.repositories.validator.CreateUpdateProjectModelValidator;
 import org.openl.studio.repositories.validator.ZipArchiveValidator;
@@ -92,6 +94,7 @@ public class DesignTimeRepositoryController {
     private final ProjectRevisionService projectRevisionService;
     private final ProtectedBranchBypassService bypassService;
     private final ProjectCreationService projectCreationService;
+    private final RepositoryConfigService repositoryConfigService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
@@ -105,7 +108,8 @@ public class DesignTimeRepositoryController {
                                           DesignTimeRepositoryService designTimeRepositoryService,
                                           ProjectRevisionService projectRevisionService,
                                           ProtectedBranchBypassService bypassService,
-                                          ProjectCreationService projectCreationService) {
+                                          ProjectCreationService projectCreationService,
+                                          RepositoryConfigService repositoryConfigService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -118,11 +122,13 @@ public class DesignTimeRepositoryController {
         this.projectRevisionService = projectRevisionService;
         this.bypassService = bypassService;
         this.projectCreationService = projectCreationService;
+        this.repositoryConfigService = repositoryConfigService;
     }
 
     @Lookup("commentService")
     protected Comments getCommentsService(String repoName) {
-        return null;
+        // Spring overrides this method to return the repository-scoped bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     @GetMapping
@@ -130,6 +136,15 @@ public class DesignTimeRepositoryController {
     @ApiResponse(responseCode = "200", description = "repos.get-repository-list.200.desc")
     public List<RepositoryViewModel> getRepositoryList() {
         return designTimeRepositoryService.getRepositoryList();
+    }
+
+    @GetMapping("/{repo-name}/config")
+    @Operation(summary = "repos.get-config.summary", description = "repos.get-config.desc")
+    public RepositoryConfigModel getConfig(@DesignRepository("repo-name") Repository repository) {
+        // Creating a project needs the repository itself, so the settings of its forms are read here. A
+        // form of an existing project reads them through the project instead, because access may be granted
+        // on the project alone.
+        return repositoryConfigService.getConfig(repository.getId());
     }
 
     @Operation(summary = "repos.list-branches.summary", description = "repos.list-branches.desc")
@@ -283,10 +298,14 @@ public class DesignTimeRepositoryController {
                                                      @Parameter(description = "repos.create-from-project.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                      @Valid @RequestBody CreateFromProjectModel request) {
         allowedToPush(repository, false);
-        // Validate the target name, comment and path before copying.
-        var model = validatedCreateModel(repository, projectName, request.path(), request.comment());
+        // Validate the target name, comment and path before copying. An omitted comment falls back to the
+        // repository "copied from" template rather than to the create-project one.
+        String comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
+                : getCommentsService(repository.getId()).copiedFrom(request.sourceProjectName());
+        var model = validatedCreateModel(repository, projectName, request.path(), comment);
         var data = projectCreationService.copyProject(repository.getId(), model.getProjectName(),
-                request.path(), request.sourceRepositoryId(), request.sourceProjectName(), model.getComment());
+                request.path(), request.sourceRepositoryId(), request.sourceProjectName(), model.getComment(),
+                request.revision());
         return mapFileDataResponse(data, repository.supports());
     }
 

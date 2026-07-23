@@ -36,13 +36,13 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     }
 
     @Override
-    public List<RulesProject> getProjectDependencies(RulesProject project) {
+    public List<ProjectDependency> getDependencies(RulesProject project) {
         // Build the business-name index once per request; listing a page resolves dependencies for
         // every project and would otherwise rebuild it each time (O(N^2)).
         Map<String, List<RulesProject>> projectIndex = listingContext.dependencyIndex(() ->
                 getAllProjects().stream().collect(Collectors.groupingBy(RulesProject::getBusinessName)));
 
-        List<RulesProject> dependencies = new ArrayList<>();
+        List<ProjectDependency> dependencies = new ArrayList<>();
         calcDependencies(project, new HashSet<>(Set.of(project.getBusinessName())), dependencies, projectIndex);
         return dependencies;
     }
@@ -72,7 +72,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     private void calcDependencies(RulesProject project,
                                   Set<String> processedProjects,
-                                  Collection<RulesProject> result,
+                                  Collection<ProjectDependency> result,
                                   Map<String, List<RulesProject>> projectIndex) {
         List<ProjectDependencyDescriptor> dependenciesDescriptors;
         try {
@@ -92,10 +92,11 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
             String dependencyName = dependency.getName();
             if (processedProjects.add(dependencyName)) {
-                resolveDependency(dependencyName, repoId, projectBranch, projectIndex).ifPresent(dep -> {
-                    result.add(dep);
-                    calcDependencies(dep, processedProjects, result, projectIndex);
-                });
+                // A name the workspace has no project for is kept as it is declared: the screen shows the
+                // dependency and says it is missing, instead of hiding what rules.xml asks for.
+                var resolved = resolveDependency(dependencyName, repoId, projectBranch, projectIndex);
+                result.add(new ProjectDependency(dependencyName, resolved.orElse(null)));
+                resolved.ifPresent(dep -> calcDependencies(dep, processedProjects, result, projectIndex));
             }
         }
     }

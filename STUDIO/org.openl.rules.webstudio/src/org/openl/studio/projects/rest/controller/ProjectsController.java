@@ -97,6 +97,8 @@ import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
+import org.openl.studio.repositories.model.RepositoryConfigModel;
+import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.rest.resolver.PaginationDefault;
 import org.openl.util.StringUtils;
 
@@ -125,6 +127,7 @@ public class ProjectsController {
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectStatusMapper projectStatusMapper;
     private final ProjectTablesGraphService graphService;
+    private final RepositoryConfigService repositoryConfigService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -245,33 +248,11 @@ public class ProjectsController {
         }
     }
 
-    @FunctionalInterface
-    private interface ProjectAction {
-        void run() throws ProjectException;
-    }
-
-    /** Run a project mutation, reset the studio on success, and raise a {@link ConflictException} on failure. */
-    private void withReset(String failureKey, ProjectAction action) {
-        try {
-            action.run();
-            getWebStudio().reset();
-        } catch (ProjectException e) {
-            throw new ConflictException(failureKey);
-        }
-    }
-
     @DeleteMapping("/{projectId}/lock")
     @Operation(summary = "projects.unlock.summary")
     public void unlockProject(@ProjectId @PathVariable("projectId") RulesProject project) {
         projectService.unlockProject(project);
         getWebStudio().reset();
-    }
-
-    @PutMapping("/{projectId}/tags")
-    @Operation(summary = "projects.tags.update.summary")
-    public void updateTags(@ProjectId @PathVariable("projectId") RulesProject project,
-                           @RequestBody Map<String, String> tags) {
-        withReset("project.tags.update.failed.message", () -> projectService.updateTags(project, tags));
     }
 
     @GetMapping("/{projectId}/status")
@@ -305,6 +286,17 @@ public class ProjectsController {
         } catch (ProjectException e) {
             throw new ConflictException("project.branch.create.failed.message");
         }
+    }
+
+    @GetMapping("/{projectId}/repository-config")
+    @Operation(summary = "projects.repository-config.get.summary", description = "projects.repository-config.get.desc")
+    public RepositoryConfigModel getRepositoryConfig(@ProjectId @PathVariable("projectId") RulesProject project) {
+        // Scoped to the project so that a user granted access to this project only — and not to the whole
+        // repository — still gets the settings the project forms need. A project that lives only in the
+        // workspace has no repository to be configured by.
+        return project.isLocalOnly()
+                ? RepositoryConfigModel.none()
+                : repositoryConfigService.getConfig(project.getDesignRepository().getId());
     }
 
     @GetMapping("/{projectId}/branches")

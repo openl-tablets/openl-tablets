@@ -37,7 +37,7 @@ public class RulesProjectBuilder {
                                String comment) {
         this.workspace = workspace;
         this.comment = comment;
-        String internalPath = projectFolder + projectName;
+        String internalPath = FileMappingData.internalPath(projectFolder, projectName);
         synchronized (this.workspace) {
             FileData localData = new FileData();
             localData.setName(projectName);

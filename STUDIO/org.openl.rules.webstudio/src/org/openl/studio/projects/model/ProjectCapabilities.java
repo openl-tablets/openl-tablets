@@ -30,8 +30,8 @@ public record ProjectCapabilities(
         @Parameter(description = "Whether the project can be deployed") Boolean canDeploy,
         @Parameter(description = "Whether project revisions can be compared") Boolean canCompare,
         @Parameter(description = "Whether the project history can be viewed") Boolean canViewHistory,
-        @Parameter(description = "Whether the project tags can be edited") Boolean canEditTags,
         @Parameter(description = "Whether the user can manage the project access rights") Boolean canManage,
         @Parameter(description = "Whether the project can be copied into a new project") Boolean canCopy,
+        @Parameter(description = "Whether the project branches can be managed — created, merged and deleted") Boolean canManageBranches,
         @Parameter(description = "Whether the project can be exported as an archive") Boolean canExport) {
 }

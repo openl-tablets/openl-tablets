@@ -101,8 +101,8 @@ public record ProjectCriteriaQuery(
         return includes.contains(ProjectInclude.DELETED);
     }
 
-    public boolean includeModules() {
-        return includes.contains(ProjectInclude.MODULES);
+    public boolean includeDescriptor() {
+        return includes.contains(ProjectInclude.DESCRIPTOR);
     }
 
     public ProjectCriteriaQuery withoutFacetFilters() {

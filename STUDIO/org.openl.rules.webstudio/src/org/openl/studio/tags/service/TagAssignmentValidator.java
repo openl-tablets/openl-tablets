@@ -2,97 +2,86 @@ package org.openl.studio.tags.service;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.studio.common.exception.BadRequestException;
 import org.openl.util.StringUtils;
 
 /**
- * Validates the tag assignments requested for a project against the configured tag types.
+ * Matches tag assignments against the configured tag types for the flows that write tags on the server:
+ * filling tags from the project name templates, and registering the tags a created or imported project
+ * brought with it.
  *
- * <p>A blank value means the tag is not set. A mandatory (non-nullable) tag type must have a value. A
- * value of a non-extensible tag type must be one of its predefined values. A value must be a valid name.
- * A value of an extensible tag type that is not yet known is registered so it becomes selectable later.
+ * <p>The {@code tags.properties} file of a project is the source of truth for what the project carries;
+ * nothing here validates or filters it. The catalog only decides what these server-side flows may assign,
+ * and a value of an extensible tag type that is new is created so it becomes selectable afterwards.
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TagAssignmentValidator {
 
-    private final TagTypeService tagTypeService;
+    private final TagCatalogProvider tagCatalogProvider;
     private final TagService tagService;
 
     /**
-     * Validates the requested tag assignments and registers new values of extensible tag types.
+     * Keeps only the assignments that can be applied as is, creating the new values of extensible tag
+     * types. An unknown tag type, and a value a tag type that is not extensible does not have, are
+     * dropped instead of rejected.
+     *
+     * <p>This is what filling tags from project name templates needs: a template covers many projects at
+     * once, and one value it cannot assign must not stop the rest.
      *
      * @param requested tag type name to value assignments
-     * @return the sanitized assignments to persist (blank values dropped)
-     * @throws BadRequestException if a mandatory tag is missing, a value is not allowed, or a name is invalid
+     * @return the assignments to persist, with the configured spelling of the type and of the value
      */
-    public Map<String, String> sanitize(Map<String, String> requested) {
-        return sanitize(requested, true);
+    public Map<String, String> applicable(Map<String, String> requested) {
+        var catalog = tagCatalogProvider.get();
+        var applicable = new LinkedHashMap<String, String>();
+        requested.forEach((typeName, rawValue) -> {
+            var value = StringUtils.trimToNull(rawValue);
+            var type = catalog.type(typeName).orElse(null);
+            if (value == null || type == null) {
+                return;
+            }
+            assignable(catalog, type, value).ifPresent(assigned -> applicable.put(type.getName(), assigned));
+        });
+        return applicable;
     }
 
     /**
-     * Sanitizes tag assignments and, when {@code requireMandatory} is {@code true}, rejects a map that
-     * omits a mandatory (non-nullable) tag type. Project creation requires the mandatory tags; tag
-     * edits pass {@code false} so a single tag can be changed or cleared without resending every
-     * mandatory value.
+     * The value to store, or empty when the tag type is not extensible and does not have that value.
      *
-     * @param requested        the requested tag type to value assignments
-     * @param requireMandatory whether a missing mandatory tag type is rejected
-     * @return the sanitized assignments to persist (blank values dropped)
-     * @throws BadRequestException if a value is not allowed, a name is invalid, or a required mandatory tag is missing
+     * <p>A new value of an extensible tag type is created here, so that a project that names it is no
+     * different from a project that picked a configured one. A new value that is not a valid name is
+     * dropped like any other value that cannot be assigned: these flows run after the project is
+     * already saved, so one bad value must not fail the whole request.
      */
-    public Map<String, String> sanitize(Map<String, String> requested, boolean requireMandatory) {
-        var types = tagTypeService.getAllTagTypes();
-        var byName = types.stream().collect(Collectors.toMap(TagType::getName, Function.identity()));
-        var sanitized = new LinkedHashMap<String, String>();
-        requested.forEach((typeName, rawValue) -> {
-            var value = validateValue(byName.get(typeName), typeName, StringUtils.trimToNull(rawValue));
-            if (value != null) {
-                sanitized.put(typeName, value);
-            }
-        });
-        if (requireMandatory) {
-            types.forEach(type -> {
-                if (!type.isNullable() && !sanitized.containsKey(type.getName())) {
-                    throw new BadRequestException("project.tags.type.mandatory.message", new Object[]{type.getName()});
-                }
-            });
-        }
-        sanitized.forEach((typeName, value) -> registerExtensible(byName.get(typeName), value));
-        return sanitized;
-    }
-
-    private String validateValue(TagType type, String typeName, String value) {
-        if (value == null) {
-            return null;
-        }
-        if (type == null) {
-            throw new BadRequestException("project.tags.type.unknown.message", new Object[]{typeName});
+    private Optional<String> assignable(TagCatalog catalog, TagType type, String value) {
+        var configured = catalog.configuredValue(type.getName(), value);
+        if (configured.isPresent() || !type.isExtensible()) {
+            return configured;
         }
         if (!NameChecker.checkName(value)) {
-            throw new BadRequestException("invalid.name.message");
+            log.warn("Tag value '{}' of type '{}' is not a valid name and was not registered.", value, type.getName());
+            return Optional.empty();
         }
-        if (!type.isExtensible() && tagService.getByTypeNameAndName(typeName, value) == null) {
-            throw new BadRequestException("project.tags.value.not-allowed.message", new Object[]{value, typeName});
-        }
-        return value;
+        register(type, value);
+        return Optional.of(value);
     }
 
-    private void registerExtensible(TagType type, String value) {
-        if (type != null && type.isExtensible() && tagService.getByName(type.getId(), value) == null) {
-            var tag = new Tag();
-            tag.setType(type);
-            tag.setName(value);
-            tagService.save(tag);
-        }
+    private void register(TagType type, String value) {
+        var tag = new Tag();
+        tag.setType(type);
+        tag.setName(value);
+        tagService.save(tag);
+        // The value is configured from now on, so whatever reads the catalog later in this request sees it.
+        tagCatalogProvider.invalidate();
     }
 }

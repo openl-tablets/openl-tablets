@@ -1,11 +1,8 @@
 package org.openl.studio.tags.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -16,11 +13,15 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.studio.common.exception.BadRequestException;
 
+/**
+ * What the server-side flows may assign: the fill-from-templates and project-import registration match
+ * their tags against the catalog, while the project file itself is never validated here.
+ */
 class TagAssignmentValidatorTest {
 
     private TagTypeService tagTypeService;
@@ -31,7 +32,8 @@ class TagAssignmentValidatorTest {
     void setUp() {
         tagTypeService = mock(TagTypeService.class);
         tagService = mock(TagService.class);
-        validator = new TagAssignmentValidator(tagTypeService, tagService);
+        var provider = new TagCatalogProvider(tagTypeService, tagService);
+        validator = new TagAssignmentValidator(provider, tagService);
     }
 
     private static TagType type(long id, String name, boolean nullable, boolean extensible) {
@@ -43,70 +45,70 @@ class TagAssignmentValidatorTest {
         return type;
     }
 
-    @Test
-    void mandatory_tag_without_value_is_rejected() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of(type(1, "Region", false, false)));
-        Map<String, String> tags = Map.of();
+    private static Tag tag(TagType type, String name) {
+        var tag = new Tag();
+        tag.setType(type);
+        tag.setName(name);
+        return tag;
+    }
 
-        assertThrows(BadRequestException.class, () -> validator.sanitize(tags));
+    private void configured(List<TagType> types, List<Tag> tags) {
+        when(tagTypeService.getAllTagTypes()).thenReturn(types);
+        when(tagService.getAll()).thenReturn(tags);
     }
 
     @Test
-    void unknown_tag_type_with_value_is_rejected() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of());
-        var tags = Map.of("Ghost", "x");
+    void drops_what_it_cannot_assign_instead_of_rejecting_it() {
+        var region = type(1, "Region", true, false);
+        var team = type(2, "Team", true, true);
+        configured(List.of(region, team), List.of(tag(region, "EU")));
 
-        assertThrows(BadRequestException.class, () -> validator.sanitize(tags));
+        var result = validator.applicable(Map.of("Region", "Mars", "Team", "Payroll", "Ghost", "x"));
+
+        // A value the fixed-value type does not have is left out; the extensible type gains its new one.
+        assertEquals(Map.of("Team", "Payroll"), result);
+        verify(tagService).save(any());
     }
 
     @Test
-    void non_extensible_unknown_value_is_rejected() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of(type(1, "Region", true, false)));
-        when(tagService.getByTypeNameAndName("Region", "Mars")).thenReturn(null);
-        var tags = Map.of("Region", "Mars");
+    void extensible_type_takes_a_new_value_and_gains_it() {
+        var region = type(1, "Region", true, true);
+        configured(List.of(region), List.of(tag(region, "EU")));
 
-        assertThrows(BadRequestException.class, () -> validator.sanitize(tags));
-    }
-
-    @Test
-    void invalid_name_is_rejected() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of(type(1, "Region", true, true)));
-        var tags = Map.of("Region", "bad/name");
-
-        assertThrows(BadRequestException.class, () -> validator.sanitize(tags));
-    }
-
-    @Test
-    void blank_value_is_dropped_for_nullable_type() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of(type(1, "Region", true, true)));
-
-        var result = validator.sanitize(Map.of("Region", "  "));
-
-        assertTrue(result.isEmpty());
-        verify(tagService, never()).save(any());
-    }
-
-    @Test
-    void known_value_passes_without_registration() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of(type(1, "Region", true, false)));
-        when(tagService.getByTypeNameAndName("Region", "EU")).thenReturn(new Tag());
-        when(tagService.getByName(1L, "EU")).thenReturn(new Tag());
-
-        var result = validator.sanitize(Map.of("Region", "EU"));
-
-        assertEquals(Map.of("Region", "EU"), result);
-        verify(tagService, never()).save(any());
-    }
-
-    @Test
-    void new_extensible_value_is_registered() {
-        when(tagTypeService.getAllTagTypes()).thenReturn(List.of(type(1, "Region", true, true)));
-        when(tagService.getByTypeNameAndName(eq("Region"), any())).thenReturn(null);
-        when(tagService.getByName(anyLong(), any())).thenReturn(null);
-
-        var result = validator.sanitize(Map.of("Region", "Pluto"));
+        var result = validator.applicable(Map.of("Region", "Pluto"));
 
         assertEquals(Map.of("Region", "Pluto"), result);
-        verify(tagService).save(any(Tag.class));
+        var created = ArgumentCaptor.forClass(Tag.class);
+        verify(tagService).save(created.capture());
+        assertEquals("Pluto", created.getValue().getName());
+        assertEquals(region, created.getValue().getType());
+    }
+
+    @Test
+    void a_new_value_that_is_not_a_valid_name_is_dropped_not_rejected() {
+        // These flows run after the project is saved, so one bad value must not fail the request.
+        var region = type(1, "Region", true, true);
+        configured(List.of(region), List.of(tag(region, "EU")));
+
+        assertTrue(validator.applicable(Map.of("Region", "a/b")).isEmpty());
+        verify(tagService, never()).save(any());
+    }
+
+    @Test
+    void blank_value_is_dropped() {
+        var region = type(1, "Region", true, true);
+        configured(List.of(region), List.of(tag(region, "EU")));
+
+        assertTrue(validator.applicable(Map.of("Region", "  ")).isEmpty());
+    }
+
+    @Test
+    void value_is_assigned_the_way_it_is_configured() {
+        var region = type(1, "Region", true, false);
+        configured(List.of(region), List.of(tag(region, "EU")));
+
+        var result = validator.applicable(Map.of("region", "eu"));
+
+        assertEquals(Map.of("Region", "EU"), result);
     }
 }

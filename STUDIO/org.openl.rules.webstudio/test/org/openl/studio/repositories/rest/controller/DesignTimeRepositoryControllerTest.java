@@ -35,9 +35,11 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
+import org.openl.studio.repositories.model.RepositoryConfigModel;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 import org.openl.studio.repositories.service.ProjectCreationService;
 import org.openl.studio.repositories.service.ProjectRevisionService;
+import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.repositories.service.ZipProjectSaveStrategy;
 import org.openl.studio.repositories.validator.CreateUpdateProjectModelValidator;
 import org.openl.studio.repositories.validator.ZipArchiveValidator;
@@ -55,6 +57,7 @@ class DesignTimeRepositoryControllerTest {
     private AclProjectsHelper aclProjectsHelper;
     private ProtectedBranchBypassService bypassService;
     private ProjectCreationService projectCreationService;
+    private RepositoryConfigService repositoryConfigService;
     private DesignTimeRepositoryController controller;
 
     @BeforeEach
@@ -64,6 +67,7 @@ class DesignTimeRepositoryControllerTest {
         designRepositoryAclService = mock(RepositoryAclService.class);
         validationProvider = mock(BeanValidationProvider.class);
         zipProjectSaveStrategy = mock(ZipProjectSaveStrategy.class);
+        repositoryConfigService = mock(RepositoryConfigService.class);
         aclProjectsHelper = mock(AclProjectsHelper.class);
         bypassService = mock(ProtectedBranchBypassService.class);
         projectCreationService = mock(ProjectCreationService.class);
@@ -84,7 +88,8 @@ class DesignTimeRepositoryControllerTest {
                 mock(DesignTimeRepositoryService.class),
                 mock(ProjectRevisionService.class),
                 bypassService,
-                projectCreationService);
+                projectCreationService,
+                repositoryConfigService);
 
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "password"));
     }
@@ -92,6 +97,15 @@ class DesignTimeRepositoryControllerTest {
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void configOfTheRepositoryIsReadForTheCreateForms() {
+        var config = new RepositoryConfigModel(null, new RepositoryConfigModel.Comment(null, null,
+                new RepositoryConfigModel.Templates(null, "Project {project-name} is created.", null, null)));
+        when(repositoryConfigService.getConfig(REPOSITORY_ID)).thenReturn(config);
+
+        assertEquals(config, controller.getConfig(repository));
     }
 
     @Test
@@ -104,10 +118,10 @@ class DesignTimeRepositoryControllerTest {
     @Test
     void createProjectFromProjectRequiresBranchProtectionBypass() {
         when(projectCreationService.copyProject(eq(REPOSITORY_ID), eq("Copy"), eq(null), eq(REPOSITORY_ID),
-                eq("Source"), eq("comment"))).thenReturn(new FileData());
+                eq("Source"), eq("comment"), eq("rev-1"))).thenReturn(new FileData());
 
         controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment"));
+                new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", "rev-1"));
 
         verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
     }

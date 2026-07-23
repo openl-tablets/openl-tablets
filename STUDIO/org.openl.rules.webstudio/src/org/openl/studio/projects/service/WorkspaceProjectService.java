@@ -2,6 +2,9 @@ package org.openl.studio.projects.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -37,6 +40,8 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -50,7 +55,6 @@ import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
@@ -61,6 +65,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -71,14 +76,13 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
-import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.CreateBranchModel;
-import org.openl.studio.projects.model.ExposedMethodsViewModel;
-import org.openl.studio.projects.model.ModuleViewModel;
+import org.openl.studio.projects.model.DescriptorViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
+import org.openl.studio.projects.model.ProjectRepositoryModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
@@ -106,7 +110,7 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
-import org.openl.studio.tags.service.TagAssignmentValidator;
+import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -124,6 +128,9 @@ import org.openl.util.StringUtils;
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+    private static final Comparator<ProjectDependency> DEPENDENCY_NAME_ORDER = Comparator
+            .comparing(ProjectDependency::name, String.CASE_INSENSITIVE_ORDER);
+
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
@@ -145,8 +152,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStatusMapper projectStatusMapper;
     private final Environment environment;
-    private final TagAssignmentValidator tagAssignmentValidator;
     private final ProjectTagsCache projectTagsCache;
+    private final ProjectListingContext listingContext;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -170,8 +177,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectAccessService projectAccessService,
             ProjectStatusMapper projectStatusMapper,
             Environment environment,
-            TagAssignmentValidator tagAssignmentValidator,
-            ProjectTagsCache projectTagsCache) {
+            ProjectTagsCache projectTagsCache,
+            ProjectListingContext listingContext) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -191,8 +198,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.aclProjectsHelper = aclProjectsHelper;
         this.projectStatusMapper = projectStatusMapper;
         this.environment = environment;
-        this.tagAssignmentValidator = tagAssignmentValidator;
         this.projectTagsCache = projectTagsCache;
+        this.listingContext = listingContext;
     }
 
     @Lookup
@@ -216,7 +223,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     public ProjectViewModel getProject(RulesProject project, Collection<ProjectInclude> includes) {
         var normalizedIncludes = ProjectInclude.normalize(includes);
-        var builder = mapWorkspaceProjectResponse(project, Map.of(), normalizedIncludes.contains(ProjectInclude.MODULES));
+        var builder = mapWorkspaceProjectResponse(project, Map.of(), normalizedIncludes.contains(ProjectInclude.DESCRIPTOR));
         try {
             projectDependencyResolver.getDependsOnProject(project).stream()
                     .sorted(PROJECT_BUSINESS_NAME_ORDER)
@@ -234,7 +241,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return builder.build();
     }
 
-    private Optional<ProjectDescriptor> resolveProjectDescriptor(RulesProject project) {
+    /**
+     * A project as its descriptor describes it: the modules {@code rules.xml} declares, and the modules
+     * those declarations resolve to once every pattern is replaced by the files it matches.
+     *
+     * @param modulesDefaulted whether the modules come from the engine's defaults because {@code rules.xml}
+     *                         declares none — such modules are not in the file
+     */
+    private record ResolvedDescriptor(ProjectDescriptor descriptor, List<Module> declaredModules,
+                                      boolean modulesDefaulted) {
+    }
+
+    /** The modules a project starts from: what it declares, or the defaults when it declares none. */
+    private record DeclaredModules(List<Module> modules, boolean defaulted) {
+    }
+
+    private Optional<ResolvedDescriptor> resolveProjectDescriptor(RulesProject project) {
         var localDescriptor = resolveLocalProjectDescriptor(project);
         var repositoryDescriptor = resolveRepositoryProjectDescriptor(project);
 
@@ -242,7 +264,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return repositoryDescriptor;
         }
         if (repositoryDescriptor.isPresent()) {
-            fillMissingDescriptorData(localDescriptor.get(), repositoryDescriptor.get());
+            return Optional.of(fillMissingDescriptorData(localDescriptor.get(), repositoryDescriptor.get()));
         }
         return localDescriptor;
     }
@@ -253,60 +275,122 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * <p>The resolver matches the legacy Editor behavior: a project may have modules even when they are
      * generated from Excel files instead of being declared directly in {@code rules.xml}.
      */
-    private Optional<ProjectDescriptor> resolveLocalProjectDescriptor(RulesProject project) {
+    private Optional<ResolvedDescriptor> resolveLocalProjectDescriptor(RulesProject project) {
         try {
             var localWorkspace = getUserWorkspace().getLocalWorkspace();
             var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
             var folder = repoRoot.resolve(project.getFolderPath());
             var descriptor = ProjectResolver.getInstance().resolve(folder);
-            if (descriptor != null) {
-                descriptor.getModules().sort(MODULES_COMPARATOR);
+            if (descriptor == null) {
+                return Optional.empty();
             }
-            return Optional.ofNullable(descriptor);
+            descriptor.getModules().sort(MODULES_COMPARATOR);
+            var declared = readDeclaredModules(folder);
+            return Optional.of(new ResolvedDescriptor(descriptor, declared.modules(), declared.defaulted()));
         } catch (Exception e) {
             log.debug("Failed to resolve local project descriptor for '{}'", project.getName(), e);
             return Optional.empty();
         }
     }
 
-    private Optional<ProjectDescriptor> resolveRepositoryProjectDescriptor(RulesProject project) {
+    /**
+     * The modules {@code rules.xml} declares, read from the file itself.
+     *
+     * <p>The resolver answers with the modules the project resolved to, where a pattern is already
+     * replaced by the files it matched — a pattern that matched nothing leaves no trace there at all.
+     * The declarations are read separately so the screen can show them as they are written.
+     */
+    private static DeclaredModules readDeclaredModules(Path projectFolder) {
+        var descriptorFile = projectFolder.resolve(ProjectDescriptor.FILE_NAME);
+        if (!Files.isRegularFile(descriptorFile)) {
+            return new DeclaredModules(List.of(), false);
+        }
+        try (var content = Files.newInputStream(descriptorFile)) {
+            var descriptor = ProjectDescriptor.read(content);
+            return descriptor == null ? new DeclaredModules(List.of(), false)
+                    : declaredOrDefaultModules(descriptor.getModules());
+        } catch (Exception e) {
+            log.debug("Failed to read the declared modules of '{}'", descriptorFile, e);
+            return new DeclaredModules(List.of(), false);
+        }
+    }
+
+    private Optional<ResolvedDescriptor> resolveRepositoryProjectDescriptor(RulesProject project) {
         try {
             var repositoryDescriptor = readRepositoryProjectDescriptor(project);
             var descriptor = repositoryDescriptor.orElseGet(() -> createSimpleRepositoryDescriptor(project));
+            var declared = repositoryDescriptor.isPresent()
+                    ? declaredOrDefaultModules(descriptor.getModules())
+                    : new DeclaredModules(List.of(), false);
             var files = listRepositoryProjectFiles(project);
             descriptor.setModules(expandRepositoryModules(descriptor,
                     project.getFolderPath(),
+                    declared.modules(),
                     files,
                     repositoryDescriptor.isPresent()));
             descriptor.getModules().sort(MODULES_COMPARATOR);
-            return Optional.ofNullable(descriptor);
+            return Optional.of(new ResolvedDescriptor(descriptor, declared.modules(), declared.defaulted()));
         } catch (IOException e) {
             log.warn("Failed to resolve repository project descriptor for '{}'", project.getName(), e);
         }
         return Optional.empty();
     }
 
+    /**
+     * The modules a project starts from. A project that declares none of its own takes the modules every
+     * project has by default; those defaults are not in the file, and are flagged as such.
+     */
+    private static DeclaredModules declaredOrDefaultModules(List<Module> declared) {
+        return declared.isEmpty() ? new DeclaredModules(ProjectDescriptor.defaultModules(), true)
+                : new DeclaredModules(List.copyOf(declared), false);
+    }
+
     private Optional<ProjectDescriptor> readRepositoryProjectDescriptor(RulesProject project) throws IOException {
+        try (var content = readProjectDescriptorFile(project)) {
+            if (content == null) {
+                return Optional.empty();
+            }
+            var descriptor = ProjectDescriptor.read(content);
+            if (descriptor != null && StringUtils.isBlank(descriptor.getName())) {
+                descriptor.setName(project.getBusinessName());
+            }
+            return Optional.ofNullable(descriptor);
+        }
+    }
+
+    /**
+     * The {@code rules.xml} of the project, or {@code null} when it has none.
+     *
+     * <p>A repository without folder support keeps a project as a single archive and answers no request
+     * for a file inside it, so the descriptor is taken from the project artefacts, which unpack it.
+     */
+    private static @Nullable InputStream readProjectDescriptorFile(RulesProject project) throws IOException {
+        if (!project.getRepository().supports().folders()) {
+            return readArtefactContent(project, ProjectDescriptor.FILE_NAME);
+        }
         var descriptorPath = projectRepositoryPath(project.getFolderPath(), ProjectDescriptor.FILE_NAME);
         var repository = project.getRepository();
         var fileData = project.isHistoric()
                 ? repository.checkHistory(descriptorPath, project.getHistoryVersion())
                 : repository.check(descriptorPath);
         if (fileData == null) {
-            return Optional.empty();
+            return null;
         }
         var item = project.isHistoric()
                 ? repository.readHistory(descriptorPath, project.getHistoryVersion())
                 : repository.read(descriptorPath);
-        if (item == null) {
-            return Optional.empty();
+        return item == null ? null : item.getStream();
+    }
+
+    /** The content of a file of the project, or {@code null} when the project holds no such file. */
+    private static @Nullable InputStream readArtefactContent(RulesProject project, String name) throws IOException {
+        if (!project.hasArtefact(name)) {
+            return null;
         }
-        try (var content = item.getStream()) {
-            var descriptor = ProjectDescriptor.read(content);
-            if (descriptor != null && StringUtils.isBlank(descriptor.getName())) {
-                descriptor.setName(project.getBusinessName());
-            }
-            return Optional.ofNullable(descriptor);
+        try {
+            return project.getArtefact(name) instanceof AProjectResource file ? file.getContent() : null;
+        } catch (ProjectException e) {
+            throw new IOException(e);
         }
     }
 
@@ -316,23 +400,41 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return descriptor;
     }
 
+    /**
+     * The files the project is made of, as the repository stores them.
+     *
+     * <p>A repository without folder support keeps a project as a single archive and answers no per-file
+     * listing at all, so its files are read through the project artefacts, which unpack it.
+     */
     private static List<FileData> listRepositoryProjectFiles(RulesProject project) throws IOException {
-        var path = projectRepositoryPath(project.getFolderPath(), "");
         var repository = project.getRepository();
+        if (!repository.supports().folders()) {
+            return listArtefactFiles(project);
+        }
+        var path = projectRepositoryPath(project.getFolderPath(), "");
         return project.isHistoric()
                 ? repository.listFiles(path, project.getHistoryVersion())
                 : repository.list(path);
     }
 
+    /** Every file of the folder and of the folders inside it, at the revision the project is opened on. */
+    private static List<FileData> listArtefactFiles(AProjectFolder folder) {
+        var files = new ArrayList<FileData>();
+        for (var artefact : folder.getArtefacts()) {
+            if (artefact instanceof AProjectFolder nested) {
+                files.addAll(listArtefactFiles(nested));
+            } else {
+                files.add(artefact.getFileData());
+            }
+        }
+        return files;
+    }
+
     private static List<Module> expandRepositoryModules(ProjectDescriptor descriptor,
                                                         String projectPath,
+                                                        List<Module> readModules,
                                                         List<FileData> files,
                                                         boolean hasProjectDescriptor) {
-        var readModules = descriptor.getModules();
-        if (hasProjectDescriptor && readModules.isEmpty()) {
-            readModules = defaultRepositoryModules();
-        }
-
         var modules = new ArrayList<Module>(readModules.size());
         for (var module : readModules) {
             if (!module.isModuleWithWildcard()) {
@@ -359,14 +461,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             addSimpleRepositoryModules(descriptor, projectPath, files, modules);
         }
         return modules;
-    }
-
-    private static List<Module> defaultRepositoryModules() {
-        var rules = new Module();
-        rules.setRulesRootPath("rules/**/*.xlsx");
-        var tests = new Module();
-        tests.setRulesRootPath("tests/**/*.xlsx");
-        return List.of(rules, tests);
     }
 
     private static void normalizeRepositoryModule(ProjectDescriptor descriptor, Module module) {
@@ -440,56 +534,60 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 : normalizedProjectPath + "/" + relativePath;
     }
 
-    private void fillMissingDescriptorData(ProjectDescriptor target, ProjectDescriptor fallback) {
-        if (target.getComment() == null) {
-            target.setComment(fallback.getComment());
+    private ResolvedDescriptor fillMissingDescriptorData(ResolvedDescriptor target, ResolvedDescriptor fallback) {
+        var descriptor = target.descriptor();
+        var source = fallback.descriptor();
+        if (descriptor.getComment() == null) {
+            descriptor.setComment(source.getComment());
         }
-        if (target.getModules().isEmpty()) {
-            target.getModules().addAll(fallback.getModules());
+        var declaredModules = target.declaredModules();
+        var modulesDefaulted = target.modulesDefaulted();
+        if (descriptor.getModules().isEmpty()) {
+            descriptor.getModules().addAll(source.getModules());
+            declaredModules = fallback.declaredModules();
+            modulesDefaulted = fallback.modulesDefaulted();
         }
-        if (target.getPropertiesFileNamePatterns() == null || target.getPropertiesFileNamePatterns().length == 0) {
-            target.setPropertiesFileNamePatterns(fallback.getPropertiesFileNamePatterns());
+        if (descriptor.getPropertiesFileNamePatterns() == null
+                || descriptor.getPropertiesFileNamePatterns().length == 0) {
+            descriptor.setPropertiesFileNamePatterns(source.getPropertiesFileNamePatterns());
         }
-        if (target.getExposedMethods() == null) {
-            target.setExposedMethods(fallback.getExposedMethods());
+        if (descriptor.getExposedMethods() == null) {
+            descriptor.setExposedMethods(source.getExposedMethods());
         }
+        return new ResolvedDescriptor(descriptor, declaredModules, modulesDefaulted);
     }
 
-    private void applyDescriptor(ProjectViewModel.Builder builder, ProjectDescriptor descriptor) {
-        builder.description(descriptor.getComment());
-        for (Module module : descriptor.getModules()) {
-            builder.addModule(new ModuleViewModel(module.getName(), module.getRulesRootPath()));
-        }
-        var patterns = descriptor.getPropertiesFileNamePatterns();
-        if (patterns != null && patterns.length > 0) {
-            builder.versionPatterns(List.of(patterns));
-        }
-        var exposed = descriptor.getExposedMethods();
-        if (exposed != null) {
-            var includes = exposed.getIncludes();
-            var excludes = exposed.getExcludes();
-            var hasIncludes = includes != null && !includes.isEmpty();
-            var hasExcludes = excludes != null && !excludes.isEmpty();
-            if (hasIncludes || hasExcludes) {
-                builder.exposedMethods(new ExposedMethodsViewModel(
-                        hasIncludes ? List.copyOf(includes) : List.of(),
-                        hasExcludes ? List.copyOf(excludes) : List.of()));
-            }
-        }
+    /**
+     * The parts of the descriptor the UI cannot work out from {@code rules.xml} itself: the modules a
+     * wildcard resolves to, and the source path entries, each flagged when it is the engine's default.
+     * Everything else in the descriptor the UI reads from the file directly.
+     */
+    private DescriptorViewModel mapDescriptor(ResolvedDescriptor resolved) {
+        var descriptor = resolved.descriptor();
+        var classpath = descriptor.getClasspath();
+        var sourcesDefault = classpath == null || classpath.isEmpty();
+        return DescriptorViewModel.builder()
+                .modules(ProjectModules.map(resolved.declaredModules(), descriptor.getModules()))
+                .modulesDefault(resolved.modulesDefaulted())
+                .sources(sourcesDefault ? ProjectDescriptor.defaultClasspath() : List.copyOf(classpath))
+                .sourcesDefault(sourcesDefault)
+                .build();
     }
 
     @Override
     protected ProjectViewModel.Builder mapProjectResponse(RulesProject src,
                                                           ProjectCriteriaQuery query,
                                                           Map<AProject, ProjectStatus> statuses) {
-        return mapWorkspaceProjectResponse(src, statuses, query.includeModules());
+        return mapWorkspaceProjectResponse(src, statuses, query.includeDescriptor());
     }
 
     private ProjectViewModel.Builder mapWorkspaceProjectResponse(RulesProject src,
                                                                  Map<AProject, ProjectStatus> statuses,
-                                                                 boolean includeModules) {
+                                                                 boolean includeDescriptor) {
         var builder = super.mapProjectResponse(src, statuses);
         builder.branchProtected(src.isBranchProtected());
+        builder.branchDefault(src.isBranchDefault());
+        builder.repositoryInfo(mapRepositoryInfo(src));
         if (src.isSupportsBranches()) {
             try {
                 var selectedBranches = src.getSelectedBranches();
@@ -499,15 +597,26 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 log.warn("Failed to retrieve project branches", e);
             }
         }
-        projectDependencyResolver.getProjectDependencies(src).stream()
-                .sorted(PROJECT_BUSINESS_NAME_ORDER)
+        projectDependencyResolver.getDependencies(src).stream()
+                .sorted(DEPENDENCY_NAME_ORDER)
                 .map(this::mapProjectDependency)
                 .map(ProjectDependencyViewModel.Builder::build)
                 .forEach(builder::addDependency);
-        if (includeModules) {
-            resolveProjectDescriptor(src).ifPresent(descriptor -> applyDescriptor(builder, descriptor));
+        if (includeDescriptor) {
+            resolveProjectDescriptor(src).ifPresent(descriptor -> builder.descriptor(mapDescriptor(descriptor)));
         }
         return builder;
+    }
+
+    /**
+     * Maps a declared dependency. A dependency the workspace has no project for carries its name and the
+     * mark that it is missing, so the screen can show what {@code rules.xml} asks for and cannot find.
+     */
+    private ProjectDependencyViewModel.Builder mapProjectDependency(ProjectDependency dependency) {
+        var project = dependency.project();
+        return project == null
+                ? ProjectDependencyViewModel.builder().name(dependency.name()).missing(true)
+                : mapProjectDependency(project);
     }
 
     protected ProjectDependencyViewModel.Builder mapProjectDependency(RulesProject src) {
@@ -516,6 +625,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .id(projectIdentifierMapper.map(src))
                 .repository(repository.getId());
         builder.status(src.getStatus()).branch(src.getBranch());
+        builder.branchProtected(src.isBranchProtected()).branchDefault(src.isBranchDefault());
         return builder;
     }
 
@@ -546,6 +656,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     @Override
     protected Map<String, String> tagsOf(RulesProject project) {
+        // The tags.properties file is the source of truth: whatever it names is what the project carries,
+        // whether or not an administrator configured the type. The catalog only offers suggestions.
         return projectTagsCache.getTags(project);
     }
 
@@ -635,23 +747,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void unlockProject(RulesProject project) {
         requireGranted(project, BasePermission.ADMINISTRATION);
         project.forceUnlock();
-    }
-
-    /**
-     * Update the tags assigned to a project.
-     *
-     * @param project project to tag
-     * @param tags    tag type to value assignments
-     * @throws ProjectException if the tags cannot be saved
-     */
-    public void updateTags(RulesProject project, @Nullable Map<String, String> tags) throws ProjectException {
-        requireGranted(project, BasePermission.WRITE);
-        // Tags are editable only on an opened project (legacy getCanModifyTags = isOpened && WRITE).
-        if (!project.isOpened()) {
-            throw new ConflictException("project.not.opened.message");
-        }
-        // Tag edits may change or clear a single tag, so mandatory tags are not required here (only on create).
-        project.saveTags(tagAssignmentValidator.sanitize(tags != null ? tags : Map.of(), false));
     }
 
     /**
@@ -995,49 +1090,50 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
+    /**
+     * The design repository of a project, read from the project itself.
+     *
+     * <p>A project that exists only in the local workspace has no design repository, and nothing is
+     * reported for it.
+     *
+     * <p>The configured type comes from the repository settings, which are parsed once per repository per
+     * request: a page of projects repeats the same few repositories.
+     */
+    @Nullable
+    private ProjectRepositoryModel mapRepositoryInfo(RulesProject project) {
+        if (project.isLocalOnly()) {
+            return null;
+        }
+        var repository = project.getDesignRepository();
+        var repositoryId = repository.getId();
+        return new ProjectRepositoryModel(repositoryId,
+                repository.getName(),
+                listingContext.repositoryType(repositoryId,
+                        id -> new RepositoryConfiguration(id, environment).getType()),
+                new RepositoryFeatures(repository.supports()));
+    }
+
     public List<ProjectBranchInfo> getBranches(RulesProject project) throws ProjectException {
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
         }
         requireGranted(project, BasePermission.READ);
         var repository = (BranchRepository) project.getDesignRepository();
-        boolean bypassEligible = bypassService.isBypassEligible(project);
         var baseBranch = repository.getBaseBranch();
         try {
             // projectPath parameter is not required because we need all branches for repository, not only selected project branches
             var branches = repository.getBranches(null);
-            var statuses = repository.getBranchStatuses(branches);
             return branches.stream()
-                    .map(branch -> toBranchInfo(repository, branch, baseBranch, bypassEligible, statuses))
+                    .map(branch -> ProjectBranchInfo.builder()
+                            .name(branch)
+                            .protectedFlag(repository.isBranchProtected(branch))
+                            .base(branch.equals(baseBranch))
+                            .build())
                     .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
                     .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to retrieve branches", e);
         }
-    }
-
-    private ProjectBranchInfo toBranchInfo(BranchRepository repository, String branch, String baseBranch,
-                                           boolean bypassEligible, Map<String, BranchStatus> statuses) {
-        boolean isProtected = repository.isBranchProtected(branch);
-        var builder = ProjectBranchInfo.builder()
-                .name(branch)
-                .protectedFlag(isProtected)
-                .base(branch.equals(baseBranch))
-                .bypassEligible(isProtected && bypassEligible);
-        try {
-            var status = statuses.get(branch);
-            if (status != null) {
-                builder.lastCommit(ProjectBranchInfo.LastCommit.builder()
-                        .author(status.lastCommitAuthor() == null ? null : status.lastCommitAuthor().getName())
-                        .modifiedAt(DateTimes.atSystemZone(status.lastCommitAt()))
-                        .message(status.lastCommitMessage())
-                        .revision(status.lastCommitRevision())
-                        .build());
-            }
-        } catch (Exception e) {
-            log.warn("Failed to read status for branch '{}'", branch, e);
-        }
-        return builder.build();
     }
 
     /**

@@ -56,6 +56,9 @@ public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryServ
                         .name(repo.getName())
                         .type(repo.getType())
                         .capabilities(repositoryAccessService.computeCapabilities(repo.getId(), AclRepositoryType.PROD))
+                        // A repository that takes projects from the main branch only says so, so the deploy
+                        // dialog can refuse before the deploy does. Any other repository stays silent.
+                        .mainBranchOnly(repo.getSettings().isMainBranchOnly() ? true : null)
                         .build())
                 .collect(Collectors.toList());
     }

@@ -105,14 +105,6 @@ class ProjectAccessServiceTest {
     }
 
     @Test
-    void edit_tags_requires_write_and_opened() {
-        grant(BasePermission.WRITE);
-        when(project.isOpened()).thenReturn(true);
-
-        assertEquals(Boolean.TRUE, service.computeCapabilities(project).canEditTags());
-    }
-
-    @Test
     void manage_and_unlock_require_administration() {
         grant(BasePermission.ADMINISTRATION);
         when(project.isLocked()).thenReturn(true);

@@ -1,7 +1,10 @@
 package org.openl.studio.projects.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
@@ -22,6 +25,7 @@ public class ProjectListingContext {
     private Object usedByIndex;
     private Boolean canDeployToAnyRepository;
     private Boolean canCreateInAnyRepository;
+    private final Map<String, String> repositoryTypes = new HashMap<>();
 
     @FunctionalInterface
     public interface CheckedSupplier<T, E extends Exception> {
@@ -52,6 +56,16 @@ public class ProjectListingContext {
             canDeployToAnyRepository = compute.getAsBoolean();
         }
         return canDeployToAnyRepository;
+    }
+
+    /**
+     * The configured type of a repository, read once per repository per request.
+     *
+     * <p>Every project of a page repeats its repository, and reading the type parses the repository
+     * settings, so the answer is remembered rather than parsed per row.
+     */
+    public String repositoryType(String repositoryId, UnaryOperator<String> compute) {
+        return repositoryTypes.computeIfAbsent(repositoryId, compute);
     }
 
     /** Whether the user can create a project in any repository, computed once per request. */
