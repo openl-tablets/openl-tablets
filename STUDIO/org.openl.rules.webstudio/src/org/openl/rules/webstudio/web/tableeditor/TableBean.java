@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,9 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -25,7 +20,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestSuite;
@@ -57,8 +51,6 @@ public class TableBean {
 
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; // test units
-    // All checks and tests for current table (including tests with no cases, run methods).
-    private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
 
     private String uri;
@@ -117,7 +109,6 @@ public class TableBean {
 
     private void initTests(final ProjectModel model, boolean currentOpenedModule) {
         initRunnableTestMethods();
-        allTests = model.getTestAndRunMethods(uri, currentOpenedModule);
         tests = model.getTestMethods(uri, currentOpenedModule);
     }
 
@@ -213,29 +204,6 @@ public class TableBean {
 
     public boolean isHasTests() {
         return CollectionUtils.isNotEmpty(tests);
-    }
-
-    /**
-     * Gets all tests for current table.
-     */
-    public TableDescription[] getAllTests() {
-        if (allTests == null) {
-            return null;
-        }
-        List<TableDescription> tableDescriptions = new ArrayList<>(allTests.length);
-        for (IOpenMethod test : allTests) {
-            TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
-            tableDescriptions.add(new TableDescription(syntaxNode.getUri(), syntaxNode.getId(), getTestName(test)));
-        }
-        tableDescriptions.sort(Comparator.comparing(TableDescription::getName));
-        return tableDescriptions.toArray(new TableDescription[0]);
-    }
-
-    public String getTestName(Object testMethod) {
-        IOpenMethod method = (IOpenMethod) testMethod;
-        String name = TableSyntaxNodeUtils.getTestName(method);
-        String info = ProjectHelper.getTestInfo(method);
-        return "%s (%s)".formatted(name, info);
     }
 
     public String removeTable() throws Throwable {
