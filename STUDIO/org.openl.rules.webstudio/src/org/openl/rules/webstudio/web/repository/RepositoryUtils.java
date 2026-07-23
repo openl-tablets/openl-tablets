@@ -23,7 +23,6 @@ import org.openl.rules.webstudio.web.repository.deployment.DeploymentOutputStrea
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
 
 /**
  * Repository Utilities
@@ -37,28 +36,6 @@ public final class RepositoryUtils {
             .thenComparing(AProjectArtefact::getName);
 
     private RepositoryUtils() {
-    }
-
-    public static String getTreeNodeId(AProjectArtefact artefact) {
-        if (artefact == null) {
-            return null;
-        }
-
-        String repoId = artefact.getRepository().getId();
-        String name = artefact.getName();
-        return getTreeNodeId(repoId, name);
-    }
-
-    public static String getTreeNodeId(String repoId, String name) {
-        return getTreeNodeId(repoId) + "_" + getTreeNodeId(name);
-    }
-
-    public static String getTreeNodeId(String name) {
-        if (StringUtils.isNotBlank(name)) {
-            // FIXME name.hashCode() can produce collisions. Not good for id.
-            return String.valueOf(name.hashCode());
-        }
-        return null;
     }
 
     public static void archive(Repository folderRepository,
