@@ -227,6 +227,5 @@ A standard setup for using OpenL Tablets involves two main steps:
 The most critical step is ensuring the **`deployment` repository** is configured identically in both applications. You can inspect the configuration files inside the Demo package as a working example of how to do this correctly.
 
 ```
-Release 6.0
 OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.
 ```
