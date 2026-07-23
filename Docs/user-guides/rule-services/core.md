@@ -73,4 +73,4 @@ In this example, `serviceName` is a name of the deployed OpenL Tablets service a
 
 ### Customizing and Configuring Rule Services Core
 
-The Rule Services Core module configuration features resemble configuration features for OpenL Rule Services. The OpenL Rule Services customization and configuration information is provided in this document and can be applied to Rule Services Core in the same way. For the list of components supported only by OpenL Rule Services, see diagrams in [Introduction](#introduction).
+The Rule Services Core module configuration features resemble configuration features for OpenL Rule Services. The OpenL Rule Services customization and configuration information is provided in this document and can be applied to Rule Services Core in the same way. For the list of components supported only by OpenL Rule Services, see diagrams in [Introduction](introduction.md).
