@@ -19,7 +19,6 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.SubGridTable;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -194,14 +193,6 @@ public class ParameterTreeBuilder {
 
     public static boolean isSpreadsheetResult(Object value) {
         return (value instanceof SpreadsheetResult sr) && (sr.getLogicalTable() != null);
-    }
-
-    public String formattedResult(Object value) {
-        String str = "NOW I CANNOT FIND RESULT";
-        if (value != null) {
-            str = FormattersManager.format(value);
-        }
-        return str;
     }
 
     public boolean isHtmlTable(Object value) {
