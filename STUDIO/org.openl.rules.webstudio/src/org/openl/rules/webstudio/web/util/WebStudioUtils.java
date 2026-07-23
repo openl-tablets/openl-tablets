@@ -5,17 +5,14 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.validator.ValidatorException;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -90,12 +87,6 @@ public abstract class WebStudioUtils {
             log.error("Failed to get user workspace", e);
         }
         return userWorkspace;
-    }
-
-    public static <T> T getBean(Class<T> clazz) {
-        ServletContext servletContext = (ServletContext) getExternalContext().getContext();
-        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        return appContext.getBean(clazz);
     }
 
     @Deprecated
