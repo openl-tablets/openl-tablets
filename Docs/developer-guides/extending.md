@@ -6,6 +6,5 @@ If the added classes have the `valueOf(String)` or `parse(CharSequence)` methods
 *Added class example*
 
 In this example, timestamp class object values in the Batch Date column are defined as a plain text, without conversion.
-```
+
 OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.
-```

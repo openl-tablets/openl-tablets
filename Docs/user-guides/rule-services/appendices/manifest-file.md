@@ -49,6 +49,5 @@ An example of the file contents is as follows:
   }
 }
 ```
-```
+
 OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.
-```
