@@ -282,10 +282,6 @@ public class ProjectModel {
         return null;
     }
 
-    public synchronized List<OpenLMessage> getWarnsByUri(String uri) {
-        return getMessagesByTsn(uri, Severity.WARN);
-    }
-
     private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode,
                                                 Severity severity,
                                                 Collection<OpenLMessage> openLMessages) {
