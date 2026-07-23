@@ -4,18 +4,6 @@ import org.openl.rules.testmethod.TestUnitsResults;
 
 public interface ProjectTestsExecutionProgressListener {
 
-    ProjectTestsExecutionProgressListener NOP = new ProjectTestsExecutionProgressListener() {
-        @Override
-        public void onStatusChanged(TestExecutionStatus status) {
-            // No operation
-        }
-
-        @Override
-        public void onTestUnitExecuted(TestUnitsResults testUnitsResults) {
-            // No operation
-        }
-    };
-
     /**
      * Called when the test execution status changes.
      *
