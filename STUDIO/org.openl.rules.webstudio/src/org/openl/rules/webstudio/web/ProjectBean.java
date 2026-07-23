@@ -2087,16 +2087,8 @@ public class ProjectBean {
         this.currentModuleIndex = currentModuleIndex;
     }
 
-    public Integer getCurrentModuleIndex() {
-        return currentModuleIndex;
-    }
-
     public List<ModuleInfoDTO> getModulesInfoList() {
         return modulesInfoList;
-    }
-
-    public void setModulesInfoList(List<ModuleInfoDTO> modulesInfoList) {
-        this.modulesInfoList = modulesInfoList;
     }
 
 }
