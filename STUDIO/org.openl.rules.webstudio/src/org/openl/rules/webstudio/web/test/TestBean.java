@@ -64,7 +64,6 @@ public class TestBean {
 
     private boolean ranTestsSorted = false;
     private Integer numberOfFailedTests = null;
-    private Integer numberOfFailedTestCases = null;
 
     /**
      * URI of tested table
@@ -203,19 +202,6 @@ public class TestBean {
             numberOfFailedTests = cnt;
         }
         return numberOfFailedTests;
-    }
-
-    public int getNumberOfFailedTestCases() {
-        if (numberOfFailedTestCases == null) {
-            int sum = 0;
-            for (TestUnitsResults result : ranResults) {
-                if (result != null) {
-                    sum += result.getNumberOfFailures();
-                }
-            }
-            numberOfFailedTestCases = sum;
-        }
-        return numberOfFailedTestCases;
     }
 
     /**
