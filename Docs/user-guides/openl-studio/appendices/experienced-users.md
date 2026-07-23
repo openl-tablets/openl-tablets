@@ -4,6 +4,6 @@ OpenL Studio configuration example is available at <http://localhost:8080/webstu
 
 Internal API documentation for OpenL Studio is available at <http://localhost:8080/webstudio/rest/api-docs>.
 ```
-Release 5.27
+Release 6.0
 OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.
 ```

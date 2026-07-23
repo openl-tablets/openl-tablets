@@ -50,6 +50,6 @@ An example of the file contents is as follows:
 }
 ```
 ```
-Release 5.27
+Release 6.0
 OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.
 ```
