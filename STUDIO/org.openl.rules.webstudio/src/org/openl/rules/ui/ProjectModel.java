@@ -779,10 +779,6 @@ public class ProjectModel {
         return false;
     }
 
-    public boolean isReady() {
-        return compiledOpenClass != null;
-    }
-
     public boolean isTestable(String uri) {
         IOpenMethod m = getMethod(uri);
         if (m == null) {
