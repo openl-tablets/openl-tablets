@@ -37,13 +37,6 @@ public class ProjectVersionCacheManager implements InitializingBean {
                 .getVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
     }
 
-    public String getDesignBusinessVersionOfDeployedProject(AProject project) throws IOException {
-        ensureCacheIsNotEmpty();
-        String md5 = getProjectMD5(project, ProjectVersionH2CacheDB.RepoType.DEPLOY);
-        return md5 != null ? projectVersionCacheDB
-                .getDesignBusinessVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
-    }
-
     public boolean isCacheCalculated() {
         try {
             return projectVersionCacheDB.isCacheCalculated();

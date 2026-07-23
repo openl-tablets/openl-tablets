@@ -9,7 +9,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.db.SqlDBUtils;
 
 public class ProjectVersionH2CacheDB extends H2CacheDB {
@@ -34,7 +33,6 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(1000)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
     private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?) AND " + HASH + "=?";
     private static final String SELECT_HASH_QUERY = "SELECT " + HASH + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=? AND " + PROJECT_NAME + "=? AND " + REPOSITORY + "=? AND " + VERSION + "=?";
-    private static final String SELECT_DESIGN_VERSION_QUERY = "select " + CREATED_AT + ", " + CREATED_BY + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?)";
     private static final String INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + PROJECT_NAME + ", " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + ", " + HASH + ", " + REPOSITORY + ") values" + "(?,?,?,?,?,?)";
     private static final String SELECT_COUNT_QUERY = "SELECT COUNT(*) FROM " + TABLE_NAME;
     private static final String DROP_QUERY = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -104,41 +102,6 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             SqlDBUtils.safeClose(connection);
         }
         return count == 0;
-    }
-
-    public String getDesignBusinessVersion(String name, String hash, RepoType repoType) throws IOException {
-        Connection connection = null;
-        ResultSet rs = null;
-        PreparedStatement selectPreparedStatement = null;
-        try {
-            connection = getDBConnection();
-            connection.setAutoCommit(false);
-            ensureCacheExist(connection);
-            selectPreparedStatement = connection.prepareStatement(SELECT_DESIGN_VERSION_QUERY);
-            selectPreparedStatement.setString(1, name);
-            selectPreparedStatement.setString(2, hash);
-            selectPreparedStatement.setString(3, repoType.name());
-            rs = selectPreparedStatement.executeQuery();
-            Timestamp createdAt = null;
-            String createdBy = null;
-            while (rs.next()) {
-                createdAt = rs.getTimestamp(CREATED_AT);
-                createdBy = rs.getString(CREATED_BY);
-            }
-            String businessVersion = null;
-            if (createdAt != null && createdBy != null) {
-                String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(createdAt);
-                businessVersion = createdBy + ": " + modifiedOnStr;
-            }
-            connection.commit();
-            return businessVersion;
-        } catch (Exception e) {
-            throw new IOException(e);
-        } finally {
-            SqlDBUtils.safeClose(rs);
-            SqlDBUtils.safeClose(selectPreparedStatement);
-            SqlDBUtils.safeClose(connection);
-        }
     }
 
     public String getHash(String name, String version, Date createdAt, RepoType repoType) throws IOException {
