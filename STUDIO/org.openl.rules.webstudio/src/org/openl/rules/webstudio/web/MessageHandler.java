@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -19,14 +18,6 @@ public class MessageHandler {
             url = getUrl(model, sourceLocation, severity, id);
         }
         return url;
-    }
-
-    /**
-     * Gets the url for messages that don`t have any sources.
-     */
-    public String getUrlForEmptySource(OpenLMessage message) {
-        return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
-                .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
     protected String getUrl(ProjectModel model, String sourceLocation, String severity, long id) {
