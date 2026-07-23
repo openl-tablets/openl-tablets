@@ -17,10 +17,6 @@ public final class ExportFile {
     private ExportFile() {
     }
 
-    public static void writeOutContent(final HttpServletResponse res, final File content) {
-        writeOutContent(res, content, content.getName());
-    }
-
     public static void writeOutContent(final HttpServletResponse res, final File content, final String filename) {
         if (content == null) {
             return;
