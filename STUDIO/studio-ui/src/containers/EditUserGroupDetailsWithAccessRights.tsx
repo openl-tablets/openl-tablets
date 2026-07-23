@@ -635,6 +635,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 >
                     {isUser ? (
                         <UserDetailsTab
+                            requireEmailAndDisplayName
                             externalFlags={user?.externalFlags}
                             isNewUser={!!newUser}
                             showResendVerification={true}

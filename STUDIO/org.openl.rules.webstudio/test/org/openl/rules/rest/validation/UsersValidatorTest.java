@@ -20,6 +20,7 @@ import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.InternalPasswordModel;
 import org.openl.rules.rest.model.UserCreateModel;
 import org.openl.rules.rest.model.UserEditModel;
+import org.openl.rules.rest.model.UserInfoEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
@@ -92,6 +93,29 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
+    void testEditUserInfo_requiredFields() {
+        UserInfoEditModel userInfoEditModel = getValidUserInfoEditModel();
+
+        userInfoEditModel.setEmail("");
+        BindingResult bindingResult = validateAndGetResult(userInfoEditModel);
+        assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
+
+        userInfoEditModel.setEmail("jsmith@email").setDisplayName("");
+        bindingResult = validateAndGetResult(userInfoEditModel);
+        assertFieldError("displayName", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("displayName"));
+    }
+
+    @Test
+    void testEditRequests_firstAndLastNames_optional() {
+        when(userManagementService.getUser(anyString())).thenReturn(null);
+
+        assertOptionalNamesValid(getValidUserInfoEditModel());
+        assertOptionalNamesValid(getValidUserEditModel());
+        assertOptionalNamesValid(getValidUserCreateModel());
+        assertOptionalNamesValid(getValidUserProfileEditModel().setChangePassword(new ChangePasswordModel()));
+    }
+
+    @Test
     void testEditUser_valid() {
         UserEditModel userEditModel = getValidUserEditModel();
 
@@ -108,6 +132,17 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userEditModel.setPassword(wrongPassword);
         BindingResult bindingResult = validateAndGetResult(userEditModel);
         assertFieldError("password", MUST_BE_LESS_THAN_25, wrongPassword, bindingResult.getFieldError("password"));
+    }
+
+    @Test
+    void testEditUser_requiredFields() {
+        UserEditModel userEditModel = getValidUserEditModel().setEmail("");
+        BindingResult bindingResult = validateAndGetResult(userEditModel);
+        assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
+
+        userEditModel.setEmail("jsmith@email").setDisplayName(" ");
+        bindingResult = validateAndGetResult(userEditModel);
+        assertFieldError("displayName", CANNOT_BE_EMPTY, " ", bindingResult.getFieldError("displayName"));
     }
 
     @Test
@@ -135,6 +170,18 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
         UserCreateModel userCreateModel = getValidUserCreateModel();
         userCreateModel.setGroups(null);
         assertNull(validateAndGetResult(userCreateModel));
+    }
+
+    @Test
+    void testCreateUser_requiredFields() {
+        when(userManagementService.getUser(anyString())).thenReturn(null);
+        UserCreateModel userCreateModel = getValidUserCreateModel().setEmail("");
+        BindingResult bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
+
+        userCreateModel.setEmail("jsmith@email").setDisplayName("");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("displayName", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("displayName"));
     }
 
     @Test
@@ -342,6 +389,20 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
                 bindingResult.getFieldError("changePassword"));
     }
 
+    @Test
+    void testEditUserProfile_requiredFields() {
+        UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel()
+                .setChangePassword(new ChangePasswordModel());
+
+        userProfileEditModel.setEmail("");
+        BindingResult bindingResult = validateAndGetResult(userProfileEditModel);
+        assertFieldError("email", CANNOT_BE_EMPTY, "", bindingResult.getFieldError("email"));
+
+        userProfileEditModel.setEmail("jsmith@email").setDisplayName(" ");
+        bindingResult = validateAndGetResult(userProfileEditModel);
+        assertFieldError("displayName", CANNOT_BE_EMPTY, " ", bindingResult.getFieldError("displayName"));
+    }
+
     private UserCreateModel getValidUserCreateModel() {
         Set<String> groups = new HashSet<>();
         groups.add("Administrators");
@@ -372,6 +433,13 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
                 .setLastName("Smith");
     }
 
+    private UserInfoEditModel getValidUserInfoEditModel() {
+        return new UserInfoEditModel().setDisplayName("John Smith")
+                .setFirstName("John")
+                .setEmail("jsmith@email")
+                .setLastName("Smith");
+    }
+
     private UserProfileEditModel getValidUserProfileEditModel() {
         return new UserProfileEditModel().setChangePassword(
                         new ChangePasswordModel().setConfirmPassword("pass2").setNewPassword("pass2").setCurrentPassword("pass"))
@@ -386,5 +454,10 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
                 .setFirstName("John")
                 .setEmail("jsmith@email")
                 .setLastName("Smith");
+    }
+
+    private void assertOptionalNamesValid(UserInfoModel userInfoModel) {
+        userInfoModel.setFirstName("").setLastName(" ");
+        assertNull(validateAndGetResult(userInfoModel));
     }
 }

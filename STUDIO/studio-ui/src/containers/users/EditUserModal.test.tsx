@@ -15,7 +15,12 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('./UserDatailsTab', () => ({
-    UserDetailsTab: () => <div data-testid="user-details-tab" />,
+    UserDetailsTab: ({ requireEmailAndDisplayName }: { requireEmailAndDisplayName?: boolean }) => (
+        <div
+            data-required-fields={requireEmailAndDisplayName}
+            data-testid="user-details-tab"
+        />
+    ),
 }))
 
 vi.mock('antd', async () => {
@@ -54,6 +59,12 @@ const renderModal = async (updateUser = vi.fn()) => {
 describe('EditUserModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+    })
+
+    it('requires email and display name', async () => {
+        await renderModal()
+
+        expect(screen.getByTestId('user-details-tab')).toHaveAttribute('data-required-fields', 'true')
     })
 
     it('shows an error notification when updating the user fails', async () => {

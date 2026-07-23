@@ -1,5 +1,7 @@
 package org.openl.rules.rest.model;
 
+import jakarta.validation.constraints.NotBlank;
+
 import org.openl.rules.rest.validation.ChangePasswordConstraint;
 
 public class UserProfileEditModel extends UserProfileBaseModel {
@@ -27,8 +29,20 @@ public class UserProfileEditModel extends UserProfileBaseModel {
     }
 
     @Override
+    @NotBlank
+    public String getEmail() {
+        return super.getEmail();
+    }
+
+    @Override
     public UserProfileEditModel setEmail(String email) {
         return (UserProfileEditModel) super.setEmail(email);
+    }
+
+    @Override
+    @NotBlank
+    public String getDisplayName() {
+        return super.getDisplayName();
     }
 
     @Override

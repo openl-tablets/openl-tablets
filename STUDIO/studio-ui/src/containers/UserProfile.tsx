@@ -98,7 +98,14 @@ export const UserProfile: React.FC = () => {
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >
-            <UserDetailsTab displayPasswordField={false} externalFlags={userProfile?.externalFlags} isNewUser={false} showResendVerification={true} userProfile={userProfile} />
+            <UserDetailsTab
+                requireEmailAndDisplayName
+                displayPasswordField={false}
+                externalFlags={userProfile?.externalFlags}
+                isNewUser={false}
+                showResendVerification={true}
+                userProfile={userProfile}
+            />
             {canChangePassword && (
                 <>
                     <Divider titlePlacement="start">{t('users:edit_modal.change_password')}</Divider>

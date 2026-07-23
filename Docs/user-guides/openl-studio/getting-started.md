@@ -26,6 +26,11 @@ To sign in to OpenL Studio, proceed as follows:
 
 1.  Enter the user name and password provided by the system administrator and click **Sign in**.
 
+If the user profile does not contain an email address or display name, the **Complete Your Profile** window opens after
+authentication. Enter the required details and click **Save** to continue to OpenL Studio. First Name and Last Name are
+optional. The display name can be entered directly or generated from them. The same check runs when OpenL Studio
+automatically signs in the DEFAULT account in single-user mode.
+
 For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
 
 ### Modifying User Profile
@@ -63,11 +68,14 @@ To manage profile details, proceed as follows:
 3.  In the **Account** section, update the **Email** field as needed. The **Username** field is read-only.
 4.  In the **Name** section, update **First Name**, **Last Name**, and **Display Name** as needed.
 
-    If user data is synchronized from an external system such as Active Directory, the first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
+    **Email** and **Display Name** are required and cannot be empty. **First Name** and **Last Name** are optional.
+
+    If user data is synchronized from an external system such as Active Directory, the email, first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
 
     In single-user mode, all fields are editable. A field is locked only when its `security.single.*` property is defined by a more prioritized configuration source, such as a Java system property or an environment variable.
 
-    The **Display Name** field includes a format selector to choose how the name is displayed, with a preview shown alongside.
+    The **Display Name** field includes a format selector to generate the value from **First Name** and **Last Name** or
+    enter a custom value, with a preview shown alongside.
 
 5.  To change the password, in the **Change Password** section, enter the **Current Password**, **New Password**, and **Confirm Password** values.
 

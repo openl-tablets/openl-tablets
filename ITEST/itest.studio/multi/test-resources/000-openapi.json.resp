@@ -16909,7 +16909,7 @@ Content-Type: application/json
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserInfoModel"
+                "$ref": "#/components/schemas/UserInfoEditModel"
               }
             }
           },
@@ -25679,6 +25679,8 @@ Content-Type: application/json
           }
         },
         "required": [
+          "displayName",
+          "email",
           "username"
         ]
       },
@@ -25729,7 +25731,11 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           }
-        }
+        },
+        "required": [
+          "displayName",
+          "email"
+        ]
       },
       "UserExternalFlags": {
         "type": "object",
@@ -25756,7 +25762,7 @@ Content-Type: application/json
           }
         }
       },
-      "UserInfoModel": {
+      "UserInfoEditModel": {
         "type": "object",
         "properties": {
           "displayName": {
@@ -25788,7 +25794,11 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           }
-        }
+        },
+        "required": [
+          "displayName",
+          "email"
+        ]
       },
       "UserInfoModel_Short": {
         "type": "object",
@@ -25905,6 +25915,8 @@ Content-Type: application/json
           }
         },
         "required": [
+          "displayName",
+          "email",
           "username"
         ]
       },
@@ -25994,7 +26006,11 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           }
-        }
+        },
+        "required": [
+          "displayName",
+          "email"
+        ]
       },
       "UserProfileModel": {
         "type": "object",

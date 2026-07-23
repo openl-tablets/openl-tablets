@@ -126,20 +126,3 @@ export interface ConflictsState {
 
 // Modal step enum
 export type MergeStep = 'branches' | 'conflicts'
-
-// User info for commit config
-export interface UserCommitInfo {
-    username: string
-    firstName?: string
-    lastName?: string
-    displayName?: string
-    email?: string
-}
-
-// Commit info modal props
-export interface CommitInfoModalProps {
-    visible: boolean
-    username: string
-    onSave: () => void
-    onCancel: () => void
-}

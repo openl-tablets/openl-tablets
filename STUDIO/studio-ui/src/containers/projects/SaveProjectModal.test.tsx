@@ -32,11 +32,15 @@ vi.mock('../../services/repositories', () => ({
     saveProject: vi.fn(),
 }))
 
-vi.mock('store', () => ({ useUserStore: () => ({ userProfile: { username: 'jane' } }) }))
+vi.mock('store', () => ({
+    useUserStore: () => ({
+        userProfile: { username: 'jane', firstName: '', lastName: '', displayName: '', email: '' },
+    }),
+}))
 
-vi.mock('../MergeModal/CommitInfoModal', () => ({
-    CommitInfoModal: ({ visible, onSave }: { visible: boolean, onSave: () => void }) =>
-        visible ? <button data-testid="commit-info-save" onClick={onSave}>identity</button> : null,
+vi.mock('../users/UserProfileCompletionModal', () => ({
+    UserProfileCompletionModal: ({ open, onSave }: { open: boolean, onSave: () => void }) =>
+        open ? <button data-testid="commit-info-save" onClick={onSave}>identity</button> : null,
 }))
 
 vi.mock('antd', () => {
@@ -77,7 +81,12 @@ describe('SaveProjectModal', () => {
         vi.mocked(getProjectBranches).mockResolvedValue([])
         vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
         // Default: identity configured
-        vi.mocked(apiCall).mockResolvedValue({ displayName: 'Jane', email: 'jane@x.io' })
+        vi.mocked(apiCall).mockResolvedValue({
+            firstName: 'Jane',
+            lastName: 'Doe',
+            displayName: 'Jane Doe',
+            email: 'jane@x.io',
+        })
     })
 
     afterEach(() => {
@@ -144,7 +153,7 @@ describe('SaveProjectModal', () => {
     })
 
     it('prompts for commit identity when it is missing, then saves', async () => {
-        vi.mocked(apiCall).mockResolvedValue({ displayName: '', email: '' })
+        vi.mocked(apiCall).mockResolvedValue({ firstName: '', lastName: '', displayName: '', email: '' })
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
         await userEvent.click(screen.getByTestId('save-project-submit'))
@@ -161,7 +170,12 @@ describe('SaveProjectModal', () => {
         vi.mocked(saveProject).mockRejectedValue(new ApiHttpError(409, 'conflict'))
         // identity check (GET), then conflicts check returns groups
         vi.mocked(apiCall)
-            .mockResolvedValueOnce({ displayName: 'Jane', email: 'jane@x.io' })
+            .mockResolvedValueOnce({
+                firstName: 'Jane',
+                lastName: 'Doe',
+                displayName: 'Jane Doe',
+                email: 'jane@x.io',
+            })
             .mockResolvedValueOnce({ conflictGroups: [{ projectName: 'Alpha' }]})
 
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)

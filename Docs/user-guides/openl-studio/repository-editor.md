@@ -19,7 +19,7 @@ The following topics are included in this chapter:
 -   [Exporting a Project or a File](#exporting-a-project-or-a-file)
 -   [Unlocking a Project](#unlocking-a-project)
 -   [Browsing the Deployment Repository](#browsing-the-deployment-repository)
--   [Committing with Missing User Data](#committing-with-missing-user-data)
+-   [User Data for Git Commits](#user-data-for-git-commits)
 
 ### Browsing Design Repository
 
@@ -693,14 +693,18 @@ When browsing deployments in the deployment repository, users can see their cont
 
 *Deployment repository with deployed projects*
 
-### Committing with Missing User Data
+### User Data for Git Commits
 
-Upon user logon, the user’s display name and email are used for Git commits if the repository type for the action is Git. This applies to the following actions:
+Upon user logon, OpenL Studio requires the user's email address and display name. If either value is missing, the
+**Complete Your Profile** window opens before the user can continue to OpenL Studio. First Name and Last Name are
+optional and can be used to generate the display name. The completed display name and email are used for Git commits
+for the following actions:
 
 -   create a project
+-   copy a project
 -   save a project
+-   merge a project
 -   delete a project
+-   delete a branch
 -   deploy a project
 -   synchronize a project
-
-If the display name and email data is missing, the **Configure commit info** popup window appears on commit attempt. Once all the required information is entered and saved, the action that triggered the commit is completed automatically.

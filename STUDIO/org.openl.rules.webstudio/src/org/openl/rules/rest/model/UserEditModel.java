@@ -1,6 +1,7 @@
 package org.openl.rules.rest.model;
 
 import java.util.Set;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,8 +16,20 @@ public class UserEditModel extends UserInfoModel {
     private Set<String> groups;
 
     @Override
+    @NotBlank
+    public String getEmail() {
+        return super.getEmail();
+    }
+
+    @Override
     public UserEditModel setEmail(String email) {
         return (UserEditModel) super.setEmail(email);
+    }
+
+    @Override
+    @NotBlank
+    public String getDisplayName() {
+        return super.getDisplayName();
     }
 
     @Override

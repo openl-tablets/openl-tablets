@@ -95,12 +95,12 @@ vi.mock('containers/MergeModal/ConflictResolutionStep', () => ({
     },
 }))
 
-vi.mock('containers/MergeModal/CommitInfoModal', () => ({
-    CommitInfoModal: (props: any) => (
+vi.mock('containers/users/UserProfileCompletionModal', () => ({
+    UserProfileCompletionModal: (props: any) => (
         <div
             data-testid="commit-info-modal"
-            data-username={props.username}
-            data-visible={props.visible}
+            data-username={props.profile?.username}
+            data-visible={props.open}
         />
     ),
 }))
@@ -330,7 +330,12 @@ describe('MergeModal', () => {
         it('calls callback directly when user has displayName and email', async () => {
             mockApiCall
                 .mockRejectedValueOnce(new MockNotFoundError()) // conflict check
-                .mockResolvedValueOnce({ displayName: 'Test User', email: 'test@example.com' }) // user info
+                .mockResolvedValueOnce({
+                    firstName: 'Test',
+                    lastName: 'User',
+                    displayName: 'Test User',
+                    email: 'test@example.com',
+                }) // user info
 
             render(<MergeModal />)
             await dispatchOpenModal(createDetail())
@@ -351,7 +356,12 @@ describe('MergeModal', () => {
         it('shows CommitInfoModal when user has no displayName', async () => {
             mockApiCall
                 .mockRejectedValueOnce(new MockNotFoundError()) // conflict check
-                .mockResolvedValueOnce({ displayName: '', email: 'test@example.com' }) // user info
+                .mockResolvedValueOnce({
+                    firstName: 'Test',
+                    lastName: 'User',
+                    displayName: '',
+                    email: 'test@example.com',
+                }) // user info
 
             render(<MergeModal />)
             await dispatchOpenModal(createDetail())
@@ -427,7 +437,12 @@ describe('MergeModal', () => {
         it('passes username to CommitInfoModal', async () => {
             mockApiCall
                 .mockRejectedValueOnce(new MockNotFoundError()) // conflict check
-                .mockResolvedValueOnce({ displayName: '', email: 'test@example.com' }) // user info
+                .mockResolvedValueOnce({
+                    firstName: 'Test',
+                    lastName: 'User',
+                    displayName: '',
+                    email: 'test@example.com',
+                }) // user info
             render(<MergeModal />)
             await dispatchOpenModal(createDetail())
 

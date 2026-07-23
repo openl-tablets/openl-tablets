@@ -3,8 +3,12 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
+  "displayName": "User Two",
   "username": "user2",
   "internalPassword": {
     "password": "user2"
-  }
+  },
+  "firstName": "User",
+  "lastName": "Two",
+  "email": "user2@email"
 }

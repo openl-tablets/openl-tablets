@@ -86,8 +86,15 @@ vi.mock('containers/groups/EditGroupDetails', async () => {
 vi.mock('containers/users/UserDatailsTab', async () => {
     const { Form } = await vi.importActual<typeof import('antd')>('antd')
     return {
-        UserDetailsTab: () => (
-            <div data-testid="user-details-tab">
+        UserDetailsTab: ({
+            requireEmailAndDisplayName,
+        }: {
+            requireEmailAndDisplayName?: boolean
+        }) => (
+            <div
+                data-required-fields={requireEmailAndDisplayName}
+                data-testid="user-details-tab"
+            >
                 <Form.Item name="username"><input data-testid="input-username" /></Form.Item>
                 <Form.Item name="email"><input data-testid="input-email" /></Form.Item>
                 <Form.Item name="firstName"><input data-testid="input-firstName" /></Form.Item>
@@ -253,7 +260,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         })
 
         await waitFor(() => {
-            expect(screen.getByTestId('user-details-tab')).toBeInTheDocument()
+            expect(screen.getByTestId('user-details-tab')).toHaveAttribute('data-required-fields', 'true')
         })
     })
 
