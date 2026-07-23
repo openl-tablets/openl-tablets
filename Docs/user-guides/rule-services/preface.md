@@ -24,9 +24,9 @@ The following table lists sources of information related to contents of this gui
 
 | Title                                                                                                                                                       | Description                                                                                                   |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide) | Describes OpenL Studio, a web application for managing OpenL Tablets projects through web browser. |
-| [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide)             | Provides overview of OpenL Tablets technology, as well as its basic concepts and principles.                  |
-| [OpenL Tablets Installation Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide)       | Describes how to install and set up OpenL Tablets software.                                                   |
+| [OpenL Studio Guide](../openl-studio/index.md) | Describes OpenL Studio, a web application for managing OpenL Tablets projects through web browser. |
+| [OpenL Tablets Reference Guide](../reference-guide/index.md)             | Provides overview of OpenL Tablets technology, as well as its basic concepts and principles.                  |
+| [OpenL Tablets Installation Guide](../installation-guide/index.md)       | Describes how to install and set up OpenL Tablets software.                                                   |
 | [https://openl-tablets.org/](http://openl-tablets.org/)                                                                                                   | OpenL Tablets open source project website.                                                                    |
 
 ### Typographic Conventions
