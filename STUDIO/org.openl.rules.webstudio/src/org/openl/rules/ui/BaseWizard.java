@@ -53,10 +53,6 @@ public abstract class BaseWizard {
         this.step = step;
     }
 
-    public int getStepsCount() {
-        return stepsCount;
-    }
-
     public void setStepsCount(int stepsCount) {
         this.stepsCount = stepsCount;
     }
