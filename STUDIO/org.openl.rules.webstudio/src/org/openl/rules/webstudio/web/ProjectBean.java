@@ -707,11 +707,11 @@ public class ProjectBean {
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
         } else {
-            refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+            refreshProject(currentProject.getRepository().getId());
         }
     }
 
-    private void refreshProject(String repoId, String name) {
+    private void refreshProject(String repoId) {
         studio.getModel().clearModuleInfo();
         ProjectDescriptor oldProjectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = studio.resolveProject(oldProjectDescriptor);
@@ -773,7 +773,7 @@ public class ProjectBean {
                 save(newProjectDescriptor);
             } else {
                 currentProject.setModified();
-                refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+                refreshProject(currentProject.getRepository().getId());
             }
         } else {
             clean(newProjectDescriptor);
@@ -1468,7 +1468,7 @@ public class ProjectBean {
                     currentProject.hasArtefact(RulesDeploy.FILE_NAME));
             studio.storeProjectHistory();
 
-            refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+            refreshProject(currentProject.getRepository().getId());
 
             if (openAPIInfoChanged || classPathChanged) {
                 editDescriptorIfNeeded(currentProjectDescriptor,
@@ -1733,7 +1733,7 @@ public class ProjectBean {
                 artifact.setContent(new ByteArrayInputStream(rulesDeploy.toBytes()));
             }
 
-            refreshProject(project.getRepository().getId(), project.getName());
+            refreshProject(project.getRepository().getId());
         } catch (Message e) {
             throw e;
         } catch (Exception e) {
