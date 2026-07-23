@@ -93,7 +93,8 @@ bash start
 
 By default, all your projects and settings are saved inside the `openl-demo/` folder within the main Demo package. To preserve your work when you upgrade to a new version of the Demo, you can configure it to use a permanent, external folder.
 
-**Note:** When using this external folder mode, the initial set of **Examples and Tutorials** will not be created automatically. This mode is best for users who want to manage their own projects.
+> [!Note]
+> When using this external folder mode, the initial set of **Examples and Tutorials** will not be created automatically. This mode is best for users who want to manage their own projects.
 
 ---
 
