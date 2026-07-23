@@ -40,28 +40,13 @@ public class UserModel extends UserCreateModel {
     }
 
     @Override
-    public InternalPasswordModel getInternalPassword() {
-        return super.getInternalPassword();
-    }
-
-    @Override
     public UserModel setInternalPassword(InternalPasswordModel internalPassword) {
         return (UserModel) super.setInternalPassword(internalPassword);
     }
 
     @Override
-    public String getUsername() {
-        return super.getUsername();
-    }
-
-    @Override
     public UserModel setUsername(String username) {
         return (UserModel) super.setUsername(username);
-    }
-
-    @Override
-    public String getPassword() {
-        return super.getPassword();
     }
 
     @Override
@@ -106,18 +91,8 @@ public class UserModel extends UserCreateModel {
     }
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
     public UserModel setFirstName(String firstName) {
         return (UserModel) super.setFirstName(firstName);
-    }
-
-    @Override
-    public String getLastName() {
-        return super.getLastName();
     }
 
     @Override
@@ -126,28 +101,13 @@ public class UserModel extends UserCreateModel {
     }
 
     @Override
-    public String getEmail() {
-        return super.getEmail();
-    }
-
-    @Override
     public UserModel setEmail(String email) {
         return (UserModel) super.setEmail(email);
     }
 
     @Override
-    public String getDisplayName() {
-        return super.getDisplayName();
-    }
-
-    @Override
     public UserModel setDisplayName(String displayName) {
         return (UserModel) super.setDisplayName(displayName);
-    }
-
-    @Override
-    public Set<String> getGroups() {
-        return super.getGroups();
     }
 
     @Override

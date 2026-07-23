@@ -29,23 +29,8 @@ public class UserProfileBaseModel extends UserInfoModel {
     private String treeView;
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
-    public String getEmail() {
-        return super.getEmail();
-    }
-
-    @Override
     public UserProfileBaseModel setEmail(String email) {
         return (UserProfileBaseModel) super.setEmail(email);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return super.getDisplayName();
     }
 
     @Override
@@ -56,11 +41,6 @@ public class UserProfileBaseModel extends UserInfoModel {
     @Override
     public UserProfileBaseModel setFirstName(String firstName) {
         return (UserProfileBaseModel) super.setFirstName(firstName);
-    }
-
-    @Override
-    public String getLastName() {
-        return super.getLastName();
     }
 
     @Override

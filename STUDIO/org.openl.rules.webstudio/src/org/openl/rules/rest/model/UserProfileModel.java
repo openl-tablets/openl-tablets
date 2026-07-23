@@ -35,18 +35,8 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
     public UserProfileModel setFirstName(String firstName) {
         return (UserProfileModel) super.setFirstName(firstName);
-    }
-
-    @Override
-    public String getLastName() {
-        return super.getLastName();
     }
 
     @Override
@@ -55,18 +45,8 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public String getEmail() {
-        return super.getEmail();
-    }
-
-    @Override
     public UserProfileModel setEmail(String email) {
         return (UserProfileModel) super.setEmail(email);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return super.getDisplayName();
     }
 
     @Override
@@ -75,18 +55,8 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public boolean isShowHeader() {
-        return super.isShowHeader();
-    }
-
-    @Override
     public UserProfileModel setShowHeader(boolean showHeader) {
         return (UserProfileModel) super.setShowHeader(showHeader);
-    }
-
-    @Override
-    public boolean isShowFormulas() {
-        return super.isShowFormulas();
     }
 
     @Override
@@ -95,18 +65,8 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public int getTestsPerPage() {
-        return super.getTestsPerPage();
-    }
-
-    @Override
     public UserProfileModel setTestsPerPage(int testsPerPage) {
         return (UserProfileModel) super.setTestsPerPage(testsPerPage);
-    }
-
-    @Override
-    public boolean isTestsFailuresOnly() {
-        return super.isTestsFailuresOnly();
     }
 
     @Override
@@ -115,28 +75,13 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public int getTestsFailuresPerTest() {
-        return super.getTestsFailuresPerTest();
-    }
-
-    @Override
     public UserProfileModel setTestsFailuresPerTest(int testsFailuresPerTest) {
         return (UserProfileModel) super.setTestsFailuresPerTest(testsFailuresPerTest);
     }
 
     @Override
-    public boolean isShowComplexResult() {
-        return super.isShowComplexResult();
-    }
-
-    @Override
     public UserProfileModel setShowComplexResult(boolean showComplexResult) {
         return (UserProfileModel) super.setShowComplexResult(showComplexResult);
-    }
-
-    @Override
-    public boolean isShowRealNumbers() {
-        return super.isShowRealNumbers();
     }
 
     @Override

@@ -15,18 +15,8 @@ public class UserEditModel extends UserInfoModel {
     private Set<String> groups;
 
     @Override
-    public String getEmail() {
-        return super.getEmail();
-    }
-
-    @Override
     public UserEditModel setEmail(String email) {
         return (UserEditModel) super.setEmail(email);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return super.getDisplayName();
     }
 
     @Override
@@ -35,18 +25,8 @@ public class UserEditModel extends UserInfoModel {
     }
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
     public UserEditModel setFirstName(String firstName) {
         return (UserEditModel) super.setFirstName(firstName);
-    }
-
-    @Override
-    public String getLastName() {
-        return super.getLastName();
     }
 
     @Override

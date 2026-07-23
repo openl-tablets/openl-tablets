@@ -41,18 +41,8 @@ public class UserCreateModel extends UserEditModel {
     }
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
     public UserCreateModel setFirstName(String firstName) {
         return (UserCreateModel) super.setFirstName(firstName);
-    }
-
-    @Override
-    public String getLastName() {
-        return super.getLastName();
     }
 
     @Override
@@ -61,28 +51,13 @@ public class UserCreateModel extends UserEditModel {
     }
 
     @Override
-    public String getEmail() {
-        return super.getEmail();
-    }
-
-    @Override
     public UserCreateModel setEmail(String email) {
         return (UserCreateModel) super.setEmail(email);
     }
 
     @Override
-    public String getDisplayName() {
-        return super.getDisplayName();
-    }
-
-    @Override
     public UserCreateModel setDisplayName(String displayName) {
         return (UserCreateModel) super.setDisplayName(displayName);
-    }
-
-    @Override
-    public Set<String> getGroups() {
-        return super.getGroups();
     }
 
     @Override
