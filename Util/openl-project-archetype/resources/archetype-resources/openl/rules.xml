@@ -1,11 +1,5 @@
 <project>
     <name>${project-name}</name>
-
-    <modules>
-        <module>
-            <rules-root path="rules/*.xlsx"/>
-        </module>
-    </modules>
     <exposed-methods>
         <include>SayHello</include>
     </exposed-methods>

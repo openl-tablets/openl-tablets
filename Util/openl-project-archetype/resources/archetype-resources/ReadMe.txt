@@ -4,27 +4,17 @@ PROJECT STRUCTURE
 
 Project structure uses default Maven project structure and contains the following files:
 
-|- ${artifactId}/                                           Project root folder
-|  |- pom.xml                                               Maven project file
+|- ${artifactId}/                                     Project root folder
+|  |- pom.xml                                         Maven project file
 |  |
-|  |- src/
+|  |- openl/                                          Contains all OpenL-related resources (rules, xml etc.)
 |  |  |
-|  |  |- main/
-|  |  |  |
-|  |  |  |- openl/                                          Contains all OpenL-related resources (rules, xml etc.)
-|  |  |  |  |
-|  |  |  |  |- rules.xml                                    OpenL project descriptor
-|  |  |  |  |- rules-deploy.xml                             OpenL project deployment configuration
-|  |  |  |  |- rules/
-|  |  |  |  |  |- Algorithm-CW-01012020-01012020.xlsx       File with rules
-|  |  |
-|  |  |- test/                                              Contains tests run upon build generation
-|  |  |  |
-|  |  |  |- openl/                                          OpenL project for testing the rules
-|  |  |  |  |
-|  |  |  |  |- rules.xml                                    OpenL project descriptor, contains dependency on the tested OpenL project
-|  |  |  |  |- rules/
-|  |  |  |  |  |- Test.xlsx                                 File with OpenL tests
+|  |  |- rules.xml                                    OpenL project descriptor
+|  |  |- rules-deploy.xml                             OpenL project deployment configuration
+|  |  |- rules/
+|  |  |  |- Algorithm-CW-01012020-01012020.xlsx       File with rules
+|  |  |- tests/                                       Contains tests run upon build generation
+|  |  |  |- Tests.xlsx                                File with OpenL tests
 
 OPENL PROJECT DESCRIPTOR
 
