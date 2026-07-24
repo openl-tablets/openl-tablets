@@ -28,15 +28,5 @@ Content-Type: application/json
     "capabilities": {
       "canManage": true
     }
-  },
-  {
-    "aclId": "UFJPRDpwcm9kdWN0aW9uMQ==",
-    "id": "production1",
-    "name": "Deployment Main Branch Only",
-    "type": "repo-jdbc",
-    "capabilities": {
-      "canManage": true
-    },
-    "mainBranchOnly": true
   }
 ]

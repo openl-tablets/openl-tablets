@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -30,6 +31,7 @@ import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class DeploymentServiceImpl implements DeploymentService {
 
     private static final String SEPARATOR = "#";
@@ -63,15 +65,26 @@ public class DeploymentServiceImpl implements DeploymentService {
         } else {
             repoConfigsStream = deploymentRepositoryService.getRepositories().stream();
         }
-        return repoConfigsStream.flatMap(config -> {
-                    try {
-                        return listDeployments(config);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).filter(query.getFilter())
+        return repoConfigsStream.flatMap(this::deploymentsOf)
+                .filter(query.getFilter())
                 .sorted(RepositoryUtils.ARTEFACT_COMPARATOR)
                 .toList();
+    }
+
+    /**
+     * The deployments of one repository. A repository that cannot be instantiated or read — a
+     * misconfigured connection, an unreachable server — yields none: the error is logged and the
+     * listing goes on with the remaining repositories instead of failing as a whole.
+     */
+    private Stream<Deployment> deploymentsOf(RepositoryConfiguration config) {
+        try {
+            return listDeployments(config);
+        } catch (Exception e) {
+            log.error("Failed to read deployments from repository '{}'. The repository is skipped.",
+                    config.getId(),
+                    e);
+            return Stream.empty();
+        }
     }
 
     private Stream<Deployment> listDeployments(RepositoryConfiguration config) throws IOException {

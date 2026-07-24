@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.rest.acl.model.AclRepositoryId;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.security.acl.repository.AclRepositoryType;
@@ -28,17 +29,23 @@ public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryServ
 
     @Override
     public boolean canDeployToAnyRepository() {
-        // Instantiating a production repository can fail (unreachable/misconfigured). This runs for every
-        // project while listing, so a failure must degrade to "not deployable", never break the whole list.
+        return deploymentRepositoryService.getRepositories().stream()
+                .anyMatch(this::canDeployTo);
+    }
+
+    // Instantiating a production repository can fail (unreachable/misconfigured). This runs for every
+    // project while listing, so a broken repository must degrade to "not deployable" and never hide the
+    // repositories that still work.
+    private boolean canDeployTo(RepositoryConfiguration repo) {
         try {
-            var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
-            return deploymentRepositoryService.getRepositories().stream()
-                    .anyMatch(repo -> prodRepoAclService
-                            .isGranted(repo.getId(), null, List.of(BasePermission.WRITE))
-                            && !DeploymentRepositoriesUtil.isMainBranchProtected(
-                                    deploymentManager.getDeployRepository(repo.getConfigName())));
+            return aclServiceProvider.getProdRepoAclService()
+                    .isGranted(repo.getId(), null, List.of(BasePermission.WRITE))
+                    && !DeploymentRepositoriesUtil.isMainBranchProtected(
+                            deploymentManager.getDeployRepository(repo.getConfigName()));
         } catch (Exception e) {
-            log.warn("Cannot determine deploy permissions; treating as not deployable.", e);
+            log.warn("Cannot determine deploy permissions for repository '{}'; treating as not deployable.",
+                    repo.getId(),
+                    e);
             return false;
         }
     }
