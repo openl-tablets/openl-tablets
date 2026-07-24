@@ -234,6 +234,23 @@ describe('Users', () => {
         expect(screen.getByText('users:users_table.never_logged_in')).toBeInTheDocument()
     })
 
+    it('shows active user badge in the Last Login column', async () => {
+        const formattedLastLogin = formatDateTime('2026-07-01T10:30:00Z')!
+
+        await act(async () => {
+            renderUsers()
+        })
+
+        await waitFor(() => {
+            expect(screen.getByText(formattedLastLogin)).toBeInTheDocument()
+        })
+
+        expect(screen.getByText('admin').closest('td')?.querySelector('.ant-badge-color-green'))
+            .not.toBeInTheDocument()
+        expect(screen.getByText(formattedLastLogin).closest('td')?.querySelector('.ant-badge-color-green'))
+            .toBeInTheDocument()
+    })
+
     it('hides groups column when groups management is disabled', async () => {
         await act(async () => {
             renderUsers({ system: { isGroupsManagementEnabled: false } })

@@ -82,7 +82,7 @@ export const Users: React.FC = () => {
                 key: 'username',
                 defaultSortOrder: 'ascend',
                 sorter: (a, b) => a.username.localeCompare(b.username),
-                render: ({ username, online, userGroups, unsafePassword }) => {
+                render: ({ username, userGroups, unsafePassword }) => {
                     const userNameComponent = Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)
                         ? [<Typography.Text key="name" strong>{username}</Typography.Text>]
                         : [username]
@@ -93,10 +93,6 @@ export const Users: React.FC = () => {
                                 <ExclamationCircleOutlined style={{ color: 'red', marginLeft: 6 }} />
                             </Tooltip>
                         )
-                    }
-
-                    if (online) {
-                        return <Badge dot color="green">{userNameComponent}</Badge>
                     }
 
                     return userNameComponent
@@ -149,9 +145,17 @@ export const Users: React.FC = () => {
                 key: 'lastLoginTime',
                 sorter: (a, b) => (a.lastLoginTime ? dayjs(a.lastLoginTime).valueOf() : 0)
                     - (b.lastLoginTime ? dayjs(b.lastLoginTime).valueOf() : 0),
-                render: (lastLoginTime: string | undefined) => lastLoginTime
-                    ? formatDateTime(lastLoginTime)
-                    : <Typography.Text type="secondary">{t('users:users_table.never_logged_in')}</Typography.Text>,
+                render: (lastLoginTime: string | undefined, { online }) => {
+                    const lastLoginComponent = lastLoginTime
+                        ? <span>{formatDateTime(lastLoginTime)}</span>
+                        : <Typography.Text type="secondary">{t('users:users_table.never_logged_in')}</Typography.Text>
+
+                    if (online) {
+                        return <Badge dot color="green">{lastLoginComponent}</Badge>
+                    }
+
+                    return lastLoginComponent
+                },
             },
             {
                 title: t('users:users_table.actions'),
