@@ -25,7 +25,7 @@
     "fflate": "^0.8.3",
     "i18next": "^26.3.6",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7",
+    "react-dom": "^19.2.8",
     "react-i18next": "^17.0.10",
     "react-router-dom": "^7.18.1",
     "zustand": "^5.0.14"
