@@ -68,7 +68,7 @@ public abstract class WebStudioUtils {
         return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
     }
 
-    public static WebStudio getWebStudio(boolean create) {
+    public static WebStudio getOrCreateWebStudio() {
         HttpSession session = (HttpSession) getExternalContext().getSession(true);
         return Optional.ofNullable(getWebStudio(session))
                 .orElseGet(() -> getRulesUserSession(session, true).getWebStudio());

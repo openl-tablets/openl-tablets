@@ -48,7 +48,7 @@ public class MainBean {
      * Stub method that used for bean initialization.
      */
     public String getInit() {
-        WebStudioUtils.getWebStudio(true);
+        WebStudioUtils.getOrCreateWebStudio();
         return StringUtils.EMPTY;
     }
 
