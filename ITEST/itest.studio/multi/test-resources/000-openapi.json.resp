@@ -5804,26 +5804,10 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationModel"
-                }
-              }
-            },
+          "204": {
             "description": "***"
           },
           "400": {
@@ -21395,26 +21379,6 @@ Content-Type: application/json
           "lastName",
           "username"
         ]
-      },
-      "NotificationModel": {
-        "type": "object",
-        "properties": {
-          "args": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "object"
-            }
-          },
-          "code": {
-            "type": "string",
-            "description": "***"
-          },
-          "message": {
-            "type": "string",
-            "description": "***"
-          }
-        }
       },
       "OAuth2AttributesSettings": {
         "type": "object",
