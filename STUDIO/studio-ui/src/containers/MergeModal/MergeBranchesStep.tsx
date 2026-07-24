@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Form, Modal, Space, Spin, Tooltip, Typography } from 'antd'
+import { Alert, Button, Form, Modal, Space, Spin, Tooltip } from 'antd'
 import { BranchesOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { Select } from '../../components/form'
@@ -7,8 +7,10 @@ import type { ApiCallOptions } from '../../services'
 import { apiCall, ApiHttpError, isApiHttpError } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
 import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse } from './types'
+import { MergeBranchLabel } from './MergeBranchLabel'
 
-const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
+// A merge check reads the branches; it changes nothing, so it must not drop the projects snapshot.
+const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
 
 const BYPASS_REQUIRED_CODE = 'openl.error.409.protected.branch.bypass.required'
 
@@ -54,61 +56,54 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     const [checkResultSend, setCheckResultSend] = useState<CheckMergeResult | null>(null)
     const [receiveError, setReceiveError] = useState<string | null>(null)
     const [sendError, setSendError] = useState<string | null>(null)
-    const [bypassRequiredReceive, setBypassRequiredReceive] = useState(false)
-    const [bypassRequiredSend, setBypassRequiredSend] = useState(false)
     const [mergeError, setMergeError] = useState<string | null>(null)
 
     const isGitRepository = repositoryType === 'repo-git'
 
-    // Filter out current branch from options
+    // Filter out current branch from options; a branch reads here exactly as it does everywhere else.
     const branchOptions = useMemo(() => {
         return branches
             .filter(b => b.name !== currentBranch)
             .map(b => ({
                 value: b.name,
-                label: b.protected ? `${b.name} (protected)` : b.name,
+                label: <MergeBranchLabel branches={branches} name={b.name} testId={`merge-branch-${b.name}`} />,
             }))
     }, [branches, currentBranch])
+
+    /**
+     * Why a merge that has something to merge still cannot be performed, or `null` when it can — a bypass
+     * counts as performable, since the user confirms it themselves.
+     */
+    const blockedMessage = useCallback((result: CheckMergeResult | null, target: string | undefined): string | null => {
+        if (!result || result.canMerge || result.status !== 'mergeable' || result.blockedBy === 'bypass-required') {
+            return null
+        }
+        return result.blockedBy === 'locked'
+            ? t('merge:blocked.locked', { branch: target })
+            : t('merge:blocked.protected', { branch: target })
+    }, [t])
 
     const canSelectBranch = useCallback((branch: string): boolean =>
         branch !== currentBranch && branches.some(item => item.name === branch), [branches, currentBranch])
 
-    const runCheck = useCallback(async (mode: MergeMode, branch: string): Promise<{ result: CheckMergeResult | null, bypassRequired: boolean, error: string | null }> => {
-        const callCheck = async (force: boolean) => {
-            const url = force
-                ? `/projects/${projectId}/merge/check?force=true`
-                : `/projects/${projectId}/merge/check`
-            return apiCall(
-                url,
+    /**
+     * Asks where the two branches stand. The answer holds both parts: whether they differ, and whether this
+     * user may merge them — so a protected target reports the difference instead of an error.
+     */
+    const runCheck = useCallback(async (mode: MergeMode, branch: string): Promise<{ result: CheckMergeResult | null, error: string | null }> => {
+        try {
+            const result = await apiCall(
+                `/projects/${projectId}/merge/check`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mode, otherBranch: branch }),
                 },
                 MERGE_API_OPTIONS
-            ) as Promise<CheckMergeResult>
-        }
-        try {
-            const result = await callCheck(false)
-            return { result, bypassRequired: false, error: null }
+            ) as CheckMergeResult
+            return { result, error: null }
         } catch (err: unknown) {
-            if (isBypassRequired(err)) {
-                try {
-                    const result = await callCheck(true)
-                    return { result, bypassRequired: true, error: null }
-                } catch (innerErr: unknown) {
-                    return {
-                        result: null,
-                        bypassRequired: false,
-                        error: isApiHttpError(innerErr) ? innerErr.message : t('merge:errors.check_failed'),
-                    }
-                }
-            }
-            return {
-                result: null,
-                bypassRequired: false,
-                error: isApiHttpError(err) ? err.message : t('merge:errors.check_failed'),
-            }
+            return { result: null, error: isApiHttpError(err) ? err.message : t('merge:errors.check_failed') }
         }
     }, [projectId, t])
 
@@ -118,20 +113,17 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         setCheckResultSend(null)
         setReceiveError(null)
         setSendError(null)
-        setBypassRequiredReceive(false)
-        setBypassRequiredSend(false)
         setMergeError(null)
 
-        // Check receive (from selectedBranch to currentBranch)
-        const receiveOutcome = await runCheck('receive', branch)
+        // The two directions are independent, so check receive (branch → current) and send
+        // (current → branch) at once rather than waiting for the first before starting the second.
+        const [receiveOutcome, sendOutcome] = await Promise.all([
+            runCheck('receive', branch),
+            runCheck('send', branch),
+        ])
         setCheckResultReceive(receiveOutcome.result)
-        setBypassRequiredReceive(receiveOutcome.bypassRequired)
         setReceiveError(receiveOutcome.error)
-
-        // Check send (from currentBranch to selectedBranch)
-        const sendOutcome = await runCheck('send', branch)
         setCheckResultSend(sendOutcome.result)
-        setBypassRequiredSend(sendOutcome.bypassRequired)
         setSendError(sendOutcome.error)
 
         setIsChecking(false)
@@ -206,10 +198,15 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         }
     }
 
-    const canReceive = checkResultReceive?.status === 'mergeable'
-    const canSend = checkResultSend?.status === 'mergeable'
+    const bypassRequiredReceive = checkResultReceive?.blockedBy === 'bypass-required'
+    const bypassRequiredSend = checkResultSend?.blockedBy === 'bypass-required'
+    // A merge the server would refuse is not offered; a bypass is, as an explicit confirmation.
+    const canReceive = checkResultReceive?.status === 'mergeable' && (checkResultReceive.canMerge || bypassRequiredReceive)
+    const canSend = checkResultSend?.status === 'mergeable' && (checkResultSend.canMerge || bypassRequiredSend)
     const isReceiveUpToDate = checkResultReceive?.status === 'up-to-date'
     const isSendUpToDate = checkResultSend?.status === 'up-to-date'
+    const receiveBlocked = blockedMessage(checkResultReceive, currentBranch)
+    const sendBlocked = blockedMessage(checkResultSend, selectedBranch)
     const receiveActionTooltip = bypassRequiredReceive
         ? t('merge:bypass.action_tooltip')
         : t('merge:actions.receive_description')
@@ -228,10 +225,12 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 wrapperCol={{ flex: 1 }}
             >
                 <Form.Item label={t('merge:branches.current')}>
-                    <Typography.Text strong ellipsis={{ tooltip: currentBranch }}>
-                        <BranchesOutlined style={{ marginRight: 8 }} />
-                        {currentBranch}
-                    </Typography.Text>
+                    <MergeBranchLabel
+                        withIcon
+                        branches={branches}
+                        name={currentBranch}
+                        testId="merge-current-branch"
+                    />
                 </Form.Item>
                 <Select
                     label={t('merge:branches.target')}
@@ -274,6 +273,12 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                             type="error"
                         />
                     )}
+                    {receiveBlocked && (
+                        <Alert showIcon data-testid="merge-blocked-receive" title={receiveBlocked} type="info" />
+                    )}
+                    {sendBlocked && sendBlocked !== receiveBlocked && (
+                        <Alert showIcon data-testid="merge-blocked-send" title={sendBlocked} type="info" />
+                    )}
                     {(bypassRequiredReceive || bypassRequiredSend) && (
                         <Alert
                             showIcon
@@ -291,7 +296,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     )}
                     <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Tooltip
-                            title={isReceiveUpToDate ? t('merge:status.up_to_date_receive') : receiveActionTooltip}
+                            title={receiveBlocked ?? (isReceiveUpToDate ? t('merge:status.up_to_date_receive') : receiveActionTooltip)}
                         >
                             <Button
                                 danger={bypassRequiredReceive}
@@ -305,7 +310,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                             </Button>
                         </Tooltip>
                         <Tooltip
-                            title={isSendUpToDate ? t('merge:status.up_to_date_send') : sendActionTooltip}
+                            title={sendBlocked ?? (isSendUpToDate ? t('merge:status.up_to_date_send') : sendActionTooltip)}
                         >
                             <Button
                                 danger={bypassRequiredSend}

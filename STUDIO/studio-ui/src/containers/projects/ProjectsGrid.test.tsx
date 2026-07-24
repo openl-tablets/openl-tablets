@@ -40,10 +40,12 @@ vi.mock('@ant-design/icons', () => ({
     RightOutlined: () => null,
 }))
 
-vi.mock('./StatusIndicator', () => ({ StatusPill: () => <span data-testid="status-pill" /> }))
+vi.mock('./StatusIndicator', () => ({
+    StatusMark: ({ status }: { status: string }) => <span data-testid="status-mark">{status}</span>,
+}))
 vi.mock('./RepoBadge', () => ({ RepoBadge: () => <span data-testid="repo-badge" /> }))
 vi.mock('./CompileIndicator', () => ({ RowCompileDot: () => null }))
-vi.mock('./ProjectRowActions', () => ({ ProjectActionsMenu: () => null }))
+vi.mock('./ProjectRowActions', () => ({ ProjectRowActions: () => null }))
 vi.mock('./projectRow', () => ({
     activateOnKey: (action: () => void) => (event: { key: string, preventDefault: () => void }) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -61,7 +63,7 @@ vi.mock('./projectRow', () => ({
         date: 'Jan 2',
     }),
     ProjectTags: () => <span data-testid="project-tags" />,
-    BranchLabel: () => <span data-testid="branch-label" />,
+    ProjectBranch: () => <span data-testid="branch-label" />,
 }))
 
 describe('ProjectsGrid', () => {
@@ -69,7 +71,8 @@ describe('ProjectsGrid', () => {
         const onOpen = vi.fn()
         const handlers = {
             onOpen: vi.fn(), onClose: vi.fn(), onSave: vi.fn(),
-            onCopy: vi.fn(), onDelete: vi.fn(), onDeploy: vi.fn(), onExport: vi.fn(),
+            onCopy: vi.fn(), onDelete: vi.fn(), onDeleteBranch: vi.fn(), onDeploy: vi.fn(),
+            onExport: vi.fn(), onOpenRevision: vi.fn(), onSync: vi.fn(), onCompare: vi.fn(),
         }
 
         render(
@@ -77,7 +80,7 @@ describe('ProjectsGrid', () => {
                 compileStatusByProject={new Map()}
                 handlers={handlers}
                 onOpen={onOpen}
-                pending={null}
+                pending={{}}
                 projects={[project]}
                 repoInfoOf={() => ({ id: 'design', name: 'Design', type: 'git' })}
             />

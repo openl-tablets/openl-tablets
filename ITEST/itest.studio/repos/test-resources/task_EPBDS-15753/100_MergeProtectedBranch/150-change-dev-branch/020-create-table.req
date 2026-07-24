@@ -1,0 +1,20 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTM6ZjkxMWEyNWU1YjFlMzFjNTcyZjhiYjc4M2FjYzE3MjMzMTU3YjRjZTFjM2ViMzcwZTIzNzA4YjVjOGY3MzY0Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "DevBranch",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "DevBranchChange",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "RET",
+        "value": "This table was created in the dev branch"
+      }
+    ]
+  }
+}

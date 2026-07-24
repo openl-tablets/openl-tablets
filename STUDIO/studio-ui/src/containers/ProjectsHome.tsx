@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
 import { errorMessage } from '../utils/errorMessage'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -6,91 +6,47 @@ import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type In
 import { PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
-    downloadProject,
     getDesignRepositories,
-    getProjects,
     isProjectModifiedConflict,
-    type ProjectInclude,
     setProjectStatus,
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
+import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import type { Repository, RepositoryInfo } from '../types/repositories'
-import type { FacetCount, Project, ProjectsPage, ProjectStatusSummary, TagFacetSummary } from '../types/projects'
+import type { FacetCount, Project, ProjectStatusSummary, TagFacetSummary } from '../types/projects'
 import { ProjectsFilterRail } from './projects/ProjectsFilterRail'
-import { ProjectsToolbar, type ProjectSort, type ProjectView } from './projects/ProjectsToolbar'
+import { ProjectsRail } from './projects/ProjectsRail'
+import type { NodeFilters } from './projects/projectGrouping'
+import { ProjectsToolbar, type ProjectView } from './projects/ProjectsToolbar'
 import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
-import { parseProjectSearch } from './projects/projectSearch'
+import { countFacets, refineProjects, searchProjects, sortProjects, type ProjectSort, type SortDirection } from './projects/projectListing'
+import { getProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
 import { COMPILE_COLORS, MOCKUP } from './projects/projectsTheme'
+import { useSharedStyles } from './projects/sharedStyles'
 import { NewProjectModal } from './projects/NewProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
+import { ExportProjectModal } from './projects/ExportProjectModal'
+import { OpenRevisionModal } from './projects/OpenRevisionModal'
+import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
+import { openCompareWindow } from './projects/compare'
+import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import type { ProjectCompileState, ProjectStatusUpdate } from '../services/projectStatus'
 
-/** A project action currently running, used to show per-row loading. */
-interface PendingAction {
-    projectId: string
-    actionId: RowActionId
-}
-
-/** The filter-rail facet counts, kept separate from the page so paging never drops or recomputes them. */
+/** The facet counts of the rail, counted in the browser from the projects it already holds. */
 interface ProjectFacets {
-    statusCounts: ProjectStatusSummary | undefined
-    repositoryCounts: FacetCount[] | undefined
-    tagCounts: TagFacetSummary[] | undefined
+    statusCounts: ProjectStatusSummary
+    repositoryCounts: FacetCount[]
+    tagCounts: TagFacetSummary[]
 }
 
-const DEFAULT_PAGE_SIZE = 20
 const SEARCH_DEBOUNCE_MS = 300
 const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } as const
 
-const emptyProjectsPage = (pageSize = DEFAULT_PAGE_SIZE): ProjectsPage => ({
-    content: [],
-    pageNumber: 0,
-    pageSize,
-    numberOfElements: 0,
-    total: 0,
-})
-
 const useStyles = createStyles(({ css, token }) => ({
-    page: css`
-        display: flex;
-        height: calc(100vh - 64px);
-        overflow: hidden;
-        background: ${token.colorBgLayout};
-    `,
-    main: css`
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-width: 0;
-    `,
-    header: css`
-        padding: 12px 16px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-        background: ${token.colorBgContainer};
-    `,
-    headTop: css`
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 12px;
-    `,
-    title: css`
-        margin: 0;
-        font-family: ${MOCKUP.fontMono};
-        font-size: 20px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-    `,
-    subtitle: css`
-        margin-top: 4px;
-        color: ${token.colorTextTertiary};
-        font-size: 12px;
-    `,
     compileStrip: css`
         display: inline-flex;
         flex-wrap: wrap;
@@ -105,12 +61,6 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 6px;
         color: ${token.colorTextSecondary};
     `,
-    compileDot: css`
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex: none;
-    `,
     compileNum: css`
         color: ${token.colorText};
         font-weight: 600;
@@ -119,16 +69,8 @@ const useStyles = createStyles(({ css, token }) => ({
     compileTotal: css`
         color: ${token.colorTextTertiary};
     `,
-    headActions: css`
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: none;
-    `,
     content: css`
         position: relative;
-        flex: 1;
-        min-height: 0;
         overflow: hidden;
     `,
     scroll: css`
@@ -154,20 +96,14 @@ const useStyles = createStyles(({ css, token }) => ({
     gridPad: css`
         padding: 16px;
     `,
-    stateBox: css`
-        margin: 24px;
-        padding: 48px;
-        border: 1px solid ${token.colorBorderSecondary};
-        border-radius: ${token.borderRadiusLG}px;
-        background: ${token.colorBgContainer};
-    `,
-    loading: css`
-        padding: 24px;
-    `,
 }))
 
-/** Compile states shown in the header health strip, ordered so what needs attention comes first. */
-const COMPILE_SUMMARY_ORDER: ProjectCompileState[] = ['errors', 'warnings', 'compiling', 'ok']
+/**
+ * Compile states shown in the header health strip, ordered so what needs attention comes first. Clean
+ * ({@code ok}) and not-yet-compiled ({@code idle}) projects are omitted — only compilation that needs
+ * attention is summarised.
+ */
+const COMPILE_SUMMARY_ORDER: ProjectCompileState[] = ['errors', 'warnings', 'compiling']
 
 const parsePositiveInt = (value: string | null, fallback: number): number => {
     const parsed = Number(value)
@@ -184,6 +120,12 @@ const useDebouncedValue = (value: string, delay: number): string => {
 }
 
 /**
+ * Builds the filter rail for the rail's render prop. A plain function at the top level, so the render
+ * prop hands over data instead of defining a component inside the screen on every render.
+ */
+const renderFilterRail = (props: ComponentProps<typeof ProjectsFilterRail>) => <ProjectsFilterRail {...props} />
+
+/**
  * The Projects tab home: every project the user can see, as one flat, filterable list. A left rail carries
  * repository, status and tag-type facets; repositories are a facet, not a hierarchy. Search, facets, sort
  * and view live in the URL, so a filtered view survives reloads and can be shared. Selecting a row opens
@@ -191,26 +133,53 @@ const useDebouncedValue = (value: string, delay: number): string => {
  */
 export const ProjectsHome = () => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
     const navigate = useNavigate()
     const [params, setParams] = useSearchParams()
+
+    // A plain visit to the screen restores the filters of the last one; a link with its own parameters
+    // describes what its sender wanted to show, so it is left alone. Nothing is fetched until this is
+    // settled, so the screen asks for the restored filters instead of the default ones and then again.
+    const [restoring, setRestoring] = useState(true)
+    useEffect(() => {
+        const saved = [...params.keys()].length > 0 ? null : loadProjectFilters()
+        if (saved && [...saved.keys()].length > 0) {
+            setParams(saved, { replace: true })
+        }
+        setRestoring(false)
+        // Restoring happens once, on the first visit to the screen.
+    }, [])
+
+    // Persisted after the typing settles: the search box writes to the URL on every keystroke.
+    useEffect(() => {
+        const timeout = window.setTimeout(() => saveProjectFilters(params), SEARCH_DEBOUNCE_MS)
+        return () => window.clearTimeout(timeout)
+    }, [params])
     const [repositories, setRepositories] = useState<Repository[]>([])
-    const [projectsPage, setProjectsPage] = useState<ProjectsPage>(() => emptyProjectsPage())
-    const [facets, setFacets] = useState<ProjectFacets | null>(null)
+    const [allProjects, setAllProjects] = useState<Project[]>([])
+    const [compileStatuses, setCompileStatuses] = useState<ProjectStatusUpdate[]>([])
+    // Bumped whenever the screen changed the workspace, so the tree beside it reads it again too.
+    const [reloadToken, setReloadToken] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [createOpen, setCreateOpen] = useState(false)
     const [copySource, setCopySource] = useState<Project | null>(null)
-    const [pending, setPending] = useState<PendingAction | null>(null)
+    const [openRevisionFor, setOpenRevisionFor] = useState<Project | null>(null)
+    const [exportSource, setExportSource] = useState<Project | null>(null)
+    // Keyed by project: an action running on one row must not un-gate the buttons of another.
+    const [pending, setPending] = useState<Record<string, RowActionId>>({})
     const [saveTarget, setSaveTarget] = useState<Project | null>(null)
     const [discardCloseTarget, setDiscardCloseTarget] = useState<Project | null>(null)
     const searchRef = useRef<InputRef>(null)
-    // The search scope the facet counts in state were computed for. They ignore paging and facet
-    // selection, so we recompute them only when this scope changes, not on every page/filter click.
-    const countsKeyRef = useRef<string | null>(null)
+    // Bumped on every load so a stale response never overwrites a fresher one.
+    const loadGeneration = useRef(0)
 
     const search = params.get('q') ?? ''
-    const sort: ProjectSort = params.get('sort') === 'status' ? 'status' : params.get('sort') === 'updated' ? 'updated' : 'name'
+    // No sort in the URL means the default name order — shown without an arrow until a header is clicked.
+    const sortParam = params.get('sort')
+    const sort: ProjectSort | null = sortParam === 'updated' || sortParam === 'branch' || sortParam === 'name' ? sortParam : null
+    const direction: SortDirection = params.get('dir') === 'desc' ? 'desc' : 'asc'
     const view: ProjectView = params.get('view') === 'grid' ? 'grid' : 'list'
     const statusParam = params.get('status') ?? ''
     const repoParam = params.get('repo') ?? ''
@@ -218,15 +187,31 @@ export const ProjectsHome = () => {
     const pageSize = parsePositiveInt(params.get('size'), DEFAULT_PAGE_SIZE)
     const requestedPage = parsePositiveInt(params.get('page'), 1)
     const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS)
-    const searchQuery = useMemo(() => parseProjectSearch(debouncedSearch), [debouncedSearch])
 
     const statuses = useMemo(() => new Set(statusParam.split(',').filter(Boolean)), [statusParam])
     const repos = useMemo(() => new Set(repoParam.split(',').filter(Boolean)), [repoParam])
     const tags = useMemo(() => new Set(tagParam.split(',').filter(Boolean)), [tagParam])
-    const projects = projectsPage.content
-    const totalProjects = projectsPage.total ?? projects.length
+    const repositoryName = useCallback(
+        (id: string) => repositories.find(repo => repo.id === id)?.name ?? id,
+        [repositories]
+    )
+
+    // The search scope, shared by the facet counts and the list so the text search runs only once.
+    const searched = useMemo(() => searchProjects(allProjects, debouncedSearch), [allProjects, debouncedSearch])
+    // What the rail counts: the search scope, with the picked facets ignored — the way the API counted it.
+    const facets = useMemo<ProjectFacets>(() => countFacets(searched, repositoryName), [searched, repositoryName])
+    const matched = useMemo(
+        () => sortProjects(refineProjects(searched, { statuses, repositories: repos, tags }), sort ?? 'name', direction),
+        [direction, repos, searched, sort, statuses, tags]
+    )
+
+    const totalProjects = matched.length
     const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize))
     const currentPage = Math.min(requestedPage, totalPages)
+    const projects = useMemo(
+        () => matched.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+        [currentPage, matched, pageSize]
+    )
 
     const setParam = useCallback((key: string, value: string | null, resetPage = false) => {
         setParams(prev => {
@@ -243,6 +228,24 @@ export const ProjectsHome = () => {
         }, { replace: true })
     }, [setParams])
 
+    // A text column starts ascending and the date column newest-first; picking the same column again
+    // flips it. The sort only enters the URL on a click, so no arrow shows before one.
+    const sortBy = useCallback((column: ProjectSort) => {
+        setParams(prev => {
+            const next = new URLSearchParams(prev)
+            const active = prev.get('sort') === column
+            const descending = active ? prev.get('dir') !== 'desc' : column === 'updated'
+            if (descending) {
+                next.set('dir', 'desc')
+            } else {
+                next.delete('dir')
+            }
+            next.set('sort', column)
+            next.delete('page')
+            return next
+        }, { replace: true })
+    }, [setParams])
+
     const toggleInParam = useCallback((key: string, current: Set<string>, value: string) => {
         const next = new Set(current)
         if (next.has(value)) {
@@ -253,51 +256,43 @@ export const ProjectsHome = () => {
         setParam(key, [...next].join(','), true)
     }, [setParam])
 
-    // Deleted projects are shown as an ordinary status facet, so the listing can include them on demand.
-    // The facet counts (the `summary` include) are the expensive part of the response — a full-scope scan
-    // that resolves every project's status. They ignore paging and facet selection, so request them only
-    // when their scope (the search text) changed, or after a mutation (refreshCounts); otherwise reuse the
-    // counts already in state. This keeps page/sort/facet clicks from recomputing counts server-side.
-    const load = useCallback((refreshCounts = false) => {
+    // The whole workspace is read once and kept in the browser: filtering, sorting and paging happen
+    // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
+    // counts — the expensive part of the list response — are counted from the same snapshot.
+    const load = useCallback((refresh = false) => {
+        const generation = ++loadGeneration.current
         setLoading(true)
-        const needCounts = refreshCounts || countsKeyRef.current !== debouncedSearch
-        const includes: ProjectInclude[] = needCounts ? ['deleted', 'status', 'summary'] : ['deleted', 'status']
-        return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjects({
-            includes,
-            name: searchQuery.name,
-            author: searchQuery.author,
-            branch: searchQuery.branch,
-            page: requestedPage - 1,
-            repositories: repos,
-            size: pageSize,
-            sort,
-            statuses,
-            tags,
-        }, LOCAL_LOAD_API_OPTIONS)])
-            .then(([repos_, page]) => {
-                setRepositories(repos_)
-                setProjectsPage(page)
-                if (needCounts) {
-                    setFacets({
-                        statusCounts: page.statusCounts,
-                        repositoryCounts: page.repositoryCounts,
-                        tagCounts: page.tagCounts,
-                    })
-                    countsKeyRef.current = debouncedSearch
+        if (refresh) {
+            invalidateProjectIndex()
+            setReloadToken(token => token + 1)
+        }
+        return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjectIndex()])
+            .then(([repos_, index]) => {
+                if (generation !== loadGeneration.current) {
+                    return
                 }
+                setRepositories(repos_)
+                setAllProjects(index.projects)
+                setCompileStatuses(index.statuses)
                 setError(null)
             })
             .catch((e: unknown) => {
-                setError(errorMessage(e))
+                if (generation === loadGeneration.current) {
+                    setError(errorMessage(e))
+                }
             })
             .finally(() => {
-                setLoading(false)
+                if (generation === loadGeneration.current) {
+                    setLoading(false)
+                }
             })
-    }, [debouncedSearch, searchQuery, pageSize, repos, requestedPage, sort, statuses, tags])
+    }, [])
 
     useEffect(() => {
-        void load()
-    }, [load])
+        if (!restoring) {
+            void load()
+        }
+    }, [load, restoring])
 
     useEffect(() => {
         if (!loading && totalProjects > 0 && requestedPage > totalPages) {
@@ -326,40 +321,48 @@ export const ProjectsHome = () => {
         () => ({ features: { branches: false, searchable: false, mappedFolders: false }, name: t('home.local'), type: 'repo-file' }),
         [t]
     )
-    const repoInfo = useMemo(
-        () => new Map(repositories.map(repo => [repo.id, { features: repo.features, name: repo.name, type: repo.type }])),
-        [repositories]
-    )
     const creatableRepos = useMemo(
         () => repositories.filter(repo => repo.capabilities?.canCreateProject),
         [repositories]
     )
-    const compileStatusByProject = useMemo(() => {
-        return new Map<string, ProjectStatusUpdate>(
-            (projectsPage.statuses ?? []).map(status => [status.projectId, status])
-        )
-    }, [projectsPage.statuses])
+    const compileStatusByProject = useMemo(
+        () => new Map<string, ProjectStatusUpdate>(compileStatuses.map(status => [status.projectId, status])),
+        [compileStatuses]
+    )
     // Compilation health of the projects the server reported a live state for (the active workspace).
     const compileTally = useMemo(() => {
         const tally: Record<ProjectCompileState, number> = { idle: 0, compiling: 0, ok: 0, warnings: 0, errors: 0 }
-        for (const status of projectsPage.statuses ?? []) {
+        for (const status of compileStatuses) {
             tally[status.compileState] += 1
         }
         return tally
-    }, [projectsPage.statuses])
+    }, [compileStatuses])
     const localProjectNames = useMemo(
         () => projects.filter(project => project.status === ProjectStatus.Local).map(project => project.name),
         [projects]
     )
 
+    // Each project reports its own repository, so the list stays complete for a user who was granted single
+    // projects and cannot read the repositories they live in.
     const repoInfoOf = useCallback(
-        (project: Project) => repoInfo.get(project.repository) ?? localRepositoryInfo,
-        [localRepositoryInfo, repoInfo]
+        (project: Project) => project.repositoryInfo ?? localRepositoryInfo,
+        [localRepositoryInfo]
     )
 
     const openProject = useCallback((project: Project) => {
         navigate(`/projects/${encodeURIComponent(project.id)}`)
     }, [navigate])
+
+    // A group picked in the tree is the same thing as ticking its facets: the list shows its projects.
+    const openGroup = useCallback((filters: NodeFilters) => {
+        setParams(prev => {
+            const next = new URLSearchParams(prev)
+            next.delete('page')
+            setListParam(next, 'repo', filters.repositories)
+            setListParam(next, 'tags', filters.tags)
+            return next
+        }, { replace: true })
+    }, [setParams])
 
     // Run an open/close status change on a row, reload the page, and surface a notification on failure.
     const runAction = useCallback((
@@ -369,7 +372,7 @@ export const ProjectsHome = () => {
         failKey: string,
         onError?: (error: unknown) => boolean
     ) => {
-        setPending({ projectId: project.id, actionId })
+        setPending(current => ({ ...current, [project.id]: actionId }))
         return fn()
             .then(() => load(true))
             .catch((e: unknown) => {
@@ -378,7 +381,11 @@ export const ProjectsHome = () => {
                 }
                 notification.error({ title: t(failKey), description: errorMessage(e) })
             })
-            .finally(() => setPending(null))
+            .finally(() => setPending(current => {
+                const rest = { ...current }
+                delete rest[project.id]
+                return rest
+            }))
     }, [load, t])
 
     const closeProject = useCallback((project: Project, discardChanges = false) =>
@@ -398,6 +405,9 @@ export const ProjectsHome = () => {
                 }
         ), [runAction])
 
+    // Hoisted so the dialog-opening handlers below hand it over instead of nesting one more callback.
+    const reloadAll = useCallback(() => void load(true), [load])
+
     const handlers: ProjectListHandlers = useMemo(() => ({
         onOpen: project => runAction(project, 'open', () => setProjectStatus(project.id, 'OPENED', true), 'browser.status_change_failed'),
         onClose: project => {
@@ -409,7 +419,21 @@ export const ProjectsHome = () => {
         },
         onSave: project => setSaveTarget(project),
         onCopy: project => setCopySource(project),
-        onExport: project => downloadProject(project.id),
+        onDeleteBranch: project => void runAction(
+            project,
+            'deleteBranch',
+            () => openDeleteBranchDialog(project, reloadAll),
+            'browser.branch.load_failed'
+        ),
+        onOpenRevision: project => setOpenRevisionFor(project),
+        onSync: project => void runAction(
+            project,
+            'sync',
+            () => openMergeDialog(project, reloadAll),
+            'browser.branch.load_failed'
+        ),
+        onCompare: project => openCompareWindow(project),
+        onExport: project => setExportSource(project),
         onDeploy: project => window.dispatchEvent(new CustomEvent('openDeployModal', {
             detail: { ...project, selectedBranches: project.selectedBranches ?? []},
         })),
@@ -420,7 +444,7 @@ export const ProjectsHome = () => {
                 onSuccess: () => load(true),
             },
         })),
-    }), [closeProject, load, runAction])
+    }), [closeProject, load, reloadAll, runAction])
 
     const deleteParams = useCallback((...keys: string[]) => {
         setParams(prev => {
@@ -438,7 +462,7 @@ export const ProjectsHome = () => {
     const content = () => {
         if (loading && projects.length === 0 && !error) {
             return (
-                <div className={styles.loading} data-testid="projects-home-loading">
+                <div className={shared.loading} data-testid="projects-home-loading">
                     <Skeleton active paragraph={{ rows: 6 }} />
                 </div>
             )
@@ -446,14 +470,14 @@ export const ProjectsHome = () => {
         const hasFilters = search.trim() !== '' || statuses.size > 0 || repos.size > 0 || tags.size > 0
         if (totalProjects === 0 && !hasFilters) {
             return (
-                <div className={styles.stateBox}>
+                <div className={shared.stateBox}>
                     <Empty data-testid="projects-empty" description={t('home.empty')} />
                 </div>
             )
         }
         if (totalProjects === 0) {
             return (
-                <div className={styles.stateBox}>
+                <div className={shared.stateBox}>
                     <Empty data-testid="projects-no-match" description={t('home.no_match')} image={Empty.PRESENTED_IMAGE_SIMPLE}>
                         <Button onClick={clearAll}>{t('home.clear_filters')}</Button>
                     </Empty>
@@ -474,11 +498,15 @@ export const ProjectsHome = () => {
         ) : (
             <ProjectsTable
                 compileStatusByProject={compileStatusByProject}
+                direction={direction}
                 handlers={handlers}
+                onChanged={() => void load(true)}
                 onOpen={openProject}
+                onSort={sortBy}
                 pending={pending}
                 projects={projects}
                 repoInfoOf={repoInfoOf}
+                sort={sort}
             />
         )
     }
@@ -501,30 +529,38 @@ export const ProjectsHome = () => {
     }
 
     return (
-        <div className={styles.page} data-testid="projects-home">
-            <ProjectsFilterRail
-                onReset={resetFilters}
-                onToggleRepo={value => toggleInParam('repo', repos, value)}
-                onToggleStatus={value => toggleInParam('status', statuses, value)}
-                onToggleTag={value => toggleInParam('tags', tags, value)}
-                repos={repos}
+        <div className={shared.page} data-testid="projects-home">
+            <ProjectsRail
+                onOpenGroup={openGroup}
+                onOpenProject={openProject}
+                onShowAll={resetFilters}
+                reloadToken={reloadToken}
                 repositories={repositories}
-                repositoryCounts={facets?.repositoryCounts}
-                statusCounts={facets?.statusCounts}
-                statuses={statuses}
-                tagCounts={facets?.tagCounts}
-                tags={tags}
+                filters={headerActions => renderFilterRail({
+                    headerActions,
+                    onReset: resetFilters,
+                    onToggleRepo: value => toggleInParam('repo', repos, value),
+                    onToggleStatus: value => toggleInParam('status', statuses, value),
+                    onToggleTag: value => toggleInParam('tags', tags, value),
+                    repos,
+                    repositories,
+                    repositoryCounts: facets?.repositoryCounts,
+                    statusCounts: facets?.statusCounts,
+                    statuses,
+                    tagCounts: facets?.tagCounts,
+                    tags,
+                })}
             />
-            <div className={styles.main}>
-                <div className={styles.header}>
-                    <div className={styles.headTop}>
+            <div className={shared.main}>
+                <div className={shared.header}>
+                    <div className={shared.headTop}>
                         <div>
-                            <h1 className={styles.title}>{t('home.title')}</h1>
-                            <div className={styles.subtitle} data-testid="projects-count">
+                            <h1 className={shared.pageTitle}>{t('home.title')}</h1>
+                            <div className={shared.subtitle} data-testid="projects-count">
                                 <span className={styles.compileStrip} data-testid="projects-compile-summary">
                                     {COMPILE_SUMMARY_ORDER.filter(state => compileTally[state] > 0).map(state => (
                                         <span key={state} className={styles.compileItem}>
-                                            <span className={styles.compileDot} style={{ background: COMPILE_COLORS[state] }} />
+                                            <span className={shared.stateDot} style={{ background: COMPILE_COLORS[state] }} />
                                             <span className={styles.compileNum}>{compileTally[state]}</span>
                                             {t(`browser.compile.${state}`)}
                                         </span>
@@ -534,7 +570,7 @@ export const ProjectsHome = () => {
                             </div>
                         </div>
                         {creatableRepos.length > 0 && (
-                            <div className={styles.headActions}>
+                            <div className={shared.headActions}>
                                 <Button
                                     data-testid="projects-new"
                                     icon={<PlusOutlined />}
@@ -548,15 +584,15 @@ export const ProjectsHome = () => {
                     </div>
                     <ProjectsToolbar
                         onSearch={value => setParam('q', value, true)}
-                        onSort={value => setParam('sort', value === 'name' ? null : value, true)}
+                        onSort={sortBy}
                         onView={value => setParam('view', value === 'list' ? null : value)}
                         search={search}
                         searchRef={searchRef}
-                        sort={sort}
+                        sort={sort ?? 'name'}
                         view={view}
                     />
                 </div>
-                <div className={styles.content}>
+                <div className={cx(shared.content, styles.content)}>
                     <div className={styles.scroll}>{content()}</div>
                     {loading && projects.length > 0 && (
                         <div className={styles.overlay} data-testid="projects-loading-overlay">
@@ -571,6 +607,7 @@ export const ProjectsHome = () => {
                             current={currentPage}
                             data-testid="projects-pagination"
                             pageSize={pageSize}
+                            pageSizeOptions={PAGE_SIZE_OPTIONS}
                             total={totalProjects}
                             onChange={(nextPage, nextSize) => {
                                 // Page and size must change in one navigation; two setParams calls would
@@ -595,6 +632,17 @@ export const ProjectsHome = () => {
                 open={createOpen}
                 projects={projects}
                 repositories={creatableRepos}
+            />
+            <ExportProjectModal
+                onClose={() => setExportSource(null)}
+                open={exportSource !== null}
+                project={exportSource}
+            />
+            <OpenRevisionModal
+                onClose={() => setOpenRevisionFor(null)}
+                onOpened={() => void load(true)}
+                open={openRevisionFor !== null}
+                project={openRevisionFor}
             />
             <CopyProjectModal
                 onClose={() => setCopySource(null)}
@@ -626,4 +674,13 @@ export const ProjectsHome = () => {
             />
         </div>
     )
+}
+
+/** Writes one of the list's multi-value parameters, or drops it when the group does not use it. */
+const setListParam = (params: URLSearchParams, key: string, values: string[]): void => {
+    if (values.length === 0) {
+        params.delete(key)
+    } else {
+        params.set(key, values.join(','))
+    }
 }

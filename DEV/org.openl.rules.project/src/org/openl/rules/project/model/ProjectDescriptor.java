@@ -276,6 +276,15 @@ public class ProjectDescriptor {
 
     private static final List<String> DEFAULT_CLASSPATH = List.of("groovy/", "lib/*.jar");
 
+    /**
+     * Returns the classpath entries a project uses when {@code rules.xml} declares none.
+     *
+     * <p>These cover the {@code groovy/} sources and the jars under {@code lib/}.
+     */
+    public static List<String> defaultClasspath() {
+        return DEFAULT_CLASSPATH;
+    }
+
     private Set<String> processClasspathPathPatterns() {
         Set<String> pathEntries = new HashSet<>();
         var entries = CollectionUtils.isEmpty(classpath) ? DEFAULT_CLASSPATH : this.classpath;

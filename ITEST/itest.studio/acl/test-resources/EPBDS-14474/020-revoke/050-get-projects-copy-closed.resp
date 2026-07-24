@@ -12,6 +12,16 @@ Content-Type: application/json
       "status": "CLOSED",
       "comment": "*",
       "repository": "design",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "Design",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canCompare": true,

@@ -17,9 +17,6 @@ public class MailConfigModel {
     @Parameter(description = "Password for authentication on mail server", example = "qwerty")
     private String password;
 
-    public MailConfigModel() {
-    }
-
     public String getPassword() {
         return password;
     }

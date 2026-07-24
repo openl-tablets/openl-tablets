@@ -19,11 +19,21 @@ export interface MergeRequest {
     otherBranch: string
 }
 
+/**
+ * What stands between the user and the merge they asked about. Reported next to the status: whether the
+ * branches differ is one question, whether this user may merge them is another.
+ */
+export type MergeBlockedBy = 'bypass-required' | 'protected-branch' | 'locked'
+
 // API Response: Check merge result
 export interface CheckMergeResult {
     sourceBranch: string
     targetBranch: string
     status: CheckMergeStatus
+    /** Whether the merge may be performed as is. */
+    canMerge: boolean
+    /** Absent when the merge may be performed. */
+    blockedBy?: MergeBlockedBy
 }
 
 // API Response: Merge result
@@ -79,7 +89,8 @@ export interface ResolveConflictsResponse {
 export interface BranchInfo {
     name: string
     protected: boolean
-    bypassEligible?: boolean
+    /** The repository main branch, marked as the default one wherever a branch is shown. */
+    base?: boolean
 }
 
 // Modal detail passed from RichFaces via CustomEvent

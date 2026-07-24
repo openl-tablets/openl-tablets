@@ -62,6 +62,8 @@ vi.mock('antd', async () => {
 
 vi.mock('store', () => ({
     useUserStore: () => ({ userProfile: { username: 'testuser' } }),
+    // The API wrapper reads the app store on import; the dialog never triggers its error flags here.
+    useAppStore: { getState: () => ({}) },
 }))
 
 vi.mock('react-i18next', () => {

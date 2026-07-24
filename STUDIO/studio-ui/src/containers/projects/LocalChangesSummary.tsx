@@ -5,7 +5,7 @@ import { DownOutlined, RightOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { NormalizedFileChange } from './fileChanges'
 import { FileChangeIcon } from './FileChangeIcon'
-import { ELLIPSIS, MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
     root: css`
@@ -24,7 +24,6 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     title: css`
         min-width: 0;
-        ${ELLIPSIS}
     `,
     list: css`
         display: flex;
@@ -45,8 +44,6 @@ const useStyles = createStyles(({ css, token }) => ({
     path: css`
         flex: 1;
         min-width: 0;
-        font-family: ${MOCKUP.fontMono};
-        ${ELLIPSIS}
     `,
 }))
 
@@ -55,7 +52,8 @@ interface LocalChangesSummaryProps {
 }
 
 export const LocalChangesSummary = ({ changes }: LocalChangesSummaryProps) => {
-    const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
     const [open, setOpen] = useState(false)
 
@@ -75,7 +73,7 @@ export const LocalChangesSummary = ({ changes }: LocalChangesSummaryProps) => {
                 onClick={() => setOpen(value => !value)}
                 type="text"
             >
-                <span className={styles.title}>{t('browser.files.local_changes', { count: changes.length })}</span>
+                <span className={cx(shared.ellipsis, styles.title)}>{t('browser.files.local_changes', { count: changes.length })}</span>
             </Button>
             {open && (
                 <ul className={styles.list}>
@@ -86,7 +84,7 @@ export const LocalChangesSummary = ({ changes }: LocalChangesSummaryProps) => {
                                 title={t(`browser.files.change.${change.type}`)}
                                 type={change.type}
                             />
-                            <span className={styles.path} title={change.path}>{change.path}</span>
+                            <span className={cx(shared.mono, shared.ellipsis, styles.path)} title={change.path}>{change.path}</span>
                         </li>
                     ))}
                 </ul>

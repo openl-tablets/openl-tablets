@@ -1,6 +1,7 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -151,6 +152,18 @@ public abstract class UserWorkspaceProject extends AProject {
     public boolean isBranchProtected() {
         if (!isLocalOnly() && isSupportsBranches()) {
             return ((BranchRepository) getDesignRepository()).isBranchProtected(getBranch());
+        }
+        return false;
+    }
+
+    /**
+     * Whether the project sits on the repository main branch, the branch changes are committed to by default.
+     *
+     * <p>A project in a repository without branches is never on a main branch.
+     */
+    public boolean isBranchDefault() {
+        if (isSupportsBranches()) {
+            return Objects.equals(getBranch(), ((BranchRepository) getDesignRepository()).getBaseBranch());
         }
         return false;
     }

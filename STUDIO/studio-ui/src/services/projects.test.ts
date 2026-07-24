@@ -1,4 +1,4 @@
-import { deleteProject, deleteProjectFile, updateModuleFile, updateProjectFromFiles, updateProjectFromZip } from 'services/projects'
+import { deleteProject, deleteProjectFile, updateProjectFromFiles, updateProjectFromZip } from 'services/projects'
 import apiCall from 'services/apiCall'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
@@ -138,27 +138,4 @@ describe('projects service', () => {
         expect(successSpy).toHaveBeenCalledTimes(1)
     })
 
-    it('PUTs the module file to its project-relative path with encoded segments', async () => {
-        mockApiCall.mockResolvedValueOnce(true)
-        const file = new Blob(['xlsx-bytes'])
-
-        await expect(updateModuleFile('proj-id', 'rules/UK 100%/Main.xlsx', file)).resolves.toBe(true)
-
-        const [url, params] = mockApiCall.mock.calls[0] as [string, RequestInit]
-        expect(url).toBe('/projects/proj-id/files/rules/UK%20100%25/Main.xlsx')
-        expect(params.method).toBe('PUT')
-        expect((params.body as FormData).getAll('file')).toHaveLength(1)
-        expect(successSpy).toHaveBeenCalledTimes(1)
-    })
-
-    it('surfaces the backend error message when the module update fails', async () => {
-        mockApiCall.mockRejectedValueOnce(new Error('File is locked.'))
-
-        await expect(updateModuleFile('proj-id', 'Main.xlsx', new Blob(['x']))).resolves.toBe(false)
-
-        expect(errorSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ description: 'File is locked.' })
-        )
-        expect(successSpy).not.toHaveBeenCalled()
-    })
 })

@@ -24,6 +24,26 @@ export async function getProductionRepositories(): Promise<Repository[]> {
     return asArray(response)
 }
 
+/**
+ * Whether the user may read any deployment repository at all — the question the navigation asks before
+ * offering the Deployments tab.
+ *
+ * A successful answer holds for the whole session (repository access is granted by an administrator), so it
+ * is asked once. A failed request answers `true` — a transient error must not take a tab out of the
+ * navigation — but that guess is not remembered: the next caller probes again, so a one-off error never
+ * leaves the tab wrongly offered for the rest of the session.
+ */
+let deploymentAccess: Promise<boolean> | undefined
+export function hasDeploymentRepositories(): Promise<boolean> {
+    deploymentAccess ??= getProductionRepositories()
+        .then(repositories => repositories.length > 0)
+        .catch(() => {
+            deploymentAccess = undefined
+            return true
+        })
+    return deploymentAccess
+}
+
 /** List the deployments in a production repository. */
 export async function getDeployments(repositoryId: string): Promise<Deployment[]> {
     const response = await apiCall(

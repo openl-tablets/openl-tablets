@@ -1,7 +1,11 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -12,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +34,10 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -51,6 +52,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
@@ -64,7 +66,6 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
-import org.openl.studio.tags.service.TagAssignmentValidator;
 
 class WorkspaceProjectServiceTest {
 
@@ -72,32 +73,28 @@ class WorkspaceProjectServiceTest {
     private Path tempDir;
 
     @Test
-    void get_branches_reads_last_commits_in_batch() throws Exception {
+    void get_branches_marks_the_base_and_protected_ones_without_reading_commits() throws Exception {
         var acl = mock(RepositoryAclService.class);
-        var bypassService = mock(ProtectedBranchBypassService.class);
-        var service = newService(acl, bypassService);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
         var project = mock(RulesProject.class);
         var repository = mock(BranchRepository.class);
         var branchNames = List.of("main", "feature");
-        var statuses = Map.of(
-                "main", status(),
-                "feature", status());
 
         when(project.isSupportsBranches()).thenReturn(true);
         when(project.getDesignRepository()).thenReturn(repository);
         when(project.getBranch()).thenReturn("main");
         when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
         when(repository.getBaseBranch()).thenReturn("main");
+        when(repository.isBranchProtected("main")).thenReturn(true);
         when(repository.getBranches(null)).thenReturn(branchNames);
-        when(repository.getBranchStatuses(branchNames)).thenReturn(statuses);
 
         List<ProjectBranchInfo> result = service.getBranches(project);
 
         assertEquals(List.of("feature", "main"), result.stream().map(ProjectBranchInfo::name).toList());
-        assertEquals("user", result.getFirst().lastCommit().author());
-        assertEquals("message", result.getFirst().lastCommit().message());
-        assertEquals("revision", result.getFirst().lastCommit().revision());
-        verify(repository).getBranchStatuses(branchNames);
+        assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::base).toList());
+        assertEquals(List.of(false, true), result.stream().map(ProjectBranchInfo::protectedFlag).toList());
+        // The branch list feeds pickers only, so it never pays for the tip commits.
+        verify(repository, never()).getBranchStatuses(any());
     }
 
     @Test
@@ -108,7 +105,8 @@ class WorkspaceProjectServiceTest {
 
         var result = service.getProject(project);
 
-        assertEquals(List.of(), result.modules);
+        // The descriptor is resolved only on request, so it is absent by default.
+        assertNull(result.descriptor);
     }
 
     @Test
@@ -122,7 +120,35 @@ class WorkspaceProjectServiceTest {
         var result = service.getProject(project);
 
         assertEquals(List.of("master", "release"), result.selectedBranches);
-        assertEquals(List.of(), result.modules);
+        assertNull(result.descriptor);
+    }
+
+    @Test
+    void get_project_reports_the_repository_it_is_stored_in() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+
+        var result = service.getProject(project);
+
+        // The legacy field keeps carrying the id alone.
+        assertEquals("design", result.repository);
+        assertNotNull(result.repositoryInfo);
+        assertEquals("design", result.repositoryInfo.id());
+        assertEquals("Design", result.repositoryInfo.name());
+        assertNotNull(result.repositoryInfo.features());
+    }
+
+    @Test
+    void get_project_reports_no_repository_for_a_local_only_project() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        when(project.isLocalOnly()).thenReturn(true);
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+
+        var result = service.getProject(project);
+
+        assertNull(result.repositoryInfo);
     }
 
     @Test
@@ -131,10 +157,10 @@ class WorkspaceProjectServiceTest {
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
                 workspaceFor(project));
 
-        var result = service.getProject(project, List.of(ProjectInclude.MODULES));
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
 
-        assertEquals(List.of("Pricing"), result.modules.stream().map(module -> module.name()).toList());
-        assertEquals(List.of("Pricing.xlsx"), result.modules.stream().map(module -> module.path()).toList());
+        assertEquals(List.of("Pricing"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
+        assertEquals(List.of("Pricing.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
     }
 
     @Test
@@ -147,7 +173,7 @@ class WorkspaceProjectServiceTest {
         var response = service.getProjects(ProjectCriteriaQuery.builder().build(), Pageable.unpaged());
 
         var result = response.getContent().iterator().next();
-        assertEquals(List.of(), result.modules);
+        assertNull(result.descriptor);
     }
 
     @Test
@@ -158,16 +184,16 @@ class WorkspaceProjectServiceTest {
         var service = newService(acl, mock(ProtectedBranchBypassService.class), workspaceFor(project));
 
         var response = service.getProjects(ProjectCriteriaQuery.builder()
-                .include(ProjectInclude.MODULES)
+                .include(ProjectInclude.DESCRIPTOR)
                 .build(), Pageable.unpaged());
 
         var result = response.getContent().iterator().next();
-        assertEquals(List.of("Pricing"), result.modules.stream().map(module -> module.name()).toList());
-        assertEquals(List.of("Pricing.xlsx"), result.modules.stream().map(module -> module.path()).toList());
+        assertEquals(List.of("Pricing"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
+        assertEquals(List.of("Pricing.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
     }
 
     @Test
-    void get_project_expands_repository_descriptor_modules_when_workspace_folder_is_unavailable() throws Exception {
+    void get_project_answers_a_declared_pattern_with_the_modules_it_matched() throws Exception {
         var project = closedProject("""
                 <project>
                     <modules>
@@ -180,10 +206,17 @@ class WorkspaceProjectServiceTest {
                 """, "rules/Rating.xlsx");
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class));
 
-        var result = service.getProject(project, List.of(ProjectInclude.MODULES));
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
 
-        assertEquals(List.of("Rating"), result.modules.stream().map(module -> module.name()).toList());
-        assertEquals(List.of("rules/Rating.xlsx"), result.modules.stream().map(module -> module.path()).toList());
+        // One declaration in rules.xml, one module in the answer, whatever the pattern matched.
+        assertEquals(List.of("Rules"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
+        assertEquals(List.of("rules/*.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
+        var matched = result.descriptor.modules().get(0).modules();
+        assertEquals(List.of("Rating"), matched.stream().map(ModuleViewModel::name).toList());
+        assertEquals(List.of("rules/Rating.xlsx"), matched.stream().map(ModuleViewModel::path).toList());
+        // The modules and sources come from the file, so neither is flagged as a default.
+        assertFalse(result.descriptor.modulesDefault());
+        assertTrue(result.descriptor.sourcesDefault());
     }
 
     @Test
@@ -195,15 +228,23 @@ class WorkspaceProjectServiceTest {
                 """, "rules/Pricing.xlsx", "tests/PricingTest.xlsx");
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class));
 
-        var result = service.getProject(project, List.of(ProjectInclude.MODULES));
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
 
-        assertEquals(List.of("Pricing", "PricingTest"), result.modules.stream().map(module -> module.name()).toList());
-        assertEquals(List.of("rules/Pricing.xlsx", "tests/PricingTest.xlsx"),
-                result.modules.stream().map(module -> module.path()).toList());
+        // A project that declares no module takes the two patterns every project has by default.
+        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx"),
+                result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
+        assertEquals(List.of("Pricing"),
+                result.descriptor.modules().get(0).modules().stream().map(ModuleViewModel::name).toList());
+        assertEquals(List.of("PricingTest"),
+                result.descriptor.modules().get(1).modules().stream().map(ModuleViewModel::name).toList());
+        // The file declares neither modules nor sources, so both are the engine's defaults.
+        assertTrue(result.descriptor.modulesDefault());
+        assertEquals(List.of("groovy/", "lib/*.jar"), result.descriptor.sources());
+        assertTrue(result.descriptor.sourcesDefault());
     }
 
     @Test
-    void get_project_expands_repository_generic_modules_when_workspace_folder_is_unavailable() throws Exception {
+    void get_project_answers_a_pattern_only_with_the_files_it_matches() throws Exception {
         var project = closedProject("""
                 <project>
                     <modules>
@@ -215,10 +256,12 @@ class WorkspaceProjectServiceTest {
                 """, "Pricing.xlsx", "rules/Rating.xlsx");
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class));
 
-        var result = service.getProject(project, List.of(ProjectInclude.MODULES));
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
 
-        assertEquals(List.of("Pricing"), result.modules.stream().map(module -> module.name()).toList());
-        assertEquals(List.of("Pricing.xlsx"), result.modules.stream().map(module -> module.path()).toList());
+        assertEquals(List.of("*.xlsx"), result.descriptor.modules().stream().map(ModuleViewModel::path).toList());
+        // The file in the folder below is out of the pattern's reach.
+        assertEquals(List.of("Pricing.xlsx"),
+                result.descriptor.modules().get(0).modules().stream().map(ModuleViewModel::path).toList());
     }
 
     @Test
@@ -505,8 +548,8 @@ class WorkspaceProjectServiceTest {
                 mock(ProjectAccessService.class),
                 mock(ProjectStatusMapper.class),
                 environment(),
-                mock(TagAssignmentValidator.class),
-                new ProjectTagsCache(mock(CacheManager.class))) {
+                new ProjectTagsCache(mock(CacheManager.class)),
+                new ProjectListingContext()) {
 
             @Override
             public UserWorkspace getUserWorkspace() {
@@ -600,6 +643,7 @@ class WorkspaceProjectServiceTest {
     private static Repository repository() {
         var repository = mock(Repository.class);
         when(repository.getId()).thenReturn("design");
+        when(repository.getName()).thenReturn("Design");
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
         return repository;
     }
@@ -628,10 +672,4 @@ class WorkspaceProjectServiceTest {
         return userWorkspace;
     }
 
-    private static BranchStatus status() {
-        return new BranchStatus(new UserInfo("user", "user@example.com", "user"),
-                Instant.EPOCH,
-                "message",
-                "revision");
-    }
 }

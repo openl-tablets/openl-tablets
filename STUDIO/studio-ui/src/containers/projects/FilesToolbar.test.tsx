@@ -1,72 +1,63 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FilesToolbar } from './FilesToolbar'
-import { createTextFile, uploadFiles } from '../../services/files'
 
-vi.mock('../../services/files', () => ({ createTextFile: vi.fn(), uploadFiles: vi.fn() }))
-
-vi.mock('react-i18next', () => ({
-    useTranslation: () => ({ t: (key: string, options?: { path?: string }) => options?.path ? `${key}:${options.path}` : key }),
-}))
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    return { useTranslation: () => ({ t }) }
+})
 
 vi.mock('antd-style', () => ({
-    createStyles: () => () => ({ styles: new Proxy({}, { get: () => '' }), cx: (...a: unknown[]) => a.filter(Boolean).join(' ') }),
+    createStyles: () => () => ({
+        styles: new Proxy({}, { get: () => '' }),
+        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
+    }),
 }))
 
 vi.mock('@ant-design/icons', () => ({
     FileAddOutlined: () => null,
     FolderAddOutlined: () => null,
+    PlusOutlined: () => null,
     UploadOutlined: () => null,
 }))
 
-vi.mock('antd', () => {
-    const Button = ({ children, ...rest }: Record<string, unknown>) => {
-        const { icon, loading, size, ...dom } = rest
-        void icon; void loading; void size
-        return <button {...dom}>{children as never}</button>
-    }
-    const Search = ({ onChange, ...rest }: Record<string, unknown>) => {
-        const { allowClear, ...dom } = rest
-        void allowClear
-        return <input {...dom} onChange={onChange as never} />
-    }
-    const Input = ({ onChange, onPressEnter, ...rest }: Record<string, unknown>) => {
-        const { allowClear, ...dom } = rest
-        void allowClear
-        return (
-            <input
-                {...dom}
-                onChange={onChange as never}
-                onKeyDown={e => e.key === 'Enter' && (onPressEnter as (() => void) | undefined)?.()}
-            />
-        )
-    }
-    Input.Search = Search
-    const Modal = ({ open, title, children, onOk, okButtonProps }: Record<string, unknown>) =>
-        open ? (
-            <div role="dialog">
-                <span>{title as never}</span>
-                {children as never}
-                <button {...(okButtonProps as Record<string, unknown>)} onClick={onOk as never}>ok</button>
+vi.mock('../../components/SearchInput', () => ({
+    SearchInput: ({ onChange, value, ...rest }: Record<string, unknown>) =>
+        <input onChange={onChange as never} value={value as never} {...rest} />,
+}))
+
+vi.mock('../../components/MenuButton', () => {
+    interface Menu { items?: Array<{ key?: string, label?: unknown }>, onClick?: (info: { key: string }) => void }
+    return {
+        MenuButton: ({ children, menu, ...rest }: Record<string, unknown>) => (
+            <div>
+                <button data-testid={rest['data-testid'] as string}>{children as never}</button>
+                {(menu as Menu).items?.filter(item => item.key).map(item => (
+                    <button key={item.key} onClick={() => (menu as Menu).onClick?.({ key: item.key! })}>
+                        {item.label as never}
+                    </button>
+                ))}
             </div>
-        ) : null
-    const Alert = ({ action, message }: Record<string, unknown>) => (
-        <div>
-            <span>{message as never}</span>
-            {action as never}
-        </div>
-    )
-    const Space = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
-    Space.Compact = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
-    const Tooltip = ({ children }: Record<string, unknown>) => children as never
-    const notification = { error: vi.fn() }
-    return { Alert, Button, Input, Modal, Space, Tooltip, notification }
+        ),
+    }
 })
+
+// Each dialog is stubbed by the marker it renders when open; the toolbar only decides which one opens.
+vi.mock('./NewFolderModal', () => ({
+    NewFolderModal: ({ open }: { open: boolean }) => open ? <div data-testid="new-folder-modal" /> : null,
+}))
+vi.mock('./NewFileModal', () => ({
+    NewFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="new-file-modal" /> : null,
+}))
+vi.mock('./UploadFileModal', () => ({
+    UploadFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="upload-file-modal" /> : null,
+}))
 
 const baseProps = {
     canWrite: true,
     filter: '',
+    folders: ['rules'],
     onChanged: vi.fn(),
     onCreateFolder: vi.fn(),
     onFilterChange: vi.fn(),
@@ -74,108 +65,32 @@ const baseProps = {
 }
 
 describe('FilesToolbar', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-        vi.mocked(uploadFiles).mockResolvedValue()
-        vi.mocked(createTextFile).mockResolvedValue()
-    })
+    beforeEach(() => vi.clearAllMocks())
 
-    it('uploads the selected batch once and refreshes', async () => {
-        const onChanged = vi.fn()
-        render(<FilesToolbar {...baseProps} onChanged={onChanged} />)
-
-        fireEvent.change(screen.getByTestId('files-upload-input'), {
-            target: {
-                files: [new File(['a'], 'a.txt'), new File(['b'], 'b.txt')],
-            },
-        })
-
-        await waitFor(() => expect(uploadFiles).toHaveBeenCalledTimes(1))
-        const [projectId, target, files] = vi.mocked(uploadFiles).mock.calls[0]!
-        expect(projectId).toBe('p1')
-        expect(target).toBe('')
-        expect(files).toHaveLength(2)
-        await waitFor(() => expect(onChanged).toHaveBeenCalled())
-    })
-
-    it('uploads files into the selected target folder', async () => {
-        render(<FilesToolbar {...baseProps} targetFolder="rules" />)
-
-        fireEvent.change(screen.getByTestId('files-upload-input'), {
-            target: {
-                files: [new File(['a'], 'a.txt')],
-            },
-        })
-
-        await waitFor(() => expect(uploadFiles).toHaveBeenCalledTimes(1))
-        expect(vi.mocked(uploadFiles).mock.calls[0]?.[1]).toBe('rules/')
-    })
-
-    it('reports filter changes to the caller', async () => {
-        const onFilterChange = vi.fn()
-        render(<FilesToolbar {...baseProps} onFilterChange={onFilterChange} />)
+    it('filters the tree as the user types', async () => {
+        render(<FilesToolbar {...baseProps} />)
 
         await userEvent.type(screen.getByTestId('files-search'), 'x')
 
-        expect(onFilterChange).toHaveBeenCalledWith('x')
+        expect(baseProps.onFilterChange).toHaveBeenCalledWith('x')
     })
 
-    it('adds a folder virtually without calling the server', async () => {
-        const onChanged = vi.fn()
-        const onCreateFolder = vi.fn()
-        render(<FilesToolbar {...baseProps} onChanged={onChanged} onCreateFolder={onCreateFolder} />)
+    it.each([
+        ['files-new-folder', 'new-folder-modal'],
+        ['files-new-text-file', 'new-file-modal'],
+        ['files-upload', 'upload-file-modal'],
+    ])('opens the %s dialog from the Add menu', async (entry, dialog) => {
+        render(<FilesToolbar {...baseProps} />)
 
-        await userEvent.click(screen.getByTestId('files-new-folder'))
-        await userEvent.type(screen.getByTestId('files-folder-path'), 'sub/dir')
-        await userEvent.click(screen.getByTestId('files-folder-submit'))
+        await userEvent.click(screen.getByTestId(entry))
 
-        await waitFor(() => expect(onCreateFolder).toHaveBeenCalledWith('sub/dir'))
-        expect(createTextFile).not.toHaveBeenCalled()
-        expect(onChanged).not.toHaveBeenCalled()
+        expect(screen.getByTestId(dialog)).toBeInTheDocument()
     })
 
-    it('adds a folder relative to the selected target folder', async () => {
-        const onCreateFolder = vi.fn()
-        render(<FilesToolbar {...baseProps} onCreateFolder={onCreateFolder} targetFolder="rules" />)
-
-        await userEvent.click(screen.getByTestId('files-new-folder'))
-        expect(screen.getByText('browser.files.create_target.folder:rules')).toBeTruthy()
-        await userEvent.type(screen.getByTestId('files-folder-path'), 'sub/dir')
-        await userEvent.click(screen.getByTestId('files-folder-submit'))
-
-        await waitFor(() => expect(onCreateFolder).toHaveBeenCalledWith('rules/sub/dir'))
-    })
-
-    it('can reset folder creation to the project root', async () => {
-        const onCreateFolder = vi.fn()
-        render(<FilesToolbar {...baseProps} onCreateFolder={onCreateFolder} targetFolder="rules" />)
-
-        await userEvent.click(screen.getByTestId('files-new-folder'))
-        await userEvent.click(screen.getByText('browser.files.create_in_root'))
-        await userEvent.type(screen.getByTestId('files-folder-path'), 'sub/dir')
-        await userEvent.click(screen.getByTestId('files-folder-submit'))
-
-        await waitFor(() => expect(onCreateFolder).toHaveBeenCalledWith('sub/dir'))
-    })
-
-    it('creates an empty text file', async () => {
-        const onChanged = vi.fn()
-        render(<FilesToolbar {...baseProps} onChanged={onChanged} targetFolder="rules" />)
-
-        await userEvent.click(screen.getByTestId('files-new-text-file'))
-        await userEvent.type(screen.getByTestId('files-text-file-path'), 'notes.txt')
-        await userEvent.click(screen.getByTestId('files-text-file-submit'))
-
-        await waitFor(() => expect(createTextFile).toHaveBeenCalledWith('p1', 'rules/notes.txt'))
-        await waitFor(() => expect(onChanged).toHaveBeenCalled())
-    })
-
-    it('hides upload and new-folder actions without write access', () => {
+    it('offers nothing to add without write access', () => {
         render(<FilesToolbar {...baseProps} canWrite={false} />)
 
-        expect(screen.getByTestId('files-search')).toBeInTheDocument()
-        expect(screen.queryByTestId('files-upload')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('files-add')).not.toBeInTheDocument()
         expect(screen.queryByTestId('files-new-folder')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('files-new-text-file')).not.toBeInTheDocument()
     })
 })

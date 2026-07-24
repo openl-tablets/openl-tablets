@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduOkVQQkRTX0NvcHlSZXZPbGQ=",
+  "name": "EPBDS_CopyRevOld",
+  "status": "CLOSED",
+  "repository": "design",
+  "modifiedBy": "admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "comment": "Copied from: EPBDS_CopyRev.",
+  "repositoryInfo": {
+    "id": "design",
+    "name": "H2",
+    "type": "repo-jdbc",
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
+  },
+  "capabilities": {
+    "canDelete": true,
+    "canOpen": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
+}

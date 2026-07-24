@@ -15,6 +15,17 @@ Content-Type: application/json
   "selectedBranches": [
     "master"
   ],
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-non-flat",
+    "name": "Git Non Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
   "capabilities": {
     "canOpen": true,
     "canCompare": true,

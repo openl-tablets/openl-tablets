@@ -4,15 +4,22 @@ import { Button, Popconfirm } from 'antd'
 import {
     CopyOutlined,
     DeleteOutlined,
+    DiffOutlined,
     DownloadOutlined,
     FolderOpenOutlined,
+    HistoryOutlined,
+    MergeOutlined,
     MinusCircleOutlined,
     RocketOutlined,
     SaveOutlined,
     UnlockOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { SplitButton } from '../../components/SplitButton'
 import type { Project } from '../../types/projects'
+import { isActionAvailable, PROJECT_ACTIONS, type ActionId } from './projectActions'
+
+export type { ActionId }
 
 const useStyles = createStyles(({ css }) => ({
     bar: css`
@@ -28,29 +35,31 @@ const ACTION_ICONS: Record<ActionId, ReactNode> = {
     open: <FolderOpenOutlined />,
     close: <MinusCircleOutlined />,
     deploy: <RocketOutlined />,
+    compare: <DiffOutlined />,
     copy: <CopyOutlined />,
+    openRevision: <HistoryOutlined />,
+    sync: <MergeOutlined />,
+    deleteBranch: <DeleteOutlined />,
     export: <DownloadOutlined />,
     delete: <DeleteOutlined />,
     unlock: <UnlockOutlined />,
 }
 
-export type ActionId = 'save' | 'open' | 'close' | 'deploy' | 'copy' | 'export' | 'delete' | 'unlock'
+/**
+ * Every action in display order. Opening leads, then what changes the project, then the read-only
+ * operations. Opening an earlier revision is not a button of its own: it hangs off Open while the project
+ * can still be opened, and replaces it once it is already open.
+ */
+const ORDER: ActionId[] = ['save', 'open', 'close', 'sync', 'copy', 'deleteBranch', 'delete', 'deploy',
+    'compare', 'export', 'unlock']
 
-/** Non-destructive actions in display order; the first available one becomes the single primary button. */
-const NON_DESTRUCTIVE: ActionId[] = ['save', 'open', 'close', 'deploy', 'copy', 'export']
+/**
+ * The first available of these becomes the single primary button. Opening a revision is never it: on an
+ * open project the primary action stays Close.
+ */
 const PRIMARY_LADDER: ActionId[] = ['save', 'open', 'close']
-const DESTRUCTIVE: ActionId[] = ['delete', 'unlock']
 
-export interface ProjectActionHandlers {
-    open: () => void
-    close: () => void
-    save: () => void
-    deploy: () => void
-    copy: () => void
-    export: () => void
-    delete: () => void
-    unlock: () => void
-}
+export type ProjectActionHandlers = Record<ActionId, () => void>
 
 interface ActionDesc {
     id: ActionId
@@ -69,104 +78,89 @@ interface ProjectActionBarProps {
 
 /**
  * The single home for every project action, resolved strictly from the server-provided access model.
- * The first available non-destructive action is the primary button, the rest follow as default
- * buttons, and destructive actions sit past a divider with a confirmation step. The navigator carries
- * no actions.
+ * The first available action is the primary button and the rest follow in a fixed order; the two that
+ * destroy the project confirm first and are the only red ones. The navigator carries no actions.
  */
 export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectActionBarProps) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
 
-    const { primary, secondary, destructive } = useMemo(() => {
-        // Every action is gated by a server-computed capability (ACL ∧ project state); the UI never
-        // re-derives access from raw permissions.
-        const caps = project.capabilities
-        const available: Record<ActionId, boolean> = {
-            save: !!caps?.canSave,
-            open: !!caps?.canOpen,
-            close: !!caps?.canClose,
-            deploy: !!caps?.canDeploy,
-            copy: !!caps?.canCopy,
-            export: !!caps?.canExport,
-            delete: !!caps?.canDelete,
-            unlock: !!caps?.canUnlock,
-        }
+    const { actions, revision, primaryId } = useMemo(() => {
+        const isAvailable = (id: ActionId) => isActionAvailable(project, id)
         const buildDesc = (id: ActionId): ActionDesc => ({
             id,
             testId: `${id}-${project.id}`,
-            label: t(`browser.${id}`),
+            label: t(PROJECT_ACTIONS[id].labelKey),
             run: handlers[id],
             // Only unlock confirms inline via Popconfirm; delete delegates to the global delete modal.
             ...(id === 'unlock' ? { confirm: t(`browser.${id}_confirm`) } : {}),
         })
 
-        const primaryId = PRIMARY_LADDER.find(id => available[id]) ?? null
+        // Opening a revision never takes a slot of its own: it rides in the Open menu, and takes the Open
+        // slot itself once the project is already open.
+        const openSlot = (['open', 'openRevision'] as const).find(isAvailable) ?? null
         return {
-            primary: primaryId ? buildDesc(primaryId) : null,
-            secondary: NON_DESTRUCTIVE.filter(id => available[id] && id !== primaryId).map(buildDesc),
-            destructive: DESTRUCTIVE.filter(id => available[id]).map(buildDesc),
+            actions: ORDER.flatMap(id => {
+                if (id === 'open') {
+                    return openSlot ? [buildDesc(openSlot)] : []
+                }
+                return isAvailable(id) ? [buildDesc(id)] : []
+            }),
+            revision: isAvailable('openRevision') ? buildDesc('openRevision') : null,
+            primaryId: PRIMARY_LADDER.find(isAvailable) ?? null,
         }
     }, [project, t, handlers])
 
     const busy = pendingId !== null
 
-    if (!primary && secondary.length === 0 && destructive.length === 0) {
+    if (actions.length === 0 && !revision) {
         return null
+    }
+
+    const buttonProps = (action: ActionDesc) => ({
+        'data-testid': action.testId,
+        disabled: busy && pendingId !== action.id,
+        icon: ACTION_ICONS[action.id],
+        loading: pendingId === action.id,
+        ...(PROJECT_ACTIONS[action.id].danger ? { danger: true } : {}),
+        ...(action.id === primaryId ? { type: 'primary' as const } : {}),
+    })
+
+    const renderAction = (action: ActionDesc) => {
+        // Open carries opening an earlier revision as its menu item while the project is still closed.
+        if (action.id === 'open' && revision) {
+            return (
+                <SplitButton
+                    key={action.id}
+                    {...buttonProps(action)}
+                    arrowLabel={revision.label}
+                    arrowTestId={`${action.testId}-more`}
+                    onClick={action.run}
+                    menu={{
+                        items: [{
+                            key: revision.id,
+                            label: <span data-testid={revision.testId}>{revision.label}</span>,
+                        }],
+                        onClick: revision.run,
+                    }}
+                >
+                    {action.label}
+                </SplitButton>
+            )
+        }
+        if (action.confirm) {
+            return (
+                <Popconfirm key={action.id} onConfirm={action.run} title={action.confirm}>
+                    <Button {...buttonProps(action)}>{action.label}</Button>
+                </Popconfirm>
+            )
+        }
+        return <Button key={action.id} {...buttonProps(action)} onClick={action.run}>{action.label}</Button>
     }
 
     return (
         <div className={styles.bar} data-testid="project-actions">
-            {primary && (
-                <Button
-                    data-testid={primary.testId}
-                    disabled={busy && pendingId !== primary.id}
-                    icon={ACTION_ICONS[primary.id]}
-                    loading={pendingId === primary.id}
-                    onClick={primary.run}
-                    type="primary"
-                >
-                    {primary.label}
-                </Button>
-            )}
-            {secondary.map(action => (
-                <Button
-                    key={action.id}
-                    data-testid={action.testId}
-                    disabled={busy && pendingId !== action.id}
-                    icon={ACTION_ICONS[action.id]}
-                    loading={pendingId === action.id}
-                    onClick={action.run}
-                >
-                    {action.label}
-                </Button>
-            ))}
-            {destructive.map(action => (
-                action.id === 'delete' ? (
-                    <Button
-                        key={action.id}
-                        danger
-                        data-testid={action.testId}
-                        disabled={busy && pendingId !== action.id}
-                        icon={ACTION_ICONS[action.id]}
-                        loading={pendingId === action.id}
-                        onClick={action.run}
-                    >
-                        {action.label}
-                    </Button>
-                ) : (
-                    <Popconfirm key={action.id} onConfirm={action.run} title={action.confirm}>
-                        <Button
-                            danger
-                            data-testid={action.testId}
-                            disabled={busy && pendingId !== action.id}
-                            icon={ACTION_ICONS[action.id]}
-                            loading={pendingId === action.id}
-                        >
-                            {action.label}
-                        </Button>
-                    </Popconfirm>
-                )
-            ))}
+            {actions.map(renderAction)}
         </div>
     )
 }

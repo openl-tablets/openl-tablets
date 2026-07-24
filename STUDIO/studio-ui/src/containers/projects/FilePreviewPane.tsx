@@ -1,64 +1,37 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { errorMessage as message } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip } from 'antd'
+import { Alert, Button, Dropdown, Modal, Skeleton, Space, Tag, type MenuProps } from 'antd'
 import {
     CloseOutlined,
     CopyOutlined,
     DeleteOutlined,
     DownloadOutlined,
+    DragOutlined,
     EditOutlined,
     FolderOpenOutlined,
+    FontColorsOutlined,
+    MoreOutlined,
     SaveOutlined,
+    UploadOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
-    copyFile,
-    deleteFile,
     downloadFile,
     getFileContent,
     isEditableTextFile,
     updateFileContent,
 } from '../../services/files'
-import { ELLIPSIS, MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
+import { CopyFileModal } from './CopyFileModal'
+import { DeleteFileModal } from './DeleteFileModal'
+import { MoveFileModal } from './MoveFileModal'
+import { UpdateFileModal } from './UpdateFileModal'
 
 // The code editor pulls in CodeMirror; load it only when a text file is actually opened.
 const CodeEditor = lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })))
 
 const useStyles = createStyles(({ css, token }) => ({
-    pane: css`
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-    `,
-    empty: css`
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        color: ${token.colorTextTertiary};
-
-        .anticon {
-            font-size: 32px;
-            color: ${token.colorTextQuaternary};
-        }
-    `,
-    toolbar: css`
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
-    path: css`
-        font-family: ${MOCKUP.fontMono};
-        font-size: 12px;
-        ${ELLIPSIS}
-    `,
     badge: css`
         margin: 0;
         border-radius: ${token.borderRadiusSM}px;
@@ -73,32 +46,15 @@ const useStyles = createStyles(({ css, token }) => ({
         min-height: 0;
         overflow: auto;
     `,
-    binary: css`
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        color: ${token.colorTextTertiary};
-    `,
     error: css`
         margin: 12px;
     `,
 }))
 
-
-/** Proposes a sibling path for a copy, inserting "-copy" before the file extension. */
-const suggestCopyPath = (path: string): string => {
-    const slash = path.lastIndexOf('/')
-    const dir = slash >= 0 ? path.slice(0, slash + 1) : ''
-    const name = path.slice(slash + 1)
-    const dot = name.lastIndexOf('.')
-    return dot > 0 ? `${dir}${name.slice(0, dot)}-copy${name.slice(dot)}` : `${dir}${name}-copy`
-}
-
 interface FilePreviewPaneProps {
     projectId: string
+    /** Folders of the project, offered as the destination when copying. */
+    folders: string[]
     repositoryId: string
     projectName: string
     branch?: string | null
@@ -107,6 +63,8 @@ interface FilePreviewPaneProps {
     canDelete: boolean
     onChanged: () => void
     onDeleted: () => void
+    /** The open file was renamed or moved: follow it to its new path so the pane does not 404 on the old one. */
+    onMoved: (newPath: string) => void
     /** Bumped when the project reloads (save, close, …), forcing content to refetch and edit mode to reset. */
     reloadToken?: number
 }
@@ -126,9 +84,10 @@ interface FileSelection {
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, canWrite, canDelete, onChanged, onDeleted, reloadToken }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
+    const { styles, cx } = useStyles()
     const [activeSelection, setActiveSelection] = useState<FileSelection>({
         branch: branch ?? null,
         path,
@@ -143,8 +102,10 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [copying, setCopying] = useState<string | null>(null)
-    const [copyBusy, setCopyBusy] = useState(false)
+    const [updating, setUpdating] = useState(false)
+    const [copying, setCopying] = useState(false)
+    const [moving, setMoving] = useState<'move' | 'rename' | null>(null)
+    const [deleting, setDeleting] = useState(false)
     const [editing, setEditing] = useState(false)
 
     const activePath = activeSelection.path
@@ -244,35 +205,6 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         setError(null)
     }
 
-    const remove = async () => {
-        if (!activePath) {
-            return
-        }
-        try {
-            await deleteFile(activeSelection.projectId, activePath)
-            onDeleted()
-        } catch (e) {
-            notification.error({ title: t('browser.files.delete_failed'), description: message(e) })
-        }
-    }
-
-    const doCopy = async () => {
-        if (!activePath || !copying?.trim() || copying.trim() === activePath) {
-            setCopying(null)
-            return
-        }
-        setCopyBusy(true)
-        try {
-            await copyFile(activeSelection.projectId, activePath, copying.trim())
-            setCopying(null)
-            onChanged()
-        } catch (e) {
-            notification.error({ title: t('browser.files.copy_failed'), description: message(e) })
-        } finally {
-            setCopyBusy(false)
-        }
-    }
-
     const keepCurrentFile = () => {
         setPendingSelection(null)
     }
@@ -286,8 +218,8 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
 
     if (!activePath) {
         return (
-            <div className={styles.pane}>
-                <div className={styles.empty} data-testid="file-preview-empty">
+            <div className={shared.paneColumn}>
+                <div className={shared.panePlaceholder} data-testid="file-preview-empty">
                     <FolderOpenOutlined />
                     <span>{t('browser.files.select_hint')}</span>
                 </div>
@@ -295,51 +227,81 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         )
     }
 
+    // Edit and Export stay to hand; the rarer file actions gather under one menu, as they do elsewhere.
+    const menuItems: MenuProps['items'] = [
+        ...(canWrite ? [{ key: 'rename', icon: <FontColorsOutlined />, label: t('browser.files.rename') }] : []),
+        ...(canWrite ? [{ key: 'move', icon: <DragOutlined />, label: t('browser.files.move') }] : []),
+        ...(canWrite ? [{ key: 'update', icon: <UploadOutlined />, label: t('browser.files.update') }] : []),
+        ...(canWrite ? [{ key: 'copy', icon: <CopyOutlined />, label: t('browser.files.copy') }] : []),
+        ...(canDelete ? [{ key: 'delete', danger: true, icon: <DeleteOutlined />, label: t('browser.files.delete') }] : []),
+    ]
+    const runFromMenu: MenuProps['onClick'] = ({ key }) => {
+        if (key === 'rename') {
+            setMoving('rename')
+        } else if (key === 'move') {
+            setMoving('move')
+        } else if (key === 'update') {
+            setUpdating(true)
+        } else if (key === 'copy') {
+            setCopying(true)
+        } else if (key === 'delete') {
+            setDeleting(true)
+        }
+    }
+
     return (
-        <div className={styles.pane} data-testid="file-preview">
-            <div className={styles.toolbar}>
-                <span className={styles.path}>{activePath}</span>
+        <div className={shared.paneColumn} data-testid="file-preview">
+            <div className={shared.paneHeader}>
+                <span className={cx(shared.mono, shared.ellipsis)}>{activePath}</span>
                 <Tag className={styles.badge}>
                     {!editable ? t('browser.files.binary') : editing ? t('browser.files.text_editor') : t('browser.editor.read_only')}
                 </Tag>
-                <Space.Compact className={styles.actions}>
+                <Space className={styles.actions}>
                     {editing ? (
                         <>
-                            <Button data-testid="file-save" disabled={!dirty} icon={<SaveOutlined />} loading={saving} onClick={save} size="small" type="primary">
+                            <Button
+                                data-testid="file-save"
+                                disabled={!dirty}
+                                icon={<SaveOutlined />}
+                                loading={saving}
+                                onClick={save}
+                                size="small"
+                                type="primary"
+                            >
                                 {t('browser.editor.save')}
                             </Button>
-                            <Tooltip title={t('browser.editor.cancel')}>
-                                <Button data-testid="file-cancel" icon={<CloseOutlined />} onClick={cancelEdit} size="small" />
-                            </Tooltip>
+                            <Button data-testid="file-cancel" icon={<CloseOutlined />} onClick={cancelEdit} size="small">
+                                {t('browser.editor.cancel')}
+                            </Button>
                         </>
                     ) : (
                         <>
                             {editable && canWrite && (
-                                <Tooltip title={t('browser.editor.edit')}>
-                                    <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small" />
-                                </Tooltip>
+                                <Button data-testid="file-edit" icon={<EditOutlined />} onClick={() => setEditing(true)} size="small">
+                                    {t('browser.editor.edit')}
+                                </Button>
                             )}
-                            <Tooltip title={t('browser.files.download')}>
-                                <Button
-                                    data-testid="file-download"
-                                    icon={<DownloadOutlined />}
-                                    onClick={() => downloadFile(activeSelection.projectId, activePath)}
-                                    size="small"
-                                />
-                            </Tooltip>
-                            {canWrite && (
-                                <Tooltip title={t('browser.files.copy')}>
-                                    <Button data-testid="file-copy" icon={<CopyOutlined />} onClick={() => setCopying(suggestCopyPath(activePath))} size="small" />
-                                </Tooltip>
-                            )}
-                            {canDelete && (
-                                <Popconfirm onConfirm={remove} title={t('browser.files.delete_confirm', { path: activePath })}>
-                                    <Button danger data-testid="file-delete" icon={<DeleteOutlined />} size="small" />
-                                </Popconfirm>
+                            <Button
+                                data-testid="file-download"
+                                icon={<DownloadOutlined />}
+                                onClick={() => downloadFile(activeSelection.projectId, activePath)}
+                                size="small"
+                            >
+                                {t('browser.files.download')}
+                            </Button>
+                            {menuItems.length > 0 && (
+                                <Dropdown menu={{ items: menuItems, onClick: runFromMenu }} trigger={['click']}>
+                                    <Button
+                                        aria-label={t('browser.files.more_actions')}
+                                        data-testid="file-actions"
+                                        icon={<MoreOutlined />}
+                                        size="small"
+                                    />
+                                </Dropdown>
                             )}
                         </>
                     )}
-                </Space.Compact>
+                </Space>
             </div>
             {error && <Alert showIcon className={styles.error} data-testid="file-preview-error" title={error} type="error" />}
             {editable ? (
@@ -353,29 +315,13 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                         </div>
                     )
             ) : (
-                <div className={styles.binary} data-testid="file-preview-binary">
+                <div className={shared.panePlaceholder} data-testid="file-preview-binary">
                     <span>{t('browser.files.binary_hint')}</span>
                     <Button icon={<DownloadOutlined />} onClick={() => downloadFile(activeSelection.projectId, activePath)}>
                         {t('browser.files.download')}
                     </Button>
                 </div>
             )}
-            <Modal
-                destroyOnHidden
-                confirmLoading={copyBusy}
-                okButtonProps={{ 'data-testid': 'file-copy-submit' }}
-                onCancel={() => setCopying(null)}
-                onOk={doCopy}
-                open={copying !== null}
-                title={t('browser.files.copy_title')}
-            >
-                <Input
-                    data-testid="file-copy-input"
-                    onChange={event => setCopying(event.target.value)}
-                    onPressEnter={doCopy}
-                    value={copying ?? ''}
-                />
-            </Modal>
             <Modal
                 destroyOnHidden
                 cancelButtonProps={{ 'data-testid': 'file-discard-cancel' }}
@@ -388,6 +334,46 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
             >
                 {t('browser.files.discard_changes_desc')}
             </Modal>
+            {activePath && (
+                <CopyFileModal
+                    folders={folders}
+                    onClose={() => setCopying(false)}
+                    onCopied={onChanged}
+                    open={copying}
+                    path={activePath}
+                    projectId={activeSelection.projectId}
+                />
+            )}
+            {activePath && moving && (
+                <MoveFileModal
+                    open
+                    folders={folders}
+                    mode={moving}
+                    onClose={() => setMoving(null)}
+                    onMoved={onMoved}
+                    path={activePath}
+                    projectId={activeSelection.projectId}
+                />
+            )}
+            {activePath && (
+                <DeleteFileModal
+                    onClose={() => setDeleting(false)}
+                    onDeleted={onDeleted}
+                    open={deleting}
+                    path={activePath}
+                    projectId={activeSelection.projectId}
+                />
+            )}
+            {activePath && (
+                <UpdateFileModal
+                    onClose={() => setUpdating(false)}
+                    onUpdated={onChanged}
+                    open={updating}
+                    path={activePath}
+                    projectId={activeSelection.projectId}
+                    title={t('browser.files.update_title', { name: activePath.split('/').pop() })}
+                />
+            )}
         </div>
     )
 }

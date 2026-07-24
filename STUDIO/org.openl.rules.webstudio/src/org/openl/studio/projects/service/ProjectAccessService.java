@@ -64,13 +64,17 @@ public class ProjectAccessService {
                         && listingContext.canDeployToAnyRepository(deploymentRepositoryService::canDeployToAnyRepository)))
                 .canCompare(flag(readShared))
                 .canViewHistory(flag(readShared))
-                .canEditTags(flag(write && workspaceProject.isOpened()))
                 .canManage(flag(administer && !localOnly))
                 // Copy creates a new project in a repository the user picks, so it mirrors the copy dialog's
                 // repository list: available when the user can create a project in any repository (permission
                 // and, for branch repositories, an unprotected branch) — not just the source repository.
                 .canCopy(flag(!localOnly && listingContext.canCreateInAnyRepository(
                         designTimeRepositoryService::canCreateInAnyRepository)))
+                // Branching, merging and deleting a branch are governed by write access to the project
+                // itself, not by the permission to create a project, so the Copy dialog can offer a branch
+                // to a user who may not create projects at all. The exact per-artefact check, the branch
+                // protection and the base-branch rule are enforced when the operation runs.
+                .canManageBranches(flag(!localOnly && workspaceProject.isSupportsBranches() && write))
                 .canExport(flag(readShared))
                 .build();
     }

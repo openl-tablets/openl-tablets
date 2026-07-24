@@ -9,12 +9,14 @@ import { SystemContext } from '../../contexts'
 import { ProjectDetail } from './ProjectDetail'
 
 const {
+    branchSwitcherMock,
     filesToolbarMock,
     localChangesSummaryMock,
     revisionsPanelMock,
     searchParamsMock,
     setSearchParamsMock,
 } = vi.hoisted(() => ({
+    branchSwitcherMock: vi.fn(),
     filesToolbarMock: vi.fn(),
     localChangesSummaryMock: vi.fn(),
     revisionsPanelMock: vi.fn(),
@@ -75,11 +77,13 @@ vi.mock('antd', () => {
     const Tooltip = ({ children }: Record<string, unknown>) => <>{children as never}</>
     const Typography = ({ children }: Record<string, unknown>) => <span>{children as never}</span>
     Typography.Title = ({ children }: Record<string, unknown>) => <h3>{children as never}</h3>
-    return { Empty, Tabs, Tooltip, Typography }
+    const Skeleton = () => <div data-testid="skeleton" />
+    return { Empty, Skeleton, Tabs, Tooltip, Typography }
 })
 
-vi.mock('./StatusIndicator', () => ({ StatusPill: () => null }))
-vi.mock('./CompileStatusBadge', () => ({ CompileStatusBadge: () => <span data-testid="compile-status-badge" /> }))
+vi.mock('./StatusIndicator', () => ({
+    StatusMark: ({ status }: { status: string }) => <span data-testid="status-mark">{status}</span>,
+}))
 vi.mock('./ProjectActionBar', () => ({ ProjectActionBar: () => null }))
 vi.mock('./FileTree', () => ({
     FileTree: ({ onSelectFile }: { onSelectFile: (path: string | null) => void }) => (
@@ -117,14 +121,6 @@ vi.mock('./FolderActionsPane', () => ({
         </div>
     ),
 }))
-vi.mock('./TagsModal', () => ({
-    TagsModal: ({ open, onClose, onSaved }: { open: boolean, onClose: () => void, onSaved: () => void }) => open ? (
-        <div data-testid="tags-modal">
-            <button data-testid="tags-modal-close" onClick={onClose} type="button">close</button>
-            <button data-testid="tags-modal-save" onClick={onSaved} type="button">save</button>
-        </div>
-    ) : null,
-}))
 vi.mock('./LocalChangesSummary', () => ({
     LocalChangesSummary: (props: unknown) => {
         localChangesSummaryMock(props)
@@ -142,18 +138,7 @@ vi.mock('./RevisionsPanel', () => ({
     },
 }))
 vi.mock('./OverviewPanel', () => ({
-    OverviewPanel: ({ onEditTags }: { onEditTags: () => void }) => (
-        <div data-testid="overview-panel">
-            <button data-testid="overview-edit-tags" onClick={onEditTags} type="button">tags</button>
-        </div>
-    ),
-}))
-vi.mock('./BranchesPanel', () => ({
-    BranchesPanel: ({ onChanged }: { onChanged?: () => void }) => (
-        <div data-testid="branches-panel">
-            <button data-testid="branches-changed" onClick={() => onChanged?.()} type="button">changed</button>
-        </div>
-    ),
+    OverviewPanel: () => <div data-testid="overview-panel" />,
 }))
 vi.mock('./PublishPanel', () => ({
     PublishPanel: ({ onChanged }: { onChanged?: () => void }) => (
@@ -163,6 +148,12 @@ vi.mock('./PublishPanel', () => ({
     ),
 }))
 vi.mock('./AccessPanel', () => ({ AccessPanel: () => <div data-testid="access-panel" /> }))
+vi.mock('./BranchSwitcher', () => ({
+    BranchSwitcher: (props: Record<string, unknown>) => {
+        branchSwitcherMock(props)
+        return <div data-testid="crumb-branch-switcher" />
+    },
+}))
 vi.mock('./MonoChip', () => ({ MonoChip: ({ children }: Record<string, unknown>) => <span>{children as never}</span> }))
 
 const PROJECT: Project = {
@@ -314,12 +305,6 @@ describe('ProjectDetail', () => {
         expect(screen.queryByTestId('access-panel')).toBeNull()
     })
 
-    it('keeps the compilation status badge visible for non-open project statuses', () => {
-        renderProjectDetail()
-
-        expect(screen.getByTestId('compile-status-badge')).toBeTruthy()
-    })
-
     it('uses the selected folder as the file action target', () => {
         setParams('tab=files&file=rules')
 
@@ -328,6 +313,28 @@ describe('ProjectDetail', () => {
         expect(filesToolbarMock).toHaveBeenCalledWith(expect.objectContaining({
             targetFolder: 'rules',
         }))
+    })
+
+    it('waits for the tree before it treats an extension-less selection as a file', () => {
+        // A folder like "__MACOSX" is read as a file until the tree says otherwise: previewing it would
+        // fetch a folder's content and fail. While the tree loads, neither pane is shown.
+        setParams('tab=files&file=__MACOSX')
+
+        renderProjectDetail({ files: 'loading' })
+
+        expect(screen.getByTestId('file-pane-loading')).toBeInTheDocument()
+        expect(screen.queryByTestId('file-preview')).toBeNull()
+        expect(screen.queryByTestId('folder-actions')).toBeNull()
+    })
+
+    it('shows folder actions once the tree reveals the selection is a folder', () => {
+        setParams('tab=files&file=rules')
+
+        renderProjectDetail({ files: FILES })
+
+        expect(screen.getByTestId('folder-actions')).toBeInTheDocument()
+        expect(screen.queryByTestId('file-preview')).toBeNull()
+        expect(screen.queryByTestId('file-pane-loading')).toBeNull()
     })
 
     it('uses the selected file parent folder as the file action target', () => {
@@ -391,7 +398,6 @@ describe('ProjectDetail', () => {
 
         expect(screen.getByTestId('history-panel')).toBeTruthy()
         expect(revisionsPanelMock).toHaveBeenCalledWith(expect.objectContaining({
-            canCompare: true,
             projectId: PROJECT.id,
             repositoryId: PROJECT.repository,
         }))
@@ -419,10 +425,12 @@ describe('ProjectDetail', () => {
         expect(screen.getByTestId('publish-panel')).toBeTruthy()
     })
 
-    it('renders the branches panel when the branches tab is active', () => {
+    it('offers no branches tab: branches are handled from the header and the Overview tab', () => {
         setParams('tab=branches')
         renderProjectDetail()
-        expect(screen.getByTestId('branches-panel')).toBeTruthy()
+        expect(screen.queryByTestId('tab-branches')).toBeNull()
+        // An unknown tab falls back to the overview one.
+        expect(screen.getByTestId('overview-panel')).toBeTruthy()
     })
 
     it('updates the active tab through the tab control', async () => {
@@ -455,36 +463,6 @@ describe('ProjectDetail', () => {
         renderProjectDetail()
         await userEvent.click(screen.getByTestId('file-tree-clear'))
         expect(setSearchParamsMock).toHaveBeenCalled()
-    })
-
-    it('opens the tags modal from overview and saves changes', async () => {
-        const onChanged = vi.fn()
-        setParams('tab=overview')
-        render(
-            <SystemContext.Provider
-                value={{
-                    isExternalAuthSystem: false,
-                    isGroupsManagementEnabled: true,
-                    isPersonalAccessTokenEnabled: false,
-                    isUserManagementEnabled: false,
-                }}
-            >
-                <ProjectDetail
-                    files={FILES}
-                    handlers={{} as never}
-                    onChanged={onChanged}
-                    pendingId={null}
-                    project={PROJECT}
-                    repoFeatures={BRANCH_REPOSITORY_FEATURES}
-                    repoLabel="Design"
-                />
-            </SystemContext.Provider>
-        )
-
-        await userEvent.click(screen.getByTestId('overview-edit-tags'))
-        expect(screen.getByTestId('tags-modal')).toBeTruthy()
-        await userEvent.click(screen.getByTestId('tags-modal-save'))
-        expect(onChanged).toHaveBeenCalled()
     })
 
     it('stops resizing on mouse up', () => {
@@ -699,9 +677,8 @@ describe('ProjectDetail', () => {
                 />
             </SystemContext.Provider>
         )
-        await userEvent.click(screen.getByTestId('branches-changed'))
         await userEvent.click(screen.getByTestId('publish-changed'))
-        expect(onChanged).toHaveBeenCalledTimes(2)
+        expect(onChanged).toHaveBeenCalledTimes(1)
     })
 
     it('updates the tab query parameter when switching tabs', async () => {
@@ -711,12 +688,25 @@ describe('ProjectDetail', () => {
         expect(searchParamsMock.get('tab')).toBe('publish')
     })
 
-    it('closes the tags modal without saving', async () => {
+    it('lets the breadcrumb switch between the branches the project takes part in', () => {
         setParams('tab=overview')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('overview-edit-tags'))
-        expect(screen.getByTestId('tags-modal')).toBeTruthy()
-        await userEvent.click(screen.getByTestId('tags-modal-close'))
-        expect(screen.queryByTestId('tags-modal')).toBeNull()
+        renderProjectDetail({
+            project: { ...PROJECT, branchDefault: true, selectedBranches: ['main', 'dev']},
+        })
+
+        expect(screen.getByTestId('crumb-branch-switcher')).toBeTruthy()
+        expect(branchSwitcherMock).toHaveBeenLastCalledWith(expect.objectContaining({
+            currentBranch: 'main',
+            currentBranchDefault: true,
+            projectId: 'p1',
+            selectedBranches: ['main', 'dev'],
+        }))
+    })
+
+    it('shows no breadcrumb branch for a repository without branches', () => {
+        setParams('tab=overview')
+        renderProjectDetail({ repoFeatures: { branches: false, searchable: false, mappedFolders: false } })
+
+        expect(screen.queryByTestId('crumb-branch-switcher')).toBeNull()
     })
 })

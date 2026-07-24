@@ -13,14 +13,14 @@ class CreateFromProjectModelTest {
 
     @Test
     void sourceProjectFieldsAreRequired() {
-        var violations = propertyViolations(new CreateFromProjectModel(null, " ", null, null));
+        var violations = propertyViolations(new CreateFromProjectModel(null, " ", null, null, null));
 
         assertEquals(Set.of("sourceRepositoryId", "sourceProjectName"), violations);
     }
 
     @Test
     void validSourceProjectFieldsPassValidation() {
-        var violations = propertyViolations(new CreateFromProjectModel("design", "Source", null, null));
+        var violations = propertyViolations(new CreateFromProjectModel("design", "Source", null, null, null));
 
         assertTrue(violations.isEmpty());
     }

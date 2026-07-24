@@ -12,6 +12,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project EPBDS_15595 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canDeploy": true,
@@ -32,6 +42,17 @@ Content-Type: application/json
       "path": "EPBDS_15595",
       "comment": "Project EPBDS_15595 is created.",
       "selectedBranches": "***",
+      "branchDefault": true,
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canDeploy": true,

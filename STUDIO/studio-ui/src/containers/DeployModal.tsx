@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Modal, Form, Button, Space, notification, Spin } from 'antd'
+import { Alert, Modal, Form, Button, Space, notification, Spin } from 'antd'
 import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
 import { Select, TextArea } from 'components/form'
-import { apiCall, ForbiddenError } from 'services'
+import { apiCall, ForbiddenError, isApiHttpError } from 'services'
 import { errorHandler } from 'utils/errorHandling'
 import { Repository } from 'types/repositories'
 import { WIDTH_OF_FORM_LABEL_MODAL } from 'constants/ui'
 
 interface DeployModalDetail {
     branch: string
+    /** Whether the project sits on the main branch of its design repository. */
+    branchDefault?: boolean
     comment: string
     id: string
     modifiedAt: string
@@ -113,6 +115,14 @@ export const DeployModal: React.FC = () => {
     }
 
     const doDeploy = async (values: { repository: string; deploymentName: string; comment: string }) => {
+        if (mainBranchOnlyBlocked) {
+            notification.warning({
+                title: t('deploy:notifications.deploy_failed'),
+                description: t('deploy:notifications.main_branch_only', { branch: detail?.branch }),
+                placement: 'topRight',
+            })
+            return
+        }
         try {
             const { repository, deploymentName, comment } = values
             const projectId = detail?.id
@@ -197,7 +207,11 @@ export const DeployModal: React.FC = () => {
             } else {
                 notification.error({
                     title: t('deploy:notifications.deploy_failed'),
-                    description: t('deploy:notifications.deploy_failed_description'),
+                    // The server explains what it refused; only a failure without an explanation of its
+                    // own falls back to the generic sentence.
+                    description: isApiHttpError(info) && info.message
+                        ? info.message
+                        : t('deploy:notifications.deploy_failed_description'),
                     placement: 'topRight',
                 })
             }
@@ -256,6 +270,14 @@ export const DeployModal: React.FC = () => {
         }))
     }, [deploymentRepositories])
 
+    // A repository that takes the main branch only refuses a project that sits anywhere else. The dialog
+    // says so on the repository itself instead of letting the deploy fail.
+    const mainBranchOnlyBlocked = useMemo(() => {
+        const repository = deploymentRepositories.find(repo => repo.id === selectedRepository)
+        return !!repository?.mainBranchOnly && !!detail?.branch && detail.branchDefault === false
+    }, [deploymentRepositories, detail, selectedRepository])
+
+
     return (
         <>
             <Modal
@@ -268,6 +290,8 @@ export const DeployModal: React.FC = () => {
                     </Button>,
                     <Button
                         key="deploy"
+                        data-testid="deploy-submit"
+                        disabled={mainBranchOnlyBlocked}
                         icon={isDeploying ? <LoadingOutlined /> : <RocketOutlined />}
                         loading={isDeploying}
                         onClick={handleDeploy}
@@ -285,6 +309,14 @@ export const DeployModal: React.FC = () => {
             >
                 <Spin description={t('deploy:messages.deploying_configuration')} spinning={isDeploying}>
                     <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
+                        {mainBranchOnlyBlocked && (
+                            <Alert
+                                showIcon
+                                data-testid="deploy-main-branch-only"
+                                title={t('deploy:notifications.main_branch_only', { branch: detail?.branch })}
+                                type="warning"
+                            />
+                        )}
                         <Form
                             labelWrap
                             form={form}

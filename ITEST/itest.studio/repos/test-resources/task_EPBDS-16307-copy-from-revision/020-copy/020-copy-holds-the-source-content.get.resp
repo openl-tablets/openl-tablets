@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "__MACOSX",
+    "name": "__MACOSX",
+    "type": "folder"
+  },
+  {
+    "path": "Added.txt",
+    "name": "Added.txt",
+    "type": "file",
+    "extension": "txt",
+    "size": -1
+  },
+  {
+    "path": "Main.xlsx",
+    "name": "Main.xlsx",
+    "type": "file",
+    "extension": "xlsx",
+    "size": -1
+  }
+]

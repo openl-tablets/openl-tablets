@@ -2,6 +2,7 @@ package org.openl.studio.tags.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,30 +54,27 @@ public class TagTypeService {
 
     @Transactional
     public List<TagTypeDTO> getAll() {
-        List<TagTypeDTO> result = new ArrayList<>();
-
-        final List<TagType> all = tagTypeDao.getAll();
-        for (TagType tagType : all) {
+        // Every value is read in one query and grouped here: asking the database once per tag type turns
+        // listing the configuration into a query per type.
+        var tagsByType = tagDao.getAll().stream().collect(Collectors.groupingBy(tag -> tag.getType().getId()));
+        return tagTypeDao.getAll().stream().map(tagType -> {
             TagTypeDTO typeDTO = new TagTypeDTO();
             typeDTO.setId(tagType.getId());
             typeDTO.setName(tagType.getName());
             typeDTO.setNullable(tagType.isNullable());
             typeDTO.setExtensible(tagType.isExtensible());
+            typeDTO.setTags(tagsByType.getOrDefault(tagType.getId(), List.of()).stream()
+                    .map(TagTypeService::mapTag)
+                    .collect(Collectors.toCollection(ArrayList::new)));
+            return typeDTO;
+        }).toList();
+    }
 
-            final ArrayList<TagDTO> tagDTOs = new ArrayList<>();
-            final List<Tag> tags = tagDao.getByTagType(tagType.getName());
-            for (Tag tag : tags) {
-                TagDTO tagDTO = new TagDTO();
-                tagDTO.setId(tag.getId());
-                tagDTO.setName(tag.getName());
-                tagDTO.setTagTypeId(tag.getType().getId());
-                tagDTOs.add(tagDTO);
-            }
-            typeDTO.setTags(tagDTOs);
-
-            result.add(typeDTO);
-        }
-
-        return result;
+    private static TagDTO mapTag(Tag tag) {
+        TagDTO tagDTO = new TagDTO();
+        tagDTO.setId(tag.getId());
+        tagDTO.setName(tag.getName());
+        tagDTO.setTagTypeId(tag.getType().getId());
+        return tagDTO;
     }
 }

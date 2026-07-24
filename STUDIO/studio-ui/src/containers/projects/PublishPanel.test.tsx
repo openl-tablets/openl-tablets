@@ -68,10 +68,8 @@ describe('PublishPanel', () => {
 
         render(
             <PublishPanel
-                canDeploy={false}
                 canWrite={false}
                 onChanged={vi.fn()}
-                onDeploy={vi.fn()}
                 projectId="p1"
                 projectName="Alpha"
             />
@@ -83,17 +81,15 @@ describe('PublishPanel', () => {
         expect(getProjectDeployments).toHaveBeenCalledWith('stage', 'Alpha')
         expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('Service One')
         expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('Production')
-        expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('abcdef12')
+        expect(screen.getByTestId('publish-deployment-prod:d1').textContent).toContain('abcdef')
     })
 
     it('reloads project deployments when the project reloads', async () => {
         vi.mocked(getProjectDeployments).mockResolvedValue([])
         const { rerender } = render(
             <PublishPanel
-                canDeploy={false}
                 canWrite={false}
                 onChanged={vi.fn()}
-                onDeploy={vi.fn()}
                 projectId="p1"
                 projectName="Alpha"
                 reloadToken={0}
@@ -104,10 +100,8 @@ describe('PublishPanel', () => {
 
         rerender(
             <PublishPanel
-                canDeploy={false}
                 canWrite={false}
                 onChanged={vi.fn()}
-                onDeploy={vi.fn()}
                 projectId="p1"
                 projectName="Alpha"
                 reloadToken={1}
@@ -121,10 +115,8 @@ describe('PublishPanel', () => {
         vi.mocked(getProjectDeployments).mockResolvedValue([])
         render(
             <PublishPanel
-                canDeploy={false}
                 canWrite={false}
                 onChanged={vi.fn()}
-                onDeploy={vi.fn()}
                 projectId="p1"
                 projectName="Alpha"
             />
@@ -151,9 +143,7 @@ describe('PublishPanel', () => {
         render(
             <PublishPanel
                 canWrite
-                canDeploy={false}
                 onChanged={onChanged}
-                onDeploy={vi.fn()}
                 projectId="p1"
                 projectName="Alpha"
             />

@@ -1,0 +1,39 @@
+import { Button, Space } from 'antd'
+import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
+
+interface EditToolbarProps {
+    editing: boolean
+    saving: boolean
+    onEdit: () => void
+    onSave: () => void
+    onCancel: () => void
+    /** Prefix for the button test ids: `${testId}-edit`, `${testId}-save`, `${testId}-cancel`. */
+    testId: string
+    /** The button captions, so each panel keeps its own translation keys. */
+    labels: { edit: string, save: string, cancel: string }
+}
+
+/**
+ * The small Edit / Save + Cancel control the editable panels share. One affordance, one look, so the
+ * Overview, Publish and other tabs of a project never drift into a zoo of button sizes or orders.
+ */
+export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels }: EditToolbarProps) => (
+    <Space size={8}>
+        {editing
+            ? (
+                <>
+                    <Button data-testid={`${testId}-save`} icon={<CheckOutlined />} loading={saving} onClick={onSave} size="small" type="primary">
+                        {labels.save}
+                    </Button>
+                    <Button data-testid={`${testId}-cancel`} disabled={saving} icon={<CloseOutlined />} onClick={onCancel} size="small">
+                        {labels.cancel}
+                    </Button>
+                </>
+            )
+            : (
+                <Button data-testid={`${testId}-edit`} icon={<EditOutlined />} onClick={onEdit} size="small">
+                    {labels.edit}
+                </Button>
+            )}
+    </Space>
+)

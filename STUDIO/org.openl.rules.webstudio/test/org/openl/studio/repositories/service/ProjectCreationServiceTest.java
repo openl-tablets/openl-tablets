@@ -1,33 +1,26 @@
 package org.openl.studio.repositories.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.security.standalone.persistence.Tag;
-import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -37,15 +30,13 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.studio.tags.service.TagService;
-import org.openl.studio.tags.service.TagTypeService;
+import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.tags.service.TagAssignmentValidator;
 
 class ProjectCreationServiceTest {
 
     private AclProjectsHelper aclProjectsHelper;
     private RepositoryAclServiceProvider aclServiceProvider;
-    private TagTypeService tagTypeService;
-    private TagService tagService;
     private Comments comments;
     private ProjectCreationService service;
 
@@ -53,11 +44,9 @@ class ProjectCreationServiceTest {
     void setUp() {
         aclProjectsHelper = mock(AclProjectsHelper.class);
         aclServiceProvider = mock(RepositoryAclServiceProvider.class);
-        tagTypeService = mock(TagTypeService.class);
-        tagService = mock(TagService.class);
         comments = mock(Comments.class);
-        service = new ProjectCreationService(aclProjectsHelper, aclServiceProvider, tagTypeService, tagService,
-                mock(PathFilter.class), mock(ZipCharsetDetector.class), "");
+        service = new ProjectCreationService(aclProjectsHelper, aclServiceProvider,
+                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "");
     }
 
     @Test
@@ -116,128 +105,82 @@ class ProjectCreationServiceTest {
     @Test
     void copy_project_is_denied_without_create_permission() {
         assertThrows(ForbiddenException.class,
-                () -> service.copyProject("design", "Copy", null, "design", "Source", "comment"));
+                () -> service.copyProject("design", "Copy", null, "design", "Source", "comment", null));
+    }
+
+
+    @Test
+    void copy_project_rejects_a_revision_the_source_has_no_state_at() throws Exception {
+        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
+        var acl = mock(RepositoryAclService.class);
+        when(acl.isGranted(any(RulesProject.class), anyList())).thenReturn(true);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+
+        var repository = mock(Repository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setVersions(true).build());
+        when(repository.check("DESIGN/Source")).thenReturn(fileData("9"));
+        // A repository numbers revisions its own way and rejects a value it cannot read.
+        when(repository.checkHistory("DESIGN/Source", "does-not-exist"))
+                .thenThrow(new NumberFormatException("For input string: \"does-not-exist\""));
+        var source = mock(RulesProject.class);
+        when(source.getRepository()).thenReturn(repository);
+        when(source.getFolderPath()).thenReturn("DESIGN/Source");
+
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Source", true)).thenReturn(source);
+        service = serviceWithWorkspace(workspace);
+
+        assertThrows(NotFoundException.class, () -> service.copyProject("design", "Copy", null, "design",
+                "Source", "comment", "does-not-exist"));
     }
 
     @Test
-    void copy_internal_path_normalizes_target_folder() {
-        assertEquals("Rules", ProjectCreationService.copyInternalPath(null, "Rules"));
-        assertEquals("folder/Rules", ProjectCreationService.copyInternalPath("folder", "Rules"));
-        assertEquals("folder/Rules", ProjectCreationService.copyInternalPath("folder/", "Rules"));
-        assertEquals("folder/Rules", ProjectCreationService.copyInternalPath("/folder", "Rules"));
-        assertEquals("folder/nested/Rules", ProjectCreationService.copyInternalPath("\\folder\\nested", "Rules"));
+    void copy_project_reads_the_source_at_the_requested_revision() throws Exception {
+        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
+        var acl = mock(RepositoryAclService.class);
+        when(acl.isGranted(any(RulesProject.class), anyList())).thenReturn(true);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+
+        var repository = mock(Repository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setVersions(true).build());
+        when(repository.check("DESIGN/Source")).thenReturn(fileData("9"));
+        when(repository.checkHistory("DESIGN/Source", "5")).thenReturn(fileData("5"));
+        var source = mock(RulesProject.class);
+        when(source.getRepository()).thenReturn(repository);
+        when(source.getFolderPath()).thenReturn("DESIGN/Source");
+
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Source", true)).thenReturn(source);
+        service = serviceWithWorkspace(workspace);
+
+        // The target repository is not configured here, so the copy fails right after the source is read.
+        assertThrows(RuntimeException.class, () -> service.copyProject("design", "Copy", null, "design",
+                "Source", "comment", "5"));
+
+        verify(repository).checkHistory("DESIGN/Source", "5");
     }
 
     @Test
-    void registers_only_new_values_of_extensible_tag_types() {
-        var extensible = new TagType();
-        extensible.setId(1L);
-        extensible.setName("Environment");
-        extensible.setExtensible(true);
-        var fixed = new TagType();
-        fixed.setId(2L);
-        fixed.setName("Team");
-        fixed.setExtensible(false);
-        when(tagTypeService.getByName("Environment")).thenReturn(extensible);
-        when(tagTypeService.getByName("Team")).thenReturn(fixed);
-        when(tagTypeService.getByName("Unknown")).thenReturn(null);
-        when(tagService.getByName(1L, "prod")).thenReturn(null); // extensible + not yet in the catalog
-
-        var project = mock(RulesProject.class);
-        when(project.getDesignTags()).thenReturn(Map.of());
-        when(project.getLocalTags()).thenReturn(Map.of("Environment", "prod", "Team", "Payroll", "Unknown", "x"));
-
-        service.registerExtensibleTags(project);
-
-        var saved = ArgumentCaptor.forClass(Tag.class);
-        verify(tagService).save(saved.capture());
-        assertEquals("prod", saved.getValue().getName());
-        assertEquals("Environment", saved.getValue().getType().getName());
-    }
-
-    @Test
-    void does_not_re_register_an_existing_extensible_value() {
-        var extensible = new TagType();
-        extensible.setId(1L);
-        extensible.setName("Environment");
-        extensible.setExtensible(true);
-        when(tagTypeService.getByName("Environment")).thenReturn(extensible);
-        when(tagService.getByName(1L, "prod")).thenReturn(new Tag()); // already present
-
-        var project = mock(RulesProject.class);
-        when(project.getDesignTags()).thenReturn(Map.of());
-        when(project.getLocalTags()).thenReturn(Map.of("Environment", "prod"));
-
-        service.registerExtensibleTags(project);
-
-        verify(tagService, never()).save(any());
-    }
-
-    @Test
-    void registers_extensible_values_from_design_tags() {
-        var extensible = new TagType();
-        extensible.setId(1L);
-        extensible.setName("Environment");
-        extensible.setExtensible(true);
-        when(tagTypeService.getByName("Environment")).thenReturn(extensible);
-        when(tagService.getByName(1L, "prod")).thenReturn(null);
-
-        var project = mock(RulesProject.class);
-        when(project.getDesignTags()).thenReturn(Map.of("Environment", "prod")); // archive/copy exposes tags via design
-        when(project.getLocalTags()).thenReturn(Map.of());
-
-        service.registerExtensibleTags(project);
-
-        var saved = ArgumentCaptor.forClass(Tag.class);
-        verify(tagService).save(saved.capture());
-        assertEquals("prod", saved.getValue().getName());
-    }
-
-    @Test
-    void registerExtensibleTagsAfterDesignChange_refreshes_workspace() {
+    void refreshes_the_workspace_after_a_design_change() {
         var workspace = mock(UserWorkspace.class);
         service = serviceWithWorkspace(workspace);
 
-        service.registerExtensibleTagsAfterDesignChange(mock(AProject.class));
+        service.refreshWorkspaceAfterDesignChange();
 
         verify(workspace).refresh();
-        verifyNoInteractions(tagTypeService, tagService);
-    }
-
-    @Test
-    void registers_extensible_values_from_design_project_tags() throws ProjectException {
-        var extensible = new TagType();
-        extensible.setId(1L);
-        extensible.setName("Environment");
-        extensible.setExtensible(true);
-        when(tagTypeService.getByName("Environment")).thenReturn(extensible);
-
-        var project = mock(AProject.class);
-        var tags = mock(AProjectResource.class);
-        when(project.hasArtefact(ProjectTags.TAGS_FILE_NAME)).thenReturn(true);
-        when(project.getArtefact(ProjectTags.TAGS_FILE_NAME)).thenReturn(tags);
-        when(tags.getContent()).thenReturn(new ByteArrayInputStream(
-                "Environment=prod\n".getBytes(StandardCharsets.UTF_8)));
-
-        service.registerExtensibleTags(project);
-
-        var saved = ArgumentCaptor.forClass(Tag.class);
-        verify(tagService).save(saved.capture());
-        assertEquals("prod", saved.getValue().getName());
-        assertEquals("Environment", saved.getValue().getType().getName());
-    }
-
-    @Test
-    void skips_design_project_tags_when_tags_file_is_absent() {
-        service.registerExtensibleTags(mock(AProject.class));
-
-        verifyNoInteractions(tagTypeService, tagService);
     }
 
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {
         return new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
-                tagTypeService, tagService, mock(PathFilter.class), mock(ZipCharsetDetector.class), "", workspace,
-                comments);
+                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                workspace, comments);
+    }
+
+    private static FileData fileData(String version) {
+        var data = new FileData();
+        data.setName("DESIGN/Source");
+        data.setVersion(version);
+        return data;
     }
 
     private static RulesProject publishedProject(String name) {
@@ -255,15 +198,13 @@ class ProjectCreationServiceTest {
 
         TestProjectCreationService(AclProjectsHelper aclProjectsHelper,
                                    RepositoryAclServiceProvider aclServiceProvider,
-                                   TagTypeService tagTypeService,
-                                   TagService tagService,
+                                   TagAssignmentValidator tagAssignmentValidator,
                                    PathFilter zipFilter,
                                    ZipCharsetDetector zipCharsetDetector,
                                    String openlHome,
                                    UserWorkspace workspace,
                                    Comments comments) {
-            super(aclProjectsHelper, aclServiceProvider, tagTypeService, tagService, zipFilter, zipCharsetDetector,
-                    openlHome);
+            super(aclProjectsHelper, aclServiceProvider, tagAssignmentValidator, zipFilter, zipCharsetDetector, openlHome);
             this.workspace = workspace;
             this.comments = comments;
         }

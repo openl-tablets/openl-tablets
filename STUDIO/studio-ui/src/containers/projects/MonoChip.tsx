@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react'
 import { createStyles } from 'antd-style'
-import { ELLIPSIS, MONO_TEXT } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
     mono: css`
-        ${MONO_TEXT}
         color: ${token.colorTextTertiary};
     `,
     filled: css`
@@ -15,13 +14,13 @@ const useStyles = createStyles(({ css, token }) => ({
         background: ${token.colorFillTertiary};
         color: ${token.colorTextSecondary};
         line-height: 20px;
-        ${ELLIPSIS}
         vertical-align: middle;
     `,
     ellipsis: css`
         display: inline-block;
         max-width: 100%;
-        ${ELLIPSIS}
+        /* Lets the chip shrink inside a flex row instead of forcing it wider than its cell. */
+        min-width: 0;
         vertical-align: middle;
     `,
 }))
@@ -42,12 +41,21 @@ interface MonoChipProps {
  * revisions, service names). Plain by default; `filled` renders a subtle chip.
  */
 export const MonoChip = ({ children, filled, ellipsis, className, title, 'data-testid': testId }: MonoChipProps) => {
+    const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
+    const clipped = filled || ellipsis
     return (
         <span
-            className={cx(styles.mono, filled && styles.filled, !filled && ellipsis && styles.ellipsis, className)}
             data-testid={testId}
             title={title}
+            className={cx(
+                shared.mono,
+                styles.mono,
+                clipped && shared.ellipsis,
+                filled && styles.filled,
+                !filled && ellipsis && styles.ellipsis,
+                className
+            )}
         >
             {children}
         </span>

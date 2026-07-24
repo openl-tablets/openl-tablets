@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectWorkspace } from './ProjectWorkspace'
 import {
-    downloadProject,
     getDesignRepositories,
     getProjectFiles,
     getProject,
@@ -46,6 +45,12 @@ vi.mock('./projects/SaveProjectModal', () => ({
     SaveProjectModal: ({ open }: { open: boolean }) => (open ? <div data-testid="save-modal-open" /> : null),
 }))
 
+vi.mock('./projects/ExportProjectModal', () => ({
+    ExportProjectModal: ({ open }: { open: boolean }) => open ? <div data-testid="export-modal" /> : null,
+}))
+vi.mock('./projects/OpenRevisionModal', () => ({
+    OpenRevisionModal: ({ open }: { open: boolean }) => open ? <div data-testid="open-revision-modal" /> : null,
+}))
 vi.mock('./projects/CopyProjectModal', () => ({
     CopyProjectModal: (props: { open: boolean, repositories?: { id: string }[] }) => {
         copyModalMock(props)
@@ -61,7 +66,6 @@ vi.mock('./projects/TagsModal', () => ({ TagsModal: () => null }))
 
 vi.mock('./projects/BranchSelector', () => ({ BranchSelector: () => null }))
 
-vi.mock('./projects/BranchActions', () => ({ BranchActions: () => null }))
 
 vi.mock('./projects/FilesToolbar', () => ({ FilesToolbar: () => null }))
 
@@ -69,13 +73,11 @@ vi.mock('./projects/RevisionsPanel', () => ({ RevisionsPanel: () => null }))
 
 vi.mock('./projects/DeployConfigPanel', () => ({ DeployConfigPanel: () => null }))
 
-vi.mock('./projects/CompileStatusBadge', () => ({ CompileStatusBadge: () => null }))
 
 
 // The tab panels load their own data (status, branches, deployments, ACL); stub them so the workspace
 // test stays focused on the header, action bar and Files tab.
 vi.mock('./projects/OverviewPanel', () => ({ OverviewPanel: () => null }))
-vi.mock('./projects/BranchesPanel', () => ({ BranchesPanel: () => null }))
 vi.mock('./projects/PublishPanel', () => ({ PublishPanel: () => null }))
 vi.mock('./projects/AccessPanel', () => ({ AccessPanel: () => null }))
 
@@ -89,6 +91,9 @@ vi.mock('../services/files', () => ({
     moveFile: vi.fn(),
     downloadFile: vi.fn(),
 }))
+
+// The rail beside the project has its own tests; here it only has to be out of the way.
+vi.mock('./projects/ProjectsRail', () => ({ ProjectsRail: () => <aside data-testid="projects-rail" /> }))
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -121,8 +126,13 @@ vi.mock('antd', () => {
 
     const Button = ({ children, onClick, icon, ...rest }: Record<string, unknown>) => {
         const { danger, loading, type, size, shape, ghost, block, ...dom } = rest
-        drop({ danger, loading, type, size, shape, ghost, block })
-        return <button onClick={onClick as never} {...dom}>{icon as never}{children as never}</button>
+        drop({ danger, loading, size, shape, ghost, block })
+        // The primary flag is surfaced so tests can assert which action carries the main button.
+        return (
+            <button data-primary={type === 'primary' ? 'true' : undefined} onClick={onClick as never} {...dom}>
+                {icon as never}{children as never}
+            </button>
+        )
     }
 
     const Input = ({ ...rest }: Record<string, unknown>) => <input {...rest} />
@@ -131,8 +141,20 @@ vi.mock('antd', () => {
         return <input onChange={onChange as never} placeholder={placeholder as never} value={(value as string) ?? ''} {...rest} />
     }
 
-    const Dropdown = ({ children, popupRender }: { children?: unknown, popupRender?: (n: unknown) => unknown }) =>
-        <div>{children as never}{popupRender ? (popupRender(null) as never) : null}</div>
+    interface DropdownMenu { items?: Array<{ key: string, label: unknown }>, onClick?: (info: { key: string }) => void }
+    const menuButtons = (menu: DropdownMenu | undefined) => menu?.items?.map(item => (
+        <button key={item.key} onClick={() => menu.onClick?.({ key: item.key })}>{item.label as never}</button>
+    ))
+    const Dropdown = ({ children, menu, popupRender }: Record<string, unknown>) => (
+        <div>
+            {children as never}
+            {popupRender ? ((popupRender as (n: unknown) => unknown)(null) as never) : null}
+            {menuButtons(menu as DropdownMenu)}
+        </div>
+    )
+
+
+
 
     const Popconfirm = ({ children, onConfirm }: { children?: unknown, onConfirm?: () => void }) =>
         <span onClick={onConfirm}>{children as never}</span>
@@ -195,6 +217,7 @@ vi.mock('antd', () => {
         <a onClick={onClick as never} {...rest}>{children as never}</a>
 
     const Space = ({ children }: { children?: unknown }) => <span>{children as never}</span>
+    Space.Compact = ({ children }: { children?: unknown }) => <span>{children as never}</span>
     const Divider = () => <span />
     const notification = { error: vi.fn() }
 
@@ -233,6 +256,11 @@ async function renderWorkspace() {
     })
 }
 
+/** The action rendered as the single primary (blue) button, if any. */
+const primaryActionId = () => screen.getByTestId('project-actions')
+    .querySelector('[data-primary="true"]')
+    ?.getAttribute('data-testid')
+
 describe('ProjectWorkspace', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -255,11 +283,23 @@ describe('ProjectWorkspace', () => {
         expect(getDesignRepositories).toHaveBeenCalledWith({ throwError: true, suppressErrorPages: true })
         expect(getProject).toHaveBeenCalledWith(
             'p1',
-            { includes: ['status', 'modules']},
+            { includes: ['status', 'descriptor']},
             { throwError: true, suppressErrorPages: true }
         )
         // The breadcrumb links back to the Projects home.
         expect(screen.getByText('home.title').closest('a')?.getAttribute('href')).toBe('/projects')
+    })
+
+    it('names the repository from the project when the repository list is unreadable', async () => {
+        // Granted the project alone, the user reads no repositories — the breadcrumb still names one.
+        vi.mocked(getDesignRepositories).mockRejectedValue(new Error('forbidden'))
+        vi.mocked(getProject).mockResolvedValue(project({
+            repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: false, searchable: false, mappedFolders: false } },
+        }) as never)
+
+        await renderWorkspace()
+
+        expect(screen.getAllByText('Design').length).toBeGreaterThan(0)
     })
 
     it('hides the history tab when history cannot be viewed', async () => {
@@ -347,7 +387,7 @@ describe('ProjectWorkspace', () => {
 
         await userEvent.click(screen.getByTestId('close-p1'))
 
-        await waitFor(() => expect(screen.getByText('browser.close_discard_title')).toBeTruthy())
+        await screen.findByText('browser.close_discard_title')
         expect(screen.getByText('browser.close_discard_warning')).toBeTruthy()
         expect(screen.getByText('browser.close_discard_confirm_unsafe')).toBeTruthy()
         expect(setProjectStatus).toHaveBeenCalledWith('p1', 'CLOSED', {})
@@ -400,7 +440,7 @@ describe('ProjectWorkspace', () => {
         expect(screen.queryByTestId('save-modal-open')).toBeNull()
         await userEvent.click(screen.getByTestId('save-p1'))
 
-        await waitFor(() => expect(screen.getByTestId('save-modal-open')).toBeInTheDocument())
+        await screen.findByTestId('save-modal-open')
     })
 
     it('opens the copy dialog via the gated Copy action', async () => {
@@ -413,8 +453,69 @@ describe('ProjectWorkspace', () => {
 
         await userEvent.click(screen.getByTestId('copy-p1'))
 
-        await waitFor(() => expect(screen.getByTestId('copy-modal-open')).toBeTruthy())
+        await screen.findByTestId('copy-modal-open')
         expect(screen.getByTestId('copy-modal-open').textContent).toBe('design')
+    })
+
+    it('leads with Open Revision once the project is already open, leaving Close the primary action', async () => {
+        vi.mocked(getProject).mockResolvedValue(project({
+            capabilities: { canViewHistory: true, canClose: true },
+        }) as never)
+        await renderWorkspace()
+
+        // It takes the Open slot, so it comes before every other action — but it never takes the blue.
+        expect(screen.getByTestId('project-actions').firstElementChild)
+            .toHaveAttribute('data-testid', 'openRevision-p1')
+        expect(primaryActionId()).toBe('close-p1')
+
+        await userEvent.click(screen.getByTestId('openRevision-p1'))
+
+        await screen.findByTestId('open-revision-modal')
+    })
+
+    it('hangs Open Revision off the Open button while the project can still be opened', async () => {
+        vi.mocked(getProject)
+            .mockResolvedValue(project({ capabilities: { canOpen: true, canViewHistory: true } }) as never)
+        await renderWorkspace()
+
+        // Open stays the action; opening a revision is its menu item.
+        expect(screen.getByTestId('open-p1')).toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('openRevision-p1'))
+
+        await screen.findByTestId('open-revision-modal')
+    })
+
+    it('opens the merge dialog via the Sync action', async () => {
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+        await renderWorkspace()
+
+        await userEvent.click(screen.getByTestId('sync-p1'))
+
+        await waitFor(() => expect(dispatchSpy.mock.calls
+            .some(([event]) => event instanceof CustomEvent && event.type === 'openMergeModal')).toBe(true))
+        dispatchSpy.mockRestore()
+    })
+
+    it('opens the delete-branch dialog via the Delete Branch action', async () => {
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+        await renderWorkspace()
+
+        await userEvent.click(screen.getByTestId('deleteBranch-p1'))
+
+        await waitFor(() => expect(dispatchSpy.mock.calls
+            .some(([event]) => event instanceof CustomEvent && event.type === 'openDeleteBranchModal')).toBe(true))
+        dispatchSpy.mockRestore()
+    })
+
+    it('offers no Delete Branch action on the repository main branch', async () => {
+        vi.mocked(getProject)
+            .mockResolvedValue(project({ branchDefault: true, capabilities: { canManageBranches: true } }) as never)
+        await renderWorkspace()
+
+        expect(screen.getByTestId('sync-p1')).toBeInTheDocument()
+        expect(screen.queryByTestId('deleteBranch-p1')).toBeNull()
     })
 
     it('opens the deploy modal via a CustomEvent', async () => {
@@ -428,13 +529,13 @@ describe('ProjectWorkspace', () => {
         dispatchSpy.mockRestore()
     })
 
-    it('exports the project as an archive', async () => {
+    it('offers the revision to export instead of downloading straight away', async () => {
         vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canExport: true } }) as never)
         await renderWorkspace()
 
         await userEvent.click(screen.getByTestId('export-p1'))
 
-        expect(downloadProject).toHaveBeenCalledWith('p1')
+        expect(await screen.findByTestId('export-modal')).toBeInTheDocument()
     })
 
     it('does not load project files before the Files tab is active', async () => {
@@ -451,7 +552,7 @@ describe('ProjectWorkspace', () => {
         ] as never)
         await renderWorkspace()
 
-        await waitFor(() => expect(screen.getByTestId('files-p1')).toBeTruthy())
+        await screen.findByTestId('files-p1')
         expect(screen.getByText('Main.xlsx')).toBeTruthy()
         expect(getProjectFiles).toHaveBeenCalledWith('p1')
     })
@@ -461,7 +562,7 @@ describe('ProjectWorkspace', () => {
         vi.mocked(getProjectFiles).mockRejectedValue(new Error('boom'))
         await renderWorkspace()
 
-        await waitFor(() => expect(screen.getByText('browser.files_error')).toBeTruthy())
+        await screen.findByText('browser.files_error')
         // A failed load must be requested exactly once, never retried in a loop.
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
     })

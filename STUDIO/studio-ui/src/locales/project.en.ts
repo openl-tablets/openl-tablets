@@ -17,15 +17,12 @@ i18next.addResourceBundle('en', 'project', {
         title: 'Update Module',
         hint: 'Click or drag an Excel file to this area',
         only_excel: 'Only xls, xlsx, and xlsm files are accepted.',
-        name_differs: 'The selected file differs from the current "{{- file}}" module file. Ensure the correct file is chosen.',
+        name_differs: 'The selected file differs from the current "{{file}}" module file. Ensure the correct file is chosen.',
         confirm_button: 'Update',
     },
     notifications: {
         project_updated: 'Project updated',
-        project_updated_description: 'The "{{- project}}" project was updated successfully.',
+        project_updated_description: 'The "{{project}}" project was updated successfully.',
         project_update_failed: 'Failed to update the project',
-        module_updated: 'Module updated',
-        module_updated_description: 'The "{{- file}}" file was updated successfully.',
-        module_update_failed: 'Failed to update the module',
     },
 })

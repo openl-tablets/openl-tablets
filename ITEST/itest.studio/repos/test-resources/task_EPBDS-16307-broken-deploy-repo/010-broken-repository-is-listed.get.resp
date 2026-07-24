@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "aclId": "UFJPRDpwcm9kdWN0aW9u",
+    "id": "production",
+    "name": "Deployment",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canManage": true
+    }
+  },
+  {
+    "aclId": "UFJPRDpwcm9kdWN0aW9uLWJyb2tlbg==",
+    "id": "production-broken",
+    "name": "Deployment Broken",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canManage": true
+    }
+  },
+  {
+    "aclId": "UFJPRDpwcm9kdWN0aW9uLWdpdA==",
+    "id": "production-git",
+    "name": "Deployment Git",
+    "type": "repo-git",
+    "capabilities": {
+      "canManage": true
+    }
+  }
+]

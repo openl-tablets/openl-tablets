@@ -59,6 +59,10 @@ public class CreateUpdateProjectModel {
         return path;
     }
 
+    /**
+     * Where the project lands inside a non-flat repository. An uploaded archive carries the full internal
+     * path, so the project folder may be named differently from the project itself.
+     */
     public String getFullPath() {
         return StringUtils.isEmpty(path) ? projectName : path;
     }

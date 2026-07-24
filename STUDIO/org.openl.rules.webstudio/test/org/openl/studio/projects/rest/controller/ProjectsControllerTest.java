@@ -27,6 +27,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
+import org.openl.studio.repositories.service.RepositoryConfigService;
 
 class ProjectsControllerTest {
 
@@ -36,7 +37,7 @@ class ProjectsControllerTest {
         var controller = controller(projectService, mock(ProjectStatusMapper.class));
         var project = mock(RulesProject.class);
         var expected = mock(ProjectViewModel.class);
-        var includes = List.of(ProjectInclude.STATUS, ProjectInclude.MODULES);
+        var includes = List.of(ProjectInclude.STATUS, ProjectInclude.DESCRIPTOR);
         when(projectService.getProject(project, includes)).thenReturn(expected);
 
         var result = controller.getProject(project, includes);
@@ -86,7 +87,8 @@ class ProjectsControllerTest {
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 mock(ProjectIdentifierMapper.class),
                 projectStatusMapper,
-                mock(ProjectTablesGraphService.class)) {
+                mock(ProjectTablesGraphService.class),
+                mock(RepositoryConfigService.class)) {
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;

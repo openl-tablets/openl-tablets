@@ -42,6 +42,15 @@ class ForbiddenError extends ApiHttpError {
 
 const appStore = useAppStore.getState()
 
+/**
+ * Announced after a request changed something on the server.
+ *
+ * Screens and services cache what they read — the projects snapshot above all. A change makes those
+ * caches stale wherever it was made, so it is announced once here instead of every caller having to
+ * remember which other screen it just invalidated.
+ */
+export const WORKSPACE_CHANGED_EVENT = 'openl:workspace-changed'
+
 /** Whether the response body is JSON, per its Content-Type. */
 const isJsonResponse = (response: Response): boolean => {
     const contentType = response.headers.get('Content-Type')
@@ -69,6 +78,9 @@ export interface ApiCallOptions {
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
     preserveEmptyText?: boolean // If true, return '' for empty text responses instead of the legacy true sentinel
     responseType?: 'auto' | 'blob' | 'response'
+    // If true, a successful non-GET does NOT signal a workspace change. Set it on a POST that reads rather
+    // than mutates (a merge check, a debugger step) so it does not needlessly drop the projects snapshot.
+    skipWorkspaceEvent?: boolean
 }
 
 const tryParseJsonBody = async (response: Response): Promise<unknown> => {
@@ -114,6 +126,9 @@ const apiCall = async (
         .then(async response => {
             const { status } = response
             if (status >= 200 && status < 300) {
+                if ((responseParams.method ?? 'GET').toUpperCase() !== 'GET' && !opts.skipWorkspaceEvent) {
+                    window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+                }
                 if (opts.responseType === 'response') {
                     return response
                 }

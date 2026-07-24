@@ -59,30 +59,25 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public final List<ProjectDependencyViewModel> usedBy;
 
-    @Parameter(description = "Project description from resolved project descriptor. Present only when modules are requested.")
-    @JsonView(GenericView.Full.class)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public final String description;
-
-    @Parameter(description = "Rules modules from resolved project descriptor. Present only when requested.")
-    @JsonView(GenericView.Full.class)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public final List<ModuleViewModel> modules;
-
-    @Parameter(description = "Properties file-name patterns from resolved project descriptor. Present only when modules are requested.")
-    @JsonView(GenericView.Full.class)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public final List<String> versionPatterns;
-
-    @Parameter(description = "Exposed-methods filter from resolved project descriptor. Present only when modules are requested.")
+    @Parameter(description = "The project as its rules.xml describes it. Present only when the descriptor is requested.")
     @JsonView(GenericView.Full.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public final ExposedMethodsViewModel exposedMethods;
+    public final DescriptorViewModel descriptor;
 
     @Parameter(description = "Whether the project's current branch is protected")
     @JsonView(GenericView.Full.class)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public final boolean branchProtected;
+
+    @Parameter(description = "Whether the project's current branch is the repository main branch")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public final boolean branchDefault;
+
+    @Parameter(description = "The repository the project is stored in. Travels with the project, so it is readable without access to the repository as a whole")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public final ProjectRepositoryModel repositoryInfo;
 
     @Parameter(description = "Capabilities of the current user on the project")
     @JsonView(GenericView.Full.class)
@@ -105,11 +100,10 @@ public class ProjectViewModel extends AProjectViewModel {
         this.selectedBranches = Optional.ofNullable(from.selectedBranches).map(List::copyOf).orElseGet(List::of);
         this.dependencies = Optional.ofNullable(from.dependencies).map(List::copyOf).orElseGet(List::of);
         this.usedBy = Optional.ofNullable(from.usedBy).map(List::copyOf).orElseGet(List::of);
-        this.description = from.description;
-        this.modules = Optional.ofNullable(from.modules).map(List::copyOf).orElseGet(List::of);
-        this.versionPatterns = Optional.ofNullable(from.versionPatterns).map(List::copyOf).orElseGet(List::of);
-        this.exposedMethods = from.exposedMethods;
+        this.descriptor = from.descriptor;
         this.branchProtected = from.branchProtected;
+        this.branchDefault = from.branchDefault;
+        this.repositoryInfo = from.repositoryInfo;
         this.capabilities = from.capabilities;
         this.compileStatus = from.compileStatus;
     }
@@ -129,11 +123,10 @@ public class ProjectViewModel extends AProjectViewModel {
         private List<String> selectedBranches;
         private List<ProjectDependencyViewModel> dependencies;
         private List<ProjectDependencyViewModel> usedBy;
-        private String description;
-        private List<ModuleViewModel> modules;
-        private List<String> versionPatterns;
-        private ExposedMethodsViewModel exposedMethods;
+        private DescriptorViewModel descriptor;
         private boolean branchProtected;
+        private boolean branchDefault;
+        private ProjectRepositoryModel repositoryInfo;
         private ProjectCapabilities capabilities;
         private ProjectStatusViewModel compileStatus;
 
@@ -196,31 +189,23 @@ public class ProjectViewModel extends AProjectViewModel {
             return this;
         }
 
-        public Builder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder addModule(ModuleViewModel module) {
-            if (modules == null) {
-                modules = new ArrayList<>();
-            }
-            this.modules.add(module);
-            return this;
-        }
-
-        public Builder versionPatterns(List<String> versionPatterns) {
-            this.versionPatterns = versionPatterns;
-            return this;
-        }
-
-        public Builder exposedMethods(ExposedMethodsViewModel exposedMethods) {
-            this.exposedMethods = exposedMethods;
+        public Builder descriptor(DescriptorViewModel descriptor) {
+            this.descriptor = descriptor;
             return this;
         }
 
         public Builder branchProtected(boolean branchProtected) {
             this.branchProtected = branchProtected;
+            return this;
+        }
+
+        public Builder branchDefault(boolean branchDefault) {
+            this.branchDefault = branchDefault;
+            return this;
+        }
+
+        public Builder repositoryInfo(ProjectRepositoryModel repositoryInfo) {
+            this.repositoryInfo = repositoryInfo;
             return this;
         }
 

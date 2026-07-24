@@ -1,0 +1,3 @@
+DELETE /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfUmVwb0NvbmZpZzo5MDRjNDNhZWQxZWI1ODIxZDQyZGIzNjM4ZDlkM2Y5OTM0ODUxMDM2YTJmNGIwMzg1ZWM2ZGZkZGEzYmU1Yjc5?comment=Cleanup%20repository%20config HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

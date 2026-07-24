@@ -15,10 +15,22 @@ Content-Type: application/json
   "selectedBranches": [
     "master"
   ],
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
   "capabilities": {
     "canOpen": true,
     "canCompare": true,
     "canViewHistory": true,
+    "canManageBranches": true,
     "canExport": true
   }
 }

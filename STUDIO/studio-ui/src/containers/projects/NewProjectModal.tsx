@@ -26,11 +26,17 @@ import {
 } from '../../services/repositories'
 import type { Repository } from '../../types/repositories'
 import type { Project } from '../../types/projects'
+import { FieldRow } from '../../components/FieldRow'
+import { RepoFolderInput } from './RepoFolderInput'
 import { ProjectStatus } from '../../constants/project'
 import { MOCKUP } from './projectsTheme'
+import { useSharedStyles } from './sharedStyles'
 import { supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive } from '../../utils/openlArchive'
-import { useCommitInfoGuard } from '../../hooks'
+import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
+import { suggestComment } from '../../utils/repositoryConfig'
+import { CommentField, useCommentError } from './CommentField'
+import { trimTrailingSlashes } from './projectPaths'
 
 /** Capitalise a template category name for display (e.g. "examples" → "Examples"). */
 const titleCase = (value: string): string => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value)
@@ -82,46 +88,44 @@ const useStyles = createStyles(({ css, token }) => ({
             grid-template-columns: repeat(2, 1fr);
         }
     `,
-    tile: css`
+    card: css`
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
+        gap: 4px;
         padding: 12px;
-        border: 1px solid ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
         background: ${token.colorBgContainer};
         text-align: left;
-        cursor: pointer;
-        transition: border-color 0.15s ease, background 0.15s ease;
-
-        &:hover {
-            border-color: ${token.colorPrimaryBorder};
-            background: ${token.colorFillQuaternary};
-        }
 
         .anticon {
             font-size: 18px;
             color: ${token.colorTextTertiary};
         }
     `,
-    tileActive: css`
-        border-color: ${token.colorPrimary};
-        background: ${token.colorPrimaryBg};
-
+    cardActive: css`
         .anticon {
             color: ${token.colorPrimary};
         }
     `,
-    tileLabel: css`
+    cardHead: css`
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `,
+    cardLabel: css`
         font-size: 13px;
         font-weight: 600;
         line-height: 1.25;
     `,
-    tileDesc: css`
+    cardDesc: css`
         color: ${token.colorTextTertiary};
         font-size: 11px;
         line-height: 1.3;
+    `,
+    cardCount: css`
+        margin-left: auto;
+        color: ${token.colorTextTertiary};
+        font-family: ${MOCKUP.fontMono};
+        font-size: 11px;
     `,
     configHead: css`
         display: flex;
@@ -147,22 +151,6 @@ const useStyles = createStyles(({ css, token }) => ({
     field: css`
         margin-bottom: 12px;
     `,
-    nameRepoRow: css`
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 12px;
-
-        @media (max-width: 480px) {
-            grid-template-columns: 1fr;
-        }
-    `,
-    label: css`
-        display: block;
-        margin-bottom: 4px;
-        font-size: 13px;
-        font-weight: 500;
-    `,
     templateGrid: css`
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -173,66 +161,11 @@ const useStyles = createStyles(({ css, token }) => ({
             grid-template-columns: 1fr;
         }
     `,
-    templateCard: css`
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        padding: 10px 12px;
-        border: 1px solid ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
-        text-align: left;
-        cursor: pointer;
-
-        &:hover {
-            border-color: ${token.colorPrimaryBorder};
-        }
-
-        .anticon {
-            color: ${token.colorPrimary};
-        }
-    `,
-    templateCardActive: css`
-        border-color: ${token.colorPrimary};
-        background: ${token.colorPrimaryBg};
-    `,
-    templateName: css`
-        font-size: 13px;
-        font-weight: 600;
-    `,
     cardScroll: css`
-        height: 260px;
+        max-height: 400px;
         overflow-y: auto;
         margin-bottom: 12px;
         padding-right: 4px;
-    `,
-    groupCard: css`
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px;
-        border: 1px solid ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
-        text-align: left;
-        cursor: pointer;
-
-        &:hover {
-            border-color: ${token.colorPrimaryBorder};
-            background: ${token.colorFillQuaternary};
-        }
-
-        .anticon {
-            color: ${token.colorTextTertiary};
-        }
-    `,
-    groupName: css`
-        font-size: 13px;
-        font-weight: 600;
-    `,
-    groupCount: css`
-        margin-left: auto;
-        color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
-        font-size: 11px;
     `,
     customBadge: css`
         padding: 0 6px;
@@ -274,20 +207,8 @@ const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        border: 1px solid ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
-        cursor: pointer;
-
-        &:hover {
-            border-color: ${token.colorPrimaryBorder};
-        }
     `,
     workspaceEmpty: css`
-        padding: 24px;
-        border: 1px dashed ${token.colorBorder};
-        border-radius: ${token.borderRadius}px;
-        text-align: center;
-        color: ${token.colorTextTertiary};
         font-size: 13px;
     `,
     footer: css`
@@ -313,10 +234,10 @@ interface NewProjectModalProps {
 }
 
 /**
- * Two-step "create project" wizard. Step one picks the creation method; step two collects the method's
- * inputs together with the target design repository and, where relevant, the project name, path and
- * commit comment. Every method routes through the existing create services, and the backend enforces the
- * CREATE grant, so a forbidden attempt surfaces as an inline error.
+ * Two-step "create project" wizard. Step one picks the creation method; a single click on a method opens
+ * step two, which collects the method's inputs together with the target design repository and, where
+ * relevant, the project name, path and commit comment. Every method routes through the existing create
+ * services, and the backend enforces the CREATE grant, so a forbidden attempt surfaces as an inline error.
  */
 export const NewProjectModal = ({
     open,
@@ -327,8 +248,9 @@ export const NewProjectModal = ({
     onCreated,
 }: NewProjectModalProps) => {
     const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
+    const { runWithCommitInfo, commitInfoModal, busy: committing } = useCommitInfoGuard()
     const openApiDefaults = useMemo(() => ({
         modelsModuleName: t('browser.create.openapi_defaults.data_module_name'),
         modelsPath: t('browser.create.openapi_defaults.data_module_path'),
@@ -356,6 +278,7 @@ export const NewProjectModal = ({
     const [submitting, setSubmitting] = useState(false)
     // The name input auto-fills from the selection until the user edits it (which locks in their value).
     const [nameTouched, setNameTouched] = useState(false)
+    const [commentTouched, setCommentTouched] = useState(false)
     // Suggested name and validity from inspecting the uploaded archive in the browser.
     const [archiveName, setArchiveName] = useState('')
     const [archiveError, setArchiveError] = useState<string | null>(null)
@@ -429,6 +352,20 @@ export const NewProjectModal = ({
         }
     }, [suggestedName, nameTouched])
 
+    // The target repository suggests the comment of the commit the wizard is about to make, following the
+    // project the comment is about: the copied one, or the one being created.
+    const config = useRepositoryConfig(open && repoId ? { repositoryId: repoId } : null)
+    const commentError = useCommentError(comment, config)
+    const commentSubject = mode === 'copy'
+        ? copyableProjectSources.find(candidate => candidate.id === copySource)?.name
+        : name.trim()
+
+    useEffect(() => {
+        if (open && !commentTouched) {
+            setComment(suggestComment(config, mode === 'copy' ? 'copy' : 'create', commentSubject))
+        }
+    }, [commentSubject, commentTouched, config, mode, open])
+
     // Inspect a chosen archive in the browser: suggest its project name and flag non-OpenL content early.
     const inspectArchive = useCallback(async (file: File) => {
         const seq = ++inspectSeq.current
@@ -450,6 +387,7 @@ export const NewProjectModal = ({
         setArchiveName('')
         setArchiveError(null)
         setComment('')
+        setCommentTouched(false)
         setPath('')
         setArchive(null)
         setExcelFiles([])
@@ -489,6 +427,19 @@ export const NewProjectModal = ({
         return [archive!]
     }
 
+    /** The folder inside the repository, as every create mode but the archive one expects it. */
+    const repositoryPath = () => (repositorySupportsFolders ? path.trim() || undefined : undefined)
+
+    /**
+     * The archive upload is mapped by its full internal path, so the project name is appended to the
+     * folder here — the server takes the path as given, which is what lets an archive land in a folder
+     * named differently from the project.
+     */
+    const archivePath = () => {
+        const folder = trimTrailingSlashes(repositoryPath() ?? '')
+        return folder ? `${folder}/${name.trim()}` : undefined
+    }
+
     const submit = async () => {
         const trimmedName = name.trim()
         if (mode !== 'workspace' && !trimmedName) {
@@ -519,8 +470,16 @@ export const NewProjectModal = ({
             setError(t('browser.create.openapi_required'))
             return
         }
+        if (mode === 'openapi' && [openApi.modelsModuleName, openApi.modelsPath, openApi.algorithmsModuleName, openApi.algorithmsPath].some(field => !field.trim())) {
+            setError(t('browser.create.openapi_modules_required'))
+            return
+        }
         if (mode === 'copy' && !copyableProjectSources.some(candidate => candidate.id === copySource)) {
             setError(t('browser.create.copy_source_required'))
+            return
+        }
+        if (commentError) {
+            setError(commentError)
             return
         }
         if (!repository) {
@@ -538,26 +497,26 @@ export const NewProjectModal = ({
                         repository.id,
                         trimmedName,
                         comment.trim() || undefined,
-                        repositorySupportsFolders ? path.trim() || undefined : undefined
+                        repositoryPath()
                     )
                 } else if (mode === 'workspace') {
                     await createProjectsFromWorkspace(repository.id, {
                         names: workspaceProjects,
-                        path: repositorySupportsFolders ? path.trim() || undefined : undefined,
+                        path: repositoryPath(),
                         comment: comment.trim() || undefined,
                     })
                 } else if (mode === 'template') {
                     const [type, category, name_] = JSON.parse(template!) as [string, string, string]
                     await createProject(repository.id, trimmedName, {
                         template: { type, category, name: name_ },
-                        path: repositorySupportsFolders ? path.trim() || undefined : undefined,
+                        path: repositoryPath(),
                         comment: comment.trim() || undefined,
                     })
                 } else {
                     await createProject(repository.id, trimmedName, {
                         files: contentFiles(),
                         ...(mode === 'openapi' ? { openApi } : {}),
-                        path: repositorySupportsFolders ? path.trim() || undefined : undefined,
+                        path: mode === 'archive' ? archivePath() : repositoryPath(),
                         comment: comment.trim() || undefined,
                     })
                 }
@@ -585,12 +544,17 @@ export const NewProjectModal = ({
         />
     )
 
-    const repoSelect = (
-        <div className={styles.field}>
-            <span className={styles.label}>{t('browser.create.repository_label')}</span>
-            {repoSelectInput}
-        </div>
+    const nameField = (
+        <FieldRow required label={t('browser.create.name')}>
+            <Input
+                data-testid="new-project-name"
+                onChange={event => { setName(event.target.value); setNameTouched(true) }}
+                placeholder={t('browser.create.name')}
+                value={name}
+            />
+        </FieldRow>
     )
+
 
     const methodStep = (
         <>
@@ -601,15 +565,16 @@ export const NewProjectModal = ({
                     return (
                         <button
                             key={method.id}
-                            className={cx(styles.tile, mode === method.id && styles.tileActive)}
+                            className={cx(shared.selectableCard, styles.card)}
                             data-testid={`new-project-method-${method.id}`}
-                            onClick={() => setMode(method.id)}
-                            onDoubleClick={() => setStep('config')}
+                            onClick={() => { setMode(method.id); setStep('config') }}
                             type="button"
                         >
-                            <Icon />
-                            <span className={styles.tileLabel}>{t(method.labelKey)}</span>
-                            <span className={styles.tileDesc}>{t(method.descKey)}</span>
+                            <span className={styles.cardHead}>
+                                <Icon />
+                                <span className={styles.cardLabel}>{t(method.labelKey)}</span>
+                            </span>
+                            <span className={styles.cardDesc}>{t(method.descKey)}</span>
                         </button>
                     )
                 })}
@@ -630,15 +595,17 @@ export const NewProjectModal = ({
                         {templates.map(group => (
                             <button
                                 key={groupKey(group)}
-                                className={styles.groupCard}
+                                className={cx(shared.selectableCard, styles.card)}
                                 data-testid={`template-group-${group.category}`}
                                 onClick={() => { setTemplateGroup(groupKey(group)); setTemplate(null) }}
                                 type="button"
                             >
-                                <FolderOutlined />
-                                <span className={styles.groupName}>{titleCase(group.category)}</span>
-                                {group.type === 'custom' && <span className={styles.customBadge}>{t('browser.create.template_custom')}</span>}
-                                <span className={styles.groupCount}>{group.templates.length}</span>
+                                <span className={styles.cardHead}>
+                                    <FolderOutlined />
+                                    <span className={styles.cardLabel}>{titleCase(group.category)}</span>
+                                    {group.type === 'custom' && <span className={styles.customBadge}>{t('browser.create.template_custom')}</span>}
+                                    <span className={styles.cardCount}>{group.templates.length}</span>
+                                </span>
                             </button>
                         ))}
                     </div>
@@ -660,13 +627,15 @@ export const NewProjectModal = ({
                                 return (
                                     <button
                                         key={key}
-                                        className={cx(styles.templateCard, template === key && styles.templateCardActive)}
+                                        className={cx(shared.selectableCard, styles.card, template === key && cx(shared.selectedCard, styles.cardActive))}
                                         data-testid={`template-${key}`}
                                         onClick={() => setTemplate(key)}
                                         type="button"
                                     >
-                                        {template === key ? <CheckCircleFilled /> : <ProfileOutlined />}
-                                        <span className={styles.templateName}>{name_}</span>
+                                        <span className={styles.cardHead}>
+                                            {template === key ? <CheckCircleFilled /> : <ProfileOutlined />}
+                                            <span className={styles.cardLabel}>{name_}</span>
+                                        </span>
                                     </button>
                                 )
                             })}
@@ -686,17 +655,17 @@ export const NewProjectModal = ({
                         >
                             {t('browser.create.workspace_select_all')}
                         </Checkbox>
-                        <span className={styles.groupCount}>{workspaceProjects.length}/{workspaceSources.length}</span>
+                        <span className={styles.cardCount}>{workspaceProjects.length}/{workspaceSources.length}</span>
                     </div>
                     {workspaceSources.length === 0 ? (
-                        <div className={styles.workspaceEmpty}>{t('browser.create.workspace_empty')}</div>
+                        <div className={cx(shared.dashedEmpty, styles.workspaceEmpty)}>{t('browser.create.workspace_empty')}</div>
                     ) : (
                         <div className={styles.cardScroll} data-testid="new-project-workspace">
                             <div className={styles.workspaceList}>
                                 {workspaceSources.map(projectName => (
                                     <div
                                         key={projectName}
-                                        className={cx(styles.workspaceCard, workspaceProjects.includes(projectName) && styles.templateCardActive)}
+                                        className={cx(shared.selectableCard, styles.workspaceCard, workspaceProjects.includes(projectName) && styles.cardActive)}
                                         data-testid={`workspace-${projectName}`}
                                         onClick={() => toggleWorkspace(projectName)}
                                         role="button"
@@ -709,7 +678,7 @@ export const NewProjectModal = ({
                                         }}
                                     >
                                         <Checkbox checked={workspaceProjects.includes(projectName)} />
-                                        <span className={styles.templateName}>{projectName}</span>
+                                        <span className={styles.cardLabel}>{projectName}</span>
                                     </div>
                                 ))}
                             </div>
@@ -718,8 +687,7 @@ export const NewProjectModal = ({
                 </div>
             )}
             {mode === 'copy' && (
-                <div className={styles.field}>
-                    <span className={styles.label}>{t('browser.create.copy_source')}</span>
+                <FieldRow required label={t('browser.create.copy_source_label')}>
                     <Select
                         showSearch
                         data-testid="new-project-copy-source"
@@ -730,7 +698,7 @@ export const NewProjectModal = ({
                         style={{ width: '100%' }}
                         value={copySource ?? undefined}
                     />
-                </div>
+                </FieldRow>
             )}
             {mode === 'archive' && (
                 <div className={styles.field}>
@@ -787,41 +755,44 @@ export const NewProjectModal = ({
                             <p className="ant-upload-text">{t('browser.create.openapi_hint')}</p>
                         </Upload.Dragger>
                     </div>
-                    <Input data-testid="new-project-openapi-data-module" onChange={e => setOpenApi(prev => ({ ...prev, modelsModuleName: e.target.value }))} placeholder={t('browser.create.openapi_data_module')} style={{ marginBottom: 8 }} value={openApi.modelsModuleName} />
-                    <Input data-testid="new-project-openapi-data-path" onChange={e => setOpenApi(prev => ({ ...prev, modelsPath: e.target.value }))} placeholder={t('browser.create.openapi_data_path')} style={{ marginBottom: 8 }} value={openApi.modelsPath} />
-                    <Input data-testid="new-project-openapi-rules-module" onChange={e => setOpenApi(prev => ({ ...prev, algorithmsModuleName: e.target.value }))} placeholder={t('browser.create.openapi_rules_module')} style={{ marginBottom: 8 }} value={openApi.algorithmsModuleName} />
-                    <Input data-testid="new-project-openapi-rules-path" onChange={e => setOpenApi(prev => ({ ...prev, algorithmsPath: e.target.value }))} placeholder={t('browser.create.openapi_rules_path')} style={{ marginBottom: 12 }} value={openApi.algorithmsPath} />
+                    {nameField}
+                    <FieldRow alignTop required label={t('browser.create.openapi_data_module')}>
+                        <Input data-testid="new-project-openapi-data-module" onChange={e => setOpenApi(prev => ({ ...prev, modelsModuleName: e.target.value }))} value={openApi.modelsModuleName} />
+                    </FieldRow>
+                    <FieldRow alignTop required label={t('browser.create.openapi_data_path')}>
+                        <Input data-testid="new-project-openapi-data-path" onChange={e => setOpenApi(prev => ({ ...prev, modelsPath: e.target.value }))} value={openApi.modelsPath} />
+                    </FieldRow>
+                    <FieldRow alignTop required label={t('browser.create.openapi_rules_module')}>
+                        <Input data-testid="new-project-openapi-rules-module" onChange={e => setOpenApi(prev => ({ ...prev, algorithmsModuleName: e.target.value }))} value={openApi.algorithmsModuleName} />
+                    </FieldRow>
+                    <FieldRow alignTop required label={t('browser.create.openapi_rules_path')}>
+                        <Input data-testid="new-project-openapi-rules-path" onChange={e => setOpenApi(prev => ({ ...prev, algorithmsPath: e.target.value }))} value={openApi.algorithmsPath} />
+                    </FieldRow>
                 </>
             )}
-            {showName ? (
-                <div className={styles.nameRepoRow}>
-                    <div>
-                        <span className={styles.label}>{t('browser.create.name')}</span>
-                        <Input
-                            data-testid="new-project-name"
-                            onChange={event => { setName(event.target.value); setNameTouched(true) }}
-                            placeholder={t('browser.create.name')}
-                            value={name}
-                        />
-                    </div>
-                    <div>
-                        <span className={styles.label}>{t('browser.create.repository_label')}</span>
-                        {repoSelectInput}
-                    </div>
-                </div>
-            ) : (
-                repoSelect
+            {showName && mode !== 'openapi' && nameField}
+            <FieldRow required label={t('browser.create.repository_label')}>
+                {repoSelectInput}
+            </FieldRow>
+            {repositorySupportsFolders && repository && (
+                <FieldRow label={t('browser.create.path')}>
+                    <RepoFolderInput
+                        data-testid="new-project-path"
+                        onChange={setPath}
+                        repositoryId={repository.id}
+                        value={path}
+                    />
+                </FieldRow>
             )}
-            {repositorySupportsFolders && (
-                <div className={styles.field}>
-                    <span className={styles.label}>{t('browser.create.path')}</span>
-                    <Input data-testid="new-project-path" onChange={event => setPath(event.target.value)} value={path} />
-                </div>
-            )}
-            <div className={styles.field}>
-                <span className={styles.label}>{t('browser.create.comment')}</span>
-                <Input.TextArea data-testid="new-project-comment" onChange={event => setComment(event.target.value)} rows={2} value={comment} />
-            </div>
+            <CommentField
+                config={config}
+                testId="new-project-comment"
+                value={comment}
+                onChange={value => {
+                    setCommentTouched(true)
+                    setComment(value)
+                }}
+            />
             {error && <Alert showIcon data-testid="new-project-error" style={{ marginTop: 4 }} title={error} type="error" />}
         </>
     )
@@ -831,9 +802,6 @@ export const NewProjectModal = ({
             <span />
             <div className={styles.footerRight}>
                 <Button data-testid="new-project-cancel" onClick={close}>{t('browser.create.cancel')}</Button>
-                <Button data-testid="new-project-next" onClick={() => setStep('config')} type="primary">
-                    {t('browser.create.next')}
-                </Button>
             </div>
         </div>
     ) : (
@@ -842,8 +810,8 @@ export const NewProjectModal = ({
                 {t('browser.create.back')}
             </Button>
             <div className={styles.footerRight}>
-                <Button data-testid="new-project-cancel" disabled={submitting} onClick={close}>{t('browser.create.cancel')}</Button>
-                <Button data-testid="new-project-submit" loading={submitting} onClick={submit} type="primary">
+                <Button data-testid="new-project-cancel" disabled={submitting || committing} onClick={close}>{t('browser.create.cancel')}</Button>
+                <Button data-testid="new-project-submit" loading={submitting || committing} onClick={submit} type="primary">
                     {t('browser.create.submit')}
                 </Button>
             </div>
@@ -858,7 +826,7 @@ export const NewProjectModal = ({
                 onCancel={close}
                 open={open}
                 title={t('browser.create.wizard_title')}
-                width={step === 'method' ? 640 : 520}
+                width={640}
             >
                 {step === 'method' ? methodStep : configStep}
             </Modal>

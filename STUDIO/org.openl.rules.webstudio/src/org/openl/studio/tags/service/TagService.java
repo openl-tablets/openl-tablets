@@ -21,10 +21,6 @@ public class TagService {
         return tagDao.getAll();
     }
 
-    public List<Tag> getByTagType(String type) {
-        return tagDao.getByTagType(type);
-    }
-
     @Transactional
     public void save(Tag tag) {
         tagDao.save(tag);
@@ -46,9 +42,5 @@ public class TagService {
 
     public Tag getByName(Long tagTypeId, String name) {
         return tagDao.getByName(tagTypeId, name);
-    }
-
-    public Tag getByTypeNameAndName(String key, String value) {
-        return tagDao.getByTagTypeAndName(key, value);
     }
 }

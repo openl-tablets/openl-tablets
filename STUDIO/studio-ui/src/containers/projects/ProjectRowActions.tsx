@@ -4,163 +4,160 @@ import { Button, Dropdown, Tooltip, type MenuProps } from 'antd'
 import {
     CopyOutlined,
     DeleteOutlined,
+    DiffOutlined,
     DownloadOutlined,
     FolderOpenOutlined,
     FolderOutlined,
+    HistoryOutlined,
+    MergeOutlined,
     MoreOutlined,
     RocketOutlined,
     SaveOutlined,
 } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { Project } from '../../types/projects'
+import { availableActions, PROJECT_ACTIONS, type RowActionId } from './projectActions'
 
-export type RowActionId = 'open' | 'close' | 'save' | 'copy' | 'deploy' | 'export' | 'delete'
+export type { RowActionId }
 
 /**
  * Per-row project actions, resolved from the project's server-computed capabilities. `open`, `close`
  * and `save` double as the project's workspace status: a closed project offers Open, an opened one
  * offers Close, and a modified one offers Save.
  */
-export interface ProjectListHandlers {
-    onOpen: (project: Project) => void
-    onClose: (project: Project) => void
-    onSave: (project: Project) => void
-    onCopy: (project: Project) => void
-    onDeploy: (project: Project) => void
-    onExport: (project: Project) => void
-    onDelete: (project: Project) => void
+export type ProjectListHandlers = {
+    [K in RowActionId as `on${Capitalize<K>}`]: (project: Project) => void
 }
 
 const useStyles = createStyles(({ css }) => ({
     wrap: css`
         display: inline-flex;
         align-items: center;
-        gap: 2px;
+        gap: 4px;
     `,
 }))
 
-interface RowActionMeta {
-    id: RowActionId
-    Icon: ComponentType<{ style?: CSSProperties }>
-    labelKey: string
-    danger?: boolean
-    /** Tint the glyph success-green — used for Close, whose open-folder icon mirrors the Opened status. */
-    green?: boolean
-    /** The server-computed capability that gates this action. */
-    cap: keyof NonNullable<Project['capabilities']>
-    /** The row handler this action invokes. */
-    handler: keyof ProjectListHandlers
+/**
+ * The glyph of each action on a list row. The open/close pair mirrors the project status: a closed
+ * project shows a closed folder (Open), an opened one shows the green open folder (Close).
+ */
+const ROW_ICONS: Record<RowActionId, ComponentType<{ style?: CSSProperties }>> = {
+    open: FolderOutlined,
+    close: FolderOpenOutlined,
+    save: SaveOutlined,
+    copy: CopyOutlined,
+    deleteBranch: DeleteOutlined,
+    openRevision: HistoryOutlined,
+    sync: MergeOutlined,
+    deploy: RocketOutlined,
+    compare: DiffOutlined,
+    export: DownloadOutlined,
+    delete: DeleteOutlined,
 }
 
-// The open/close glyphs mirror the project status: a closed project shows a closed folder (Open),
-// an opened one shows the green open folder (Close). Status actions first, then copy/deploy/export,
-// then the destructive delete. Each action carries its own capability gate and handler, so the id set
-// lives in exactly one place.
-const ACTIONS: RowActionMeta[] = [
-    { id: 'open', Icon: FolderOutlined, labelKey: 'browser.open', cap: 'canOpen', handler: 'onOpen' },
-    { id: 'close', Icon: FolderOpenOutlined, labelKey: 'browser.close', green: true, cap: 'canClose', handler: 'onClose' },
-    { id: 'save', Icon: SaveOutlined, labelKey: 'browser.save', cap: 'canSave', handler: 'onSave' },
-    { id: 'copy', Icon: CopyOutlined, labelKey: 'browser.copy', cap: 'canCopy', handler: 'onCopy' },
-    { id: 'deploy', Icon: RocketOutlined, labelKey: 'browser.deploy', cap: 'canDeploy', handler: 'onDeploy' },
-    { id: 'export', Icon: DownloadOutlined, labelKey: 'browser.export', cap: 'canExport', handler: 'onExport' },
-    { id: 'delete', Icon: DeleteOutlined, labelKey: 'browser.delete', danger: true, cap: 'canDelete', handler: 'onDelete' },
-]
+/** The actions a row shows as buttons, in display order; open and close never apply at once. */
+const PRIMARY: RowActionId[] = ['copy', 'deleteBranch', 'open', 'close']
 
-const iconOf = (action: RowActionMeta, successColor: string): ReactNode =>
-    action.green ? <action.Icon style={{ color: successColor }} /> : <action.Icon />
+/** Everything else, in the order the overflow menu lists it. */
+const OVERFLOW: RowActionId[] = ['save', 'openRevision', 'sync', 'deploy', 'compare', 'export', 'delete']
 
-const availableActions = (project: Project): RowActionMeta[] =>
-    ACTIONS.filter(action => !!project.capabilities?.[action.cap])
+const handlerOf = (id: RowActionId): keyof ProjectListHandlers =>
+    `on${id.charAt(0).toUpperCase()}${id.slice(1)}` as keyof ProjectListHandlers
+
+const iconOf = (id: RowActionId, successColor: string): ReactNode => {
+    const Icon = ROW_ICONS[id]
+    // Close is the one action tinted with its status colour, matching the Opened status mark.
+    return id === 'close' ? <Icon style={{ color: successColor }} /> : <Icon />
+}
 
 interface ProjectActionsProps {
     project: Project
     handlers: ProjectListHandlers
     /** The action currently running on this project, if any — drives loading. */
     pendingActionId: RowActionId | null
+    /**
+     * `buttons` keeps the everyday actions in front, as a table row has the width for; `menu` folds every
+     * action away, which is what a card has room for.
+     */
+    layout?: 'buttons' | 'menu'
 }
 
 /**
- * The inline pictogram actions on a project table row. Every action is an icon button with a tooltip,
- * gated by a server-computed capability, so the row only offers what the current user may perform.
+ * The actions of a project in the list. A table row shows the everyday ones as buttons and keeps the rest
+ * behind the overflow menu; a card folds them all into the menu, where they do not crowd the tile. Every
+ * action is gated by a server-computed capability, so only what the current user may perform is offered.
  */
-export const ProjectRowActions = ({ project, handlers, pendingActionId }: ProjectActionsProps) => {
+export const ProjectRowActions = ({
+    project,
+    handlers,
+    pendingActionId,
+    layout = 'buttons',
+}: ProjectActionsProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const token = useTheme()
     const busy = pendingActionId !== null
 
-    const visible = availableActions(project)
-    if (visible.length === 0) {
+    const primary = layout === 'buttons' ? availableActions(project, PRIMARY) : []
+    const overflow = layout === 'buttons'
+        ? availableActions(project, OVERFLOW)
+        : availableActions(project, [...PRIMARY, ...OVERFLOW])
+    if (primary.length === 0 && overflow.length === 0) {
         return null
+    }
+
+    const items: MenuProps['items'] = []
+    overflow.forEach(id => {
+        const danger = PROJECT_ACTIONS[id].danger ?? false
+        if (danger && items.length > 0) {
+            items.push({ type: 'divider' })
+        }
+        items.push({
+            key: id,
+            icon: iconOf(id, token.colorSuccess),
+            label: t(PROJECT_ACTIONS[id].labelKey),
+            danger,
+        })
+    })
+
+    const runFromMenu: MenuProps['onClick'] = ({ key, domEvent }) => {
+        domEvent.stopPropagation()
+        handlers[handlerOf(key as RowActionId)](project)
     }
 
     return (
         <div className={styles.wrap}>
-            {visible.map(action => {
-                const label = t(action.labelKey)
+            {primary.map(id => {
+                const label = t(PROJECT_ACTIONS[id].labelKey)
                 return (
-                    <Tooltip key={action.id} title={label}>
+                    <Tooltip key={id} title={label}>
                         <Button
                             aria-label={label}
-                            danger={action.danger ?? false}
-                            data-testid={`project-action-${action.id}-${project.id}`}
-                            disabled={busy && pendingActionId !== action.id}
-                            icon={iconOf(action, token.colorSuccess)}
-                            loading={pendingActionId === action.id}
-                            size="small"
+                            data-testid={`project-action-${id}-${project.id}`}
+                            disabled={busy && pendingActionId !== id}
+                            icon={iconOf(id, token.colorSuccess)}
+                            loading={pendingActionId === id}
                             type="text"
                             onClick={event => {
                                 event.stopPropagation()
-                                handlers[action.handler](project)
+                                handlers[handlerOf(id)](project)
                             }}
                         />
                     </Tooltip>
                 )
             })}
+            {items.length > 0 && (
+                <Dropdown menu={{ items, onClick: runFromMenu }} trigger={['click']}>
+                    <Button
+                        aria-label={t('home.row_actions')}
+                        data-testid={`project-actions-${project.id}`}
+                        icon={<MoreOutlined />}
+                        loading={busy}
+                        onClick={event => event.stopPropagation()}
+                        type="text"
+                    />
+                </Dropdown>
+            )}
         </div>
-    )
-}
-
-/**
- * The overflow ("⋯") actions menu for a project card, offering the same capability-gated actions as
- * the table's inline pictograms, with the destructive delete past a divider.
- */
-export const ProjectActionsMenu = ({ project, handlers, pendingActionId }: ProjectActionsProps) => {
-    const { t } = useTranslation('repository')
-    const token = useTheme()
-
-    const visible = availableActions(project)
-    if (visible.length === 0) {
-        return null
-    }
-
-    const items: MenuProps['items'] = []
-    visible.forEach(action => {
-        if (action.danger && items.length > 0) {
-            items.push({ type: 'divider' })
-        }
-        items.push({ key: action.id, icon: iconOf(action, token.colorSuccess), label: t(action.labelKey), danger: action.danger ?? false })
-    })
-
-    const onClick: MenuProps['onClick'] = ({ key, domEvent }) => {
-        domEvent.stopPropagation()
-        const action = ACTIONS.find(item => item.id === key)
-        if (action) {
-            handlers[action.handler](project)
-        }
-    }
-
-    return (
-        <Dropdown menu={{ items, onClick }} trigger={['click']}>
-            <Button
-                aria-label={t('home.row_actions')}
-                data-testid={`project-actions-${project.id}`}
-                icon={<MoreOutlined />}
-                loading={pendingActionId !== null}
-                onClick={event => event.stopPropagation()}
-                size="small"
-                type="text"
-            />
-        </Dropdown>
     )
 }

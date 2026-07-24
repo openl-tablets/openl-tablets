@@ -22,9 +22,9 @@ public enum ProjectInclude {
     @JsonProperty("deleted")
     DELETED,
 
-    @Schema(description = "Include resolved project modules and related descriptor fields.")
-    @JsonProperty("modules")
-    MODULES;
+    @Schema(description = "Include the project as its rules.xml describes it.")
+    @JsonProperty("descriptor")
+    DESCRIPTOR;
 
     public static List<ProjectInclude> normalize(Collection<ProjectInclude> includes) {
         if (includes == null || includes.isEmpty()) {

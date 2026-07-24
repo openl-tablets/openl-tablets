@@ -6,6 +6,9 @@ i18n
     .init({
         fallbackLng: 'en',
         lng: 'en',
+        // React escapes every rendered value already, so i18next must not escape interpolations on top of
+        // that: it would turn a branch like "rates/jdoe/2026" into "rates&#x2F;jdoe&#x2F;2026" in messages.
+        interpolation: { escapeValue: false },
     })
 
 export default i18n

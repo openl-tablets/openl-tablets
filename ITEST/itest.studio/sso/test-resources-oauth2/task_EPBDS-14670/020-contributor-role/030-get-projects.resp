@@ -12,6 +12,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project EPBDS-12973 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canCompare": true,
@@ -28,6 +38,16 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "comment": "Project EPBDS_14670_Project is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canCompare": true,
@@ -50,6 +70,16 @@ Content-Type: application/json
         "admin/feature-1",
         "master"
       ],
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canClose": true,
         "canCompare": true,
@@ -72,6 +102,17 @@ Content-Type: application/json
         "master",
         "user1/feature-1"
       ],
+      "branchDefault": true,
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
       "capabilities": {
         "canOpen": true,
         "canCompare": true,

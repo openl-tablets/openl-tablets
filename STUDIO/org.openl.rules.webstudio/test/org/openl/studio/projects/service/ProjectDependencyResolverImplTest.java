@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -67,6 +68,26 @@ class ProjectDependencyResolverImplTest {
         when(workspace.getProjects(false)).thenReturn(List.of(source, target));
 
         assertEquals(List.of(target), resolver(descriptorResolver, workspace).getProjectDependencies(source));
+    }
+
+    @Test
+    void keepsADependencyTheWorkspaceHasNoProjectFor() throws Exception {
+        // rules.xml may name a project nobody has: it is reported as declared, with no project of its own.
+        RulesProject source = project("ACC Master Offer", "master");
+        ProjectDependencyDescriptor declared = dependency("Ghost");
+        ProjectDescriptorArtefactResolver descriptorResolver = mock(ProjectDescriptorArtefactResolver.class);
+        when(descriptorResolver.getDependencies(source)).thenReturn(List.of(declared));
+
+        UserWorkspace workspace = mock(UserWorkspace.class);
+        when(workspace.getProjects(false)).thenReturn(List.of(source));
+
+        var dependencies = resolver(descriptorResolver, workspace).getDependencies(source);
+
+        assertEquals(1, dependencies.size());
+        assertEquals("Ghost", dependencies.get(0).name());
+        assertFalse(dependencies.get(0).isResolved());
+        // The projects a caller can work with are still only the ones that resolved.
+        assertEquals(List.of(), resolver(descriptorResolver, workspace).getProjectDependencies(source));
     }
 
     @Test

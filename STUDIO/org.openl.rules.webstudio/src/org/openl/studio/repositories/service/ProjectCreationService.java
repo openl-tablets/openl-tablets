@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,6 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.security.standalone.persistence.Tag;
-import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.web.CopyProjectTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -41,8 +40,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
-import org.openl.studio.tags.service.TagService;
-import org.openl.studio.tags.service.TagTypeService;
+import org.openl.studio.tags.service.TagAssignmentValidator;
 import org.openl.util.StringUtils;
 
 /**
@@ -61,8 +59,7 @@ public class ProjectCreationService {
 
     private final AclProjectsHelper aclProjectsHelper;
     private final RepositoryAclServiceProvider aclServiceProvider;
-    private final TagTypeService tagTypeService;
-    private final TagService tagService;
+    private final TagAssignmentValidator tagAssignmentValidator;
     @Qualifier("zipFilter")
     private final PathFilter zipFilter;
     private final ZipCharsetDetector zipCharsetDetector;
@@ -104,54 +101,51 @@ public class ProjectCreationService {
     }
 
     /**
-     * Register the project's {@code tags.properties} tags in the tag catalog: for an extensible tag type,
-     * a value not yet known is created. Values of fixed-value types and unknown tag types are left as-is
-     * (they require an administrator). Mirrors the legacy tab so imported/created projects keep their tags.
+     * Resyncs the user workspace with the design repository after a write.
      *
-     * <p>Tags are collected from both the design and local copies so every create path is covered:
-     * publishing a local project exposes them through the local copy, while an archive or copy create
-     * exposes them through the design copy.
+     * <p>The refresh keeps the project list metadata aligned for later open, branch and save operations.
      */
-    void registerExtensibleTags(RulesProject project) {
-        registerExtensibleTags(collectProjectTags(project));
+    public void refreshWorkspaceAfterDesignChange() {
+        getUserWorkspace().refresh();
     }
 
     /**
-     * Register tags from a design project without requiring it to be opened in the user's workspace.
-     * Archive upload keeps projects closed, so the tag catalog must read the repository artefact directly.
+     * Configures the tag values a project brought with it in its {@code tags.properties} file: a value of
+     * an extensible tag type that is not configured yet becomes configured, so the project shows the tag
+     * it carries. A value of any other tag type, and an unknown tag type, need an administrator and are
+     * left as they are.
+     *
+     * <p>Archive upload keeps the project closed, so the tags are read from the repository artefact.
      */
     public void registerExtensibleTags(AProject project) {
-        registerExtensibleTags(new ProjectTags(project).getTags());
+        tagAssignmentValidator.applicable(new ProjectTags(project).getTags());
     }
 
     /**
-     * Register tags from a freshly written design project and resync the user workspace with the design
-     * repository. Tags are read from the repository artefact; workspace refresh keeps project list metadata
-     * aligned for later open, branch, and save operations.
+     * Configures the tag values of a workspace project, collected from both its design and local copies so
+     * every create path is covered: publishing a local project exposes them through the local copy, while
+     * an archive or copy create exposes them through the design copy.
+     */
+    void registerExtensibleTags(RulesProject project) {
+        tagAssignmentValidator.applicable(collectProjectTags(project));
+    }
+
+    /**
+     * Configures the tags of a freshly written design project and resyncs the user workspace with the
+     * design repository.
      */
     public void registerExtensibleTagsAfterDesignChange(AProject project) {
         registerExtensibleTags(project);
-        getUserWorkspace().refresh();
+        refreshWorkspaceAfterDesignChange();
     }
 
     /**
-     * Register tags from a workspace project and resync the user workspace after a design-repository write.
+     * Configures the tags of a workspace project and resyncs the user workspace after a design-repository
+     * write.
      */
     public void registerExtensibleTagsAfterDesignChange(RulesProject project) {
         registerExtensibleTags(project);
-        getUserWorkspace().refresh();
-    }
-
-    private void registerExtensibleTags(Map<String, String> tags) {
-        tags.forEach((typeName, value) -> {
-            TagType type = tagTypeService.getByName(typeName);
-            if (type != null && type.isExtensible() && tagService.getByName(type.getId(), value) == null) {
-                var tag = new Tag();
-                tag.setType(type);
-                tag.setName(value);
-                tagService.save(tag);
-            }
-        });
+        refreshWorkspaceAfterDesignChange();
     }
 
     private static Map<String, String> collectProjectTags(RulesProject project) {
@@ -302,7 +296,8 @@ public class ProjectCreationService {
      * @return the created copy's file data (branch/revision)
      */
     public FileData copyProject(String targetRepositoryId, String newName, String path,
-                                String sourceRepositoryId, String sourceProjectName, String comment) {
+                                String sourceRepositoryId, String sourceProjectName, String comment,
+                                String revision) {
         requireCreatePermission(targetRepositoryId);
         var workspace = getUserWorkspace();
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
@@ -311,6 +306,9 @@ public class ProjectCreationService {
             if (!designRepoAclService.isGranted(source, List.of(BasePermission.READ))) {
                 throw new ForbiddenException("default.message");
             }
+            // The state to copy is resolved first: a revision the source has none at fails before anything
+            // is written to the target repository.
+            var sourceCopy = sourceAtRevision(source, revision);
             var designTimeRepository = workspace.getDesignTimeRepository();
             Repository targetRepository = designTimeRepository.getRepository(targetRepositoryId);
             String designPath = designTimeRepository.getRulesLocation() + newName;
@@ -318,11 +316,10 @@ public class ProjectCreationService {
             designData.setName(designPath);
             designData.setComment(comment);
             if (targetRepository.supports().mappedFolders()) {
-                designData.addAdditionalData(new FileMappingData(designPath, copyInternalPath(path, newName)));
+                designData.addAdditionalData(FileMappingData.forProject(designPath, path, newName));
             }
             var user = workspace.getUser();
             var targetProject = new AProject(targetRepository, designData);
-            var sourceCopy = new AProject(source.getRepository(), source.getFolderPath());
             targetProject.setResourceTransformer(new CopyProjectTransformer(newName, Map.of()));
             targetProject.update(sourceCopy, user);
             targetProject.setResourceTransformer(null);
@@ -336,14 +333,27 @@ public class ProjectCreationService {
         }
     }
 
-    static String copyInternalPath(String path, String projectName) {
-        var folder = StringUtils.trimToEmpty(path).replace('\\', '/');
-        while (folder.startsWith("/")) {
-            folder = folder.substring(1);
+    /**
+     * The state of the source project to copy: its latest one for a blank revision, otherwise the state it
+     * had at that revision.
+     *
+     * <p>A revision the project has no state at is rejected, whatever the repository makes of the value.
+     */
+    private AProject sourceAtRevision(RulesProject source, @Nullable String revision) {
+        var version = StringUtils.trimToNull(revision);
+        var sourceCopy = new AProject(source.getRepository(), source.getFolderPath(), version);
+        if (version == null) {
+            return sourceCopy;
         }
-        if (!folder.isEmpty() && !folder.endsWith("/")) {
-            folder += "/";
+        try {
+            if (sourceCopy.getFileData() != null) {
+                return sourceCopy;
+            }
+        } catch (RuntimeException e) {
+            // A repository numbers its revisions its own way and may reject the value outright.
+            log.debug("Revision '{}' cannot be read from the repository.", version, e);
         }
-        return folder + projectName;
+        throw new NotFoundException("project.revision.message", version);
     }
+
 }

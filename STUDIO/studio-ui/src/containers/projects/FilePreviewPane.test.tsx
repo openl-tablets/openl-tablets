@@ -3,8 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FilePreviewPane } from './FilePreviewPane'
 import {
-    copyFile,
-    deleteFile,
     downloadFile,
     getFileContent,
     isEditableTextFile,
@@ -12,8 +10,6 @@ import {
 } from '../../services/files'
 
 vi.mock('../../services/files', () => ({
-    copyFile: vi.fn(),
-    deleteFile: vi.fn(),
     downloadFile: vi.fn(),
     getFileContent: vi.fn(),
     isEditableTextFile: vi.fn(),
@@ -23,7 +19,10 @@ vi.mock('../../services/files', () => ({
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
 vi.mock('antd-style', () => ({
-    createStyles: () => () => ({ styles: new Proxy({}, { get: () => '' }) }),
+    createStyles: () => () => ({
+        styles: new Proxy({}, { get: () => '' }),
+        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
+    }),
 }))
 
 vi.mock('@ant-design/icons', () => ({
@@ -32,9 +31,17 @@ vi.mock('@ant-design/icons', () => ({
     DeleteOutlined: () => null,
     DiffOutlined: () => null,
     DownloadOutlined: () => null,
+    DragOutlined: () => null,
     EditOutlined: () => null,
+    FontColorsOutlined: () => null,
     FolderOpenOutlined: () => null,
+    MoreOutlined: () => null,
     SaveOutlined: () => null,
+    UploadOutlined: () => null,
+}))
+
+vi.mock('./MoveFileModal', () => ({
+    MoveFileModal: ({ open, mode }: { open: boolean, mode: string }) => open ? <div data-testid={`move-file-modal-${mode}`} /> : null,
 }))
 
 vi.mock('./CodeEditor', () => ({
@@ -92,8 +99,23 @@ vi.mock('antd', () => {
             <button data-testid="popconfirm-ok" onClick={onConfirm as never} type="button">confirm</button>
         </>
     )
+    interface MenuItem { key: string, label: unknown }
+    const Dropdown = ({ children, menu }: Record<string, unknown>) => {
+        const { items, onClick } = menu as { items?: MenuItem[], onClick?: (info: { key: string }) => void }
+        return (
+            <div>
+                {children as never}
+                {items?.map(item => (
+                    <button key={item.key} data-testid={`file-${item.key}`} onClick={() => onClick?.({ key: item.key })} type="button">
+                        {item.label as never}
+                    </button>
+                ))}
+            </div>
+        )
+    }
     const Skeleton = () => <div>loading</div>
-    const Space = { Compact: ({ children }: Record<string, unknown>) => <div>{children as never}</div> }
+    const Space = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
+    Space.Compact = ({ children }: Record<string, unknown>) => <div>{children as never}</div>
     const Tag = ({ children }: Record<string, unknown>) => <span>{children as never}</span>
     const Tooltip = ({ children }: Record<string, unknown>) => <>{children as never}</>
     const Alert = ({ title, ...rest }: Record<string, unknown>) => {
@@ -102,15 +124,27 @@ vi.mock('antd', () => {
         return <div {...dom}>{title as never}</div>
     }
     const notification = { error: vi.fn() }
-    return { Alert, Button, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip }
+    return { Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip }
 })
 
+vi.mock('./CopyFileModal', () => ({
+    CopyFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="copy-file-modal" /> : null,
+}))
+vi.mock('./DeleteFileModal', () => ({
+    DeleteFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="delete-file-modal" /> : null,
+}))
+vi.mock('./UpdateFileModal', () => ({
+    UpdateFileModal: ({ open }: { open: boolean }) => open ? <div data-testid="update-file-modal" /> : null,
+}))
+
 const baseProps = {
+    folders: ['rules'],
     branch: 'main',
     canDelete: true,
     canWrite: true,
     onChanged: vi.fn(),
     onDeleted: vi.fn(),
+    onMoved: vi.fn(),
     projectId: 'p1',
     projectName: 'Project',
     repositoryId: 'repo1',
@@ -126,14 +160,12 @@ describe('FilePreviewPane', () => {
             }
             return Promise.resolve('first content')
         })
-        vi.mocked(copyFile).mockResolvedValue()
-        vi.mocked(deleteFile).mockResolvedValue()
         vi.mocked(updateFileContent).mockResolvedValue()
     })
 
     it('keeps the dirty file open when a file switch is cancelled', async () => {
         const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
-        await waitFor(() => expect(screen.getByDisplayValue('first content')).toBeTruthy())
+        await screen.findByDisplayValue('first content')
 
         await userEvent.click(screen.getByTestId('file-edit'))
         await userEvent.clear(screen.getByTestId('code-editor'))
@@ -154,7 +186,7 @@ describe('FilePreviewPane', () => {
 
     it('loads the selected file after dirty changes are discarded', async () => {
         const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
-        await waitFor(() => expect(screen.getByDisplayValue('first content')).toBeTruthy())
+        await screen.findByDisplayValue('first content')
 
         await userEvent.click(screen.getByTestId('file-edit'))
         await userEvent.clear(screen.getByTestId('code-editor'))
@@ -164,13 +196,13 @@ describe('FilePreviewPane', () => {
         await userEvent.click(screen.getByTestId('file-discard-confirm'))
 
         await waitFor(() => expect(getFileContent).toHaveBeenCalledWith('p1', 'second.txt'))
-        await waitFor(() => expect(screen.getByDisplayValue('second content')).toBeTruthy())
+        await screen.findByDisplayValue('second content')
         expect(screen.getByText('second.txt')).toBeTruthy()
     })
 
     it('keeps dirty content when a reload is cancelled', async () => {
         const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
-        await waitFor(() => expect(screen.getByDisplayValue('first content')).toBeTruthy())
+        await screen.findByDisplayValue('first content')
 
         await userEvent.click(screen.getByTestId('file-edit'))
         await userEvent.clear(screen.getByTestId('code-editor'))
@@ -199,13 +231,14 @@ describe('FilePreviewPane', () => {
         render(<FilePreviewPane {...baseProps} path="rules/Main.xlsx" />)
 
         expect(screen.getByTestId('file-preview-binary')).toBeTruthy()
-        await userEvent.click(screen.getByText('browser.files.download'))
+        // The toolbar action and the placeholder both offer the download; use the toolbar one.
+        await userEvent.click(screen.getByTestId('file-download'))
         expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx')
     })
 
     it('saves edited text content', async () => {
         render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
-        await waitFor(() => expect(screen.getByDisplayValue('first content')).toBeTruthy())
+        await screen.findByDisplayValue('first content')
 
         await userEvent.click(screen.getByTestId('file-edit'))
         await userEvent.clear(screen.getByTestId('code-editor'))
@@ -216,25 +249,20 @@ describe('FilePreviewPane', () => {
         expect(baseProps.onChanged).toHaveBeenCalled()
     })
 
-    it('deletes the active file after confirmation', async () => {
-        render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
-        await waitFor(() => expect(screen.getByDisplayValue('first content')).toBeTruthy())
-
-        await userEvent.click(screen.getByTestId('file-delete'))
-        await userEvent.click(screen.getByTestId('popconfirm-ok'))
-
-        await waitFor(() => expect(deleteFile).toHaveBeenCalledWith('p1', 'first.txt'))
-        expect(baseProps.onDeleted).toHaveBeenCalled()
-    })
-
-    it('copies the active file to a suggested sibling path', async () => {
+    // Every file action opens its own dialog; one parameterized test covers the whole menu.
+    it.each([
+        ['delete', 'file-delete', 'delete-file-modal'],
+        ['copy', 'file-copy', 'copy-file-modal'],
+        ['replace', 'file-update', 'update-file-modal'],
+        ['rename', 'file-rename', 'move-file-modal-rename'],
+        ['move', 'file-move', 'move-file-modal-move'],
+    ])('opens the %s dialog for the active file', async (_action, trigger, modal) => {
         render(<FilePreviewPane {...baseProps} path="rules/first.txt" reloadToken={0} />)
-        await waitFor(() => expect(screen.getByDisplayValue('first content')).toBeTruthy())
+        await screen.findByDisplayValue('first content')
 
-        await userEvent.click(screen.getByTestId('file-copy'))
-        await userEvent.click(screen.getByTestId('file-copy-submit'))
+        await userEvent.click(screen.getByTestId(trigger))
 
-        await waitFor(() => expect(copyFile).toHaveBeenCalledWith('p1', 'rules/first.txt', 'rules/first-copy.txt'))
+        expect(screen.getByTestId(modal)).toBeInTheDocument()
     })
 
     it('surfaces load failures in the preview pane', async () => {
@@ -242,6 +270,6 @@ describe('FilePreviewPane', () => {
 
         render(<FilePreviewPane {...baseProps} path="broken.txt" reloadToken={0} />)
 
-        await waitFor(() => expect(screen.getByTestId('file-preview-error')).toBeTruthy())
+        expect(await screen.findByTestId('file-preview-error')).toBeInTheDocument()
     })
 })

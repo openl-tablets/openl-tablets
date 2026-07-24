@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, notification, Popconfirm, Select, Skeleton, Tag } from 'antd'
 import { DeleteOutlined, PlusOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { useSharedStyles } from './sharedStyles'
 import { Role } from '../../constants'
 import { getProjectAcl, removeProjectAcl, setProjectAcl } from '../../services/acl'
 import { useGuardedReload } from '../../hooks'
-import { MOCKUP } from './projectsTheme'
 import { AddAccessModal } from './AddAccessModal'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -37,13 +37,7 @@ const useStyles = createStyles(({ css, token }) => ({
             padding: 10px 12px;
             border-bottom: 1px solid ${token.colorBorderSecondary};
             background: ${token.colorFillQuaternary};
-            color: ${token.colorTextTertiary};
-            font-family: ${MOCKUP.fontMono};
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.05em;
             text-align: left;
-            text-transform: uppercase;
         }
 
         td {
@@ -89,6 +83,7 @@ interface AccessPanelProps {
 /** Per-project ACL tab: lists the subjects and their roles, and lets a manager change or revoke access. */
 export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelProps) => {
     const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
     const { styles } = useStyles()
     const { data: entries, reload } = useGuardedReload(
         projectId,
@@ -141,7 +136,7 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
             {Array.isArray(entries) && entries.length > 0 && (
                 <table className={styles.table}>
                     <thead>
-                        <tr>
+                        <tr className={shared.microLabel}>
                             <th>{t('browser.access.col_subject')}</th>
                             <th>{t('browser.access.col_type')}</th>
                             <th>{t('browser.access.col_role')}</th>

@@ -11,5 +11,6 @@ public record CreateFromProjectModel(
         @Parameter(description = "Repository id of the source project") @NotBlank String sourceRepositoryId,
         @Parameter(description = "Name of the source project to copy") @NotBlank String sourceProjectName,
         @Parameter(description = "Path within the repository (non-flat repositories only)") String path,
-        @Parameter(description = "Commit comment") String comment) {
+        @Parameter(description = "Commit comment") String comment,
+        @Parameter(description = "Revision of the source project to copy. The latest revision is copied when omitted") String revision) {
 }

@@ -251,7 +251,7 @@ describe('TraceTree', () => {
             status: 'completed',
             frames: [],
             tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
-                durationMillis: 42, selfMillis: 12, steps: [] },
+                durationMillis: 42, selfMillis: 12, steps: []},
         })
         render(<TraceTree />)
         expect(screen.queryByTestId('tree-not-retained-tree/notRetained')).toBeNull()

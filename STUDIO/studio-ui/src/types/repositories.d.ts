@@ -19,7 +19,36 @@ export interface RepositoryFeatures {
     mappedFolders: boolean
 }
 
+/**
+ * Settings of the repository a project is stored in, as the project forms need them: how a branch name and
+ * a commit comment are suggested, and the expressions they must match.
+ */
+export interface RepositoryConfig {
+    /** Branch rules; absent when the repository has no branches. */
+    newBranch?: {
+        /** Pattern the suggested name is built from, e.g. `{project-name}/{username}/{current-date}`. */
+        pattern?: string | undefined
+        /** Expression a branch name must match; absent when any name is accepted. */
+        namePattern?: string | undefined
+        invalidNameHint?: string | undefined
+    } | undefined
+    comment: {
+        /** Expression a comment must match; absent when the repository does not customize comments. */
+        userMessagePattern?: string | undefined
+        invalidUserMessageHint?: string | undefined
+        /** Templates the suggested comments are built from. */
+        templates: {
+            save?: string | undefined
+            create?: string | undefined
+            copy?: string | undefined
+            restoreFrom?: string | undefined
+        }
+    }
+}
+
 export interface Repository {
+    /** A deployment repository that takes a project only from the main branch of its design repository. */
+    mainBranchOnly?: boolean
     aclId: string
     id: string
     name: string

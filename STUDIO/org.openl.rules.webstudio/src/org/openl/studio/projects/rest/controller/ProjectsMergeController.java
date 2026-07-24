@@ -40,7 +40,6 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
-import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
@@ -78,11 +77,9 @@ public class ProjectsMergeController {
     @PostMapping("/check")
     public CheckMergeResult check(@ProjectId @PathVariable("projectId") RulesProject project,
                                   @Parameter(description = "projects.merge.check.request.desc")
-                                  @RequestBody @Valid MergeRequest request,
-                                  @Parameter(description = "projects.merge.param.force.desc")
-                                  @RequestParam(name = "force", defaultValue = "false") boolean force) throws IOException {
+                                  @RequestBody @Valid MergeRequest request) throws IOException {
         validateUnresolvedConflict(project);
-        return mergeService.checkMerge(project, request.otherBranch(), request.mode(), force);
+        return mergeService.checkMerge(project, request.otherBranch(), request.mode());
     }
 
     @Operation(summary = "projects.merge.get-conflicts.summary", description = "projects.merge.get-conflicts.desc")
@@ -131,10 +128,8 @@ public class ProjectsMergeController {
                                      @Parameter(description = "projects.merge.param.force.desc")
                                      @RequestParam(name = "force", defaultValue = "false") boolean force) throws IOException, ProjectException {
         validateUnresolvedConflict(project);
-        var checkMergeResult = mergeService.checkMerge(project, request.otherBranch(), request.mode(), force);
-        if (checkMergeResult.status() != CheckMergeStatus.MERGEABLE) {
-            throw new ConflictException("project.branch.merge.not.mergeable.message");
-        }
+        // Refuse before opening the project: a merge that is not allowed must not pause the compilation.
+        mergeService.validateMergeAllowed(project, request.otherBranch(), request.mode(), force);
         var model = projectService.openProject(project).awaitCompiled();
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
         if (dependencyManager != null) {

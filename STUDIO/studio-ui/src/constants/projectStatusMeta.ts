@@ -22,29 +22,34 @@ export interface StatusMeta {
     tokenColor: StatusColorToken
     icon: React.ComponentType<{ className?: string; style?: React.CSSProperties; 'aria-hidden'?: boolean }>
     labelKey: string
+    /** What the status means, shown by the icon marking a project name. */
+    hintKey?: string
     /** Deleted projects recede: muted text, strikethrough name, dimmed row. */
     muted?: boolean
 }
 
 /**
- * Single source of truth for project status semantics — colour, icon and label, rendered as a pill in
- * the detail header. Colours are Ant Design semantic tokens, so the palette never clashes with Studio.
+ * Single source of truth for project status semantics — colour, icon and wording. Every screen reads the
+ * status from here, so a backend constant is never turned into text anywhere else. Colours are Ant Design
+ * semantic tokens, so the palette never clashes with Studio.
  */
 export const STATUS_META: Record<ProjectStatus, StatusMeta> = {
     [ProjectStatus.Editing]: {
         tokenColor: 'colorPrimary',
         icon: EditOutlined,
         labelKey: 'browser.status.editing',
+        hintKey: 'browser.status.editing_hint',
     },
     [ProjectStatus.Opened]: {
         tokenColor: 'colorSuccess',
         icon: FolderOpenOutlined,
-        labelKey: 'browser.status.opened',
+        labelKey: 'browser.status.no_changes',
     },
     [ProjectStatus.ViewingVersion]: {
         tokenColor: 'colorWarning',
         icon: HistoryOutlined,
         labelKey: 'browser.status.viewing_version',
+        hintKey: 'browser.status.viewing_version_hint',
     },
     [ProjectStatus.Local]: {
         tokenColor: 'colorInfo',

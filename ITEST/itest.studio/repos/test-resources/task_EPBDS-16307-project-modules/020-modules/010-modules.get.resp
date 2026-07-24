@@ -1,0 +1,74 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6TW9kdWxlVHJlZTo3YzlmZGEyNmUzMmQ4YWY4MjhmYjllN2QyMWJmMzc4ZTY1NWU0ZGExOGIyZTdjMjE3Yzg5MjRkNzZmMDc4YmVj",
+  "name": "ModuleTree",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "ModuleTree",
+  "comment": "Create a project whose rules.xml declares a pattern",
+  "selectedBranches": [
+    "master"
+  ],
+  "dependencies": [
+    {
+      "name": "Ghost Project",
+      "missing": true
+    }
+  ],
+  "descriptor": {
+    "modules": [
+      {
+        "name": "Main",
+        "path": "rules/Main.xlsx"
+      },
+      {
+        "name": "Generic",
+        "path": "rules/**/*.xlsx",
+        "modules": [
+          {
+            "name": "Extra",
+            "path": "rules/Extra.xlsx"
+          }
+        ]
+      },
+      {
+        "name": "Archived",
+        "path": "archive/**/*.xlsx",
+        "modules": []
+      }
+    ],
+    "sources": [
+      "groovy/",
+      "lib/*.jar"
+    ],
+    "sourcesDefault": true
+  },
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canDelete": true,
+    "canOpen": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canExport": true
+  }
+}

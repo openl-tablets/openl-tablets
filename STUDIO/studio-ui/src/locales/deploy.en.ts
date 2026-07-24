@@ -36,5 +36,6 @@ i18next.addResourceBundle('en', 'deploy', {
         deploy_failed_description: 'Failed to deploy configuration. Please try again.',
         no_deploy_rights: 'You do not have permission to deploy to the selected repository. Please select another repository.',
         no_deploy_rights_short: 'No permission to deploy. Select another repository.',
+        main_branch_only: 'This repository takes a project only from the main branch of its design repository, and the project is on "{{branch}}". Switch the project to the main branch, or pick another repository.',
     },
 })

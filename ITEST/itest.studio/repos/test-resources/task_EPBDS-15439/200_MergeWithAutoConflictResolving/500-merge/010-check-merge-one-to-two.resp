@@ -4,5 +4,6 @@ Content-Type: application/json
 {
   "sourceBranch": "EPBDS-15439_MergeWithAutoConflictResolving_one",
   "targetBranch": "EPBDS-15439_MergeWithAutoConflictResolving_two",
-  "status": "mergeable"
+  "status": "mergeable",
+  "canMerge": true
 }
