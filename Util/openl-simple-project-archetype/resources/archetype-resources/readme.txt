@@ -7,32 +7,31 @@ PROJECT STRUCTURE
 
 Project structure uses default Maven project structure and contains the following files:
 
-        |-- ${artifactId}                        Project root folder
+        |-- ${artifactId}                               Project root folder
            |-- pom.xml                                  Maven project file
            |
            |-- assembly                                 Maven assembly plugin configurations
            |  |-- runnable-zip.xml                      Assembly configuration for runnable console application
-           |  |-- deployable-zip.xml                    Assembly configuration for deployable to OpenL Studio zip
            |
            |-- src
            |  |-- main
            |     |
            |     |-- java
-           |     |  |-- ${package}
-           |     |     |-- Main.java                    Sample class which uses wrapper class
-           |     |
-           |     |-- openl                              This folder contains all OpenL-related resources (rules, xml etc.)
-           |     |  |-- rules.xml                       OpenL project descriptor (for OpenL only, generated in openl:generate maven goal)
-           |     |  |-- rules
-           |     |     |-- TemplateRules.xls            File with rules
-           |     |
-           |     |-- scripts
-           |        |-- start.cmd                       Script that runs the Main class for Windows
-           |        |-- start.sh                        Script that runs the Main class for Linux
+           |        |-- ${package}
+           |           |-- Main.java                    Sample class which uses wrapper class
            |
-           |-- target/generated-sources/wrappers
+           |-- openl                                    This folder contains all OpenL-related resources (rules, xml etc.)
+           |  |-- rules.xml                             OpenL project descriptor
+           |  |-- rules
+           |     |-- TemplateRules.xls                  File with rules
+           |
+           |-- scripts
+           |  |-- start.cmd                             Script that runs the Main class for Windows
+           |  |-- start.sh                              Script that runs the Main class for Linux
+           |
+           |-- target/generated-sources/openl
               |-- ${package}
-                 |-- Wrapper.java                       An interface class which holds rules method definitions,WRAPPER CLASS
+                 |-- Service.java                       An interface class which holds rules method definitions
                                                         generated in openl:generate maven goal, used in Main.java
 
 

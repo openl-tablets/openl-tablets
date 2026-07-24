@@ -3,4 +3,4 @@
 #set( $symbol_escape = '\' )
 ${symbol_pound}!/bin/sh
 
-java -Dopenl-cmd=run -classpath libs/*;openl/lib/* ${package}.Main
+java -classpath "libs/*:openl/lib/*" ${package}.Main 10
