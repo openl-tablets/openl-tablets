@@ -92,7 +92,7 @@ public class MainBean {
 
     public void saveProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.saveProject(WebStudioUtils.getSession());
+        studio.saveProject();
     }
 
     public void reload() {

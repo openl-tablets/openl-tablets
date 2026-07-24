@@ -236,7 +236,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return Profile.TREE_VIEWS;
     }
 
-    public void saveProject(HttpSession session) {
+    public void saveProject() {
         RulesProject project = null;
         try {
             project = getCurrentProject();
