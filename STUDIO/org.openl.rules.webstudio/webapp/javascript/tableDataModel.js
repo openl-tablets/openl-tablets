@@ -1,6 +1,5 @@
 var tableModel = {
     properties : [],
-    propertyStyle : [],
     dataRows : [],
     renderer : null,
 
@@ -157,20 +156,6 @@ var tableModel = {
         editor.initElement(cell);
     },
 
-    toNormalMode : function(element) {
-        cell = element.parentNode.parentNode;
-
-        editor = new Editor();
-        editor.initReturnValue(cell.data, element);
-    },
-
-    selectCellValue : function(editElem) {
-        this.renderer.selectValue(editElem);
-
-        cell = this.getCellById(editElem.id);
-        cell.value = editElem.value;
-    },
-
     setPropValue : function(editElem , cellType) {
         this.renderer.selectValue(editElem);
 
@@ -203,15 +188,6 @@ var tableModel = {
             this.header.name = editElem.value;
             this.renderer.selectValue(editElem);
         }
-    },
-
-    getCellById : function(index) {
-        idList = index.split("_");
-        rowId = idList[0].substr(1,idList[0].length);
-        cellId = idList[1].substr(1,idList[1].length);
-
-        row =  this.dataRows[rowId - (this.startDataTableRowIndex())];
-        return row[cellId];
     },
 
     getPropById : function(index) {

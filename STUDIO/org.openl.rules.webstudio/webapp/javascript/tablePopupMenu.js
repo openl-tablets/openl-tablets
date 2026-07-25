@@ -94,26 +94,6 @@ function propsContentMenuAction(cell, event) {
     return false;
 }
 
-function arrayContexMenu(event, id, iterable) {
-    var div = document.getElementById("srtPopupDiv");
-    div.innerHTML = "";
-
-    var addRowLink = document.createElement('a');
-    addRowLink.setAttribute('href','javascript:void(0)');
-    addRowLink.setAttribute('onclick','tableModel.setIterable('+id+','+!iterable+');');
-
-    if(iterable) {
-        addRowLink.innerHTML = ("Set As Single");
-    } else {
-        addRowLink.innerHTML = ("Set As Array");
-    }
-    div.appendChild(addRowLink);
-
-    event.preventDefault();
-    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 0);
-    return false;
-}
-
 //FIXME move out tableModel using
 function isPropertyCanBeAdded() {
     return ($j("#propsDataType").find('option').size() - 1) > tableModel.properties.length;

@@ -320,10 +320,6 @@ verticalRenderer = {
         this.refreshTableHeader();
     },
 
-    setDataTypeTo : function(elemId, value) {
-        document.getElementById(elemId).innerHTML = value;
-    },
-
     refreshTable : function(tableModel) {
         this.refreshTableHeader();
         this.refreshPropertyRegion(tableModel.properties);
