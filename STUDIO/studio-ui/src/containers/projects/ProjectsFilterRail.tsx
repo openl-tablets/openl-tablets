@@ -240,15 +240,21 @@ export const ProjectsFilterRail = ({
             title: t('home.facet_status'),
             rows: (
                 <>
-                    {STATUS_ORDER.map(status =>
-                        renderRow(
-                            `filter-status-${status}`,
-                            statuses.has(status),
-                            () => onToggleStatus(status),
-                            t(STATUS_META[status].labelKey),
-                            statusCount(statusCounts, status)
-                        )
-                    )}
+                    {STATUS_ORDER
+                        // A state no project is in is noise and is not offered. A ticked one stays even at
+                        // zero so it can be unticked; until the counts arrive every state is kept.
+                        .filter(status => statusCounts === undefined
+                            || statusCount(statusCounts, status) > 0
+                            || statuses.has(status))
+                        .map(status =>
+                            renderRow(
+                                `filter-status-${status}`,
+                                statuses.has(status),
+                                () => onToggleStatus(status),
+                                t(STATUS_META[status].labelKey),
+                                statusCount(statusCounts, status)
+                            )
+                        )}
                 </>
             ),
         },
