@@ -57,11 +57,6 @@ public final class TagCatalog {
         return Optional.ofNullable(typesByName.get(typeName)).map(TypeEntry::type);
     }
 
-    /** Every configured type. */
-    public List<TagType> types() {
-        return typesByName.values().stream().map(TypeEntry::type).toList();
-    }
-
     /**
      * The configured value of a type, as an administrator spelled it.
      *
