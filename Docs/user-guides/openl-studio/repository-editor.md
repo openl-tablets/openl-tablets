@@ -211,11 +211,11 @@ If tag types are defined as described in the [Managing Tags](administration/06-t
 
 OpenL Studio provides a control for loading rule projects archived in a ZIP file into Design repository. The procedure resembles creating a project from Excel files described above although there are a few differences.
 
-A project can only be created from a `zip` archive. The .`rar` or `.7zip` archives cannot be used.
+ZIP is the only supported archive format — `.rar` or `.7z` archives cannot be used. A project **folder** is accepted as well, because OpenL Studio packs it into a `zip` archive in the browser first and validates it exactly like an uploaded one — the folder must be a project, holding a `rules.xml` or an Excel file at its root.
 
 1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** dialog, click the **Zip Archive** tab.
-3.  Click the **Add** button, locate the necessary zip archive and click **Open**.
+1.  In the **Create Project from** dialog, click the **Zip Archive** tab.
+1.  Choose **Archive** or **Folder**, click the **Add** button, locate the necessary zip archive or project folder, and click **Open**.
 
     ![](images/create-project-from-zip-dialog.jpeg)
 
@@ -232,6 +232,8 @@ A project can only be created from a `zip` archive. The .`rar` or `.7zip` archiv
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
 1.  Click **Create** to complete.
+
+    The new project opens in the workspace right away, the same as a project created from a template or Excel files.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 

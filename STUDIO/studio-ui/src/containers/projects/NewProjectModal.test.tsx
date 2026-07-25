@@ -10,7 +10,7 @@ import {
     getProjects,
     getProjectTemplates,
 } from '../../services/repositories'
-import { inspectOpenLArchive } from '../../utils/openlArchive'
+import { inspectOpenLArchive, zipProjectFolder } from '../../utils/openlArchive'
 
 vi.mock('../../services/repositories', () => ({
     copyProject: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('../../services/repositories', () => ({
     getRepositoryConfig: vi.fn(),
 }))
 
-vi.mock('../../utils/openlArchive', () => ({ inspectOpenLArchive: vi.fn() }))
+vi.mock('../../utils/openlArchive', () => ({ inspectOpenLArchive: vi.fn(), zipProjectFolder: vi.fn() }))
 
 vi.mock('./RepoFolderPicker', () => ({ RepoFolderPicker: () => null }))
 
@@ -61,18 +61,50 @@ vi.mock('antd', () => {
         void autoSize
         return <textarea onChange={onChange as never} {...rest} />
     }
-    const Dragger = ({ children, beforeUpload }: Record<string, unknown>) => (
-        <div>
-            <button
-                data-testid="pick-file"
-                onClick={() => (beforeUpload as (f: File) => void)(new File(['x'], 'proj.zip', { type: 'application/zip' }))}
-            >
-                pick
-            </button>
-            {children as never}
+    const folderBatch = (root: string): File[] => {
+        const file = new File(['<project><name>Folder Proj</name></project>'], 'rules.xml')
+        Object.defineProperty(file, 'webkitRelativePath', { value: `${root}/rules.xml` })
+        return [file]
+    }
+    const Dragger = ({ children, beforeUpload, directory }: Record<string, unknown>) => {
+        const before = beforeUpload as (f: File, batch: File[]) => void
+        return (
+            <div>
+                {directory ? (
+                    <>
+                        <button data-testid="pick-folder" onClick={() => { const b = folderBatch('FromFolder'); before(b[0]!, b) }}>
+                            pick folder
+                        </button>
+                        <button data-testid="pick-folder-2" onClick={() => { const b = folderBatch('Second'); before(b[0]!, b) }}>
+                            pick folder 2
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        data-testid="pick-file"
+                        onClick={() => { const f = new File(['x'], 'proj.zip', { type: 'application/zip' }); before(f, [f]) }}
+                    >
+                        pick
+                    </button>
+                )}
+                {children as never}
+            </div>
+        )
+    }
+    const Upload = { Dragger, LIST_IGNORE: 'LIST_IGNORE' }
+    const Segmented = ({ options, onChange, ...rest }: Record<string, unknown>) => (
+        <div data-testid={rest['data-testid'] as string}>
+            {((options as { value: string, label: string }[]) ?? []).map(option => (
+                <button
+                    key={option.value}
+                    data-testid={`seg-${option.value}`}
+                    onClick={() => (onChange as (v: unknown) => void)(option.value)}
+                >
+                    {option.label}
+                </button>
+            ))}
         </div>
     )
-    const Upload = { Dragger }
     const Alert = ({ title, showIcon, type, ...rest }: Record<string, unknown>) => {
         void showIcon; void type
         return <div {...rest}>{title as never}</div>
@@ -124,7 +156,7 @@ vi.mock('antd', () => {
             return <span {...rest}>{children as never}</span>
         },
     }
-    return { Modal, Button, Checkbox, Input, Upload, Alert, Select, Space, Tooltip, TreeSelect, Typography }
+    return { Modal, Button, Checkbox, Input, Upload, Alert, Segmented, Select, Space, Tooltip, TreeSelect, Typography }
 })
 
 const repositories = [{ id: 'design', name: 'Design', aclId: 'a', capabilities: { canCreateProject: true } }]
@@ -155,6 +187,20 @@ describe('NewProjectModal', () => {
         vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
         vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+    })
+
+    it('clears the form when the create method is switched', async () => {
+        renderWizard()
+
+        await toConfig('archive')
+        await userEvent.type(screen.getByTestId('new-project-name'), 'Typed name')
+        expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Typed name')
+
+        // Go back and pick a different method: the previously typed name must not linger.
+        await userEvent.click(screen.getByTestId('new-project-back'))
+        await toConfig('excel')
+
+        expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('')
     })
 
     it('advances to the config step on a single method click, without a Next button', async () => {
@@ -238,7 +284,53 @@ describe('NewProjectModal', () => {
         expect(repoId).toBe('design')
         expect(name).toBe('Alpha')
         expect(options.files?.[0]).toBeInstanceOf(File)
+        // Every source opens the new project, so an archive no longer lands closed.
+        expect(options.status).toBe('OPENED')
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
+    })
+
+    it('zips a picked folder and creates the project from it as an archive', async () => {
+        const onCreated = vi.fn()
+        renderWizard({ onCreated })
+
+        vi.mocked(zipProjectFolder).mockResolvedValue(
+            new File(['zip-bytes'], 'FromFolder.zip', { type: 'application/zip' }))
+        vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: true, isOpenLProject: true, name: 'FromFolder' })
+
+        await toConfig('archive')
+        await userEvent.type(screen.getByTestId('new-project-name'), 'FromFolder')
+        await userEvent.click(screen.getByTestId('seg-folder'))
+        await userEvent.click(screen.getByTestId('pick-folder'))
+
+        // The folder is zipped in the browser; the submit button stays disabled until that finishes.
+        await waitFor(() => expect(screen.getByTestId('new-project-submit')).not.toBeDisabled())
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+
+        await waitFor(() => expect(createProject).toHaveBeenCalledTimes(1))
+        const [, name, options] = vi.mocked(createProject).mock.calls[0]!
+        expect(name).toBe('FromFolder')
+        expect(options.files?.[0]?.name).toMatch(/\.zip$/)
+        expect(options.status).toBe('OPENED')
+        await waitFor(() => expect(onCreated).toHaveBeenCalled())
+    })
+
+    it('re-zips the latest folder when the folder is changed, not the folders combined', async () => {
+        vi.mocked(zipProjectFolder).mockResolvedValue(
+            new File(['zip-bytes'], 'Second.zip', { type: 'application/zip' }))
+        vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: true, isOpenLProject: true, name: 'Second' })
+        renderWizard()
+
+        await toConfig('archive')
+        await userEvent.type(screen.getByTestId('new-project-name'), 'Second')
+        await userEvent.click(screen.getByTestId('seg-folder'))
+        await userEvent.click(screen.getByTestId('pick-folder'))
+        await userEvent.click(screen.getByTestId('pick-folder-2'))
+        await waitFor(() => expect(screen.getByTestId('new-project-submit')).not.toBeDisabled())
+
+        // The last zip is built from the second folder alone — the first pick is replaced, not appended.
+        const lastBatch = vi.mocked(zipProjectFolder).mock.calls.at(-1)![0] as File[]
+        expect(lastBatch).toHaveLength(1)
+        expect((lastBatch[0] as File).webkitRelativePath).toBe('Second/rules.xml')
     })
 
     it('offers only repositories with create capability as project targets', async () => {

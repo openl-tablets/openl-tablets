@@ -1,4 +1,4 @@
-import { strFromU8, unzipSync } from 'fflate'
+import { strFromU8, unzipSync, zip } from 'fflate'
 
 /** Result of inspecting an uploaded archive to pre-fill the project name and flag non-OpenL content. */
 export interface OpenLArchiveInfo {
@@ -70,6 +70,42 @@ const readProjectName = (xml: string): string | null => {
     } catch {
         return null
     }
+}
+
+/** The path of a picked file, relative to the folder the user chose, with backslashes normalised. */
+export const folderRelativePath = (file: File): string => (file.webkitRelativePath || file.name).replaceAll('\\', '/')
+
+/**
+ * The single top-level folder every path sits under, or {@code null} when they do not share one (loose
+ * files, or more than one root). A directory picker reports every file under the one chosen folder, so
+ * this is the wrapper to drop to lift the folder's content to the root.
+ */
+export const commonRootFolder = (paths: string[]): string | null => {
+    const roots = new Set(paths.map(path => (path.includes('/') ? path.slice(0, path.indexOf('/')) : null)))
+    return roots.size === 1 && !roots.has(null) ? [...roots][0]! : null
+}
+
+/**
+ * Packs the files of a picked folder into a zip archive in the browser, so a folder can be created as a
+ * project through the same archive endpoint — and the same validation — as an uploaded {@code .zip}.
+ *
+ * The chosen folder itself is stripped, so the project's own files (its {@code rules.xml} or Excel) sit at
+ * the archive root, where the server resolves the project. The archive is named after the chosen folder.
+ */
+export async function zipProjectFolder(files: File[]): Promise<File> {
+    const paths = files.map(folderRelativePath)
+    const wrapper = commonRootFolder(paths)
+    const entries: Record<string, Uint8Array> = {}
+    // Read every file concurrently — the reads are independent and can all be in flight at once.
+    await Promise.all(files.map(async (file, index) => {
+        const path = paths[index]!
+        entries[wrapper ? path.slice(wrapper.length + 1) : path] = new Uint8Array(await file.arrayBuffer())
+    }))
+    const data = await new Promise<Uint8Array>((resolve, reject) => {
+        zip(entries, { level: 6 }, (err, out) => (err ? reject(err) : resolve(out)))
+    })
+    // fflate returns a plain Uint8Array; wrap its own buffer as the single blob part.
+    return new File([data as BlobPart], `${wrapper ?? 'project'}.zip`, { type: 'application/zip' })
 }
 
 /**
