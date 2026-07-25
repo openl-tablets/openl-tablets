@@ -46,6 +46,7 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
         flex: 1;
+        min-width: 0;
         min-height: 0;
         overflow: hidden;
         background: ${token.colorBgContainer};
@@ -55,6 +56,7 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: ${token.paddingXL}px;
     `,
     header: css`
+        min-width: 0;
         padding: 12px 16px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
@@ -75,14 +77,16 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     titleRow: css`
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
+        min-width: 0;
         margin-top: 8px;
     `,
     titleLeft: css`
         display: flex;
+        flex: 1 1 auto;
         align-items: center;
         gap: 12px;
         min-width: 0;
@@ -100,6 +104,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     tabs: css`
         flex: 1;
+        min-width: 0;
         min-height: 0;
         display: flex;
         flex-direction: column;
@@ -119,6 +124,7 @@ const useStyles = createStyles(({ css, token }) => ({
             display: flex;
             flex-direction: column;
             flex: 1;
+            min-width: 0;
             min-height: 0;
         }
 
@@ -128,6 +134,7 @@ const useStyles = createStyles(({ css, token }) => ({
             display: flex;
             flex-direction: column;
             flex: 1;
+            min-width: 0;
             min-height: 0;
             overflow: auto;
         }

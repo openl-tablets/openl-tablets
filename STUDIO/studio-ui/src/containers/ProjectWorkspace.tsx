@@ -46,6 +46,7 @@ const useStyles = createStyles(({ css, token }) => ({
     withRail: css`
         display: flex;
         flex: 1;
+        min-width: 0;
         min-height: 0;
     `,
     crumb: css`
@@ -67,6 +68,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     body: css`
         flex: 1;
+        min-width: 0;
         min-height: 0;
         display: flex;
         flex-direction: column;
