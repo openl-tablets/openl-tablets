@@ -527,18 +527,30 @@ describe('ProjectsHome', () => {
         expect(screen.queryByTestId('project-row-p1')).toBeNull()
     })
 
-    it('clears all filters from the no-match state', async () => {
+    it('offers a reset button that clears all filters when they hide every project', async () => {
         await renderHome()
 
         await userEvent.type(screen.getByTestId('projects-search'), 'nothing-matches-this')
         await flushSearch()
         expect(screen.getByTestId('projects-no-match')).toBeTruthy()
 
-        await userEvent.click(screen.getByText('home.clear_filters'))
+        await userEvent.click(screen.getByTestId('projects-clear-filters'))
         await screen.findByTestId('project-row-p1')
 
         expect(screen.getByTestId('project-row-p1')).toBeTruthy()
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
+    })
+
+    it('shows the plain empty state, not a reset button, when the workspace has no projects at all', async () => {
+        vi.mocked(getProjects).mockResolvedValue(projectsPage([]))
+        await renderHome()
+
+        // A lingering filter cannot reveal anything when there is nothing to reveal.
+        await userEvent.type(screen.getByTestId('projects-search'), 'anything')
+        await flushSearch()
+
+        expect(screen.getByTestId('projects-empty')).toBeTruthy()
+        expect(screen.queryByTestId('projects-clear-filters')).toBeNull()
     })
 
     it('opens the create wizard with the creatable repositories', async () => {
