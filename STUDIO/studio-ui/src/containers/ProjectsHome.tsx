@@ -353,6 +353,29 @@ export const ProjectsHome = () => {
         navigate(`/projects/${encodeURIComponent(project.id)}`)
     }, [navigate])
 
+    // After a create, land on the new project's page. Its server id is not known here (the create
+    // response omits it), so a freshly read index is searched by repository and name; if the project
+    // cannot be resolved the screen just refreshes its list instead.
+    const openCreated = useCallback(async (created?: { repositoryId: string, name: string }) => {
+        setCreateOpen(false)
+        invalidateProjectIndex()
+        if (created) {
+            try {
+                const index = await getProjectIndex()
+                const match = index.projects.find(
+                    project => project.repository === created.repositoryId && project.name === created.name
+                )
+                if (match) {
+                    navigate(`/projects/${encodeURIComponent(match.id)}`)
+                    return
+                }
+            } catch {
+                // Fall back to refreshing the list below.
+            }
+        }
+        void load(true)
+    }, [load, navigate])
+
     // A group picked in the tree is the same thing as ticking its facets: the list shows its projects.
     const openGroup = useCallback((filters: NodeFilters) => {
         setParams(prev => {
@@ -631,7 +654,7 @@ export const ProjectsHome = () => {
             <NewProjectModal
                 localProjects={localProjectNames}
                 onClose={() => setCreateOpen(false)}
-                onCreated={() => { setCreateOpen(false); void load(true) }}
+                onCreated={openCreated}
                 open={createOpen}
                 projects={projects}
                 repositories={creatableRepos}
