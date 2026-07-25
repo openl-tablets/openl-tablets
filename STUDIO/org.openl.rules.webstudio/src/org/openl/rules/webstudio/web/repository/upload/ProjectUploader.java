@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,38 +32,6 @@ public class ProjectUploader {
     private final String algorithmsModuleName;
     private String createdProjectName;
     private final Map<String, String> tags;
-
-    public ProjectUploader(String repositoryId,
-                           ProjectFile uploadedFile,
-                           String projectName,
-                           String projectFolder,
-                           UserWorkspace userWorkspace,
-                           RepositoryAclService designRepositoryAclService,
-                           String comment,
-                           PathFilter zipFilter,
-                           ZipCharsetDetector zipCharsetDetector,
-                           String modelsPath,
-                           String algorithmsPath,
-                           String modelsModuleName,
-                           String algorithmsModuleName,
-                           Map<String, String> tags) {
-        this.repositoryId = repositoryId;
-        this.projectFolder = projectFolder;
-        this.comment = comment;
-        this.zipCharsetDetector = zipCharsetDetector;
-        this.uploadedFiles = new ArrayList<>();
-        this.uploadedFiles.add(uploadedFile);
-
-        this.projectName = projectName;
-        this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.zipFilter = zipFilter;
-        this.modelsPath = modelsPath;
-        this.algorithmsPath = algorithmsPath;
-        this.modelsModuleName = modelsModuleName;
-        this.algorithmsModuleName = algorithmsModuleName;
-        this.tags = tags;
-    }
 
     public ProjectUploader(String repositoryId,
                            List<ProjectFile> uploadedFiles,
