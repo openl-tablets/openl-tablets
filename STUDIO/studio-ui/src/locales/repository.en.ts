@@ -128,10 +128,6 @@ i18next.addResourceBundle('en', 'repository', {
         show_deleted: 'Show deleted',
         load_error: 'Failed to load repositories',
         deployments: {
-            title: 'Deployments',
-            none: 'No deployment repositories',
-            no_deployments: 'No deployments',
-            no_projects: 'No deployed projects',
             revision: 'rev {{revision}}',
         },
         no_repositories: 'No repositories available',
@@ -428,11 +424,7 @@ i18next.addResourceBundle('en', 'repository', {
             save: 'Save',
             edit: 'Edit',
             cancel: 'Cancel',
-            close: 'Close',
-            delete: 'Delete',
-            delete_confirm: 'Delete this file?',
             read_only: 'Read-only',
-            unsaved: 'Unsaved changes',
         },
         branch: {
             switch_failed: 'Failed to switch branch',
