@@ -14,8 +14,4 @@ public class ForbiddenException extends RestRuntimeException {
         super(code);
     }
 
-    public ForbiddenException(String code, Object[] args) {
-        super(code, args);
-    }
-
 }
