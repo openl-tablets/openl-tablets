@@ -5,11 +5,6 @@ html, body {
     overflow: hidden;
 }
 
-#header {
-    background: #fff;
-    height: 47px;
-}
-
 #top {
     border-top: 1px solid #f3f3f3;
     border-bottom: 1px solid #ddd;
@@ -31,12 +26,6 @@ html, body {
 
 .content {
     padding: 7px;
-}
-
-#footer {
-    border-top: 1px solid #ccc;
-    background: #fff;
-    color: #666;
 }
 
 .ui-layout-resizer	{
