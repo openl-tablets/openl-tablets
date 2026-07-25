@@ -41,8 +41,14 @@ const useStyles = createStyles(({ css, token }) => ({
         margin-left: auto;
         flex: none;
     `,
+    /** The file path fills the header and clips, so the actions beside it never leave the pane. */
+    path: css`
+        flex: 1 1 auto;
+        min-width: 0;
+    `,
     body: css`
         flex: 1;
+        min-width: 0;
         min-height: 0;
         overflow: auto;
     `,
@@ -252,7 +258,7 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     return (
         <div className={shared.paneColumn} data-testid="file-preview">
             <div className={shared.paneHeader}>
-                <span className={cx(shared.mono, shared.ellipsis)}>{activePath}</span>
+                <span className={cx(shared.mono, shared.ellipsis, styles.path)}>{activePath}</span>
                 <Tag className={styles.badge}>
                     {!editable ? t('browser.files.binary') : editing ? t('browser.files.text_editor') : t('browser.editor.read_only')}
                 </Tag>
