@@ -74,7 +74,7 @@ i18next.addResourceBundle('en', 'repository', {
         summary_total: '{{total}} projects',
         empty: 'No projects yet. Create one or import an archive to get started.',
         no_match: 'No projects match your filters',
-        clear_filters: 'Clear filters',
+        clear_filters: 'Clear all filters',
         retry: 'Retry',
         not_found: 'This project does not exist or is not visible to you.',
         back_to_projects: 'Back to projects',

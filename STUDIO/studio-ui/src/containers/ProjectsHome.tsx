@@ -3,7 +3,7 @@ import { errorMessage } from '../utils/errorMessage'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type InputRef } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { ClearOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
     getDesignRepositories,
@@ -467,20 +467,23 @@ export const ProjectsHome = () => {
                 </div>
             )
         }
-        const hasFilters = search.trim() !== '' || statuses.size > 0 || repos.size > 0 || tags.size > 0
-        if (totalProjects === 0 && !hasFilters) {
+        if (totalProjects === 0) {
+            // Nothing matched. When the workspace still holds projects, filters (or search) hid them all,
+            // so offer a prominent one-click reset; with no projects at all there is nothing to reveal.
+            if (allProjects.length > 0) {
+                return (
+                    <div className={shared.stateBox}>
+                        <Empty data-testid="projects-no-match" description={t('home.no_match')} image={Empty.PRESENTED_IMAGE_SIMPLE}>
+                            <Button data-testid="projects-clear-filters" icon={<ClearOutlined />} onClick={clearAll} type="primary">
+                                {t('home.clear_filters')}
+                            </Button>
+                        </Empty>
+                    </div>
+                )
+            }
             return (
                 <div className={shared.stateBox}>
                     <Empty data-testid="projects-empty" description={t('home.empty')} />
-                </div>
-            )
-        }
-        if (totalProjects === 0) {
-            return (
-                <div className={shared.stateBox}>
-                    <Empty data-testid="projects-no-match" description={t('home.no_match')} image={Empty.PRESENTED_IMAGE_SIMPLE}>
-                        <Button onClick={clearAll}>{t('home.clear_filters')}</Button>
-                    </Empty>
                 </div>
             )
         }
