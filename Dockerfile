@@ -1,10 +1,11 @@
 # syntax=docker/dockerfile:1
 
-# LOG4J_VER must match log4j.version in the root pom.xml.
+# LOG4J_VER must match log4j.version in the root pom.xml. Enforced by `mvn validate -N`.
 ARG LOG4J_VER=2.26.1
 
 FROM alpine AS otel
 
+# OTEL_VER must match opentelemetry.version in the root pom.xml. Enforced by `mvn validate -N`.
 ENV OTEL_VER 2.30.0
 
 RUN <<EOT

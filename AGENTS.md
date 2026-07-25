@@ -54,7 +54,7 @@ Read those files for current versions, prefer the latest ones, and do not hardco
 mvn clean install -Dquick -DnoPerf -T1C   # Fast dev build
 mvn clean install -DskipTests              # Skip all tests; also drops ITEST and the archetypes from the reactor
 mvn test -pl <module-path>                 # Test specific module
-mvn validate -N                            # Format check — run before committing
+mvn validate -N                            # Format and mirrored-version check — run before committing
 mvn verify -Dsonar                         # Coverage: JaCoCo runs ONLY with -Dsonar
 docker compose up --build                  # Studio :8080, Rule Services :8081 (compose.yaml, NOT docker-compose.yaml)
 ```
@@ -68,6 +68,9 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
+- **Mirrored versions** — `Dockerfile` and the `DEMO/start*` launch scripts cannot read Maven properties, so they
+  spell out `log4j.version`, `opentelemetry.version`, `jetty.version`, `postgresql.version` and `mssql.version` a
+  second time. `mvn validate -N` fails when a copy drifts from its property; bump both sides together.
 - Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.
   Coverage is measured on the diff, not the whole project — add tests until new lines reach ≥80%.
 

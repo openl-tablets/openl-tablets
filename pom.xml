@@ -1743,6 +1743,53 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.2.0</version>
+                <inherited>false</inherited>
+                <executions>
+                    <!--
+                     Dockerfile and the DEMO launch scripts cannot read Maven properties, so a few versions are
+                     spelled out there a second time. This guard fails the build as soon as such a copy drifts
+                     away from the property it mirrors, which is what Dependabot bumps.
+                     DEMO ORACLE_VERSION is intentionally absent: no root pom property declares an Oracle driver.
+                    -->
+                    <execution>
+                        <id>check-mirrored-versions</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target>
+                                <macrodef name="require-version">
+                                    <attribute name="file" />
+                                    <attribute name="snippet" />
+                                    <attribute name="property" />
+                                    <sequential>
+                                        <fail message="@{file} must contain &quot;@{snippet}&quot;. It mirrors the @{property} property of the root pom.xml and has drifted. Update @{file} to the property value, or revert the property.">
+                                            <condition>
+                                                <not>
+                                                    <resourcecontains resource="${project.basedir}/@{file}" substring="@{snippet}" />
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                    </sequential>
+                                </macrodef>
+                                <require-version file="Dockerfile" property="log4j.version" snippet="ARG LOG4J_VER=${log4j.version}" />
+                                <require-version file="Dockerfile" property="opentelemetry.version" snippet="ENV OTEL_VER ${opentelemetry.version}" />
+                                <require-version file="DEMO/start" property="jetty.version" snippet="JETTY_VERSION=&quot;${jetty.version}&quot;" />
+                                <require-version file="DEMO/start" property="postgresql.version" snippet="POSTGRES_VERSION=&quot;${postgresql.version}&quot;" />
+                                <require-version file="DEMO/start" property="mssql.version" snippet="MSSQL_VERSION=&quot;${mssql.version}&quot;" />
+                                <require-version file="DEMO/start.ps1" property="jetty.version" snippet="$JETTY_VERSION = &quot;${jetty.version}&quot;" />
+                                <require-version file="DEMO/start.ps1" property="postgresql.version" snippet="$POSTGRES_VERSION = &quot;${postgresql.version}&quot;" />
+                                <require-version file="DEMO/start.ps1" property="mssql.version" snippet="$MSSQL_VERSION = &quot;${mssql.version}&quot;" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <version>3.3.0</version>
