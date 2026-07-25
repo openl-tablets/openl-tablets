@@ -42,8 +42,21 @@ vi.mock('../services/repositories', () => ({
 }))
 
 vi.mock('./projects/NewProjectModal', () => ({
-    NewProjectModal: ({ open, repositories }: { open: boolean, repositories?: { id: string }[] }) =>
-        (open ? <div data-testid="new-project-modal">{repositories?.map(repo => repo.id).join(',')}</div> : null),
+    NewProjectModal: ({ open, repositories, onCreated }: {
+        open: boolean
+        repositories?: { id: string }[]
+        onCreated?: (created?: { repositoryId: string, name: string }) => void
+    }) => (open ? (
+        <div data-testid="new-project-modal">
+            {repositories?.map(repo => repo.id).join(',')}
+            <button
+                aria-label="created"
+                data-testid="new-project-fire-created"
+                onClick={() => onCreated?.({ repositoryId: 'design', name: 'Created' })}
+                type="button"
+            />
+        </div>
+    ) : null),
 }))
 
 vi.mock('./projects/CopyProjectModal', () => ({
@@ -580,6 +593,16 @@ describe('ProjectsHome', () => {
         await userEvent.click(screen.getByTestId('projects-new'))
 
         expect(screen.getByTestId('new-project-modal').textContent).toBe('design')
+    })
+
+    it('opens the created project page after a successful create', async () => {
+        mockProjectSearch([{ ...projects[0]!, id: 'created-id', name: 'Created', repository: 'design' }])
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('projects-new'))
+        await userEvent.click(screen.getByTestId('new-project-fire-created'))
+
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/created-id'))
     })
 
     it('opens the copy dialog with only creatable repositories', async () => {

@@ -230,7 +230,11 @@ interface NewProjectModalProps {
     /** All visible projects, offered as sources for the "copy project" mode. */
     projects?: Project[]
     onClose: () => void
-    onCreated: () => void
+    /**
+     * A project was created. Carries the created project's repository and name so the caller can open its
+     * page; omitted when the workspace publish created several projects at once.
+     */
+    onCreated: (created?: { repositoryId: string, name: string }) => void
 }
 
 /**
@@ -429,6 +433,8 @@ export const NewProjectModal = ({
         setArchiveName('')
         setArchiveError(null)
         setFolderFiles([])
+        // A pending folder zip is abandoned; clear the flag or the Create button stays disabled forever.
+        setZipping(false)
         inspectSeq.current++
     }
 
@@ -592,7 +598,9 @@ export const NewProjectModal = ({
                         status: 'OPENED',
                     })
                 }
-                onCreated()
+                // Publishing the workspace creates several projects at once, so there is no single one
+                // to open; every other source creates exactly one and lands on its page.
+                onCreated(mode === 'workspace' ? undefined : { repositoryId: repository.id, name: trimmedName })
                 close()
             } catch (e) {
                 setError(errorMessage(e))
