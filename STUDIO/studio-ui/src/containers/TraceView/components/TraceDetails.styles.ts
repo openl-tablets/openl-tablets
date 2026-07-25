@@ -12,12 +12,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         justify-content: center;
     `,
-    tableHeader: css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: ${token.marginXS}px;
-    `,
     frameTitle: css`
         font-weight: 600;
         font-size: ${token.fontSizeLG}px;
