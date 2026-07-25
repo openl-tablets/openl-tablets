@@ -5,6 +5,7 @@ import { InboxOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
 import { type ProjectUploadEntry, updateProjectFromFiles, updateProjectFromZip } from 'services/projects'
+import { commonRootFolder, folderRelativePath } from '../utils/openlArchive'
 
 /**
  * Detail passed from the legacy JSF editor shell via the {@code openUpdateProjectModal} event.
@@ -26,15 +27,11 @@ type UploadSource = 'zip' | 'folder'
  * project root. Loose files (without a folder path) keep their plain names.
  */
 export const toUploadEntries = (files: File[]): ProjectUploadEntry[] => {
-    const relativePath = (file: File): string => (file.webkitRelativePath || file.name).replaceAll('\\', '/')
-    const roots = new Set(files.map(file => {
-        const path = relativePath(file)
-        return path.includes('/') ? path.slice(0, path.indexOf('/')) : null
-    }))
-    const stripRoot = roots.size === 1 && !roots.has(null)
-    return files.map(file => {
-        const path = relativePath(file)
-        return { path: stripRoot ? path.slice(path.indexOf('/') + 1) : path, file }
+    const paths = files.map(folderRelativePath)
+    const wrapper = commonRootFolder(paths)
+    return files.map((file, index) => {
+        const path = paths[index]!
+        return { path: wrapper ? path.slice(wrapper.length + 1) : path, file }
     })
 }
 

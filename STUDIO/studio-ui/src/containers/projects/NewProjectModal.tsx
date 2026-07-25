@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Checkbox, Input, Modal, Select, Upload, type UploadFile } from 'antd'
+import { Alert, Button, Checkbox, Input, Modal, Segmented, Select, Typography, Upload, type UploadFile } from 'antd'
 import {
     ApiOutlined,
     ArrowLeftOutlined,
@@ -32,7 +32,7 @@ import { ProjectStatus } from '../../constants/project'
 import { MOCKUP } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 import { supportsMappedFolders } from '../../utils/repositoryFeatures'
-import { inspectOpenLArchive } from '../../utils/openlArchive'
+import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
 import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
 import { suggestComment } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
@@ -265,6 +265,10 @@ export const NewProjectModal = ({
     const [comment, setComment] = useState('')
     const [path, setPath] = useState('')
     const [archive, setArchive] = useState<File | null>(null)
+    // The archive can be supplied as a ready .zip or as a folder the browser zips into one.
+    const [archiveSource, setArchiveSource] = useState<'zip' | 'folder'>('zip')
+    const [folderFiles, setFolderFiles] = useState<File[]>([])
+    const [zipping, setZipping] = useState(false)
     const [excelFiles, setExcelFiles] = useState<File[]>([])
     const [templates, setTemplates] = useState<ProjectTemplateGroup[]>([])
     const [templateGroup, setTemplateGroup] = useState<string | null>(null)
@@ -366,22 +370,70 @@ export const NewProjectModal = ({
         }
     }, [commentSubject, commentTouched, config, mode, open])
 
+    // Applies an inspection result: fill in the suggested name and flag non-OpenL content.
+    const applyInspection = useCallback((info: OpenLArchiveInfo) => {
+        setArchiveName(info.name)
+        setArchiveError(info.readable && !info.isOpenLProject ? t('browser.create.archive_invalid') : null)
+    }, [t])
+
     // Inspect a chosen archive in the browser: suggest its project name and flag non-OpenL content early.
     const inspectArchive = useCallback(async (file: File) => {
         const seq = ++inspectSeq.current
         setArchiveName('')
         setArchiveError(null)
         const info = await inspectOpenLArchive(file)
-        if (seq !== inspectSeq.current) {
+        if (seq === inspectSeq.current) {
+            applyInspection(info)
+        }
+    }, [applyInspection])
+
+    // A picked folder is zipped in the browser and then inspected as an archive, so it is validated exactly
+    // like an uploaded .zip. Debounced so the directory picker's file-by-file delivery zips only once.
+    useEffect(() => {
+        if (archiveSource !== 'folder' || folderFiles.length === 0) {
             return
         }
-        setArchiveName(info.name)
-        setArchiveError(info.readable && !info.isOpenLProject ? t('browser.create.archive_invalid') : null)
-    }, [t])
+        const seq = ++inspectSeq.current
+        setZipping(true)
+        setArchive(null)
+        setArchiveName('')
+        setArchiveError(null)
+        const timer = window.setTimeout(async () => {
+            try {
+                const zipped = await zipProjectFolder(folderFiles)
+                if (seq !== inspectSeq.current) {
+                    return
+                }
+                setArchive(zipped)
+                const info = await inspectOpenLArchive(zipped)
+                if (seq !== inspectSeq.current) {
+                    return
+                }
+                applyInspection(info)
+            } catch {
+                if (seq === inspectSeq.current) {
+                    setArchiveError(t('browser.create.archive_invalid'))
+                }
+            } finally {
+                if (seq === inspectSeq.current) {
+                    setZipping(false)
+                }
+            }
+        }, 200)
+        return () => window.clearTimeout(timer)
+    }, [applyInspection, archiveSource, folderFiles, t])
 
-    const close = () => {
-        setStep('method')
-        setMode('template')
+    const changeArchiveSource = (next: 'zip' | 'folder') => {
+        setArchiveSource(next)
+        setArchive(null)
+        setArchiveName('')
+        setArchiveError(null)
+        setFolderFiles([])
+        inspectSeq.current++
+    }
+
+    // Clears the per-method inputs so switching create methods (or reopening) starts from a clean form.
+    const resetFields = () => {
         setName('')
         setNameTouched(false)
         setArchiveName('')
@@ -390,17 +442,33 @@ export const NewProjectModal = ({
         setCommentTouched(false)
         setPath('')
         setArchive(null)
+        setArchiveSource('zip')
+        setFolderFiles([])
+        setZipping(false)
         setExcelFiles([])
         setTemplateGroup(null)
         setTemplate(null)
         setOpenApiFile(null)
         setOpenApi(openApiDefaults)
         setWorkspaceProjects([])
+        setCopySource(null)
+        setError(null)
+        inspectSeq.current++
+    }
+
+    const chooseMethod = (next: CreateMode) => {
+        resetFields()
+        setMode(next)
+        setStep('config')
+    }
+
+    const close = () => {
+        setStep('method')
+        setMode('template')
+        resetFields()
         setCopyProjects(null)
         setLocalProjects(null)
-        setCopySource(null)
         templatesLoaded.current = false
-        setError(null)
         onClose()
     }
 
@@ -511,6 +579,7 @@ export const NewProjectModal = ({
                         template: { type, category, name: name_ },
                         path: repositoryPath(),
                         comment: comment.trim() || undefined,
+                        status: 'OPENED',
                     })
                 } else {
                     await createProject(repository.id, trimmedName, {
@@ -518,6 +587,9 @@ export const NewProjectModal = ({
                         ...(mode === 'openapi' ? { openApi } : {}),
                         path: mode === 'archive' ? archivePath() : repositoryPath(),
                         comment: comment.trim() || undefined,
+                        // Every source opens the new project, so an uploaded archive is no longer the odd
+                        // one out that lands closed.
+                        status: 'OPENED',
                     })
                 }
                 onCreated()
@@ -567,7 +639,7 @@ export const NewProjectModal = ({
                             key={method.id}
                             className={cx(shared.selectableCard, styles.card)}
                             data-testid={`new-project-method-${method.id}`}
-                            onClick={() => { setMode(method.id); setStep('config') }}
+                            onClick={() => chooseMethod(method.id)}
                             type="button"
                         >
                             <span className={styles.cardHead}>
@@ -702,18 +774,58 @@ export const NewProjectModal = ({
             )}
             {mode === 'archive' && (
                 <div className={styles.field}>
-                    <Upload.Dragger
-                        accept=".zip"
-                        beforeUpload={file => { setArchive(file); setError(null); void inspectArchive(file); return false }}
-                        data-testid="new-project-upload"
-                        fileList={fileList}
-                        maxCount={1}
-                        onRemove={() => { setArchive(null); setArchiveName(''); setArchiveError(null); inspectSeq.current++ }}
-                    >
-                        <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                        <p className="ant-upload-text">{t('browser.create.archive_hint')}</p>
-                        <p className="ant-upload-hint">{t('browser.create.archive_subhint')}</p>
-                    </Upload.Dragger>
+                    <Segmented<'zip' | 'folder'>
+                        block
+                        data-testid="new-project-archive-source"
+                        onChange={changeArchiveSource}
+                        style={{ marginBottom: 8 }}
+                        value={archiveSource}
+                        options={[
+                            { label: t('browser.create.source_zip'), value: 'zip' },
+                            { label: t('browser.create.source_folder'), value: 'folder' },
+                        ]}
+                    />
+                    {archiveSource === 'zip' ? (
+                        <Upload.Dragger
+                            accept=".zip"
+                            beforeUpload={file => { setArchive(file); setError(null); void inspectArchive(file); return false }}
+                            data-testid="new-project-upload"
+                            fileList={fileList}
+                            maxCount={1}
+                            onRemove={() => { setArchive(null); setArchiveName(''); setArchiveError(null); inspectSeq.current++ }}
+                        >
+                            <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                            <p className="ant-upload-text">{t('browser.create.archive_hint')}</p>
+                            <p className="ant-upload-hint">{t('browser.create.archive_subhint')}</p>
+                        </Upload.Dragger>
+                    ) : (
+                        <Upload.Dragger
+                            multiple
+                            data-testid="new-project-folder-upload"
+                            directory={true}
+                            showUploadList={false}
+                            // Take the current selection from beforeUpload's batch and ignore the file for
+                            // Upload's own list: otherwise a second folder is appended to the first, and the
+                            // combined tree has two roots and fails validation. batch is the same array for
+                            // every file of one pick, so this simply replaces the previous folder.
+                            beforeUpload={(_file, batch) => {
+                                setError(null)
+                                setFolderFiles(batch as File[])
+                                return Upload.LIST_IGNORE
+                            }}
+                        >
+                            <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                            <p className="ant-upload-text">{t('browser.create.folder_hint')}</p>
+                            <p className="ant-upload-hint">{t('browser.create.folder_subhint')}</p>
+                        </Upload.Dragger>
+                    )}
+                    {archiveSource === 'folder' && folderFiles.length > 0 && (
+                        <Typography.Text data-testid="new-project-folder-summary" type="secondary">
+                            {zipping
+                                ? t('browser.create.folder_zipping')
+                                : t('browser.create.folder_selected', { count: folderFiles.length })}
+                        </Typography.Text>
+                    )}
                     {archiveError && (
                         <Alert
                             showIcon
@@ -797,6 +909,10 @@ export const NewProjectModal = ({
         </>
     )
 
+    // A picked folder is not ready to create until it has been zipped into a validated archive.
+    const folderPending = zipping
+        || (mode === 'archive' && archiveSource === 'folder' && folderFiles.length > 0 && !archive)
+
     const footer = step === 'method' ? (
         <div className={styles.footer}>
             <span />
@@ -811,7 +927,7 @@ export const NewProjectModal = ({
             </Button>
             <div className={styles.footerRight}>
                 <Button data-testid="new-project-cancel" disabled={submitting || committing} onClick={close}>{t('browser.create.cancel')}</Button>
-                <Button data-testid="new-project-submit" loading={submitting || committing} onClick={submit} type="primary">
+                <Button data-testid="new-project-submit" disabled={folderPending} loading={submitting || committing} onClick={submit} type="primary">
                     {t('browser.create.submit')}
                 </Button>
             </div>
