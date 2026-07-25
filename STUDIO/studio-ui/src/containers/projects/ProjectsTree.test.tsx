@@ -173,15 +173,26 @@ describe('ProjectsTree', () => {
         vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: []})
     })
 
-    it('reads the projects once and lists them', async () => {
+    it('reads the projects once and groups them by repository by default', async () => {
         await renderTree()
 
         expect(getProjectIndex).toHaveBeenCalledTimes(1)
+        // A fresh visitor sees repositories, not a flat wall of every project.
+        expect(screen.getByText('Design')).toBeInTheDocument()
+        expect(screen.getByText('Git Flat')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
+    })
+
+    it('lists every project flat once the user picks None', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+
         expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
         expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
     })
 
     it('opens the project the user picks', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         const { onOpenProject } = await renderTree()
 
         await userEvent.click(screen.getByTestId('tree-project-p1'))
@@ -274,6 +285,7 @@ describe('ProjectsTree', () => {
     })
 
     it('draws a project by the state it is in', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         await renderTree()
 
         // The same icon that marks the name of a project being edited elsewhere in the workspace.

@@ -1,10 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     activeLevels,
     buildGroupTree,
+    DEFAULT_GROUPING,
     GROUP_BY_REPOSITORY,
     groupKeys,
+    loadGrouping,
+    NO_GROUPING,
     pathToProject,
+    saveGrouping,
     searchTree,
     type GroupingLevels,
 } from './projectGrouping'
@@ -21,6 +25,29 @@ const projects = [
     project('p3', 'Gamma', 'flat', { Domain: 'Claims' }),
     project('p4', 'Delta', 'flat'),
 ]
+
+describe('loadGrouping', () => {
+    beforeEach(() => {
+        const store: Record<string, string> = {}
+        vi.stubGlobal('localStorage', {
+            getItem: (key: string) => store[key] ?? null,
+            setItem: (key: string, value: string) => { store[key] = value },
+            removeItem: (key: string) => { delete store[key] },
+            clear: () => Object.keys(store).forEach(key => delete store[key]),
+        })
+    })
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('defaults a first-time visitor to grouping by repository', () => {
+        expect(DEFAULT_GROUPING).toEqual([GROUP_BY_REPOSITORY, '', ''])
+        expect(loadGrouping()).toEqual(DEFAULT_GROUPING)
+    })
+
+    it('remembers a None choice instead of falling back to the default', () => {
+        saveGrouping(NO_GROUPING)
+        expect(loadGrouping()).toEqual(NO_GROUPING)
+    })
+})
 
 describe('activeLevels', () => {
     it('stops at the first level that groups by nothing', () => {

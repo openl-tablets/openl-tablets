@@ -11,13 +11,20 @@ export type GroupingLevels = [string, string, string]
 
 export const NO_GROUPING: GroupingLevels = [GROUP_BY_NONE, GROUP_BY_NONE, GROUP_BY_NONE]
 
+/**
+ * What a first-time visitor sees: the tree grouped by repository, so it opens as a handful of
+ * repositories instead of a flat wall of every project. The user can still pick None, which is then
+ * remembered like any other choice.
+ */
+export const DEFAULT_GROUPING: GroupingLevels = [GROUP_BY_REPOSITORY, GROUP_BY_NONE, GROUP_BY_NONE]
+
 /** Where the browser keeps the grouping the user picked. */
 const STORAGE_KEY = 'openl.projects.grouping'
 
 const isGroupingLevels = (value: unknown): value is GroupingLevels =>
     Array.isArray(value) && value.length === 3 && value.every(level => typeof level === 'string')
 
-export const loadGrouping = (): GroupingLevels => readJson(STORAGE_KEY, NO_GROUPING, isGroupingLevels)
+export const loadGrouping = (): GroupingLevels => readJson(STORAGE_KEY, DEFAULT_GROUPING, isGroupingLevels)
 
 export const saveGrouping = (levels: GroupingLevels): void => writeJson(STORAGE_KEY, levels)
 
