@@ -1,5 +1,7 @@
-# Auto-merge Dependabot PRs after all required checks pass.
-# GitHub's auto-merge waits for branch protection rules to be satisfied before merging.
+# Enable auto-merge on Dependabot PRs so they land once the ruleset is satisfied.
+# The ruleset requires an approving review, and reviewing a bump is the "Maven bump review" routine's job:
+# it reads the upstream changelog, keeps the versions mirrored in Dockerfile and DEMO/start* in sync, and
+# approves only then. Approving here unconditionally would merge every bump unreviewed.
 
 name: Dependabot auto-merge
 
@@ -14,17 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
-      - name: Dependabot metadata
-        id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v3
-
-      - name: Approve a PR for Maven and GitHub actions updates
-        if: contains(fromJSON('["maven", "github-actions"]'), steps.dependabot-metadata.outputs.package-ecosystem)
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --squash --subject "$PR_TITLE" --body "" "$PR_URL"
         env:
