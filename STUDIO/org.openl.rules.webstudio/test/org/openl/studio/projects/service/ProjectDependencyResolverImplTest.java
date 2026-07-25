@@ -1,7 +1,7 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,7 +85,7 @@ class ProjectDependencyResolverImplTest {
 
         assertEquals(1, dependencies.size());
         assertEquals("Ghost", dependencies.get(0).name());
-        assertFalse(dependencies.get(0).isResolved());
+        assertNull(dependencies.get(0).project());
         // The projects a caller can work with are still only the ones that resolved.
         assertEquals(List.of(), resolver(descriptorResolver, workspace).getProjectDependencies(source));
     }

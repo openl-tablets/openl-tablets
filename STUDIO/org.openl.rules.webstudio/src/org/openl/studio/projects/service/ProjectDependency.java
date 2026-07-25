@@ -15,9 +15,4 @@ import org.openl.rules.project.abstraction.RulesProject;
  * @param project the project it refers to, {@code null} when the workspace has no such project
  */
 public record ProjectDependency(String name, @Nullable RulesProject project) {
-
-    /** Whether the workspace has the project this dependency refers to. */
-    public boolean isResolved() {
-        return project != null;
-    }
 }
