@@ -60,8 +60,6 @@ vi.mock('./projects/CopyProjectModal', () => ({
     },
 }))
 
-vi.mock('./projects/FileEditorModal', () => ({ FileEditorModal: () => null }))
-
 vi.mock('./projects/TagsModal', () => ({ TagsModal: () => null }))
 
 vi.mock('./projects/BranchSelector', () => ({ BranchSelector: () => null }))
