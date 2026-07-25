@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
@@ -223,6 +224,72 @@ public class ProjectCreationService {
         } catch (ProjectException e) {
             throw new ConflictException("project.create.failed.message");
         }
+    }
+
+    /**
+     * Sets the status a freshly created project should have in the user's workspace: opened so the creator
+     * can start working on it at once, or closed. A {@code null} status leaves whatever the create path
+     * produced (an archive stays closed, other sources stay opened), so existing API callers are unaffected.
+     *
+     * <p>The wire codes {@code OPENED} and {@code CLOSED} arrive as {@link ProjectStatus#VIEWING} and
+     * {@link ProjectStatus#CLOSED}; any other value is ignored.
+     */
+    public void applyStatusAfterCreate(String repositoryId, String projectName, @Nullable ProjectStatus status) {
+        if (status != ProjectStatus.VIEWING && status != ProjectStatus.CLOSED) {
+            return;
+        }
+        var workspace = getUserWorkspace();
+        // The project is already committed by the time this runs; setting its workspace status is a
+        // convenience on top. A failure here (or a same-named project already open elsewhere, which blocks
+        // opening) must not turn a successful create into an error — log it and leave the project created.
+        try {
+            RulesProject project = resolveCreatedProject(workspace, repositoryId, projectName);
+            if (status == ProjectStatus.VIEWING) {
+                if (project.isOpened()) {
+                    return;
+                }
+                if (workspace.isOpenedOtherProject(project)) {
+                    log.info("Created project '{}' stays closed: a project with the same name is open elsewhere.",
+                            projectName);
+                    return;
+                }
+                project.open();
+                workspace.refresh();
+            } else if (project.isOpened()) {
+                project.close();
+                workspace.refresh();
+            }
+        } catch (ProjectException | RuntimeException e) {
+            log.warn("Created project '{}' could not be set to status '{}'.", projectName, status, e);
+        }
+    }
+
+    /**
+     * The just-created project. The workspace copy is used when the create path already registered one
+     * (Excel, OpenAPI, template). An uploaded archive is written straight to the design repository and the
+     * workspace may not list it yet — then the project is assembled from its design state directly, the
+     * same way the legacy project creator and the copy flow build theirs.
+     */
+    private RulesProject resolveCreatedProject(UserWorkspace workspace, String repositoryId, String projectName)
+            throws ProjectException {
+        try {
+            return workspace.getProject(repositoryId, projectName);
+        } catch (ProjectException e) {
+            var designTimeRepository = workspace.getDesignTimeRepository();
+            designTimeRepository.refresh();
+            AProject designProject = designTimeRepository.getProject(repositoryId, projectName);
+            return newWorkspaceProject(workspace, repositoryId, designProject);
+        }
+    }
+
+    /** The workspace view of a design project that has no local copy yet. A seam for tests. */
+    protected RulesProject newWorkspaceProject(UserWorkspace workspace, String repositoryId, AProject designProject) {
+        return new RulesProject(workspace.getUser(),
+                workspace.getLocalWorkspace().getRepository(repositoryId),
+                null,
+                designProject.getRepository(),
+                designProject.getFileData(),
+                workspace.getProjectsLockEngine());
     }
 
     /**

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
@@ -188,6 +191,7 @@ public class DesignTimeRepositoryController {
                                           @Parameter(description = "repos.create-project.param.algorithms-module-name.desc") @RequestParam(value = "algorithmsModuleName", defaultValue = "Algorithms") String algorithmsModuleName,
                                           @Parameter(description = "repos.create-project.param.algorithms-path.desc") @RequestParam(value = "algorithmsPath", defaultValue = "rules/Algorithms.xlsx") String algorithmsPath,
                                           @Parameter(description = "repos.create-project.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite,
+                                          @Parameter(description = "repos.create-project.param.status.desc", schema = @Schema(allowableValues = {"OPENED", "CLOSED"})) @RequestParam(value = "status", required = false) @Nullable ProjectStatus status,
                                           @Parameter(description = "repos.create-project.param.force.desc") @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) throws IOException,
             ProjectException {
         boolean hasFiles = files != null && !files.isEmpty();
@@ -216,17 +220,24 @@ public class DesignTimeRepositoryController {
                 StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolvedComment, overwrite);
         validationProvider.validate(model);
 
+        ProjectViewModel result;
         // An uploaded archive keeps the robust create/overwrite path (locking, overwrite).
         if (archiveUpload) {
-            return createFromArchive(repository, projectName, files.getFirst(), model);
+            result = createFromArchive(repository, projectName, files.getFirst(), model);
+        } else {
+            // Excel/OpenAPI uploads and templates: reject duplicate names and comment violations up front,
+            // matching the archive path and the legacy tab (the content dispatcher has no such guard).
+            validationProvider.validate(model, createUpdateProjectModelValidator);
+            FileData data = createFromContent(repository, projectName, path, resolvedComment, files,
+                    templateType, templateCategory, templateName, modelsPath, algorithmsPath, modelsModuleName,
+                    algorithmsModuleName);
+            result = mapFileDataResponse(data, repository.supports());
         }
-        // Excel/OpenAPI uploads and templates: reject duplicate names and comment violations up front,
-        // matching the archive path and the legacy tab (the content dispatcher has no such guard).
-        validationProvider.validate(model, createUpdateProjectModelValidator);
-        FileData data = createFromContent(repository, projectName, path, resolvedComment, files,
-                templateType, templateCategory, templateName, modelsPath, algorithmsPath, modelsModuleName,
-                algorithmsModuleName);
-        return mapFileDataResponse(data, repository.supports());
+        // A caller may ask for the created project to be opened (or closed); left alone every source keeps
+        // its own default, so existing callers are unaffected. The lookup uses the canonical (trimmed)
+        // name the project was actually created under.
+        projectCreationService.applyStatusAfterCreate(repository.getId(), model.getProjectName(), status);
+        return result;
     }
 
     private ProjectViewModel createFromArchive(Repository repository, String projectName, MultipartFile file,

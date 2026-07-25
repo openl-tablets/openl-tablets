@@ -1,11 +1,16 @@
 package org.openl.studio.repositories.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -15,8 +20,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -24,7 +33,9 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
@@ -161,6 +172,141 @@ class ProjectCreationServiceTest {
     }
 
     @Test
+    void apply_status_opens_a_created_project_when_open_is_requested() throws Exception {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(false);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Alpha")).thenReturn(project);
+        when(workspace.isOpenedOtherProject(project)).thenReturn(false);
+        service = serviceWithWorkspace(workspace);
+
+        // OPENED arrives as VIEWING through the status converter.
+        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+
+        verify(project).open();
+        verify(workspace).refresh();
+    }
+
+    @Test
+    void apply_status_opens_an_archive_project_the_workspace_does_not_list_yet() throws Exception {
+        // An uploaded archive lands straight in the design repository: the workspace lookup fails, and
+        // the project is assembled from its design state instead — like the legacy creator builds it.
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Alpha"))
+                .thenThrow(new ProjectException("Cannot find project 'Alpha'."));
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var designProject = mock(AProject.class);
+        when(designTimeRepository.getProject("design", "Alpha")).thenReturn(designProject);
+
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(false);
+        var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
+                mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                workspace, comments);
+        testService.designWorkspaceProject = project;
+
+        testService.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+
+        // The stale design-project cache is invalidated before the design lookup.
+        verify(designTimeRepository).refresh();
+        verify(project).open();
+        verify(workspace).refresh();
+    }
+
+    @Test
+    void apply_status_closes_a_created_project_when_close_is_requested() throws Exception {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(true);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Alpha")).thenReturn(project);
+        service = serviceWithWorkspace(workspace);
+
+        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.CLOSED);
+
+        verify(project).close();
+        verify(workspace).refresh();
+    }
+
+    @Test
+    void apply_status_leaves_an_already_open_project_alone() throws Exception {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(true);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Alpha")).thenReturn(project);
+        service = serviceWithWorkspace(workspace);
+
+        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+
+        verify(project, never()).open();
+        verify(workspace, never()).refresh();
+    }
+
+    @Test
+    void apply_status_skips_opening_while_another_copy_of_the_project_is_open() throws Exception {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(false);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Alpha")).thenReturn(project);
+        when(workspace.isOpenedOtherProject(project)).thenReturn(true);
+        service = serviceWithWorkspace(workspace);
+
+        service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
+
+        verify(project, never()).open();
+    }
+
+    @Test
+    void apply_status_never_fails_the_create_when_opening_fails() throws Exception {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(false);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getProject("design", "Alpha")).thenReturn(project);
+        when(workspace.isOpenedOtherProject(project)).thenReturn(false);
+        doThrow(new ProjectException("disk full")).when(project).open();
+        service = serviceWithWorkspace(workspace);
+
+        // The project was created; a failed open is logged, never turned into a create error.
+        assertDoesNotThrow(() -> service.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING));
+    }
+
+    @Test
+    void assembles_the_workspace_view_of_a_design_project_from_its_design_state() {
+        var user = mock(WorkspaceUser.class);
+        var localWorkspace = mock(LocalWorkspace.class);
+        var localRepository = mock(LocalRepository.class);
+        var lockEngine = mock(LockEngine.class);
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getUser()).thenReturn(user);
+        when(workspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        when(localWorkspace.getRepository("design")).thenReturn(localRepository);
+        when(workspace.getProjectsLockEngine()).thenReturn(lockEngine);
+
+        var designRepository = mock(Repository.class);
+        var designData = fileData("3");
+        designData.setName("DESIGN/Alpha");
+        var designProject = mock(AProject.class);
+        when(designProject.getRepository()).thenReturn(designRepository);
+        when(designProject.getFileData()).thenReturn(designData);
+
+        var assembled = serviceWithWorkspace(workspace).newWorkspaceProject(workspace, "design", designProject);
+
+        // The view reads from the design state — like the legacy creator's freshly created project.
+        assertSame(designRepository, assembled.getDesignRepository());
+        assertSame(designData, assembled.getFileData());
+    }
+
+    @Test
+    void apply_status_leaves_the_project_alone_when_no_status_is_requested() {
+        var workspace = mock(UserWorkspace.class);
+        service = serviceWithWorkspace(workspace);
+
+        service.applyStatusAfterCreate("design", "Alpha", null);
+
+        verifyNoInteractions(workspace);
+    }
+
+    @Test
     void refreshes_the_workspace_after_a_design_change() {
         var workspace = mock(UserWorkspace.class);
         service = serviceWithWorkspace(workspace);
@@ -195,6 +341,8 @@ class ProjectCreationServiceTest {
 
         private final UserWorkspace workspace;
         private final Comments comments;
+        /** When set, stands in for the workspace view assembled from a design project. */
+        private RulesProject designWorkspaceProject;
 
         TestProjectCreationService(AclProjectsHelper aclProjectsHelper,
                                    RepositoryAclServiceProvider aclServiceProvider,
@@ -217,6 +365,13 @@ class ProjectCreationServiceTest {
         @Override
         protected Comments getCommentsService(String repoId) {
             return comments;
+        }
+
+        @Override
+        protected RulesProject newWorkspaceProject(UserWorkspace workspace, String repositoryId, AProject designProject) {
+            return designWorkspaceProject != null
+                    ? designWorkspaceProject
+                    : super.newWorkspaceProject(workspace, repositoryId, designProject);
         }
     }
 }

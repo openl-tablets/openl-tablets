@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Studio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost"
+    }
+  ],
+  "paths": {
+    "/projects": {
+      "post": {
+        "operationId": "*",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "modelsModuleName": {
+                    "type": "string",
+                    "default": "Models",
+                    "description": "Models module name"
+                  },
+                  "overwrite": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Overwrite existing"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Status after create",
+                    "enum": [
+                      "OPENED",
+                      "CLOSED"
+                    ]
+                  },
+                  "template": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "template"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "default response"
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}
