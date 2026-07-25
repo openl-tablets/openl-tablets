@@ -114,15 +114,5 @@ export interface ConflictFileState {
     customFile?: File | undefined
 }
 
-// Internal state: All conflicts grouped
-export interface ConflictsState {
-    conflictGroups: ConflictGroup[]
-    oursRevision: RevisionInfo
-    theirsRevision: RevisionInfo
-    baseRevision: RevisionInfo
-    defaultMessage: string
-    resolutions: Record<string, ConflictFileState>
-}
-
 // Modal step enum
 export type MergeStep = 'branches' | 'conflicts'
