@@ -15,15 +15,10 @@ public class RestRuntimeException extends RuntimeException {
     private final Object[] args;
 
     public RestRuntimeException(String code) {
-        this(code, null, null);
+        this(code, null);
     }
 
     public RestRuntimeException(String code, Object[] args) {
-        this(code, args, null);
-    }
-
-    public RestRuntimeException(String code, Object[] args, String message) {
-        super(message);
         this.code = code;
         this.args = args;
     }
