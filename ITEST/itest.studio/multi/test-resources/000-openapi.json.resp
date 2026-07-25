@@ -8144,6 +8144,7 @@ Content-Type: application/json
                   },
                   "conflictPolicy": {
                     "type": "string",
+                    "default": "FAIL",
                     "description": "***",
                     "enum": [
                       "FAIL",
@@ -8154,6 +8155,7 @@ Content-Type: application/json
                   },
                   "createFolders": {
                     "type": "boolean",
+                    "default": false,
                     "description": "***"
                   },
                   "file": {
@@ -15459,6 +15461,7 @@ Content-Type: application/json
                   },
                   "conflictPolicy": {
                     "type": "string",
+                    "default": "FAIL",
                     "description": "***",
                     "enum": [
                       "FAIL",
@@ -15469,6 +15472,7 @@ Content-Type: application/json
                   },
                   "createFolders": {
                     "type": "boolean",
+                    "default": false,
                     "description": "***"
                   },
                   "file": {
@@ -15830,10 +15834,12 @@ Content-Type: application/json
                 "properties": {
                   "algorithmsModuleName": {
                     "type": "string",
+                    "default": "Algorithms",
                     "description": "***"
                   },
                   "algorithmsPath": {
                     "type": "string",
+                    "default": "rules/Algorithms.xlsx",
                     "description": "***"
                   },
                   "comment": {
@@ -15842,23 +15848,35 @@ Content-Type: application/json
                   },
                   "force": {
                     "type": "boolean",
+                    "default": false,
                     "description": "***"
                   },
                   "modelsModuleName": {
                     "type": "string",
+                    "default": "Models",
                     "description": "***"
                   },
                   "modelsPath": {
                     "type": "string",
+                    "default": "rules/Models.xlsx",
                     "description": "***"
                   },
                   "overwrite": {
                     "type": "boolean",
+                    "default": false,
                     "description": "***"
                   },
                   "path": {
                     "type": "string",
                     "description": "***"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "***",
+                    "enum": [
+                      "OPENED",
+                      "CLOSED"
+                    ]
                   },
                   "template": {
                     "type": "array",

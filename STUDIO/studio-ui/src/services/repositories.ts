@@ -237,6 +237,8 @@ export interface CreateProjectOptions {
     comment?: string | undefined
     path?: string | undefined
     overwrite?: boolean
+    /** Status the created project should have in the workspace. Left unset, the backend keeps its default. */
+    status?: 'OPENED' | 'CLOSED'
 }
 
 /**
@@ -272,6 +274,9 @@ export async function createProject(
     }
     if (options.overwrite) {
         params.set('overwrite', 'true')
+    }
+    if (options.status) {
+        params.set('status', options.status)
     }
     const query = params.toString() ? `?${params.toString()}` : ''
     await apiCall(

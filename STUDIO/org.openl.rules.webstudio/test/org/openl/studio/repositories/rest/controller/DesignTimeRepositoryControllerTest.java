@@ -138,9 +138,10 @@ class DesignTimeRepositoryControllerTest {
         when(designTimeRepository.getProject(REPOSITORY_ID, "Project")).thenReturn(project);
 
         controller.createProject(repository, "Project", null, "comment", List.of(archive), null, null, null,
-                "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx", false, false);
+                "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx", false, null, false);
 
         verify(projectCreationService).registerExtensibleTagsAfterDesignChange(project);
+        verify(projectCreationService).applyStatusAfterCreate(REPOSITORY_ID, "Project", null);
     }
 
     @Test
