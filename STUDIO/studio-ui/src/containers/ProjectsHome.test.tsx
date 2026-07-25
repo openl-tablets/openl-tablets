@@ -417,6 +417,27 @@ describe('ProjectsHome', () => {
         expect(screen.getByTestId('project-row-p2')).toBeTruthy()
     })
 
+    it('offers only the statuses some project is actually in', async () => {
+        // Both fixture projects are CLOSED: the other states are noise and are not offered.
+        await renderHome()
+
+        expect(screen.getByTestId('filter-status-CLOSED')).toBeTruthy()
+        expect(screen.queryByTestId('filter-status-OPENED')).toBeNull()
+        expect(screen.queryByTestId('filter-status-LOCAL')).toBeNull()
+        expect(screen.queryByTestId('filter-status-EDITING')).toBeNull()
+    })
+
+    it('keeps a ticked status visible even when the search leaves it with no matches', async () => {
+        await renderHome()
+
+        await userEvent.click(screen.getByTestId('filter-status-CLOSED'))
+        await userEvent.type(screen.getByTestId('projects-search'), 'nothing-matches-this')
+        await flushSearch()
+
+        // Zero matches everywhere, but the ticked state must stay so it can be unticked.
+        expect(screen.getByTestId('filter-status-CLOSED')).toBeTruthy()
+    })
+
     it('filters rows by status from the rail', async () => {
         const mixed: Project[] = [{ ...projects[0]! }, { ...projects[1]!, status: ProjectStatus.Opened }]
         mockProjectSearch(mixed)
