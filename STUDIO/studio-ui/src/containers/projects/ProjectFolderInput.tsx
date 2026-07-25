@@ -3,6 +3,7 @@ import { AutoComplete, Button, Space, Tooltip } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { FsNode } from '../../types/files'
+import { useSharedStyles } from './sharedStyles'
 import { ProjectFolderPicker } from './ProjectFolderPicker'
 
 /** The folders of a project, as the paths a new file or folder can be placed under. */
@@ -35,11 +36,12 @@ export const ProjectFolderInput = ({
     'data-testid': testId,
 }: ProjectFolderInputProps) => {
     const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
     const [pickerOpen, setPickerOpen] = useState(false)
 
     return (
         <>
-            <Space.Compact style={{ width: '100%' }}>
+            <Space.Compact className={shared.compactField}>
                 <AutoComplete
                     allowClear
                     data-testid={testId}

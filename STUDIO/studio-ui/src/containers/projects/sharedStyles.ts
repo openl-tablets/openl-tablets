@@ -82,6 +82,25 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
         font-size: 11px;
         line-height: 18px;
     `,
+    /**
+     * A full-width compact pair — a text control with the button hanging off its end. The control
+     * shrinks with the form and scrolls its long value inside itself; without this a value-sized
+     * control (an AutoComplete measures its text) pushes the button past the edge of the dialog.
+     */
+    compactField: css`
+        display: flex;
+        width: 100%;
+        min-width: 0;
+
+        > :first-child {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        > :last-child:not(:first-child) {
+            flex: none;
+        }
+    `,
     /** A round state dot (compile state, deployment state); the caller fills it with the state colour. */
     stateDot: css`
         width: 8px;

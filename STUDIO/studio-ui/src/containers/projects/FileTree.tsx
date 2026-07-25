@@ -10,30 +10,43 @@ import { MOCKUP } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
+    /**
+     * A deep path scrolls sideways instead of squeezing the file names: a name clipped to nothing under
+     * the scrollbar is unreadable, so the pane grows to the widest row (like the projects tree does) and
+     * the wrapper around the tree owns the horizontal scroll.
+     */
     tree: css`
+        width: max-content;
+        min-width: 100%;
         padding: ${token.paddingSM}px ${token.padding}px;
+
+        .ant-tree-list,
+        .ant-tree-list-holder-inner {
+            min-width: max-content;
+        }
+
+        .ant-tree-treenode {
+            white-space: nowrap;
+        }
 
         .ant-tree-node-content-wrapper {
             display: flex;
             align-items: center;
-            min-width: 0;
-            overflow: hidden;
+            flex: auto;
         }
 
         .ant-tree-title {
             flex: 1;
-            min-width: 0;
         }
     `,
     node: css`
         display: flex;
         align-items: center;
         gap: ${token.marginXS}px;
-        min-width: 0;
     `,
     name: css`
         flex: 1;
-        min-width: 0;
+        white-space: nowrap;
     `,
     size: css`
         flex: none;

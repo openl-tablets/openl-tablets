@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button, Input, Space, Tooltip } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useSharedStyles } from './sharedStyles'
 import { RepoFolderPicker } from './RepoFolderPicker'
 
 interface RepoFolderInputProps {
@@ -33,11 +34,12 @@ export const RepoFolderInput = ({
     'data-testid': testId,
 }: RepoFolderInputProps) => {
     const { t } = useTranslation('repository')
+    const { styles: shared } = useSharedStyles()
     const [pickerOpen, setPickerOpen] = useState(false)
 
     return (
         <>
-            <Space.Compact style={{ width: '100%' }}>
+            <Space.Compact className={shared.compactField}>
                 <Input
                     data-testid={testId}
                     {...(id ? { id } : {})}
