@@ -96,7 +96,8 @@ export const ProjectWorkspace = () => {
     const { styles } = useStyles()
     const navigate = useNavigate()
     const { projectId } = useParams()
-    const [repositories, setRepositories] = useState<Repository[]>([])
+    // Read only when the copy dialog first opens; `null` until then.
+    const [repositories, setRepositories] = useState<Repository[] | null>(null)
     const [project, setProject] = useState<Project | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -156,13 +157,17 @@ export const ProjectWorkspace = () => {
         }
     }, [projectId])
 
-    // Only the copy targets need the repository list, and it is unreadable for a user granted a single
-    // project — the project itself carries the repository it lives in, so this is read once per screen.
+    // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
+    // project's own repositoryInfo. So the list is read once, when the dialog first opens, and never at
+    // all for the user who does not copy (for one granted a single project it reads as empty anyway).
     useEffect(() => {
+        if (copySource === null || repositories !== null) {
+            return
+        }
         getDesignRepositories(LOCAL_LOAD_API_OPTIONS)
             .then(setRepositories)
             .catch(() => setRepositories([]))
-    }, [])
+    }, [copySource, repositories])
 
     // Drop the previous project immediately on navigation so its content never flashes under the new id.
     useEffect(() => {
@@ -185,7 +190,7 @@ export const ProjectWorkspace = () => {
         repoType = repoInfo?.type ?? (local ? 'repo-file' : undefined)
     }
     const creatableRepos = useMemo(
-        () => repositories.filter(repo => repo.capabilities?.canCreateProject),
+        () => (repositories ?? []).filter(repo => repo.capabilities?.canCreateProject),
         [repositories]
     )
 
@@ -328,7 +333,6 @@ export const ProjectWorkspace = () => {
                     onOpenProject={other => navigate(`/projects/${toUrlSafeId(other.id)}`)}
                     onShowAll={() => navigate('/projects')}
                     reloadToken={reloadToken}
-                    repositories={repositories}
                 />
                 <div className={styles.body}>
                     {project ? (

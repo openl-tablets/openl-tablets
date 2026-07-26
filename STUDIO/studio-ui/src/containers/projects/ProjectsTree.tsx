@@ -122,7 +122,12 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 interface ProjectsTreeProps {
-    repositories: Repository[]
+    /**
+     * The design repositories, when the screen has read them. The tree names and marks a repository
+     * from the projects themselves otherwise, so a user granted a single project — for whom the
+     * repository list reads as empty — still sees proper group titles.
+     */
+    repositories?: Repository[] | undefined
     /** The project the screen is showing, highlighted and opened in the tree. */
     currentProjectId?: string | undefined
     onOpenProject: (project: Project) => void
@@ -137,13 +142,19 @@ interface ProjectsTreeProps {
 }
 
 /**
+ * One stable value for every render without the prop: a fresh `[]` default would change identity
+ * each render, cascading through the grouping memos into an endless expand-effect loop.
+ */
+const NO_REPOSITORIES: Repository[] = []
+
+/**
  * The projects as a tree, grouped by up to three levels the user picks — a repository or a tag type.
  *
  * The tree reads one lightweight list of projects the first time it is opened and groups it in the
  * browser, so expanding a node costs nothing and the screen around it never waits for the tree.
  */
 export const ProjectsTree = ({
-    repositories,
+    repositories = NO_REPOSITORIES,
     currentProjectId,
     onOpenProject,
     onOpenGroup,
@@ -181,9 +192,24 @@ export const ProjectsTree = ({
 
     useEffect(load, [load, reloadToken])
 
+    // Every project names and types the repository it lives in, so the groups stay properly titled
+    // even when the repository list itself is not readable; the read list wins where both exist.
+    const repoMeta = useMemo(() => {
+        const meta = new Map<string, { name?: string | undefined, type?: string | undefined }>()
+        for (const project of projects ?? []) {
+            if (project.repositoryInfo) {
+                meta.set(project.repositoryInfo.id, project.repositoryInfo)
+            }
+        }
+        for (const repo of repositories) {
+            meta.set(repo.id, repo)
+        }
+        return meta
+    }, [projects, repositories])
+
     const repositoryName = useCallback(
-        (id: string) => repositories.find(repo => repo.id === id)?.name ?? id,
-        [repositories]
+        (id: string) => repoMeta.get(id)?.name ?? id,
+        [repoMeta]
     )
 
     // The grouping levels offer every tag the projects actually carry — the same tags the filter rail
@@ -220,7 +246,12 @@ export const ProjectsTree = ({
         }
         const path = pathToNode(grouped, remembered)
         if (path) {
-            setExpanded(previous => [...new Set([...previous, ...path, remembered])])
+            // Nothing new to unfold keeps the previous array: a fresh identity here would re-render,
+            // re-run this effect and loop the tree into React's update-depth limit.
+            setExpanded(previous => {
+                const next = new Set([...previous, ...path, remembered])
+                return next.size === previous.length ? previous : [...next]
+            })
         }
         // Only on the first tree the projects build; afterwards the user decides what is open.
     }, [grouped, projects])
@@ -240,7 +271,7 @@ export const ProjectsTree = ({
     const treeData = useMemo(
         // Depends on what shapes a node, not on which nodes are open — expanding must not rebuild the tree.
         () => nodes.map(node => toTreeNode(node)),
-        [currentProjectId, nodes, repositories]
+        [currentProjectId, nodes, repoMeta]
     )
 
     function toTreeNode(node: GroupNode): TreeNodeData {
@@ -277,7 +308,7 @@ export const ProjectsTree = ({
             // A repository carries its own icon — a branch, a database, a disk — as it does everywhere
             // else, and a tag value carries the tag it is.
             icon: node.groupedBy === GROUP_BY_REPOSITORY
-                ? <RepoIcon type={repositories.find(repo => repo.id === node.value)?.type} />
+                ? <RepoIcon type={repoMeta.get(node.value ?? '')?.type} />
                 : <TagOutlined data-testid={`tree-tag-icon-${node.value}`} />,
             title: (
                 <span className={styles.node} data-testid={`tree-group-${node.key}`}>{node.title}</span>

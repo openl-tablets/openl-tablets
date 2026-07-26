@@ -278,7 +278,9 @@ describe('ProjectWorkspace', () => {
 
         // The name appears in both the breadcrumb and the project header.
         expect(screen.getAllByText('Alpha').length).toBeGreaterThan(0)
-        expect(getDesignRepositories).toHaveBeenCalledWith({ throwError: true, suppressErrorPages: true })
+        // The screen lives off the project's own repositoryInfo — the repository list is not read
+        // until the copy dialog first asks for its targets.
+        expect(getDesignRepositories).not.toHaveBeenCalled()
         expect(getProject).toHaveBeenCalledWith(
             'p1',
             { includes: ['status', 'descriptor']},
