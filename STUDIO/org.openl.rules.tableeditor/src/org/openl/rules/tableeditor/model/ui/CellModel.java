@@ -46,20 +46,6 @@ public class CellModel implements ICellModel {
     private ICellFont font;
     private int width;
 
-    static int calcMaxLineLength(String content) {
-        int max = 0;
-        int from = 0;
-
-        while (true) {
-            int idx1 = content.indexOf('\n', from);
-            if (idx1 <= 0) {
-                return max;
-            }
-            max = Math.max(max, idx1 - from);
-            from = idx1 + 1;
-        }
-    }
-
     public CellModel(int row, int column) {
         this.row = row;
         this.column = column;
