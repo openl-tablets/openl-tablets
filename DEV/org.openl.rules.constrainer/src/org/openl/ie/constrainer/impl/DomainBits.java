@@ -2,7 +2,6 @@ package org.openl.ie.constrainer.impl;
 
 import java.util.Arrays;
 
-import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Domain;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
@@ -55,16 +54,6 @@ public final class DomainBits extends DomainImpl {
 
     public boolean[] bits() {
         return _bits;
-    }
-
-    void checkX(String s) {
-        if (!_bits[_min - _initial_min]) {
-            Constrainer.abort("From:" + s + "!_bits[_min - _initial_min] " + this);
-        }
-
-        if (!_bits[_max - _initial_min]) {
-            Constrainer.abort("From:" + s + "  !_bits[_max - _initial_min] " + this);
-        }
     }
 
     @Override
