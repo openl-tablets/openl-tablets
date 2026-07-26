@@ -146,7 +146,7 @@ public class SequentialXlsLoader {
                 //
                 preprocessDependency(tableSyntaxNode, row.getSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(value)) {
-                preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
+                preprocessIncludeTable(row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(value)) {
                 preprocessImportTable(row.getSource());
             } else if (ParserUtils.isBlankOrCommented(value)) {
@@ -231,9 +231,7 @@ public class SequentialXlsLoader {
         return String.join("/", result);
     }
 
-    private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
-                                        IGridTable table,
-                                        XlsSheetSourceCodeModule sheetSource) {
+    private void preprocessIncludeTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
 
         int height = table.getHeight();
 
@@ -248,17 +246,13 @@ public class SequentialXlsLoader {
                     var src = new URLSourceCodeModule(new URI(newURL).toURL());
                     preprocessWorkbook(src);
                 } catch (Exception t) {
-                    registerIncludeError(tableSyntaxNode, table, i, include, t);
+                    registerIncludeError(table, i, include, t);
                 }
             }
         }
     }
 
-    private void registerIncludeError(TableSyntaxNode tableSyntaxNode,
-                                      IGridTable table,
-                                      int i,
-                                      String include,
-                                      Exception t) {
+    private void registerIncludeError(IGridTable table, int i, String include, Exception t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found.",
                 t,
                 LocationUtils.createTextInterval(include),
