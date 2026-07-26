@@ -676,7 +676,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         FieldDescription fieldDescription;
         Object defaultValue = null;
         GridCellSourceCodeModule defaultValueCellSource = null;
-        String defaultValueCode = null;
+        String defaultValueCode;
         if (columnTitlesOrder.containsKey(DEFAULT_COLUMN_TITLE) && row.getWidth() > 2) {
             int defaultColumnIndex = columnTitlesOrder.get(DEFAULT_COLUMN_TITLE);
             defaultValueCellSource = getCellSource(row, bindingContext, defaultColumnIndex);
