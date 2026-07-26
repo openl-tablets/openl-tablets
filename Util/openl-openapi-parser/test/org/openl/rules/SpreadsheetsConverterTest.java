@@ -718,8 +718,7 @@ class SpreadsheetsConverterTest {
                 "= mySmart(null)",
                 step.getValue());
 
-        ProjectModel pathProjectWithLostAny = converter
-                .extractProjectModel("test.converter/spreadsheets/smallExampleWithAnyAsLost.json");
+        converter.extractProjectModel("test.converter/spreadsheets/smallExampleWithAnyAsLost.json");
     }
 
     @Test
