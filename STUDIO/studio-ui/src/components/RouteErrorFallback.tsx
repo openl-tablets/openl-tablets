@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button } from 'antd'
 import { ReloadOutlined, HomeOutlined } from '@ant-design/icons'
+import { CONFIG } from '../services'
 
 export const RouteErrorFallback: React.FC = () => (
     <div
@@ -26,7 +27,7 @@ export const RouteErrorFallback: React.FC = () => (
             </Button>
             <Button
                 icon={<HomeOutlined />}
-                onClick={() => window.location.href = '/'}
+                onClick={() => window.location.href = `${CONFIG.CONTEXT}/`}
             >
                 Go Home
             </Button>
