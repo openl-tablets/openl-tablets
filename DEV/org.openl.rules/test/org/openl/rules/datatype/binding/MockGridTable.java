@@ -181,11 +181,6 @@ public class MockGridTable extends AGridTable {
         return 0;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     /**
      * Stub implementation for the IGrid just getCell is implemented to avoid NPE
      */
