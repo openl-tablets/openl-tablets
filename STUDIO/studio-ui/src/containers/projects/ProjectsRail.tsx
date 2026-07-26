@@ -79,7 +79,8 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 interface ProjectsRailProps {
-    repositories: Repository[]
+    /** The design repositories, when the screen has read them; the tree manages without. */
+    repositories?: Repository[] | undefined
     currentProjectId?: string | undefined
     onOpenProject: (project: Project) => void
     /** A repository or tag group was picked in the tree: show the projects it holds. */

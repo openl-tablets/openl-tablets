@@ -183,6 +183,34 @@ describe('ProjectsTree', () => {
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
     })
 
+    it('unfolds a remembered group without the repository list and without looping', async () => {
+        // The project-page rail passes no repositories; an unstable default here once cascaded through
+        // the grouping memos into an endless expand-effect loop (React error #185).
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        localStorage.setItem('openl.projects.tree.selected', 'grp/[Repository]=design')
+
+        await renderTree({ repositories: undefined })
+
+        expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+    })
+
+    it('names repository groups from the projects when the repository list is unreadable', async () => {
+        // Granted single projects only, the user reads no repositories — the groups still carry names.
+        vi.mocked(getProjectIndex).mockResolvedValue({
+            projects: [
+                {
+                    id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Closed,
+                    repositoryInfo: { id: 'design', name: 'Design', type: 'repo-jdbc' },
+                },
+            ] as unknown as Project[],
+            statuses: [],
+        })
+
+        await renderTree({ repositories: undefined })
+
+        expect(screen.getByText('Design')).toBeInTheDocument()
+    })
+
     it('lists every project flat once the user picks None', async () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
         await renderTree()
