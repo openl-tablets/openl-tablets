@@ -2,11 +2,9 @@ import React, { FC, useContext } from 'react'
 import { Avatar, Col, Drawer, Menu, Row, Typography } from 'antd'
 import { useStyles } from './UserMenu.styles'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
-import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { PermissionContext, SystemContext } from '../../contexts'
-import { CONFIG } from '../../services'
+import { useAppNavigate } from '../../hooks'
 import { useUserStore } from 'store'
 
 interface UserMenuProps {
@@ -17,8 +15,7 @@ interface UserMenuProps {
 export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
     const { styles } = useStyles()
-    const navigate = useNavigate()
-    const { pathname } = useLocation()
+    const appNavigate = useAppNavigate()
     const userProfile = useUserStore(state => state.userProfile)
     const { hasAdminPermission } = useContext(PermissionContext)
     const { appVersion, systemSettings } = useContext(SystemContext)
@@ -44,12 +41,8 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     )
 
     const onClick = ({ key }: { key: string }) => {
-        if (pathname.startsWith('/faces/') || pathname === '/') {
-            window.location.href = CONFIG.CONTEXT + key
-        } else {
-            navigate(key)
-            onClose()
-        }
+        appNavigate(key)
+        onClose()
     }
 
     return (

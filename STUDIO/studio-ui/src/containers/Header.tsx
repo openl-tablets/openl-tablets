@@ -4,12 +4,11 @@ import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { useStyles } from './Header.styles'
 import { UserMenu } from './header/UserMenu'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Logo from '../components/Logo'
-import { CONFIG } from '../services'
 import { hasDeploymentRepositories } from '../services/deployments'
 import { SystemContext } from '../contexts'
-import { useScript } from '../hooks'
+import { useAppNavigate, useScript } from '../hooks'
 import { useNotificationStore } from 'store'
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -23,6 +22,8 @@ export const Header = () => {
     const [lastWsMessage, setLastWsMessage] = useState<string>('')
     const { systemSettings } = useContext(SystemContext)
     const { notification } = useNotificationStore()
+    const appNavigate = useAppNavigate()
+    const { pathname } = useLocation()
     useScript(systemSettings?.scripts)
 
     const onOpenUserMenu = useCallback(() => {
@@ -49,22 +50,18 @@ export const Header = () => {
 
     const menuItems: MenuItem[] = [
         {
-            key: `${CONFIG.CONTEXT}/`,
+            key: '/',
             label: t('common:menu.editor'),
         },
         {
-            key: `${CONFIG.CONTEXT}/projects`,
+            key: '/projects',
             label: t('common:menu.projects'),
         },
         ...(showDeployments ? [{
-            key: `${CONFIG.CONTEXT}/deployments`,
+            key: '/deployments',
             label: t('common:menu.deployments'),
         }] : []),
     ]
-
-    const goTo = (key = `${CONFIG.CONTEXT}/`) => {
-        window.location.href = key
-    }
 
     const Notify = useMemo(() => {
         // Show WebSocket message if available, otherwise show store notification
@@ -90,14 +87,18 @@ export const Header = () => {
 
     const activeKeyFromPath = useMemo(() => {
         // Project pages (/projects/<id>) still belong to the Projects tab.
-        if (window.location.pathname.startsWith(`${CONFIG.CONTEXT}/projects`)) {
-            return `${CONFIG.CONTEXT}/projects`
+        if (pathname.startsWith('/projects')) {
+            return '/projects'
         }
-        if (window.location.pathname.startsWith(`${CONFIG.CONTEXT}/deployments`)) {
-            return `${CONFIG.CONTEXT}/deployments`
+        if (pathname.startsWith('/deployments')) {
+            return '/deployments'
         }
-        return window.location.pathname
-    }, [])
+        // The legacy pages under faces/ are the Editor's own screens.
+        if (pathname.startsWith('/faces/')) {
+            return '/'
+        }
+        return pathname
+    }, [pathname])
 
     return (
         <>
@@ -112,7 +113,8 @@ export const Header = () => {
                             </Col>
                             <Col>
                                 <div className="header-title">
-                                    <Link onClick={() => goTo()} to="">{t('common:openl_studio')}</Link>
+                                    {/* The Editor is a server-rendered page, so the title is a plain document link. */}
+                                    <Link reloadDocument to="/">{t('common:openl_studio')}</Link>
                                 </div>
                             </Col>
                         </Row>
@@ -121,7 +123,7 @@ export const Header = () => {
                         <Menu
                             items={menuItems}
                             mode="horizontal"
-                            onClick={({ key }) => goTo(key)}
+                            onClick={({ key }) => appNavigate(key)}
                             selectedKeys={[activeKeyFromPath]}
                             style={{
                                 flex: 1,
