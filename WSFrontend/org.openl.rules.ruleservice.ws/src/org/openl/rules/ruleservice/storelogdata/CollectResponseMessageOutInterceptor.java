@@ -196,12 +196,10 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
 
         private final Message message;
         private final OutputStream origStream;
-        private final int lim;
 
         public LoggingCallback(final Message msg, final OutputStream os) {
             this.message = msg;
             this.origStream = os;
-            this.lim = Integer.MAX_VALUE;
         }
 
         @Override
