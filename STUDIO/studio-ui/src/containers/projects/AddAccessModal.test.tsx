@@ -180,10 +180,12 @@ describe('AddAccessModal', () => {
         expect(searchProjectAclSubjects).toHaveBeenCalledWith('p1', false, 'ed', 10)
     })
 
-    it('hides the group subject type when group management is disabled', () => {
+    it('hides the whole subject type choice when only users can be granted access', () => {
         renderModal({ groupsEnabled: false })
 
-        expect(screen.getByText('browser.access.type_user')).toBeTruthy()
+        // A choice of one is no choice: the row disappears rather than showing a lone card.
+        expect(screen.queryByText('browser.access.subject_type')).toBeNull()
+        expect(screen.queryByText('browser.access.type_user')).toBeNull()
         expect(screen.queryByText('browser.access.type_group')).toBeNull()
     })
 })
