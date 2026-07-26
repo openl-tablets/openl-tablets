@@ -507,10 +507,6 @@ public final class MethodSearch {
             }
         }
 
-        public IOpenClass[] getOriginalCallParams() {
-            return originalCallParams;
-        }
-
         public IOpenClass getVarargElementType() {
             return varargElementType;
         }
