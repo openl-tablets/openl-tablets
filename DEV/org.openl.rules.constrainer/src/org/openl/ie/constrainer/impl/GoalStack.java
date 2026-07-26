@@ -118,17 +118,6 @@ public final class GoalStack implements Serializable {
     }
 
     /**
-     * Returns the current choice point.
-     */
-    public ChoicePoint currentChoicePoint() {
-        if (_choicePointStack.empty()) {
-            throw new RuntimeException("No current choice point");
-        }
-
-        return (ChoicePoint) _choicePointStack.peek();
-    }
-
-    /**
      * Returns true if the execution stack is empty.
      */
     public boolean empty() {
