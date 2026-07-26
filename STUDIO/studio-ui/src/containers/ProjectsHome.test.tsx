@@ -5,7 +5,7 @@ import { ProjectsHome } from './ProjectsHome'
 import { getDesignRepositories, getProjects, setProjectStatus } from '../services/repositories'
 import type { Project, ProjectsPage } from '../types/projects'
 import { ProjectStatus } from '../constants/project'
-import { invalidateProjectIndex } from '../services/projectIndex'
+import { getProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
 import { notification } from 'antd'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { openCompareWindow } from './projects/compare'
@@ -359,6 +359,21 @@ describe('ProjectsHome', () => {
         // The grid card still carries the repository badge, so it now appears in the rail and the card.
         expect(screen.getAllByText('Design').length).toBeGreaterThan(1)
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
+    })
+
+    it('re-reads a snapshot left by an earlier visit and swaps the fresh answer in', async () => {
+        // An earlier visit left a snapshot holding only Alpha…
+        mockProjectSearch(projects.slice(0, 1))
+        await getProjectIndex()
+        // …and the workspace moved on meanwhile: Beta appeared.
+        mockProjectSearch()
+
+        await renderHome()
+
+        // The background re-read brought Beta in without the user asking.
+        await waitFor(() => expect(screen.getByTestId('project-row-p2')).toBeTruthy())
+        // One read from the earlier visit, one re-read; the first paint itself came from memory.
+        expect(getProjects).toHaveBeenCalledTimes(2)
     })
 
     it('names the repository of a project the user may read without reading its repository', async () => {

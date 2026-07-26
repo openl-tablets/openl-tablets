@@ -22,7 +22,7 @@ import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
 import { countFacets, refineProjects, searchProjects, sortProjects, type ProjectSort, type SortDirection } from './projects/projectListing'
-import { getProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
+import { getProjectIndex, hasProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
 import { COMPILE_COLORS, MOCKUP } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { NewProjectModal } from './projects/NewProjectModal'
@@ -259,9 +259,11 @@ export const ProjectsHome = () => {
     // The whole workspace is read once and kept in the browser: filtering, sorting and paging happen
     // here, so a facet click or a page step costs nothing and the server is not asked again. The facet
     // counts — the expensive part of the list response — are counted from the same snapshot.
-    const load = useCallback((refresh = false) => {
+    const load = useCallback((refresh = false, { silent = false } = {}) => {
         const generation = ++loadGeneration.current
-        setLoading(true)
+        if (!silent) {
+            setLoading(true)
+        }
         if (refresh) {
             invalidateProjectIndex()
             setReloadToken(token => token + 1)
@@ -277,21 +279,31 @@ export const ProjectsHome = () => {
                 setError(null)
             })
             .catch((e: unknown) => {
-                if (generation === loadGeneration.current) {
+                // A failed silent re-read keeps the snapshot on screen: it was the answer a moment ago.
+                if (generation === loadGeneration.current && !silent) {
                     setError(errorMessage(e))
                 }
             })
             .finally(() => {
-                if (generation === loadGeneration.current) {
+                if (generation === loadGeneration.current && !silent) {
                     setLoading(false)
                 }
             })
     }, [])
 
     useEffect(() => {
-        if (!restoring) {
-            void load()
+        if (restoring) {
+            return
         }
+        // A snapshot left over from an earlier visit paints instantly, but the workspace may have
+        // moved on since — another user, another tab. Show it, then re-read behind it and swap the
+        // fresh answer in without a skeleton.
+        const revalidate = hasProjectIndex()
+        void load().then(() => {
+            if (revalidate) {
+                void load(true, { silent: true })
+            }
+        })
     }, [load, restoring])
 
     useEffect(() => {
