@@ -20,12 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.messaging.converter.StringMessageConverter;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
-import org.springframework.web.socket.WebSocketHttpHeaders;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
@@ -289,15 +283,6 @@ public class HttpClient implements AutoCloseable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void startWebSocket(StompSessionHandler handler) throws InterruptedException {
-        var stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new StringMessageConverter());
-        var headers = new WebSocketHttpHeaders();
-        headers.add("Cookie", cookie.get());
-
-        stompClient.connectAsync(webSocketBaseURL, headers, new StompHeaders(), handler);
     }
 
     /**
