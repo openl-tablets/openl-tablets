@@ -336,8 +336,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
             if (conditionEvaluator != null) {
                 condition.setConditionEvaluator(conditionEvaluator);
-                var evaluator = makeOptimizedConditionMethodEvaluator(condition,
-                        signature,
+                var evaluator = makeOptimizedConditionMethodEvaluator(signature,
                         conditionEvaluator.getOptimizedSourceCode());
                 condition.setEvaluator(evaluator);
                 if (evaluator == null) {
@@ -350,8 +349,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(condition, signature, bindingContext);
                 if (conditionEvaluator != null) {
                     condition.setConditionEvaluator(conditionEvaluator);
-                    var evaluator = makeOptimizedConditionMethodEvaluator(condition,
-                            signature,
+                    var evaluator = makeOptimizedConditionMethodEvaluator(signature,
                             conditionEvaluator.getOptimizedSourceCode());
                     if (evaluator == null) {
                         evaluator = makeDependentParamsIndexedConditionMethodEvaluator(condition,
@@ -411,14 +409,11 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private Invokable makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {
-        return makeOptimizedConditionMethodEvaluator(condition,
-                signature,
+        return makeOptimizedConditionMethodEvaluator(signature,
                 DecisionTableUtils.getConditionSourceCode(condition));
     }
 
-    private static Invokable makeOptimizedConditionMethodEvaluator(ICondition condition,
-                                                                       IMethodSignature signature,
-                                                                       String code) {
+    private static Invokable makeOptimizedConditionMethodEvaluator(IMethodSignature signature, String code) {
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
             if (pname.equals(code)) {
