@@ -8,7 +8,6 @@ import java.util.Objects;
  */
 public class RuleInfo {
 
-    static final RuleInfo[] EMPTY_RULES = new RuleInfo[0];
     /**
      * Rule name.
      */
