@@ -238,7 +238,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, null);
         openlAdaptor.setHeader(header);
 
-        prepareParamValues(table, openlAdaptor, ruleRow, bindingContext);
+        prepareParamValues(table, openlAdaptor, ruleRow);
 
         this.method = compileExpressionSource(source, methodType, signature, openl, bindingContext);
 
@@ -329,10 +329,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
-    private void prepareParamValues(DecisionTable decisionTable,
-                                    OpenlToolAdaptor ota,
-                                    RuleRow ruleRow,
-                                    IBindingContext bindingContext) {
+    private void prepareParamValues(DecisionTable decisionTable, OpenlToolAdaptor ota, RuleRow ruleRow) {
         int len = nValues();
 
         boolean[] paramIndexed = getParamIndexed(params);
