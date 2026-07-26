@@ -6,7 +6,9 @@ import static org.mockito.Mockito.verify;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -162,7 +165,7 @@ class ProjectSocketNotificationServiceTest {
 
     @Test
     void notifyWorkspaceProjectStatus_pushes_onto_the_one_stream_of_the_user() {
-        var status = mock(org.openl.studio.projects.model.project.status.ProjectStatusViewModel.class);
+        var status = mock(ProjectStatusViewModel.class);
 
         service.notifyWorkspaceProjectStatus(USER_NAME, status);
 
@@ -170,6 +173,25 @@ class ProjectSocketNotificationServiceTest {
         verify(messagingTemplate).convertAndSendToUser(USER_NAME, "/topic/workspace/projects/status", status);
     }
 
+    @Test
+    void notifyProjectChanged_pings_the_project_page_of_the_user_naming_the_files() {
+        service.notifyProjectChanged(USER_NAME, projectId, Set.of("rules/B.xlsx", "rules/A.xlsx"));
+
+        verify(messagingTemplate).convertAndSendToUser(
+                USER_NAME,
+                "/topic/projects/%s/changed".formatted(encodedProjectId()),
+                Map.of("files", List.of("rules/A.xlsx", "rules/B.xlsx")));
+    }
+
+    @Test
+    void notifyProjectChanged_sends_an_empty_file_list_for_a_project_wide_change() {
+        service.notifyProjectChanged(USER_NAME, projectId, Set.of());
+
+        verify(messagingTemplate).convertAndSendToUser(
+                USER_NAME,
+                "/topic/projects/%s/changed".formatted(encodedProjectId()),
+                Map.of("files", List.of()));
+    }
 
     private String encodedProjectId() {
         return URLEncoder.encode(projectId.encode(), StandardCharsets.UTF_8);

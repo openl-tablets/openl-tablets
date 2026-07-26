@@ -1,8 +1,12 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { act, render, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
-import { type ProjectStatusUpdate } from '../../services/projectStatus'
-import { RowCompileDot } from './CompileIndicator'
+import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
+import { LiveCompileDot, RowCompileDot } from './CompileIndicator'
+
+vi.mock('../../services/projectStatus', () => ({
+    subscribeProjectStatus: vi.fn(),
+}))
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -23,6 +27,53 @@ const compileStatus = (state: ProjectStatusUpdate['compileState']): ProjectStatu
     projectId: 'p1',
     branch: 'main',
     compileState: state,
+})
+
+describe('LiveCompileDot', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe: vi.fn() })
+    })
+
+    it('seeds from the compile status the project detail carries and shows the dot', async () => {
+        render(<LiveCompileDot
+            branch="main"
+            compileStatus={compileStatus('errors')}
+            projectId="p1"
+            status={ProjectStatus.Opened}
+        />)
+
+        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
+        expect(await screen.findByTestId('compile-dot-p1')).toBeInTheDocument()
+    })
+
+    it('follows the live transitions of its project', async () => {
+        let onUpdate!: (status: ProjectStatusUpdate) => void
+        vi.mocked(subscribeProjectStatus).mockImplementation((_id, _branch, listener) => {
+            onUpdate = listener
+            return { unsubscribe: vi.fn() }
+        })
+        render(<LiveCompileDot
+            branch="main"
+            compileStatus={compileStatus('ok')}
+            projectId="p1"
+            status={ProjectStatus.Opened}
+        />)
+        // A clean project shows nothing…
+        expect(screen.queryByRole('img')).toBeNull()
+
+        act(() => onUpdate(compileStatus('compiling')))
+
+        // …until a compile starts.
+        expect(await screen.findByRole('img', { name: 'browser.compile.compiling' })).toBeInTheDocument()
+    })
+
+    it('stays idle and unsubscribed for a closed project', () => {
+        render(<LiveCompileDot branch="main" projectId="p1" status={ProjectStatus.Closed} />)
+
+        expect(subscribeProjectStatus).not.toHaveBeenCalled()
+        expect(screen.queryByRole('img')).toBeNull()
+    })
 })
 
 // The dot is purely presentational: the screen feeds it from its one workspace-wide status

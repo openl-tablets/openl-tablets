@@ -1,10 +1,15 @@
 package org.openl.studio.projects.messaging;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import jakarta.annotation.PreDestroy;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +36,12 @@ public class NotificationDebouncer {
                 thread.setDaemon(true);
                 return thread;
             });
-    private final Set<String> pending = ConcurrentHashMap.newKeySet();
+
+    /** Both guarded by {@code lock}: a window and its payload open and close as one. */
+    private final Set<String> pending = new HashSet<>();
+    private final Map<String, Set<String>> pendingPayloads = new HashMap<>();
+    private final Object lock = new Object();
+
     private final long windowMs;
 
     @Autowired
@@ -52,15 +62,41 @@ public class NotificationDebouncer {
      * @param action the delivery
      */
     public void debounce(String key, Runnable action) {
-        if (pending.add(key)) {
-            scheduler.schedule(() -> {
-                pending.remove(key);
-                try {
-                    action.run();
-                } catch (RuntimeException e) {
-                    log.warn("Failed to deliver a change notification for '{}'.", key, e);
-                }
-            }, windowMs, TimeUnit.MILLISECONDS);
+        debounce(key, Set.of(), ignored -> action.run());
+    }
+
+    /**
+     * Like {@link #debounce(String, Runnable)}, with a payload: the payloads of a burst merge, and
+     * the delivery receives everything the window gathered. The payload is drained atomically with
+     * the window's close, so a signal arriving during a delivery opens a new window carrying its own
+     * payload — nothing is swept into the finished delivery or lost.
+     *
+     * @param key     what the burst is about
+     * @param payload what this signal adds — e.g. the files a change touched; may be empty
+     * @param action  the delivery, receiving the merged payload of the burst
+     */
+    public void debounce(String key, Collection<String> payload, Consumer<Set<String>> action) {
+        synchronized (lock) {
+            if (!payload.isEmpty()) {
+                pendingPayloads.computeIfAbsent(key, ignored -> new LinkedHashSet<>()).addAll(payload);
+            }
+            if (!pending.add(key)) {
+                return;
+            }
+        }
+        scheduler.schedule(() -> deliver(key, action), windowMs, TimeUnit.MILLISECONDS);
+    }
+
+    private void deliver(String key, Consumer<Set<String>> action) {
+        Set<String> payload;
+        synchronized (lock) {
+            pending.remove(key);
+            payload = pendingPayloads.remove(key);
+        }
+        try {
+            action.accept(payload == null ? Set.of() : payload);
+        } catch (RuntimeException e) {
+            log.warn("Failed to deliver a change notification for '{}'.", key, e);
         }
     }
 

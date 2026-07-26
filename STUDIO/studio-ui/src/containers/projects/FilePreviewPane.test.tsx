@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { notification } from 'antd'
 import { FilePreviewPane } from './FilePreviewPane'
 import {
     downloadFile,
@@ -16,7 +17,11 @@ vi.mock('../../services/files', () => ({
     updateFileContent: vi.fn(),
 }))
 
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
+vi.mock('react-i18next', () => {
+    // One t for every render: a fresh function each call would re-run the effects depending on it.
+    const t = (key: string) => key
+    return { useTranslation: () => ({ t }) }
+})
 
 vi.mock('antd-style', () => ({
     createStyles: () => () => ({
@@ -123,7 +128,7 @@ vi.mock('antd', () => {
         void showIcon; void type
         return <div {...dom}>{title as never}</div>
     }
-    const notification = { error: vi.fn() }
+    const notification = { error: vi.fn(), info: vi.fn() }
     return { Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip }
 })
 
@@ -218,6 +223,49 @@ describe('FilePreviewPane', () => {
         expect(screen.queryByText('browser.files.discard_changes_title')).toBeNull()
         expect(screen.getByDisplayValue('modified content')).toBeTruthy()
         expect(getFileContent).toHaveBeenCalledTimes(1)
+    })
+
+    it('tells the user when a reload brought other content of the open file', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+
+        // The file changed elsewhere; the page reload re-fetches it with new content.
+        vi.mocked(getFileContent).mockResolvedValue('changed elsewhere')
+        rerender(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={1} />)
+
+        await screen.findByDisplayValue('changed elsewhere')
+        expect(notification.info).toHaveBeenCalledWith({ title: 'browser.live_file_synced' })
+    })
+
+    it('stays quiet when a reload brings back the same content', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+
+        rerender(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={1} />)
+
+        await screen.findByDisplayValue('first content')
+        expect(notification.info).not.toHaveBeenCalled()
+    })
+
+    it('does not re-fetch the open file when the reload names only other files', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="first.txt" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+        expect(getFileContent).toHaveBeenCalledTimes(1)
+
+        rerender(<FilePreviewPane {...baseProps} changedFiles={['rules/Other.xlsx']} path="first.txt" reloadToken={1} />)
+
+        await screen.findByDisplayValue('first content')
+        expect(getFileContent).toHaveBeenCalledTimes(1)
+    })
+
+    it('re-fetches the open file when a changed folder covers it', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} path="rules/first.txt" reloadToken={0} />)
+        await screen.findByDisplayValue('first content')
+        expect(getFileContent).toHaveBeenCalledTimes(1)
+
+        rerender(<FilePreviewPane {...baseProps} changedFiles={['rules']} path="rules/first.txt" reloadToken={1} />)
+
+        await waitFor(() => expect(getFileContent).toHaveBeenCalledTimes(2))
     })
 
     it('shows the empty state when no file is selected', () => {

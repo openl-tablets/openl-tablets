@@ -10,13 +10,23 @@ import {
     unlockProject,
 } from '../services/repositories'
 import { ApiHttpError, NotFoundError } from '../services'
+import { notification } from 'antd'
 
-const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchParamsMock } = vi.hoisted(() => ({
+const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
     navigateMock: vi.fn(),
     routeParams: { projectId: 'p1' } as { projectId: string },
     searchParamsMock: new URLSearchParams(),
     setSearchParamsMock: vi.fn(),
+    // The change ping captured from the screen, to fire by hand in tests.
+    liveHandlers: { projectChange: undefined as ((files: string[]) => void) | undefined },
+}))
+
+vi.mock('../hooks', () => ({
+    useLiveProjectChanges: (_projectId: string | undefined, onChange: (files: string[]) => void) => {
+        liveHandlers.projectChange = onChange
+    },
+    useWindowFocus: () => {},
 }))
 
 vi.mock('react-router-dom', () => ({
@@ -91,7 +101,10 @@ vi.mock('../services/files', () => ({
 }))
 
 // The rail beside the project has its own tests; here it only has to be out of the way.
-vi.mock('./projects/ProjectsRail', () => ({ ProjectsRail: () => <aside data-testid="projects-rail" /> }))
+vi.mock('./projects/ProjectsRail', () => ({
+    ProjectsRail: ({ reloadToken }: { reloadToken?: number }) =>
+        <aside data-reload-token={reloadToken} data-testid="projects-rail" />,
+}))
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -106,6 +119,7 @@ vi.mock('antd-style', () => ({
         cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
     }),
     useTheme: () => new Proxy({}, { get: () => '#000' }),
+    keyframes: () => '',
 }))
 
 interface Node { key: string, title?: unknown, children?: Node[] }
@@ -217,7 +231,7 @@ vi.mock('antd', () => {
     const Space = ({ children }: { children?: unknown }) => <span>{children as never}</span>
     Space.Compact = ({ children }: { children?: unknown }) => <span>{children as never}</span>
     const Divider = () => <span />
-    const notification = { error: vi.fn() }
+    const notification = { error: vi.fn(), info: vi.fn() }
 
     return { Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Modal, Tabs, Tree, Descriptions, Alert, Typography, Space, Divider, notification }
 })
@@ -288,6 +302,39 @@ describe('ProjectWorkspace', () => {
         )
         // The breadcrumb links back to the Projects home.
         expect(screen.getByText('home.title').closest('a')?.getAttribute('href')).toBe('/projects')
+    })
+
+    it('re-reads the project when the backend pings that it changed elsewhere', async () => {
+        await renderWorkspace()
+        expect(getProject).toHaveBeenCalledTimes(1)
+        // The project moved on in another session — another client saved a table.
+        vi.mocked(getProject).mockResolvedValue(project({ status: 'EDITING' }) as never)
+
+        await act(async () => {
+            liveHandlers.projectChange?.([])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getProject).toHaveBeenCalledTimes(2)
+        // The refresh changed the page, so the user learns why it moved under them.
+        expect(notification.info).toHaveBeenCalledWith({ title: 'browser.live_project_synced' })
+        // The real change resets the tabs and the tree beside them.
+        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('2')
+    })
+
+    it('stays quiet when a ping merely echoes what the page already shows', async () => {
+        await renderWorkspace()
+
+        await act(async () => {
+            liveHandlers.projectChange?.([])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getProject).toHaveBeenCalledTimes(2)
+        expect(notification.info).not.toHaveBeenCalled()
+        // Nothing changed, so nothing is applied: no tab reset, no re-fetch cascade — the user's
+        // own action already reloaded the page once.
+        expect(screen.getByTestId('projects-rail').getAttribute('data-reload-token')).toBe('1')
     })
 
     it('names the repository from the project when the repository list is unreadable', async () => {

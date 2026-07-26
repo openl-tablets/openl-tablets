@@ -4,6 +4,7 @@ import { Tooltip } from 'antd'
 import { createStyles, keyframes } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
+import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { COMPILE_COLORS } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
@@ -100,6 +101,29 @@ export const CompileDot = ({ state, showLabel, testId, tooltip }: CompileDotProp
 interface RowCompileDotProps {
     status: ProjectStatus
     compileStatus?: ProjectStatusUpdate | undefined
+}
+
+interface LiveCompileDotProps {
+    projectId: string
+    branch: string | null
+    status: ProjectStatus
+    compileStatus?: ProjectStatusUpdate | undefined
+}
+
+/**
+ * Compile dot beside the name of the one open project. Seeded from the compile status the project
+ * detail already carries and kept live on the project's own status channel — the same dot, by the
+ * same rules, as the list rows show.
+ */
+export const LiveCompileDot = ({ projectId, branch, status, compileStatus }: LiveCompileDotProps) => {
+    const { t } = useTranslation('repository')
+    const live = COMPILE_RELEVANT_STATUSES.has(status)
+    const shown = useLiveProjectStatus(projectId, branch, live, compileStatus ?? null)
+    const state = live ? shown?.compileState ?? 'idle' : 'idle'
+    if (!isNoteworthyCompileState(state)) {
+        return null
+    }
+    return <CompileDot state={state} testId={`compile-dot-${projectId}`} tooltip={getCompileTooltip(shown, state, t)} />
 }
 
 /**

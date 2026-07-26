@@ -13,6 +13,8 @@ import {
     unlockProject,
 } from '../services/repositories'
 import { NotFoundError } from '../services'
+import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
+import { useLiveProjectChanges, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
@@ -110,10 +112,14 @@ export const ProjectWorkspace = () => {
     const [discardCloseOpen, setDiscardCloseOpen] = useState(false)
     // Bumped on every reload so tabs that cache their own data (history, file content) refetch and reset.
     const [reloadToken, setReloadToken] = useState(0)
+    // What the reload behind the current token knows it touched; null means anything may have changed.
+    const [changedFiles, setChangedFiles] = useState<string[] | null>(null)
     // Bumped on every project-detail load so stale navigation responses cannot overwrite the current page.
     const loadGeneration = useRef(0)
     // Bumped on every reload so a stale files response never overwrites a fresh one.
     const filesGeneration = useRef(0)
+    // When the page last read its project — the staleness policy behind the pings counts from here.
+    const loadedAt = useRef(0)
 
     const reducedMotion = useMemo(
         () => typeof window !== 'undefined'
@@ -124,37 +130,58 @@ export const ProjectWorkspace = () => {
 
     // The whole workspace is driven by the single-project detail response, which carries the dependency
     // graph and the rules.xml-derived fields. A missing project (404) shows the not-found state.
-    const load = useCallback(async () => {
+    // A silent load swaps the fresh answer in without the skeleton — the background refreshes use it.
+    // `touched` names the files the change behind this reload is known to cover; null means anything.
+    // With `skipUnchangedFor` (the signature of what the page shows), a refresh that brings back
+    // exactly that and names no files is not applied at all: no tab reset, no re-fetch cascade —
+    // that would replay the reload the user's own action already performed.
+    const load = useCallback(async (
+        { silent = false, touched = null, skipUnchangedFor }: {
+            silent?: boolean
+            touched?: string[] | null
+            skipUnchangedFor?: string
+        } = {}
+    ): Promise<Project | null> => {
         if (!projectId) {
-            return
+            return null
         }
         const generation = ++loadGeneration.current
-        setLoading(true)
+        if (!silent) {
+            setLoading(true)
+        }
         try {
             const loaded = await getProject(projectId, { includes: ['status', 'descriptor']}, LOCAL_LOAD_API_OPTIONS)
             if (generation !== loadGeneration.current) {
-                return
+                return null
+            }
+            if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
+                loadedAt.current = Date.now()
+                return loaded
             }
             setProject(loaded)
+            setChangedFiles(touched)
             setReloadToken(token => token + 1)
             filesGeneration.current += 1
+            loadedAt.current = Date.now()
             setFiles(undefined)
             setError(null)
+            return loaded
         } catch (e) {
             if (generation !== loadGeneration.current) {
-                return
+                return null
             }
             if (e instanceof NotFoundError) {
                 setProject(null)
                 setError(null)
-            } else {
+            } else if (!silent) {
                 setError(errorMessage(e))
             }
         } finally {
-            if (generation === loadGeneration.current) {
+            if (!silent && generation === loadGeneration.current) {
                 setLoading(false)
             }
         }
+        return null
     }, [projectId])
 
     // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
@@ -177,6 +204,34 @@ export const ProjectWorkspace = () => {
     useEffect(() => {
         void load()
     }, [load])
+
+    // The backend pings when this project changed elsewhere — another session or client, a commit
+    // by someone else. The page re-reads itself quietly, and the
+    // dropped snapshot makes the tree beside it (reloaded by the load's token) see the change too.
+    // The files the ping names flow to the open-file pane, so it refreshes only when touched.
+    // The user is told only when the refresh actually changed the project: a ping echoing their own
+    // action lands on an already-fresh page and stays quiet.
+    useLiveProjectChanges(project?.id, pingedFiles => {
+        const before = projectSignature(project)
+        invalidateProjectIndex()
+        void load({
+            silent: true,
+            touched: pingedFiles.length > 0 ? pingedFiles : null,
+            skipUnchangedFor: before,
+        }).then(loaded => {
+            if (loaded !== null && projectSignature(loaded) !== before) {
+                notification.info({ title: t('browser.live_project_synced') })
+            }
+        })
+    })
+
+    // The staleness policy behind the pings: coming back to a tab whose page outlived the trust
+    // window (pings can be lost while a laptop sleeps) re-reads it quietly.
+    useWindowFocus(() => {
+        if (project !== null && Date.now() - loadedAt.current > PROJECT_INDEX_TTL_MS) {
+            void load({ silent: true })
+        }
+    })
 
     // The project reports its own repository, so the screen keeps its badge and its branch controls for a
     // user granted the project alone and not the repository it lives in. A local project that the
@@ -337,6 +392,7 @@ export const ProjectWorkspace = () => {
                 <div className={styles.body}>
                     {project ? (
                         <ProjectDetail
+                            changedFiles={changedFiles}
                             files={files}
                             handlers={handlers}
                             onChanged={() => void load()}
