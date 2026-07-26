@@ -109,7 +109,6 @@ import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.LfsFactory;
 import org.eclipse.jgit.util.RawCharSequence;
-import org.eclipse.jgit.util.RawParseUtils;
 import org.eclipse.jgit.util.io.NullOutputStream;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
@@ -3397,14 +3396,6 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             String id = cmit.getId().getName();
             return new RawCharSequence(id.getBytes(StandardCharsets.UTF_8), 0, id.length());
         }
-    }
-
-    static RawCharSequence textFor(RevCommit cmit) {
-        final byte[] raw = cmit.getRawBuffer();
-        final int b = RawParseUtils.commitMessage(raw, 0);
-        if (b < 0)
-            return RawCharSequence.EMPTY;
-        return new RawCharSequence(raw, b, raw.length);
     }
 
 }
