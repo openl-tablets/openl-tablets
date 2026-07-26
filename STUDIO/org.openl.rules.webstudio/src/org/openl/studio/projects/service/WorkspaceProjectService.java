@@ -768,6 +768,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         validateComment(project, comment);
         project.getFileData().setComment(comment);
         commit(project);
+        publishStateChanged(project);
+    }
+
+    /**
+     * Tells the WebSocket layer that a project of the current user's workspace changed state, so the
+     * user's open screens can re-read what they show. Fired only after the action succeeded, and never
+     * fails the action itself: a notification is advisory.
+     */
+    private void publishStateChanged(RulesProject project) {
+        try {
+            var workspace = getUserWorkspace();
+            if (workspace == null) {
+                return;
+            }
+            eventPublisher.publishEvent(new ProjectStateChangedEvent(project, workspace.getUser().getUserName()));
+        } catch (RuntimeException e) {
+            log.warn("Failed to publish a state change of project '{}'.", project.getBusinessName(), e);
+        }
     }
 
     private String resolveSaveComment(RulesProject project, @Nullable String comment) {
@@ -852,6 +870,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (supportsBranches && branch != null && !Objects.equals(branch, project.getBranch())) {
             project.setBranch(branch);
         }
+        publishStateChanged(project);
     }
 
     public void delete(RulesProject project, @Nullable String comment) {
@@ -886,6 +905,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         workspaceManager.refreshWorkspaces();
         getWebStudio().reset();
+        publishStateChanged(project);
     }
 
     /**
@@ -1001,6 +1021,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (openDependencies) {
             openAllDependencies(project);
         }
+        publishStateChanged(project);
     }
 
     private void switchToBranch(RulesProject project, String branchName, boolean discardChanges) throws ProjectException {
@@ -1052,6 +1073,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 }
             }
         }
+        publishStateChanged(project);
     }
 
     private static void requireDiscardForModifiedProject(RulesProject project, boolean discardChanges) {
@@ -1088,6 +1110,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         } catch (IOException e) {
             throw new ProjectException("Failed to create branch", e);
         }
+        publishStateChanged(project);
     }
 
     /**
@@ -1180,6 +1203,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             log.warn("Failed to delete branch '{}' from project '{}'", branchName, project.getBusinessName(), e);
             throw new ConflictException("project.branch.delete.failed.message");
         }
+        publishStateChanged(project);
     }
 
     private RulesProject findWorkspaceProject(UserWorkspace workspace,

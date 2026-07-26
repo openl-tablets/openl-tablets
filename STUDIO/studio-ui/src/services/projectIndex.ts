@@ -18,14 +18,29 @@ export interface ProjectIndex {
 }
 
 let pending: Promise<ProjectIndex> | undefined
+/** When the snapshot was asked for; the staleness policy counts from here. */
+let takenAt = 0
+
+/**
+ * How long a snapshot is trusted without any invalidation. Changes normally arrive as server pings
+ * or local mutations; the age limit catches what those miss — a lost ping, a laptop waking up.
+ */
+const MAX_AGE_MS = 5 * 60_000
 
 /**
  * Reads the projects, once. Every caller after the first shares the same answer, so opening the tree
- * after the list, or coming back to the list, costs nothing.
+ * after the list, or coming back to the list, costs nothing. A snapshot older than its trust window
+ * is re-read instead of served.
  *
  * The read never blocks a screen: callers render what they have and fill in when it arrives.
  */
 export const getProjectIndex = (): Promise<ProjectIndex> => {
+    if (pending && isProjectIndexStale()) {
+        pending = undefined
+    }
+    if (!pending) {
+        takenAt = Date.now()
+    }
     pending ??= getProjects(
         // Deleted projects come along so the status facet can show them without another read. The
         // compile states come along too: the server reads them from its compilation registry without
@@ -49,11 +64,26 @@ export const invalidateProjectIndex = (): void => {
 }
 
 /**
+ * What makes a project visibly different on the screens — enough to tell a background refresh that
+ * changed something from one that merely echoed the user's own action.
+ */
+export const projectSignature = (project: Project | null): string =>
+    project === null
+        ? ''
+        : JSON.stringify([project.id, project.revision, project.status, project.branch, project.modifiedAt])
+
+/**
  * True when a snapshot (or a read already underway) exists, so the next read is answered from
  * memory rather than the server. A screen that finds one paints it instantly and re-reads behind
  * it — the snapshot may predate changes made elsewhere.
  */
 export const hasProjectIndex = (): boolean => pending !== undefined
+
+/**
+ * True when there is no snapshot, or the one there is has outlived its trust window. A screen the
+ * user comes back to checks this and re-reads quietly instead of trusting what a sleeping tab kept.
+ */
+export const isProjectIndexStale = (): boolean => pending === undefined || Date.now() - takenAt > MAX_AGE_MS
 
 // Whatever the user changed, wherever they changed it — a project deleted on its own page, a file saved,
 // a branch switched — the snapshot no longer describes the workspace. The screen that comes next reads

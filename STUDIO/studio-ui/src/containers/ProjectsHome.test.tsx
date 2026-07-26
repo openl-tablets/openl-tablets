@@ -10,7 +10,32 @@ import { notification } from 'antd'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { openCompareWindow } from './projects/compare'
 
-const { copyModalMock, navigateMock } = vi.hoisted(() => ({ copyModalMock: vi.fn(), navigateMock: vi.fn() }))
+const { copyModalMock, navigateMock, liveHandlers } = vi.hoisted(() => ({
+    copyModalMock: vi.fn(),
+    navigateMock: vi.fn(),
+    // The pings, the focus revalidation and the status stream captured from the screen, to fire by hand.
+    liveHandlers: {
+        workspaceChange: undefined as (() => void) | undefined,
+        focus: undefined as (() => void) | undefined,
+        statusUpdate: undefined as ((update: unknown) => void) | undefined,
+    },
+}))
+
+vi.mock('../hooks', () => ({
+    useWorkspaceChanges: (onChange: () => void) => {
+        liveHandlers.workspaceChange = onChange
+    },
+    useWindowFocus: (onFocus: () => void) => {
+        liveHandlers.focus = onFocus
+    },
+}))
+
+vi.mock('../services/projectStatus', () => ({
+    subscribeWorkspaceProjectStatuses: (onUpdate: (update: unknown) => void) => {
+        liveHandlers.statusUpdate = onUpdate
+        return { unsubscribe: vi.fn() }
+    },
+}))
 
 vi.mock('react-router-dom', async () => {
     const { useState } = await import('react')
@@ -229,7 +254,7 @@ vi.mock('antd', async () => {
             </div>
         )
         : null), { confirm: vi.fn() })
-    const notification = { error: vi.fn(), success: vi.fn() }
+    const notification = { error: vi.fn(), info: vi.fn(), success: vi.fn() }
 
     return { Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert, Typography, Modal, notification }
 })
@@ -359,6 +384,53 @@ describe('ProjectsHome', () => {
         // The grid card still carries the repository badge, so it now appears in the rail and the card.
         expect(screen.getAllByText('Design').length).toBeGreaterThan(1)
         expect(screen.queryByText('Design/rules/Alpha')).toBeNull()
+    })
+
+    it('keeps the compile health strip live from the one workspace status stream', async () => {
+        await renderHome()
+        expect(screen.getByTestId('projects-compile-summary').textContent).not.toContain('browser.compile.errors')
+
+        // A compile finished with errors somewhere in the workspace — no per-row subscription involved.
+        await act(async () => {
+            liveHandlers.statusUpdate?.({ projectId: 'p1', compileState: 'errors' })
+        })
+
+        expect(screen.getByTestId('projects-compile-summary').textContent).toContain('browser.compile.errors')
+    })
+
+    it('re-reads the list when the backend pings that the workspace changed', async () => {
+        await renderHome()
+        expect(getProjects).toHaveBeenCalledTimes(1)
+        // The workspace moved on elsewhere — another session created a project.
+        mockProjectSearch([...projects, {
+            ...projects[1]!,
+            id: 'p3',
+            name: 'Gamma',
+            repository: 'design',
+        }] as Project[])
+
+        await act(async () => {
+            liveHandlers.workspaceChange?.()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        // The fresh answer swaps in behind the scenes, without a skeleton — and the user is told.
+        expect(await screen.findByTestId('project-row-p3')).toBeTruthy()
+        expect(getProjects).toHaveBeenCalledTimes(2)
+        expect(notification.info).toHaveBeenCalledWith({ title: 'home.live_synced' })
+    })
+
+    it('stays quiet when a ping merely echoes what the list already shows', async () => {
+        await renderHome()
+
+        // The ping echoes the user's own action: the re-read returns the same list.
+        await act(async () => {
+            liveHandlers.workspaceChange?.()
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getProjects).toHaveBeenCalledTimes(2)
+        expect(notification.info).not.toHaveBeenCalled()
     })
 
     it('re-reads a snapshot left by an earlier visit and swaps the fresh answer in', async () => {

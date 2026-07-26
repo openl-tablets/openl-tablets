@@ -1,7 +1,8 @@
 package org.openl.studio.projects.messaging;
 
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,8 @@ class ProjectSocketNotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(user.getUserName()).thenReturn(USER_NAME);
+        // Lenient: the workspace-ping tests never read the user mock.
+        lenient().when(user.getUserName()).thenReturn(USER_NAME);
         service = new ProjectSocketNotificationService(messagingTemplate);
         projectId = ProjectIdModel.builder()
                 .repository(REPO_ID)
@@ -142,6 +144,32 @@ class ProjectSocketNotificationServiceTest {
                 "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
                 Map.of("status", "ERROR", "message", "Execution failed"));
     }
+
+    @Test
+    void notifyWorkspaceChanged_pings_the_user_only() {
+        service.notifyWorkspaceChanged(USER_NAME);
+
+        verify(messagingTemplate).convertAndSendToUser(USER_NAME, "/topic/workspace/changed", "CHANGED");
+    }
+
+    @Test
+    void notifyProjectsChanged_broadcasts_a_bare_ping() {
+        service.notifyProjectsChanged();
+
+        // No project data rides along: every subscriber re-reads the list under its own ACL.
+        verify(messagingTemplate).convertAndSend("/topic/projects/changed", "CHANGED");
+    }
+
+    @Test
+    void notifyWorkspaceProjectStatus_pushes_onto_the_one_stream_of_the_user() {
+        var status = mock(org.openl.studio.projects.model.project.status.ProjectStatusViewModel.class);
+
+        service.notifyWorkspaceProjectStatus(USER_NAME, status);
+
+        // One destination for every project: the status names its own project, the client routes it.
+        verify(messagingTemplate).convertAndSendToUser(USER_NAME, "/topic/workspace/projects/status", status);
+    }
+
 
     private String encodedProjectId() {
         return URLEncoder.encode(projectId.encode(), StandardCharsets.UTF_8);

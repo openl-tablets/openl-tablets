@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -285,6 +287,60 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void update_project_status_tells_the_websocket_layer_after_a_successful_save() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var eventPublisher = mock(ApplicationEventPublisher.class);
+        var userWorkspace = mock(UserWorkspace.class);
+        var user = mock(WorkspaceUser.class);
+        when(userWorkspace.getUser()).thenReturn(user);
+        when(user.getUserName()).thenReturn("jane");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
+                webStudio, mock(AclProjectsHelper.class), eventPublisher);
+        var project = mock(RulesProject.class);
+        var fileData = mock(FileData.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(project.isModified()).thenReturn(true);
+        when(project.getFileData()).thenReturn(fileData);
+        when(projectStateValidator.canSave(project)).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+
+        service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build());
+
+        var captor = forClass(ProjectStateChangedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertEquals("jane", captor.getValue().userName());
+    }
+
+    @Test
+    void a_failing_notification_never_fails_the_action_it_reports() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var eventPublisher = mock(ApplicationEventPublisher.class);
+        doThrow(new IllegalStateException("broker down")).when(eventPublisher).publishEvent(any());
+        var userWorkspace = mock(UserWorkspace.class);
+        var user = mock(WorkspaceUser.class);
+        when(userWorkspace.getUser()).thenReturn(user);
+        when(user.getUserName()).thenReturn("jane");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspace, projectStateValidator,
+                webStudio, mock(AclProjectsHelper.class), eventPublisher);
+        var project = mock(RulesProject.class);
+        var fileData = mock(FileData.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(project.isModified()).thenReturn(true);
+        when(project.getFileData()).thenReturn(fileData);
+        when(projectStateValidator.canSave(project)).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+
+        // The notification is advisory: the save must complete even when publishing it blows up.
+        service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build());
+
+        verify(webStudio).saveProject(project);
+    }
+
+    @Test
     void update_project_status_validates_generated_default_comment() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var projectStateValidator = mock(ProjectStateValidator.class);
@@ -522,6 +578,17 @@ class WorkspaceProjectServiceTest {
                                                       ProjectStateValidator projectStateValidator,
                                                       WebStudio webStudio,
                                                       AclProjectsHelper aclProjectsHelper) throws ProjectException {
+        return newService(acl, bypassService, userWorkspace, projectStateValidator, webStudio, aclProjectsHelper,
+                mock(ApplicationEventPublisher.class));
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      ApplicationEventPublisher eventPublisher) throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
         doReturn(List.of()).when(dependencyResolver).getDependsOnProject(any(RulesProject.class));
@@ -538,7 +605,7 @@ class WorkspaceProjectServiceTest {
                 mock(TableCreatorService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
-                mock(ApplicationEventPublisher.class),
+                eventPublisher,
                 bypassService,
                 mock(ProjectIdentifierMapper.class),
                 mock(DetailedMessageDescriptionMapper.class),

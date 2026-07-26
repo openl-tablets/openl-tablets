@@ -92,12 +92,17 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
      * including the registry reconciliation, could read or delete files outside the root.
      */
     private Path userDir(String userId) {
-        Path root = Path.of(workspaceHome).toAbsolutePath().normalize();
+        Path root = getWorkspaceHome();
         Path userDir = root.resolve(userId).toAbsolutePath().normalize();
         if (!FolderHelper.isSafeFolderName(userId) || !root.equals(userDir.getParent())) {
             throw new IllegalArgumentException("The user id is not a valid workspace folder name.");
         }
         return userDir;
+    }
+
+    @Override
+    public Path getWorkspaceHome() {
+        return Path.of(workspaceHome).toAbsolutePath().normalize();
     }
 
     @Override
