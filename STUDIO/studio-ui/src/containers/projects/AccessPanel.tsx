@@ -8,6 +8,7 @@ import { useSharedStyles } from './sharedStyles'
 import { Role } from '../../constants'
 import { getProjectAcl, removeProjectAcl, setProjectAcl } from '../../services/acl'
 import { useGuardedReload } from '../../hooks'
+import { useUserStore } from 'store'
 import { AddAccessModal } from './AddAccessModal'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -85,6 +86,7 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles } = useStyles()
+    const username = useUserStore(state => state.userProfile?.username)
     const { data: entries, reload } = useGuardedReload(
         projectId,
         id => getProjectAcl(id, { inherited: true })
@@ -147,6 +149,8 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                     <tbody>
                         {entries.map(entry => {
                             const inherited = entry.source === 'repository'
+                            // Revoking your own access would lock you out of the very screen you manage it from.
+                            const self = (entry.sub.principal ?? false) && entry.sub.sid === username
                             const sourceLabel = entry.source && t(`browser.access.source_${entry.source}`)
                             return (
                                 <tr key={`${entry.source ?? 'none'}:${entry.sub.principal ? 'u' : 'g'}:${entry.sub.sid}`}>
@@ -174,7 +178,7 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                                         {sourceLabel && <Tag>{sourceLabel}</Tag>}
                                     </td>
                                     <td className={styles.actionsCell}>
-                                        {canManage && !inherited && (
+                                        {canManage && !inherited && !self && (
                                             <Popconfirm
                                                 onConfirm={() => revoke(entry.sub.sid, entry.sub.principal ?? false)}
                                                 title={t('browser.access.remove_confirm', { subject: entry.sub.sid })}

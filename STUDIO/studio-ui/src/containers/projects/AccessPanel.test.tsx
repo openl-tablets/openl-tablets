@@ -28,6 +28,13 @@ vi.mock('@ant-design/icons', () => ({
 
 vi.mock('./AddAccessModal', () => ({ AddAccessModal: () => null }))
 
+vi.mock('store', () => ({
+    useUserStore: (selector: (state: { userProfile: { username: string } }) => unknown) =>
+        selector({ userProfile: { username: 'me' } }),
+    // apiCall reads the app store's error-page setters at module scope.
+    useAppStore: { getState: () => new Proxy({}, { get: () => vi.fn() }) },
+}))
+
 vi.mock('antd', () => {
     const Button = ({ children, onClick, ...rest }: Record<string, unknown>) => {
         const { danger, disabled, icon, size, type, ...dom } = rest
@@ -167,6 +174,26 @@ describe('AccessPanel', () => {
         })
 
         await waitFor(() => expect(removeProjectAcl).toHaveBeenCalledWith('p1', 'direct-user', true))
+    })
+
+    it('never offers to remove the user\'s own access', async () => {
+        vi.mocked(getProjectAcl).mockResolvedValue([
+            entry('me', 'project'),
+            // A group spelled like the user is still a group — it stays removable.
+            { role: 'VIEWER' as never, source: 'project', sub: { sid: 'me', principal: false } },
+            entry('direct-user', 'project'),
+        ])
+
+        await act(async () => {
+            render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        await waitFor(() => expect(screen.getByTestId('access-remove-project-direct-user')).toBeTruthy())
+        // Both rows named "me" share the test id; only the group row keeps its remove button.
+        expect(screen.getAllByTestId('access-remove-project-me')).toHaveLength(1)
+        // The role selects of both rows keep working — only removal is off the table.
+        expect(screen.getAllByTestId('access-role-project-me')).toHaveLength(2)
     })
 
     it('hides add controls when the user cannot manage access', async () => {
