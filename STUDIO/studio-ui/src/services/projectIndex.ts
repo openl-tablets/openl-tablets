@@ -48,6 +48,13 @@ export const invalidateProjectIndex = (): void => {
     pending = undefined
 }
 
+/**
+ * True when a snapshot (or a read already underway) exists, so the next read is answered from
+ * memory rather than the server. A screen that finds one paints it instantly and re-reads behind
+ * it — the snapshot may predate changes made elsewhere.
+ */
+export const hasProjectIndex = (): boolean => pending !== undefined
+
 // Whatever the user changed, wherever they changed it — a project deleted on its own page, a file saved,
 // a branch switched — the snapshot no longer describes the workspace. The screen that comes next reads
 // it again instead of showing what was true before the change.
