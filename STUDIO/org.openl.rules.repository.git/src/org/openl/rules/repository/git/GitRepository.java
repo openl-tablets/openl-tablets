@@ -3235,7 +3235,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             RevTree tree = commit.getTree();
 
-            FileData data = null;
+            FileData data;
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                 data = createFileData(rootWalk, commit);
             } catch (FileNotFoundException e) {
