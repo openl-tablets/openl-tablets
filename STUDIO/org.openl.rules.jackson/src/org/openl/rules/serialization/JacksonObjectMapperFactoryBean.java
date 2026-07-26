@@ -290,12 +290,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
     }
 
-    private void addMixIn(ObjectMapper mapper, Class<?> classFor, Class<?> mixIn) {
-        if (mapper.findMixInClassFor(classFor) == null) {
-            mapper.addMixIn(classFor, mixIn);
-        }
-    }
-
     private Class<?> loadClass(String className) throws ClassNotFoundException {
         return getClassLoader().loadClass(className);
     }
