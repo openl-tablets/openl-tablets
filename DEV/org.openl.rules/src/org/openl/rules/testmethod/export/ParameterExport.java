@@ -30,9 +30,8 @@ class ParameterExport extends BaseParameterExport {
                 List<List<FieldDescriptor>> nonEmptyFields,
                 Boolean skipEmptyParameters) {
 
-        var rowNum = start.getRowNum();
         Cursor lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
-        rowNum = lowestRight.getRowNum() + 1;
+        var rowNum = lowestRight.getRowNum() + 1;
 
         return writeValuesForFields(sheet, new Cursor(rowNum, start.getColNum()), test, nonEmptyFields);
     }
