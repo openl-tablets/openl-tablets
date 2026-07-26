@@ -290,16 +290,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private static class PreBindDetails {
-        private final IParsedCode parsedCode;
         private final GridCellSourceCodeModule expressionCellSourceCodeModule;
         private final ICell expressionCell;
         private final IOpenMethodHeader header;
 
-        public PreBindDetails(IParsedCode parsedCode,
-                              GridCellSourceCodeModule expressionCellSourceCodeModule,
+        public PreBindDetails(GridCellSourceCodeModule expressionCellSourceCodeModule,
                               ICell expressionCell,
                               IOpenMethodHeader header) {
-            this.parsedCode = parsedCode;
             this.expressionCellSourceCodeModule = expressionCellSourceCodeModule;
             this.expressionCell = expressionCell;
             this.header = header;
@@ -348,7 +345,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 parameters);
         dtColumnsDefinition.setCompositeMethodInitializer(() -> this.addTo(getXlsModuleOpenClass()));
         definitions.put(dtColumnsDefinition,
-                new PreBindDetails(parsedCode, expressionCellSourceCodeModule, expressionCell, header));
+                new PreBindDetails(expressionCellSourceCodeModule, expressionCell, header));
         getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(dtColumnsDefinition);
     }
 
