@@ -124,14 +124,6 @@ public final class IntExpCard extends IntExpImpl {
         _possible_required.detachObserver(observer);
     }
 
-    /*
-     * extending to 5.1.0 added by S. Vanskov
-     */
-    int get_cardinality_value() {
-        return _card_value;
-    }
-    /* EO additions */
-
     @Override
     public int max() {
         return _possible_required.max();
