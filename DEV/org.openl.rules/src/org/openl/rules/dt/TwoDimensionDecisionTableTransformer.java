@@ -35,10 +35,6 @@ public class TwoDimensionDecisionTableTransformer implements CoordinatesTransfor
         this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + hConditionsCount - 1;
     }
 
-    int getRetTableWidth() {
-        return retTableWidth;
-    }
-
     @Override
     public int getHeight() {
         return dtHeaderHeight + lookupValuesTableWidth / retTableWidth * lookupValuesTableHeight;
