@@ -111,11 +111,6 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
         }
     }
 
-    boolean isHasAuthorizationFailure() {
-        return !failedActions.isEmpty();
-    }
-
-
     @Override
     public void clear() {
         // Do nothing to ensure that username and password is not cleared.
