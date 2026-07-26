@@ -51,7 +51,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     public synchronized Map<String, IDomainAdaptor> getDomains() {
         if (domainMap == null) {
-            domainMap = makeDomains(decisionTable);
+            domainMap = makeDomains();
         }
         return domainMap;
     }
@@ -77,7 +77,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return result;
     }
 
-    private Map<String, IDomainAdaptor> makeDomains(IDecisionTable dt2) {
+    private Map<String, IDomainAdaptor> makeDomains() {
         return new HashMap<>();
     }
 
