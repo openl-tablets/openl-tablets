@@ -70,15 +70,6 @@ class MatchedDefinition {
         return newName != null ? newName : name;
     }
 
-    public String getExternalParameter(String name) {
-        if (externalParametersToRename == null || name == null) {
-            return name;
-        }
-        // External parameter is case-sensitive
-        String newName = externalParametersToRename.get(name);
-        return newName != null ? newName : name;
-    }
-
     public DTColumnsDefinition getDtColumnsDefinition() {
         return dtColumnsDefinition;
     }
