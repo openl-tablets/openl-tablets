@@ -151,18 +151,19 @@ export const AddAccessModal = ({ open, projectId, projectName, onClose, onGrante
             title={<><UserAddOutlined /> {t('browser.access.dialog_title')}</>}
         >
             <p style={{ marginTop: 0, color: 'inherit' }}>{t('browser.access.dialog_desc', { name: projectName })}</p>
-            <FieldRow alignTop label={t('browser.access.subject_type')} labelWidth={110}>
-                <div className={styles.kinds} style={{ gridTemplateColumns: isGroupsManagementEnabled ? '1fr 1fr' : '1fr' }}>
-                    <button className={cx(shared.selectableCard, styles.kind, kind === 'user' && cx(shared.selectedCard, styles.kindActive))} onClick={() => setKind('user')} type="button">
-                        <UserOutlined /> {t('browser.access.type_user')}
-                    </button>
-                    {isGroupsManagementEnabled && (
+            {/* With groups management off only users can be granted access — a choice of one is no choice. */}
+            {isGroupsManagementEnabled && (
+                <FieldRow alignTop label={t('browser.access.subject_type')} labelWidth={110}>
+                    <div className={styles.kinds}>
+                        <button className={cx(shared.selectableCard, styles.kind, kind === 'user' && cx(shared.selectedCard, styles.kindActive))} onClick={() => setKind('user')} type="button">
+                            <UserOutlined /> {t('browser.access.type_user')}
+                        </button>
                         <button className={cx(shared.selectableCard, styles.kind, kind === 'group' && cx(shared.selectedCard, styles.kindActive))} onClick={() => setKind('group')} type="button">
                             <TeamOutlined /> {t('browser.access.type_group')}
                         </button>
-                    )}
-                </div>
-            </FieldRow>
+                    </div>
+                </FieldRow>
+            )}
             <FieldRow
                 alignTop
                 required
