@@ -80,7 +80,7 @@ class ParserTest {
         assertEquals(type, ln.getType());
     }
 
-    private void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
+    private void _testMethodHeader(String src, String type) throws OpenLConfigurationException {
 
         IParsedCode pc = getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
@@ -251,7 +251,7 @@ class ParserTest {
 
     @Test
     void testMethodHeader() {
-        _testMethodHeader("int x(a a1, b b1)", null, "method.header");
+        _testMethodHeader("int x(a a1, b b1)", "method.header");
     }
 
     @Test
