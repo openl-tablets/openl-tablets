@@ -102,7 +102,7 @@ EPBDS-NNNNN <subject>
 - **Subject line only.** Add a body only when a single line cannot explain the change with fewer words.
 - **No `Co-Authored-By:` or other co-author trailers.**
 - **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a
-  misconfiguration, or a dependency bump.
+  misconfiguration, code cleanup or a dependency bump.
 
 ## Sources of Truth
 
@@ -131,7 +131,7 @@ EPBDS-NNNNN <subject>
 - **Show ticket IDs as links** (`https://jira.eisgroup.com/browse/EPBDS-NNNNN`) in replies and reports for easy
   navigation.
 - **Ticket creation can be skipped** when the change does not affect the code functionality (build configuration,
-  process documentation, developer tooling) and no relevant ticket exists in Jira.
+  process documentation, developer tooling, dead code) and no relevant ticket exists in Jira.
 
 ## Markdown Rules
 
