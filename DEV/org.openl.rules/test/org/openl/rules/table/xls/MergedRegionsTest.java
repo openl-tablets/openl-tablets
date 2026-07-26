@@ -227,8 +227,7 @@ class MergedRegionsTest {
         };
     }
 
-    private void testActions(XlsWorkbookSourceCodeModule workbook,
-                             XlsSheetGridModel grid,
+    private void testActions(XlsSheetGridModel grid,
                              IGridTable table,
                              TestDesctiption test,
                              IUndoableGridTableAction removeRowsActions) {
@@ -256,7 +255,7 @@ class MergedRegionsTest {
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeRowsAction = GridTool
                     .removeRows(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
-            testActions(workbook, grid, table, test, removeRowsAction);
+            testActions(grid, table, test, removeRowsAction);
         }
     }
 
@@ -274,7 +273,7 @@ class MergedRegionsTest {
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertRowsAction = GridTool
                     .insertRows(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
-            testActions(workbook, grid, table, test, insertRowsAction);
+            testActions(grid, table, test, insertRowsAction);
         }
     }
 
@@ -292,7 +291,7 @@ class MergedRegionsTest {
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeColumnsAction = GridTool
                     .removeColumns(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
-            testActions(workbook, grid, table, test, removeColumnsAction);
+            testActions(grid, table, test, removeColumnsAction);
         }
     }
 
@@ -310,7 +309,7 @@ class MergedRegionsTest {
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertColumnsAction = GridTool
                     .insertColumns(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
-            testActions(workbook, grid, table, test, insertColumnsAction);
+            testActions(grid, table, test, insertColumnsAction);
         }
     }
 }
