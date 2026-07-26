@@ -32,7 +32,6 @@ import org.openl.ie.constrainer.Undo;
 
 class TestIntVarImpl {
     private final Constrainer C = new Constrainer("TestIntVarImpl");
-    private final int size = 21;
     private final int min = -10;
     private final int max = 10;
     private final IntVar bit_fast = new IntVarImpl(C, min, max, "intvar1", IntVar.DOMAIN_BIT_FAST);
