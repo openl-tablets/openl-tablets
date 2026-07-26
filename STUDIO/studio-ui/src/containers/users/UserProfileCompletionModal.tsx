@@ -184,12 +184,14 @@ export const UserProfileCompletionModal: React.FC<UserProfileCompletionModalProp
                         required
                         label={t('users:profile_completion.display_name')}
                     >
-                        <Space.Compact style={{ width: '100%' }}>
+                        {/* The flexed, shrinkable pair keeps the row beside its label and as wide as
+                            the other inputs; a value-sized input would push the pair onto its own line. */}
+                        <Space.Compact style={{ display: 'flex', width: '100%' }}>
                             <Form.Item noStyle name="displayNameSelect">
                                 <Select
                                     data-testid="profile-completion-display-name-select"
                                     options={displayNameOptions}
-                                    style={{ width: 140 }}
+                                    style={{ width: 140, flex: 'none' }}
                                 />
                             </Form.Item>
                             <Form.Item
@@ -208,6 +210,7 @@ export const UserProfileCompletionModal: React.FC<UserProfileCompletionModalProp
                                     aria-label={t('users:profile_completion.display_name')}
                                     disabled={displayNameSelect !== DisplayUserName.Other}
                                     placeholder={t('users:profile_completion.display_name_placeholder')}
+                                    style={{ flex: '1 1 auto', minWidth: 0 }}
                                 />
                             </Form.Item>
                         </Space.Compact>
