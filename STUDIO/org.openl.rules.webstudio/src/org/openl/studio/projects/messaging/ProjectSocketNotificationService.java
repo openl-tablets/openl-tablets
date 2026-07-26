@@ -2,6 +2,7 @@ package org.openl.studio.projects.messaging;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nullable;
@@ -30,6 +31,7 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_BRANCHES_STATUS = "/topic/projects/%s/branches/%s/status";
     private static final String TOPIC_WORKSPACE_CHANGED = "/topic/workspace/changed";
     private static final String TOPIC_PROJECTS_CHANGED = "/topic/projects/changed";
+    private static final String TOPIC_PROJECT_CHANGED = "/topic/projects/%s/changed";
     private static final String TOPIC_WORKSPACE_PROJECTS_STATUS = "/topic/workspace/projects/status";
 
     /**
@@ -202,6 +204,22 @@ public class ProjectSocketNotificationService {
      */
     public void notifyProjectsChanged() {
         messagingTemplate.convertAndSend(TOPIC_PROJECTS_CHANGED, CHANGE_PING);
+    }
+
+    /**
+     * Tells the user's sessions that one project of their workspace changed — its state, its branch or
+     * its content — so an open page of that project can re-read it.
+     *
+     * @param userName  destination user
+     * @param projectId the project that changed
+     * @param files     the project-relative files the change touched, when known — a folder means
+     *                  anything under it; empty when the change is project-wide. The page re-reads
+     *                  through the REST API either way; the files let it refresh an open one precisely.
+     */
+    public void notifyProjectChanged(String userName, ProjectIdModel projectId, Collection<String> files) {
+        messagingTemplate.convertAndSendToUser(userName,
+                TOPIC_PROJECT_CHANGED.formatted(encodePathSegment(projectId.encode())),
+                Map.of("files", files.stream().sorted().toList()));
     }
 
     private String encodePathSegment(String segment) {

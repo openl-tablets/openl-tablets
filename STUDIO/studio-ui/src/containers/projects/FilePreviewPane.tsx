@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { errorMessage as message } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Dropdown, Modal, Skeleton, Space, Tag, type MenuProps } from 'antd'
+import { Alert, Button, Dropdown, Modal, notification, Skeleton, Space, Tag, type MenuProps } from 'antd'
 import {
     CloseOutlined,
     CopyOutlined,
@@ -73,7 +73,17 @@ interface FilePreviewPaneProps {
     onMoved: (newPath: string) => void
     /** Bumped when the project reloads (save, close, …), forcing content to refetch and edit mode to reset. */
     reloadToken?: number
+    /**
+     * The files the reload behind the current token is known to cover — a folder stands for anything
+     * under it. When the open file is not among them, its content is not re-fetched; null means the
+     * change may have touched anything.
+     */
+    changedFiles?: string[] | null
 }
+
+/** True when one of the changed paths is the file itself or a folder above it. */
+const coversFile = (changed: string[], filePath: string): boolean =>
+    changed.some(entry => filePath === entry || filePath.startsWith(`${entry}/`))
 
 interface FileSelection {
     projectId: string
@@ -90,7 +100,7 @@ interface FileSelection {
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -164,6 +174,16 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         setError(null)
     }, [activePath, activeSelection.reloadToken])
 
+    // What the last fetch brought for which file — read to tell a re-read that changed the file
+    // (worth telling the user about) from a first open or a switch to another file.
+    const lastLoaded = useRef<{ key: string, text: string } | null>(null)
+    // The toast reads `t` through a ref: a re-bound translator must not re-download the open file.
+    const tRef = useRef(t)
+    tRef.current = t
+    // Rides a ref: the list always belongs to the reload that bumped the token, never re-runs the effect.
+    const changedFilesRef = useRef(changedFiles)
+    changedFilesRef.current = changedFiles
+
     useEffect(() => {
         if (!activePath || !editable) {
             setContent('')
@@ -172,15 +192,30 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
             setError(null)
             return
         }
+        // A reload that names what it touched and did not touch the open file: keep what is shown.
+        const touched = changedFilesRef.current
+        if (touched !== null
+            && lastLoaded.current?.key === `${activeSelection.projectId}|${activePath}`
+            && !coversFile(touched, activePath)) {
+            return
+        }
         let cancelled = false
         setLoading(true)
         setError(null)
         getFileContent(activeSelection.projectId, activePath)
             .then(text => {
-                if (!cancelled) {
-                    setContent(text)
-                    setOriginal(text)
+                if (cancelled) {
+                    return
                 }
+                setContent(text)
+                setOriginal(text)
+                const key = `${activeSelection.projectId}|${activePath}`
+                if (lastLoaded.current?.key === key && lastLoaded.current.text !== text) {
+                    notification.info({
+                        title: tRef.current('browser.live_file_synced', { name: activePath.split('/').pop() }),
+                    })
+                }
+                lastLoaded.current = { key, text }
             })
             .catch(e => { if (!cancelled) setError(message(e)) })
             .finally(() => { if (!cancelled) setLoading(false) })
@@ -196,6 +231,8 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         try {
             await updateFileContent(activeSelection.projectId, activePath, content)
             setOriginal(content)
+            // The re-read after the save brings back what was just written — not news to the user.
+            lastLoaded.current = { key: `${activeSelection.projectId}|${activePath}`, text: content }
             setEditing(false)
             onChanged()
         } catch (e) {

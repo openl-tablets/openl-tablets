@@ -1,8 +1,5 @@
-import { useEffect, useRef } from 'react'
 import { subscribeWorkspaceChanges } from '../services/workspaceChanges'
-
-/** A run of pings within this window collapses into one refresh. */
-const COALESCE_MS = 500
+import { useCoalescedChanges } from './useCoalescedChanges'
 
 /**
  * Runs the callback whenever the backend pings that the projects a screen shows may be stale —
@@ -12,22 +9,5 @@ const COALESCE_MS = 500
  * called, so callers may pass an inline closure. Bursts of pings collapse into one call.
  */
 export function useWorkspaceChanges(onChange: () => void): void {
-    const onChangeRef = useRef(onChange)
-    onChangeRef.current = onChange
-
-    useEffect(() => {
-        let timer: ReturnType<typeof setTimeout> | undefined
-        const subscription = subscribeWorkspaceChanges(() => {
-            timer ??= setTimeout(() => {
-                timer = undefined
-                onChangeRef.current()
-            }, COALESCE_MS)
-        })
-        return () => {
-            if (timer) {
-                clearTimeout(timer)
-            }
-            subscription.unsubscribe()
-        }
-    }, [])
+    useCoalescedChanges<void>(subscribeWorkspaceChanges, onChange, [])
 }

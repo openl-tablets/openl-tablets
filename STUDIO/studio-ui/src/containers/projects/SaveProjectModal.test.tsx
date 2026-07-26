@@ -36,6 +36,8 @@ vi.mock('store', () => ({
     useUserStore: () => ({
         userProfile: { username: 'jane', firstName: '', lastName: '', displayName: '', email: '' },
     }),
+    // apiCall reads the app store's error-page setters at module scope.
+    useAppStore: { getState: () => new Proxy({}, { get: () => vi.fn() }) },
 }))
 
 vi.mock('../users/UserProfileCompletionModal', () => ({

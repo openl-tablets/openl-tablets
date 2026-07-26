@@ -39,6 +39,11 @@ vi.mock('antd-style', () => ({
     }),
 }))
 
+// The title dot subscribes to the status channel; it has its own tests.
+vi.mock('./CompileIndicator', () => ({
+    LiveCompileDot: () => <span data-testid="live-compile-dot" />,
+}))
+
 vi.mock('@ant-design/icons', () => ({
     BranchesOutlined: () => null,
     CloudUploadOutlined: () => null,

@@ -22,10 +22,11 @@ let pending: Promise<ProjectIndex> | undefined
 let takenAt = 0
 
 /**
- * How long a snapshot is trusted without any invalidation. Changes normally arrive as server pings
+ * How long a read is trusted without any invalidation. Changes normally arrive as server pings
  * or local mutations; the age limit catches what those miss — a lost ping, a laptop waking up.
+ * The project page applies the same window to its own detail read.
  */
-const MAX_AGE_MS = 5 * 60_000
+export const PROJECT_INDEX_TTL_MS = 5 * 60_000
 
 /**
  * Reads the projects, once. Every caller after the first shares the same answer, so opening the tree
@@ -83,7 +84,7 @@ export const hasProjectIndex = (): boolean => pending !== undefined
  * True when there is no snapshot, or the one there is has outlived its trust window. A screen the
  * user comes back to checks this and re-reads quietly instead of trusting what a sleeping tab kept.
  */
-export const isProjectIndexStale = (): boolean => pending === undefined || Date.now() - takenAt > MAX_AGE_MS
+export const isProjectIndexStale = (): boolean => pending === undefined || Date.now() - takenAt > PROJECT_INDEX_TTL_MS
 
 // Whatever the user changed, wherever they changed it — a project deleted on its own page, a file saved,
 // a branch switched — the snapshot no longer describes the workspace. The screen that comes next reads

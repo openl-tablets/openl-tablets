@@ -24,6 +24,7 @@ import type { Project } from '../../types/projects'
 import type { FsNode } from '../../types/files'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
+import { LiveCompileDot } from './CompileIndicator'
 import { ProjectActionBar, type ActionId, type ProjectActionHandlers } from './ProjectActionBar'
 import { FileTree } from './FileTree'
 import { FilesToolbar } from './FilesToolbar'
@@ -200,6 +201,8 @@ interface ProjectDetailProps {
     reducedMotion?: boolean
     /** Bumped whenever the project reloads, so cached tabs (history, file content) refetch and reset. */
     reloadToken?: number
+    /** The files the reload behind the current token is known to cover; null means anything. */
+    changedFiles?: string[] | null
     /** Rendered before the repository name, e.g. a breadcrumb link back to the projects list. */
     headerPrefix?: ReactNode
     /** Called after an edit (tags, file save) that may change the project, to refresh the list. */
@@ -222,6 +225,7 @@ export const ProjectDetail = ({
     files,
     reducedMotion,
     reloadToken = 0,
+    changedFiles = null,
     headerPrefix,
     onChanged,
     onFilesVisible,
@@ -385,6 +389,7 @@ export const ProjectDetail = ({
                 branch={repositorySupportsBranches ? project.branch : null}
                 canDelete={canWriteFiles}
                 canWrite={canWriteFiles}
+                changedFiles={changedFiles}
                 folders={folders}
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); onChanged?.() }}
@@ -530,6 +535,7 @@ export const ProjectDetail = ({
                         >
                             {project.name}
                         </Typography.Title>
+                        <LiveCompileDot branch={project.branch ?? null} compileStatus={project.compileStatus} projectId={project.id} status={project.status} />
                     </div>
                     <ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />
                 </div>
