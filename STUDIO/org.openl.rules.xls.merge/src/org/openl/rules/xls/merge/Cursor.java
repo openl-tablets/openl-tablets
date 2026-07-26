@@ -122,16 +122,6 @@ class Cursor {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get physical numbers of cells of current {@code sheet}
-     *
-     * @return int representing the number of defined cells in the row.
-     */
-    public int getSheetPhysicalNumberOfCells() {
-        var rowIter = sheet.rowIterator();
-        return rowIter.hasNext() ? rowIter.next().getPhysicalNumberOfCells() : 0;
-    }
-
     public void addFormulaCell(Cell formulaCell) {
         if (formulas != null) {
             formulas.add(formulaCell);
