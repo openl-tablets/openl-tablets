@@ -1,12 +1,8 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
-import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
+import { type ProjectStatusUpdate } from '../../services/projectStatus'
 import { RowCompileDot } from './CompileIndicator'
-
-vi.mock('../../services/projectStatus', () => ({
-    subscribeProjectStatus: vi.fn(),
-}))
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -23,125 +19,61 @@ vi.mock('antd-style', () => ({
     keyframes: () => '',
 }))
 
-const initialStatus = (state: ProjectStatusUpdate['compileState']): ProjectStatusUpdate => ({
+const compileStatus = (state: ProjectStatusUpdate['compileState']): ProjectStatusUpdate => ({
     projectId: 'p1',
     branch: 'main',
     compileState: state,
 })
 
+// The dot is purely presentational: the screen feeds it from its one workspace-wide status
+// subscription, so a row never subscribes on its own.
 describe('RowCompileDot', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe: vi.fn() } as never)
-    })
+    it('shows the compile state of an open row', () => {
+        render(<RowCompileDot compileStatus={compileStatus('errors')} status={ProjectStatus.Opened} />)
 
-    it('subscribes open rows to the project status channel', async () => {
-        render(
-            <RowCompileDot
-                branch="main"
-                initialStatus={initialStatus('errors')}
-                projectId="p1"
-                status={ProjectStatus.Opened}
-            />
-        )
-        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
-
-        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
         expect(screen.getByRole('img', { name: 'browser.compile.errors' })).toBeInTheDocument()
     })
 
-    it('shows nothing for a clean compiled project', async () => {
-        render(
-            <RowCompileDot
-                branch="main"
-                initialStatus={initialStatus('ok')}
-                projectId="p1"
-                status={ProjectStatus.Opened}
-            />
-        )
-        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+    it('shows nothing for a clean compiled project', () => {
+        render(<RowCompileDot compileStatus={compileStatus('ok')} status={ProjectStatus.Opened} />)
 
         expect(screen.queryByRole('img')).toBeNull()
     })
 
-    it('does not subscribe closed rows', async () => {
-        render(
-            <RowCompileDot
-                branch="main"
-                initialStatus={initialStatus('ok')}
-                projectId="p1"
-                status={ProjectStatus.Closed}
-            />
-        )
-        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+    it('ignores a stale compile state on a closed row', () => {
+        render(<RowCompileDot compileStatus={compileStatus('errors')} status={ProjectStatus.Closed} />)
 
-        expect(subscribeProjectStatus).not.toHaveBeenCalled()
-        // A closed, clean project shows no compile dot.
+        // A closed project has no live compilation; whatever state is left over is not shown.
         expect(screen.queryByRole('img')).toBeNull()
     })
 
-    it('shows the real compile state for a local project instead of forcing idle', async () => {
-        render(
-            <RowCompileDot
-                branch={null}
-                initialStatus={initialStatus('errors')}
-                projectId="p1"
-                status={ProjectStatus.Local}
-            />
-        )
-        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+    it('shows the real compile state for a local project instead of forcing idle', () => {
+        render(<RowCompileDot compileStatus={compileStatus('errors')} status={ProjectStatus.Local} />)
 
-        expect(subscribeProjectStatus).toHaveBeenCalled()
         expect(screen.getByRole('img', { name: 'browser.compile.errors' })).toBeInTheDocument()
     })
 
-    it('updates the tooltip from live warning and error counts', async () => {
-        let onUpdate!: (status: ProjectStatusUpdate) => void
-        vi.mocked(subscribeProjectStatus).mockImplementation((projectId, branch, listener) => {
-            onUpdate = listener
-            return { unsubscribe: vi.fn() } as never
-        })
+    it('builds the tooltip from the warning and error counts', () => {
         render(
             <RowCompileDot
-                branch="main"
-                initialStatus={initialStatus('ok')}
-                projectId="p1"
                 status={ProjectStatus.Editing}
+                compileStatus={{
+                    projectId: 'p1',
+                    branch: 'main',
+                    compileState: 'errors',
+                    compilation: {
+                        messages: {
+                            items: [],
+                            total: 3,
+                            errors: 2,
+                            warnings: 1,
+                        },
+                    },
+                }}
             />
         )
-        // The mount-time loads land asynchronously; flush them before the assertions read the screen.
-        await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
 
-        act(() => onUpdate({
-            projectId: 'p1',
-            branch: 'main',
-            compileState: 'errors',
-            compilation: {
-                messages: {
-                    items: [],
-                    total: 3,
-                    errors: 2,
-                    warnings: 1,
-                },
-            },
-        }))
-
-        await waitFor(() => {
-            expect(screen.getByRole('img', { name: 'browser.compile.error_count:2, browser.compile.warning_count:1' })).toBeInTheDocument()
-        })
+        expect(screen.getByRole('img', { name: 'browser.compile.error_count:2, browser.compile.warning_count:1' }))
+            .toBeInTheDocument()
     })
 })

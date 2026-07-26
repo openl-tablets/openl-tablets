@@ -1,9 +1,16 @@
 package org.openl.rules.workspace.lw;
 
+import java.nio.file.Path;
+
 import org.openl.rules.project.abstraction.LockEngine;
 
 public interface LocalWorkspaceManager {
     LocalWorkspace getWorkspace(String userId);
+
+    /**
+     * The root folder on disk holding the workspaces of all users, one subfolder per user.
+     */
+    Path getWorkspaceHome();
 
     /**
      * @param type projects type, used as a subfolder name. For example "rules" or "deployments"

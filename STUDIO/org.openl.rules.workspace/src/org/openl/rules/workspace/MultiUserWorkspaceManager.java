@@ -1,7 +1,7 @@
 package org.openl.rules.workspace;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -27,9 +27,10 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      */
     private LocalWorkspaceManager localWorkspaceManager;
     /**
-     * Cache for User Workspaces
+     * Cache for User Workspaces. Concurrent: request threads and the workspace files watcher's
+     * background thread reach it at the same time.
      */
-    private final Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
+    private final Map<String, UserWorkspace> userWorkspaces = new ConcurrentHashMap<>();
 
     private UserWorkspaceFactory userWorkspaceFactory = new DefaultUserWorkspaceFactory();
 
@@ -57,13 +58,26 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * @return new or cached instance of user workspace
      */
     public UserWorkspace getUserWorkspace(WorkspaceUser user) {
-        UserWorkspace uw = userWorkspaces.get(user.getUserId());
-        if (uw == null) {
-            uw = createUserWorkspace(user);
-            userWorkspaces.put(user.getUserId(), uw);
+        UserWorkspace existing = userWorkspaces.get(user.getUserId());
+        if (existing != null) {
+            return existing;
         }
+        // The creation (filesystem reads, a listener registration) runs under the map's lock on
+        // purpose: two concurrent first requests of one user must not build two workspaces. It
+        // happens once per user; the fast path above never takes the lock.
+        return userWorkspaces.computeIfAbsent(user.getUserId(), id -> createUserWorkspace(user));
+    }
 
-        return uw;
+    /**
+     * Returns the cached workspace of the user, or {@code null} when none exists yet.
+     *
+     * <p>Never creates one: a background caller does not know the user's full identity, and a
+     * workspace created from a bare user would be cached and then sign the real session's commits.
+     *
+     * @param userId the user id, as {@link WorkspaceUser#getUserId()} returns it
+     */
+    public UserWorkspace getUserWorkspaceIfCreated(String userId) {
+        return userWorkspaces.get(userId);
     }
 
     public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {

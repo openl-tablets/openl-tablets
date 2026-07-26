@@ -2,6 +2,7 @@ package org.openl.studio.projects.messaging;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nullable;
 
@@ -27,6 +28,15 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_TABLES_RUN = "/topic/projects/%s/tables/%s/run";
     private static final String TOPIC_PROJECTS_STATUS = "/topic/projects/%s/status";
     private static final String TOPIC_PROJECTS_BRANCHES_STATUS = "/topic/projects/%s/branches/%s/status";
+    private static final String TOPIC_WORKSPACE_CHANGED = "/topic/workspace/changed";
+    private static final String TOPIC_PROJECTS_CHANGED = "/topic/projects/changed";
+    private static final String TOPIC_WORKSPACE_PROJECTS_STATUS = "/topic/workspace/projects/status";
+
+    /**
+     * The body of a change ping. The pings carry no data on purpose: the broadcast one goes to every
+     * authenticated session, so clients re-read what changed through the REST API under their own ACL.
+     */
+    private static final String CHANGE_PING = "CHANGED";
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -130,7 +140,7 @@ public class ProjectSocketNotificationService {
     public void notifyRunExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                java.util.Map.of("status", "ERROR", "message", errorMessage));
+                Map.of("status", "ERROR", "message", errorMessage));
     }
 
     /**
@@ -159,6 +169,39 @@ public class ProjectSocketNotificationService {
                 ? TOPIC_PROJECTS_STATUS.formatted(encodedProjectId)
                 : TOPIC_PROJECTS_BRANCHES_STATUS.formatted(encodedProjectId, encodePathSegment(branch));
         messagingTemplate.convertAndSendToUser(userName, destination, status);
+    }
+
+    /**
+     * Pushes a project status change onto the user's one workspace-wide status stream. The status
+     * names its own project and branch, so a screen showing many projects — the projects list — holds
+     * a single subscription and routes the updates itself, instead of one subscription per row.
+     * The per-project destinations of {@link #notifyProjectStatus} stay for the single-project screens.
+     *
+     * @param userName destination user
+     * @param status   full status view to push, carrying its project id and branch
+     */
+    public void notifyWorkspaceProjectStatus(String userName, ProjectStatusViewModel status) {
+        messagingTemplate.convertAndSendToUser(userName, TOPIC_WORKSPACE_PROJECTS_STATUS, status);
+    }
+
+    /**
+     * Tells the user's sessions that their workspace changed — a project was opened, closed, saved,
+     * deleted, switched to another branch, or edited — so a projects list they show may be stale.
+     * A bare ping: the client re-reads the list through the REST API.
+     *
+     * @param userName destination user
+     */
+    public void notifyWorkspaceChanged(String userName) {
+        messagingTemplate.convertAndSendToUser(userName, TOPIC_WORKSPACE_CHANGED, CHANGE_PING);
+    }
+
+    /**
+     * Tells every session that the content of a design repository changed — a commit, a merge, an
+     * external push — so any projects list may be stale. A bare ping broadcast to all authenticated
+     * subscribers; it carries no project data.
+     */
+    public void notifyProjectsChanged() {
+        messagingTemplate.convertAndSend(TOPIC_PROJECTS_CHANGED, CHANGE_PING);
     }
 
     private String encodePathSegment(String segment) {

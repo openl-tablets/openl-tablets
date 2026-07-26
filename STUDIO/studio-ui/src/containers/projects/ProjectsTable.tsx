@@ -220,9 +220,7 @@ export const ProjectsTable = ({
                                             </Tooltip>
                                         )}
                                         <RowCompileDot
-                                            branch={supportsBranches ? project.branch || null : null}
-                                            initialStatus={compileStatusByProject.get(project.id)}
-                                            projectId={project.id}
+                                            compileStatus={compileStatusByProject.get(project.id)}
                                             status={project.status}
                                         />
                                     </div>

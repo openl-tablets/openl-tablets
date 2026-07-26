@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WORKSPACE_CHANGED_EVENT } from './apiCall'
-import { getProjectIndex, invalidateProjectIndex } from './projectIndex'
+import { getProjectIndex, invalidateProjectIndex, isProjectIndexStale } from './projectIndex'
 import { getProjects } from './repositories'
 
 vi.mock('./repositories', () => ({ getProjects: vi.fn() }))
@@ -39,5 +39,34 @@ describe('the projects snapshot', () => {
 
         await expect(getProjectIndex()).rejects.toThrow('offline')
         await expect(getProjectIndex()).resolves.toMatchObject({ projects: [{ name: 'Alpha' }]})
+    })
+
+    describe('the staleness policy', () => {
+        afterEach(() => {
+            vi.useRealTimers()
+        })
+
+        it('re-reads a snapshot that outlived its trust window, even with no invalidation', async () => {
+            vi.useFakeTimers()
+            await getProjectIndex()
+            expect(isProjectIndexStale()).toBe(false)
+
+            // Pings can be lost while a laptop sleeps: age alone must not be trusted forever.
+            vi.setSystemTime(Date.now() + 5 * 60_000 + 1)
+
+            expect(isProjectIndexStale()).toBe(true)
+            await getProjectIndex()
+            expect(getProjects).toHaveBeenCalledTimes(2)
+        })
+
+        it('keeps serving a snapshot inside its trust window', async () => {
+            vi.useFakeTimers()
+            await getProjectIndex()
+
+            vi.setSystemTime(Date.now() + 60_000)
+
+            await getProjectIndex()
+            expect(getProjects).toHaveBeenCalledTimes(1)
+        })
     })
 })

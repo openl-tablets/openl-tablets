@@ -1,4 +1,8 @@
-import type { fetchProjectStatus as FetchProjectStatusFn, subscribeProjectStatus as SubscribeProjectStatusFn } from 'services/projectStatus'
+import type {
+    fetchProjectStatus as FetchProjectStatusFn,
+    subscribeProjectStatus as SubscribeProjectStatusFn,
+    subscribeWorkspaceProjectStatuses as SubscribeWorkspaceProjectStatusesFn,
+} from 'services/projectStatus'
 
 vi.mock('services/config', () => ({
     __esModule: true,
@@ -40,6 +44,7 @@ describe('projectStatus service', () => {
     const fetchMock = vi.fn()
     let fetchProjectStatus: typeof FetchProjectStatusFn
     let subscribeProjectStatus: typeof SubscribeProjectStatusFn
+    let subscribeWorkspaceProjectStatuses: typeof SubscribeWorkspaceProjectStatusesFn
     let mockedWebSocketService: {
         connect: ReturnType<typeof vi.fn>
         subscribe: ReturnType<typeof vi.fn>
@@ -57,6 +62,7 @@ describe('projectStatus service', () => {
         const mod = await import('services/projectStatus')
         fetchProjectStatus = mod.fetchProjectStatus
         subscribeProjectStatus = mod.subscribeProjectStatus
+        subscribeWorkspaceProjectStatuses = mod.subscribeWorkspaceProjectStatuses
     })
 
     afterEach(() => {
@@ -230,6 +236,22 @@ describe('projectStatus service', () => {
             subscribeProjectStatus('abc=', null, vi.fn())
 
             expect(mockedWebSocketService.subscribe).toHaveBeenCalledTimes(2)
+        })
+    })
+
+    describe('subscribeWorkspaceProjectStatuses', () => {
+        it('holds one subscription for the statuses of every project', () => {
+            const onUpdate = vi.fn()
+            subscribeWorkspaceProjectStatuses(onUpdate)
+
+            expect(mockedWebSocketService.subscribe).toHaveBeenCalledWith(
+                '/user/topic/workspace/projects/status',
+                expect.any(Function)
+            )
+            // Each update names its own project — the screen routes it, not the transport.
+            const stompCallback = mockedWebSocketService.subscribe.mock.calls[0]![1] as (msg: { body: string }) => void
+            stompCallback({ body: JSON.stringify({ projectId: 'abc=', compileState: 'errors' }) })
+            expect(onUpdate).toHaveBeenCalledWith({ projectId: 'abc=', compileState: 'errors' })
         })
     })
 })

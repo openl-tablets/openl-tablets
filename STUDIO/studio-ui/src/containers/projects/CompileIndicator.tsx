@@ -4,7 +4,6 @@ import { Tooltip } from 'antd'
 import { createStyles, keyframes } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
-import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
 import { COMPILE_COLORS } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
@@ -100,24 +99,21 @@ export const CompileDot = ({ state, showLabel, testId, tooltip }: CompileDotProp
 
 interface RowCompileDotProps {
     status: ProjectStatus
-    projectId: string
-    branch: string | null
-    initialStatus?: ProjectStatusUpdate | undefined
+    compileStatus?: ProjectStatusUpdate | undefined
 }
 
 /**
- * Compile dot for a list row. The projects page response bootstraps the state; visible rows subscribe
- * to the same project-status WebSocket channel as the project workspace.
+ * Compile dot for a list row. Purely presentational: the projects page response bootstraps the
+ * state, and the screen keeps it live from its one workspace-wide status subscription — a row never
+ * subscribes on its own.
  */
-export const RowCompileDot = ({ status, projectId, branch, initialStatus }: RowCompileDotProps) => {
+export const RowCompileDot = ({ status, compileStatus }: RowCompileDotProps) => {
     const { t } = useTranslation('repository')
     const live = COMPILE_RELEVANT_STATUSES.has(status)
-    const currentStatus = useLiveProjectStatus(projectId, branch, live, initialStatus ?? null)
 
-    const state = live ? currentStatus?.compileState ?? initialStatus?.compileState ?? 'idle' : 'idle'
+    const state = live ? compileStatus?.compileState ?? 'idle' : 'idle'
     if (!isNoteworthyCompileState(state)) {
         return null
     }
-    const tooltip = getCompileTooltip(currentStatus ?? initialStatus, state, t)
-    return <CompileDot state={state} tooltip={tooltip} />
+    return <CompileDot state={state} tooltip={getCompileTooltip(compileStatus, state, t)} />
 }

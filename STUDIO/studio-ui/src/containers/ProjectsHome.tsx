@@ -22,7 +22,8 @@ import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
 import { countFacets, refineProjects, searchProjects, sortProjects, type ProjectSort, type SortDirection } from './projects/projectListing'
-import { getProjectIndex, hasProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
+import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
+import { useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { COMPILE_COLORS } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { NewProjectModal } from './projects/NewProjectModal'
@@ -34,7 +35,7 @@ import { openCompareWindow } from './projects/compare'
 import { loadProjectFilters, saveProjectFilters } from './projects/filterStorage'
 import { SaveProjectModal } from './projects/SaveProjectModal'
 import { DiscardChangesModal } from './DiscardChangesModal'
-import type { ProjectCompileState, ProjectStatusUpdate } from '../services/projectStatus'
+import { subscribeWorkspaceProjectStatuses, type ProjectCompileState, type ProjectStatusUpdate } from '../services/projectStatus'
 
 /** The facet counts of the rail, counted in the browser from the projects it already holds. */
 interface ProjectFacets {
@@ -103,6 +104,38 @@ const useStyles = createStyles(({ css, token }) => ({
  * attention is summarised.
  */
 const COMPILE_SUMMARY_ORDER: ProjectCompileState[] = ['errors', 'warnings', 'compiling']
+
+/** What makes the list visibly different — the shared per-project signature, over every row. */
+const listSignature = (projects: Project[]): string => JSON.stringify(projects.map(projectSignature))
+
+/**
+ * The compile statuses to show after a snapshot arrives: the snapshot, except where a status pushed
+ * over the socket while the read was in flight is fresher — that one stays on top.
+ */
+const overlayFreshStatuses = (
+    snapshot: ProjectStatusUpdate[],
+    previous: ProjectStatusUpdate[],
+    pushedAt: Map<string, number>,
+    readStartedAt: number
+): ProjectStatusUpdate[] => {
+    const pushed = previous.filter(status => (pushedAt.get(status.projectId) ?? 0) > readStartedAt)
+    const overridden = new Set(pushed.map(status => status.projectId))
+    return [...snapshot.filter(status => !overridden.has(status.projectId)), ...pushed]
+}
+
+/** Replaces the project's status in place; a repeated identical status keeps the same array. */
+const upsertStatus = (previous: ProjectStatusUpdate[], update: ProjectStatusUpdate): ProjectStatusUpdate[] => {
+    const index = previous.findIndex(status => status.projectId === update.projectId)
+    if (index < 0) {
+        return [...previous, update]
+    }
+    if (JSON.stringify(previous[index]) === JSON.stringify(update)) {
+        return previous
+    }
+    const next = [...previous]
+    next[index] = update
+    return next
+}
 
 const parsePositiveInt = (value: string | null, fallback: number): number => {
     const parsed = Number(value)
@@ -173,6 +206,8 @@ export const ProjectsHome = () => {
     const searchRef = useRef<InputRef>(null)
     // Bumped on every load so a stale response never overwrites a fresher one.
     const loadGeneration = useRef(0)
+    // When each project's compile status last arrived by push — a load never overwrites a fresher push.
+    const statusPushedAt = useRef(new Map<string, number>())
 
     const search = params.get('q') ?? ''
     // No sort in the URL means the default name order — shown without an arrow until a header is clicked.
@@ -260,6 +295,7 @@ export const ProjectsHome = () => {
     // counts — the expensive part of the list response — are counted from the same snapshot.
     const load = useCallback((refresh = false, { silent = false } = {}) => {
         const generation = ++loadGeneration.current
+        const startedAt = Date.now()
         if (!silent) {
             setLoading(true)
         }
@@ -268,20 +304,22 @@ export const ProjectsHome = () => {
             setReloadToken(token => token + 1)
         }
         return Promise.all([getDesignRepositories(LOCAL_LOAD_API_OPTIONS), getProjectIndex()])
-            .then(([repos_, index]) => {
+            .then(([repos_, index]): Project[] | null => {
                 if (generation !== loadGeneration.current) {
-                    return
+                    return null
                 }
                 setRepositories(repos_)
                 setAllProjects(index.projects)
-                setCompileStatuses(index.statuses)
+                setCompileStatuses(previous => overlayFreshStatuses(index.statuses, previous, statusPushedAt.current, startedAt))
                 setError(null)
+                return index.projects
             })
-            .catch((e: unknown) => {
+            .catch((e: unknown): Project[] | null => {
                 // A failed silent re-read keeps the snapshot on screen: it was the answer a moment ago.
                 if (generation === loadGeneration.current && !silent) {
                     setError(errorMessage(e))
                 }
+                return null
             })
             .finally(() => {
                 if (generation === loadGeneration.current && !silent) {
@@ -304,6 +342,37 @@ export const ProjectsHome = () => {
             }
         })
     }, [load, restoring])
+
+    // The backend pings when the workspace or a repository changed — another session, another
+    // user, another client. The list re-reads behind the scenes and swaps the fresh answer in. The user is
+    // told only when the refresh actually changed the list: a ping echoing their own action lands on
+    // an already-fresh snapshot and stays quiet.
+    useWorkspaceChanges(() => {
+        const before = listSignature(allProjects)
+        void load(true, { silent: true }).then(loaded => {
+            if (loaded !== null && listSignature(loaded) !== before) {
+                notification.info({ title: t('home.live_synced') })
+            }
+        })
+    })
+
+    // The staleness policy behind the pings: coming back to a tab whose snapshot outlived its trust
+    // window (pings can be lost while a laptop sleeps) re-reads it quietly.
+    useWindowFocus(() => {
+        if (isProjectIndexStale()) {
+            void load(true, { silent: true })
+        }
+    })
+
+    // One subscription feeds the compile dots of every row: each pushed status names its own project,
+    // and it replaces that project's snapshot entry in place.
+    useEffect(() => {
+        const subscription = subscribeWorkspaceProjectStatuses(update => {
+            statusPushedAt.current.set(update.projectId, Date.now())
+            setCompileStatuses(previous => upsertStatus(previous, update))
+        })
+        return () => subscription.unsubscribe()
+    }, [])
 
     useEffect(() => {
         if (!loading && totalProjects > 0 && requestedPage > totalPages) {

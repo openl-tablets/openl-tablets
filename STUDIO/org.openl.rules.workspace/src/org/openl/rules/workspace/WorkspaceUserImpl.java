@@ -65,6 +65,39 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         return sb.toString();
     }
 
+    /**
+     * Restores the user name a system-safe user id was generated from — the inverse of
+     * {@link #generateUserId(String)}. The id doubles as the user's workspace folder name, so this is
+     * how a folder observed on disk leads back to its user.
+     *
+     * <p>An input this class could not have generated — an unmatched or empty {@code (hex)} escape —
+     * is returned unchanged: callers feed arbitrary folder names, and a malformed one simply is not
+     * an encoded user id.
+     */
+    public static String decodeUserId(String userId) {
+        StringBuilder sb = new StringBuilder(userId.length());
+        int i = 0;
+        while (i < userId.length()) {
+            char c = userId.charAt(i);
+            if (c == '(') {
+                int end = userId.indexOf(')', i);
+                if (end <= i + 1) {
+                    return userId;
+                }
+                try {
+                    sb.append((char) Integer.parseInt(userId, i + 1, end, 16));
+                } catch (NumberFormatException e) {
+                    return userId;
+                }
+                i = end + 1;
+            } else {
+                sb.append(c);
+                i++;
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String getUserId() {
         return userId;
