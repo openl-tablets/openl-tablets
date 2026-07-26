@@ -62,8 +62,6 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         }
     }
 
-    private Boolean cacheble = null;
-
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return env.getTracer().invoke(invoke2, target, params, env, this);
