@@ -1,5 +1,6 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import traceService from 'services/traceService'
 import { useTraceStore } from 'store/traceStore'
 import type { DebugFrameVariables, DebugFrameView } from 'types/trace'
 import TraceDetails from 'containers/TraceView/components/TraceDetails'
@@ -9,6 +10,7 @@ vi.mock('services/traceService', () => ({
     default: {
         getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
         getFrameHighlights: vi.fn().mockResolvedValue([]),
+        getStepInputs: vi.fn().mockResolvedValue([]),
     },
 }))
 
@@ -21,8 +23,8 @@ vi.mock('react-i18next', () => {
 // isolated and fast. Each stub advertises its presence and the load-bearing prop.
 vi.mock('containers/TraceView/components/TraceTableView', () => ({
     __esModule: true,
-    default: ({ frameIndex }: { frameIndex: number }) => (
-        <div data-testid="stub-table">table:{frameIndex}</div>
+    default: ({ frameIndex, highlightCell }: { frameIndex: number; highlightCell?: string | null }) => (
+        <div data-testid="stub-table">table:{frameIndex}:{highlightCell ?? 'none'}</div>
     ),
 }))
 vi.mock('containers/TraceView/components/SpreadsheetGrid', () => ({
@@ -149,6 +151,80 @@ describe('TraceDetails', () => {
         expect(screen.getByText('loadingDetails')).toBeInTheDocument()
         // The kind-specific panel is not drawn until variables settle.
         expect(screen.queryByTestId('stub-spreadsheet')).toBeNull()
+    })
+
+    it('presents a focused step: the values its formula consumed, its own value as `return`', async () => {
+        // The suspension pauses in the owning table right after the step executed; the panel keeps the
+        // step's identity, and the Parameters are the step's own inputs — what its formula consumed —
+        // fetched in the formula's terms, not the owning table's parameter list.
+        const getStepInputs = traceService.getStepInputs as ReturnType<typeof vi.fn>
+        getStepInputs.mockResolvedValue([
+            { name: '$LimitIndex', description: 'Double', lazy: false, value: 0.05 },
+            { name: 'MaxLimit', description: 'Integer', lazy: false, value: 5000 },
+        ])
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ uri: 'uOwner', name: 'BankRatingCalculation',
+                steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'executed' }]})],
+            selectedFrameIndex: 0,
+            variables: variables({
+                steps: [{ ref: 'S9', label: '$Value$Limit', status: 'executed',
+                    value: { name: 'S9', description: 'Double', lazy: false, value: 250000 } }],
+            }),
+            variablesLoading: false,
+            simpleFocus: { ref: 'S9', label: '$Value$Limit', ownerUri: 'uOwner', ownerInstance: 0 },
+        })
+        render(<TraceDetails />)
+
+        expect(screen.getByText('$Value$Limit')).toBeInTheDocument() // titled by the step
+        // The step's inputs arrive from the step-inputs endpoint, named as the formula writes them.
+        expect(getStepInputs).toHaveBeenCalledWith('p1', 0, 'S9')
+        await waitFor(() => expect(screen.getByText('$LimitIndex')).toBeInTheDocument())
+        expect(screen.getByText('0.05')).toBeInTheDocument()
+        expect(screen.getByText('MaxLimit')).toBeInTheDocument()
+        expect(screen.getByText('5000')).toBeInTheDocument()
+        expect(screen.queryByText('age')).toBeNull() // not the whole table's parameter list
+        // The step's own value is the result, presented as `return` — not as the raw cell ref S9.
+        expect(screen.getByText('return')).toBeInTheDocument()
+        expect(screen.queryByText('S9')).toBeNull()
+        expect(screen.getByText('250000')).toBeInTheDocument()
+        expect(screen.queryByText('1.5')).toBeNull() // not the whole table's result
+        // The traced table points at the clicked step's cell; the frame panels stay off.
+        expect(screen.getByTestId('stub-table')).toHaveTextContent('table:0:C7')
+        expect(screen.queryByTestId('stub-spreadsheet')).toBeNull()
+    })
+
+    it('shows no result for a focused step that has not produced a value', async () => {
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame({ uri: 'uOwner',
+                steps: [{ ref: 'S9', label: '$Value$Limit', cell: 'C7', status: 'pending' }]})],
+            selectedFrameIndex: 0,
+            variables: variables({ steps: []}),
+            variablesLoading: false,
+            simpleFocus: { ref: 'S9', label: '$Value$Limit', ownerUri: 'uOwner', ownerInstance: 0 },
+        })
+        await act(async () => {
+            render(<TraceDetails />)
+        })
+
+        expect(screen.getByText('details.noResult')).toBeInTheDocument()
+    })
+
+    it('ignores the step focus in the advanced mode and shows the frame as-is', () => {
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame()],
+            selectedFrameIndex: 0,
+            variables: variables(),
+            variablesLoading: false,
+            advanced: true,
+            simpleFocus: { ref: 'S1', label: '$Value$X', ownerUri: 'u0', ownerInstance: 0 },
+        })
+        render(<TraceDetails />)
+
+        expect(screen.getByText('CoveragePremium')).toBeInTheDocument()
+        expect(screen.queryByText('$Value$X')).toBeNull()
     })
 
     it('lists frame errors when the selected frame reported messages', () => {

@@ -26,19 +26,26 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.ILocalVar;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.calc.CustomSpreadsheetResultField;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.rules.cloner.Cloner;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
+import org.openl.rules.table.xls.XlsUtil;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
@@ -49,7 +56,11 @@ import org.openl.studio.projects.service.trace.DebugFrame;
 import org.openl.studio.projects.service.trace.SpreadsheetCellNames;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.studio.projects.service.trace.WatchCapture;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.OpenFieldDelegator;
 
 /**
  * Maps the debugger's live stack to view models and freezes a frame's variables on demand.
@@ -359,7 +370,10 @@ public class TraceDebugMapper {
         var steps = new ArrayList<StepValueView>();
         forEachCell(spreadsheet, cell -> {
             String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-            var builder = StepValueView.builder().ref(ref).label(SpreadsheetCellNames.of(spreadsheet, cell));
+            var builder = StepValueView.builder()
+                    .ref(ref)
+                    .label(SpreadsheetCellNames.of(spreadsheet, cell))
+                    .cell(cellAddress(cell));
             if (executed.containsKey(ref)) {
                 var param = new ParameterWithValueDeclaration(ref, safeClone(executed.get(ref), clones, !frame.isCompleted()), cell.getType());
                 steps.add(builder.status(StepStatus.EXECUTED).value(buildParameterValue(param, true, includeSchema)).build());
@@ -411,6 +425,7 @@ public class TraceDebugMapper {
                 steps.add(StepValueView.builder()
                         .ref(ref)
                         .label(SpreadsheetCellNames.of(spreadsheet, cell))
+                        .cell(cellAddress(cell))
                         .status(stepStatus(ref, executedRefs, currentRef))
                         .build());
             });
@@ -601,6 +616,227 @@ public class TraceDebugMapper {
                         .status(fired.contains(name) ? StepStatus.CURRENT : StepStatus.PENDING)
                         .build())
                 .toList();
+    }
+
+    /** An input a step's formula consumed, ranked so the list reads steps → parameters → constants. */
+    private record StepInput(int rank, int order, String name, @Nullable Object value, @Nullable IOpenClass type) {
+    }
+
+    /**
+     * The values a step's formula consumed, named as the formula writes them: sibling steps such as
+     * {@code $LimitIndex}, the table's own parameters, fields of a parameter opened into the table's
+     * scope such as {@code currentFinancialData}, and module constants such as {@code MaxLimit}.
+     *
+     * <p>Resolved from the compiled cell's binding dependencies against the frame's recorded values —
+     * nothing is re-evaluated. A sibling step that has not executed yet is omitted, and so is anything
+     * the recorded data cannot resolve (for example a field of another step's result).
+     */
+    public List<ParameterValue> freezeStepInputs(DebugFrame frame, String stepRef,
+                                                 @Nullable ClassLoader classLoader, boolean includeSchema) {
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        if (classLoader != null) {
+            Thread.currentThread().setContextClassLoader(classLoader);
+        }
+        try {
+            if (!(frame.getSource() instanceof Spreadsheet spreadsheet)) {
+                return List.of();
+            }
+            SpreadsheetCell cell = stepCell(spreadsheet, stepRef);
+            if (cell == null || !(cell.getMethod() instanceof CompositeMethod composite)) {
+                return List.of();
+            }
+            var dependencies = new RulesBindingDependencies();
+            composite.updateDependency(dependencies);
+            Map<String, Object> executed = new HashMap<>();
+            for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
+                executed.put(step.ref(), step.value());
+            }
+            List<IOpenField> fields = new ArrayList<>(dependencies.getFieldsMap().values());
+            List<StepInput> inputs = new ArrayList<>();
+            Set<String> seen = new HashSet<>();
+            // A field picked from another step's result ($Cell.$Field) is the precise input: list it as
+            // the dotted name with the field's value, and drop the bare result the formula only reached
+            // through.
+            Set<IOpenField> narrowed = new HashSet<>();
+            for (IOpenField field : fields) {
+                if (field instanceof CustomSpreadsheetResultField resultField) {
+                    StepInput input = resultFieldInput(resultField, fields, executed, narrowed);
+                    if (input != null && seen.add(input.name())) {
+                        inputs.add(input);
+                    }
+                }
+            }
+            for (IOpenField field : fields) {
+                if (field instanceof CustomSpreadsheetResultField || narrowed.contains(field)) {
+                    continue;
+                }
+                for (StepInput input : resolveStepInputs(field, frame, spreadsheet, executed)) {
+                    if (seen.add(input.name())) {
+                        inputs.add(input);
+                    }
+                }
+            }
+            Map<Object, Object> clones = new IdentityHashMap<>();
+            return inputs.stream()
+                    .sorted(Comparator.comparingInt(StepInput::rank)
+                            .thenComparingInt(StepInput::order)
+                            .thenComparing(StepInput::name))
+                    .map(input -> buildParameterValue(new ParameterWithValueDeclaration(input.name(),
+                            safeClone(input.value(), clones, !frame.isCompleted()), input.type()), true, includeSchema))
+                    .toList();
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
+        }
+    }
+
+    private List<StepInput> resolveStepInputs(IOpenField field, DebugFrame frame, Spreadsheet spreadsheet,
+                                              Map<String, Object> executed) {
+        if (field instanceof SpreadsheetRangeField range) {
+            // A cell range ($First:$Last) reads as the individual steps it spans, like the tree shows it.
+            List<StepInput> inputs = new ArrayList<>();
+            for (int row = range.getStartRowIndex(); row <= range.getEndRowIndex(); row++) {
+                for (int column = range.getStartColumnIndex(); column <= range.getEndColumnIndex(); column++) {
+                    StepInput input = rangeCellInput(spreadsheet, executed, row, column);
+                    if (input != null) {
+                        inputs.add(input);
+                    }
+                }
+            }
+            return inputs;
+        }
+        StepInput single = resolveStepInput(field, frame, spreadsheet, executed);
+        return single == null ? List.of() : List.of(single);
+    }
+
+    /**
+     * A field read from another step's result, e.g. {@code $BalanceQualityIndexCalculation.$Value$BalanceQualityIndex}:
+     * pair the field with the sibling step of its declaring result type, read the field off that step's
+     * recorded value, and mark the bare step as narrowed so it is not listed on top of its field.
+     */
+    private static @Nullable StepInput resultFieldInput(CustomSpreadsheetResultField field, List<IOpenField> fields,
+                                                        Map<String, Object> executed, Set<IOpenField> narrowed) {
+        for (IOpenField candidate : fields) {
+            if (!(candidate instanceof SpreadsheetCellField cellField)
+                    || !cellField.getType().getName().equals(field.getDeclaringClass().getName())) {
+                continue;
+            }
+            SpreadsheetCell cell = cellField.getCell();
+            String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+            if (!executed.containsKey(ref)) {
+                return null;
+            }
+            try {
+                Object result = executed.get(ref);
+                Object value = result == null ? null : field.get(result, null);
+                narrowed.add(cellField);
+                return new StepInput(0, cell.getRowIndex() * 10_000 + cell.getColumnIndex(),
+                        cellField.getName() + "." + field.getName(), value, field.getType());
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** One executed cell of a referenced range, named by its OpenL cell name. */
+    private static @Nullable StepInput rangeCellInput(Spreadsheet spreadsheet, Map<String, Object> executed,
+                                                      int row, int column) {
+        SpreadsheetCell[][] cells = spreadsheet.getCells();
+        SpreadsheetCell cell = row < cells.length && column < cells[row].length ? cells[row][column] : null;
+        if (cell == null || !isStepCell(cell)) {
+            return null;
+        }
+        String ref = CurrentLocation.cellRef(row, column);
+        if (!executed.containsKey(ref)) {
+            return null;
+        }
+        return new StepInput(0, row * 10_000 + column, SpreadsheetCellNames.of(spreadsheet, cell),
+                executed.get(ref), cell.getType());
+    }
+
+    private @Nullable StepInput resolveStepInput(IOpenField field, DebugFrame frame, Spreadsheet spreadsheet,
+                                                 Map<String, Object> executed) {
+        if (field instanceof SpreadsheetCellField cellField) {
+            SpreadsheetCell used = cellField.getCell();
+            String ref = CurrentLocation.cellRef(used.getRowIndex(), used.getColumnIndex());
+            // A referenced step that has not executed yet has no recorded value to show.
+            if (!executed.containsKey(ref)) {
+                return null;
+            }
+            int order = used.getRowIndex() * 10_000 + used.getColumnIndex();
+            return new StepInput(0, order, field.getName(), executed.get(ref), cellField.getType());
+        }
+        if (field instanceof ILocalVar) {
+            // The table's own parameter used by name (e.g. `bank`).
+            IMethodSignature signature = spreadsheet.getSignature();
+            Object[] params = frame.getParams();
+            int count = Math.min(params.length, signature.getNumberOfParameters());
+            for (int i = 0; i < count; i++) {
+                if (field.getName().equals(signature.getParameterName(i))) {
+                    return new StepInput(1, i, field.getName(), params[i], signature.getParameterType(i));
+                }
+            }
+            return null;
+        }
+        if (field instanceof ConstantOpenField constant) {
+            return new StepInput(3, 0, constant.getName(), constant.getValue(), constant.getType());
+        }
+        if (field instanceof OpenFieldDelegator delegator) {
+            return parameterScopeInput(delegator, frame, spreadsheet);
+        }
+        return null;
+    }
+
+    /**
+     * A field of a parameter opened into the table's scope (e.g. {@code currentFinancialData} resolved
+     * as a field of the {@code bank} parameter): read it from that parameter's recorded value.
+     */
+    private static @Nullable StepInput parameterScopeInput(OpenFieldDelegator field, DebugFrame frame,
+                                                           Spreadsheet spreadsheet) {
+        IOpenClass declaring = field.getDeclaringClass();
+        if (declaring == null) {
+            return null;
+        }
+        IMethodSignature signature = spreadsheet.getSignature();
+        Object[] params = frame.getParams();
+        int count = Math.min(params.length, signature.getNumberOfParameters());
+        for (int i = 0; i < count; i++) {
+            if (declaring.isAssignableFrom(signature.getParameterType(i))) {
+                try {
+                    Object value = params[i] == null ? null : field.getDelegate().get(params[i], null);
+                    return new StepInput(2, i, field.getName(), value, field.getType());
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** The real step cell of a spreadsheet with the given {@code RnCm} reference, or {@code null}. */
+    private static @Nullable SpreadsheetCell stepCell(Spreadsheet spreadsheet, String ref) {
+        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
+            for (SpreadsheetCell cell : row) {
+                if (isStepCell(cell)
+                        && CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex()).equals(ref)) {
+                    return cell;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The A1 address of a step cell's source in the raw table, matching the addresses of the Tables API
+     * grid, so a client can point at the step within its table.
+     */
+    private static @Nullable String cellAddress(SpreadsheetCell cell) {
+        var source = cell.getSourceCell();
+        if (source == null) {
+            return null;
+        }
+        var region = source.getAbsoluteRegion();
+        return XlsUtil.xlsCellPresentation(region.getLeft(), region.getTop());
     }
 
     /** Apply an action to every real spreadsheet step cell, in grid order. */

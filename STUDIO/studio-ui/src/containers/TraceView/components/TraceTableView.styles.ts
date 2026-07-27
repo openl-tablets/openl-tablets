@@ -42,6 +42,12 @@ export const useStyles = createStyles(({ css, token }) => ({
         vertical-align: top;
         white-space: pre-wrap;
     `,
+    // Everything that is NOT part of the highlighted calculation, muted to grey (like the legacy trace),
+    // so the highlighted cells are the only colour on the table and the eye lands on them instantly.
+    dimmed: css`
+        filter: grayscale(1);
+        opacity: 0.6;
+    `,
     /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend. */
     current: css`
         background: ${token.colorWarningBg};

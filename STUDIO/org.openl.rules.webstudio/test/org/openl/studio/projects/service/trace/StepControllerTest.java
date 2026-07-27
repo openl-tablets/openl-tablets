@@ -47,6 +47,45 @@ class StepControllerTest {
     }
 
     @Test
+    void inclusiveTableBreakpointRunsTheTableAndStopsAtItsOwnExit() {
+        StepController controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("after:bp@0"));
+        // The matched entry arms instead of suspending; everything the table does runs through.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 3, "bp", null, null, 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 4, "child", null, null, 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 4, "child", null, null, 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 3, "bp", CurrentLocation.cell(0, 0), null, 0));
+        // The table's own exit is the stop: its parameters and result are both on the stack there.
+        assertTrue(controller.shouldSuspend(DebugEvent.EXIT, 3, "bp", null, null, 0));
+        // A later instance of the same table does not re-arm the @0 key.
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 3, "bp", null, null, 1));
+    }
+
+    @Test
+    void inclusiveSubStepBreakpointRunsTheStepAndStopsOnTheNextLine() {
+        StepController controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("after:uri#R2C3@0"));
+        // The matched line arms instead of suspending; the tables the step calls run through.
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(2, 3), null, 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.ENTER, 6, "called", null, null, 0));
+        assertFalse(controller.shouldSuspend(DebugEvent.EXIT, 6, "called", null, null, 0));
+        // The next line of the owning table is the stop: the step's value is computed by then.
+        assertTrue(controller.shouldSuspend(DebugEvent.LOCATION, 5, "uri", CurrentLocation.cell(2, 4), null, 0));
+    }
+
+    @Test
+    void inclusiveSubStepBreakpointOnTheLastLineStopsAtTheFrameExit() {
+        StepController controller = new StepController();
+        controller.armInitial(false);
+        controller.setBreakpoints(Set.of("after:uri#R9C1"));
+        assertFalse(controller.shouldSuspend(DebugEvent.LOCATION, 2, "uri", CurrentLocation.cell(9, 1), null, 0));
+        // No further line follows the last step, so the owning frame's exit is the stop.
+        assertTrue(controller.shouldSuspend(DebugEvent.EXIT, 2, "uri", null, null, 0));
+    }
+
+    @Test
     void instanceIndexedCellBreakpointFiresOnlyOnThatExecution() {
         var controller = new StepController();
         controller.armInitial(false);

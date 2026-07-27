@@ -256,6 +256,20 @@ public class ProjectsTraceDebugController {
                 frame -> mapper.freezeVariables(frame, session.getClassLoader(), includeSchema));
     }
 
+    @Operation(summary = "trace.step-inputs.summary", description = "trace.step-inputs.desc")
+    @ApiResponse(responseCode = "200", description = "trace.step-inputs.200.desc")
+    @GetMapping("/frames/{index}/step-inputs")
+    public List<ParameterValue> stepInputs(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
+            @RequestParam("ref") @Parameter(description = "trace.param.step-ref.desc") String ref,
+            @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
+        DebugSession session = requireSession(project);
+        TraceDebugMapper mapper = createMapper(session);
+        return withInspectableFrame(session, index,
+                frame -> mapper.freezeStepInputs(frame, ref, session.getClassLoader(), includeSchema));
+    }
+
     @Operation(summary = "trace.get-highlights.summary", description = "trace.get-highlights.desc")
     @ApiResponse(responseCode = "200", description = "trace.get-highlights.200.desc")
     @GetMapping("/frames/{index}/highlights")

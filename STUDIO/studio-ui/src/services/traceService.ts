@@ -237,6 +237,17 @@ export const traceService = {
         )
     },
 
+    /**
+     * Get the values a spreadsheet step's formula consumed, named as the formula writes them:
+     * sibling steps, the table's parameters, opened parameter fields, and module constants.
+     */
+    getStepInputs: async (projectId: string, frameIndex: number, ref: string): Promise<TraceParameterValue[]> =>
+        retryApiCall<TraceParameterValue[]>(
+            `${base(projectId)}/frames/${frameIndex}/step-inputs?ref=${encodeURIComponent(ref)}`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
+
     /** Get the cells to highlight on a stack frame's table, keyed by A1 address. */
     getFrameHighlights: async (projectId: string, frameIndex: number): Promise<CellHighlight[]> =>
         retryApiCall<CellHighlight[]>(

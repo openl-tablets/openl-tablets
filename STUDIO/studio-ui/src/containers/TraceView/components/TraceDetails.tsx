@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Spin, Empty, Alert, Card } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
+import traceService from 'services/traceService'
+import type { TraceParameterValue } from 'types/trace'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
 import SpreadsheetGrid from './SpreadsheetGrid'
@@ -88,6 +90,10 @@ const TraceLegend: React.FC = () => {
 
 /**
  * Right panel: the selected stack frame's table and frozen variables.
+ *
+ * In the simple mode a clicked step keeps its own identity here: the panel is titled by the step, shows
+ * the step's inputs and result, and renders the step's OWNING table with its cell highlighted — never
+ * the frame the suspension happens to be paused in.
  */
 const TraceDetails: React.FC = () => {
     const { t } = useTranslation('trace')
@@ -96,6 +102,10 @@ const TraceDetails: React.FC = () => {
     const selectedFrameIndex = useTraceStore(s => s.selectedFrameIndex)
     const variables = useTraceStore(s => s.variables)
     const variablesLoading = useTraceStore(s => s.variablesLoading)
+    const advanced = useTraceStore(s => s.advanced)
+    const focus = useTraceStore(s => (s.advanced ? null : s.simpleFocus))
+    const projectId = useTraceStore(s => s.projectId)
+    const stackVersion = useTraceStore(s => s.stackVersion)
 
     // Context is shown alongside the input parameters. Memoized so the parameter tree and its copy button
     // keep a stable prop reference and don't re-render on every unrelated store change.
@@ -104,6 +114,42 @@ const TraceDetails: React.FC = () => {
         const context = variables?.context ?? undefined
         return context ? [...(parameters || []), context] : parameters
     }, [variables])
+
+    // A focused step is presented from its owning table's frame: the deepest published frame of that
+    // table anchors the traced-table view, the step's cell highlight, and the step-inputs fetch.
+    const ownerIndex = useMemo(() => {
+        if (!focus) {
+            return -1
+        }
+        for (let i = frames.length - 1; i >= 0; i -= 1) {
+            const candidate = frames[i]
+            if (candidate && candidate.uri === focus.ownerUri && candidate.instance === focus.ownerInstance) {
+                return i
+            }
+        }
+        return -1
+    }, [focus, frames])
+
+    // The step's inputs in the formula's own terms ($LimitIndex, MaxLimit, currentFinancialData…) come
+    // from a dedicated endpoint; re-fetched on every settle since a later stop records more values.
+    const [stepInputs, setStepInputs] = useState<TraceParameterValue[] | null>(null)
+    useEffect(() => {
+        if (!focus || !projectId || ownerIndex < 0) {
+            setStepInputs(null)
+            return undefined
+        }
+        let cancelled = false
+        traceService.getStepInputs(projectId, ownerIndex, focus.ref)
+            .then(inputs => {
+                if (!cancelled) setStepInputs(inputs)
+            })
+            .catch(() => {
+                if (!cancelled) setStepInputs(null)
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [focus, projectId, ownerIndex, stackVersion])
 
     if (selectedFrameIndex === null) {
         return (
@@ -120,9 +166,24 @@ const TraceDetails: React.FC = () => {
     const result = variables?.result ?? undefined
     const errors = variables?.errors
 
+    const stepView = focus && ownerIndex >= 0 ? focus : null
+    // A focused step is presented like the classic trace presented a spreadsheet cell, sharpened to the
+    // step itself: the Parameters are the values its formula consumed (the fetched step inputs), and the
+    // result is the step's own frozen value, named `return` — the raw cell ref would read as jargon.
+    const stepValue = stepView ? variables?.steps.find(s => s.ref === stepView.ref)?.value : undefined
+    const title = stepView ? stepView.label : frame?.name
+    const tableIndex = stepView ? ownerIndex : selectedFrameIndex
+    const highlightCell = stepView
+        ? frames[ownerIndex]?.steps?.find(s => s.ref === stepView.ref)?.cell
+        : undefined
+    const shownParameters = stepView ? stepInputs ?? undefined : allParameters
+    const shownResult = stepView
+        ? (stepValue ? { ...stepValue, name: 'return' } : undefined)
+        : result
+
     return (
         <div className={styles.details} data-testid="debug-details">
-            {frame && <span className={styles.frameTitle}>{frame.name}</span>}
+            {title && <span className={styles.frameTitle}>{title}</span>}
             {/* Parameters and Result come first, so they stay reachable above a large traced table. */}
             {variablesLoading ? (
                 <div className={styles.detailsCentered}>
@@ -131,26 +192,28 @@ const TraceDetails: React.FC = () => {
             ) : (
                 <>
                     <TraceParameters
-                        copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
+                        copyButton={<CopyJsonButton data={shownParameters} tooltipKey="copy.parameters" />}
                         emptyText={t('details.noParameters')}
-                        parameters={allParameters}
+                        parameters={shownParameters}
                         title={t('details.parameters')}
                     />
                     <SingleParameter
-                        copyButton={<CopyJsonButton data={result} tooltipKey="copy.result" />}
+                        copyButton={<CopyJsonButton data={shownResult} tooltipKey="copy.result" />}
                         emptyText={t('details.noResult')}
-                        parameter={result}
+                        parameter={shownResult}
                         title={t('details.result')}
                     />
                 </>
             )}
-            {/* Source table of the current frame, with the current line highlighted. */}
-            <TraceTableView frameIndex={selectedFrameIndex} />
+            {/* Source table: the owning table of a focused step (its cell highlighted), else the frame's. */}
+            {/* The business view mutes everything but the highlighted calculation, like the legacy trace. */}
+            <TraceTableView dimOthers={!advanced} frameIndex={tableIndex} highlightCell={highlightCell} />
             <TraceLegend />
             {!variablesLoading && (
                 <>
-                    {/* For spreadsheets, also show the steps as a grid with per-cell breakpoints. */}
-                    {frame?.kind === 'spreadsheet' && (
+                    {/* The frame-level panels belong to the frame view; a focused step keeps its own
+                        identity and shows only its inputs, result, and owning table. */}
+                    {!stepView && frame?.kind === 'spreadsheet' && (
                         <SpreadsheetGrid
                             columns={variables?.gridColumns}
                             frameUri={frame.uri}
@@ -160,7 +223,7 @@ const TraceDetails: React.FC = () => {
                     )}
                     {/* For decision tables, always offer the rule-fired breakpoint; the firing is
                         explained once a rule fires. */}
-                    {frame?.kind === 'decisionTable' && (
+                    {!stepView && frame?.kind === 'decisionTable' && (
                         <DecisionPanel
                             decision={variables?.decision ?? null}
                             frameName={frame.name}

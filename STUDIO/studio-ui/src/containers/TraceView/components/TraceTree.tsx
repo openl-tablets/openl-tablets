@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
 import {
-    BranchesOutlined,
     CaretDownOutlined,
     CaretRightOutlined,
     CloseCircleFilled,
@@ -11,10 +10,12 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
-import type { CallNodeView, DebugFrameView, DispatchInfo, FrameKind, StepValueView } from 'types/trace'
+import type { CallNodeView, DebugFrameView, FrameKind, StepValueView } from 'types/trace'
 import { formatMs } from 'utils/formatDuration'
+import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
+import { useFlashJump } from './useFlashJump'
 import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
@@ -194,8 +195,7 @@ const TraceTree: React.FC = () => {
     useEffect(() => {
         setExpanded(new Set())
     }, [runId])
-    const [flashKey, setFlashKey] = useState<string | null>(null)
-    const treeRef = useRef<HTMLDivElement>(null)
+    const { treeRef, flashKey, jumpToRow } = useFlashJump()
     const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading),
         [frames, tree, expanded, treeChildren, treeLoading])
     // The single gate on timings: they are a profiling concern, so without profiling no durations
@@ -218,14 +218,6 @@ const TraceTree: React.FC = () => {
         }
         return { hasTimings: anyTimed, maxDuration: max }
     }, [rows, timingOf])
-
-    // Scroll the referenced original step into view and flash it, so the eye lands on it.
-    const jumpToRow = (key: string): void => {
-        treeRef.current?.querySelector(`[data-rowkey="${CSS.escape(key)}"]`)
-            ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-        setFlashKey(key)
-        window.setTimeout(() => setFlashKey(prev => (prev === key ? null : prev)), 1600)
-    }
 
     if (frames.length === 0 && !tree) {
         return <Empty description={t('debug.notSuspended')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -328,37 +320,6 @@ const TraceTree: React.FC = () => {
         </Tooltip>
     )
 
-    // A dispatched table (versioned by dimension properties) is shown in place, badged with the versions it
-    // was chosen from — the chosen one flagged — rather than as an extra dispatcher node in the tree.
-    const dispatchBadge = (dispatch?: DispatchInfo | null): React.ReactNode => {
-        if (!dispatch || dispatch.candidates.length === 0) {
-            return null
-        }
-        const tip = (
-            <div>
-                <div className={styles.dispatchTipTitle}>
-                    {t('tree.dispatchTitle', { count: dispatch.candidates.length })}
-                </div>
-                {dispatch.candidates.map((candidate, i) => (
-                    <div
-                        key={`${i}-${candidate.label}`}
-                        className={cx(styles.dispatchCandidate, candidate.chosen && styles.dispatchChosen)}
-                    >
-                        {candidate.label}
-                    </div>
-                ))}
-            </div>
-        )
-        return (
-            <Tooltip title={tip}>
-                <span className={styles.dispatchTag} data-testid="tree-dispatch">
-                    <BranchesOutlined />
-                    {dispatch.candidates.length}
-                </span>
-            </Tooltip>
-        )
-    }
-
     const renderFrame = (row: TreeRow): React.ReactNode => {
         const frame = row.frame as DebugFrameView
         const ms = timingOf(row)
@@ -387,7 +348,7 @@ const TraceTree: React.FC = () => {
                     </Tooltip>
                 )}
                 <span className={styles.kind}>{frame.kind}</span>
-                {dispatchBadge(frame.dispatch)}
+                <DispatchBadge dispatch={frame.dispatch} />
                 {ms != null && durationCell(ms)}
                 {frame.completed && replayButton(`${frame.uri}@${frame.instance}`, frame.name,
                     `tree-replay-${frame.uri}`, t('tree.replayHint'))}
@@ -479,7 +440,7 @@ const TraceTree: React.FC = () => {
                 {kindIcon(node.kind)}
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
-                {dispatchBadge(node.dispatch)}
+                <DispatchBadge dispatch={node.dispatch} />
                 {ms != null && durationCell(ms)}
                 {replayButton(`${node.uri}@${node.instance}`, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>
