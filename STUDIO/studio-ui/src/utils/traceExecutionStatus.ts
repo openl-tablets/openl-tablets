@@ -15,3 +15,8 @@ export const isTraceExecutionTerminal = (
 export const isTraceExecutionError = (
     status: DebugStatus | null | undefined
 ): boolean => status === 'error'
+
+/** A terminal status that is not a clean finish: the run failed or was ended before completing. */
+export const isTraceExecutionAbnormalTerminal = (
+    status: DebugStatus | null | undefined
+): boolean => isTraceExecutionTerminal(status) && status !== 'completed'
