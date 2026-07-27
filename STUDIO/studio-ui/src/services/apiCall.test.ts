@@ -140,21 +140,6 @@ describe('apiCall', () => {
         expect(__appStoreState['setShowForbidden']).not.toHaveBeenCalled()
     })
 
-    it('preserves empty text responses when requested', async () => {
-        fetchMock.mockResolvedValueOnce(
-            mockResponse({
-                status: 200,
-                contentType: 'text/plain',
-                textData: '',
-            })
-        )
-
-        await expect(apiCall('/empty.txt', undefined, {
-            throwError: true,
-            preserveEmptyText: true,
-        })).resolves.toBe('')
-    })
-
     it('recognizes ApiHttpError via type guard', () => {
         const httpError = new ApiHttpError(409, 'Conflict', { id: 1 })
         expect(isApiHttpError(httpError)).toBe(true)

@@ -3,14 +3,11 @@ package org.openl.rules.webstudio.web.repository.upload;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -43,7 +40,6 @@ import org.openl.util.formatters.FileNameFormatter;
  * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
  * template files.
  */
-@Slf4j
 public class OpenAPIProjectCreator extends AProjectCreator {
 
     private final ProjectFile uploadedOpenAPIFile;
@@ -69,6 +65,13 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  Map<String, String> tags) throws ProjectException {
         super(projectName, projectFolder, userWorkspace, tags);
         this.repositoryId = repositoryId;
+        // Save a streamed upload to disk first, so the size check below sees the real size and the spec
+        // can be parsed from a file path later.
+        try {
+            projectFile.getTempFile();
+        } catch (IOException e) {
+            throw new OpenAPIProjectException("Cannot read the OpenAPI file " + projectFile.getName() + ".", e);
+        }
         if (!checkFileSize(projectFile)) {
             throw new OpenAPIProjectException("Size of the file " + projectFile.getName() + " is more then 100MB.");
         }
@@ -267,17 +270,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     @Override
     public void destroy() {
-        try {
-            if (!Files.deleteIfExists(uploadedOpenAPIFile.getTempFile().toPath())) {
-                log.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        uploadedOpenAPIFile.destroy();
     }
 
     private boolean checkFileSize(ProjectFile file) {
-        return file.getSize() <= 1000 * 1024 * 1024;
+        return file.getSize() <= ProjectFile.MAX_UPLOAD_SIZE;
     }
 
 }
