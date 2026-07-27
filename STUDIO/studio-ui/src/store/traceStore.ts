@@ -273,10 +273,15 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         refreshStack: async () => {
-            const { projectId } = get()
+            const { projectId, runId } = get()
             if (!projectId) return
             try {
-                applyStack(await traceService.getStack(projectId))
+                const stack = await traceService.getStack(projectId)
+                // A newer run (rerun/restart bumps runId) or a project switch may have started while this
+                // fetch was in flight; its result is stale, so dropping it keeps the newer run's frames and
+                // tree instead of overwriting them with a finished run's settled stack.
+                if (get().projectId !== projectId || get().runId !== runId) return
+                applyStack(stack)
             } catch (error: any) {
                 set({ error: error?.message || 'Failed to load stack' })
             }
@@ -485,9 +490,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 })
                 if (status === 'error') {
                     void get().fetchTerminalError()
-                } else if (status === 'completed' && get().profiling) {
-                    // A finished profiling run carries the executed tree and the hot-spots profile; the socket
-                    // only reports the status, so fetch the settled stack to load them. A terminated session is
+                } else if (status === 'completed') {
+                    // A finished run still has a readable stack: the root call with its steps and result —
+                    // plus, when profiling, the executed tree and the hot-spots profile. The socket only
+                    // reports the status, so fetch the settled stack to show it. A terminated session is
                     // gone (for example when toggling profiling restarts it), so it is never fetched.
                     void get().refreshStack()
                 }

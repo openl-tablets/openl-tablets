@@ -180,6 +180,7 @@ const TraceTree: React.FC = () => {
     const treeLoading = useTraceStore(s => s.treeLoading)
     const fetchTreeChildren = useTraceStore(s => s.fetchTreeChildren)
     const runId = useTraceStore(s => s.runId)
+    const profiling = useTraceStore(s => s.profiling)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
 
@@ -195,7 +196,12 @@ const TraceTree: React.FC = () => {
         [frames, tree, expanded, treeChildren, treeLoading])
     // One pass over the rows for the heatmap: whether any row is timed, and the slowest timing (by the chosen
     // metric) that sets the bar scale. Recomputed only when the rows or the metric change, not on every render.
+    // Timings are a profiling concern — without profiling no durations (or the Total/Self toggle) are shown,
+    // even where the backend reports them.
     const { hasTimings, maxDuration } = useMemo(() => {
+        if (!profiling) {
+            return { hasTimings: false, maxDuration: 0 }
+        }
         let max = 0
         let anyTimed = false
         for (const row of rows) {
@@ -206,7 +212,7 @@ const TraceTree: React.FC = () => {
             }
         }
         return { hasTimings: anyTimed, maxDuration: max }
-    }, [rows, timeMode])
+    }, [rows, timeMode, profiling])
 
     // Scroll the referenced original step into view and flash it, so the eye lands on it.
     const jumpToRow = (key: string): void => {
@@ -222,7 +228,7 @@ const TraceTree: React.FC = () => {
 
     const canRunTo = status === 'suspended'
     const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
-    const timingOf = (row: TreeRow): number | null => rowTiming(row, timeMode)
+    const timingOf = (row: TreeRow): number | null => (profiling ? rowTiming(row, timeMode) : null)
     // Render a timing as a length-based heat bar plus the value, so relative cost reads pre-attentively by
     // bar length and the status colours stay free to mean only execution state.
     const durationCell = (ms: number): React.ReactNode => (
@@ -441,7 +447,7 @@ const TraceTree: React.FC = () => {
                 </Tooltip>
             )
         }
-        const ms = timingOf(row) ?? 0
+        const ms = timingOf(row)
         return (
             <div
                 key={row.key}
@@ -453,7 +459,7 @@ const TraceTree: React.FC = () => {
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
                 {dispatchBadge(node.dispatch)}
-                {durationCell(ms)}
+                {ms != null && durationCell(ms)}
                 {replayButton(`${node.uri}@${node.instance}`, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>
         )
