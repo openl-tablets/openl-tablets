@@ -11,9 +11,10 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
-import type { CallNodeView, DebugFrameView, DispatchInfo, StepValueView } from 'types/trace'
+import type { CallNodeView, DebugFrameView, DispatchInfo, FrameKind, StepValueView } from 'types/trace'
 import { formatMs } from 'utils/formatDuration'
 import { onActivate } from './keyboardActivate'
+import { KindIcon, StepIcon } from './TraceIcons'
 import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
@@ -29,6 +30,8 @@ interface TreeRow {
     nodeUri?: string
     /** Execution index of the table a callStep belongs to, so replay targets that exact iteration. */
     nodeInstance?: number
+    /** Kind of the table a callStep belongs to, so the step shows that kind's icon. */
+    nodeKind?: FrameKind
     /** Set when the row has an executed sub-tree to expand. */
     expandKey?: string
     /** For a step-reference row, the key of the original step row it points at. */
@@ -63,7 +66,7 @@ const flatten = (
             const stepKey = `${path}/${step.ref}`
             const open = hasChildren(step)
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
-                nodeInstance: node.instance, ...(open ? { expandKey: stepKey } : {}) })
+                nodeInstance: node.instance, nodeKind: node.kind, ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
                 walkChildren(node.uri, node.instance, step, depth + 2, stepKey, path)
             }
@@ -374,6 +377,7 @@ const TraceTree: React.FC = () => {
             >
                 <span className={styles.chevronSlot} />
                 {frameMark(frame)}
+                <KindIcon kind={frame.kind} />
                 <span className={styles.name}>{frame.name}</span>
                 {frame.instance > 0 && (
                     <Tooltip title={t('tree.passHint', { n: frame.instance + 1 })}>
@@ -427,6 +431,10 @@ const TraceTree: React.FC = () => {
                 >
                     {twisty(row.expandKey)}
                     {stepMark(step.status)}
+                    {/* A not-yet-executed step stays bare — an icon on it would suggest it already ran. */}
+                    {step.status === 'pending'
+                        ? <span className={styles.mark} />
+                        : <StepIcon kind={frame.kind} size={12} />}
                     <span className={styles.leafLabel}>{step.label || step.ref}</span>
                     {ms != null && durationCell(ms)}
                     {step.status === 'executed' && replayButton(`${frame.uri}#${step.ref}@${frame.instance}`,
@@ -466,7 +474,7 @@ const TraceTree: React.FC = () => {
                 style={indent(row.depth)}
             >
                 <span className={styles.chevronSlot} />
-                <span className={styles.mark} />
+                <KindIcon kind={node.kind} />
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
                 {dispatchBadge(node.dispatch)}
@@ -491,7 +499,7 @@ const TraceTree: React.FC = () => {
                 {...(expand && { onClick: expand, onKeyDown: onActivate(expand), role: 'button', tabIndex: 0 })}
             >
                 {twisty(row.expandKey)}
-                <span className={styles.mark} />
+                <StepIcon kind={row.nodeKind} size={12} />
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
                 {ms != null && durationCell(ms)}
                 {row.nodeUri && replayButton(replayKey, step.label || step.ref,
