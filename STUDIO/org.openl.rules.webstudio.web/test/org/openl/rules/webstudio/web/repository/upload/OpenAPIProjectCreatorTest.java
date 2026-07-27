@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.richfaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,14 +149,12 @@ class OpenAPIProjectCreatorTest {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     Files.copy(file.toPath(), out);
 
-                    UploadedFile uploadedFile = mock(UploadedFile.class);
-                    when(uploadedFile.getName()).thenReturn(sourceFile);
-                    when(uploadedFile.getSize()).thenReturn((long) out.size());
-                    when(uploadedFile.getInputStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
+                    // The stream-based file mirrors the REST upload path, which has no temporary file upfront.
+                    ProjectFile projectFile = new ProjectFile(sourceFile, new ByteArrayInputStream(out.toByteArray()));
 
                     OpenAPIProjectCreator projectCreator = null;
                     try {
-                        projectCreator = new OpenAPIProjectCreator(new ProjectFile(uploadedFile),
+                        projectCreator = new OpenAPIProjectCreator(projectFile,
                                 REPO_ID,
                                 sourceFile,
                                 sourceFile,

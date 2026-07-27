@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenApiGit",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/PlanDetails": {
+      "post": {
+        "operationId": "PlanDetails",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanDetailsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PlanDetails": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string"
+          },
+          "coverage": {
+            "type": "string"
+          }
+        }
+      },
+      "PlanDetailsRequest": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
