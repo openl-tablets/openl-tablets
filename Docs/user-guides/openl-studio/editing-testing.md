@@ -428,7 +428,7 @@ Here is a typical trace — for example, to understand why a premium came out hi
 
 #### Running and Stepping
 
-You control the calculation from the toolbar. The step buttons — **Resume**, **Step over**, **Step into**, and **Step out** — work only while the calculation is paused (**Paused**). The first button follows the state: it is **Resume** while the calculation is paused and becomes **Pause** while it is running. A button is greyed out when it does not apply, which is normal.
+You control the calculation from the toolbar, and each button applies in one state: **Resume** and the step buttons — **Step over**, **Step into**, and **Step out** — work only while the calculation is paused (**Paused**), while **Pause** works only while it is running. The first button follows the state: it is **Resume** while the calculation is paused and becomes **Pause** while it is running. A button is greyed out when it does not apply, which is normal.
 
 -   **Resume** (the ▶ button) — run the calculation forward: to the next breakpoint, or, if there is none, all the way to the end. This is the main "go" button. With no breakpoints set, it runs to **Finished** — and because the values are kept only while paused, set a breakpoint or step if you want to stop and inspect a rule.
 -   **Pause** — shown in place of **Resume** while the calculation is running: stop at the next step, so you can look at where it is.

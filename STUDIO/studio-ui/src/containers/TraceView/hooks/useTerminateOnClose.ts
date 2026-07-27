@@ -9,7 +9,9 @@ import { currentTraceLaunch } from 'services/traceLaunchToken'
  * The release is scoped to the document that still owns the session. It is skipped when the page is only
  * frozen for the back/forward cache (it may be restored), and when the launcher has reused this window for
  * a newer trace — otherwise the outgoing document would delete the session that newer launch just created.
- * A genuine window close (or a reload, which then starts a fresh session) still releases the session.
+ * When no launch token can be read (storage blocked), ownership cannot be verified and the release is also
+ * skipped. A genuine window close (or a reload, which then starts a fresh session) still releases the
+ * session.
  */
 export const useTerminateOnClose = (projectId: string | undefined): void => {
     useEffect(() => {
@@ -18,8 +20,10 @@ export const useTerminateOnClose = (projectId: string | undefined): void => {
         const release = (event: PageTransitionEvent): void => {
             // A back/forward-cache freeze may be restored; keep the session alive for it.
             if (event.persisted) return
-            // A newer launch reused this window: its token differs, so this session is no longer ours.
-            if (currentTraceLaunch() !== openedWith) return
+            // Release only under a verified token: with none readable (storage blocked) a null-to-null
+            // match would let a reused window delete a newer launch's session, and a differing token means
+            // a newer launch owns the session now.
+            if (openedWith === null || currentTraceLaunch() !== openedWith) return
             traceService.releaseOnClose(projectId)
         }
         window.addEventListener('pagehide', release)

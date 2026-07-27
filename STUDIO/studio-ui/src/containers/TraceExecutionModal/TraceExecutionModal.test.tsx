@@ -1,6 +1,7 @@
 import React from 'react'
 import { act, render } from '@testing-library/react'
 import { traceService } from 'services/traceService'
+import { retireTraceLaunch, stampTraceLaunch } from 'services/traceLaunchToken'
 import TraceExecutionModal from 'containers/TraceExecutionModal/TraceExecutionModal'
 
 vi.mock('services/traceService', () => ({
@@ -8,6 +9,11 @@ vi.mock('services/traceService', () => ({
         startTrace: vi.fn().mockResolvedValue({}),
         exportTrace: vi.fn().mockResolvedValue('TRACE: SpreadSheet Double Rate() = 0.9\n'),
     },
+}))
+
+vi.mock('services/traceLaunchToken', () => ({
+    stampTraceLaunch: vi.fn(() => '7'),
+    retireTraceLaunch: vi.fn(),
 }))
 
 vi.mock('services/config', () => ({ default: { CONTEXT: '/webstudio' } }))
@@ -18,6 +24,8 @@ vi.mock('react-i18next', () => {
 })
 
 const startTrace = traceService.startTrace as ReturnType<typeof vi.fn>
+const stamp = stampTraceLaunch as ReturnType<typeof vi.fn>
+const retire = retireTraceLaunch as ReturnType<typeof vi.fn>
 const exportTrace = traceService.exportTrace as ReturnType<typeof vi.fn>
 
 const fire = (detail: Record<string, unknown>) =>
@@ -52,6 +60,23 @@ describe('TraceExecutionModal', () => {
         expect(startTrace).toHaveBeenCalledWith('p1', expect.objectContaining({ tableId: 't1', stopAtEntry: true }))
         expect(openSpy).toHaveBeenCalledTimes(1) // debugger window opened
         expect(exportTrace).not.toHaveBeenCalled()
+        // The launch is stamped before the session exists, so a window closing during the request
+        // cannot delete the session being created; a successful launch keeps its token.
+        expect(stamp.mock.invocationCallOrder[0]).toBeLessThan(Number(startTrace.mock.invocationCallOrder[0]))
+        expect(retire).not.toHaveBeenCalled()
+    })
+
+    it('hands the launch token back when the session fails to start', async () => {
+        startTrace.mockRejectedValueOnce(new Error('compilation in progress'))
+        render(<TraceExecutionModal />)
+
+        await act(async () => {
+            fire({ projectId: 'p1', tableId: 't1', moduleName: 'm', showRealNumbers: true, inputJson: '{}' })
+            await new Promise(resolve => setTimeout(resolve, 50))
+        })
+
+        expect(retire).toHaveBeenCalledWith('7') // the token stamped for this failed launch
+        expect(openSpy).not.toHaveBeenCalled()
     })
 
     it('exports and downloads the trace file in download mode, without opening the debugger', async () => {
