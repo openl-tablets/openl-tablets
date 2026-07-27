@@ -3,7 +3,7 @@ import { createStyles } from 'antd-style'
 import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
-    mono: css`
+    muted: css`
         color: ${token.colorTextTertiary};
     `,
     filled: css`
@@ -25,7 +25,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-interface MonoChipProps {
+interface ValueTextProps {
     children: ReactNode
     /** Wraps the text in a subtle filled chip (used for the branch pill on list rows). */
     filled?: boolean
@@ -37,10 +37,10 @@ interface MonoChipProps {
 }
 
 /**
- * Monospace inline text — the heavy code-font motif of the mockup (repository names, branches, paths,
- * revisions, service names). Plain by default; `filled` renders a subtle chip.
+ * Muted inline value text (repository names, branches, paths, revisions, service names). Plain by
+ * default; `filled` renders a subtle chip.
  */
-export const MonoChip = ({ children, filled, ellipsis, className, title, 'data-testid': testId }: MonoChipProps) => {
+export const ValueText = ({ children, filled, ellipsis, className, title, 'data-testid': testId }: ValueTextProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const clipped = filled || ellipsis
@@ -49,8 +49,8 @@ export const MonoChip = ({ children, filled, ellipsis, className, title, 'data-t
             data-testid={testId}
             title={title}
             className={cx(
-                shared.mono,
-                styles.mono,
+                shared.valueText,
+                styles.muted,
                 clipped && shared.ellipsis,
                 filled && styles.filled,
                 !filled && ellipsis && styles.ellipsis,

@@ -3,7 +3,7 @@ import { Tag, Tooltip } from 'antd'
 import { BranchesOutlined, SafetyOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { useSharedStyles } from './sharedStyles'
-import { MonoChip } from './MonoChip'
+import { ValueText } from './ValueText'
 
 const useStyles = createStyles(({ css, token }) => ({
     label: css`
@@ -74,9 +74,9 @@ export const BranchLabel = ({ name, isDefault, isProtected, withIcon, prominent,
     return (
         <span className={cx(styles.label, prominent && styles.prominent, className)} data-testid={testId}>
             {withIcon && <BranchesOutlined />}
-            <MonoChip ellipsis={!prominent} {...(prominent ? { className: styles.prominentName } : {})}>
+            <ValueText ellipsis={!prominent} {...(prominent ? { className: styles.prominentName } : {})}>
                 {name}
-            </MonoChip>
+            </ValueText>
             {isDefault && (
                 <Tag className={cx(shared.chipTag, styles.defaultTag)} data-testid={testId && `${testId}-default`}>
                     {t('browser.branch.default_tag')}

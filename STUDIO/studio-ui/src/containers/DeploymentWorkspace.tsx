@@ -169,7 +169,7 @@ export const DeploymentWorkspace = () => {
                                     {item.name}
                                 </Typography.Text>
                             </td>
-                            <td className={shared.mono}>{item.revision ?? '—'}</td>
+                            <td className={shared.valueText}>{item.revision ?? '—'}</td>
                             <td className={styles.hideMd}>{item.modifiedBy ?? '—'}</td>
                             <td className={styles.hideLg}>{formatDateTime(item.modifiedAt) ?? '—'}</td>
                         </tr>

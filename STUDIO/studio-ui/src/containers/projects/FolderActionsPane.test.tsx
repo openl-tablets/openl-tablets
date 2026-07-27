@@ -17,8 +17,6 @@ vi.mock('antd-style', () => ({
     }),
 }))
 
-vi.mock('./projectsTheme', () => ({ MOCKUP: { fontMono: 'mono' } }))
-
 vi.mock('antd', () => {
     const Button = ({ children, onClick, icon, ...rest }: Record<string, unknown>) => {
         const { size, danger, type, ...dom } = rest

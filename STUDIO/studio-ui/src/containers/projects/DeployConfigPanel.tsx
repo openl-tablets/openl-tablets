@@ -3,7 +3,6 @@ import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import { Alert, Input, notification, Select, Skeleton, Switch, Tag } from 'antd'
 import { createStyles } from 'antd-style'
-import { MOCKUP } from './projectsTheme'
 import { EditToolbar } from './EditToolbar'
 import { FieldRow } from '../../components/FieldRow'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
@@ -34,7 +33,7 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 8px;
         margin: 0 0 12px;
     `,
-    /** The descriptor's name, with the file it is kept in as a monospace hint. */
+    /** The descriptor's name, with the file it is kept in as a muted hint. */
     title: css`
         display: flex;
         align-items: center;
@@ -45,7 +44,6 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     titleHint: css`
         color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
         font-size: 11px;
         font-weight: 400;
     `,

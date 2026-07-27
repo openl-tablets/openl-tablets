@@ -23,7 +23,7 @@ import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers, RowActionId } from './projects/ProjectRowActions'
 import { countFacets, refineProjects, searchProjects, sortProjects, type ProjectSort, type SortDirection } from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex } from '../services/projectIndex'
-import { COMPILE_COLORS, MOCKUP } from './projects/projectsTheme'
+import { COMPILE_COLORS } from './projects/projectsTheme'
 import { useSharedStyles } from './projects/sharedStyles'
 import { NewProjectModal } from './projects/NewProjectModal'
 import { CopyProjectModal } from './projects/CopyProjectModal'
@@ -52,7 +52,6 @@ const useStyles = createStyles(({ css, token }) => ({
         flex-wrap: wrap;
         align-items: center;
         gap: 4px 14px;
-        font-family: ${MOCKUP.fontMono};
         font-size: 12px;
     `,
     compileItem: css`

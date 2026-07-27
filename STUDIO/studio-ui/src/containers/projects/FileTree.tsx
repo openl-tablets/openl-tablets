@@ -6,7 +6,6 @@ import { createStyles, useTheme } from 'antd-style'
 import type { FsNode } from '../../types/files'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
 import { FileChangeIcon } from './FileChangeIcon'
-import { MOCKUP } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -51,7 +50,6 @@ const useStyles = createStyles(({ css, token }) => ({
     size: css`
         flex: none;
         color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
         font-size: 11px;
         white-space: nowrap;
     `,

@@ -39,13 +39,13 @@ interface RepoBadgeProps {
 }
 
 /**
- * A repository shown as a facet chip — a small icon plus its monospace name.
+ * A repository shown as a facet chip — a small icon plus its name.
  */
 export const RepoBadge = ({ name, type, className }: RepoBadgeProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     return (
-        <span className={cx(shared.mono, styles.badge, className)} title={name}>
+        <span className={cx(shared.valueText, styles.badge, className)} title={name}>
             <RepoIcon type={type} />
             <span className={shared.ellipsis}>{name}</span>
         </span>
