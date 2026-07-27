@@ -8,6 +8,11 @@ generation.
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder.
 - **Every change of functionality ships in one commit together with its tests and its documentation update** — never
   as separate follow-up commits.
+- **Documentation mirrors functionality.** A behavior change updates every place that describes it — `Docs/` guides,
+  `AGENTS.md` files and JavaDoc — so no page is left describing the previous behavior.
+- **Guides describing the UI keep current screenshots.** When a change alters what a screen shows — layout, labels,
+  controls, dialogs, icons — recapture the affected images in the guide's `images/` folder, matching the crop and
+  scale of the picture they replace, and delete images no longer referenced.
 - Run tests after changes. New or changed Java code keeps ≥80% line coverage on the diff (see Build and Verify).
 - Execute `mvn validate -N` after changes and before committing to ensure all files are formatted correctly.
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length).
