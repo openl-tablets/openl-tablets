@@ -195,6 +195,19 @@ describe('traceStore race hardening', () => {
         expect(startTrace).toHaveBeenCalled() // then a fresh one is started from the top
         expect(setBreakpoints).toHaveBeenCalledWith('p1', ['uA#R1C1']) // the user's breakpoints are re-applied
     })
+
+    it('begins a new run id on every start, so views drop per-run UI state', async () => {
+        const startTrace = traceService.startTrace as MockedFunction<typeof traceService.startTrace>
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue({ status: 'suspended', frames: []} as any)
+        expect(useTraceStore.getState().runId).toBe(0)
+
+        await useTraceStore.getState().start()
+        expect(useTraceStore.getState().runId).toBe(1)
+
+        await useTraceStore.getState().start()
+        expect(useTraceStore.getState().runId).toBe(2)
+    })
 })
 
 const step = traceService.step as MockedFunction<typeof traceService.step>
