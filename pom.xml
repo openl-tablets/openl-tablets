@@ -1029,11 +1029,6 @@
             <!-- STUDIO -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.activiti</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.demo</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1090,11 +1085,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.tableeditor</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.project.ai</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
