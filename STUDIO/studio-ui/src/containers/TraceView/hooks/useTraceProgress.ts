@@ -27,9 +27,9 @@ export const useTraceProgress = ({
     const handleMessage = useCallback(
         (message: { body: string }) => {
             try {
-                // Try to parse as JSON first ({status, message})
+                // Try to parse as JSON first ({status, message, sessionId})
                 const data: TraceProgressMessage = JSON.parse(message.body)
-                onSocketStatus(data.status, data.message)
+                onSocketStatus(data.status, data.message, data.sessionId)
             } catch {
                 // Fall back to a plain status string
                 onSocketStatus(message.body as DebugStatus)

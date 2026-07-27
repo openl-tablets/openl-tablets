@@ -84,6 +84,8 @@ interface DebugState {
 
     // Session state
     status: DebugStatus | null
+    /** Identity of the watched debug session; socket events of any other session are dropped. */
+    sessionId: string | null
     frames: DebugFrameView[]
     /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
     tree: CallNodeView | null
@@ -177,7 +179,7 @@ interface DebugState {
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
-    onSocketStatus: (status: DebugStatus, message?: string) => void
+    onSocketStatus: (status: DebugStatus, message?: string, sessionId?: string | null) => void
     fetchTerminalError: () => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
@@ -234,6 +236,7 @@ const initialState = {
     testRanges: null,
     inputJson: null,
     status: null,
+    sessionId: null,
     frames: [],
     tree: null,
     treeChildren: {},
@@ -294,6 +297,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
         const transient = get().transientBreakpoint
         set({
             status: stack.status,
+            // Every stack response names its session; remembering it lets socket events be attributed.
+            ...(stack.sessionId ? { sessionId: stack.sessionId } : {}),
             frames: stack.frames,
             tree: stack.tree ?? null,
             // A run without a tree yet (starting/running/rerun) invalidates any browsed sub-calls from the
@@ -646,7 +651,14 @@ export const useTraceStore = create<DebugState>((set, get) => {
             }
         },
 
-        onSocketStatus: (status, message) => {
+        onSocketStatus: (status, message, sessionId) => {
+            // Sessions of the same user and table share one socket topic, so a stale session reaped in
+            // the background reports its termination here too — such foreign events must not touch the
+            // session this window is watching.
+            const own = get().sessionId
+            if (sessionId != null && own != null && sessionId !== own) {
+                return
+            }
             if (status === 'suspended') {
                 // A synchronous step applies the authoritative stack from its own response; the WS
                 // notification for that same suspension would only trigger a duplicate stack+variables fetch.

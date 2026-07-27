@@ -19,7 +19,7 @@ class DebugSessionRegistryTest {
     }
 
     private static DebugSession session(ProjectIdModel projectId) {
-        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null);
+        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, "session-1");
     }
 
     private static DebugSessionRegistry registry() {

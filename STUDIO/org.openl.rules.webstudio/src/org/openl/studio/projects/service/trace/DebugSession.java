@@ -31,6 +31,13 @@ public final class DebugSession {
     private final @Nullable TraceReplay replay;
 
     /**
+     * Identity of this session, carried by every stack view and WebSocket status event. Sessions of the
+     * same user and table share one notification topic, so without it a client could not tell a stale
+     * session's terminal event (reaped in the background) from its own.
+     */
+    private final String id;
+
+    /**
      * Serialises controller-side stack inspection against the commands that unpark the worker. A frame's
      * step and condition lists are read while the worker is suspended; without this lock a concurrent
      * step or resume could unpark the worker mid-read and mutate them.

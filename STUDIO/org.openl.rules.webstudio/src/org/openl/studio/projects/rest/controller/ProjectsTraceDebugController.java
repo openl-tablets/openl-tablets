@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -141,7 +142,10 @@ public class ProjectsTraceDebugController {
             throw new NotFoundException("table.message");
         }
 
-        var listener = listenerFactory.create(user, projectId, tableId);
+        // The session id lets a client tell this session's status events from a stale session's — sessions
+        // of the same user and table share one notification topic, and an old one may be reaped much later.
+        var sessionId = UUID.randomUUID().toString();
+        var listener = listenerFactory.create(user, projectId, tableId, sessionId);
         var objectMapper = configureObjectMapper();
         // The launcher sends the input server-side once; a restart (profiling toggle, replay) re-runs the trace
         // without resending it. Reuse the remembered input when this call carries neither input nor test ranges;
@@ -154,7 +158,7 @@ public class ProjectsTraceDebugController {
         }
         var request = new TraceDebugStartRequest(projectModel, table, method, projectId, tableId, testRanges,
                 currentOpenedModule, effectiveInputJson, objectMapper, sessionRegistry.breakpoints(),
-                sessionRegistry.watches(), stopAtEntry, profiling, listener);
+                sessionRegistry.watches(), stopAtEntry, profiling, listener, sessionId);
 
         var session = sessionRegistry.start(traceDebugService.startSession(request));
         // Build the inspection mapper now, while the traced module is the current module, so the session
@@ -474,7 +478,8 @@ public class ProjectsTraceDebugController {
     private DebugStackView stackView(DebugSession session, StackRenderOptions options) {
         var debugger = session.getDebugger();
         return TraceDebugMapper.toStackView(debugger.status(), debugger.stack(), debugger.error(),
-                debugger.completedTree(), debugger.profileStats(), options, debugger.isTreeTruncated());
+                debugger.completedTree(), debugger.profileStats(), options, debugger.isTreeTruncated())
+                .toBuilder().sessionId(session.getId()).build();
     }
 
     private TraceDebugMapper createMapper(DebugSession session) {

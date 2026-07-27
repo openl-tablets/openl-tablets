@@ -109,10 +109,11 @@ public class ProjectSocketNotificationService {
      * @param tableId   table id
      * @param status    new debug session status
      */
-    public void notifyTraceDebugStatus(CommonUser user, ProjectIdModel projectId, String tableId, String status) {
+    public void notifyTraceDebugStatus(CommonUser user, ProjectIdModel projectId, String tableId, String status,
+                                       String sessionId) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                status);
+                new TraceDebugStatusMessage(status, sessionId));
     }
 
     /**
