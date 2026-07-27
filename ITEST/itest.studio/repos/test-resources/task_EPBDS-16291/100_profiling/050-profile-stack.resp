@@ -66,5 +66,6 @@ Content-Type: application/json
       }
     ],
     "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4"
-  }
+  },
+  "sessionId": "***"
 }

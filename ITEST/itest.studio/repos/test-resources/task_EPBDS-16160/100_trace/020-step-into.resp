@@ -31,5 +31,6 @@ Content-Type: application/json
         }
       ]
     }
-  ]
+  ],
+  "sessionId": "***"
 }

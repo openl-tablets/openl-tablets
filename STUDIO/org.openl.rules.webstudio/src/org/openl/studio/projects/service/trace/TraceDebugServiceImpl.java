@@ -41,7 +41,8 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         // to run against at export time too, from the same model buildTestSuite resolves the method from, so an
         // in-place recompile between start and export cannot pair a fresh method with the stale start-time class.
         var session = new DebugSession(request.projectId(), request.tableId(), debugger, classLoader,
-                tracer -> buildTestSuite(request).invokeSequentially(compiledOf(request).getOpenClassWithErrors(), 1, tracer));
+                tracer -> buildTestSuite(request).invokeSequentially(compiledOf(request).getOpenClassWithErrors(), 1, tracer),
+                request.sessionId());
 
         debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(), request.profiling(),
                 () -> testSuite.invokeSequentially(openClass, 1, debugger.tracer()));

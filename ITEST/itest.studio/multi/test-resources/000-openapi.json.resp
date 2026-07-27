@@ -20500,6 +20500,10 @@ Content-Type: application/json
           "profile": {
             "$ref": "#/components/schemas/ProfileSummaryView"
           },
+          "sessionId": {
+            "type": "string",
+            "description": "***"
+          },
           "status": {
             "type": "string",
             "description": "***",

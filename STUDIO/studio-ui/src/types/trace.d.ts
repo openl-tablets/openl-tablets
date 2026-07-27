@@ -169,6 +169,8 @@ export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
     error?: DebugError | null
+    /** Identity of the debug session; WebSocket status events carry the same id. */
+    sessionId?: string | null
     /**
      * The whole executed call tree once the trace has finished (profiling mode); absent while it runs, or
      * when the caller asked to omit it (`includeTree=false`).
@@ -333,6 +335,8 @@ export interface MessageDescription {
 export interface TraceProgressMessage {
     status: DebugStatus
     message?: string
+    /** Identity of the session the status belongs to; events of a session not being watched are dropped. */
+    sessionId?: string | null
 }
 
 /**

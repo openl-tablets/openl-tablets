@@ -147,6 +147,32 @@ describe('traceStore race hardening', () => {
         expect(getStack).toHaveBeenCalledTimes(1)
     })
 
+    it('drops a socket event of a session it does not watch — a stale session reaped in the background', () => {
+        getStack.mockResolvedValue({ status: 'suspended', frames: []} as any)
+        useTraceStore.setState({ status: 'suspended', sessionId: 'live-session' })
+
+        // An old session of the same user and table is terminated minutes later; its event shares the topic.
+        useTraceStore.getState().onSocketStatus('terminated', undefined, 'stale-session')
+
+        expect(useTraceStore.getState().status).toBe('suspended') // the watched session is untouched
+    })
+
+    it('applies a socket event carrying the id of the watched session', () => {
+        useTraceStore.setState({ status: 'suspended', sessionId: 'live-session' })
+
+        useTraceStore.getState().onSocketStatus('terminated', undefined, 'live-session')
+
+        expect(useTraceStore.getState().status).toBe('terminated')
+    })
+
+    it('remembers the session id reported by the stack, so events can be attributed', async () => {
+        getStack.mockResolvedValue({ status: 'suspended', frames: [], sessionId: 's-42' } as any)
+
+        await useTraceStore.getState().start()
+
+        expect(useTraceStore.getState().sessionId).toBe('s-42')
+    })
+
     it('surfaces an immediate error summary from the socket message', () => {
         getStack.mockResolvedValue({ status: 'error', frames: []} as any)
 

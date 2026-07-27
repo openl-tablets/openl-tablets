@@ -23,7 +23,7 @@ class DebugSessionTest {
 
     private static DebugSession session() {
         var projectId = ProjectIdModel.builder().repository("repo").projectName("A").build();
-        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null);
+        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, "session-1");
     }
 
     @Test
