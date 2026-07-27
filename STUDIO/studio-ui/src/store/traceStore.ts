@@ -220,6 +220,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
         }
     }
 
+    /**
+     * Mark the beginning of a new run: clear transient flags and bump runId so views drop their
+     * per-run UI state (tree expansions). Every path that launches a run must go through this.
+     */
+    const beginRun = (extra: Partial<DebugState> = {}): void =>
+        set({ loading: true, error: null, runId: get().runId + 1, ...extra })
+
     /** Restart the session from the top with the current settings, re-applying the user's breakpoints. */
     const restart = async (): Promise<void> => {
         const { projectId, breakpoints } = get()
@@ -252,7 +259,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         start: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null, status: 'pending', runId: get().runId + 1 })
+            beginRun({ status: 'pending' })
             try {
                 // Attach to a session already created by the launcher; otherwise start a new one.
                 let stack: DebugStackView
@@ -394,7 +401,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         collectWatch: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null, runId: get().runId + 1 })
+            beginRun()
             try {
                 // Run the whole trace to completion (not the full tree) so every execution is captured.
                 await get().terminate()

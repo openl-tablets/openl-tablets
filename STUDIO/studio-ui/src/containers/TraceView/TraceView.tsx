@@ -14,7 +14,11 @@ import WatchPanel from './components/WatchPanel'
 import TraceDetails from './components/TraceDetails'
 import useTraceProgress from './hooks/useTraceProgress'
 import useTerminateOnClose from './hooks/useTerminateOnClose'
-import { isTraceExecutionError, isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
+import {
+    isTraceExecutionAbnormalTerminal,
+    isTraceExecutionError,
+    isTraceExecutionTerminal,
+} from 'utils/traceExecutionStatus'
 import { useStyles } from './TraceView.styles'
 
 interface TraceViewParams {
@@ -186,7 +190,7 @@ const TraceView: React.FC = () => {
 
     // A clean finish needs no banner — the status tag already says Finished; only a failed or
     // interrupted run warrants one.
-    const showTerminalBanner = !bannerDismissed && isTraceExecutionTerminal(status) && status !== 'completed'
+    const showTerminalBanner = !bannerDismissed && isTraceExecutionAbnormalTerminal(status)
     const isError = isTraceExecutionError(status)
     const ActiveView = VIEW_COMPONENTS[viewMode]
     const bannerType = isError ? 'error' : 'warning'

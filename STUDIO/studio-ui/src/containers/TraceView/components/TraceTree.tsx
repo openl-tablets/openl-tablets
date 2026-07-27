@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
 import {
     BranchesOutlined,
@@ -14,7 +14,7 @@ import { treeChildKey, useTraceStore } from 'store'
 import type { CallNodeView, DebugFrameView, DispatchInfo, FrameKind, StepValueView } from 'types/trace'
 import { formatMs } from 'utils/formatDuration'
 import { onActivate } from './keyboardActivate'
-import { KindIcon, StepIcon } from './TraceIcons'
+import { kindIcon, stepIcon } from './TraceIcons'
 import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
@@ -166,7 +166,7 @@ const rowTiming = (row: TreeRow, timeMode: TimeMode): number | null => {
 /**
  * Simple-mode view of a trace: the live call stack as a mutating tree, with executed branches retained
  * (profiling mode) as collapsible sub-trees. The current line of each frame expands into the called
- * table; already-executed lines are inactive (click to read their result); not-yet-reached lines run
+ * table; already-executed lines read as plain text (click to read their result); not-yet-reached lines run
  * execution here on click. The live path is always shown; returned branches collapse and expand on demand.
  */
 const TraceTree: React.FC = () => {
@@ -198,25 +198,26 @@ const TraceTree: React.FC = () => {
     const treeRef = useRef<HTMLDivElement>(null)
     const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading),
         [frames, tree, expanded, treeChildren, treeLoading])
-    // One pass over the rows for the heatmap: whether any row is timed, and the slowest timing (by the chosen
-    // metric) that sets the bar scale. Recomputed only when the rows or the metric change, not on every render.
-    // Timings are a profiling concern — without profiling no durations (or the Total/Self toggle) are shown,
-    // even where the backend reports them.
+    // The single gate on timings: they are a profiling concern, so without profiling no durations
+    // (or the Total/Self toggle) are shown, even where the backend reports them.
+    const timingOf = useCallback(
+        (row: TreeRow): number | null => (profiling ? rowTiming(row, timeMode) : null),
+        [profiling, timeMode]
+    )
+    // One pass over the rows for the heatmap: whether any row is timed, and the slowest timing (by the
+    // chosen metric) that sets the bar scale. Recomputed only when the rows or the gate change.
     const { hasTimings, maxDuration } = useMemo(() => {
-        if (!profiling) {
-            return { hasTimings: false, maxDuration: 0 }
-        }
         let max = 0
         let anyTimed = false
         for (const row of rows) {
-            const ms = rowTiming(row, timeMode)
+            const ms = timingOf(row)
             if (ms != null) {
                 anyTimed = true
                 max = Math.max(max, ms)
             }
         }
         return { hasTimings: anyTimed, maxDuration: max }
-    }, [rows, timeMode, profiling])
+    }, [rows, timingOf])
 
     // Scroll the referenced original step into view and flash it, so the eye lands on it.
     const jumpToRow = (key: string): void => {
@@ -232,7 +233,6 @@ const TraceTree: React.FC = () => {
 
     const canRunTo = status === 'suspended'
     const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
-    const timingOf = (row: TreeRow): number | null => (profiling ? rowTiming(row, timeMode) : null)
     // Render a timing as a length-based heat bar plus the value, so relative cost reads pre-attentively by
     // bar length and the status colours stay free to mean only execution state.
     const durationCell = (ms: number): React.ReactNode => (
@@ -377,7 +377,7 @@ const TraceTree: React.FC = () => {
             >
                 <span className={styles.chevronSlot} />
                 {frameMark(frame)}
-                <KindIcon kind={frame.kind} />
+                {kindIcon(frame.kind)}
                 <span className={styles.name}>{frame.name}</span>
                 {frame.instance > 0 && (
                     <Tooltip title={t('tree.passHint', { n: frame.instance + 1 })}>
@@ -434,7 +434,7 @@ const TraceTree: React.FC = () => {
                     {/* A not-yet-executed step stays bare — an icon on it would suggest it already ran. */}
                     {step.status === 'pending'
                         ? <span className={styles.mark} />
-                        : <StepIcon kind={frame.kind} size={12} />}
+                        : stepIcon(frame.kind)}
                     <span className={styles.leafLabel}>{step.label || step.ref}</span>
                     {ms != null && durationCell(ms)}
                     {step.status === 'executed' && replayButton(`${frame.uri}#${step.ref}@${frame.instance}`,
@@ -474,7 +474,9 @@ const TraceTree: React.FC = () => {
                 style={indent(row.depth)}
             >
                 <span className={styles.chevronSlot} />
-                <KindIcon kind={node.kind} />
+                {/* An empty mark slot, matching the live frame's, so executed nodes line up with live rows. */}
+                <span className={styles.mark} />
+                {kindIcon(node.kind)}
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
                 {dispatchBadge(node.dispatch)}
@@ -499,7 +501,9 @@ const TraceTree: React.FC = () => {
                 {...(expand && { onClick: expand, onKeyDown: onActivate(expand), role: 'button', tabIndex: 0 })}
             >
                 {twisty(row.expandKey)}
-                <StepIcon kind={row.nodeKind} size={12} />
+                {/* An empty mark slot, matching the live step's, so executed steps line up with live rows. */}
+                <span className={styles.mark} />
+                {stepIcon(row.nodeKind)}
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
                 {ms != null && durationCell(ms)}
                 {row.nodeUri && replayButton(replayKey, step.label || step.ref,
