@@ -625,16 +625,17 @@
 
                 <c:if test="#{tableBean.canCreateTest}">
                 <td>
-                    <h:form>
-                        <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton" title="Create a new Test table"
-                            onclick="return onBeforeEdit();"
-                            oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
-                            <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
-                            <img src="#{contextPath}/webresource/images/test_new.gif" />
-                            <div>Create Test</div>
-                        </a4j:commandLink>
-                    </h:form>
+                    <a href="javascript:void(0)"
+                       class="toolbarButton"
+                       title="Create a new Test table"
+                       data-project-id="#{studio.currentProjectId}"
+                       data-module-name="#{studio.currentModule.name}"
+                       data-source-table-id="#{tableBean.id}"
+                       data-project-url="#{utils.toUrl(studio.currentProject.repository.id, studio.currentProject.name)}"
+                       onclick="return ws.ui.openTableModal(this, 'openCreateTableModal', onBeforeEdit);">
+                        <img src="#{contextPath}/webresource/images/test_new.gif" />
+                        <div>Create Test</div>
+                    </a>
                 </td>
                 </c:if>
 

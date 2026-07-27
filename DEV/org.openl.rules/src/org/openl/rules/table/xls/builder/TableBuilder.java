@@ -1,6 +1,5 @@
 package org.openl.rules.table.xls.builder;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +38,7 @@ import org.openl.rules.table.xls.formatters.FormatConstants;
  */
 public class TableBuilder {
 
-    public static final String TABLE_PROPERTIES = "properties";
+    private static final String TABLE_PROPERTIES = "properties";
 
     public static final int HEADER_HEIGHT = 1;
     public static final int PROPERTIES_MIN_WIDTH = 3;
@@ -159,24 +158,12 @@ public class TableBuilder {
         style2style.clear();
     }
 
-    public void save() throws CreateTableException {
-        try {
-            gridModel.getSheetSource().getWorkbookSource().save();
-        } catch (IOException e) {
-            throw new CreateTableException("Could not save table. " + e.getMessage());
-        }
-    }
-
-    protected int getCurrentRow() {
-        return currentRow;
-    }
-
     /**
      * Initializes default cell style.
      *
      * @return cell style
      */
-    protected CellStyle getDefaultCellStyle() {
+    private CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
             Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
@@ -191,7 +178,7 @@ public class TableBuilder {
         return defaultCellStyle;
     }
 
-    protected CellStyle getDefaultDateCellStyle() {
+    private CellStyle getDefaultDateCellStyle() {
         if (defaultDateCellStyle == null) {
             Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
@@ -208,28 +195,8 @@ public class TableBuilder {
         return defaultDateCellStyle;
     }
 
-    protected XlsSheetGridModel getGridModel() {
-        return gridModel;
-    }
-
-    protected int getHeight() {
-        return height;
-    }
-
     public IGridRegion getTableRegion() {
         return region;
-    }
-
-    protected int getWidth() {
-        return width;
-    }
-
-    protected void incCurrentRow() {
-        incCurrentRow(1);
-    }
-
-    protected void incCurrentRow(int increment) {
-        currentRow += increment;
     }
 
     /**
@@ -241,7 +208,7 @@ public class TableBuilder {
      * @param height cell height
      * @param value  cell value
      */
-    protected void writeCell(int x, int y, int width, int height, Object value) {
+    private void writeCell(int x, int y, int width, int height, Object value) {
         writeCell(x, y, width, height, value, null);
     }
 
@@ -255,7 +222,7 @@ public class TableBuilder {
      * @param value  cell value
      * @param style  cell style
      */
-    protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
+    private void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
         CellStyle cellStyle = analyseCellStyle(style);
         x += region.getLeft();
         y += region.getTop();
@@ -373,17 +340,6 @@ public class TableBuilder {
                 .getTopBorderColor() == cs2.getTopBorderColor() && cs1
                 .getVerticalAlignment() == cs2.getVerticalAlignment() && cs1
                 .getDataFormat() == cs2.getDataFormat();
-    }
-
-    /**
-     * Writes cell.
-     *
-     * @param x     cell x coordinate
-     * @param y     cell y coordinate
-     * @param value cell value
-     */
-    protected void writeCell(int x, int y, Object value) {
-        writeCell(x, y, 1, 1, value, null);
     }
 
     /**

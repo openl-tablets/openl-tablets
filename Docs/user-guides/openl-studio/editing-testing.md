@@ -116,7 +116,7 @@ When opening a Data Table in the same project, these properties are not availabl
 
 *The Decision table properties that are not available for a Data table*
 
-When performing the “Copy” action, properties unsuitable for the current table type do not appear in the wizard.
+When performing the “Copy” action, properties unsuitable for the current table type do not appear in the form.
 
 To add a new property for the selected table, perform the following steps:
 
@@ -269,6 +269,9 @@ This section describes test execution. Proceed as follows:
    *"Flat Parameter Layout” = ***True***, “Skip Empty Parameters” = ***True****
 
 
+A test table addresses its cases by the **ID** column. The column is not mandatory: define it and give each test
+case a unique value, or leave it out and OpenL Studio numbers the cases itself.
+
 1.  For test tables, to select test cases to be executed, proceed as follows:
 2.  Navigate to the **Run** button above the Test table and click the small black arrow ![](images/run-dropdown-arrow-icon.png).
 3.  In the pop-up window that appears, select or clear the check boxes for the appropriate IDs, and to run several particular test cases, define them in the **Use the Range** field.
@@ -340,9 +343,16 @@ Proceed as follows:
 
 1.  To create a Test table for the current table, click the **Create Test** button.
 
-    OpenL Studio runs a two-step wizard for creating an appropriate Test table.
+    OpenL Studio opens the **Create Table** window. The Test table skeleton is generated from the current table
+    signature, including its input parameters and expected result column.
 
-1.  Enter test input values and expected result values to complete the Test table.
+    ![Generated Test Table Skeleton](images/create-table-test.png)
+
+    *A Test table generated from the tested table*
+
+1.  Select the destination module and sheet, edit the generated skeleton as required, and click **Create**.
+
+1.  Enter test input values and expected result values in the created Test table.
 
 ### Tracing Rules
 

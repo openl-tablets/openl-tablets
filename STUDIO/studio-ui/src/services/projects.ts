@@ -1,9 +1,28 @@
 import { notification } from 'antd'
-import apiCall, { type ApiCallOptions } from './apiCall'
+import { errorMessage } from 'utils/errorMessage'
+import apiCall, { asArray, type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
 import { encodeProjectPath as encodePath, toUrlSafeId } from './projectId'
+import type { ProjectModule } from 'types/projects'
+import type { ProjectProperty } from 'types/tables'
 
 const PROJECT_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
+
+const projectResource = async <T>(projectId: string, resource: string): Promise<T[]> => asArray(
+    await apiCall(`/projects/${toUrlSafeId(projectId)}/${resource}`, undefined, PROJECT_API_OPTIONS)
+)
+
+/** Modules the project declares, patterns already resolved to the files they matched. */
+export const getProjectModules = (projectId: string): Promise<ProjectModule[]> =>
+    projectResource(projectId, 'modules')
+
+/** Worksheets of one module's workbook. */
+export const getModuleSheets = (projectId: string, moduleName: string): Promise<string[]> =>
+    projectResource(projectId, `modules/${encodeURIComponent(moduleName)}/sheets`)
+
+/** Properties a table of the project may declare. */
+export const getProjectProperties = (projectId: string): Promise<ProjectProperty[]> =>
+    projectResource(projectId, 'properties')
 
 
 /** A file to upload into a project, addressed by its project-relative '/'-separated path. */
@@ -30,7 +49,7 @@ async function uploadToProject(
     } catch (error) {
         notification.error({
             title: failureTitle,
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }
@@ -112,7 +131,7 @@ export async function deleteProject(projectId: string, projectName: string, comm
     } catch (error) {
         notification.error({
             title: i18n.t('repository:notifications.project_delete_failed'),
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }
@@ -150,7 +169,7 @@ export async function deleteProjectFile(
     } catch (error) {
         notification.error({
             title: i18n.t(`repository:notifications.${kind}_delete_failed`),
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }

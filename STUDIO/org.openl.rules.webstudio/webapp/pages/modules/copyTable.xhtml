@@ -7,17 +7,16 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
-    #{tableCopierWizardManager.start()}
+    #{tableCopierManager.start()}
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
-    <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
+    <c:set var="copier" value="#{tableCopierManager.copier}" />
 
     <div class="page">
-        <h1 class="page-header">#{msg['ws.copy.header']} #{wizard.tableTechnicalName}</h1>
+        <h1 class="page-header">#{msg['ws.copy.header']} #{copier.tableTechnicalName}</h1>
 
-        <h:form id="copy-table-form" rendered="#{tableCopierWizardManager.table.versionable}">
+        <h:form id="copy-table-form" rendered="#{tableCopierManager.table.versionable}">
             <h:outputText value="#{msg['ws.copy.as']} " />
-            <h:selectOneMenu value="#{tableCopierWizardManager.copyType}" id="copy-table-type">
+            <h:selectOneMenu value="#{tableCopierManager.copyType}" id="copy-table-type">
                 <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable :copyTableForm:copyButtonPanel "
                     immediate="true" onevent="onCopyTableTypeChange" />
                 <f:selectItem itemLabel="#{msg['ws.copy.table']}" itemValue="CHANGE_NAMES" />
@@ -37,9 +36,9 @@
                                     <h:outputText value="#{msg['ws.copy.name']}" styleClass="required" />
                                 </td>
                                 <td>
-                                    <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
-                                        disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}"
-                                        validator="#{wizard.validateTechnicalName}" immediate="true" />
+                                    <h:inputText id="technicalName" value="#{copier.tableTechnicalName}"
+                                        disabled="#{tableCopierManager.copyType != 'CHANGE_NAMES'}"
+                                        validator="#{copier.validateTechnicalName}" immediate="true" />
                                 </td>
                                 <td>
                                     <a4j:outputPanel ajaxRendered="true">
@@ -48,14 +47,14 @@
                                 </td>
                             </tr>
                         </table>
-                        <a4j:outputPanel rendered="#{ (tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == ''}">
+                        <a4j:outputPanel rendered="#{ (tableCopierManager.copyType == 'CHANGE_VERSION' || tableCopierManager.copyType == 'CHANGE_DIMENSION') and copier.tableTechnicalName == ''}">
                             <h:outputText value="#{msg['ws.copy.name.invalid']}" styleClass="error" />
                         </a4j:outputPanel>
                     </h:panelGroup>
 
                     <h:panelGroup id="copyPropertiesTable">
                         <table>
-                            <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop" id="prop-values">
+                            <a4j:repeat value="#{copier.propertiesToDisplay}" var="prop" id="prop-values">
                                 <tr>
                                     <td style="min-width: 120px">
                                         <h:outputText value="#{prop.displayName}" />
@@ -78,7 +77,7 @@
                                         <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}" style="white-space: nowrap;">
                                             <oh:inputVersion value="#{prop.value}" id="input-version"/>
                                             #{msg['ws.copy.version.current']}:
-                                            <h:outputText value="#{wizard.originalVersion}"/>
+                                            <h:outputText value="#{copier.originalVersion}"/>
                                         </h:panelGroup>
 
                                         <h:inputText value="#{prop.value}" id="input-prop-text"
@@ -98,20 +97,20 @@
                 <h3>#{msg['ws.copy.to']}</h3>
                 <div>
                     <span style="cursor: pointer; border-bottom: 1px dashed #777777"
-                        onclick="$j('#savePanel').slideDown();$j(this).hide()" id="save-panel">#{wizard.moduleName} -> #{wizard.worksheetName}</span>
+                        onclick="$j('#savePanel').slideDown();$j(this).hide()" id="save-panel">#{copier.moduleName} -> #{copier.worksheetName}</span>
                     <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
                         <h:outputText value="#{msg['ws.copy.to.module']}" styleClass="required" />
-                        <h:selectOneMenu value="#{wizard.workbook}" style="width:100%" id="workbooks" disabled="#{!wizard.manyWorkbooks}">
+                        <h:selectOneMenu value="#{copier.workbook}" style="width:100%" id="workbooks" disabled="#{!copier.manyWorkbooks}">
                             <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
-                            <f:selectItems value="#{wizard.workbooks}"/>
+                            <f:selectItems value="#{copier.workbooks}"/>
                         </h:selectOneMenu>
                         <h:outputText value="" />
                         <h:outputText value="#{msg['ws.copy.to.category']}" styleClass="required" />
                         <h:panelGroup>
-                            <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet" style="width:100%">
-                                <f:selectItems value="#{wizard.worksheets}" />
+                            <h:selectOneMenu value="#{copier.worksheetIndex}" id="sheet" style="width:100%">
+                                <f:selectItems value="#{copier.worksheets}" />
                             </h:selectOneMenu>
-                            <h:inputText value="#{wizard.newWorksheetName}" id="newSheetName" style="width:100%" />
+                            <h:inputText value="#{copier.newWorksheetName}" id="newSheetName" style="width:100%" />
                         </h:panelGroup>
                         <a4j:outputPanel ajaxRendered="true" style="padding-left: 8px">
                             <h:message for="newSheetName" styleClass="error" />
@@ -119,7 +118,7 @@
                         <h:outputText value="" />
                         <h:panelGroup>
                             <div style="margin-top: -7px">
-                                <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{wizard.newWorksheet}">
+                                <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{copier.newWorksheet}">
                                     <f:selectItem itemValue="existing" itemLabel="#{msg['ws.copy.to.category.existing']}" />
                                     <f:selectItem itemValue="new" itemLabel="#{msg['ws.copy.to.category.new']}" />
                                 </h:selectOneRadio>
@@ -132,9 +131,9 @@
             <br />
 
             <h:panelGroup id="copyButtonPanel">
-                <a4j:commandButton id="copyTableBtn" value="#{msg['ws.copy.copy']}" action="#{wizard.finish}" data="#{wizard.newTableId}"
-                    oncomplete="if(event.data) ws.nav.go('#{studio.url('table', wizard.newTableURI)}?id=' + event.data, true)" styleClass="button-primary"
-                    rendered="#{!((tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == '')}" />
+                <a4j:commandButton id="copyTableBtn" value="#{msg['ws.copy.copy']}" action="#{copier.finish}" data="#{copier.newTableId}"
+                    oncomplete="if(event.data) ws.nav.go('#{studio.url('table', copier.newTableURI)}?id=' + event.data, true)" styleClass="button-primary"
+                    rendered="#{!((tableCopierManager.copyType == 'CHANGE_VERSION' || tableCopierManager.copyType == 'CHANGE_DIMENSION') and copier.tableTechnicalName == '')}" />
             </h:panelGroup>
         </h:form>
 

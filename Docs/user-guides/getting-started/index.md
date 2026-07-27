@@ -57,13 +57,13 @@ types and different underlying logic.
 
 Rules can be created with the following tools:
 
-1. OpenL Studio Table Wizards.
+1. The OpenL Studio **Create Table** dialog.
 2. Microsoft Excel. In this case, the rule file should be uploaded in OpenL Studio where it will be validated and
    properly tested.
 
 In this tutorial, we are going to see the creation of a rule and its test in Microsoft Excel, and then their updating
-and testing in OpenL Studio. You can also create the same rule directly in OpenL Studio using the Simple Rules Table
-Wizard on your own.
+and testing in OpenL Studio. You can also create the same rule directly in OpenL Studio by picking the **Simple Rules**
+table type in the **Create Table** dialog.
 
 Details about creating rules and different rule table types can be found
 in [OpenL Tablets Reference Guide, Creating Tables for OpenL Tablets](../reference-guide/index.md#working-with-openl-tables).

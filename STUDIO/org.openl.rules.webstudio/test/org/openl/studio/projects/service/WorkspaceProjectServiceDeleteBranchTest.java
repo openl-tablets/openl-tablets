@@ -90,6 +90,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(Function.class),
                 mock(BeanValidationProvider.class),
                 mock(TableCreatorService.class),
+                mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
                 mock(ApplicationEventPublisher.class),

@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -111,6 +113,26 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     @Override
     protected void updateBusinessBody(RawTableView tableView) {
+        // A raw update declaring the free-form kind must not be able to turn a recognized table into one OpenL
+        // cannot parse: the header constraint waives its check for that kind, so the invariant is enforced here.
+        preservingKnownHeader(() -> writeBody(tableView));
+    }
+
+    /**
+     * Runs a write and rejects it when it leaves a recognized table unrecognizable.
+     *
+     * <p>Only a header OpenL could parse before the write is protected. A table whose header was already
+     * unrecognized stays freely editable, and a table being created has no earlier header to preserve.
+     */
+    private void preservingKnownHeader(Runnable write) {
+        boolean headerWasKnown = isUpdateMode() && XlsHelper.isKnownTableHeader(currentHeader());
+        write.run();
+        if (headerWasKnown && !XlsHelper.isKnownTableHeader(currentHeader())) {
+            throw new BadRequestException("table.header.unrecognized.message");
+        }
+    }
+
+    private void writeBody(RawTableView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
         int maxSourceRow = tableView.source.size();
         List<IGridRegion> mergeRegions = new ArrayList<>();
@@ -228,13 +250,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         try {
             table.getGridTable().edit();
             // An action must not turn a recognized table into one OpenL cannot parse (an unknown header) — that would
-            // bypass the create/update header check and leave an invisible table. A table whose header was already
-            // unrecognized may still be edited freely.
-            boolean headerWasKnown = XlsHelper.isKnownTableHeader(currentHeader());
-            dispatch(action);
-            if (headerWasKnown && !XlsHelper.isKnownTableHeader(currentHeader())) {
-                throw new BadRequestException("table.header.unrecognized.message");
-            }
+            // bypass the create/update header check and leave an invisible table.
+            preservingKnownHeader(() -> dispatch(action));
             save();
         } finally {
             table.getGridTable().stopEditing();
@@ -713,7 +730,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
     }
 
-    private static void requireWritableRow(List<RawTableCell> row) {
+    /**
+     * Rejects a row the writer cannot put on a grid line: a missing row, or one that would leave the line blank.
+     *
+     * <p>OpenL reads a blank line as the end of the table, so a table carrying one loses everything below it.
+     * Shared with the writer that creates a table in a new module, which lays the same matrix out itself.
+     */
+    public static void requireWritableRow(@Nullable List<RawTableCell> row) {
         if (row == null) {
             throw new BadRequestException("table.action.cells.required.message");
         }

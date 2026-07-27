@@ -41,7 +41,6 @@ import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IAggregateInfo;

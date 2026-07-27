@@ -25,7 +25,7 @@
                     org.openl.rules.webstudio
                     org.openl.rules.rest
                     org.openl.rules.socket
-                    org.openl.rules.ui.tablewizard
+                    org.openl.rules.ui.copy
                     "/>
     <import resource="repository-beans.xml"/>
     <import resource="db-services.xml"/>

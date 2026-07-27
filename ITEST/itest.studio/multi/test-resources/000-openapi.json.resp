@@ -14,7 +14,7 @@ Content-Type: application/json
   ],
   "security": [
     {
-      "basicAuth": [ ]
+      "basicAuth": []
     }
   ],
   "tags": [
@@ -9124,6 +9124,318 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/modules": {
+      "get": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleViewModel"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/modules/{moduleName}/sheets": {
+      "get": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/properties": {
+      "get": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyDefinitionView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
         ]
       }
     },
@@ -19464,6 +19776,11 @@ Content-Type: application/json
             "description": "***",
             "minLength": 1
           },
+          "modulePath": {
+            "type": "string",
+            "description": "***",
+            "pattern": "(?i).+\\.xlsx$"
+          },
           "sheetName": {
             "type": "string",
             "description": "***"
@@ -23223,6 +23540,37 @@ Content-Type: application/json
           "pageNumber",
           "pageSize"
         ]
+      },
+      "PropertyDefinitionView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "multiple": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "text",
+              "date",
+              "boolean",
+              "enum"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "RawCellInput": {
         "type": "object",
