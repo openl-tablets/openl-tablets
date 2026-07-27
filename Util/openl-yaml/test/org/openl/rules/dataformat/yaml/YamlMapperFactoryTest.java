@@ -45,7 +45,7 @@ class YamlMapperFactoryTest {
     @Test
     void testConfiguration() throws IOException {
         var mapper = YamlMapperFactory.getYamlMapper();
-        MyBean myBean = null;
+        MyBean myBean;
         try (var stream = getClass().getResourceAsStream("/myBean.yaml")) {
             myBean = mapper.readValue(stream, MyBean.class);
             assertTheSame(myBean);

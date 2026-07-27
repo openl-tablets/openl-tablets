@@ -31,7 +31,6 @@ public class ServiceExtraMethodHandlerImpl implements ServiceExtraMethodHandler<
         } else if (this.getClass() != var1.getClass()) {
             return false;
         } else {
-            ServiceExtraMethodHandlerImpl var2 = (ServiceExtraMethodHandlerImpl) var1;
             return true;
         }
     }

@@ -179,7 +179,7 @@ class OpenAPIProjectCreatorTest {
                             engineFactory.getProjectDescriptor(),
                             engineFactory.getRulesInstantiationStrategy());
                 } catch (Exception e) {
-                    error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
+                    error(messagesCount, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
                     continue;
                 }

@@ -145,7 +145,7 @@ public class ProjectDescriptor {
                 String file = projectUrl.getPath();
                 // jar URLs must be ended with '!/' or '/' for proper URLClassLoader work
                 if (!file.endsWith("/")) {
-                    String suffix = null;
+                    String suffix;
                     if (file.contains("!/")) {
                         // we are inside jar/zip file like: jar:///file.zip!/project
                         // so needs to add '/' to the end
