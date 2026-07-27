@@ -46,8 +46,7 @@ public class VersionPropertyTableCopier extends TableCopier {
         return tableVersion;
     }
 
-    @Override
-    public Version getMinNextVersion() {
+    private Version getMinNextVersion() {
         Version originalVersion = getOriginalVersion();
         originalVersion.setVariant(originalVersion.getVariant() + 1);
         return originalVersion;

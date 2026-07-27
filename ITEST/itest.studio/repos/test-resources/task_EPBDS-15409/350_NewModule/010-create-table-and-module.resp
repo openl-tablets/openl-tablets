@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Rules",
+  "kind": "Rules",
+  "name": "Eligibility",
+  "returnType": "Boolean",
+  "signature": "Eligibility()",
+  "file": "EPBDS-15409/rules/NewRules.xlsx",
+  "pos": "B2:C4"
+}

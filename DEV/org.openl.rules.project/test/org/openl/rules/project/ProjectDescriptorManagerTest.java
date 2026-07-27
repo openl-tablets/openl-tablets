@@ -92,6 +92,30 @@ class ProjectDescriptorManagerTest {
     }
 
     @Test
+    void declareModuleAppendsDespiteCoveringWildcard() throws Exception {
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
+
+        // The wildcard would name the module after its workbook, so a caller wanting another name declares it.
+        manager.declareModule(descriptor, module("Renamed", "rules/New Module.xlsx"));
+
+        assertEquals(3, descriptor.getModules().size());
+        assertEquals("Renamed", descriptor.getModules().getLast().getName());
+    }
+
+    @Test
+    void declareModuleUnderRulesMaterializesImplicitDefaults() {
+        ProjectDescriptorManager manager = new ProjectDescriptorManager();
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+
+        // The implicit defaults already match the file, so they are written out before the declaration hides them.
+        manager.declareModule(descriptor, module("Renamed", "rules/New Module.xlsx"));
+
+        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx", "rules/New Module.xlsx"),
+                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
     void addingFileUnderRulesKeepsAllModules(@TempDir Path projectFolder) throws Exception {
         Files.createDirectories(projectFolder.resolve("rules"));
         Files.createFile(projectFolder.resolve("rules/BugReproducing.xlsx"));

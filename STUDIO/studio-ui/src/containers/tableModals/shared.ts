@@ -1,0 +1,86 @@
+import type { ProjectModule } from 'types/projects'
+
+/**
+ * A legal OpenL table name, matching the identifier rule the compiler applies to the table header.
+ *
+ * <p>A letter of any script counts, as `Character.isJavaIdentifierStart` does on the server: OpenL compiles a
+ * Cyrillic or Greek name, so a dialog must not be the only thing refusing one.
+ */
+export const IDENTIFIER = /^[\p{L}_$][\p{L}\p{Nd}_$]*$/u
+/** Characters Excel rejects in a worksheet name; sending one makes the workbook write fail. */
+const SHEET_NAME_FORBIDDEN = /[/\\*?[\]:]/
+/** An apostrophe quotes a sheet reference in a formula, so Excel refuses a name that opens or closes with one. */
+const SHEET_NAME_QUOTED = /^'|'$/
+/** Excel stores no longer name than this, and rejects the workbook outright when one is written. */
+const SHEET_NAME_MAX = 31
+
+/** A sheet Excel will accept: named, short enough, and free of the characters a worksheet name may not carry. */
+export const isValidSheetName = (sheetName: string): boolean => {
+    const trimmed = sheetName.trim()
+    return Boolean(trimmed) &&
+        !SHEET_NAME_FORBIDDEN.test(trimmed) &&
+        !SHEET_NAME_QUOTED.test(trimmed) &&
+        trimmed.length <= SHEET_NAME_MAX
+}
+
+/** A module the table can be written to: one the project declares, or one the author is naming. */
+export interface ModuleOption {
+    name: string
+    path?: string
+}
+
+/** The named modules of a project, in the shape the destination field works with. */
+export const toModuleOptions = (modules: ProjectModule[]): ModuleOption[] => modules
+    .filter(module => module.name)
+    .map(module => ({ name: module.name ?? '', ...(module.path ? { path: module.path } : {}) }))
+
+/** The destination list, in alphabetical order: a project declares its modules in no particular one. */
+export const toSortedOptions = (modules: ModuleOption[]) => modules
+    .map(module => ({ label: module.name, value: module.name }))
+    .sort((left, right) => left.label.localeCompare(right.label))
+
+export const asOptions = (values: readonly string[]) => values.map(value => ({ label: value, value }))
+
+export const insertAt = <T, >(values: T[], index: number, value: T): T[] => [
+    ...values.slice(0, index),
+    value,
+    ...values.slice(index),
+]
+
+export const deleteAt = <T, >(values: T[], index: number): T[] => [
+    ...values.slice(0, index),
+    ...values.slice(index + 1),
+]
+
+/**
+ * Keeps one blank entry at the end of an editable list, so there is always a row to type the next value into.
+ *
+ * <p>An empty list starts with that blank row. A list whose last entry is filled in grows another one; a list still
+ * ending in a half-written entry does not, or every keystroke would add a row.
+ */
+export const withTrailingBlank = <T, >(values: T[], isComplete: (value: T) => boolean, blank: () => T): T[] => {
+    // A copy: the row below is pushed onto it, and the caller may well have handed over the state array itself.
+    const normalized = values.length ? [...values] : [blank()]
+    if (isComplete(normalized.at(-1) ?? blank())) {
+        normalized.push(blank())
+    }
+    return normalized
+}
+
+/** Folder a table kind belongs in. A project keeps its Test and Run tables apart from the rules they exercise. */
+const moduleFolder = (kind: string): string => kind === 'Test' || kind === 'Run' ? 'tests' : 'rules'
+
+/** Where a module the author just named is written. The author names it; the path follows. */
+export const defaultModulePath = (moduleName: string, kind = 'Datatype'): string => {
+    const safeName = moduleName.trim().replaceAll(/[\\/:*?"<>|]/g, '-')
+    return `${moduleFolder(kind)}/${safeName || 'NewModule'}.xlsx`
+}
+
+/** The module a table kind should land in by default: a Test or Run table belongs with the project's tests. */
+export const preferredModule = (available: ModuleOption[], kind: string, current: string): string => {
+    const folder = `${moduleFolder(kind)}/`
+    const inFolder = (module: ModuleOption) => module.path?.startsWith(folder)
+    return available.some(module => module.name === current && inFolder(module))
+        ? current
+        : available.find(inFolder)?.name ?? current
+}

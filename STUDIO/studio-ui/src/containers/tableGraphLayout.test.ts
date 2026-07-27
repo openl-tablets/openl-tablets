@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { buildGraphModel, GRAPH_LAYOUT, type GraphNode } from 'containers/tableGraph'
-import { restoreNativeObjectValues } from 'utils/prototypeJsCompat'
+import { restoreNativeGlobals } from 'utils/prototypeJsCompat'
 
 // Unlike TableGraphModal.test.tsx (which mocks cytoscape), this suite runs the real cytoscape + cytoscape-dagre
 // layout on every graph shape buildGraphModel can emit. The dagre engine bundled into cytoscape-dagre has broken
@@ -86,7 +86,7 @@ describe('tableGraph dagre layout', () => {
         }
         Object.defineProperty(Object, 'values', { value: forInValues, writable: true, configurable: true })
         try {
-            restoreNativeObjectValues()
+            restoreNativeGlobals()
             expectLaidOut([
                 { id: 'policy', name: 'DeterminePolicyPremium', kind: 'Spreadsheet', dependencies: ['driver', 'premium']},
                 { id: 'driver', name: 'DetermineDriverPremium', kind: 'Spreadsheet', dependencies: ['premium']},

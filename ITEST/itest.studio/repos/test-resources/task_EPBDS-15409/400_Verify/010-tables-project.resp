@@ -66,6 +66,16 @@ Content-Type: application/json
       "pos": "B16:G23"
     },
     {
+      "id": "70d7a4d1573041fc9065b626fa876b07",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Eligibility",
+      "returnType": "Boolean",
+      "signature": "Eligibility()",
+      "file": "EPBDS-15409/rules/NewRules.xlsx",
+      "pos": "B2:C4"
+    },
+    {
       "id": "5415cda46d85fc7bba0120e399c8f50e",
       "tableType": "Rules",
       "kind": "Rules",
@@ -202,6 +212,6 @@ Content-Type: application/json
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 22,
-  "total": 22
+  "numberOfElements": 23,
+  "total": 23
 }

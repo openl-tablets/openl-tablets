@@ -455,6 +455,35 @@
                             }
                         }));
                     },
+                    // Opens a React table modal mounted by studio-ui in #appRoot: 'openCreateTableModal' or
+                    // 'openCopyTableModal'. The `guard` is the page's own check that a newer revision may be
+                    // overwritten and runs before the modal opens. The module chosen in the modal may differ
+                    // from the one open in the legacy editor, so navigation is built from the module reported
+                    // back on success. Always returns false, so the triggering link never follows its href.
+                    //
+                    // The project, module and source table identities arrive as data attributes of the trigger
+                    // rather than inlined into a page script: a script body is rendered verbatim, so a module
+                    // named with a quote would end the string it sits in and break every function defined
+                    // there. An attribute value is escaped as markup, and reaches the modal as text whatever
+                    // it holds.
+                    openTableModal: function (source, eventName, guard) {
+                        if (!guard()) {
+                            return false;
+                        }
+                        const projectUrl = source.dataset.projectUrl;
+                        globalThis.dispatchEvent(new CustomEvent(eventName, {
+                            detail: {
+                                projectId: source.dataset.projectId,
+                                currentModuleName: source.dataset.moduleName,
+                                sourceTableId: source.dataset.sourceTableId,
+                                onSuccess: (table, moduleName) => {
+                                    api.nav.go(projectUrl + '/' + encodeURIComponent(moduleName) + '/table?id='
+                                        + encodeURIComponent(table.id), true);
+                                }
+                            }
+                        }));
+                        return false;
+                    },
                     showLoader: function () {
                         notifyLoader("show");
                     },

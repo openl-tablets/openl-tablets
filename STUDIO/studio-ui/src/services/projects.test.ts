@@ -1,4 +1,12 @@
-import { deleteProject, deleteProjectFile, updateProjectFromFiles, updateProjectFromZip } from 'services/projects'
+import {
+    deleteProject,
+    deleteProjectFile,
+    getModuleSheets,
+    getProjectModules,
+    getProjectProperties,
+    updateProjectFromFiles,
+    updateProjectFromZip,
+} from 'services/projects'
 import apiCall from 'services/apiCall'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
@@ -138,4 +146,25 @@ describe('projects service', () => {
         expect(successSpy).toHaveBeenCalledTimes(1)
     })
 
+    describe('what a project holds', () => {
+        it('asks each resource for itself, and a module for its own sheets', async () => {
+            mockApiCall.mockResolvedValue([])
+
+            await getProjectModules('project/id')
+            await getProjectProperties('project-id')
+            await getModuleSheets('project-id', 'Main Rules')
+
+            expect(mockApiCall.mock.calls.map(call => call[0])).toEqual([
+                '/projects/project_id/modules',
+                '/projects/project-id/properties',
+                '/projects/project-id/modules/Main%20Rules/sheets',
+            ])
+        })
+
+        it('reads an answer that is not a list as an empty one', async () => {
+            mockApiCall.mockResolvedValueOnce(null)
+
+            await expect(getProjectProperties('project-id')).resolves.toEqual([])
+        })
+    })
 })

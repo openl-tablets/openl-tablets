@@ -46,7 +46,7 @@ Application runtime context values are defined in the runtime environment. Test 
 
 For a full list of runtime context variables available, their description, and related Business Dimension versioning properties, see [Context Variables Available in Test Tables](02-context-variables-available-in-test-tables.md#context-variables-available-in-test-tables).
 
-Tests are numbered automatically. In addition to that, ID (*id*) can be assigned to the test table thus enabling a user to use it for running specific test tables by their IDs as described in [OpenL Studio Guide > Defining the ID Column for Test Cases](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#defining-the-id-column-for-test-cases).
+Tests are numbered automatically. In addition to that, ID (*id*) can be assigned to the test table thus enabling a user to use it for running specific test tables by their IDs as described in [OpenL Studio Guide > Executing Tests for a Single Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#executing-tests-for-a-single-table).
 
 The **\_description\_** column can be used for entering useful information.
 
