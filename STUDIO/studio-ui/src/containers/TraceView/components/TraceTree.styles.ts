@@ -76,7 +76,8 @@ export const useStyles = createStyles(({ css, token }) => ({
             background: ${token.colorPrimaryBg};
         }
     `,
-    // Executed and returned: shown for its result only, de-emphasised and not runnable.
+    // Auxiliary rows (step references, "+N more", loading, capped-branch notes): quieter than the
+    // rules themselves, so the tree's structure stays the loudest thing on screen.
     inactive: css`
         opacity: 0.6;
     `,
@@ -203,40 +204,35 @@ export const useStyles = createStyles(({ css, token }) => ({
             color: ${token.colorPrimary};
         }
     `,
+    // Inherits the row colour, so a greyed (not-yet-reached) row greys its label too.
     leafLabel: css`
         flex: 1;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: ${token.colorText};
     `,
-    // Status is carried by shape as well as colour, so the three step states stay distinct without relying
-    // on hue: pending is a hollow ring, executed/error/frame are filled, and the current step gets a halo.
-    dot: css`
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
+    // Plain, self-explanatory state marks instead of coloured dots: an arrow = where the calculation
+    // is now (muted on the callers leading to it), a cross = it failed. An executed line reads as
+    // plain text and a not-yet-reached line is greyed, so neither needs a mark.
+    mark: css`
+        width: 12px;
         flex: 0 0 auto;
-        box-sizing: border-box;
-        background: transparent;
-        border: 1.5px solid ${token.colorTextQuaternary};
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: ${token.fontSizeSM}px;
     `,
-    dotExecuted: css`
-        background: ${token.colorSuccess};
-        border-color: ${token.colorSuccess};
+    markCurrent: css`
+        color: ${token.colorWarning};
     `,
-    dotCurrent: css`
-        background: ${token.colorWarning};
-        border-color: ${token.colorWarning};
-        box-shadow: 0 0 0 2px ${token.colorWarningBg};
+    markFrame: css`
+        color: ${token.colorPrimary};
     `,
-    dotError: css`
-        background: ${token.colorError};
-        border-color: ${token.colorError};
+    markWaiting: css`
+        color: ${token.colorTextQuaternary};
     `,
-    dotFrame: css`
-        background: ${token.colorPrimary};
-        border-color: ${token.colorPrimary};
+    markError: css`
+        color: ${token.colorError};
     `,
     // Step-reference marker: the formula used a step computed elsewhere; the row links to the original.
     refIcon: css`
