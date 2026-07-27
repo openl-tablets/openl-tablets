@@ -61,6 +61,8 @@ interface DebugState {
     variablesLoading: boolean
     /** Increments on every suspension so views that depend on the current line (table highlight) refresh. */
     stackVersion: number
+    /** Increments each time a new run starts, so views can drop per-run UI state (tree expansions). */
+    runId: number
     breakpoints: string[]
     breakpointLabels: Record<string, string>
     /** A one-shot breakpoint set by runTo; dropped on the next suspension so "run to here" leaves none behind. */
@@ -142,6 +144,7 @@ const initialState = {
     variables: null,
     variablesLoading: false,
     stackVersion: 0,
+    runId: 0,
     breakpoints: [],
     breakpointLabels: {},
     transientBreakpoint: null,
@@ -249,7 +252,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         start: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null, status: 'pending' })
+            set({ loading: true, error: null, status: 'pending', runId: get().runId + 1 })
             try {
                 // Attach to a session already created by the launcher; otherwise start a new one.
                 let stack: DebugStackView
@@ -386,7 +389,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         collectWatch: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null })
+            set({ loading: true, error: null, runId: get().runId + 1 })
             try {
                 // Run the whole trace to completion (not the full tree) so every execution is captured.
                 await get().terminate()

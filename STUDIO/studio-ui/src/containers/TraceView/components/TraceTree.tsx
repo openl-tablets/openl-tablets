@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
 import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, LinkOutlined, RedoOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -179,8 +179,16 @@ const TraceTree: React.FC = () => {
     const treeChildren = useTraceStore(s => s.treeChildren)
     const treeLoading = useTraceStore(s => s.treeLoading)
     const fetchTreeChildren = useTraceStore(s => s.fetchTreeChildren)
+    const runId = useTraceStore(s => s.runId)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
+
+    // Row keys are positional, so a new run (replay/rerun) would inherit the previous run's expansions:
+    // matching rows silently re-open, and rows without loaded children show an open chevron over a
+    // collapsed branch that then needs two clicks to expand. A fresh run starts fully collapsed.
+    useEffect(() => {
+        setExpanded(new Set())
+    }, [runId])
     const [flashKey, setFlashKey] = useState<string | null>(null)
     const treeRef = useRef<HTMLDivElement>(null)
     const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading),

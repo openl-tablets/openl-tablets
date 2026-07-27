@@ -1,8 +1,8 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useTraceStore } from 'store/traceStore'
-import type { DebugFrameView, StepValueView } from 'types/trace'
+import type { CallNodeView, DebugFrameView, StepValueView } from 'types/trace'
 import TraceTree from 'containers/TraceView/components/TraceTree'
 
 vi.mock('services/traceService', () => ({
@@ -98,6 +98,34 @@ describe('TraceTree', () => {
         await userEvent.click(screen.getByTestId('tree-step-0-R1C0'))
         await waitFor(() => expect(resume).toHaveBeenCalledWith('p1'))
         expect(useTraceStore.getState().breakpoints).toContain('u0#R1C0')
+    })
+
+    it('starts a new run fully collapsed instead of inheriting stale expansions', async () => {
+        const child: CallNodeView = {
+            uri: 'cu', name: 'ChildTable', instance: 0, kind: 'spreadsheet',
+            durationMillis: 1, selfMillis: 1, steps: [],
+        }
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame(0, {
+                name: 'ROOT',
+                active: true,
+                steps: [{ ...step('R0C0', 'executed', '$Step1'), children: [child], childrenTotal: 1 }],
+            })],
+            selectedFrameIndex: 0,
+        })
+        render(<TraceTree />)
+
+        await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
+        expect(screen.getByText('ChildTable')).toBeInTheDocument()
+
+        // A replay/rerun bumps runId; row keys are positional, so the previous run's expansions must
+        // not survive into the new run (pseudo-open chevrons then need two clicks to expand).
+        act(() => {
+            useTraceStore.setState({ runId: useTraceStore.getState().runId + 1 })
+        })
+        expect(screen.queryByText('ChildTable')).toBeNull()
+        expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-expanded', 'false')
     })
 
     it('badges a looped frame with its execution pass so stepping through a loop visibly advances', () => {
