@@ -42,6 +42,16 @@ public class ProjectDescriptorManager {
         if (isCoveredByWildcardModule(descriptor, module)) {
             return;
         }
+        declareModule(descriptor, module);
+    }
+
+    /**
+     * Declares the module explicitly, whether or not a wildcard already matches its file.
+     *
+     * <p>When rules.xml declares no modules, the implicit default modules are materialized first so adding one
+     * explicit module does not hide them.
+     */
+    public void declareModule(ProjectDescriptor descriptor, Module module) {
         if (descriptor.getModules().isEmpty()) {
             descriptor.getModules().addAll(ProjectDescriptor.defaultModules());
         }

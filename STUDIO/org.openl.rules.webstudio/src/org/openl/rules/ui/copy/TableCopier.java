@@ -9,7 +9,6 @@ import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 
 import lombok.extern.slf4j.Slf4j;
-import org.richfaces.component.UIRepeat;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -32,15 +31,12 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tablewizard.PropertiesBean;
-import org.openl.rules.ui.tablewizard.TableCreationWizard;
 import org.openl.rules.ui.validation.StringPresentedGroup;
 import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.conf.Version;
 
 /**
  * Bean for table coping.
@@ -49,8 +45,7 @@ import org.openl.util.conf.Version;
  */
 @GroupSequence({TableCopier.class, StringPresentedGroup.class, StringValidGroup.class})
 @Slf4j
-public class TableCopier extends TableCreationWizard {
-
+public class TableCopier extends TableCopyForm {
 
     public static final String INIT_VERSION = "0.0.1";
 
@@ -66,22 +61,21 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Bean - container of all properties for new copy of the original table.
      */
-    private final PropertiesBean propertiesManager;
+    private final CopyPropertiesBean propertiesManager;
 
-    private UIRepeat propsTable;
-
-    public PropertiesBean getPropertiesManager() {
+    public CopyPropertiesBean getPropertiesManager() {
         return propertiesManager;
     }
 
     public TableCopier(IOpenLTable table) {
         try {
-            start();
+            reset();
+            initWorkbooks();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         this.table = table;
-        propertiesManager = new PropertiesBean(getAllPossibleProperties(table.getType()));
+        propertiesManager = new CopyPropertiesBean(getAllPossibleProperties(table.getType()));
         initTableName();
         initProperties();
     }
@@ -291,17 +285,6 @@ public class TableCopier extends TableCreationWizard {
         tableTechnicalName = null;
     }
 
-    @Override
-    protected void onCancel() {
-        reset();
-    }
-
-    @Override
-    protected void onStart() {
-        reset();
-        initWorkbooks();
-    }
-
     /**
      * @param tableProperties properties of the table that is going to be copied.
      * @return style of the properties section in table if exists. If no <code>NULL</code>.
@@ -330,7 +313,6 @@ public class TableCopier extends TableCreationWizard {
     @Override
     protected void onFinish() throws Exception {
         doCopy();
-        super.onFinish();
     }
 
     public TableProperty getProperty(String name) {
@@ -347,7 +329,6 @@ public class TableCopier extends TableCreationWizard {
      *
      * @return new properties
      */
-    @Override
     protected Map<String, Object> buildProperties() {
         Map<String, Object> newProperties = new LinkedHashMap<>();
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
@@ -377,14 +358,6 @@ public class TableCopier extends TableCreationWizard {
         return false;
     }
 
-    public void setPropsTable(UIRepeat propsTable) {
-        this.propsTable = propsTable;
-    }
-
-    public UIRepeat getPropsTable() {
-        return propsTable;
-    }
-
     /**
      * It is only necessary for version editor.
      *
@@ -392,18 +365,6 @@ public class TableCopier extends TableCreationWizard {
      */
     public TableProperty getVersion() {
         return getProperty("version");
-    }
-
-    /**
-     * @return Min version that can be set into new copy of original table.
-     */
-    public Version getMinNextVersion() {
-        TableProperty originalVersion = getVersion();
-        if (originalVersion != null && StringUtils.isNotEmpty((String) originalVersion.getValue())) {
-            return Version.parseVersion((String) originalVersion.getValue(), 0, "..");
-        } else {
-            return Version.parseVersion(INIT_VERSION, 0, "..");
-        }
     }
 
     protected void updatePropertiesForOriginalTable(Map<String, Object> properties) {

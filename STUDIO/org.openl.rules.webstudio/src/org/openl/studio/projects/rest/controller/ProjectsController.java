@@ -66,12 +66,14 @@ import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.ProjectsPageResponse;
+import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
@@ -87,6 +89,7 @@ import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -128,6 +131,7 @@ public class ProjectsController {
     private final ProjectStatusMapper projectStatusMapper;
     private final ProjectTablesGraphService graphService;
     private final RepositoryConfigService repositoryConfigService;
+    private final ProjectMetadataService metadataService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -371,18 +375,37 @@ public class ProjectsController {
     @ResponseStatus(HttpStatus.CREATED)
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                            @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
+        String tableId;
         try {
-            projectService.createNewTable(project, request);
+            tableId = projectService.createNewTable(project, request);
         } finally {
             getWebStudio().reset();
         }
         var table = (TableView) request.table();
-        var query = ProjectTableCriteriaQuery.builder().name(table.name).build();
-        return projectService.getTables(project, query, Pageable.unpaged())
-                .getContent()
-                .stream()
-                .findFirst()
-                .orElse(null);
+        return projectService.getCreatedTable(project, request.moduleName(), tableId, table.name);
+    }
+
+    @GetMapping("/{projectId}/modules")
+    @Operation(summary = "projects.modules.list.summary")
+    public List<ModuleViewModel> getModules(@ProjectId @PathVariable("projectId") RulesProject project) {
+        return projectService.getModules(project);
+    }
+
+    @GetMapping("/{projectId}/modules/{moduleName}/sheets")
+    @Operation(summary = "projects.modules.sheets.summary")
+    public List<String> getModuleSheets(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("moduleName") @Parameter(description = "projects.modules.param.module-name.desc")
+            String moduleName) {
+        return projectService.getModuleSheets(project, moduleName);
+    }
+
+    @GetMapping("/{projectId}/properties")
+    @Operation(summary = "projects.properties.list.summary")
+    public List<PropertyDefinitionView> getProperties(@ProjectId @PathVariable("projectId") RulesProject project) {
+        // The properties are the same for every project, but the path variable is still resolved: resolving it is
+        // what checks that the caller may read this project.
+        return metadataService.getProperties();
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

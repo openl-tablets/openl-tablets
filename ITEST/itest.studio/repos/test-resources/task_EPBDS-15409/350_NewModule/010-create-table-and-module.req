@@ -1,0 +1,41 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "NewRules",
+  "sheetName": "Eligibility",
+  "modulePath": "rules/NewRules.xlsx",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Rules",
+    "name": "Eligibility",
+    "source": [
+      [
+        {
+          "value": "Rules Boolean Eligibility()",
+          "colspan": 2
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "value": "Condition"
+        },
+        {
+          "value": "Result"
+        }
+      ],
+      [
+        {
+          "value": "true"
+        },
+        {
+          "value": "true"
+        }
+      ]
+    ]
+  }
+}

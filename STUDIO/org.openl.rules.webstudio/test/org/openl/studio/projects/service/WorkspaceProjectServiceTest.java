@@ -8,11 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,20 +23,27 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -42,9 +51,11 @@ import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -58,7 +69,12 @@ import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.tables.CreateNewTableRequest;
+import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -552,6 +568,249 @@ class WorkspaceProjectServiceTest {
         verify(project, never()).setBranch("feature");
     }
 
+    @Test
+    void create_new_table_creates_a_module_when_module_path_is_supplied() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        when(webStudio.getCurrentProject()).thenReturn(project);
+        var service = newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                tableCreatorService);
+        var table = rawTable("NewTable");
+        var request = new CreateNewTableRequest(
+                "NewModule",
+                "Rules",
+                "rules/NewModule.xlsx",
+                table);
+
+        service.createNewTable(project, request);
+
+        verify(project).tryLockOrThrow();
+        verify(tableCreatorService).createModuleWithTable(project, descriptor, request, table);
+    }
+
+    @Test
+    void create_new_table_locks_the_target_project_when_the_session_has_none_open() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        // A project with no modules never opens, so the session keeps no current project.
+        when(webStudio.getCurrentProject()).thenReturn(null);
+        var service = newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                tableCreatorService);
+        var table = rawTable("NewTable");
+        var request = new CreateNewTableRequest(
+                "NewModule",
+                "Rules",
+                "rules/NewModule.xlsx",
+                table);
+
+        service.createNewTable(project, request);
+
+        verify(project).tryLockOrThrow();
+        verify(tableCreatorService).createModuleWithTable(project, descriptor, request, table);
+    }
+
+    @Test
+    void create_new_table_rejects_a_non_raw_new_module_request_as_bad_request() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var service = newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                mock(WebStudio.class),
+                mock(AclProjectsHelper.class),
+                tableCreatorService);
+        var request = new CreateNewTableRequest(
+                "NewModule",
+                "Rules",
+                "rules/NewModule.xlsx",
+                mock(EditableTableView.class));
+
+        var exception = assertThrows(BadRequestException.class, () -> service.createNewTable(project, request));
+
+        assertEquals("openl.error.400.table.new-module.raw-source.message", exception.getErrorCode());
+        verify(project, never()).tryLockOrThrow();
+        verify(tableCreatorService, never()).createModuleWithTable(any(), any(), any(), any());
+    }
+
+    @Test
+    void tables_of_a_project_without_modules_are_none_rather_than_not_found() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        var service = newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class));
+
+        // Such a project is where the table creator gets its first module from, so it has to be able to ask.
+        var tables = service.getTables(project, ProjectTableCriteriaQuery.builder().build(), Pageable.unpaged());
+
+        assertTrue(tables.getContent().isEmpty());
+        assertEquals(0L, tables.getTotal());
+    }
+
+    @Test
+    void created_table_is_read_by_the_identifier_returned_by_the_writer() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                mock(WebStudio.class),
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                summaryTableReader));
+        var project = mock(RulesProject.class);
+        var projectModel = mock(ProjectModel.class);
+        var handle = mock(ProjectHandle.class);
+        var openLTable = mock(IOpenLTable.class);
+        var expected = SummaryTableView.builder()
+                .id("created-id")
+                .tableType("RawSource")
+                .kind("Constants")
+                .name("Constants")
+                .build();
+        when(handle.awaitCompiled()).thenReturn(projectModel);
+        when(projectModel.getTableById("created-id")).thenReturn(openLTable);
+        when(summaryTableReader.read(openLTable)).thenReturn(expected);
+        doReturn(handle).when(service).openProject(project, "Main");
+
+        var created = service.getCreatedTable(project, "Main", "created-id", "Constants");
+
+        assertEquals(expected, created);
+        verify(projectModel).getTableById("created-id");
+        verify(summaryTableReader).read(openLTable);
+    }
+
+    @Test
+    void create_new_table_rejects_a_case_insensitive_duplicate_module_name() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("PricingProject");
+        var module = new Module();
+        module.setName("Pricing");
+        module.setRulesRootPath("rules/Pricing.xlsx");
+        descriptor.setModules(List.of(module));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        var service = newService(
+                acl,
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                tableCreatorService);
+        var request = new CreateNewTableRequest(
+                "pricing",
+                "Rules",
+                "rules/Replacement.xlsx",
+                rawTable("Replacement"));
+
+        // Not locked when the request arrives, and locked by the request itself before the name is checked.
+        when(project.isLockedByMe()).thenReturn(false, true);
+
+        var exception = assertThrows(ConflictException.class, () -> service.createNewTable(project, request));
+
+        assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
+        verify(tableCreatorService, never()).createModuleWithTable(any(), any(), any(), any());
+        // A duplicate name is ordinary input, and only an administrator can clear a lock left behind by one.
+        verify(project).unlock();
+    }
+
+    @Test
+    void created_table_is_found_when_its_name_is_longer_than_a_shortened_one() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                mock(WebStudio.class),
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                summaryTableReader));
+        var project = mock(RulesProject.class);
+        var projectModel = mock(ProjectModel.class);
+        var handle = mock(ProjectHandle.class);
+        var openLTable = mock(IOpenLTable.class);
+        // Longer than the 57 characters a shortened display name keeps.
+        var longName = "A".repeat(60);
+        var expected = SummaryTableView.builder()
+                .id("created-id")
+                .tableType("RawSource")
+                .kind("Datatype")
+                .name(longName)
+                .build();
+        when(handle.awaitCompiled()).thenReturn(projectModel);
+        when(projectModel.search(any(), eq(SearchScope.CURRENT_PROJECT))).thenReturn(List.of(openLTable));
+        when(summaryTableReader.read(openLTable)).thenReturn(expected);
+        doReturn(handle).when(service).openProject(project, "Main");
+
+        var created = service.getCreatedTable(project, "Main", null, longName);
+
+        assertEquals(expected, created);
+        // The search narrows by substring. Shortening the name appends a mark the table's own display name never
+        // carries, so searching for the shortened form would find nothing and answer a successful create with no
+        // table at all.
+        ArgumentCaptor<Predicate<TableSyntaxNode>> selector = forClass(Predicate.class);
+        verify(projectModel).search(selector.capture(), eq(SearchScope.CURRENT_PROJECT));
+        assertTrue(selector.getValue().test(datatypeNode("Datatype " + longName)));
+    }
+
+    /** A syntax node the table selector can read a Datatype header from. */
+    private static TableSyntaxNode datatypeNode(String header) {
+        var node = mock(TableSyntaxNode.class);
+        var headerNode = mock(HeaderSyntaxNode.class);
+        when(node.getType()).thenReturn(XlsNodeTypes.XLS_DATATYPE.toString());
+        when(node.getHeader()).thenReturn(headerNode);
+        when(headerNode.getSourceString()).thenReturn(header);
+        return node;
+    }
+
     private static WorkspaceProjectService newService(RepositoryAclService acl,
                                                       ProtectedBranchBypassService bypassService) throws ProjectException {
         return newService(acl, bypassService, null);
@@ -578,8 +837,14 @@ class WorkspaceProjectServiceTest {
                                                       ProjectStateValidator projectStateValidator,
                                                       WebStudio webStudio,
                                                       AclProjectsHelper aclProjectsHelper) throws ProjectException {
-        return newService(acl, bypassService, userWorkspace, projectStateValidator, webStudio, aclProjectsHelper,
-                mock(ApplicationEventPublisher.class));
+        return newService(
+                acl,
+                bypassService,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                mock(TableCreatorService.class));
     }
 
     private static WorkspaceProjectService newService(RepositoryAclService acl,
@@ -589,6 +854,66 @@ class WorkspaceProjectServiceTest {
                                                       WebStudio webStudio,
                                                       AclProjectsHelper aclProjectsHelper,
                                                       ApplicationEventPublisher eventPublisher) throws ProjectException {
+        return newService(
+                acl,
+                bypassService,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class),
+                eventPublisher);
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      TableCreatorService tableCreatorService) throws ProjectException {
+        return newService(
+                acl,
+                bypassService,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                tableCreatorService,
+                mock(SummaryTableReader.class),
+                mock(ApplicationEventPublisher.class));
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      TableCreatorService tableCreatorService,
+                                                      SummaryTableReader summaryTableReader) throws ProjectException {
+        return newService(
+                acl,
+                bypassService,
+                userWorkspace,
+                projectStateValidator,
+                webStudio,
+                aclProjectsHelper,
+                tableCreatorService,
+                summaryTableReader,
+                mock(ApplicationEventPublisher.class));
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      TableCreatorService tableCreatorService,
+                                                      SummaryTableReader summaryTableReader,
+                                                      ApplicationEventPublisher eventPublisher) throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
         doReturn(List.of()).when(dependencyResolver).getDependsOnProject(any(RulesProject.class));
@@ -597,12 +922,13 @@ class WorkspaceProjectServiceTest {
                 acl,
                 projectStateValidator,
                 dependencyResolver,
-                mock(SummaryTableReader.class),
+                summaryTableReader,
                 mock(RawTableReader.class),
                 List.of(),
                 repository -> mock(NewBranchValidator.class),
                 mock(BeanValidationProvider.class),
-                mock(TableCreatorService.class),
+                tableCreatorService,
+                mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
                 eventPublisher,
@@ -628,6 +954,14 @@ class WorkspaceProjectServiceTest {
                 return webStudio;
             }
         };
+    }
+
+    private static RawTableView rawTable(String name) {
+        return RawTableView.builder()
+                .kind("Rules")
+                .name(name)
+                .source(List.of())
+                .build();
     }
 
     private static Environment environment() {

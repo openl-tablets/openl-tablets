@@ -17,10 +17,16 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
+import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
+import org.openl.studio.projects.model.PropertyDefinitionView;
+import org.openl.studio.projects.model.tables.CreateNewTableRequest;
+import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
@@ -75,8 +81,75 @@ class ProjectsControllerTest {
         verify(projectService).delete(project, "comment");
     }
 
+    @Test
+    void getModulesDelegatesToProjectService() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var project = mock(RulesProject.class);
+        var expected = List.of(ModuleViewModel.module("Main", "rules/Main.xlsx"));
+        when(projectService.getModules(project)).thenReturn(expected);
+
+        assertEquals(expected, controller.getModules(project));
+        verify(projectService).getModules(project);
+    }
+
+    @Test
+    void getModuleSheetsDelegatesToProjectService() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var project = mock(RulesProject.class);
+        when(projectService.getModuleSheets(project, "Main")).thenReturn(List.of("Rules", "Data"));
+
+        assertEquals(List.of("Rules", "Data"), controller.getModuleSheets(project, "Main"));
+        verify(projectService).getModuleSheets(project, "Main");
+    }
+
+    @Test
+    void getPropertiesDelegatesToMetadataService() {
+        var metadataService = mock(ProjectMetadataService.class);
+        var controller = controller(mock(WorkspaceProjectService.class), mock(ProjectStatusMapper.class),
+                metadataService);
+        var expected = List.of(new PropertyDefinitionView("scope", "enum", false, List.of("Module")));
+        when(metadataService.getProperties()).thenReturn(expected);
+
+        assertEquals(expected, controller.getProperties(mock(RulesProject.class)));
+        verify(metadataService).getProperties();
+    }
+
+    @Test
+    void createNewTableReadsTheResponseByTheWrittenTableId() throws ProjectException {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var project = mock(RulesProject.class);
+        var table = RawTableView.builder()
+                .kind("Constants")
+                .name("Constants")
+                .source(List.of())
+                .build();
+        var request = new CreateNewTableRequest("Main", "Rules", null, table);
+        var expected = SummaryTableView.builder()
+                .id("created-id")
+                .tableType("RawSource")
+                .kind("Constants")
+                .name("Constants")
+                .build();
+        when(projectService.createNewTable(project, request)).thenReturn("created-id");
+        when(projectService.getCreatedTable(project, "Main", "created-id", "Constants")).thenReturn(expected);
+
+        var created = controller.createNewTable(project, request);
+
+        assertEquals(expected, created);
+        verify(projectService).getCreatedTable(project, "Main", "created-id", "Constants");
+    }
+
     private static ProjectsController controller(WorkspaceProjectService projectService,
                                                  ProjectStatusMapper projectStatusMapper) {
+        return controller(projectService, projectStatusMapper, mock(ProjectMetadataService.class));
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService,
+                                                 ProjectStatusMapper projectStatusMapper,
+                                                 ProjectMetadataService metadataService) {
         var webStudio = mock(WebStudio.class);
         return new ProjectsController(
                 projectService,
@@ -88,7 +161,8 @@ class ProjectsControllerTest {
                 mock(ProjectIdentifierMapper.class),
                 projectStatusMapper,
                 mock(ProjectTablesGraphService.class),
-                mock(RepositoryConfigService.class)) {
+                mock(RepositoryConfigService.class),
+                metadataService) {
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;

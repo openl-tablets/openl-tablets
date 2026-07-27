@@ -4,6 +4,16 @@ Content-Type: application/json
 {
   "content": [
     {
+      "id": "fc832505fba8bba61221f9eb03ffeb5c",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "TotalAssets",
+      "returnType": "SpreadsheetResult",
+      "signature": "TotalAssets()",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B41:E48"
+    },
+    {
       "id": "bd6e2fc6c529efca81b4b0a7bb736e3a",
       "tableType": "Datatype",
       "kind": "Datatype",
@@ -22,6 +32,6 @@ Content-Type: application/json
   ],
   "pageNumber": 2,
   "pageSize": 10,
-  "numberOfElements": 2,
-  "total": 22
+  "numberOfElements": 3,
+  "total": 23
 }

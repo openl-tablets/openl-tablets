@@ -5,13 +5,19 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.util.StringUtils;
 
 /**
- * Rejects a raw table whose top-left cell does not name a table type OpenL recognizes.
+ * Checks that a raw table has a recognized OpenL header, or an explicit free-form header for the {@code Other} kind.
  *
  * @author Vladyslav Pikus
  */
 public class RawTableHeaderConstraintValidator implements ConstraintValidator<RawTableHeaderConstraint, RawTableView> {
+
+    private static final String FREE_FORM_KIND = OpenLTableUtils.getTableTypeItems()
+            .get(XlsNodeTypes.XLS_OTHER.toString());
 
     @Override
     public boolean isValid(RawTableView view, ConstraintValidatorContext context) {
@@ -28,6 +34,9 @@ public class RawTableHeaderConstraintValidator implements ConstraintValidator<Ra
         // A null cell or a null/blank value at the top-left is no header at all; isKnownTableHeader(null) rejects it.
         RawTableCell headerCell = firstRow.get(0);
         Object value = headerCell == null ? null : headerCell.value();
-        return XlsHelper.isKnownTableHeader(value == null ? null : value.toString());
+        var header = value == null ? null : value.toString();
+        return FREE_FORM_KIND.equals(view.kind)
+                ? StringUtils.isNotBlank(header)
+                : XlsHelper.isKnownTableHeader(header);
     }
 }

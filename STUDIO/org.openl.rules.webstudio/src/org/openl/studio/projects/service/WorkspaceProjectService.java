@@ -79,6 +79,7 @@ import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.DescriptorViewModel;
+import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
@@ -128,6 +129,8 @@ import org.openl.util.StringUtils;
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+    /** The mark {@link TableSyntaxNodeUtils} appends to a display name it had to shorten. */
+    private static final String SHORTENED_NAME_MARK = "...";
     private static final Comparator<ProjectDependency> DEPENDENCY_NAME_ORDER = Comparator
             .comparing(ProjectDependency::name, String.CASE_INSENSITIVE_ORDER);
 
@@ -143,6 +146,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final BeanValidationProvider validationProvider;
     private final TableWriterExecutor tableWriterExecutor;
     private final TableCreatorService tableCreatorService;
+    private final ProjectMetadataService metadataService;
     private final TableWritersFactory tableWritersFactory;
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
@@ -165,6 +169,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
             BeanValidationProvider validationProvider,
             TableCreatorService tableCreatorService,
+            ProjectMetadataService metadataService,
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
             ApplicationEventPublisher eventPublisher,
@@ -188,6 +193,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
         this.tableCreatorService = tableCreatorService;
+        this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
         this.eventPublisher = eventPublisher;
@@ -1287,7 +1293,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public PageResponse<SummaryTableView> getTables(RulesProject project,
                                                     ProjectTableCriteriaQuery query,
                                                     Pageable page) {
-        var moduleModel = openProject(project).awaitCompiled();
+        // A project declaring no module has no table to list and nothing to open. It is a project the table creator
+        // is expected to work on — it is where the first module comes from — so it answers empty rather than 404.
+        var projectDescriptor = getProjectDescriptor(project);
+        var modules = projectDescriptor.getModules();
+        if (modules.isEmpty()) {
+            return PageResponse.of(List.of(), page, 0L);
+        }
+        var moduleModel = openProject(projectDescriptor, project, modules.getFirst()).awaitCompiled();
 
         var selectors = buildTableSelector(query);
         var allTables = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
@@ -1306,8 +1319,40 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return PageResponse.of(content, page, total);
     }
 
+    /**
+     * Finds a table created by the Tables API, including custom OpenL table types that are hidden from the regular
+     * tables list.
+     */
+    public @Nullable SummaryTableView getCreatedTable(RulesProject project,
+                                                      String moduleName,
+                                                      @Nullable String tableId,
+                                                      String tableName) {
+        var moduleModel = openProject(project, moduleName).awaitCompiled();
+        if (tableId != null) {
+            var createdTable = moduleModel.getTableById(tableId);
+            return createdTable == null ? null : summaryTableReader.read(createdTable);
+        }
+        // A free-form table is shown under a shortened header, so the requested name is matched in the same form the
+        // search and the reader produce; for every other kind the name is returned unchanged.
+        var displayName = TableSyntaxNodeUtils.str2name(tableName, XlsNodeTypes.XLS_OTHER);
+        // The search narrows by substring, and shortening appends a mark the full name does not carry. Only the part
+        // both forms share can be searched for, or a name longer than the shortening allows matches neither and a
+        // table just written is reported as not created. The exact match below is what tells the two apart.
+        var searchedName = displayName.endsWith(SHORTENED_NAME_MARK)
+                ? displayName.substring(0, displayName.length() - SHORTENED_NAME_MARK.length())
+                : displayName;
+        var query = ProjectTableCriteriaQuery.builder().name(searchedName).includeOther(true).build();
+        return moduleModel.search(buildTableSelector(query), SearchScope.CURRENT_PROJECT)
+                .stream()
+                .map(summaryTableReader::read)
+                .filter(table -> table.name.equalsIgnoreCase(tableName) || table.name.equalsIgnoreCase(displayName))
+                .findFirst()
+                .orElse(null);
+    }
+
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
-        Predicate<TableSyntaxNode> selectors = tsn -> !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
+        Predicate<TableSyntaxNode> selectors = tsn -> query.isIncludeOther()
+                || !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
 
         var tableTypes = query.getKinds()
                 .stream()
@@ -1471,6 +1516,38 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return tableView;
     }
 
+    /**
+     * Get the modules the project declares.
+     *
+     * <p>One entry per module, patterns already resolved to the files they matched.
+     *
+     * @param project project
+     * @return declared modules
+     */
+    public List<ModuleViewModel> getModules(RulesProject project) {
+        return getProjectDescriptor(project).getModules()
+                .stream()
+                .filter(module -> module.getName() != null)
+                .map(module -> ModuleViewModel.module(module.getName(), module.getRulesRootPath()))
+                .toList();
+    }
+
+    /**
+     * Get the worksheets of one module.
+     *
+     * @param project    project
+     * @param moduleName module name
+     * @return worksheets of the module's workbook
+     */
+    public List<String> getModuleSheets(RulesProject project, String moduleName) {
+        var module = getProjectDescriptor(project).getModules()
+                .stream()
+                .filter(declared -> moduleName.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+        return metadataService.getSheets(project, module.getRulesRootPath());
+    }
+
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
         return getOpenLTable(project, tableId, false);
     }
@@ -1584,11 +1661,90 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         writer.delete();
     }
 
-    public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {
+    /**
+     * Creates a table and returns its exact identifier when the destination module already exists.
+     *
+     * <p>A new module has no compiled table identifier until the project is reopened. Its table is found after the
+     * write by name instead.
+     *
+     * @return created table identifier, or {@code null} for a newly created module
+     */
+    public @Nullable String createNewTable(RulesProject project,
+                                           CreateNewTableRequest createTableRequest) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
+        if (StringUtils.isNotBlank(createTableRequest.modulePath())) {
+            createTableInNewModule(project, createTableRequest);
+            return null;
+        }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        tableCreatorService.createTable(createTableRequest, projectModel);
+        return tableCreatorService.createTable(createTableRequest, projectModel);
+    }
+
+    private void createTableInNewModule(RulesProject project,
+                                        CreateNewTableRequest createTableRequest) throws ProjectException {
+        if (!(createTableRequest.table() instanceof RawTableView rawTable)) {
+            throw new BadRequestException("table.new-module.raw-source.message");
+        }
+        // Locked before anything is checked: a name free at the moment of the check must still be free at the
+        // moment of the write. A project without modules never opens, so the session has no current project to
+        // lock; the project the module is written to is locked instead.
+        var lockedBefore = project.isLockedByMe();
+        project.tryLockOrThrow();
+        ProjectDescriptor projectDescriptor;
+        try {
+            projectDescriptor = getProjectDescriptor(project);
+            var modules = projectDescriptor.getModules();
+            if (modules.stream()
+                    .map(Module::getName)
+                    .filter(Objects::nonNull)
+                    .anyMatch(createTableRequest.moduleName()::equalsIgnoreCase)) {
+                throw new ConflictException("table.new-module.exists.message", createTableRequest.moduleName());
+            }
+            if (declaresPath(modules, createTableRequest.modulePath())) {
+                throw new ConflictException("table.new-module.exists.message", createTableRequest.modulePath());
+            }
+            var newTableName = rawTable.name;
+            // Required whether or not the project has a module to compile first: without a name the table is written
+            // and then cannot be found again, which answers a successful create with an empty body.
+            tableCreatorService.requireTableName(newTableName);
+            if (!modules.isEmpty()) {
+                var projectModel = openProject(projectDescriptor, project, modules.getFirst()).awaitCompiled();
+                tableCreatorService.requireUniqueTable(projectModel, newTableName);
+            }
+        } catch (RuntimeException e) {
+            // Every check above answers ordinary input, and a rejected request leaves no lock behind: the project
+            // would otherwise stay reserved for a write that never happened, and clearing a lock its owner never
+            // meant to take takes an administrator.
+            releaseLockTaken(project, lockedBefore);
+            throw e;
+        }
+        tableCreatorService.createModuleWithTable(project, projectDescriptor, createTableRequest, rawTable);
+    }
+
+    /** Releases the lock this request took, leaving one the session already held alone. */
+    private static void releaseLockTaken(RulesProject project, boolean lockedBefore) {
+        if (!lockedBefore && project.isLockedByMe()) {
+            project.unlock();
+        }
+    }
+
+    /**
+     * Tells whether the project already resolves a module at this path.
+     *
+     * <p>A declaration in rules.xml is resolved ahead of the wildcards, so one left behind for a file that does not
+     * exist yet would name the new module after itself. The table would be created under a name nobody asked for,
+     * and the caller that created it could not find it again.
+     */
+    private static boolean declaresPath(List<Module> modules, @Nullable String modulePath) {
+        if (modulePath == null) {
+            return false;
+        }
+        var path = modulePath.replace('\\', '/');
+        return modules.stream()
+                .map(Module::getRulesRootPath)
+                .filter(Objects::nonNull)
+                .anyMatch(declared -> declared.replace('\\', '/').equalsIgnoreCase(path));
     }
 
     private record OpenLTableContext(

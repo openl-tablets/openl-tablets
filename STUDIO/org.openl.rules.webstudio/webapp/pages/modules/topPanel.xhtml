@@ -207,9 +207,14 @@
             <span class="delimeter test-section"></span>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{!empty module and studio.model.editable}">
-                <a href="#{studio.url('create/index')}" title="Create new table" class="primary"
-                   onclick="return canOverwriteRevision();">Create Table</a>
+            <!-- canSave rather than editable: with no module open, editable stops short of checking write access to
+                 the project, so a project the user may only read would offer the dialog and refuse the table. -->
+            <h:panelGroup rendered="#{!empty rProject and studio.model.canSave}">
+                <a href="#" title="Create new table" class="primary"
+                   data-project-id="#{studio.currentProjectId}"
+                   data-module-name="#{empty module ? '' : module.name}"
+                   data-project-url="#{utils.toUrl(rProject.repository.id, rProject.name)}"
+                   onclick="return ws.ui.openTableModal(this, 'openCreateTableModal', canOverwriteRevision);">Create Table</a>
                 <span class="delimeter"></span>
             </h:panelGroup>
 
