@@ -41,7 +41,7 @@ class ProjectIndexSerializerTest {
 
     @Test
     void test() throws IOException {
-        ProjectIndex projectIndex = null;
+        ProjectIndex projectIndex;
         try (var stream = getClass().getResourceAsStream("/openl-projects.yaml")) {
             projectIndex = mapper.readValue(stream, ProjectIndex.class);
             assertTheSame(projectIndex);

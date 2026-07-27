@@ -18,7 +18,7 @@ class AzureYamlMapperFactoryTest {
 
     @Test
     void testDeserialization() throws IOException {
-        AzureCommit commit = null;
+        AzureCommit commit;
         try (var is = AzureYamlMapperFactoryTest.class.getResourceAsStream("/azureCommitOldStyle.yaml")) {
             commit = mapper.readValue(is, AzureCommit.class);
             assertTheSame(commit);
