@@ -3,6 +3,7 @@ import { Tag, Empty } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import { onActivate } from './keyboardActivate'
+import { KindIcon } from './TraceIcons'
 import { useStyles } from './DebugCallStack.styles'
 
 /**
@@ -41,6 +42,7 @@ const DebugCallStack: React.FC = () => {
                         frame.index === selectedFrameIndex && styles.frameSelected
                     )}
                 >
+                    <KindIcon kind={frame.kind} />
                     <span className={styles.name}>{frame.name}</span>
                     <Tag color="default">{frame.kind}</Tag>
                     {frame.location?.label && (
