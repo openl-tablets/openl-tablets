@@ -69,6 +69,7 @@ describe('traceStore race hardening', () => {
     it('clears the variables spinner when the session terminates mid-fetch', async () => {
         const slowFrame = deferred<any>()
         getVariables.mockReturnValue(slowFrame.promise)
+        getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
 
         useTraceStore.setState({ status: 'suspended', stackVersion: 1, selectedFrameIndex: 0 })
         const pending = useTraceStore.getState().selectFrame(0) // parks with variablesLoading=true
@@ -96,10 +97,18 @@ describe('traceStore race hardening', () => {
         expect(useTraceStore.getState().profile).toEqual(profile)
     })
 
-    it('does not fetch the settled stack when a non-profiling run completes', () => {
+    it('fetches the settled stack when a non-profiling run completes, keeping the final state browsable', async () => {
+        getStack.mockResolvedValue({ status: 'completed',
+            frames: [{ index: 0, completed: true } as any]} as any)
+
         useTraceStore.setState({ profiling: false })
         useTraceStore.getState().onSocketStatus('completed')
-        expect(getStack).not.toHaveBeenCalled()
+        // Without the fetch the window would go empty after a Resume to the end: the socket clears the
+        // frames and only the settled stack brings back the root call with its steps and result.
+        expect(getStack).toHaveBeenCalledWith('p1')
+
+        await new Promise(resolve => setTimeout(resolve, 0))
+        expect(useTraceStore.getState().frames).toHaveLength(1)
     })
 
     it('does not fetch the stack of a terminated profiling session (it is gone, e.g. toggling profiling)', () => {

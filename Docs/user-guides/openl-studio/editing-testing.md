@@ -414,7 +414,7 @@ The **status** next to the toolbar tells you where the calculation is:
 -   **Stopped** — the run was ended before it finished.
 
 > [!Note]
-> You can read a rule's values — its inputs, result, and decision — only while the calculation is **paused** on it. Once it reaches **Finished** the values are no longer available, so inspect a rule while stopped on it, not after the run ends.
+> A **called** rule's values — its inputs, result, and decision — are readable only while the calculation is **paused** on it. After **Finished** the window keeps the top-level rule with its steps, inputs, and result, but the values of the rules it called are gone — inspect a called rule while stopped on it, not after the run ends.
 
 #### Following a Calculation
 
@@ -447,7 +447,7 @@ As the calculation runs, each rule that is still being worked out is called a **
 
 The left panel lists the rules in two views:
 
--   **Tree** — the rules shown as an indented list that mirrors how one rule called another. While paused, click the step you want and read its values in the **Details** panel. Once a run has finished with **Profiling** on, the Tree keeps the shape of the whole calculation and each line's timing, but not its values — to see a finished rule's values again, use its **Replay** button, which restarts and runs back to that rule and pauses on it.
+-   **Tree** — the rules shown as an indented list that mirrors how one rule called another. While paused, click the step you want and read its values in the **Details** panel. When a run finishes, the Tree keeps the top-level rule and its steps, with the overall result readable in **Details**. With **Profiling** on it keeps the shape of the whole calculation — every called rule, with each line's timing — but not their values; to see a finished rule's values again, use its **Replay** button, which restarts and runs back to that rule and pauses on it.
 -   **Execution Path** — the list of rules currently in progress (the frames), with the current one at the top. It answers "which rules are being worked out right now, and how did we get here?" Each row shows the rule's name, its kind (for example, `decisionTable` or `spreadsheet`), and the line it is currently on. Click any row to inspect that rule.
 
     ![Execution Path view showing the rules currently in progress](images/trace-call-stack.png "The Execution Path view")

@@ -249,6 +249,7 @@ describe('TraceTree', () => {
     it('renders the completed tree with a node timing and toggles Total/Self', async () => {
         useTraceStore.setState({
             status: 'completed',
+            profiling: true,
             frames: [],
             tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 42, selfMillis: 12, steps: []},
         })
@@ -371,6 +372,7 @@ describe('TraceTree', () => {
     it('shows execution time on an executed step', () => {
         useTraceStore.setState({
             status: 'completed',
+            profiling: true,
             frames: [],
             tree: {
                 uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 20, selfMillis: 8,
@@ -386,6 +388,7 @@ describe('TraceTree', () => {
     it('does not lend a completed frame time to a step that has none', () => {
         useTraceStore.setState({
             status: 'suspended',
+            profiling: true,
             frames: [frame(0, {
                 name: 'ROOT',
                 active: true,
@@ -401,6 +404,28 @@ describe('TraceTree', () => {
         expect(screen.getByText('ROOT')).toBeInTheDocument()
         expect(screen.getByText('$Divider')).toBeInTheDocument()
         expect(screen.getAllByText('42 ms')).toHaveLength(1)
+    })
+
+    it('hides every timing when profiling is off — the run is not being measured', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            profiling: false,
+            frames: [frame(0, {
+                name: 'ROOT',
+                active: true,
+                completed: true,
+                durationMillis: 42,
+                selfMillis: 42,
+                steps: [step('R0C0', 'executed', '$Step1')],
+            })],
+            selectedFrameIndex: 0,
+        })
+        render(<TraceTree />)
+        // The tree itself stays browsable; only the durations and the Total/Self toggle disappear.
+        expect(screen.getByText('ROOT')).toBeInTheDocument()
+        expect(screen.getByText('$Step1')).toBeInTheDocument()
+        expect(screen.queryByText('42 ms')).toBeNull()
+        expect(screen.queryByTestId('trace-time-mode')).toBeNull()
     })
 
     const getTreeChildren = traceService.getTreeChildren as ReturnType<typeof vi.fn>
