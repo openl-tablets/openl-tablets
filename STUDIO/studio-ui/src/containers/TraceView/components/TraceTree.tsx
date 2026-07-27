@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
-import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, LinkOutlined, RedoOutlined } from '@ant-design/icons'
+import {
+    BranchesOutlined,
+    CaretDownOutlined,
+    CaretRightOutlined,
+    CloseCircleFilled,
+    DoubleRightOutlined,
+    LinkOutlined,
+    RedoOutlined,
+} from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
 import type { CallNodeView, DebugFrameView, DispatchInfo, StepValueView } from 'types/trace'
@@ -130,13 +138,6 @@ const flatten = (
         walk(0, 0)
     }
     return rows
-}
-
-const dotFor = (status: StepValueView['status']): 'dotExecuted' | 'dotCurrent' | 'dot' => {
-    if (status === 'executed') {
-        return 'dotExecuted'
-    }
-    return status === 'current' ? 'dotCurrent' : 'dot'
 }
 
 type TimeMode = 'total' | 'self'
@@ -292,6 +293,25 @@ const TraceTree: React.FC = () => {
         )
     }
 
+    // Plain, self-explanatory marks instead of coloured dots: a » points along the call path the
+    // calculation is on right now (bright on the current line, muted on the callers waiting above it),
+    // a red cross flags a failure. Executed lines read as plain text; not-yet-reached lines are greyed.
+    // A double chevron, so the mark cannot be mistaken for the single expand/collapse triangle.
+    const stepMark = (status: StepValueView['status']): React.ReactNode =>
+        (status === 'current'
+            ? <DoubleRightOutlined className={cx(styles.mark, styles.markCurrent)} />
+            : <span className={styles.mark} />)
+
+    const frameMark = (frame: DebugFrameView): React.ReactNode => {
+        if (frame.error) {
+            return <CloseCircleFilled className={cx(styles.mark, styles.markError)} />
+        }
+        if (frame.completed) {
+            return <span className={styles.mark} />
+        }
+        return <DoubleRightOutlined className={cx(styles.mark, frame.active ? styles.markFrame : styles.markWaiting)} />
+    }
+
     const replayButton = (key: string, label: string, testId: string, hint: string): React.ReactNode => (
         <Tooltip title={hint}>
             <Button
@@ -336,14 +356,6 @@ const TraceTree: React.FC = () => {
         )
     }
 
-    // The frame dot carries state by colour: red on error, green when returned, blue while on the stack.
-    const frameDot = (frame: DebugFrameView): string => {
-        if (frame.error) {
-            return styles.dotError
-        }
-        return frame.completed ? styles.dotExecuted : styles.dotFrame
-    }
-
     const renderFrame = (row: TreeRow): React.ReactNode => {
         const frame = row.frame as DebugFrameView
         const ms = timingOf(row)
@@ -361,7 +373,7 @@ const TraceTree: React.FC = () => {
                     row.frameIndex === selectedFrameIndex && styles.selected)}
             >
                 <span className={styles.chevronSlot} />
-                <span className={cx(styles.dot, frameDot(frame))} />
+                {frameMark(frame)}
                 <span className={styles.name}>{frame.name}</span>
                 {frame.instance > 0 && (
                     <Tooltip title={t('tree.passHint', { n: frame.instance + 1 })}>
@@ -409,13 +421,12 @@ const TraceTree: React.FC = () => {
                     tabIndex={0}
                     className={cx(styles.row,
                         runnable && styles.runnable,
-                        step.status === 'executed' && styles.inactive,
                         step.status === 'current' && styles.currentStep,
                         step.status === 'pending' && styles.pending,
                         flashKey === row.key && styles.flashed)}
                 >
                     {twisty(row.expandKey)}
-                    <span className={cx(styles.dot, styles[dotFor(step.status)])} />
+                    {stepMark(step.status)}
                     <span className={styles.leafLabel}>{step.label || step.ref}</span>
                     {ms != null && durationCell(ms)}
                     {step.status === 'executed' && replayButton(`${frame.uri}#${step.ref}@${frame.instance}`,
@@ -455,7 +466,7 @@ const TraceTree: React.FC = () => {
                 style={indent(row.depth)}
             >
                 <span className={styles.chevronSlot} />
-                <span className={cx(styles.dot, styles.dotExecuted)} />
+                <span className={styles.mark} />
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
                 {dispatchBadge(node.dispatch)}
@@ -475,12 +486,12 @@ const TraceTree: React.FC = () => {
                 key={row.key}
                 data-rowkey={row.key}
                 style={indent(row.depth)}
-                className={cx(styles.row, styles.inactive, row.expandKey && styles.runnable,
+                className={cx(styles.row, row.expandKey && styles.runnable,
                     flashKey === row.key && styles.flashed)}
                 {...(expand && { onClick: expand, onKeyDown: onActivate(expand), role: 'button', tabIndex: 0 })}
             >
                 {twisty(row.expandKey)}
-                <span className={cx(styles.dot, styles.dotExecuted)} />
+                <span className={styles.mark} />
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
                 {ms != null && durationCell(ms)}
                 {row.nodeUri && replayButton(replayKey, step.label || step.ref,
