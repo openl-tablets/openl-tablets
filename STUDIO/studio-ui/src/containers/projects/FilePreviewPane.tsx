@@ -258,7 +258,7 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     return (
         <div className={shared.paneColumn} data-testid="file-preview">
             <div className={shared.paneHeader}>
-                <span className={cx(shared.mono, shared.ellipsis, styles.path)}>{activePath}</span>
+                <span className={cx(shared.valueText, shared.ellipsis, styles.path)}>{activePath}</span>
                 <Tag className={styles.badge}>
                     {!editable ? t('browser.files.binary') : editing ? t('browser.files.text_editor') : t('browser.editor.read_only')}
                 </Tag>

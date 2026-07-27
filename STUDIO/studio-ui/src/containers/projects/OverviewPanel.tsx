@@ -46,7 +46,7 @@ import { PropertiesPatternHelpModal } from './PropertiesPatternHelpModal'
 import { formatDateTime } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { StatusPill } from './StatusIndicator'
-import { MonoChip } from './MonoChip'
+import { ValueText } from './ValueText'
 import { RepoBadge } from './RepoBadge'
 import { BranchLabel } from './BranchLabel'
 import { BranchSwitcher } from './BranchSwitcher'
@@ -292,6 +292,8 @@ const useStyles = createStyles(({ css, token }) => ({
         border: 1px solid ${token.colorBorderSecondary};
         border-radius: ${token.borderRadiusSM}px;
         background: ${token.colorFillQuaternary};
+        /* The value sits in a <code>, so drop its user-agent monospace and keep the tab's font. */
+        font-family: inherit;
         word-break: break-all;
     `,
     /** Includes and excludes read as two columns of text — no box, just the two lists side by side. */
@@ -521,8 +523,8 @@ const ModuleCells = ({ module }: { module: ProjectModule }) => {
     const name = module.name || (module.modules ? t('browser.overview.modules_pattern') : '')
     return (
         <>
-            <span className={cx(shared.mono, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
-            <span className={cx(shared.ellipsis, shared.mono, styles.modulePath)} title={module.path}>
+            <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
+            <span className={cx(shared.ellipsis, shared.valueText, styles.modulePath)} title={module.path}>
                 {module.path}
             </span>
         </>
@@ -700,7 +702,7 @@ const FilterPanel = ({ filter, compact }: { filter: MethodFilter, compact?: bool
         <div className={styles.filterColumn}>
             <span className={cx(shared.microLabel, styles.dependencyLabel)}>{icon} {t(labelKey)}</span>
             <ul className={cx(styles.linedList, styles.filterValues)}>
-                {patterns.map(pattern => <li key={pattern} className={cx(shared.mono, styles.linedItem)}>{pattern}</li>)}
+                {patterns.map(pattern => <li key={pattern} className={cx(shared.valueText, styles.linedItem)}>{pattern}</li>)}
             </ul>
         </div>
     )
@@ -937,7 +939,7 @@ const VersionPatternsSection = ({ editor, onHelp }: { editor: DescriptorEditor, 
                 : (
                     <ul className={styles.linedList}>
                         {shown.versionPatterns.map(pattern => (
-                            <li key={pattern} className={cx(shared.mono, styles.linedItem)}>{pattern}</li>
+                            <li key={pattern} className={cx(shared.valueText, styles.linedItem)}>{pattern}</li>
                         ))}
                     </ul>
                 )}
@@ -964,7 +966,7 @@ const ProcessorSection = ({ editor }: { editor: DescriptorEditor }) => {
                         value={shown.propertiesFileNameProcessor ?? ''}
                     />
                 )
-                : <code className={cx(shared.mono, styles.pattern)}>{shown.propertiesFileNameProcessor}</code>}
+                : <code className={cx(shared.valueText, styles.pattern)}>{shown.propertiesFileNameProcessor}</code>}
         </Section>
     )
 }
@@ -1003,11 +1005,11 @@ const DependencyList = ({ deps }: { deps: ProjectDependency[] }) => {
                         with nothing to open. */}
                     {dep.id
                         ? (
-                            <Link className={cx(shared.mono, shared.ellipsis, styles.rowLink)} to={`/projects/${encodeURIComponent(dep.id)}`}>
+                            <Link className={cx(shared.valueText, shared.ellipsis, styles.rowLink)} to={`/projects/${encodeURIComponent(dep.id)}`}>
                                 {dep.name}
                             </Link>
                         )
-                        : <span className={cx(shared.mono, shared.ellipsis, styles.rowName)}>{dep.name}</span>}
+                        : <span className={cx(shared.valueText, shared.ellipsis, styles.rowName)}>{dep.name}</span>}
                     {dep.missing && (
                         <Tag className={styles.missingTag} data-testid={`dependency-missing-${dep.name}`}>
                             {t('browser.overview.dependency_missing')}
@@ -1111,7 +1113,7 @@ const SourcesSection = ({ editor, sources, sourcesDefault }: {
                 : (
                     <ul className={styles.linedList}>
                         {sources.map(source => (
-                            <li key={source} className={cx(shared.mono, styles.linedItem)}>{source}</li>
+                            <li key={source} className={cx(shared.valueText, styles.linedItem)}>{source}</li>
                         ))}
                     </ul>
                 )}
@@ -1185,7 +1187,7 @@ const OpenApiSection = ({ editor, projectId }: { editor: DescriptorEditor, proje
     const row = (label: string, value: string) => (
         <div className={styles.openapiRow}>
             <dt className={shared.microLabel}>{label}</dt>
-            <dd className={cx(shared.mono, styles.openapiValue)}>{value}</dd>
+            <dd className={cx(shared.valueText, styles.openapiValue)}>{value}</dd>
         </div>
     )
     const editRow = (label: string, value: ReactNode) => (
@@ -1308,7 +1310,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                     </span>
                 ))}
                 {metaRow(t('browser.overview.repository'), <RepoBadge name={repoLabel} type={repoType} />)}
-                {project.path && metaRow(t('browser.overview.path'), <MonoChip>{project.path}</MonoChip>)}
+                {project.path && metaRow(t('browser.overview.path'), <ValueText>{project.path}</ValueText>)}
                 {supportsBranches && project.branch && metaRow(t('browser.overview.branch'), (
                     <BranchSwitcher
                         currentBranch={project.branch}
@@ -1333,7 +1335,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canManageB
                 ))}
                 {project.revision && metaRow(
                     t('browser.overview.revision'),
-                    <MonoChip>{shortRevision(project.revision)}</MonoChip>,
+                    <ValueText>{shortRevision(project.revision)}</ValueText>,
                     // The shown value is shortened, so copying hands over the whole one.
                     <Typography.Text
                         className={styles.copyAction}

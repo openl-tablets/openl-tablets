@@ -84,7 +84,7 @@ export const LocalChangesSummary = ({ changes }: LocalChangesSummaryProps) => {
                                 title={t(`browser.files.change.${change.type}`)}
                                 type={change.type}
                             />
-                            <span className={cx(shared.mono, shared.ellipsis, styles.path)} title={change.path}>{change.path}</span>
+                            <span className={cx(shared.valueText, shared.ellipsis, styles.path)} title={change.path}>{change.path}</span>
                         </li>
                     ))}
                 </ul>

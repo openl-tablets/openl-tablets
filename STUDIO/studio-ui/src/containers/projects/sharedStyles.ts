@@ -3,7 +3,7 @@ import { MOCKUP } from './projectsTheme'
 
 /**
  * The recurring looks of the Projects tab, as real style hooks rather than snippets pasted into each
- * component: a monospace label, a pane header, a chip, a state dot, a selectable card.
+ * component: a value label, a pane header, a chip, a state dot, a selectable card.
  *
  * Compose them with the component's own styles and override whatever differs — the later class wins:
  *
@@ -14,9 +14,8 @@ import { MOCKUP } from './projectsTheme'
  * ```
  */
 export const useSharedStyles = createStyles(({ css, token }) => ({
-    /** The monospace motif of the mockup: repository names, branches, paths, revisions. */
-    mono: css`
-        font-family: ${MOCKUP.fontMono};
+    /** Compact secondary-size text for values: repository names, branches, paths, revisions. */
+    valueText: css`
         font-size: 12px;
         line-height: 18px;
     `,
@@ -32,7 +31,6 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
      */
     microLabel: css`
         color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
         font-size: 11px;
         font-weight: 500;
         letter-spacing: 0.05em;
@@ -161,6 +159,9 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
         border-radius: ${token.borderRadiusSM}px;
         background: transparent;
         cursor: pointer;
+        /* A native <button> does not inherit the font family; without this its text drops to the
+           browser's control font, since the app loads no CSS reset. */
+        font-family: inherit;
         font-size: 14px;
         text-align: left;
 
@@ -197,7 +198,6 @@ export const useSharedStyles = createStyles(({ css, token }) => ({
     /** The screen title. */
     pageTitle: css`
         margin: 0;
-        font-family: ${MOCKUP.fontMono};
         font-size: 20px;
         font-weight: 600;
         letter-spacing: -0.02em;

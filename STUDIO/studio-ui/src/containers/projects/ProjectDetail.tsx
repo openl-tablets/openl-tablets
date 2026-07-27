@@ -34,7 +34,7 @@ import { RevisionsPanel } from './RevisionsPanel'
 import { OverviewPanel } from './OverviewPanel'
 import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
-import { MonoChip } from './MonoChip'
+import { ValueText } from './ValueText'
 import { BranchSwitcher } from './BranchSwitcher'
 import { LocalChangesSummary } from './LocalChangesSummary'
 import { buildFileChangeMap, normalizeProjectFileChanges } from './fileChanges'
@@ -504,7 +504,7 @@ export const ProjectDetail = ({
             <div className={styles.header}>
                 <div className={styles.crumb}>
                     {headerPrefix}
-                    <MonoChip>{repoLabel}</MonoChip>
+                    <ValueText>{repoLabel}</ValueText>
                     {hasBranches && (
                         <>
                             <span aria-hidden>/</span>

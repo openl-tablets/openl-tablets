@@ -29,7 +29,6 @@ import type { Project } from '../../types/projects'
 import { FieldRow } from '../../components/FieldRow'
 import { RepoFolderInput } from './RepoFolderInput'
 import { ProjectStatus } from '../../constants/project'
-import { MOCKUP } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 import { supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
@@ -124,7 +123,6 @@ const useStyles = createStyles(({ css, token }) => ({
     cardCount: css`
         margin-left: auto;
         color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
         font-size: 11px;
     `,
     configHead: css`

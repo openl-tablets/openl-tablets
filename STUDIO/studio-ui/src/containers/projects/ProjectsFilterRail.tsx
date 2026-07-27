@@ -31,7 +31,6 @@ import { ProjectStatus } from '../../constants/project'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import type { FacetCount, ProjectStatusSummary, TagFacetSummary } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
-import { MOCKUP } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 import { RepoBadge } from './RepoBadge'
 import {
@@ -59,17 +58,12 @@ const useStyles = createStyles(({ css, token }) => ({
     section: css`
         padding: 4px 16px 8px;
     `,
+    /** The group caption row; its type comes from {@link useSharedStyles.microLabel}. */
     sectionHead: css`
         display: flex;
         align-items: center;
         gap: 4px;
         margin: 0 0 6px;
-        color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
-        font-size: 11px;
-        font-weight: 500;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
     `,
     /** The fold chevron of the group head, sized down; the rest is {@link useSharedStyles.sectionToggle}. */
     sectionToggle: css`
@@ -91,13 +85,9 @@ const useStyles = createStyles(({ css, token }) => ({
     hidden: css`
         padding: 4px 12px 16px;
     `,
+    /** The caption above the put-away groups; its type comes from {@link useSharedStyles.microLabel}. */
     hiddenHead: css`
         padding: 0 4px 2px;
-        color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
-        font-size: 11px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
     `,
     hiddenRow: css`
         display: flex;
@@ -192,7 +182,7 @@ export const ProjectsFilterRail = ({
         <label key={testId} className={shared.railRow}>
             <Checkbox checked={checked} data-testid={testId} onChange={onChange} />
             <span className={cx(shared.ellipsis, styles.label)}>{label}</span>
-            {count !== undefined && <span className={cx(shared.mono, styles.count)}>{count}</span>}
+            {count !== undefined && <span className={cx(shared.valueText, styles.count)}>{count}</span>}
         </label>
     )
 
@@ -334,7 +324,7 @@ export const ProjectsFilterRail = ({
                 </DndContext>
                 {arranging && hidden.length > 0 && (
                     <div className={styles.hidden} data-testid="filter-hidden">
-                        <div className={styles.hiddenHead}>
+                        <div className={cx(shared.microLabel, styles.hiddenHead)}>
                             {t('home.filter_group.hidden', { count: hidden.length })}
                         </div>
                         {hidden.map(group => (
@@ -392,7 +382,7 @@ const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide }:
         >
             {!first && <div className={styles.divider} />}
             <div className={styles.section}>
-                <div className={styles.sectionHead}>
+                <div className={cx(shared.microLabel, styles.sectionHead)}>
                     {arranging && (
                         <span
                             {...attributes}

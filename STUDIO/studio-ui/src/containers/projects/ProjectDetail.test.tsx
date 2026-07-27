@@ -154,7 +154,7 @@ vi.mock('./BranchSwitcher', () => ({
         return <div data-testid="crumb-branch-switcher" />
     },
 }))
-vi.mock('./MonoChip', () => ({ MonoChip: ({ children }: Record<string, unknown>) => <span>{children as never}</span> }))
+vi.mock('./ValueText', () => ({ ValueText: ({ children }: Record<string, unknown>) => <span>{children as never}</span> }))
 
 const PROJECT: Project = {
     branch: 'main',

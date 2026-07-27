@@ -39,8 +39,8 @@ vi.mock('./DeployConfigPanel', () => ({
     ),
 }))
 
-vi.mock('./MonoChip', () => ({
-    MonoChip: ({ children }: Record<string, unknown>) => <span>{children as never}</span>,
+vi.mock('./ValueText', () => ({
+    ValueText: ({ children }: Record<string, unknown>) => <span>{children as never}</span>,
 }))
 
 describe('PublishPanel', () => {

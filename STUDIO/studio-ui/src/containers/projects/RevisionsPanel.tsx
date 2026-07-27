@@ -291,7 +291,7 @@ export const RevisionsPanel = ({
                                                 <div className={styles.meta}>
                                                     <span>{authorName(revision)}</span>
                                                     <span>{formatDateTime(revision.createdAt) ?? '—'}</span>
-                                                    <span className={shared.mono}>{revision.shortRevisionNo}</span>
+                                                    <span className={shared.valueText}>{revision.shortRevisionNo}</span>
                                                 </div>
                                             </div>
                                             <div className={styles.actions}>

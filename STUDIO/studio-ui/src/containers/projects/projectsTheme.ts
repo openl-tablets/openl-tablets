@@ -3,7 +3,7 @@ import type { ThemeConfig } from 'antd'
 /**
  * Exact design tokens from the Projects Figma mockup (oklch → sRGB), light theme only. Used both by the
  * scoped Ant Design theme below and by co-located `createStyles` where a hue must match pixel-for-pixel and
- * has no Ant Design token (accent hover, sidebar, monospace stack).
+ * has no Ant Design token (accent hover, sidebar, the code-editor monospace stack).
  */
 export const MOCKUP = {
     primary: '#2757b6',
@@ -25,6 +25,7 @@ export const MOCKUP = {
     warning: '#df911a',
     info: '#2a75ba',
     error: '#de2024',
+    /** Used only by the file-content `CodeEditor`; every other text keeps the Ant Design font. */
     fontMono: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
 } as const
 

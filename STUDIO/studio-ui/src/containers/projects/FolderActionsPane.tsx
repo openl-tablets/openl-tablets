@@ -58,7 +58,7 @@ export const FolderActionsPane = ({ projectId, folders, path, canWrite, canDelet
     return (
         <div className={shared.paneColumn} data-testid="folder-actions">
             <div className={shared.paneHeader}>
-                <span className={cx(shared.mono, shared.ellipsis, styles.path)}><FolderOutlined />{path}</span>
+                <span className={cx(shared.valueText, shared.ellipsis, styles.path)}><FolderOutlined />{path}</span>
                 <Space className={styles.actions}>
                     {virtual ? (
                         <Button danger data-testid="folder-remove-virtual" icon={<DeleteOutlined />} onClick={onRemoveVirtual} size="small">

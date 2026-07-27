@@ -4,11 +4,10 @@ import { Alert, Skeleton, Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { getProductionRepositories, getProjectDeployments } from '../../services/deployments'
 import { formatDateTime } from '../../utils/dateFormat'
-import { MOCKUP } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 import { shortRevision } from './revisions'
 import { DeployConfigPanel } from './DeployConfigPanel'
-import { MonoChip } from './MonoChip'
+import { ValueText } from './ValueText'
 
 const useStyles = createStyles(({ css, token }) => ({
     panel: css`
@@ -56,7 +55,6 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 12px;
         margin-top: 6px;
         color: ${token.colorTextTertiary};
-        font-family: ${MOCKUP.fontMono};
         font-size: 11px;
     `,
 }))
@@ -188,7 +186,7 @@ export const PublishPanel = ({
                         {cards.map(card => (
                             <div key={card.key} className={styles.card} data-testid={`publish-deployment-${card.key}`}>
                                 <div className={styles.cardTop}>
-                                    <MonoChip>{card.service}</MonoChip>
+                                    <ValueText>{card.service}</ValueText>
                                     <Tag className={cx(shared.chipTag, styles.envTag)} color={envColor(card.env)}>{card.env}</Tag>
                                 </div>
                                 <div className={styles.cardMeta}>

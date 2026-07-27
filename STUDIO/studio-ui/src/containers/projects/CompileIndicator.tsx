@@ -6,7 +6,7 @@ import { ProjectStatus } from '../../constants/project'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import { type ProjectCompileState, type ProjectStatusUpdate } from '../../services/projectStatus'
-import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
+import { COMPILE_COLORS } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 
 // Only the compiling state animates: a soft pulse on its dot — the one state-driven motion moment.
@@ -20,7 +20,7 @@ const useStyles = createStyles(({ css, token }) => ({
         display: inline-flex;
         align-items: center;
     `,
-    // State chip: a coloured dot (state hue) plus a mono label in a fully rounded pill.
+    // State chip: a coloured dot (state hue) plus a label in a fully rounded pill.
     chip: css`
         display: inline-flex;
         align-items: center;
@@ -30,7 +30,6 @@ const useStyles = createStyles(({ css, token }) => ({
         border-radius: 999px;
         background: ${token.colorFillQuaternary};
         color: ${token.colorText};
-        font-family: ${MOCKUP.fontMono};
         font-size: 12px;
         line-height: 20px;
         white-space: nowrap;
