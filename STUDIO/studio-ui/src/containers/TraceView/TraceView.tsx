@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Badge, Collapse, Segmented, Spin } from 'antd'
-import type { BadgeProps } from 'antd'
+import { Alert, Collapse, Segmented, Spin, Tag } from 'antd'
+import { SyncOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DebugError, DebugStatus } from 'types/trace'
@@ -22,15 +22,15 @@ interface TraceViewParams {
 }
 
 // Distinct semantics per state: suspended (paused — your turn) reads as a calm amber, while running
-// (busy — please wait) is the only animated, blue "processing" dot. No two states share a colour.
-const STATUS_BADGE: Record<DebugStatus, NonNullable<BadgeProps['status']>> = {
-    pending: 'default',
-    running: 'processing',
-    suspended: 'warning',
-    completed: 'success',
-    error: 'error',
-    terminated: 'default',
-}
+// (busy — please wait) is the only animated, blue "calculating" badge. No two states share a colour.
+const STATUS_STYLE = {
+    pending: 'statusNeutral',
+    running: 'statusRunning',
+    suspended: 'statusPaused',
+    completed: 'statusFinished',
+    error: 'statusFailed',
+    terminated: 'statusNeutral',
+} as const satisfies Record<DebugStatus, string>
 
 // Default to the simple call-tree view; the stepwise call stack is the "Advanced" mode, and the profiler
 // hot-spots overview appears as a third tab only while profiling.
@@ -184,25 +184,25 @@ const TraceView: React.FC = () => {
         )
     }
 
-    const showTerminalBanner = !bannerDismissed && isTraceExecutionTerminal(status)
+    // A clean finish needs no banner — the status tag already says Finished; only a failed or
+    // interrupted run warrants one.
+    const showTerminalBanner = !bannerDismissed && isTraceExecutionTerminal(status) && status !== 'completed'
     const isError = isTraceExecutionError(status)
     const ActiveView = VIEW_COMPONENTS[viewMode]
-    // Banner tone follows the terminal outcome: error, a clean success, or an interrupted-run warning.
-    const bannerType = ((): 'error' | 'success' | 'warning' => {
-        if (isError) {
-            return 'error'
-        }
-        return status === 'completed' ? 'success' : 'warning'
-    })()
+    const bannerType = isError ? 'error' : 'warning'
 
     return (
         <div className={styles.debugView} id="trace-view">
             <div className={styles.toolbar} data-testid="debug-header">
                 <DebugToolbar />
                 {status && (
-                    <span className={styles.statusPill} data-testid="debug-status">
-                        <Badge status={STATUS_BADGE[status]} text={t(`debug.status.${status}`)} />
-                    </span>
+                    <Tag
+                        className={cx(styles.statusTag, styles[STATUS_STYLE[status]])}
+                        data-testid="debug-status"
+                        icon={status === 'running' ? <SyncOutlined spin /> : undefined}
+                    >
+                        {t(`debug.status.${status}`)}
+                    </Tag>
                 )}
             </div>
             {showTerminalBanner && (
