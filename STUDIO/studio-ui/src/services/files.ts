@@ -25,18 +25,19 @@ const fileUrl = (projectId: string, path: string): string =>
 
 /**
  * Read a project file's raw text content, optionally at a specific historical revision. The endpoint
- * returns the file bytes with the file's own content type, so empty text responses are preserved.
+ * returns the file bytes with the file's own content type; the body is always read as text, so a JSON
+ * file keeps its exact formatting instead of being parsed into an object.
  */
 export async function getFileContent(projectId: string, path: string, version?: string): Promise<string> {
     const query = version ? `?version=${encodeURIComponent(version)}` : ''
-    const content = await apiCall(
+    const response = await apiCall(
         `${fileUrl(projectId, path)}${query}`,
         undefined,
         // A missing file is the pane's to report inline; it must not replace the whole screen with the
         // global 404 page, which a folder path or a file gone since the tree was read would otherwise do.
-        { throwError: true, preserveEmptyText: true, suppressErrorPages: true }
-    )
-    return typeof content === 'string' ? content : ''
+        { throwError: true, responseType: 'response', suppressErrorPages: true }
+    ) as Response
+    return response.text()
 }
 
 

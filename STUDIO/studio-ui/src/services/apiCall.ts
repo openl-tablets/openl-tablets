@@ -76,7 +76,6 @@ const extractErrorMessage = async (response: Response, defaultMessage: string): 
 export interface ApiCallOptions {
     throwError?: boolean
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
-    preserveEmptyText?: boolean // If true, return '' for empty text responses instead of the legacy true sentinel
     responseType?: 'auto' | 'blob' | 'response'
     // If true, a successful non-GET does NOT signal a workspace change. Set it on a POST that reads rather
     // than mutates (a merge check, a debugger step) so it does not needlessly drop the projects snapshot.
@@ -143,7 +142,7 @@ const apiCall = async (
                     return true
                 }
                 const text = await response.text()
-                return text || (opts.preserveEmptyText ? '' : true)
+                return text || true
             }
             else if (status === 401) {
                 // A 401 means the session is gone (expired or invalidated): the whole app is unusable, so

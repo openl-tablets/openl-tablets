@@ -40,7 +40,7 @@ describe('files service', () => {
     })
 
     it('loads file content through apiCall', async () => {
-        vi.mocked(apiCall).mockResolvedValue('hello')
+        vi.mocked(apiCall).mockResolvedValue(new Response('hello'))
 
         await expect(getFileContent('repo/project', 'rules/My File.xml', 'rev 1')).resolves.toBe('hello')
 
@@ -48,12 +48,21 @@ describe('files service', () => {
             '/projects/repo_project/files/rules/My%20File.xml?version=rev%201',
             undefined,
             // A missing file is reported inline, not by the global 404 page.
-            { throwError: true, preserveEmptyText: true, suppressErrorPages: true }
+            { throwError: true, responseType: 'response', suppressErrorPages: true }
         )
     })
 
+    it('keeps a JSON file as its raw text instead of a parsed object', async () => {
+        const json = '{\n  "openapi": "3.0.1"\n}'
+        vi.mocked(apiCall).mockResolvedValue(
+            new Response(json, { headers: { 'Content-Type': 'application/json' } })
+        )
+
+        await expect(getFileContent('project', 'openapi.json')).resolves.toBe(json)
+    })
+
     it('preserves empty file content', async () => {
-        vi.mocked(apiCall).mockResolvedValue('')
+        vi.mocked(apiCall).mockResolvedValue(new Response(''))
 
         await expect(getFileContent('project', 'empty.txt')).resolves.toBe('')
     })
@@ -87,12 +96,6 @@ describe('files service', () => {
             { method: 'PUT', headers: { 'Content-Type': 'text/plain' }, body: '<deploy/>' },
             { throwError: true }
         )
-    })
-
-    it('returns an empty string when file content is not textual', async () => {
-        vi.mocked(apiCall).mockResolvedValue({ unexpected: true })
-
-        await expect(getFileContent('project', 'rules/file.txt')).resolves.toBe('')
     })
 
     it('checks root file existence through a non-recursive listing', async () => {
