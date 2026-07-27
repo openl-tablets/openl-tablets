@@ -30,9 +30,5 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.test</artifactId>
-        </dependency>
     </dependencies>
 </project>
