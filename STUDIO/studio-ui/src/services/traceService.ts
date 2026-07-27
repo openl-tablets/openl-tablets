@@ -297,6 +297,16 @@ export const traceService = {
     /** Terminate the debug session. Returns 204 on success, 404 if none. */
     cancelTrace: async (projectId: string): Promise<void> =>
         retryApiCall<void>(base(projectId), { method: 'DELETE' }, TRACE_API_OPTIONS),
+
+    /**
+     * Terminate the debug session as the debugger window closes. Fire-and-forget: keepalive lets the
+     * request outlive the closing page, and its outcome (including a 404 when no session is left) is
+     * irrelevant to a window that is already gone.
+     */
+    releaseOnClose: (projectId: string): void => {
+        void apiCall(base(projectId), { method: 'DELETE', keepalive: true }, TRACE_API_OPTIONS)
+            .catch(() => { /* the window is closing; there is nobody to report to */ })
+    },
 }
 
 export default traceService

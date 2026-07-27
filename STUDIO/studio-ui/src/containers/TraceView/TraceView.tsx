@@ -13,6 +13,7 @@ import BreakpointsPanel from './components/BreakpointsPanel'
 import WatchPanel from './components/WatchPanel'
 import TraceDetails from './components/TraceDetails'
 import useTraceProgress from './hooks/useTraceProgress'
+import useTerminateOnClose from './hooks/useTerminateOnClose'
 import { isTraceExecutionError, isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
 import { useStyles } from './TraceView.styles'
 
@@ -118,6 +119,9 @@ const TraceView: React.FC = () => {
         tableId: tableId || '',
         enabled: !!projectId && !!tableId,
     })
+
+    // There is no Stop button — closing the debugger window terminates the session instead.
+    useTerminateOnClose(projectId)
 
     useEffect(() => {
         if (projectId && tableId) {
