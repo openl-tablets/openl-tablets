@@ -43,12 +43,6 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository.git</artifactId>
         </dependency>
-
-        <!-- For testing purposes -->
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.test</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
