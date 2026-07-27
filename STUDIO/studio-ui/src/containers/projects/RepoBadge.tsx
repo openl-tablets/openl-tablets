@@ -5,13 +5,12 @@ import { useSharedStyles } from './sharedStyles'
 const GIT_REPOSITORY_TYPE = 'repo-git'
 const LOCAL_REPOSITORY_TYPE = 'repo-file'
 
-const useStyles = createStyles(({ css, token }) => ({
+const useStyles = createStyles(({ css }) => ({
     badge: css`
         display: inline-flex;
         align-items: center;
         gap: 6px;
         min-width: 0;
-        color: ${token.colorTextTertiary};
 
         .anticon {
             flex: none;
@@ -39,13 +38,14 @@ interface RepoBadgeProps {
 }
 
 /**
- * A repository shown as a facet chip — a small icon plus its name.
+ * A repository shown as its icon plus its name. Inherits the surrounding text style, so it reads
+ * like the text around it — a filter row, a card footer, a detail panel.
  */
 export const RepoBadge = ({ name, type, className }: RepoBadgeProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     return (
-        <span className={cx(shared.valueText, styles.badge, className)} title={name}>
+        <span className={cx(styles.badge, className)} title={name}>
             <RepoIcon type={type} />
             <span className={shared.ellipsis}>{name}</span>
         </span>
