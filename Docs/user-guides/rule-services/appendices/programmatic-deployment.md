@@ -1,5 +1,19 @@
 ## Appendix E: Programmatically Deploying Rules to a Repository
 
-If a user does not use OpenL Studio deploy functionality to locate a project with rules in the database repository, use the deploy(File zipFile, String config) method of the org.openl.rules.workspace.deploy.ProductionRepositoryDeployer class in the `WEB-INF/lib/org.openl.rules.workspace-6.X.X.jar` library.
+To deploy a project ZIP to a production repository without using OpenL Studio, use the
+`org.openl.rules.ruleservice.deployer.RulesDeployerService` class from the `org.openl.rules.ruleservice.deployer`
+module.
 
-The first method parameter zipFile contains the path to the project zip file, and the config parameter sets the location of the deployer.properties file, containing the same properties as described in [Configuring a Data Source](../configuration.md#configuring-a-data-source).
+Construct the service with the production repository configuration — a `Function<String, String>` property lookup
+over the same `production-repository.*` settings described in
+[Configuring a Data Source](../configuration.md#configuring-a-data-source). Then call one of its `deploy` methods:
+
+-   `deploy(Path path, boolean ignoreIfExists)` — deploy a project ZIP from a file path.
+-   `deploy(InputStream in, boolean ignoreIfExists)` or `deploy(String name, InputStream in, boolean ignoreIfExists)` —
+    deploy from a ZIP input stream, where `name` sets the deployment name.
+
+The `ignoreIfExists` flag controls redeployment: when `true`, an existing deployment with the same name is overridden;
+when `false`, it is left unchanged.
+
+`RulesDeployerService` implements `Closeable`, so close it — for example, with a try-with-resources block — once
+deployment is complete.
