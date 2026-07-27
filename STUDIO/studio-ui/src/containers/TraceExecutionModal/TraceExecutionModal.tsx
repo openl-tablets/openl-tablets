@@ -4,7 +4,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
 import { traceService } from 'services/traceService'
-import { stampTraceLaunch } from 'services/traceLaunchToken'
+import { retireTraceLaunch, stampTraceLaunch } from 'services/traceLaunchToken'
 import CONFIG from 'services/config'
 import { useStyles } from './TraceExecutionModal.styles'
 
@@ -55,14 +55,14 @@ export const TraceExecutionModal: React.FC = () => {
         if (d.fromModule) params.set('fromModule', d.fromModule)
         if (d.testRanges) params.set('testRanges', d.testRanges)
         const url = `${CONFIG.CONTEXT}/trace/${encodeURIComponent(d.projectId)}?${params.toString()}`
-        // Stamp this launch before (re)opening the window, so a document already in the reused window sees a
-        // changed token on its way out and does not delete the session this launch just created.
-        stampTraceLaunch()
         window.open(url, 'trace_win', 'width=1240,height=800,resizable=yes,scrollbars=yes')
     }, [])
 
     const launch = useCallback(async (d: TraceExecutionEventDetail) => {
         setStarting(true)
+        // Stamp this launch before the session is created, so a debugger window closing while the request
+        // is in flight sees a changed token and does not delete the session this launch is creating.
+        const reserved = stampTraceLaunch()
         try {
             await traceService.startTrace(d.projectId, {
                 tableId: d.tableId,
@@ -78,6 +78,8 @@ export const TraceExecutionModal: React.FC = () => {
                 openTraceWindow(d)
             }
         } catch (error: unknown) {
+            // The launch failed, so nothing replaced the previous session — hand the token back to its owner.
+            retireTraceLaunch(reserved)
             notification.error({
                 title: t('modal.errors.startFailed'),
                 description: error instanceof Error ? error.message : String(error),

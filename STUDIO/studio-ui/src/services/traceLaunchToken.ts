@@ -25,3 +25,14 @@ export const stampTraceLaunch = (): string => {
 
 /** The token of the most recent launch, or `null` when no trace has been launched this session. */
 export const currentTraceLaunch = (): string | null => readStored(KEY)
+
+/**
+ * Give up a reserved launch after a failed start, restoring the previous token so the debugger window
+ * that owns it keeps releasing its session on close. Does nothing when a newer launch has already stamped
+ * its own token — the reservation is stale and the token belongs to that launch.
+ */
+export const retireTraceLaunch = (reserved: string): void => {
+    if (readStored(KEY) === reserved) {
+        writeStored(KEY, String(Number(reserved) - 1))
+    }
+}

@@ -35,6 +35,8 @@ describe('useTerminateOnClose', () => {
     })
 
     it('terminates the session when the window closes', () => {
+        // The launcher always stamps a token before opening the debugger window.
+        stampTraceLaunch()
         renderHook(() => useTerminateOnClose('p1'))
 
         firePagehide()
@@ -43,6 +45,7 @@ describe('useTerminateOnClose', () => {
     })
 
     it('keeps the session when the page is only frozen for the back/forward cache', () => {
+        stampTraceLaunch()
         renderHook(() => useTerminateOnClose('p1'))
 
         firePagehide(true)
@@ -50,7 +53,21 @@ describe('useTerminateOnClose', () => {
         expect(releaseOnClose).not.toHaveBeenCalled()
     })
 
+    it('keeps the session when the launch token cannot be read (blocked storage)', () => {
+        // Private mode / disabled storage: every read fails, so ownership can never be verified.
+        vi.stubGlobal('localStorage', {
+            getItem: () => { throw new Error('storage disabled') },
+            setItem: () => { throw new Error('storage disabled') },
+        })
+        renderHook(() => useTerminateOnClose('p1'))
+
+        firePagehide()
+
+        expect(releaseOnClose).not.toHaveBeenCalled()
+    })
+
     it('keeps the session when the launcher has reused this window for a newer trace', () => {
+        stampTraceLaunch()
         renderHook(() => useTerminateOnClose('p1'))
 
         // A newer launch stamps a fresh token, so this outgoing document no longer owns the session.
@@ -61,6 +78,7 @@ describe('useTerminateOnClose', () => {
     })
 
     it('stops listening once unmounted', () => {
+        stampTraceLaunch()
         const { unmount } = renderHook(() => useTerminateOnClose('p1'))
         unmount()
 
