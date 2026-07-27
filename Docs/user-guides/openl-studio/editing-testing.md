@@ -401,20 +401,20 @@ The trace window has a control toolbar at the top, a left panel for navigating t
 *The trace window*
 
 -   **Toolbar** — the buttons that run and pause the calculation, and the current status.
--   **Left panel** — lists the rules as they run. It also holds the **Breakpoints** and **Watch** tools, and lets you switch between the **Tree**, **Call Stack**, and (while profiling) **Hot Spots** views.
+-   **Left panel** — lists the rules as they run. It also holds the **Breakpoints** and **Watch** tools, and lets you switch between the **Tree**, **Execution Path**, and (while profiling) **Hot Spots** views.
 -   **Right panel**, also called **Details** — while the calculation is paused, shows everything about the selected step: its inputs, its result, the table itself, and any errors.
 
 The **status** next to the toolbar tells you where the calculation is:
 
 -   **Starting** — the run is being prepared.
--   **Running** — the calculation is in progress.
--   **Suspended** — paused and waiting for you to act. This is your turn to look around or move forward.
--   **Completed** — the calculation finished.
--   **Error** — the calculation failed. A banner reports what went wrong; **Show technical details** reveals the underlying error for developers.
--   **Terminated** — you stopped the run before it finished.
+-   **Calculating** — the calculation is in progress.
+-   **Paused** — waiting for you to act. This is your turn to look around or move forward.
+-   **Finished** — the calculation completed.
+-   **Failed** — the calculation failed. A banner reports what went wrong; **Show technical details** reveals the underlying error for developers.
+-   **Stopped** — the run was ended before it finished.
 
 > [!Note]
-> You can read a rule's values — its inputs, result, and decision — only while the calculation is **paused** on it. Once it reaches **Completed** the values are no longer available, so inspect a rule while stopped on it, not after the run ends.
+> You can read a rule's values — its inputs, result, and decision — only while the calculation is **paused** on it. Once it reaches **Finished** the values are no longer available, so inspect a rule while stopped on it, not after the run ends.
 
 #### Following a Calculation
 
@@ -428,17 +428,18 @@ Here is a typical trace — for example, to understand why a premium came out hi
 
 #### Running and Stepping
 
-You control the calculation from the toolbar. The step buttons — **Resume**, **Step over**, **Step into**, and **Step out** — work only while the calculation is paused (**Suspended**); **Pause** works only while it is running. A button is greyed out when it does not apply, which is normal.
+You control the calculation from the toolbar. The step buttons — **Resume**, **Step over**, **Step into**, and **Step out** — work only while the calculation is paused (**Paused**). The first button follows the state: it is **Resume** while the calculation is paused and becomes **Pause** while it is running. A button is greyed out when it does not apply, which is normal.
 
--   **Resume** (the ▶ button) — run the calculation forward: to the next breakpoint, or, if there is none, all the way to the end. This is the main "go" button. With no breakpoints set, it runs to **Completed** — and because the values are kept only while paused, set a breakpoint or step if you want to stop and inspect a rule.
--   **Pause** — stop a running calculation at the next step, so you can look at where it is.
+-   **Resume** (the ▶ button) — run the calculation forward: to the next breakpoint, or, if there is none, all the way to the end. This is the main "go" button. With no breakpoints set, it runs to **Finished** — and because the values are kept only while paused, set a breakpoint or step if you want to stop and inspect a rule.
+-   **Pause** — shown in place of **Resume** while the calculation is running: stop at the next step, so you can look at where it is.
 -   **Step over** — run the next step and stop, without opening any rule it calls. Use this to move through a calculation quickly.
 -   **Step into** — go inside the rule called by the next step, to see how it produces its value. This is how you look deeper into a called rule.
 -   **Step out** — finish the current rule and go back up to the rule that called it. Use it once you have stepped into a rule and seen enough.
--   **Stop** — end the trace.
 -   **Rerun** — start the whole trace over from the beginning.
 
 In everyday use, **Resume** and **Step over** are enough. Reach for **Step into** only when you want to open a called rule and see how it computed its value.
+
+To end the trace, simply close the trace window — the calculation is stopped for you.
 
 #### Navigating the Calculation
 
@@ -447,11 +448,11 @@ As the calculation runs, each rule that is still being worked out is called a **
 The left panel lists the rules in two views:
 
 -   **Tree** — the rules shown as an indented list that mirrors how one rule called another. While paused, click the step you want and read its values in the **Details** panel. Once a run has finished with **Profiling** on, the Tree keeps the shape of the whole calculation and each line's timing, but not its values — to see a finished rule's values again, use its **Replay** button, which restarts and runs back to that rule and pauses on it.
--   **Call Stack** — the list of rules currently in progress (the frames), with the current one at the top. Despite the technical name, it simply answers "which rules are being worked out right now, and how did we get here?" Each row shows the rule's name, its kind (for example, `decisionTable` or `spreadsheet`), and the line it is currently on. Click any row to inspect that rule.
+-   **Execution Path** — the list of rules currently in progress (the frames), with the current one at the top. It answers "which rules are being worked out right now, and how did we get here?" Each row shows the rule's name, its kind (for example, `decisionTable` or `spreadsheet`), and the line it is currently on. Click any row to inspect that rule.
 
-    ![Call Stack view showing the rules currently in progress](images/trace-call-stack.png "The Call Stack view")
+    ![Execution Path view showing the rules currently in progress](images/trace-call-stack.png "The Execution Path view")
 
-    *The Call Stack: the rules in progress, the current one at the top*
+    *The Execution Path: the rules in progress, the current one at the top*
 
 With **Profiling** on, each line in the Tree also shows how long its rule took to calculate. By default this is the **Total** time — the time for the rule including every rule it called. Switch to **Self** to see only the time spent in the rule itself, without the rules it called.
 
@@ -472,7 +473,7 @@ A **breakpoint** tells the trace to pause when a chosen table is about to run, s
 
 #### Reading a Step
 
-While the calculation is paused, select a step in the left panel (or a frame in the **Call Stack**) to inspect it in the right **Details** panel. It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
+While the calculation is paused, select a step in the left panel (or a row in the **Execution Path**) to inspect it in the right **Details** panel. It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
 
 The selected step's table is shown with the calculation highlighted.
 

@@ -4,6 +4,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
 import { traceService } from 'services/traceService'
+import { stampTraceLaunch } from 'services/traceLaunchToken'
 import CONFIG from 'services/config'
 import { useStyles } from './TraceExecutionModal.styles'
 
@@ -54,6 +55,9 @@ export const TraceExecutionModal: React.FC = () => {
         if (d.fromModule) params.set('fromModule', d.fromModule)
         if (d.testRanges) params.set('testRanges', d.testRanges)
         const url = `${CONFIG.CONTEXT}/trace/${encodeURIComponent(d.projectId)}?${params.toString()}`
+        // Stamp this launch before (re)opening the window, so a document already in the reused window sees a
+        // changed token on its way out and does not delete the session this launch just created.
+        stampTraceLaunch()
         window.open(url, 'trace_win', 'width=1240,height=800,resizable=yes,scrollbars=yes')
     }, [])
 

@@ -86,4 +86,22 @@ describe('traceService endpoints', () => {
         expect(url).toContain('stopAtEntry=true')
         expect((init as RequestInit).method).toBe('POST')
     })
+
+    it('releases the session on window close with a keepalive delete', () => {
+        mockApiCall.mockResolvedValue(undefined as any)
+        traceService.releaseOnClose('p')
+        expect(mockApiCall).toHaveBeenLastCalledWith(
+            '/projects/p/trace',
+            { method: 'DELETE', keepalive: true },
+            expect.anything()
+        )
+    })
+
+    it('swallows a failed release — the window is already closing', async () => {
+        mockApiCall.mockRejectedValue(new ApiHttpError(404, 'no session'))
+        traceService.releaseOnClose('p')
+        // Let the rejected promise settle; an unhandled rejection would fail the test run.
+        await new Promise(resolve => setTimeout(resolve, 0))
+        expect(mockApiCall).toHaveBeenCalledTimes(1)
+    })
 })
