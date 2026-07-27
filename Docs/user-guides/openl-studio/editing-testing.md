@@ -358,7 +358,7 @@ Proceed as follows:
 
 ### Tracing Rules
 
-When a rule returns a result you did not expect, tracing lets you see **how** that result was produced. OpenL Studio re-runs the rule and lets you pause it and walk through the calculation step by step: the value each cell produced, which rows of a decision table fired, and how one rule passed its result to the next.
+When a rule returns a result you did not expect, tracing lets you see **how** that result was produced. OpenL Studio runs the rule and shows every rule that executed as a tree; click any rule to see the values it received and the result it returned, which rows of a decision table fired, and how one rule passed its result to the next. For deeper investigation, an advanced mode lets you pause the calculation and walk through it step by step.
 
 Tracing only *reads* the calculation. It does not change your data or your rules, so you can explore freely.
 
@@ -400,33 +400,47 @@ Tracing is available for everything that can be run:
     *Selecting test cases to trace*
 
 1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**.
-1.  Click **Trace**. The trace window opens and pauses at the very beginning, before anything has run, and waits for you.
+1.  Click **Trace**. The trace window opens, ready to run the calculation.
 
 To save the calculation as a text file instead of opening the trace window, click **Trace into File**. OpenL Studio runs the rule and downloads the result as `trace.txt`.
 
 #### The Trace Window
 
-The trace window has a control toolbar at the top, a left panel for navigating the calculation, and a right panel with the details of the selected step.
+The trace window opens in the **business view**: one **Run** button, the calculation tree on the left, and the details of the selected rule on the right. This view answers the everyday question — what did this rule receive and what did it return — with nothing to configure. The **Advanced** switch in the top-right corner turns on the full debugger with stepping, breakpoints, and watches; see [The Advanced Mode](#the-advanced-mode).
 
 ![Trace window overview](images/trace-debugger-overview.png "Trace window")
 
 *The trace window*
 
--   **Toolbar** — the buttons that run and pause the calculation, and the current status.
--   **Left panel** — lists the rules as they run. It also holds the **Breakpoints** and **Watch** tools, and lets you switch between the **Tree**, **Execution Path**, and (while profiling) **Hot Spots** views.
--   **Right panel**, also called **Details** — while the calculation is paused, shows everything about the selected step: its inputs, its result, the table itself, and any errors.
+-   **Toolbar** — the **Run** button before the calculation runs, the calculation status, and the **Advanced** switch.
+-   **Left panel** — the calculation tree: every rule that executed, in the order it was called.
+-   **Right panel**, also called **Details** — everything about the selected rule: its inputs, its result, the table itself, and any errors.
 
-The **status** next to the toolbar tells you where the calculation is:
+The **status** appears while the calculation runs and when it ends:
 
--   **Starting** — the run is being prepared.
 -   **Calculating** — the calculation is in progress.
--   **Paused** — waiting for you to act. This is your turn to look around or move forward.
 -   **Finished** — the calculation completed.
 -   **Failed** — the calculation failed. A banner reports what went wrong; **Show technical details** reveals the underlying error for developers.
 -   **Stopped** — the run was ended before it finished.
 
+#### Exploring the Calculation
+
+1.  Click **Run**. OpenL Studio executes the whole calculation and builds the complete tree of every rule that ran; for a large calculation, a progress note counts the rules while the tree is prepared.
+1.  Expand any branch. The whole tree is already in the window, so branches open instantly, however deep you go.
+1.  Click a rule to inspect it. The **Details** panel shows the values it received (**Parameters**), the value it produced (**Result**), and its table with the calculation highlighted — see [Reading a Step](#reading-a-step). A click on a **step** of a rule keeps the panel on that step: its **Parameters** are the values the step's formula used, named exactly as the formula writes them — other steps (`$LimitIndex`), the table's inputs, constants (`MaxLimit`) — its **Result** is the value the step computed, and the step's cell is pointed out in its own table.
+
+Behind the scenes, clicking a rule quietly re-runs the calculation up to and through that rule: the engine does not keep every intermediate value, so OpenL Studio recomputes them on demand. The tree itself never changes — it is the record of the original run, and only the **Details** panel follows your clicks. On a heavy calculation the re-run takes a moment, shown by the **Calculating** badge.
+
+**Run** is used once: it disappears after the calculation has run (and comes back only if the run failed, so it can be retried). To trace the table again — for example after changing the rules or the input — close the trace window and start a new trace from the editor.
+
+#### The Advanced Mode
+
+The **Advanced** switch replaces the business view with a full interactive debugger: pause the calculation at any point, step through it rule by rule, set **breakpoints**, watch how a cell's value changes, and measure performance. The rest of this chapter describes this mode. Switching back to the business view clears any breakpoints.
+
+In the advanced mode the status can also show **Starting** — the run is being prepared — and **Paused** — waiting for you to act; this is your turn to look around or move forward.
+
 > [!Note]
-> A **called** rule's values — its inputs, result, and decision — are readable only while the calculation is **paused** on it. After **Finished** the window keeps the top-level rule with its steps, inputs, and result, but the values of the rules it called are gone — inspect a called rule while stopped on it, not after the run ends.
+> In the advanced mode, a **called** rule's values — its inputs, result, and decision — are readable only while the calculation is **paused** on it. After **Finished** the window keeps the top-level rule with its steps, inputs, and result, but the values of the rules it called are gone — inspect a called rule while stopped on it, not after the run ends. (The business view hides this: clicking a rule always re-runs the calculation to it.)
 
 #### Following a Calculation
 
@@ -485,7 +499,7 @@ A **breakpoint** tells the trace to pause when a chosen table is about to run, s
 
 #### Reading a Step
 
-While the calculation is paused, select a step in the left panel (or a row in the **Execution Path**) to inspect it in the right **Details** panel. It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
+While the calculation is paused, select a step in the left panel (or a row in the **Execution Path**) to inspect it in the right **Details** panel; in the business view, the same panel opens when you click a rule. It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
 
 The selected step's table is shown with the calculation highlighted.
 

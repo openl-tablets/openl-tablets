@@ -84,6 +84,15 @@ i18next.addResourceBundle('en', 'trace', {
         },
     },
 
+    simple: {
+        run: 'Run',
+        advanced: 'Advanced',
+        pressRun: 'Click Run to calculate and see every rule that executed.',
+        calculating: 'Calculating…',
+        preparing: 'Preparing the calculation tree… {{loaded}} of {{total}} rules',
+        inspectHint: 'Click to see the values this rule received and the result it produced',
+    },
+
     error: {
         inTable: 'in {{table}}',
         atLocation: 'at {{location}}',

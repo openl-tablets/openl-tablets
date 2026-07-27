@@ -26,51 +26,61 @@ Content-Type: application/json
         {
           "ref": "R0C1",
           "label": "$Value$CheckCurrentFinancialData",
+          "cell": "G13",
           "status": "current"
         },
         {
           "ref": "R1C1",
           "label": "$Value$CheckPreviousPeriodFinancialData",
+          "cell": "G14",
           "status": "pending"
         },
         {
           "ref": "R2C1",
           "label": "$Value$BalanceQualityIndexCalculation",
+          "cell": "G15",
           "status": "pending"
         },
         {
           "ref": "R3C1",
           "label": "$Value$BalanceDynamicIndexCalculation",
+          "cell": "G16",
           "status": "pending"
         },
         {
           "ref": "R4C1",
           "label": "$Value$BankQualitativeIndexCalculation",
+          "cell": "G17",
           "status": "pending"
         },
         {
           "ref": "R5C1",
           "label": "$Value$IsAdequateNormativeIndexCalculation",
+          "cell": "G18",
           "status": "pending"
         },
         {
           "ref": "R6C1",
           "label": "$Value$BankRating",
+          "cell": "G19",
           "status": "pending"
         },
         {
           "ref": "R7C1",
           "label": "$Value$BankRatingGroup",
+          "cell": "G20",
           "status": "pending"
         },
         {
           "ref": "R8C1",
           "label": "$Value$LimitIndex",
+          "cell": "G21",
           "status": "pending"
         },
         {
           "ref": "R9C1",
           "label": "$Value$Limit",
+          "cell": "G22",
           "status": "pending"
         }
       ],

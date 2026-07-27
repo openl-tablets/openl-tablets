@@ -19,6 +19,7 @@ Content-Type: application/json
         {
           "ref": "R0C0",
           "label": "$Test",
+          "cell": "D21",
           "status": "pending"
         }
       ]

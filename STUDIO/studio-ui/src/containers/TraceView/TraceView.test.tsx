@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DebugStatus } from 'types/trace'
 import TraceView from './TraceView'
@@ -21,13 +22,14 @@ vi.mock('store', () => ({
     useTraceStore: (selector: (s: Record<string, unknown>) => unknown) => selector(store.current),
 }))
 
-// The panels and background hooks are irrelevant to the terminal-banner/status-tag behaviour under test.
+// The panels and background hooks are irrelevant to the mode-gating/banner/status-tag behaviour under test.
 vi.mock('./components/DebugToolbar', () => ({ default: () => <div data-testid="debug-toolbar" /> }))
 vi.mock('./components/DebugCallStack', () => ({ default: () => null }))
 vi.mock('./components/TraceTree', () => ({ default: () => null }))
+vi.mock('./components/SimpleTraceTree', () => ({ default: () => <div data-testid="simple-tree" /> }))
 vi.mock('./components/HotspotsPanel', () => ({ default: () => null }))
-vi.mock('./components/BreakpointsPanel', () => ({ default: () => null }))
-vi.mock('./components/WatchPanel', () => ({ default: () => null }))
+vi.mock('./components/BreakpointsPanel', () => ({ default: () => <div data-testid="breakpoints-panel" /> }))
+vi.mock('./components/WatchPanel', () => ({ default: () => <div data-testid="watch-panel" /> }))
 vi.mock('./components/TraceDetails', () => ({ default: () => null }))
 vi.mock('./hooks/useTraceProgress', () => ({ default: () => {} }))
 vi.mock('./hooks/useTerminateOnClose', () => ({ default: () => {} }))
@@ -42,6 +44,11 @@ const setStore = (status: DebugStatus, extra: Record<string, unknown> = {}): voi
         debugError: null,
         error: null,
         profiling: false,
+        advanced: false,
+        setAdvanced: vi.fn(),
+        simpleRun: vi.fn(),
+        simpleLoading: false,
+        simpleReady: false,
         ...extra,
     }
 }
@@ -60,8 +67,16 @@ describe('TraceView terminal outcome', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
 
-    it('shows a warning banner when the run is stopped before it finishes', () => {
+    it('keeps a stop silent in the simple view — inspections restart the session as a matter of course', () => {
         setStore('terminated')
+        render(<TraceView />)
+
+        expect(screen.queryByTestId('debug-status')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('shows a warning banner in the advanced mode when the run is stopped before it finishes', () => {
+        setStore('terminated', { advanced: true })
         render(<TraceView />)
 
         expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.terminated')
@@ -74,5 +89,68 @@ describe('TraceView terminal outcome', () => {
 
         expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.error')
         expect(screen.getByRole('alert')).toHaveTextContent('Division by zero')
+    })
+})
+
+describe('TraceView mode gating', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('opens in the simple business view: a Run button and the tree, none of the debugger panels', () => {
+        setStore('suspended')
+        render(<TraceView />)
+
+        expect(screen.getByTestId('simple-run')).toBeInTheDocument()
+        expect(screen.getByTestId('simple-tree')).toBeInTheDocument()
+        expect(screen.queryByTestId('debug-toolbar')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('breakpoints-panel')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('watch-panel')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('trace-view-mode')).not.toBeInTheDocument() // no Execution Path tab
+        // Paused is a stepping detail; the simple view shows no status until the run starts.
+        expect(screen.queryByTestId('debug-status')).not.toBeInTheDocument()
+    })
+
+    it('starts the full run from the Run button', async () => {
+        setStore('suspended')
+        render(<TraceView />)
+
+        await userEvent.click(screen.getByTestId('simple-run'))
+
+        expect(store.current['simpleRun']).toHaveBeenCalled()
+    })
+
+    it('hides the Run button once the calculation has run — Run is one-shot', () => {
+        setStore('completed', { simpleReady: true })
+        render(<TraceView />)
+
+        expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
+    })
+
+    it('hides the Run button while the run executes and the tree downloads', () => {
+        setStore('running', { simpleLoading: true })
+        render(<TraceView />)
+
+        expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
+    })
+
+    it('switches to the advanced debugger UI with the toggle', async () => {
+        setStore('suspended')
+        render(<TraceView />)
+
+        await userEvent.click(screen.getByTestId('trace-advanced'))
+
+        expect(store.current['setAdvanced']).toHaveBeenCalledWith(true, expect.anything())
+    })
+
+    it('shows the full debugger when the advanced mode is on', () => {
+        setStore('suspended', { advanced: true })
+        render(<TraceView />)
+
+        expect(screen.getByTestId('debug-toolbar')).toBeInTheDocument()
+        expect(screen.getByTestId('breakpoints-panel')).toBeInTheDocument()
+        expect(screen.getByTestId('watch-panel')).toBeInTheDocument()
+        expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
+        expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.suspended')
     })
 })

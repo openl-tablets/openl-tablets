@@ -18,12 +18,14 @@ Content-Type: application/json
         {
           "durationMillis": "*",
           "label": "$Items",
+          "cell": "B3",
           "ref": "R0C0",
           "status": "executed"
         },
         {
           "durationMillis": "*",
           "label": "$Calcs",
+          "cell": "B4",
           "ref": "R1C0",
           "status": "executed"
         }
@@ -66,4 +68,3 @@ Content-Type: application/json
     "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4"
   }
 }
-

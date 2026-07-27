@@ -16,8 +16,18 @@ Content-Type: application/json
       "completed": false,
       "error": false,
       "steps": [
-        { "ref": "R0C0", "label": "$Items", "status": "pending" },
-        { "ref": "R1C0", "label": "$Calcs", "status": "pending" }
+        {
+          "ref": "R0C0",
+          "label": "$Items",
+          "cell": "B3",
+          "status": "pending"
+        },
+        {
+          "ref": "R1C0",
+          "label": "$Calcs",
+          "cell": "B4",
+          "status": "pending"
+        }
       ]
     }
   ]

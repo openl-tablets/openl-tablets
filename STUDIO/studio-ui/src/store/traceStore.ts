@@ -9,6 +9,8 @@ import type {
     DebugStatus,
     ProfileSummaryView,
     RawTableView,
+    StepType,
+    StepValueView,
     TraceParameterValue,
     WatchView,
 } from 'types/trace'
@@ -35,6 +37,42 @@ const launchOptions = (
     ...(scope.inputJson ? { inputJson: scope.inputJson } : {}),
     ...overrides,
 })
+
+/** Execution-order range of a call or step in the simple-mode tree: where it starts and where its subtree ends. */
+export interface SimpleOrderRange {
+    pre: number
+    end: number
+}
+
+/**
+ * A clicked step, remembered so the Details panel can present the suspension as that step — like the
+ * classic trace did: the owning table's inputs as Parameters, the step's own value as `return`.
+ */
+export interface SimpleStepFocus {
+    /** Step reference within its owning table (`R2C3`-style). */
+    ref: string
+    /** Display name of the step (its `$...` cell name). */
+    label: string
+    /** The owning table, to locate its frame on the suspended stack. */
+    ownerUri: string
+    ownerInstance: number
+}
+
+/** A tree row the simple mode inspects: its breakpoint key plus the frame the suspension lands in. */
+export interface SimpleInspectTarget {
+    /** Breakpoint key: `uri@instance` for a call, `uri#ref@instance` for a step. */
+    key: string
+    /** URI of the frame the suspension stops in (the call itself, or the step's owning table). */
+    frameUri: string
+    /** Execution index of that frame. */
+    frameInstance: number
+    /** The step that completes the target after the stop: `out` runs a call to its exit, `over` runs a step. */
+    stepType: Extract<StepType, 'out' | 'over'>
+    /** Display label for the one-shot breakpoint. */
+    label?: string
+    /** Set when the clicked row is a step, so Details shows the step rather than the paused frame. */
+    focus?: SimpleStepFocus
+}
 
 interface DebugState {
     // Route params
@@ -75,6 +113,30 @@ interface DebugState {
     watch: WatchView | null
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
+
+    // Simple (business) mode: a full profiled run downloaded whole, browsed offline, inspected by re-running.
+    /** Whether the advanced debugger UI is shown; the simple business view is the default. */
+    advanced: boolean
+    /** The executed call tree of the last simple-mode run. Immutable once captured — re-runs never touch it. */
+    simpleTree: CallNodeView | null
+    /** Every step's sub-calls of that tree, downloaded up front so expanding never calls the backend. */
+    simpleChildren: Record<string, CallNodeView[]>
+    /** Execution-order ranges by breakpoint key, deciding whether a click can resume or must restart. */
+    simpleOrder: Record<string, SimpleOrderRange>
+    /** True once the whole tree is downloaded and browsable. */
+    simpleReady: boolean
+    /** True while the simple run executes and its tree downloads. */
+    simpleLoading: boolean
+    /** Calls downloaded so far, for the preparation progress line. */
+    simpleLoadedCount: number
+    /** Full call count of the run (from the profile), or null when unknown. */
+    simpleTotalCount: number | null
+    /** Breakpoint key of the row whose values are being shown, for the selection highlight. */
+    simpleSelectedKey: string | null
+    /** Order range of the last inspected row; a later row can be resumed to, an earlier one needs a restart. */
+    simpleLastInspected: SimpleOrderRange | null
+    /** The clicked step when the last inspection was a step, so Details presents the step, not the frame. */
+    simpleFocus: SimpleStepFocus | null
 
     // UI
     loading: boolean
@@ -120,12 +182,50 @@ interface DebugState {
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
     fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
+    /** Switch between the simple business view and the advanced debugger; entering simple clears breakpoints. */
+    setAdvanced: (value: boolean) => void
+    /** Simple mode Run: execute the whole trace recording its tree, then download the tree for offline browsing. */
+    simpleRun: () => Promise<void>
+    /** Simple mode click: re-run execution through the clicked row so its inputs and result become readable. */
+    simpleInspect: (target: SimpleInspectTarget) => Promise<void>
     reset: () => void
 }
 
 /** Cache key for a tree step's lazily-fetched children: the frame's (uri, instance) plus the step ref. */
 export const treeChildKey = (uri: string, instance: number, step: string): string =>
     JSON.stringify([uri, instance, step])
+
+/**
+ * Number every call and step of a fully downloaded tree in execution order. `pre` is the position where
+ * the row starts executing and `end` the last position inside it, so a click can only be reached by
+ * resuming when its `pre` lies after the whole subtree of the previously inspected row — anything at or
+ * before that point (including the row's own sub-calls) has already executed and needs a restart.
+ */
+export const buildSimpleOrder = (
+    root: CallNodeView,
+    children: Record<string, CallNodeView[]>
+): Record<string, SimpleOrderRange> => {
+    const order: Record<string, SimpleOrderRange> = {}
+    let counter = 0
+    const visit = (node: CallNodeView): void => {
+        // A step reference is not an execution of its own — the original step already holds its range.
+        if (node.kind === 'stepRef') {
+            return
+        }
+        const pre = counter
+        counter += 1
+        for (const step of node.steps) {
+            const stepPre = counter
+            counter += 1
+            const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
+            kids.forEach(visit)
+            order[`${node.uri}#${step.ref}@${node.instance}`] = { pre: stepPre, end: counter - 1 }
+        }
+        order[`${node.uri}@${node.instance}`] = { pre, end: counter - 1 }
+    }
+    visit(root)
+    return order
+}
 
 const initialState = {
     projectId: null,
@@ -152,6 +252,17 @@ const initialState = {
     watches: [],
     watch: null,
     rawTableCache: {},
+    advanced: false,
+    simpleTree: null,
+    simpleChildren: {},
+    simpleOrder: {},
+    simpleReady: false,
+    simpleLoading: false,
+    simpleLoadedCount: 0,
+    simpleTotalCount: null,
+    simpleSelectedKey: null,
+    simpleLastInspected: null,
+    simpleFocus: null,
     loading: false,
     error: null,
 }
@@ -163,6 +274,12 @@ const isInspectable = (status: DebugStatus | null): boolean =>
 
 /** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
 const TREE_PAGE_SIZE = 100
+
+/** Sub-calls per page while downloading the whole tree up front (simple mode) — large pages, few requests. */
+const SIMPLE_FETCH_PAGE = 500
+
+/** Parallel page downloads while the simple mode pulls the whole tree. */
+const SIMPLE_FETCH_CONCURRENCY = 4
 
 export const useTraceStore = create<DebugState>((set, get) => {
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
@@ -226,6 +343,61 @@ export const useTraceStore = create<DebugState>((set, get) => {
      */
     const beginRun = (extra: Partial<DebugState> = {}): void =>
         set({ loading: true, error: null, runId: get().runId + 1, ...extra })
+
+    /**
+     * Download the entire executed tree: every step's sub-calls, breadth-first, so the simple view can
+     * expand any branch instantly without further backend calls. Returns null when the download fails or
+     * a newer run supersedes it (the token no longer matches the current runId).
+     */
+    const downloadTree = async (
+        projectId: string,
+        root: CallNodeView,
+        token: number
+    ): Promise<Record<string, CallNodeView[]> | null> => {
+        const children: Record<string, CallNodeView[]> = {}
+        const tasks: { uri: string; instance: number; step: StepValueView }[] = []
+        let loaded = 0
+        const enqueue = (node: CallNodeView): void => {
+            loaded += 1
+            for (const step of node.steps) {
+                if (step.children) {
+                    step.children.forEach(enqueue)
+                } else if ((step.childrenTotal ?? 0) > 0) {
+                    tasks.push({ uri: node.uri, instance: node.instance, step })
+                }
+            }
+        }
+        enqueue(root)
+        const worker = async (): Promise<void> => {
+            for (let task = tasks.pop(); task; task = tasks.pop()) {
+                const collected: CallNodeView[] = []
+                const total = task.step.childrenTotal ?? 0
+                let pageSize = -1
+                // Page until the reported total is collected; an empty or shrinking page ends the loop
+                // early rather than spinning on a total the server no longer agrees with.
+                while (collected.length < total && pageSize !== 0) {
+                    const page = await traceService.getTreeChildren(
+                        projectId, task.uri, task.instance, task.step.ref, collected.length, SIMPLE_FETCH_PAGE)
+                    if (get().runId !== token) return
+                    pageSize = page.children?.length ?? 0
+                    collected.push(...(page.children ?? []))
+                }
+                children[treeChildKey(task.uri, task.instance, task.step.ref)] = collected
+                collected.forEach(enqueue)
+                set({ simpleLoadedCount: loaded })
+            }
+        }
+        try {
+            // A few workers drain the queue in parallel; each downloaded level may enqueue deeper ones.
+            await Promise.all(Array.from({ length: SIMPLE_FETCH_CONCURRENCY }, worker))
+        } catch (error: any) {
+            if (get().runId === token) {
+                set({ error: error?.message || 'Failed to load the calculation tree' })
+            }
+            return null
+        }
+        return get().runId === token ? children : null
+    }
 
     /** Restart the session from the top with the current settings, re-applying the user's breakpoints. */
     const restart = async (): Promise<void> => {
@@ -494,6 +666,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     variables: null,
                     variablesLoading: false,
                     debugError: status === 'error' && message ? { summary: message } : null,
+                    // Nothing is paused any more (e.g. an inspected row was conditionally skipped and the
+                    // run finished), so the next click cannot resume from here.
+                    simpleLastInspected: null,
                 })
                 if (status === 'error') {
                     void get().fetchTerminalError()
@@ -539,6 +714,111 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 })
             }
             return result
+        },
+
+        setAdvanced: (value) => {
+            if (get().advanced === value) return
+            set({ advanced: value })
+            if (!value) {
+                // The business view debugs with no breakpoints — drop any set while in the advanced mode.
+                const { projectId, breakpoints } = get()
+                set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
+                if (projectId && breakpoints.length > 0) {
+                    traceService.setBreakpoints(projectId, []).catch(() => {
+                        // Best effort: the next simple run starts a fresh session with none anyway.
+                    })
+                }
+            }
+        },
+
+        simpleRun: async () => {
+            const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+            if (!projectId || !tableId || get().simpleLoading) return
+            beginRun({
+                simpleLoading: true,
+                simpleReady: false,
+                simpleTree: null,
+                simpleChildren: {},
+                simpleOrder: {},
+                simpleLoadedCount: 0,
+                simpleTotalCount: null,
+                simpleSelectedKey: null,
+                simpleLastInspected: null,
+                simpleFocus: null,
+            })
+            const token = get().runId
+            try {
+                // The simple run debugs with no breakpoints, so it always reaches the end in one go.
+                if (get().breakpoints.length > 0) {
+                    set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
+                    try {
+                        await traceService.setBreakpoints(projectId, [])
+                    } catch {
+                        // Best effort: the fresh session started below has no breakpoints anyway.
+                    }
+                }
+                await get().terminate()
+                set({ status: 'running' })
+                // One full profiled run: the response arrives once the whole calculation has finished,
+                // carrying the executed tree to download.
+                const stack = await traceService.startTrace(projectId, launchOptions(
+                    { tableId, fromModule, testRanges, inputJson },
+                    { stopAtEntry: false, profiling: true }
+                ))
+                if (get().runId !== token) return
+                applyStack(stack)
+                const tree = stack.tree ?? null
+                set({ simpleTree: tree, simpleTotalCount: stack.profile?.nodeCount ?? null })
+                if (tree) {
+                    const children = await downloadTree(projectId, tree, token)
+                    if (children) {
+                        set({
+                            simpleChildren: children,
+                            simpleOrder: buildSimpleOrder(tree, children),
+                            simpleReady: true,
+                        })
+                    }
+                }
+            } catch (error: any) {
+                if (get().runId === token) {
+                    set({ status: 'error', error: error?.message || 'Failed to run the trace' })
+                }
+            } finally {
+                if (get().runId === token) {
+                    set({ loading: false, simpleLoading: false })
+                }
+            }
+        },
+
+        simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus }) => {
+            const { projectId, simpleReady, simpleLoading, loading, status } = get()
+            if (!projectId || !simpleReady || simpleLoading || loading || status === 'running') return
+            const order = get().simpleOrder[key] ?? null
+            const last = get().simpleLastInspected
+            set({ simpleSelectedKey: key, simpleLastInspected: order, simpleFocus: focus ?? null })
+            // Execution can only move forward: a row is still reachable by resuming when it starts after
+            // everything the previous inspection already ran — its own subtree included. Anything else
+            // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
+            const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last.end
+            if (!canResume) {
+                await get().terminate()
+                await get().start()
+                if (get().status !== 'suspended') return
+            }
+            // Execute in place only when paused exactly at the target: a call at its fresh entry (the
+            // root right after a restart), or the owning frame already ON the clicked step's line (the
+            // very next step after the previously inspected one). There the target's own entry point is
+            // already behind us, so an inclusive breakpoint would never fire — one step finishes it.
+            const top = get().frames.at(-1)
+            const atTarget = top && top.uri === frameUri && top.instance === frameInstance && !top.completed
+                && (stepType === 'over' ? top.location?.ref === focus?.ref : !top.location)
+            if (atTarget) {
+                await (stepType === 'over' ? get().stepOver() : get().stepOut())
+            } else {
+                // An inclusive one-shot breakpoint: the engine runs the target and suspends right after
+                // it executed, its inputs and result on the stack — a single stop, no follow-up steps.
+                await get().runTo(`after:${key}`, label)
+            }
         },
 
         fetchTreeChildren: async (uri, instance, step) => {

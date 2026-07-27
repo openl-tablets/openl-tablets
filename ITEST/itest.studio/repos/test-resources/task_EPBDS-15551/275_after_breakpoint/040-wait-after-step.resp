@@ -12,6 +12,13 @@ Content-Type: application/json
       "tableId": "ecbdd3752cd6916e883e10cd08eb57cf",
       "name": "BalanceDynamicIndexCalculation",
       "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 2,
+        "column": 1,
+        "ref": "R2C1",
+        "label": "$Value$QuickLiquidityDynamic"
+      },
       "active": true,
       "completed": false,
       "error": false,
@@ -20,19 +27,21 @@ Content-Type: application/json
           "ref": "R0C1",
           "label": "$Value$CapitalDynamic",
           "cell": "G57",
-          "status": "pending"
+          "status": "executed",
+          "durationMillis": "*"
         },
         {
           "ref": "R1C1",
           "label": "$Value$CapitalDynamicScore",
           "cell": "G58",
-          "status": "pending"
+          "status": "executed",
+          "durationMillis": "*"
         },
         {
           "ref": "R2C1",
           "label": "$Value$QuickLiquidityDynamic",
           "cell": "G59",
-          "status": "pending"
+          "status": "current"
         },
         {
           "ref": "R3C1",

@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Collapse, Segmented, Spin, Tag } from 'antd'
-import { SyncOutlined } from '@ant-design/icons'
+import { Alert, Button, Collapse, Segmented, Space, Spin, Switch, Tag } from 'antd'
+import { CaretRightOutlined, SyncOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DebugError, DebugStatus } from 'types/trace'
 import DebugToolbar from './components/DebugToolbar'
 import DebugCallStack from './components/DebugCallStack'
 import TraceTree from './components/TraceTree'
+import SimpleTraceTree from './components/SimpleTraceTree'
 import HotspotsPanel from './components/HotspotsPanel'
 import BreakpointsPanel from './components/BreakpointsPanel'
 import WatchPanel from './components/WatchPanel'
@@ -36,9 +37,14 @@ const STATUS_STYLE = {
     terminated: 'statusNeutral',
 } as const satisfies Record<DebugStatus, string>
 
-// Default to the simple call-tree view; the stepwise call stack is the "Advanced" mode, and the profiler
-// hot-spots overview appears as a third tab only while profiling.
+// Left-panel tabs of the advanced debugger: the call tree, the stepwise execution path, and the profiler
+// hot-spots overview that appears as a third tab only while profiling.
 type ViewMode = 'tree' | 'advanced' | 'hotspots'
+
+// In the simple business view the states that matter are "it is calculating" and how it ended; the
+// debugger's Paused/Starting/Stopped states are stepping mechanics (clicking a rule quietly restarts
+// the session) and would only raise questions.
+const SIMPLE_VISIBLE_STATUSES: readonly DebugStatus[] = ['running', 'completed', 'error']
 
 const VIEW_COMPONENTS: Record<ViewMode, React.FC> = {
     tree: TraceTree,
@@ -103,6 +109,11 @@ const TraceView: React.FC = () => {
     const debugError = useTraceStore(s => s.debugError)
     const error = useTraceStore(s => s.error)
     const profiling = useTraceStore(s => s.profiling)
+    const advanced = useTraceStore(s => s.advanced)
+    const setAdvanced = useTraceStore(s => s.setAdvanced)
+    const simpleRun = useTraceStore(s => s.simpleRun)
+    const simpleLoading = useTraceStore(s => s.simpleLoading)
+    const simpleReady = useTraceStore(s => s.simpleReady)
 
     const [leftPanelWidth, setLeftPanelWidth] = useState(35)
     const [isResizing, setIsResizing] = useState(false)
@@ -188,26 +199,56 @@ const TraceView: React.FC = () => {
         )
     }
 
-    // A clean finish needs no banner — the status tag already says Finished; only a failed or
-    // interrupted run warrants one.
-    const showTerminalBanner = !bannerDismissed && isTraceExecutionAbnormalTerminal(status)
+    // A clean finish needs no banner — the status tag already says Finished. The advanced mode also
+    // flags an interrupted run; in the simple view a stop is just click mechanics (inspections restart
+    // the session), so only a real failure warrants a banner there.
+    const showTerminalBanner = !bannerDismissed && (advanced
+        ? isTraceExecutionAbnormalTerminal(status)
+        : isTraceExecutionError(status))
     const isError = isTraceExecutionError(status)
     const ActiveView = VIEW_COMPONENTS[viewMode]
     const bannerType = isError ? 'error' : 'warning'
+    const statusVisible = status && (advanced || SIMPLE_VISIBLE_STATUSES.includes(status))
 
     return (
         <div className={styles.debugView} id="trace-view">
             <div className={styles.toolbar} data-testid="debug-header">
-                <DebugToolbar />
-                {status && (
-                    <Tag
-                        className={cx(styles.statusTag, styles[STATUS_STYLE[status]])}
-                        data-testid="debug-status"
-                        icon={status === 'running' ? <SyncOutlined spin /> : undefined}
-                    >
-                        {t(`debug.status.${status}`)}
-                    </Tag>
-                )}
+                {/* Run is one-shot: it launches the calculation and disappears; it only comes back when
+                    the run failed to produce a browsable tree, so it can be retried. */}
+                <div>
+                    {advanced && <DebugToolbar />}
+                    {!advanced && !simpleLoading && !simpleReady && (
+                        <Button
+                            data-testid="simple-run"
+                            disabled={status === 'running'}
+                            icon={<CaretRightOutlined />}
+                            onClick={() => void simpleRun()}
+                            type="primary"
+                        >
+                            {t('simple.run')}
+                        </Button>
+                    )}
+                </div>
+                <Space size="middle">
+                    {statusVisible && (
+                        <Tag
+                            className={cx(styles.statusTag, styles[STATUS_STYLE[status]])}
+                            data-testid="debug-status"
+                            icon={status === 'running' ? <SyncOutlined spin /> : undefined}
+                        >
+                            {t(`debug.status.${status}`)}
+                        </Tag>
+                    )}
+                    <Space size={4}>
+                        <Switch
+                            checked={advanced}
+                            data-testid="trace-advanced"
+                            onChange={setAdvanced}
+                            size="small"
+                        />
+                        <span>{t('simple.advanced')}</span>
+                    </Space>
+                </Space>
             </div>
             {showTerminalBanner && (
                 <Alert
@@ -233,7 +274,9 @@ const TraceView: React.FC = () => {
                     <div className={styles.runningOverlay} data-testid="trace-running-overlay">
                         <div className={styles.runningCard}>
                             <Spin size="large" />
-                            <span className={styles.runningText}>{t('debug.runningNotice')}</span>
+                            <span className={styles.runningText}>
+                                {advanced ? t('debug.runningNotice') : t('simple.calculating')}
+                            </span>
                         </div>
                     </div>
                 )}
@@ -241,25 +284,34 @@ const TraceView: React.FC = () => {
                     className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}
                     style={{ width: `${leftPanelWidth}%` }}
                 >
-                    <Segmented
-                        block
-                        className={styles.viewModeToggle}
-                        data-testid="trace-view-mode"
-                        onChange={(value) => setViewMode(value as ViewMode)}
-                        size="small"
-                        value={viewMode}
-                        options={[
-                            { label: t('tree.modeSimple'), value: 'tree' },
-                            { label: t('tree.modeCallStack'), value: 'advanced' },
-                            // The hot-spots overview only exists in profiling mode (it needs the executed tree).
-                            ...(profiling ? [{ label: t('hotspots.tab'), value: 'hotspots' }] : []),
-                        ]}
-                    />
-                    <BreakpointsPanel />
-                    <WatchPanel />
-                    <div className={styles.viewContent}>
-                        <ActiveView />
-                    </div>
+                    {/* The business view is one tree: no view tabs, breakpoints, watches, or execution path. */}
+                    {advanced ? (
+                        <>
+                            <Segmented
+                                block
+                                className={styles.viewModeToggle}
+                                data-testid="trace-view-mode"
+                                onChange={(value) => setViewMode(value as ViewMode)}
+                                size="small"
+                                value={viewMode}
+                                options={[
+                                    { label: t('tree.modeSimple'), value: 'tree' },
+                                    { label: t('tree.modeCallStack'), value: 'advanced' },
+                                    // The hot-spots overview only exists in profiling mode (it needs the executed tree).
+                                    ...(profiling ? [{ label: t('hotspots.tab'), value: 'hotspots' }] : []),
+                                ]}
+                            />
+                            <BreakpointsPanel />
+                            <WatchPanel />
+                            <div className={styles.viewContent}>
+                                <ActiveView />
+                            </div>
+                        </>
+                    ) : (
+                        <div className={styles.viewContent}>
+                            <SimpleTraceTree />
+                        </div>
+                    )}
                 </div>
                 <div className={styles.resizer} onMouseDown={handleMouseDown} />
                 <div

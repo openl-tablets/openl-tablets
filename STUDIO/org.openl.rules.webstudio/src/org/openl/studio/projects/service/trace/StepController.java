@@ -24,6 +24,14 @@ final class StepController {
     /** Depth that never matches a real frame (frames are numbered from 1). */
     private static final int NEVER = 0;
 
+    /**
+     * Marker of an inclusive breakpoint: {@code after:<key>} does not suspend where {@code <key>} would.
+     * Instead it lets the target execute and suspends right after — a table at its own exit (its result
+     * on the stack), a sub-step on the next line once it has computed its value. One resume thus lands
+     * with the target's parameters and result both readable, with no follow-up step commands.
+     */
+    static final String AFTER_PREFIX = "after:";
+
     private final AtomicReference<Set<String>> breakpoints = new AtomicReference<>(Set.of());
     private int threshold = NEVER;
     private int exitDepth = NEVER;
@@ -77,6 +85,9 @@ final class StepController {
      * {@code N}-th execution (zero-based, the same numbering as a watch series), so a breakpoint can
      * target one iteration of a table that runs many times — for example {@code uri#R48C0@3}.
      *
+     * <p>Any key may also be prefixed with {@code after:} to suspend right after the target has
+     * executed instead of right before (see {@link #AFTER_PREFIX}).
+     *
      * @param event    the kind of safepoint reached
      * @param depth    depth of the current frame (1 for the top-level call)
      * @param uri      table URI of the current frame
@@ -97,6 +108,21 @@ final class StepController {
         if (event == DebugEvent.LOCATION && location != null
                 && matchesLocationBreakpoint(active, uri, location, instance)) {
             return true;
+        }
+        // An inclusive breakpoint arms instead of suspending: an entered table runs to its own exit
+        // (deeper events stay below the thresholds), a matched sub-step runs to the next line at its
+        // depth — both landing right after the target executed, with its values on the stack.
+        if (event == DebugEvent.ENTER && (matches(active, AFTER_PREFIX + uri, instance)
+                || (name != null && active.contains(AFTER_PREFIX + name)))) {
+            exitDepth = depth;
+            threshold = NEVER;
+            return false;
+        }
+        if (event == DebugEvent.LOCATION && location != null
+                && matchesLocationBreakpoint(active, AFTER_PREFIX + uri, location, instance)) {
+            exitDepth = depth;
+            threshold = depth;
+            return false;
         }
         if (event == DebugEvent.EXIT) {
             return depth <= exitDepth;

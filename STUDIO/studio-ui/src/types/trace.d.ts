@@ -218,6 +218,8 @@ export interface ProfileHotspotView {
 export interface StepValueView {
     ref: string
     label?: string | null
+    /** A1 address of the step's source cell in the raw table (spreadsheet cells only), for highlighting. */
+    cell?: string | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
     /** Tables this step called. Absent in the lazily-loaded executed tree (fetched on expand); inline for a live frame. */

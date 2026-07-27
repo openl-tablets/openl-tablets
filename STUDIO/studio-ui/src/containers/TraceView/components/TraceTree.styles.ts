@@ -49,6 +49,15 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-weight: normal;
         letter-spacing: normal;
     `,
+    // Centered progress note while the simple mode runs the calculation and downloads its tree.
+    progress: css`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingLG}px;
+        color: ${token.colorTextSecondary};
+    `,
     row: css`
         display: flex;
         align-items: center;

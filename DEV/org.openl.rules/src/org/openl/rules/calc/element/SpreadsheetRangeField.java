@@ -72,4 +72,24 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
     public String getDescription() {
         return getType().getDisplayName(SHORT) + " " + rangeName;
     }
+
+    /** First column index of the range within the spreadsheet. */
+    public int getStartColumnIndex() {
+        return sx;
+    }
+
+    /** First row index of the range within the spreadsheet. */
+    public int getStartRowIndex() {
+        return sy;
+    }
+
+    /** Last column index of the range within the spreadsheet, inclusive. */
+    public int getEndColumnIndex() {
+        return ex;
+    }
+
+    /** Last row index of the range within the spreadsheet, inclusive. */
+    public int getEndRowIndex() {
+        return ey;
+    }
 }

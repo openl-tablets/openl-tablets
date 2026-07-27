@@ -81,6 +81,8 @@ class TraceDebugMapperTest {
             assertFalse(variables.steps().isEmpty(), "spreadsheet steps are enumerated");
             assertTrue(variables.steps().stream().allMatch(s -> s.label() != null && s.label().startsWith("$")),
                     "steps use the OpenL cell name, not the R0C0 reference");
+            assertTrue(variables.steps().stream().allMatch(s -> s.cell() != null && s.cell().matches("[A-Z]+\\d+")),
+                    "each spreadsheet step carries the A1 address of its source cell");
         } finally {
             debugger.terminate(10_000);
         }
@@ -115,6 +117,8 @@ class TraceDebugMapperTest {
                     "the stack outline never carries values; they are fetched per frame on demand");
             assertTrue(top.steps().stream().allMatch(s -> s.label() != null && s.label().startsWith("$")),
                     "steps use the OpenL cell name");
+            assertTrue(top.steps().stream().allMatch(s -> s.cell() != null && s.cell().matches("[A-Z]+\\d+")),
+                    "the outline still points at each step's source cell for client-side highlighting");
         } finally {
             debugger.terminate(10_000);
         }

@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "$CapitalDynamic",
+    "description": "Double",
+    "lazy": false,
+    "value": 98.60028476965032
+  }
+]
