@@ -51,6 +51,8 @@ const setStore = (extra: Record<string, unknown> = {}): void => {
         simpleSelectedKey: null,
         simpleInspect: inspect,
         status: 'completed',
+        showDetailed: false,
+        setShowDetailed: vi.fn(),
         ...extra,
     }
 }
@@ -101,6 +103,55 @@ describe('SimpleTraceTree', () => {
 
         expect(screen.getByTestId('simple-node-tree/S1#0')).toHaveTextContent('uA')
         expect(screen.getByTestId('simple-node-tree/S1#1')).toHaveTextContent('uA')
+    })
+
+    const decisionTree = () => {
+        const dt = callNode('uDT', 0, [
+            { ref: 'c0', label: 'Condition: MC1, Rules: [R1]', status: 'executed', decision: 'unmatched' },
+            { ref: 'R2', label: 'Returned rule: [R2]', status: 'executed', decision: 'returned' },
+        ], { kind: 'decisionTable' })
+        return callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed', children: [dt]}])
+    }
+
+    const expandDecisionTable = async (): Promise<void> => {
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1')) // reveal the DT node
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1#0')) // expand the DT node
+    }
+
+    it('hides a decision table’s conditions in the business view by default, keeping the returned rule', async () => {
+        setStore({ simpleTree: decisionTree(), simpleChildren: {} })
+        render(<SimpleTraceTree />)
+
+        await expandDecisionTable()
+
+        // Default off — the business view shows only the returned rule, not the per-condition breakdown.
+        expect(screen.queryByText('Condition: MC1, Rules: [R1]')).not.toBeInTheDocument()
+        expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
+    })
+
+    it('reveals a decision table’s conditions when Show detailed trace is on', async () => {
+        setStore({ simpleTree: decisionTree(), simpleChildren: {}, showDetailed: true })
+        render(<SimpleTraceTree />)
+
+        await expandDecisionTable()
+
+        // The business view still profiles, so the conditions are already in the tree — the toggle shows them
+        // as informational rows (a red cross for the unmatched one), never as clickable steps.
+        const condition = screen.getByTestId('simple-condition-tree/S1#0/c0')
+        expect(condition).toHaveTextContent('Condition: MC1, Rules: [R1]')
+        expect(condition.querySelector('[data-icon="close"]')).toBeInTheDocument()
+        expect(screen.queryByTestId('simple-step-tree/S1#0/c0')).not.toBeInTheDocument()
+        expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
+    })
+
+    it('toggles the detailed view from the header checkbox', async () => {
+        const setShowDetailed = vi.fn()
+        setStore({ setShowDetailed })
+        render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-detailed'))
+
+        expect(setShowDetailed).toHaveBeenCalledWith(true)
     })
 
     it('inspects a call on click: runs it and reads its inputs and result', async () => {

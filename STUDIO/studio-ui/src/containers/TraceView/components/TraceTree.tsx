@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
+import { Button, Checkbox, Empty, Segmented, Spin, Tooltip } from 'antd'
 import {
     CaretDownOutlined,
     CaretRightOutlined,
@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
 import type { CallNodeView, DebugFrameView, FrameKind, StepValueView } from 'types/trace'
 import { formatMs } from 'utils/formatDuration'
+import ConditionRow from './ConditionRow'
+import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
@@ -54,7 +56,8 @@ const flatten = (
     tree: CallNodeView | null,
     expanded: Set<string>,
     treeChildren: Record<string, CallNodeView[]>,
-    treeLoading: Record<string, boolean>
+    treeLoading: Record<string, boolean>,
+    showDetailed: boolean
 ): TreeRow[] => {
     const rows: TreeRow[] = []
 
@@ -63,7 +66,10 @@ const flatten = (
     const walkNode = (node: CallNodeView, depth: number, path: string, refBase?: string): void => {
         rows.push({ type: 'callNode', key: path, depth, node,
             ...(node.refStep && refBase ? { refTargetKey: `${refBase}/${node.refStep}` } : {}) })
-        for (const step of node.steps) {
+        // Off the "Show detailed trace" toggle, a decision table shows only its returned rule, not the
+        // per-condition breakdown — matching the legacy trace.
+        const steps = displaySteps(node.steps, showDetailed)
+        for (const step of steps) {
             const stepKey = `${path}/${step.ref}`
             const open = hasChildren(step)
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
@@ -186,6 +192,8 @@ const TraceTree: React.FC = () => {
     const fetchTreeChildren = useTraceStore(s => s.fetchTreeChildren)
     const runId = useTraceStore(s => s.runId)
     const profiling = useTraceStore(s => s.profiling)
+    const showDetailed = useTraceStore(s => s.showDetailed)
+    const setShowDetailed = useTraceStore(s => s.setShowDetailed)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
 
@@ -196,8 +204,8 @@ const TraceTree: React.FC = () => {
         setExpanded(new Set())
     }, [runId])
     const { treeRef, flashKey, jumpToRow } = useFlashJump()
-    const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading),
-        [frames, tree, expanded, treeChildren, treeLoading])
+    const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading, showDetailed),
+        [frames, tree, expanded, treeChildren, treeLoading, showDetailed])
     // The single gate on timings: they are a profiling concern, so without profiling no durations
     // (or the Total/Self toggle) are shown, even where the backend reports them.
     const timingOf = useCallback(
@@ -447,8 +455,23 @@ const TraceTree: React.FC = () => {
         )
     }
 
+    const renderConditionStep = (row: TreeRow): React.ReactNode => (
+        <ConditionRow
+            key={row.key}
+            markSlot
+            depth={row.depth}
+            rowKey={row.key}
+            step={row.step as StepValueView}
+            testId={`tree-condition-${row.key}`}
+        />
+    )
+
     const renderCallStep = (row: TreeRow): React.ReactNode => {
         const step = row.step as StepValueView
+        if (isCondition(step)) {
+            return renderConditionStep(row)
+        }
+        const returned = step.decision === 'returned'
         const ms = timingOf(row)
         const replayKey = `${row.nodeUri}#${step.ref}@${row.nodeInstance}`
         const expand = row.expandKey ? () => onToggle(row.expandKey as string) : undefined
@@ -456,6 +479,7 @@ const TraceTree: React.FC = () => {
             <div
                 key={row.key}
                 data-rowkey={row.key}
+                data-testid={returned ? `tree-returned-${row.key}` : undefined}
                 style={indent(row.depth)}
                 className={cx(styles.row, row.expandKey && styles.runnable,
                     flashKey === row.key && styles.flashed)}
@@ -464,6 +488,7 @@ const TraceTree: React.FC = () => {
                 {twisty(row.expandKey)}
                 {/* An empty mark slot, matching the live step's, so executed steps line up with live rows. */}
                 <span className={styles.mark} />
+                {/* The returned rule uses the same legacy rule icon as the business tree — icons match in both modes. */}
                 {stepIcon(row.nodeKind)}
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
                 {ms != null && durationCell(ms)}
@@ -534,19 +559,32 @@ const TraceTree: React.FC = () => {
         <div ref={treeRef} className={styles.tree} data-testid="trace-tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
-                {hasTimings && (
-                    <Segmented
-                        className={styles.timeToggle}
-                        data-testid="trace-time-mode"
-                        onChange={(value) => setTimeMode(value as 'total' | 'self')}
-                        size="small"
-                        value={timeMode}
-                        options={[
-                            { label: t('tree.timeTotal'), value: 'total' },
-                            { label: t('tree.timeSelf'), value: 'self' },
-                        ]}
-                    />
-                )}
+                <span className={styles.headerControls}>
+                    {/* The detailed breakdown lives in the executed tree, which exists only while profiling. */}
+                    {profiling && (
+                        <Checkbox
+                            checked={showDetailed}
+                            className={styles.detailedToggle}
+                            data-testid="trace-detailed"
+                            onChange={(e) => setShowDetailed(e.target.checked)}
+                        >
+                            {t('tree.showDetailed')}
+                        </Checkbox>
+                    )}
+                    {hasTimings && (
+                        <Segmented
+                            className={styles.timeToggle}
+                            data-testid="trace-time-mode"
+                            onChange={(value) => setTimeMode(value as 'total' | 'self')}
+                            size="small"
+                            value={timeMode}
+                            options={[
+                                { label: t('tree.timeTotal'), value: 'total' },
+                                { label: t('tree.timeSelf'), value: 'self' },
+                            ]}
+                        />
+                    )}
+                </span>
             </div>
             {truncated && (
                 <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>

@@ -1,12 +1,15 @@
 package org.openl.studio.projects.service.trace;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -14,7 +17,9 @@ import org.jspecify.annotations.Nullable;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.studio.projects.model.trace.DecisionRow;
 import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.studio.projects.model.trace.FrameKind;
 
@@ -146,6 +151,12 @@ public final class DebugFrame {
      * repeated across thousands of nodes shares one instance of each string instead of duplicating it.
      */
     CallNode toCallNode(UnaryOperator<String> intern) {
+        // A decision table breaks down into its evaluated conditions (matched/unmatched, like the legacy
+        // detailed trace) plus the rule it returned, instead of a bare fired-rule step.
+        if (source instanceof IDecisionTable decisionTable) {
+            return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
+                    decisionSteps(decisionTable, intern), dispatch, null, notRetained, childNanos);
+        }
         var steps = new ArrayList<CallNode.Step>();
         var covered = new HashSet<String>();
         for (ExecutedStep step : executedSteps) {
@@ -182,6 +193,39 @@ public final class DebugFrame {
         }
         return new CallNode(intern.apply(uri), intern.apply(name), invocationIndex, kind, durationNanos,
                 steps, dispatch, null, notRetained, childNanos);
+    }
+
+    /**
+     * The sub-steps of a decision-table node: one row per evaluated condition (in evaluation order, marked
+     * matched or not), then the rule the table returned. Reproduces the legacy detailed-trace breakdown.
+     */
+    private List<CallNode.Step> decisionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
+        List<CallNode.Step> steps = new ArrayList<>();
+        int index = 0;
+        for (ConditionCheck check : new LinkedHashSet<>(conditionChecks)) {
+            String label = "Condition: " + check.conditionName() + ", Rules: " + ruleNames(decisionTable, check.rules());
+            steps.add(new CallNode.Step(intern.apply("c" + index++), intern.apply(label), 0, List.of(), false,
+                    check.successful() ? DecisionRow.MATCHED : DecisionRow.UNMATCHED));
+        }
+        // The returned rule is the fired-rule step; relabel it and let it keep the sub-calls its action made.
+        Set<String> covered = new HashSet<>();
+        for (ExecutedStep step : executedSteps) {
+            if (covered.add(step.ref())) {
+                String rules = step.label() == null ? step.ref() : step.label();
+                steps.add(new CallNode.Step(intern.apply(step.ref()), intern.apply("Returned rule: [" + rules + "]"),
+                        step.durationNanos(), List.copyOf(childrenOf(step.ref())), false, DecisionRow.RETURNED));
+            }
+        }
+        return steps;
+    }
+
+    /**
+     * Rule names of the given indices as {@code [R1, R2]}, matching the legacy condition-node labels. An
+     * index node can list the same rule several times; the names are distinct so the label stays readable.
+     */
+    private static String ruleNames(IDecisionTable decisionTable, int[] rules) {
+        return Arrays.stream(rules).distinct().mapToObj(decisionTable::getRuleName)
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 
     /** Grid position of a spreadsheet step by its {@code RnCm} reference, for a table-shaped ordering. */

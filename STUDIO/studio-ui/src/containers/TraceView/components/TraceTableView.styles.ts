@@ -48,16 +48,19 @@ export const useStyles = createStyles(({ css, token }) => ({
         filter: grayscale(1);
         opacity: 0.6;
     `,
-    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend. */
+    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend.
+       Matches the legacy trace: a matched condition and the returned result are green, an unmatched
+       condition is red. The result stands apart from a plain matched condition by a bold green border. */
     current: css`
         background: ${token.colorWarningBg};
     `,
     result: css`
         background: ${token.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
         font-weight: 600;
     `,
     conditionTrue: css`
-        background: ${token.colorInfoBg};
+        background: ${token.colorSuccessBg};
     `,
     conditionFalse: css`
         background: ${token.colorErrorBg};

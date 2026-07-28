@@ -146,6 +146,9 @@ interface DebugState {
     /** The clicked step when the last inspection was a step, so Details presents the step, not the frame. */
     simpleFocus: SimpleStepFocus | null
 
+    /** Show the decision-table per-condition breakdown in both trees; off shows only the returned rule. */
+    showDetailed: boolean
+
     // UI
     loading: boolean
     error: string | null
@@ -192,6 +195,8 @@ interface DebugState {
     fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
     /** Switch between the simple business view and the advanced debugger; entering simple clears breakpoints. */
     setAdvanced: (value: boolean) => void
+    /** Toggle the decision-table condition breakdown shown in both trees (business and advanced). */
+    setShowDetailed: (value: boolean) => void
     /** Simple mode Run: execute the whole trace recording its tree, then download the tree for offline browsing. */
     simpleRun: () => Promise<void>
     /** Simple mode click: re-run execution through the clicked row so its inputs and result become readable. */
@@ -272,6 +277,7 @@ const initialState = {
     simpleSelectedKey: null,
     simpleLastInspected: null,
     simpleFocus: null,
+    showDetailed: false,
     loading: false,
     error: null,
 }
@@ -748,6 +754,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 }
             }
         },
+
+        setShowDetailed: (value) => set({ showDetailed: value }),
 
         simpleRun: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()

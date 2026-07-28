@@ -43,11 +43,24 @@ export const useStyles = createStyles(({ css, token }) => ({
             text-decoration: underline;
         }
     `,
+    // The header's right-hand controls (detailed toggle + Total/Self) sit together, away from the title.
+    headerControls: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginSM}px;
+    `,
     // The Total/Self switch is a control, not a heading — reset the heading typography.
     timeToggle: css`
         text-transform: none;
         font-weight: normal;
         letter-spacing: normal;
+    `,
+    // The "Show detailed trace" checkbox is a control, not a heading — reset the heading typography.
+    detailedToggle: css`
+        text-transform: none;
+        font-weight: normal;
+        letter-spacing: normal;
+        white-space: nowrap;
     `,
     // Centered progress note while the simple mode runs the calculation and downloads its tree.
     progress: css`
@@ -242,6 +255,25 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     markError: css`
         color: ${token.colorError};
+    `,
+    // A decision table's evaluated conditions: green check when matched, red cross when not — the legacy look.
+    condMatched: css`
+        color: ${token.colorSuccess};
+    `,
+    condUnmatched: css`
+        color: ${token.colorError};
+    `,
+    // A condition is an info row: the ✓/✗ mark is the signal and must stay full-strength, so the row is not
+    // dimmed with opacity (which would wash out the mark). The label is muted instead, and the row carries no
+    // click affordance since a condition runs nothing.
+    conditionRow: css`
+        cursor: default;
+        &:hover {
+            background: transparent;
+        }
+    `,
+    condLabel: css`
+        color: ${token.colorTextSecondary};
     `,
     // Step-reference marker: the formula used a step computed elsewhere; the row links to the original.
     refIcon: css`
