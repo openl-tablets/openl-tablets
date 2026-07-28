@@ -152,6 +152,26 @@ describe('SimpleTraceTree', () => {
         expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
     })
 
+    it('inspects the owning decision-table frame when a returned-rule row is clicked, not an empty step', async () => {
+        // A DT breakdown row is not a spreadsheet cell — it has no step-inputs. Clicking it must inspect the
+        // DT frame (whose Details carry the rule's result), with focus undefined so the frame variables load
+        // instead of the empty step-inputs a focus would trigger.
+        setStore({ simpleTree: decisionTree(), simpleChildren: {} })
+        render(<SimpleTraceTree />)
+
+        await expandDecisionTable()
+        await userEvent.click(screen.getByTestId('simple-step-tree/S1#0/R2'))
+
+        expect(inspect).toHaveBeenCalledWith(expect.objectContaining({
+            key: 'uDT@0', // the DT frame, not a step focus
+            selectionKey: 'tree/S1#0/R2', // the clicked row keeps its own highlight
+            frameUri: 'uDT',
+            frameInstance: 0,
+            stepType: 'out',
+        }))
+        expect(inspect.mock.calls.at(-1)?.[0]?.focus).toBeUndefined() // frame view, so variables load
+    })
+
     it('reveals a decision table’s conditions when Show detailed trace is on', async () => {
         setStore({ simpleTree: decisionTree(), simpleChildren: {}, showDetailed: true })
         render(<SimpleTraceTree />)

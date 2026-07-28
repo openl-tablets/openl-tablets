@@ -173,6 +173,23 @@ describe('traceStore race hardening', () => {
         expect(useTraceStore.getState().sessionId).toBe('s-42')
     })
 
+    it('drops the on-mount start stack when a fresh run supersedes it while in flight', async () => {
+        // TraceView calls start() on mount; if the user clicks Run before it resolves, the fresh run bumps
+        // runId. The now-stale entry stack must not be applied over the fresh session's frames and id.
+        const slowAttach = deferred<any>()
+        getStack.mockReturnValue(slowAttach.promise)
+
+        const pending = useTraceStore.getState().start() // parks on the slow attach
+        // A Run supersedes it: runId bumps and the fresh full-tree session is applied.
+        useTraceStore.setState({ runId: useTraceStore.getState().runId + 1, status: 'suspended', sessionId: 'fresh' })
+        slowAttach.resolve({ status: 'completed', frames: [], sessionId: 'stale-entry' })
+        await pending
+
+        const state = useTraceStore.getState()
+        expect(state.sessionId).toBe('fresh') // the stale entry stack was not applied
+        expect(state.status).toBe('suspended')
+    })
+
     it('surfaces an immediate error summary from the socket message', () => {
         getStack.mockResolvedValue({ status: 'error', frames: []} as any)
 
@@ -793,6 +810,22 @@ describe('traceStore simple mode', () => {
         expect(useTraceStore.getState().simpleLastInspected).toBeNull() // the next click restarts
     })
 
+    it('clears the focus and selection when a skipped inspect terminates, so the row can be re-clicked', () => {
+        getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
+        useTraceStore.setState({ status: 'suspended', sessionId: 'live', simpleLastInspected: 5,
+            simpleSelectedKey: 'uA#S1@0',
+            simpleFocus: { ref: 'S1', label: '$Value$S1', ownerUri: 'uA', ownerInstance: 0 } })
+
+        // The inspected row was skipped and the run finished; the terminal echo must drop the focus and
+        // selection, else the settled root renders as a focused step (blank Details) and the still-selected
+        // row is a no-op on re-click.
+        useTraceStore.getState().onSocketStatus('completed', undefined, 'live')
+
+        const state = useTraceStore.getState()
+        expect(state.simpleFocus).toBeNull()
+        expect(state.simpleSelectedKey).toBeNull()
+    })
+
     it('clears breakpoints and restarts the trace when switching back to the simple view', async () => {
         setBreakpoints.mockResolvedValue(undefined)
         cancelTrace.mockResolvedValue(undefined)
@@ -875,5 +908,28 @@ describe('traceStore simple mode', () => {
         // The fresh root stack was never applied: the previous table and selection are untouched.
         expect(useTraceStore.getState().frames).toBe(previous)
         expect(useTraceStore.getState().selectedFrameIndex).toBe(1)
+    })
+
+    it('ignores a second inspect click while one is mid-flight, so it cannot cancel the first session', async () => {
+        // The run-to branch neither raises `loading` nor flips status to 'running' until an awaited
+        // breakpoint round-trip completes; without the single-flight guard a second click in that window
+        // would restart and cancel the session the first inspect is about to resume.
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
+        const slowCancel = deferred<void>()
+        cancelTrace.mockReturnValue(slowCancel.promise) // the first inspect's restart parks on cancelTrace
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockResolvedValue(undefined)
+
+        const first = useTraceStore.getState().simpleInspect(
+            { key: 'uB@0', frameUri: 'uB', frameInstance: 0, stepType: 'out', label: 'uB' })
+        // A second click arrives while the first inspect is still parked inside its restart.
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uC@0', frameUri: 'uC', frameInstance: 0, stepType: 'out', label: 'uC' })
+
+        expect(cancelTrace).toHaveBeenCalledTimes(1) // the second click was a no-op — no second restart
+        slowCancel.resolve()
+        await first
     })
 })

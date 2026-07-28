@@ -47,6 +47,22 @@ public record CurrentLocation(LocationKind kind, int row, int column, @Nullable 
     }
 
     /**
+     * The row and column of a {@code RnCm} cell reference — the inverse of {@link #cellRef} — or {@code null}
+     * when the string is not a cell reference, so a caller can index the grid directly without scanning it.
+     */
+    public static int @Nullable [] parseCellRef(String ref) {
+        int c = ref.indexOf('C');
+        if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
+            return null;
+        }
+        try {
+            return new int[]{Integer.parseInt(ref.substring(1, c)), Integer.parseInt(ref.substring(c + 1))};
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
      * A decision-table fired-rule location.
      *
      * <p>It matches a breakpoint on any rule firing ({@link #RULE_FIRED_REF}) as well as one on any of

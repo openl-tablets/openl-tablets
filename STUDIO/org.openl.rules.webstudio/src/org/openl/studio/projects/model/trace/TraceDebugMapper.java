@@ -510,11 +510,18 @@ public class TraceDebugMapper {
     }
 
     private static CallNodeView toCallNodeView(CallNode node, boolean shallow) {
-        List<StepValueView> steps = node.steps().stream().map(step -> toStepView(step, shallow)).toList();
-        // Self time is the node's own work: its total minus the time spent in the tables it called. childNanos
-        // counts every sub-call it made — including ones the node cap dropped — so a truncated node does not
-        // report the dropped children's time as its own Self. Falls back to summing the retained children only
-        // for a node that carries no recorded childNanos (for example one synthesized in a test).
+        return nodeViewBase(node, node.steps().stream().map(step -> toStepView(step, shallow)).toList());
+    }
+
+    /**
+     * Build a node view from its identity, timings, and an already-serialized step list — the part shared by
+     * every serialization depth (shallow lazy, deep capped), so they never drift in the node metadata they
+     * report. Self time is the node's own work: its total minus the time spent in the tables it called.
+     * {@code childNanos} counts every sub-call it made — including ones the node cap dropped — so a truncated
+     * node does not report the dropped children's time as its own Self; it falls back to summing the retained
+     * children only for a node that carries no recorded {@code childNanos} (for example one synthesized in a test).
+     */
+    private static CallNodeView nodeViewBase(CallNode node, List<StepValueView> steps) {
         long childrenNanos = node.childNanos() > 0 ? node.childNanos()
                 : sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
         return CallNodeView.builder()
@@ -578,21 +585,7 @@ public class TraceDebugMapper {
     }
 
     private static CallNodeView toCappedNode(CallNode node, int[] budget) {
-        List<StepValueView> steps = node.steps().stream().map(step -> toCappedStep(step, budget)).toList();
-        long childrenNanos = node.childNanos() > 0 ? node.childNanos()
-                : sumDurations(node.steps().stream().flatMap(step -> step.children().stream()));
-        return CallNodeView.builder()
-                .uri(node.uri())
-                .name(node.name())
-                .instance(node.instance())
-                .kind(node.kind())
-                .durationMillis(toMillis(node.durationNanos()))
-                .selfMillis(selfMillis(node.durationNanos(), childrenNanos))
-                .steps(steps)
-                .dispatch(node.dispatch())
-                .refStep(node.refStep())
-                .notRetained(node.notRetained() > 0 ? node.notRetained() : null)
-                .build();
+        return nodeViewBase(node, node.steps().stream().map(step -> toCappedStep(step, budget)).toList());
     }
 
     private static StepValueView toCappedStep(CallNode.Step step, int[] budget) {
@@ -944,15 +937,16 @@ public class TraceDebugMapper {
      * only formulas.
      */
     private static @Nullable SpreadsheetCell displayCell(Spreadsheet spreadsheet, String ref) {
-        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
-            for (SpreadsheetCell cell : row) {
-                if (isDisplayCell(cell)
-                        && CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex()).equals(ref)) {
-                    return cell;
-                }
-            }
+        int[] rowCol = CurrentLocation.parseCellRef(ref);
+        if (rowCol == null) {
+            return null;
         }
-        return null;
+        SpreadsheetCell[][] cells = spreadsheet.getCells();
+        int row = rowCol[0];
+        int col = rowCol[1];
+        SpreadsheetCell cell = row >= 0 && row < cells.length && col >= 0 && col < cells[row].length
+                ? cells[row][col] : null;
+        return isDisplayCell(cell) ? cell : null;
     }
 
     /**

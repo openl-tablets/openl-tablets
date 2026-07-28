@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Checkbox, Empty, Spin, Typography } from 'antd'
-import { CaretDownOutlined, CaretRightOutlined, LinkOutlined } from '@ant-design/icons'
+import { LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
 import type { SimpleInspectTarget, SimpleStepFocus } from 'store/traceStore'
@@ -10,6 +10,7 @@ import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
+import { NotRetainedRow, treeIndent, toggleKey, Twisty } from './TreeRow'
 import { useStyles } from './TraceTree.styles'
 
 /** One row of the flattened simple tree: a rule call, one of its steps, a step reference, or a capped note. */
@@ -137,8 +138,14 @@ const flattenSimple = (
             // The one-shot full tree is capped: a step looped past the limit carries its first sub-calls
             // inline and reports the full count, so the rest read as "omitted" rather than silently missing.
             const omitted = (step.childrenTotal ?? kids.length) - kids.length
+            // A decision-table breakdown row (the returned rule) is not a spreadsheet cell, so it has no
+            // step-inputs to show — inspect the owning DT frame instead, whose Details carry the rule's result
+            // and the table with the fired rule highlighted. The row keeps its own selection highlight.
+            const target = node.kind === 'decisionTable'
+                ? { ...nodeTarget(node), selectionKey: stepPath }
+                : stepTarget(node, step)
             rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
-                target: stepTarget(node, step), ...(kids.length > 0 || omitted > 0 ? { expandKey: stepPath } : {}) })
+                target, ...(kids.length > 0 || omitted > 0 ? { expandKey: stepPath } : {}) })
             if (expanded.has(stepPath)) {
                 kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, node))
                 if (omitted > 0) {
@@ -198,40 +205,12 @@ const SimpleTraceTree: React.FC = () => {
         return <Empty description={t('simple.pressRun')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     }
 
-    const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
+    const indent = treeIndent
 
-    const toggle = (key: string): void => setExpanded(prev => {
-        const next = new Set(prev)
-        if (!next.delete(key)) {
-            next.add(key)
-        }
-        return next
-    })
+    const toggle = (key: string): void => setExpanded(toggleKey(key))
 
-    const twisty = (expandKey?: string): React.ReactNode => {
-        if (!expandKey) {
-            return <span className={styles.chevronSlot} />
-        }
-        return (
-            <span
-                aria-expanded={expanded.has(expandKey)}
-                className={styles.chevron}
-                data-testid={`simple-toggle-${expandKey}`}
-                onClick={(e) => { e.stopPropagation(); toggle(expandKey) }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        toggle(expandKey)
-                    }
-                }}
-            >
-                {expanded.has(expandKey) ? <CaretDownOutlined /> : <CaretRightOutlined />}
-            </span>
-        )
-    }
+    const twisty = (expandKey?: string): React.ReactNode =>
+        <Twisty expanded={expanded} expandKey={expandKey} onToggle={toggle} testIdPrefix="simple" />
 
     const renderNode = (row: SimpleRow): React.ReactNode => {
         const node = row.node as CallNodeView
@@ -318,16 +297,8 @@ const SimpleTraceTree: React.FC = () => {
         )
     }
 
-    const renderNotRetained = (row: SimpleRow): React.ReactNode => (
-        <div
-            key={row.key}
-            className={cx(styles.row, styles.inactive, styles.notRetained)}
-            style={indent(row.depth)}
-        >
-            <span className={styles.chevronSlot} />
-            <span className={styles.leafLabel}>{t('tree.notRetained', { count: row.count })}</span>
-        </div>
-    )
+    const renderNotRetained = (row: SimpleRow): React.ReactNode =>
+        <NotRetainedRow key={row.key} count={row.count ?? 0} depth={row.depth} />
 
     const render = (row: SimpleRow): React.ReactNode => {
         switch (row.type) {

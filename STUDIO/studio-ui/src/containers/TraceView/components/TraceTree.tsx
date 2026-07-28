@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Checkbox, Empty, Segmented, Spin, Tooltip } from 'antd'
 import {
-    CaretDownOutlined,
-    CaretRightOutlined,
     CloseCircleFilled,
     DoubleRightOutlined,
     LinkOutlined,
@@ -17,6 +15,7 @@ import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
+import { NotRetainedRow, treeIndent, toggleKey, Twisty } from './TreeRow'
 import { useFlashJump } from './useFlashJump'
 import { useStyles } from './TraceTree.styles'
 
@@ -232,7 +231,7 @@ const TraceTree: React.FC = () => {
     }
 
     const canRunTo = status === 'suspended'
-    const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
+    const indent = treeIndent
     // Render a timing as a length-based heat bar plus the value, so relative cost reads pre-attentively by
     // bar length and the status colours stay free to mean only execution state.
     const durationCell = (ms: number): React.ReactNode => (
@@ -247,13 +246,7 @@ const TraceTree: React.FC = () => {
         </span>
     )
 
-    const toggle = (key: string): void => setExpanded(prev => {
-        const next = new Set(prev)
-        if (!next.delete(key)) {
-            next.add(key)
-        }
-        return next
-    })
+    const toggle = (key: string): void => setExpanded(toggleKey(key))
 
     // Toggle a step and, when opening a lazily-loaded tree step, fetch its first page of sub-calls.
     const onToggle = (key: string): void => {
@@ -271,30 +264,8 @@ const TraceTree: React.FC = () => {
         }
     }
 
-    const twisty = (expandKey?: string): React.ReactNode => {
-        if (!expandKey) {
-            return <span className={styles.chevronSlot} />
-        }
-        return (
-            <span
-                aria-expanded={expanded.has(expandKey)}
-                className={styles.chevron}
-                data-testid={`tree-toggle-${expandKey}`}
-                onClick={(e) => { e.stopPropagation(); onToggle(expandKey) }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        onToggle(expandKey)
-                    }
-                }}
-            >
-                {expanded.has(expandKey) ? <CaretDownOutlined /> : <CaretRightOutlined />}
-            </span>
-        )
-    }
+    const twisty = (expandKey?: string): React.ReactNode =>
+        <Twisty expanded={expanded} expandKey={expandKey} onToggle={onToggle} testIdPrefix="tree" />
 
     // Plain, self-explanatory marks instead of coloured dots: a » points along the call path the
     // calculation is on right now (bright on the current line, muted on the callers waiting above it),
@@ -531,17 +502,13 @@ const TraceTree: React.FC = () => {
 
     // A node whose sub-calls overflowed the tree's size limit: label how many were dropped, so the gap is
     // visible instead of silently missing. Not clickable — the dropped branches were never retained to load.
-    const renderNotRetained = (row: TreeRow): React.ReactNode => (
-        <div
+    const renderNotRetained = (row: TreeRow): React.ReactNode =>
+        (<NotRetainedRow
             key={row.key}
-            className={cx(styles.row, styles.inactive, styles.notRetained)}
-            data-testid={`tree-not-retained-${row.key}`}
-            style={indent(row.depth)}
-        >
-            <span className={styles.chevronSlot} />
-            <span className={styles.leafLabel}>{t('tree.notRetained', { count: row.moreCount })}</span>
-        </div>
-    )
+            count={row.moreCount ?? 0}
+            depth={row.depth}
+            testId={`tree-not-retained-${row.key}`}
+        />)
 
     const render = (row: TreeRow): React.ReactNode => {
         switch (row.type) {
