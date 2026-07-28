@@ -2,7 +2,6 @@ package org.openl.rules.maven.migration;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,13 +57,13 @@ public final class GroovyJakartaMigrator implements Migrator {
      */
     private static boolean migrateFile(Path sourceFolder, Path file) {
         try {
-            var original = Files.readString(file, StandardCharsets.UTF_8);
+            var original = Files.readString(file);
             var migrated = migrate(original);
             if (migrated.equals(original)) {
                 return false;
             }
             log.info("Migrate {}", sourceFolder.relativize(file));
-            Files.writeString(file, migrated, StandardCharsets.UTF_8);
+            Files.writeString(file, migrated);
             return true;
         } catch (IOException e) {
             throw new UncheckedIOException(e);

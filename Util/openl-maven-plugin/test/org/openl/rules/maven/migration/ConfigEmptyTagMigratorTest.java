@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -29,7 +28,7 @@ class ConfigEmptyTagMigratorTest {
                     </modules>
                     <classpath/>
                 </project>
-                """, StandardCharsets.UTF_8);
+                """);
 
         var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
@@ -45,7 +44,7 @@ class ConfigEmptyTagMigratorTest {
                         </module>
                     </modules>
                 </project>
-                """, Files.readString(file, StandardCharsets.UTF_8));
+                """, Files.readString(file));
     }
 
     @Test
@@ -56,7 +55,7 @@ class ConfigEmptyTagMigratorTest {
                     <serviceName>svc</serviceName>
                     <groups></groups>
                 </rules-deploy>
-                """, StandardCharsets.UTF_8);
+                """);
 
         var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
@@ -66,7 +65,7 @@ class ConfigEmptyTagMigratorTest {
                 <rules-deploy>
                     <serviceName>svc</serviceName>
                 </rules-deploy>
-                """, Files.readString(file, StandardCharsets.UTF_8));
+                """, Files.readString(file));
     }
 
     @Test
@@ -78,13 +77,13 @@ class ConfigEmptyTagMigratorTest {
                     <name>x</name>
                     <comment></comment>
                 </project>
-                """, StandardCharsets.UTF_8);
+                """);
         Files.writeString(deployXml, """
                 <rules-deploy>
                     <serviceName>svc</serviceName>
                     <groups></groups>
                 </rules-deploy>
-                """, StandardCharsets.UTF_8);
+                """);
 
         var changed = new ConfigEmptyTagMigrator().migrate(projectFolder, null);
 
